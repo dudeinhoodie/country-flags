@@ -1,0 +1,26 @@
+{
+  "name": "country-flags",
+  "private": true,
+  "packageManager": "yarn@4.9.2",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "build": "yarn workspace @country-flags/backend build",
+    "dev": "yarn workspace @country-flags/backend start:dev",
+    "start": "yarn workspace @country-flags/backend start",
+    "format": "yarn workspace @country-flags/backend format",
+    "format:check": "yarn workspace @country-flags/backend format:check",
+    "lint": "yarn workspace @country-flags/backend lint",
+    "typecheck": "yarn workspace @country-flags/backend typecheck",
+    "test": "yarn workspace @country-flags/backend test",
+    "test:ci": "yarn workspace @country-flags/backend test:ci",
+    "prisma:generate": "yarn workspace @country-flags/backend prisma:generate",
+    "prisma:validate": "yarn workspace @country-flags/backend prisma:validate",
+    "db:up": "docker compose -f infrastructure/compose.yaml up -d",
+    "db:down": "docker compose -f infrastructure/compose.yaml down"
+  }
+}

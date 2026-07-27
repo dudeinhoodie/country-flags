@@ -2,7 +2,8 @@
 
 Проект приложения для запоминания флагов и других данных о странах с интервальным повторением.
 
-Сейчас репозиторий находится на стадии проектирования. Комплект требований:
+Backend реализуется как NestJS modular monolith в Yarn workspace. Текущий этап —
+foundation первой итерации.
 
 - [Обзор документации](./docs/README.md)
 - [Продуктовое ТЗ](./docs/00-product-spec.md)
@@ -15,3 +16,44 @@
 - [ТЗ на логирование, ошибки и аналитику](./docs/06-observability-analytics.md)
 - [ТЗ на опциональную рекламу](./docs/07-advertising.md)
 - [Стартовый handoff для Backend Agent](./docs/08-backend-agent-handoff.md)
+
+## Локальный запуск backend
+
+Требования:
+
+- Node.js 22 или новее;
+- Corepack;
+- Docker с Compose.
+
+```bash
+corepack enable
+cp backend/.env.example backend/.env
+corepack yarn install --immutable
+corepack yarn prisma:generate
+corepack yarn db:up
+corepack yarn dev
+```
+
+Проверка:
+
+```bash
+curl http://localhost:3000/v1/health/live
+curl http://localhost:3000/v1/health/ready
+```
+
+## Quality gates
+
+```bash
+corepack yarn format:check
+corepack yarn lint
+corepack yarn typecheck
+corepack yarn test
+corepack yarn prisma:validate
+corepack yarn build
+```
+
+Решение о структуре и package manager зафиксировано в
+[ADR-001](./docs/adr/ADR-001-monorepo-modular-monolith.md).
+
+Команды явно используют `corepack yarn`, чтобы системный Yarn Classic не мог
+случайно проигнорировать закреплённую в проекте версию Yarn.

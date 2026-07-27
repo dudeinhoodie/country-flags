@@ -26,7 +26,7 @@ Backend является источником истины для синхрон
 
 - NestJS на актуальной поддерживаемой LTS-версии Node.js;
 - TypeScript в strict mode;
-- `pnpm` с зафиксированным lock-файлом;
+- Yarn workspaces через Corepack с зафиксированными версией Yarn и `yarn.lock`;
 - PostgreSQL;
 - Prisma ORM и миграции;
 - REST JSON под префиксом `/v1`;

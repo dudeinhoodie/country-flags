@@ -33,7 +33,7 @@ Backend-агент должен прочитать полностью:
 | API | REST JSON `/v1`, contract-first OpenAPI |
 | Backend | NestJS, strict TypeScript |
 | DB | PostgreSQL + Prisma migrations |
-| Package manager | pnpm + lock-file |
+| Package manager | Yarn workspaces через Corepack + `yarn.lock` |
 | Content flexibility | Normalized entities/relations/cards + validated JSONB |
 | Progress | Immutable review events + canonical projections |
 | Scheduler | FSRS-6, pinned `ts-fsrs`, desired retention 0.90 |

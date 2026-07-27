@@ -1,2 +1,13 @@
 .DS_Store
-
+node_modules/
+.yarn/install-state.gz
+.pnp.*
+dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
