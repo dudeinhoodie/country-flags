@@ -1,0 +1,159 @@
+{
+  "$schema": "../schemas/catalog.schema.json",
+  "schemaVersion": 1,
+  "catalogVersion": "2026.07-draft.1",
+  "defaultLocale": "ru",
+  "supportedLocales": [
+    "ru",
+    "en"
+  ],
+  "entities": [
+    {
+      "key": "region.europe",
+      "type": "region",
+      "status": "active",
+      "includeInCountryCatalog": false,
+      "recognition": {
+        "status": "not_applicable"
+      },
+      "names": {
+        "ru": {
+          "short": "Европа",
+          "aliases": []
+        },
+        "en": {
+          "short": "Europe",
+          "aliases": []
+        }
+      }
+    },
+    {
+      "key": "country.france",
+      "type": "country",
+      "status": "active",
+      "includeInCountryCatalog": true,
+      "recognition": {
+        "status": "un_member"
+      },
+      "codes": {
+        "isoAlpha2": "FR",
+        "isoAlpha3": "FRA",
+        "m49": "250"
+      },
+      "names": {
+        "ru": {
+          "short": "Франция",
+          "official": "Французская Республика",
+          "aliases": []
+        },
+        "en": {
+          "short": "France",
+          "official": "French Republic",
+          "aliases": []
+        }
+      },
+      "assetKeys": [
+        "flag.france.current"
+      ]
+    },
+    {
+      "key": "country.kosovo",
+      "type": "country",
+      "status": "active",
+      "includeInCountryCatalog": true,
+      "recognition": {
+        "status": "partially_recognized",
+        "asOf": "2026-07-27"
+      },
+      "codes": {
+        "customCode": "XK"
+      },
+      "names": {
+        "ru": {
+          "short": "Косово",
+          "official": "Республика Косово",
+          "aliases": []
+        },
+        "en": {
+          "short": "Kosovo",
+          "official": "Republic of Kosovo",
+          "aliases": []
+        }
+      },
+      "assetKeys": [
+        "flag.kosovo.current"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "parentKey": "region.europe",
+      "childKey": "country.france",
+      "taxonomyKey": "taxonomy.un-m49",
+      "relationType": "contains",
+      "primary": true
+    },
+    {
+      "parentKey": "region.europe",
+      "childKey": "country.kosovo",
+      "taxonomyKey": "taxonomy.editorial.v1",
+      "relationType": "contains",
+      "primary": true
+    }
+  ],
+  "decks": [
+    {
+      "key": "deck.all",
+      "kind": "curated",
+      "names": {
+        "ru": {
+          "name": "Все страны",
+          "description": "Полный утверждённый каталог"
+        },
+        "en": {
+          "name": "All countries",
+          "description": "The complete approved catalog"
+        }
+      },
+      "memberEntityKeys": [
+        "country.france",
+        "country.kosovo"
+      ]
+    },
+    {
+      "key": "deck.europe",
+      "kind": "taxonomy",
+      "names": {
+        "ru": {
+          "name": "Европа",
+          "description": "Страны европейской подборки"
+        },
+        "en": {
+          "name": "Europe",
+          "description": "Countries in the European collection"
+        }
+      },
+      "memberEntityKeys": [
+        "country.france",
+        "country.kosovo"
+      ]
+    },
+    {
+      "key": "deck.popular",
+      "kind": "curated",
+      "names": {
+        "ru": {
+          "name": "Популярные",
+          "description": "Знакомые и часто встречающиеся флаги"
+        },
+        "en": {
+          "name": "Popular",
+          "description": "Commonly encountered flags"
+        }
+      },
+      "memberEntityKeys": [
+        "country.france"
+      ]
+    }
+  ]
+}

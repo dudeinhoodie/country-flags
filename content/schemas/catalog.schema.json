@@ -1,0 +1,313 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://country-flags.example/schemas/catalog.schema.json",
+  "title": "Country Flags content catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "defaultLocale",
+    "supportedLocales",
+    "entities",
+    "relations",
+    "decks"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "catalogVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "defaultLocale": {
+      "$ref": "#/$defs/locale"
+    },
+    "supportedLocales": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/locale"
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entity"
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relation"
+      }
+    },
+    "decks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/deck"
+      }
+    }
+  },
+  "$defs": {
+    "locale": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+    },
+    "entityKey": {
+      "type": "string",
+      "pattern": "^(country|territory|area|region|subregion)\\.[a-z0-9][a-z0-9._-]*$"
+    },
+    "localizedName": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "short"
+      ],
+      "properties": {
+        "short": {
+          "type": "string",
+          "minLength": 1
+        },
+        "official": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "localizedText": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "#/$defs/locale"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "names": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "#/$defs/locale"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/localizedName"
+      }
+    },
+    "recognition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "un_member",
+            "un_observer",
+            "partially_recognized",
+            "unrecognized",
+            "dependent_territory",
+            "special_area",
+            "not_applicable"
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date"
+        },
+        "note": {
+          "$ref": "#/$defs/localizedText"
+        }
+      }
+    },
+    "codes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "isoAlpha2": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "isoAlpha3": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "m49": {
+          "type": "string",
+          "pattern": "^[0-9]{3}$"
+        },
+        "customCode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "type",
+        "status",
+        "includeInCountryCatalog",
+        "recognition",
+        "names"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/entityKey"
+        },
+        "type": {
+          "enum": [
+            "country",
+            "territory",
+            "area",
+            "region",
+            "subregion"
+          ]
+        },
+        "status": {
+          "enum": [
+            "active",
+            "historical",
+            "retired",
+            "hidden"
+          ]
+        },
+        "includeInCountryCatalog": {
+          "type": "boolean"
+        },
+        "recognition": {
+          "$ref": "#/$defs/recognition"
+        },
+        "codes": {
+          "$ref": "#/$defs/codes"
+        },
+        "names": {
+          "$ref": "#/$defs/names"
+        },
+        "assetKeys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._-]*$"
+          }
+        },
+        "validFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "validTo": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parentKey",
+        "childKey",
+        "taxonomyKey",
+        "relationType",
+        "primary"
+      ],
+      "properties": {
+        "parentKey": {
+          "$ref": "#/$defs/entityKey"
+        },
+        "childKey": {
+          "$ref": "#/$defs/entityKey"
+        },
+        "taxonomyKey": {
+          "type": "string",
+          "pattern": "^taxonomy\\.[a-z0-9][a-z0-9._-]*$"
+        },
+        "relationType": {
+          "enum": [
+            "contains",
+            "associated_with"
+          ]
+        },
+        "primary": {
+          "type": "boolean"
+        }
+      }
+    },
+    "deckLocalizedText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "deck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "kind",
+        "names",
+        "memberEntityKeys"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^deck\\.[a-z0-9][a-z0-9._-]*$"
+        },
+        "kind": {
+          "enum": [
+            "curated",
+            "taxonomy"
+          ]
+        },
+        "names": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "$ref": "#/$defs/locale"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/deckLocalizedText"
+          }
+        },
+        "memberEntityKeys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/entityKey"
+          }
+        }
+      }
+    }
+  }
+}
