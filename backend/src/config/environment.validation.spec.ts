@@ -26,6 +26,16 @@ describe("validateEnvironment", () => {
     ).toThrow("DATABASE_URL is required");
   });
 
+  it("fails fast when production misses a required variable", () => {
+    expect(() =>
+      validateEnvironment({
+        NODE_ENV: "production",
+        PORT: "3000",
+        LOG_LEVEL: "info",
+      }),
+    ).toThrow("DATABASE_URL is required");
+  });
+
   it("rejects a non-PostgreSQL database URL", () => {
     expect(() =>
       validateEnvironment({

@@ -20,7 +20,10 @@
     "test:ci": "yarn workspace @country-flags/backend test:ci",
     "prisma:generate": "yarn workspace @country-flags/backend prisma:generate",
     "prisma:validate": "yarn workspace @country-flags/backend prisma:validate",
+    "docker:build": "docker build --file backend/Dockerfile --tag country-flags-backend:local .",
     "db:up": "docker compose -f infrastructure/compose.yaml up -d",
-    "db:down": "docker compose -f infrastructure/compose.yaml down"
+    "db:down": "docker compose -f infrastructure/compose.yaml down",
+    "app:up": "docker compose -f infrastructure/compose.yaml --profile app up --build -d",
+    "app:down": "docker compose -f infrastructure/compose.yaml --profile app down"
   }
 }

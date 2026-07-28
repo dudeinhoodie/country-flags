@@ -41,6 +41,20 @@ curl http://localhost:3000/v1/health/live
 curl http://localhost:3000/v1/health/ready
 ```
 
+Полный локальный стек в контейнерах:
+
+```bash
+corepack yarn app:up
+curl http://localhost:3000/v1/health/live
+curl http://localhost:3000/v1/health/ready
+```
+
+Остановка:
+
+```bash
+corepack yarn app:down
+```
+
 ## Quality gates
 
 ```bash
@@ -50,7 +64,11 @@ corepack yarn typecheck
 corepack yarn test
 corepack yarn prisma:validate
 corepack yarn build
+corepack yarn docker:build
 ```
+
+`corepack yarn test` использует локальную PostgreSQL из `corepack yarn db:up`
+для HTTP E2E-проверки readiness.
 
 Решение о структуре и package manager зафиксировано в
 [ADR-001](./docs/adr/ADR-001-monorepo-modular-monolith.md).
