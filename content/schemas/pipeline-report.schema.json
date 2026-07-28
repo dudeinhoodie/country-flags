@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://country-flags.app/content/v1/pipeline-report.schema.json",
+  "title": "Country Flags content pipeline report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "reportType", "items"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "reportType": { "type": "string", "minLength": 1 },
+    "items": { "type": "array", "items": { "type": "object" } }
+  }
+}

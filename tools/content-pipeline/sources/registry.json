@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "adapter": "cldr",
+      "key": "cldr",
+      "license": "Unicode-3.0",
+      "retrievedAt": "2026-07-28T13:09:45.791Z",
+      "revision": "48.2.0",
+      "sha256": "fae659092be9793d5513b9d37078032ecc8b6fd62aaf51a4058fd732a3cf2d75",
+      "snapshotPath": "sources/snapshots/cldr.json",
+      "url": "https://github.com/unicode-org/cldr-json/releases/tag/48.2.0"
+    },
+    {
+      "adapter": "un-m49",
+      "key": "un-m49",
+      "license": "UN terms of use",
+      "retrievedAt": "2026-07-28T13:05:12.292Z",
+      "revision": "snapshot-2026-07-28",
+      "sha256": "3860fc27b83a237e634357fec3e7542ed36c47e8afcc490500efd2e7da88557b",
+      "snapshotPath": "sources/snapshots/un-m49.json",
+      "url": "https://unstats.un.org/unsd/methodology/m49/overview/"
+    },
+    {
+      "adapter": "annexare",
+      "key": "annexare",
+      "license": "MIT",
+      "retrievedAt": "2026-07-28T13:07:17.716Z",
+      "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+      "sha256": "8e8238507bf2e3dd496b86e459d5a4f2cbe6376aad35271ec637fe51ff524dc9",
+      "snapshotPath": "sources/snapshots/annexare.json",
+      "url": "https://github.com/annexare/Countries/tree/1c393325611d89d3511de01269a4f60fe9dc1c6f"
+    },
+    {
+      "adapter": "world-bank",
+      "key": "world-bank",
+      "license": "CC-BY-4.0",
+      "retrievedAt": "2026-07-28T13:07:17.935Z",
+      "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+      "sha256": "c0fbd5f54e4a31e5a26f181637853b3e7840adfb5a07d5bfde73fe218b529b46",
+      "snapshotPath": "sources/snapshots/world-bank.json",
+      "url": "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json&date=2024&per_page=400"
+    },
+    {
+      "adapter": "wikidata",
+      "key": "wikidata",
+      "license": "CC0-1.0",
+      "retrievedAt": "2026-07-28T13:13:41.707Z",
+      "revision": "query-snapshot-2026-07-28",
+      "sha256": "e6d56069c5007a50ceb748c75f9396b7a59dab3b36ed5635bb670a3ddc6e610f",
+      "snapshotPath": "sources/snapshots/wikidata.json",
+      "url": "https://query.wikidata.org/sparql"
+    },
+    {
+      "adapter": "flag-icons",
+      "key": "flag-icons",
+      "license": "MIT",
+      "retrievedAt": "2026-07-28T13:07:28.468Z",
+      "revision": "v7.5.0",
+      "sha256": "944271bbc5b9c895d3caa9669c825ef02bcde1429a21d231760b05300fe8c8c5",
+      "snapshotPath": "sources/snapshots/flag-icons.json",
+      "url": "https://github.com/lipis/flag-icons/releases/tag/v7.5.0"
+    },
+    {
+      "adapter": "editorial",
+      "key": "editorial",
+      "license": "Proprietary editorial data",
+      "retrievedAt": "2026-07-28T00:00:00.000Z",
+      "revision": "editorial-v1",
+      "sha256": "a5e3aaef43475304908e6ff729cdbf5b4e2e85f74cf3ad5f5c74e39757f45010",
+      "snapshotPath": "editorial/catalog.json",
+      "url": "file:editorial/catalog.json"
+    }
+  ]
+}

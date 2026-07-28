@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://country-flags.app/content/v1/asset-registry.schema.json",
+  "title": "Country Flags asset registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "assets"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "entityKey",
+          "path",
+          "mimeType",
+          "sha256",
+          "aspectRatio",
+          "sourcePath",
+          "license",
+          "attribution",
+          "provenance",
+          "validFrom",
+          "validTo"
+        ],
+        "properties": {
+          "key": { "type": "string", "minLength": 1 },
+          "entityKey": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "pattern": "^assets/svg/.+\\.svg$" },
+          "mimeType": { "const": "image/svg+xml" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "aspectRatio": { "type": "number", "exclusiveMinimum": 0 },
+          "sourcePath": { "type": "string", "minLength": 1 },
+          "license": { "type": "string", "minLength": 1 },
+          "attribution": { "type": "string", "minLength": 1 },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sourceKey", "revision", "retrievedAt"],
+            "properties": {
+              "sourceKey": { "type": "string", "minLength": 1 },
+              "revision": { "type": "string", "minLength": 1 },
+              "retrievedAt": { "type": "string", "format": "date-time" }
+            }
+          },
+          "validFrom": {
+            "oneOf": [
+              { "type": "string", "format": "date" },
+              { "type": "null" }
+            ]
+          },
+          "validTo": {
+            "oneOf": [
+              { "type": "string", "format": "date" },
+              { "type": "null" }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

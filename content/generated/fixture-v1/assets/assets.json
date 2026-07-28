@@ -1,0 +1,4505 @@
+{
+  "assets": [
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.afghanistan",
+      "key": "flag.afghanistan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/afghanistan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "945b3f9a6ac0792b9ce251f1d3c5a4e685c4d0b73457fae2cca5e663bd5eedc9",
+      "sourcePath": "flags/4x3/af.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.aland-islands",
+      "key": "flag.aland-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/aland-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f6f18cc0192e6cb30f0082cacf45441d1f6ccb55282be6d15208069deaa3d3f0",
+      "sourcePath": "flags/4x3/ax.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.albania",
+      "key": "flag.albania.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/albania.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "0b0eb85abf8b1e7dd5a74598e1a6cda5bb6402d2c0ac6de93e15b6286e3b5037",
+      "sourcePath": "flags/4x3/al.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.algeria",
+      "key": "flag.algeria.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/algeria.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "27f6f10cba42bafc0404678a330bd532c8feaf94e1b23d05ee469c623c7ea3f2",
+      "sourcePath": "flags/4x3/dz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.american-samoa",
+      "key": "flag.american-samoa.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/american-samoa.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "d36b591d5749883a50a626c3035232849f96f9cf0c94c598a5034bbd91df1250",
+      "sourcePath": "flags/4x3/as.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.andorra",
+      "key": "flag.andorra.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/andorra.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "cc0ce6e6f3556f986b2ed66ad3b00dc15e65ebff856949049dcb4f629c35eeb0",
+      "sourcePath": "flags/4x3/ad.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.angola",
+      "key": "flag.angola.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/angola.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9c86a2053e599b8d74ba1c8b43dbf436ae89b490823b8cb38a81cde28fce73a6",
+      "sourcePath": "flags/4x3/ao.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.anguilla",
+      "key": "flag.anguilla.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/anguilla.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f5256fab73f8ba4824422295293d753556806b4fd6f5253dd4c958c25aed1d6e",
+      "sourcePath": "flags/4x3/ai.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "area.antarctica",
+      "key": "flag.antarctica.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/antarctica.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "0d7cff1e7b7bbb452b27623ee3dfa075c3ce375fea7a3dc6c916bea53fc8b593",
+      "sourcePath": "flags/4x3/aq.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.antigua-and-barbuda",
+      "key": "flag.antigua-and-barbuda.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/antigua-and-barbuda.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "3d0fc91a779fd408c36f69399c8a66b4a5af637cfae2602caa2f22406f267ae1",
+      "sourcePath": "flags/4x3/ag.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.argentina",
+      "key": "flag.argentina.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/argentina.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1ede72a0b1bebb7eda04b26e04a48b819b434916684f0c2c426458554a110537",
+      "sourcePath": "flags/4x3/ar.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.armenia",
+      "key": "flag.armenia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/armenia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "cf7ac32306771129ba4910157a7e0909addfd0dfb33e9f21bfc63f75422d1765",
+      "sourcePath": "flags/4x3/am.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.aruba",
+      "key": "flag.aruba.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/aruba.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "bb7c6f3653e063b2d37a4645405207127b8ae8c4dc652b863a427427ee063d7c",
+      "sourcePath": "flags/4x3/aw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.australia",
+      "key": "flag.australia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/australia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2d13b12134be7965b7d04e69260d9822cfb8d45bc50295dd8baede88147be05c",
+      "sourcePath": "flags/4x3/au.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.austria",
+      "key": "flag.austria.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/austria.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "66dcab2dc39082d731631d08e0319c92a020d2d195b2af26fd035ef0360f9312",
+      "sourcePath": "flags/4x3/at.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.azerbaijan",
+      "key": "flag.azerbaijan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/azerbaijan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "a01294132147d13a359871b976d6b333a8b8aa06bf60dfd467dffd1608d4c791",
+      "sourcePath": "flags/4x3/az.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.bahamas",
+      "key": "flag.bahamas.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bahamas.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ba67fa7ce129fe822818883fb6ef53a83e3660490804935ab4d180d53c4d07cd",
+      "sourcePath": "flags/4x3/bs.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.bahrain",
+      "key": "flag.bahrain.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bahrain.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "068c31c19474f5317b759411e2754d2062f18ccdc6e426ecf6722eab801c1d4f",
+      "sourcePath": "flags/4x3/bh.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.bangladesh",
+      "key": "flag.bangladesh.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bangladesh.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2787cb7b2cf470120c1ba1a1bac4bcfa5a506c54b330ad87eb1757479b3d0a6b",
+      "sourcePath": "flags/4x3/bd.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.barbados",
+      "key": "flag.barbados.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/barbados.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ce49164610e8335f2b96f1353e199a8b56743ab4eded14a3032ba3814483f951",
+      "sourcePath": "flags/4x3/bb.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.belarus",
+      "key": "flag.belarus.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/belarus.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2942479c12991ba9d2ca0882fc7f5993ea97388d6cffad8919e79e85a62e8fcc",
+      "sourcePath": "flags/4x3/by.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.belgium",
+      "key": "flag.belgium.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/belgium.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "0982ac6cf0bdd59ef20e49bebd1e001dcdd8bd6b9f317b87fdd7a7a67905dd43",
+      "sourcePath": "flags/4x3/be.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.belize",
+      "key": "flag.belize.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/belize.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "50fda47befd1bcc00d9fb22971a762f866b2ae0e0fb55b8359109d00ca1d9763",
+      "sourcePath": "flags/4x3/bz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.benin",
+      "key": "flag.benin.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/benin.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "cc3f55a4c74425454176a023a82757a9194bc79ec6aa11775e255ba26f071462",
+      "sourcePath": "flags/4x3/bj.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.bermuda",
+      "key": "flag.bermuda.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bermuda.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b08504200c921126e58aac77a105e7bf60f47c05b562bfac799ca04c5c3aecbd",
+      "sourcePath": "flags/4x3/bm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.bhutan",
+      "key": "flag.bhutan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bhutan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "a6967832b16263d72f26f51231557c8a8fb9a37b6398a31829bffca1e2af9f10",
+      "sourcePath": "flags/4x3/bt.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.bolivia-plurinational-state-of",
+      "key": "flag.bolivia-plurinational-state-of.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bolivia-plurinational-state-of.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "32ceabdd2d281d2606f0d861f5d577f52b847e919ff862e13f8cb85979e47ec4",
+      "sourcePath": "flags/4x3/bo.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.bonaire-sint-eustatius-and-saba",
+      "key": "flag.bonaire-sint-eustatius-and-saba.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bonaire-sint-eustatius-and-saba.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ab3b500daf166d86bf7437fe86172753064d242f8d5eb072b2f13da862877dd8",
+      "sourcePath": "flags/4x3/bq.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.bosnia-and-herzegovina",
+      "key": "flag.bosnia-and-herzegovina.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bosnia-and-herzegovina.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f22e30ec446cb823ede48af519a77285a5e9cd258b75e0e39a77cb91a37b764a",
+      "sourcePath": "flags/4x3/ba.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.botswana",
+      "key": "flag.botswana.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/botswana.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e1219f3f97649e3e3b818263b47944aa00a7826d443eeeea211bc91926af1a31",
+      "sourcePath": "flags/4x3/bw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "area.bouvet-island",
+      "key": "flag.bouvet-island.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bouvet-island.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "86c629dfa9d836267a471c95cb6fec9da2b6f408aaeb07eb53b99f989378254e",
+      "sourcePath": "flags/4x3/bv.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.brazil",
+      "key": "flag.brazil.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/brazil.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ec7055b026adee37818495421c003582b2bbcd5d99998e0c000c82e2f7786cf7",
+      "sourcePath": "flags/4x3/br.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.british-indian-ocean-territory",
+      "key": "flag.british-indian-ocean-territory.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/british-indian-ocean-territory.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "616dfba871de9c24e9d376749186b39d8b87b8a9b032c0dd544b512fcf8cc65a",
+      "sourcePath": "flags/4x3/io.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.british-virgin-islands",
+      "key": "flag.british-virgin-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/british-virgin-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c6413bec5f8d3fbb23701a6da5218e8e68d7995eb21985d69c9daea4226825d0",
+      "sourcePath": "flags/4x3/vg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.brunei-darussalam",
+      "key": "flag.brunei-darussalam.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/brunei-darussalam.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "673149e9ae4f2ae0a6e4eb91f0f543af5468e530b1a53f36f1d82a0be09a7471",
+      "sourcePath": "flags/4x3/bn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.bulgaria",
+      "key": "flag.bulgaria.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/bulgaria.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1b66faee04defb800dac5af82923213aad1418a9c651ef582f23c8777871be02",
+      "sourcePath": "flags/4x3/bg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.burkina-faso",
+      "key": "flag.burkina-faso.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/burkina-faso.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "cdda80b4d785bcc546b0a9be995c0664ac894d18f21bbc6cbdcd0505fa3d7ff2",
+      "sourcePath": "flags/4x3/bf.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.burundi",
+      "key": "flag.burundi.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/burundi.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b8ef7836cb66deda8edc7797e76381a837304e37c84c746760c8c55502aea2f7",
+      "sourcePath": "flags/4x3/bi.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.cabo-verde",
+      "key": "flag.cabo-verde.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cabo-verde.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "7744d3124de039fe84754f8cec33fd084c654ba8fd1d5f5aef499828cd9ae69f",
+      "sourcePath": "flags/4x3/cv.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.cambodia",
+      "key": "flag.cambodia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cambodia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1e9fb4926cc44ca523edd1da6d95a180b46ed66e6dc963b080532c3afa657c65",
+      "sourcePath": "flags/4x3/kh.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.cameroon",
+      "key": "flag.cameroon.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cameroon.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b8fafbbf6a0980265fc77a819bb094a2aedd9fdddcbe826cdfd8ff4206b7737e",
+      "sourcePath": "flags/4x3/cm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.canada",
+      "key": "flag.canada.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/canada.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2e138f36751ef2660cb0a8c82cbdeadc03a3968c6c691caf8c5541d6fb7378d4",
+      "sourcePath": "flags/4x3/ca.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.cayman-islands",
+      "key": "flag.cayman-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cayman-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e04d7cef7cebce4de7ad4d24885ac196a71bb5ac36f8c650b6bd0e80377997f1",
+      "sourcePath": "flags/4x3/ky.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.central-african-republic",
+      "key": "flag.central-african-republic.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/central-african-republic.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1701218b4d8f70b7393b0f72ecf979815b257ba78bfde7e52a3c40dca054227a",
+      "sourcePath": "flags/4x3/cf.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.chad",
+      "key": "flag.chad.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/chad.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "62a4dc07e84ed00b4213ef15d603d229093f575b48ae6cfe37c817e52e652ff1",
+      "sourcePath": "flags/4x3/td.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.chile",
+      "key": "flag.chile.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/chile.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ef4ec6855799e974043b3c7daee0a0e528997ee64470f19be68f6571cd7cdf03",
+      "sourcePath": "flags/4x3/cl.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.china-hong-kong-special-administrative-region",
+      "key": "flag.china-hong-kong-special-administrative-region.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/china-hong-kong-special-administrative-region.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "660c4f9c818d8da68ac746cb0a59af0ca5ff6b976c7ff610544a9f88b46f4670",
+      "sourcePath": "flags/4x3/hk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.china-macao-special-administrative-region",
+      "key": "flag.china-macao-special-administrative-region.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/china-macao-special-administrative-region.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "7ee6bde14b3ea0e9dfc93f9e6479697c1ed9093d99d589c5ad68735d4129117c",
+      "sourcePath": "flags/4x3/mo.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.china",
+      "key": "flag.china.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/china.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9939645e37e6ed41936a940f5d5aa68a1c5ff7138c9fec066900e3ec5760cd92",
+      "sourcePath": "flags/4x3/cn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.christmas-island",
+      "key": "flag.christmas-island.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/christmas-island.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1bc62de37c00f3ea141e8bbd75ba33cc09ef57573849915aacf5a858b5e192d2",
+      "sourcePath": "flags/4x3/cx.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.cocos-keeling-islands",
+      "key": "flag.cocos-keeling-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cocos-keeling-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "dfda62571aa3de05047bb2006fe2e27261b6507e59feab0767b373b8c6a0291a",
+      "sourcePath": "flags/4x3/cc.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.colombia",
+      "key": "flag.colombia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/colombia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "0c1020c96d3b32d08519ac7751312dfbf4197ed27342fa955dac30d8821280e1",
+      "sourcePath": "flags/4x3/co.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.comoros",
+      "key": "flag.comoros.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/comoros.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f32a27981712439db17e0c2326733aeac155b23ec94f3a24f1a5c06074a6a572",
+      "sourcePath": "flags/4x3/km.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.congo",
+      "key": "flag.congo.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/congo.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "980dd96111089f88c93c1e1b8c4ef9a026951b5863c0d56d1b800170dd8068ad",
+      "sourcePath": "flags/4x3/cg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "area.cook-islands",
+      "key": "flag.cook-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cook-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "8d82afddc900a4c9d674166bfd2d59c69e9550afbe65c270fb49d7b9c03bee25",
+      "sourcePath": "flags/4x3/ck.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.costa-rica",
+      "key": "flag.costa-rica.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/costa-rica.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "424e93f9174dfccd8a3e148d892e95c28400bc718bd9586b0dc05002ea9eb663",
+      "sourcePath": "flags/4x3/cr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.cote-d-ivoire",
+      "key": "flag.cote-d-ivoire.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cote-d-ivoire.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "4fcc3a09c22ada7b2b4f5722476dec806dba0b2991b5145acd1af82b7786ecf4",
+      "sourcePath": "flags/4x3/ci.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.croatia",
+      "key": "flag.croatia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/croatia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "dd2eb69134d6e8ee2bbbe1e6c7446925865604aaa072644e3a2cebb73340637f",
+      "sourcePath": "flags/4x3/hr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.cuba",
+      "key": "flag.cuba.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cuba.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "66f91fd0334011abdc0085a2ae3e8b528018769977e37dad49a4de8df8bc0e35",
+      "sourcePath": "flags/4x3/cu.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.curacao",
+      "key": "flag.curacao.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/curacao.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c7c27d8c2d5974a5ce0634cab6ada5e375691fd01b9feac391711e52ad443929",
+      "sourcePath": "flags/4x3/cw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.cyprus",
+      "key": "flag.cyprus.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/cyprus.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f014a007d38086f05988f0238239e5f62994d4d58374a860f36467d43c2ed8e7",
+      "sourcePath": "flags/4x3/cy.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.czechia",
+      "key": "flag.czechia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/czechia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "d11357d35647229a51b6259068d9423b169372538209e9288f464cb10014d3b3",
+      "sourcePath": "flags/4x3/cz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.democratic-people-s-republic-of-korea",
+      "key": "flag.democratic-people-s-republic-of-korea.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/democratic-people-s-republic-of-korea.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ce77909cb8d9088f92523eac00d71a10ee5ea1b35016401369bd836c02624352",
+      "sourcePath": "flags/4x3/kp.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.democratic-republic-of-the-congo",
+      "key": "flag.democratic-republic-of-the-congo.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/democratic-republic-of-the-congo.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "0b18e2071e3dd01904931a0054bac6efc882acf2a54dce85fd28bf3a5692f5ce",
+      "sourcePath": "flags/4x3/cd.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.denmark",
+      "key": "flag.denmark.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/denmark.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "09a16fd23284318d30db16203633ae0d1861cb62fca04011f885b9b0d209f660",
+      "sourcePath": "flags/4x3/dk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.djibouti",
+      "key": "flag.djibouti.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/djibouti.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "8ef52f179c79e19e52c6aa819a385b39a4095a08c915037e977bc4f18faa2d79",
+      "sourcePath": "flags/4x3/dj.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.dominica",
+      "key": "flag.dominica.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/dominica.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "df53fe5f36918221729ba7a2a8823501488d9dedf66e382831e0b69230f5b97d",
+      "sourcePath": "flags/4x3/dm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.dominican-republic",
+      "key": "flag.dominican-republic.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/dominican-republic.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "550330fc64f9ace70b0244f4d4b8f15e2193cf5304a6e445d483a073c38efca2",
+      "sourcePath": "flags/4x3/do.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.ecuador",
+      "key": "flag.ecuador.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/ecuador.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "998b43b13c72a262165a3c678fb22756c390794c139afdfa62a827614621ae1c",
+      "sourcePath": "flags/4x3/ec.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.egypt",
+      "key": "flag.egypt.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/egypt.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f404797bddfbb97e473d8a78c8625357edb792fe1c2acdf1ac577e44b5d767ed",
+      "sourcePath": "flags/4x3/eg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.el-salvador",
+      "key": "flag.el-salvador.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/el-salvador.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "7b4ddaa5b1d010f9cba642aaa910d7e5f659771b0118059897bb09115600f33b",
+      "sourcePath": "flags/4x3/sv.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.equatorial-guinea",
+      "key": "flag.equatorial-guinea.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/equatorial-guinea.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "878297705434539813beff368afc80bfd25973faf0e3530a9441626d0e0f8a1a",
+      "sourcePath": "flags/4x3/gq.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.eritrea",
+      "key": "flag.eritrea.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/eritrea.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "d98a116f648f0d7c0b92fa70c867f03a651214aa156fca04ff634ad1276bb8af",
+      "sourcePath": "flags/4x3/er.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.estonia",
+      "key": "flag.estonia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/estonia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1367c5d9a2f385687fb5490018616659bde445f4d64c94fe9e1306d965aaaef0",
+      "sourcePath": "flags/4x3/ee.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.eswatini",
+      "key": "flag.eswatini.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/eswatini.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "0296ece5ce8e3f0c65507d5ee7bb98c1f1cf4fa2198ce1ca5f42d49bbea9b065",
+      "sourcePath": "flags/4x3/sz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.ethiopia",
+      "key": "flag.ethiopia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/ethiopia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2e3ef858c5e72c65c7b5bfc39d66718808339706eeaa12811833165936500416",
+      "sourcePath": "flags/4x3/et.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.falkland-islands-malvinas",
+      "key": "flag.falkland-islands-malvinas.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/falkland-islands-malvinas.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "00c338a7a7f07aff304a0e46ec1c2a4af384ea563110c4111804fb49043f1b2a",
+      "sourcePath": "flags/4x3/fk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.faroe-islands",
+      "key": "flag.faroe-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/faroe-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "106d728eb0580fa55b16b31e116894a7c33b615d0439aa3815f39ae822ca2ab0",
+      "sourcePath": "flags/4x3/fo.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.fiji",
+      "key": "flag.fiji.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/fiji.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "017a682233e8c4c1c374978594142b34a616c30882dfb08641e069abb33ee062",
+      "sourcePath": "flags/4x3/fj.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.finland",
+      "key": "flag.finland.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/finland.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "bc1056d8632e3dcbab4ccdcaab1293c16ee1edd34cbc3cec0c246ff3f2dd416f",
+      "sourcePath": "flags/4x3/fi.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.france",
+      "key": "flag.france.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/france.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f68d0c6b56e5b499023f0c1d0a4fd06cfcd9f4f8b16fa631dcfc5bded8daffad",
+      "sourcePath": "flags/4x3/fr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.french-guiana",
+      "key": "flag.french-guiana.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/french-guiana.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "921ecfae68af72f552cb39c1ca6a9984f84dc593256dfd3b152551f6d4cb24ef",
+      "sourcePath": "flags/4x3/gf.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.french-polynesia",
+      "key": "flag.french-polynesia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/french-polynesia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "6a3618d2e014666c1c7f583b47689fbec5b573c534be99769ab693207fe7c21f",
+      "sourcePath": "flags/4x3/pf.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "area.french-southern-territories",
+      "key": "flag.french-southern-territories.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/french-southern-territories.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "8f70762806fb80f3ea780d02e4dc75bbb33f01cbdadc5d43397b3371fe59ee73",
+      "sourcePath": "flags/4x3/tf.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.gabon",
+      "key": "flag.gabon.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/gabon.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "94b395bfadddad03ee748309b166831ff905162a885c7d0f0f0ea20ec1cea911",
+      "sourcePath": "flags/4x3/ga.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.gambia",
+      "key": "flag.gambia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/gambia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e5057cda5619a3318879cff51ccc046db241918ac46a2b628f911ccf69587404",
+      "sourcePath": "flags/4x3/gm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.georgia",
+      "key": "flag.georgia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/georgia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "04cafcebf16d87463e8f20e7aefc82ae7a5fafd26f67cb1c2134d31ae565ea1c",
+      "sourcePath": "flags/4x3/ge.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.germany",
+      "key": "flag.germany.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/germany.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c116462ed848fc9faf708d01e30fb74c809779969288efc6593c77ead7d65ec3",
+      "sourcePath": "flags/4x3/de.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.ghana",
+      "key": "flag.ghana.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/ghana.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "4b32abd18b7c69ac6109bee44a5df2a8ec74a373e75112520c831cfaba4ad5b1",
+      "sourcePath": "flags/4x3/gh.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.gibraltar",
+      "key": "flag.gibraltar.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/gibraltar.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "76897905c1951585655395276b9a01bd06e3d347e940161cb7f03c74d24f6fed",
+      "sourcePath": "flags/4x3/gi.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.greece",
+      "key": "flag.greece.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/greece.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "8904b187871016917bfb2cf6d36286f66ce46a89fcceda39d830bc47a20437d8",
+      "sourcePath": "flags/4x3/gr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.greenland",
+      "key": "flag.greenland.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/greenland.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "5d677c3fbaff59b4cf5356ea379666317d690041225e7345a6597fb4a6f6ae66",
+      "sourcePath": "flags/4x3/gl.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.grenada",
+      "key": "flag.grenada.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/grenada.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "37882606cf3e4de64da87b9e9e98f87175c7ae332732c71254b87fe5855aa5c3",
+      "sourcePath": "flags/4x3/gd.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.guadeloupe",
+      "key": "flag.guadeloupe.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/guadeloupe.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "50abfa43fc9f5333e356000435155ffba59a67927cd25af26fcfa00ece9c754c",
+      "sourcePath": "flags/4x3/gp.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.guam",
+      "key": "flag.guam.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/guam.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "6191170b1c67ad8558519e75d526a90512dde2740faaec4c4feccb8acd63e4cc",
+      "sourcePath": "flags/4x3/gu.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.guatemala",
+      "key": "flag.guatemala.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/guatemala.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ff01a7c7584360b475bf6a8a51012f06196fd4d4c7091b2c8184a44820e54345",
+      "sourcePath": "flags/4x3/gt.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.guernsey",
+      "key": "flag.guernsey.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/guernsey.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "56a78aaae4282c45a0f08f37ccfa96155bfea65d5e260999cdcdc7cc773a7199",
+      "sourcePath": "flags/4x3/gg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.guinea-bissau",
+      "key": "flag.guinea-bissau.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/guinea-bissau.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "6f3610e75c6ce94119784a22729edcf480a393108dbcc33ac7317e57ae231e08",
+      "sourcePath": "flags/4x3/gw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.guinea",
+      "key": "flag.guinea.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/guinea.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "8806af1a7257120a8278281e6270c2e44f81e3f41b7ae3642c8d01aeed492b15",
+      "sourcePath": "flags/4x3/gn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.guyana",
+      "key": "flag.guyana.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/guyana.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "14b9a3f7dc66819c9d25f5ad315f00fef7a71e1ac16b5e23d2fe2ae7e00bf0ca",
+      "sourcePath": "flags/4x3/gy.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.haiti",
+      "key": "flag.haiti.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/haiti.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "4e15dceb9c75e8e579ccf75fa1e3b453a64cb9041a4ea9cf66878f344d912045",
+      "sourcePath": "flags/4x3/ht.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "area.heard-island-and-mcdonald-islands",
+      "key": "flag.heard-island-and-mcdonald-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/heard-island-and-mcdonald-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c7d105c00ee6ffb7f3c9e90eb793d92a57e47a33c5a27e193439cb0460c90346",
+      "sourcePath": "flags/4x3/hm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.holy-see",
+      "key": "flag.holy-see.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/holy-see.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "bf9826ddd1f5b8ad875322b761af6a736da4fcfda8007e2901401d37ab9f854e",
+      "sourcePath": "flags/4x3/va.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.honduras",
+      "key": "flag.honduras.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/honduras.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "dc9b9ea142626935e6d769beba7560642db37eae740c3f09d0b29a97ef49734f",
+      "sourcePath": "flags/4x3/hn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.hungary",
+      "key": "flag.hungary.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/hungary.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "04c3407d9090cd8ebcb80de60f72df781ac56b3a2ce0e81128c5f5d30016aeb7",
+      "sourcePath": "flags/4x3/hu.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.iceland",
+      "key": "flag.iceland.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/iceland.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "0880405636db10aa3de6f9443152f75698c921c11cbf7a32fcb140cffc7c07e5",
+      "sourcePath": "flags/4x3/is.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.india",
+      "key": "flag.india.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/india.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ff9912c76de04e8084dc57c4ebfae675c333350c79ee6450aaa807abefc9f6cb",
+      "sourcePath": "flags/4x3/in.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.indonesia",
+      "key": "flag.indonesia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/indonesia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "61e4b4ceb09d531628708d8f825df09c00ed29a6ef33c4ec74829a9a2506c272",
+      "sourcePath": "flags/4x3/id.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.iran-islamic-republic-of",
+      "key": "flag.iran-islamic-republic-of.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/iran-islamic-republic-of.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "517db6f690486ea7fe5d7af2d1c3c8cf9c2574600e8e51300b67d80ed3ea0b85",
+      "sourcePath": "flags/4x3/ir.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.iraq",
+      "key": "flag.iraq.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/iraq.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "d24c0b947fe2a30077f8d8e90a108c090bfcbadb7398f400bfdadbe544e6a150",
+      "sourcePath": "flags/4x3/iq.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.ireland",
+      "key": "flag.ireland.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/ireland.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "7db543048b63a457aba57e7d2ee9a0e85f383ed51de93294913576ab101a30a3",
+      "sourcePath": "flags/4x3/ie.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.isle-of-man",
+      "key": "flag.isle-of-man.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/isle-of-man.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9119e8a3aa000a35c5cecf6168487ec499718dda1a063c27246cba107dafa285",
+      "sourcePath": "flags/4x3/im.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.israel",
+      "key": "flag.israel.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/israel.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9dd6c18c547a9fe7d78aeb2524d979d3e7f9ddf527317c6ca1fdb0421957aa39",
+      "sourcePath": "flags/4x3/il.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.italy",
+      "key": "flag.italy.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/italy.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "06b3de0223b42589c93149e9132df806dc297dedd7721a30c347e68faef80be8",
+      "sourcePath": "flags/4x3/it.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.jamaica",
+      "key": "flag.jamaica.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/jamaica.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "01b0076b81f7700fcec46564a00a6ec9eb4b587a7981b4dbfb0fb9690a5a5767",
+      "sourcePath": "flags/4x3/jm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.japan",
+      "key": "flag.japan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/japan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ab9acd3797135ff63ae440de18b8f7cabaae25bd9923936a7c5b13602ebc2680",
+      "sourcePath": "flags/4x3/jp.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.jersey",
+      "key": "flag.jersey.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/jersey.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f3939b4fa8e5bc46450bb357b767b727c530ab5c19eaf4b65c8ce0ddb474dd00",
+      "sourcePath": "flags/4x3/je.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.jordan",
+      "key": "flag.jordan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/jordan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "cdc78d914dc3daa228b23f3531dccd584b2ed3a8a240d01dd64d9ed2b6dacab7",
+      "sourcePath": "flags/4x3/jo.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.kazakhstan",
+      "key": "flag.kazakhstan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/kazakhstan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2d5acc101534f1aa4cfcc5500bde425ce9257b0e43d2859eba9e8da03a59e98b",
+      "sourcePath": "flags/4x3/kz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.kenya",
+      "key": "flag.kenya.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/kenya.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "585875ec47a7a5f600eabd9053adb8b6747ada9e694aecb84415645624a19725",
+      "sourcePath": "flags/4x3/ke.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.kiribati",
+      "key": "flag.kiribati.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/kiribati.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9fe839a7850e2dc19a9847acd38dac9d5be02e351c7a9502c23b7c2b2631f56f",
+      "sourcePath": "flags/4x3/ki.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.kosovo",
+      "key": "flag.kosovo.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/kosovo.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "8edbe12599236bf3b950f3bc98da33ac5ddc26756c31857780ddedd95941bb98",
+      "sourcePath": "flags/4x3/xk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.kuwait",
+      "key": "flag.kuwait.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/kuwait.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e976a9e0546d4139143e74639a7bd4f999f16ca2cb1ba74e0dfdf66856b282b2",
+      "sourcePath": "flags/4x3/kw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.kyrgyzstan",
+      "key": "flag.kyrgyzstan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/kyrgyzstan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ca6dca518963c8d9a4b61dc47eb3886c3743f17c3f327ccbcffbdc9cc7d00bb4",
+      "sourcePath": "flags/4x3/kg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.lao-people-s-democratic-republic",
+      "key": "flag.lao-people-s-democratic-republic.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/lao-people-s-democratic-republic.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f093879ac1ce70c63a9b2aaa90f6465641e37b93af8359e2bd796402c49d0357",
+      "sourcePath": "flags/4x3/la.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.latvia",
+      "key": "flag.latvia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/latvia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "4ad78c9277aafb0121ecc4dfe708adc0a5ecc99ef375afb53de330f13c2a7954",
+      "sourcePath": "flags/4x3/lv.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.lebanon",
+      "key": "flag.lebanon.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/lebanon.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "3163d3b2f243bafdf6e180503b9d016728e43d7e47f47a04cdf45b091e5d798a",
+      "sourcePath": "flags/4x3/lb.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.lesotho",
+      "key": "flag.lesotho.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/lesotho.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2f3810beb7d7a2dc8a81d85c1305f26cb0f5526dc5b77ad63a123e9c48ef8e48",
+      "sourcePath": "flags/4x3/ls.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.liberia",
+      "key": "flag.liberia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/liberia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "185fefca8a9c3ff24a76d76897c2e07647a2ba6132881f9f65c56a34e0ec8d2c",
+      "sourcePath": "flags/4x3/lr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.libya",
+      "key": "flag.libya.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/libya.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "da74d3a4fbae786d32ce25b86550e58fa2e851cf2181934c4f18fd16b829f525",
+      "sourcePath": "flags/4x3/ly.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.liechtenstein",
+      "key": "flag.liechtenstein.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/liechtenstein.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "3bc8090562195788e3acf5897117713606f1719b67cd3940807efc31243c070a",
+      "sourcePath": "flags/4x3/li.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.lithuania",
+      "key": "flag.lithuania.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/lithuania.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "bd5326cedd78f106f52f392afc96c1a9f4301afd397569d4d5930211c77c8d94",
+      "sourcePath": "flags/4x3/lt.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.luxembourg",
+      "key": "flag.luxembourg.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/luxembourg.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c354622d7f423c4872b7fa318365a8bbd0d3fd4c29b2e079a67756153bb5131e",
+      "sourcePath": "flags/4x3/lu.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.madagascar",
+      "key": "flag.madagascar.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/madagascar.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "72b4b134ff7feca1c81c869701bf20410d411cd66e6f7d7fd0af44dcf5202a11",
+      "sourcePath": "flags/4x3/mg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.malawi",
+      "key": "flag.malawi.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/malawi.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "50e36fc9ba0dc83b84f874f91f74877e55861f2453d59c27369a8437b22dcf60",
+      "sourcePath": "flags/4x3/mw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.malaysia",
+      "key": "flag.malaysia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/malaysia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "d32e0a366cc131f363aea3ee58823ae3c678159b888913399afcdd8ebfc4843b",
+      "sourcePath": "flags/4x3/my.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.maldives",
+      "key": "flag.maldives.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/maldives.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "eb854806890887be918203e9be2cbc4b7e7b46ebc0b8d8a43103622278a6c492",
+      "sourcePath": "flags/4x3/mv.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.mali",
+      "key": "flag.mali.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/mali.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b22b6b58db9213aba95731124d9348a8df70e35280c5a699caa743e475a9d606",
+      "sourcePath": "flags/4x3/ml.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.malta",
+      "key": "flag.malta.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/malta.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "45763763fc9b84aeee8f67993ed22c1d58d21765c6e188303b3e9204e717e677",
+      "sourcePath": "flags/4x3/mt.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.marshall-islands",
+      "key": "flag.marshall-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/marshall-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "4e03018586b8e21299e3773e3636802a767bf050eb3434551c1b5b65eff3b7f0",
+      "sourcePath": "flags/4x3/mh.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.martinique",
+      "key": "flag.martinique.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/martinique.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "cbf7be78217a2e0fd62ab7a463857d50e36fdbb753dd0bac894eb55244d4ff86",
+      "sourcePath": "flags/4x3/mq.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.mauritania",
+      "key": "flag.mauritania.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/mauritania.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "4447643e91089f32c7b2f2364f0e7569645c6211f75a2da5962fd51978dac8a8",
+      "sourcePath": "flags/4x3/mr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.mauritius",
+      "key": "flag.mauritius.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/mauritius.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "677f1558c6bac5179178cb23b3b438bff75c9d217bc5a271d93893895fdd73bb",
+      "sourcePath": "flags/4x3/mu.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.mayotte",
+      "key": "flag.mayotte.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/mayotte.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "6c015a4f1b520221dc4e48fcdc6d1ebcfc785cad3a7c15946362b50f91401336",
+      "sourcePath": "flags/4x3/yt.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.mexico",
+      "key": "flag.mexico.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/mexico.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2b8920e6473cc3d0abeb7a45926ba2569408e8ea787c934e2e9a917bbbfdd4ef",
+      "sourcePath": "flags/4x3/mx.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.micronesia-federated-states-of",
+      "key": "flag.micronesia-federated-states-of.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/micronesia-federated-states-of.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "913cb2103531657becd14a23f7e2f73c6634a80c945ee592a08003c2aad47063",
+      "sourcePath": "flags/4x3/fm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.monaco",
+      "key": "flag.monaco.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/monaco.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b5877cbf5641739e02412c0bed4d74d096e033cf0d96d21e6725034ae5818422",
+      "sourcePath": "flags/4x3/mc.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.mongolia",
+      "key": "flag.mongolia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/mongolia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ec85fcaa9a5936013d3b83cc13c29985cc628bbf0e85bd111fcdd9cec26cda7c",
+      "sourcePath": "flags/4x3/mn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.montenegro",
+      "key": "flag.montenegro.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/montenegro.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "669454daf14df8840966d414a9f6289a9179e7449ca9f6f03de5e803592cf103",
+      "sourcePath": "flags/4x3/me.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.montserrat",
+      "key": "flag.montserrat.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/montserrat.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "4bcd7421aee398599f679615da4906c153fa46b51986e64c498e8cb20cf3b0be",
+      "sourcePath": "flags/4x3/ms.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.morocco",
+      "key": "flag.morocco.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/morocco.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "d1b90fd5d748401981ad1a7dd3a005561416a76b0e3eb9b741f4dabb4f94bf49",
+      "sourcePath": "flags/4x3/ma.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.mozambique",
+      "key": "flag.mozambique.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/mozambique.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e7115533d68b4f83057a3b5eaae0f408823cef9b230c0ec6d4f31c6aa0a1afb4",
+      "sourcePath": "flags/4x3/mz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.myanmar",
+      "key": "flag.myanmar.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/myanmar.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "93c29578b0e7d52e63b119d71404322203e806c862885b12be06e5632bba37e6",
+      "sourcePath": "flags/4x3/mm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.namibia",
+      "key": "flag.namibia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/namibia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "06d6f14fb53d46d6b9ee1ca585f743b3e2eddcc6d3ee1c0b180be4bf02b7b98f",
+      "sourcePath": "flags/4x3/na.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.nauru",
+      "key": "flag.nauru.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/nauru.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e6371c2dfba20e4af405e3c0260110274e86bd49b9ddb766703ecf85a697f9c2",
+      "sourcePath": "flags/4x3/nr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.nepal",
+      "key": "flag.nepal.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/nepal.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b4942b25c4fe197c3120fb798b999e07aa5915276f23ad3122287a6f2773a4c0",
+      "sourcePath": "flags/4x3/np.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.netherlands-kingdom-of-the",
+      "key": "flag.netherlands-kingdom-of-the.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/netherlands-kingdom-of-the.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "32ca1a64bf86e06bcae82fa7ad290b1e974e46fed6e4c3b17f742879b52e2394",
+      "sourcePath": "flags/4x3/nl.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.new-caledonia",
+      "key": "flag.new-caledonia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/new-caledonia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "62498a0d089abf3a45035092db0d3c3c1b7e20bf8ae19dd822a10f008ac1cdbf",
+      "sourcePath": "flags/4x3/nc.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.new-zealand",
+      "key": "flag.new-zealand.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/new-zealand.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f24acc28814420868b213ae206fa2bdf442fa3736692eada0b969b8a5c8759a6",
+      "sourcePath": "flags/4x3/nz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.nicaragua",
+      "key": "flag.nicaragua.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/nicaragua.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "150e7cef97d0c6f6a500e703b55ae34b7ac70b416dd41dd55b8c5d1e8622ed36",
+      "sourcePath": "flags/4x3/ni.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.niger",
+      "key": "flag.niger.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/niger.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9f14144acd09a760e2e12327640c9160ab9abaecf88a8ee61df2d1e0a6653416",
+      "sourcePath": "flags/4x3/ne.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.nigeria",
+      "key": "flag.nigeria.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/nigeria.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "7c87bcdfbf4152953319aedad0b52fed3358f1c072a853bc5666395741d50486",
+      "sourcePath": "flags/4x3/ng.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "area.niue",
+      "key": "flag.niue.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/niue.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "66b61de5bc61955b9c898f16685c1af8f27c662fed8cb1eb3fa66137315723fa",
+      "sourcePath": "flags/4x3/nu.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.norfolk-island",
+      "key": "flag.norfolk-island.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/norfolk-island.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "46333f47acdeaf98f684393b51a3fef9e7436c4b45a2fdf488c54075c25ce1bc",
+      "sourcePath": "flags/4x3/nf.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.north-macedonia",
+      "key": "flag.north-macedonia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/north-macedonia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "cae064dd05663083bafb8836c102aecfc8b6e24f4690e43204c5747bd1c647c3",
+      "sourcePath": "flags/4x3/mk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.northern-mariana-islands",
+      "key": "flag.northern-mariana-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/northern-mariana-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "106f6fc5068f10b8f0ae82831d49d97c011e3f11f1b39be11ea0a5ba4ebc511d",
+      "sourcePath": "flags/4x3/mp.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.norway",
+      "key": "flag.norway.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/norway.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "099f2fed637c21d08c1803f392004255d9d117b15d70efa2ead8180ff7ecaa5e",
+      "sourcePath": "flags/4x3/no.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.oman",
+      "key": "flag.oman.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/oman.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "98b3c0417f985cfed7128993ea434136cbac96186fd8af7adbdc165b39f816bf",
+      "sourcePath": "flags/4x3/om.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.pakistan",
+      "key": "flag.pakistan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/pakistan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c075656a08192f0e960e02d83fb52c867cfbbfde57a7d18410f272846a8de782",
+      "sourcePath": "flags/4x3/pk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.palau",
+      "key": "flag.palau.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/palau.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "70bffe3dd3c9f420641389393d76b9cbd1cd293151d1135fbec55eeea5bcf5f0",
+      "sourcePath": "flags/4x3/pw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.panama",
+      "key": "flag.panama.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/panama.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "bf3b2ad52bd52e9f25c665d622e61112635cefdf39b9f063b15fe16e0b2b3901",
+      "sourcePath": "flags/4x3/pa.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.papua-new-guinea",
+      "key": "flag.papua-new-guinea.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/papua-new-guinea.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "64542afb5a8c5a9e5b6909b8e3665465d264ae6e62f3e953fbc8fa7f3eea2083",
+      "sourcePath": "flags/4x3/pg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.paraguay",
+      "key": "flag.paraguay.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/paraguay.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e8cd60d8dedfb5da89f5a054b27d6220e24c97177e1c04a811f1600fc6f02244",
+      "sourcePath": "flags/4x3/py.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.peru",
+      "key": "flag.peru.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/peru.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "947a9d6624f49dd806d06e8c90e9c7c3f4106d5ebcabc59a2bad366f9e7e9d20",
+      "sourcePath": "flags/4x3/pe.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.philippines",
+      "key": "flag.philippines.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/philippines.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "99cc2cbcbcccaa2665ea9f6f5ef752a3b51ef7f911a27ccfdf1342b9b804bfbe",
+      "sourcePath": "flags/4x3/ph.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.pitcairn",
+      "key": "flag.pitcairn.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/pitcairn.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "74e7a3b2995e392bd33685149ae9ef2db8759b985ad4fcb914475ba7e0a1e51f",
+      "sourcePath": "flags/4x3/pn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.poland",
+      "key": "flag.poland.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/poland.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c4ac006e0e41b7e50044aa0b9bda1b6ba0c3d7607bd428a47aacdfbd5d4e1b89",
+      "sourcePath": "flags/4x3/pl.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.portugal",
+      "key": "flag.portugal.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/portugal.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "068adfb4fa3e39ef15f44ec871ff2835fce343c9bfdbc74012a8967f5c5c2326",
+      "sourcePath": "flags/4x3/pt.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.puerto-rico",
+      "key": "flag.puerto-rico.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/puerto-rico.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "635c3c71e41454ab371a514822f8931d0efe103568a6dcf615c99a5a5d790800",
+      "sourcePath": "flags/4x3/pr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.qatar",
+      "key": "flag.qatar.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/qatar.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "dad36f45b62706ca700a95e33bd8a2df9db6a80e630a272cd9e7d15e58a713a9",
+      "sourcePath": "flags/4x3/qa.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.republic-of-korea",
+      "key": "flag.republic-of-korea.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/republic-of-korea.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "38cb8567d91f1b34d65ffc80cd455230a7eb99d2be20527a238d37b87489ecfd",
+      "sourcePath": "flags/4x3/kr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.republic-of-moldova",
+      "key": "flag.republic-of-moldova.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/republic-of-moldova.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "37905d5361fa17c1246342777a786438b3a77b2fe3e2fa39557c66bd923cbfd5",
+      "sourcePath": "flags/4x3/md.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.reunion",
+      "key": "flag.reunion.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/reunion.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "efd12c26610e95a80a52d230b49870abaf8426c913542835ebbf014525347931",
+      "sourcePath": "flags/4x3/re.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.romania",
+      "key": "flag.romania.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/romania.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2ce7ef720cdbd558146e8470d69a4aab5df021f95672a487c73aa36315ce898e",
+      "sourcePath": "flags/4x3/ro.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.russia",
+      "key": "flag.russia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/russia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "614699589fd86f07197520c0f156762babc4f864fb2dab66f2cf9a8dce649336",
+      "sourcePath": "flags/4x3/ru.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.rwanda",
+      "key": "flag.rwanda.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/rwanda.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ef0fb40afd0d87dbeb26a3703863aac832160ece185194cbc7580bb2c3c06bd4",
+      "sourcePath": "flags/4x3/rw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.saint-barthelemy",
+      "key": "flag.saint-barthelemy.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/saint-barthelemy.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "37c5f9959a68bbff9db2282911ede1ae00f3f2029f2498fe60c360f1ea8faaeb",
+      "sourcePath": "flags/4x3/bl.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.saint-helena",
+      "key": "flag.saint-helena.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/saint-helena.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "aed9182cacbc338e9cf0213e49b1fc0b56176df456469fad85c72bf093fa2348",
+      "sourcePath": "flags/4x3/sh.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.saint-kitts-and-nevis",
+      "key": "flag.saint-kitts-and-nevis.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/saint-kitts-and-nevis.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f0d1a07b12dc7f71d0d5e466858601fe56ac3c3f72a5ecd6e47c0dd22d6809bd",
+      "sourcePath": "flags/4x3/kn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.saint-lucia",
+      "key": "flag.saint-lucia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/saint-lucia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "2f253ba13f70dec31e7777f22818146f7c6f6d5998b61370fd6c50caf3997894",
+      "sourcePath": "flags/4x3/lc.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.saint-martin-french-part",
+      "key": "flag.saint-martin-french-part.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/saint-martin-french-part.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "353ffd6d224123e6ced67ed0b41a1d343865135c08cb06a0a26f1f7430300c61",
+      "sourcePath": "flags/4x3/mf.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.saint-pierre-and-miquelon",
+      "key": "flag.saint-pierre-and-miquelon.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/saint-pierre-and-miquelon.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "cdb48285fdc32b373782f85f812e030058f7a5d5e676b51f7ba8c5bce498d787",
+      "sourcePath": "flags/4x3/pm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.saint-vincent-and-the-grenadines",
+      "key": "flag.saint-vincent-and-the-grenadines.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/saint-vincent-and-the-grenadines.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "409693ce87c8789372954c59c76e539187ac39fc466003d2e9013c5c642188ec",
+      "sourcePath": "flags/4x3/vc.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.samoa",
+      "key": "flag.samoa.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/samoa.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "586676e950d7374d1036a401ca75cc215d525c5a84c2002f0e588f29770ff00c",
+      "sourcePath": "flags/4x3/ws.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.san-marino",
+      "key": "flag.san-marino.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/san-marino.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9fb89cd42f0dde20ac1bfee99c9e87586c17435860a371724f26f887012e36dd",
+      "sourcePath": "flags/4x3/sm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.sao-tome-and-principe",
+      "key": "flag.sao-tome-and-principe.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/sao-tome-and-principe.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "69d15cfa498014b257aa37365e7f17460aaefb3e1c11f7ccc330a32e83d55dfa",
+      "sourcePath": "flags/4x3/st.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.saudi-arabia",
+      "key": "flag.saudi-arabia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/saudi-arabia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "4e5fbeede06a10549a0d607b782a02633d1ab6a195d0c9d70ccab826e99885f5",
+      "sourcePath": "flags/4x3/sa.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.senegal",
+      "key": "flag.senegal.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/senegal.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "5745905c8f1d29e5a0ff3b0314f805574c8f3acb4c5a4dbc70ededa350946820",
+      "sourcePath": "flags/4x3/sn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.serbia",
+      "key": "flag.serbia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/serbia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c5e8dafc5dbf7c9819add2f7f28802b9548a16412b9994f048079f45a12ebc61",
+      "sourcePath": "flags/4x3/rs.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.seychelles",
+      "key": "flag.seychelles.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/seychelles.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c99c78211eda63f5a533bf0acb2339e17cf097149e2695dbebf14dad3874413b",
+      "sourcePath": "flags/4x3/sc.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.sierra-leone",
+      "key": "flag.sierra-leone.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/sierra-leone.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1ddd2f6b4f4656c5ee598a61bc40be19429e5c0d8e79d48b1b4546636819a472",
+      "sourcePath": "flags/4x3/sl.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.singapore",
+      "key": "flag.singapore.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/singapore.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "96a11b3ddbfef6eaf68873c489b83fd965bcc151418072243ff5974ec916a543",
+      "sourcePath": "flags/4x3/sg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.sint-maarten-dutch-part",
+      "key": "flag.sint-maarten-dutch-part.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/sint-maarten-dutch-part.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e1774b22bd2e0383835669bb61d970580077610148a2b3c92de705a241195ef5",
+      "sourcePath": "flags/4x3/sx.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.slovakia",
+      "key": "flag.slovakia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/slovakia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "23b23d8e8e1d646fbdfe50d0b9ae4d61f43f40a764521d55048497a37283a4b9",
+      "sourcePath": "flags/4x3/sk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.slovenia",
+      "key": "flag.slovenia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/slovenia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9be4766718c3c80d78c483b3e5a50a06896e8fd8b08ab629fdadfde6425f2e29",
+      "sourcePath": "flags/4x3/si.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.solomon-islands",
+      "key": "flag.solomon-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/solomon-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "62f940f1e9e4066ccdbf9c4150b17ba2d103fa9726b56b056b85fca03f8d06d8",
+      "sourcePath": "flags/4x3/sb.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.somalia",
+      "key": "flag.somalia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/somalia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "24f0dd015b61f5ce66ab076c24145692f0f514c18a2125151c21a0a1c0684ee6",
+      "sourcePath": "flags/4x3/so.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.south-africa",
+      "key": "flag.south-africa.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/south-africa.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "afb17a6bb4da07490fd34c1c9996dd139846a1e3b4d286a9cec4aead38b566d6",
+      "sourcePath": "flags/4x3/za.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.south-georgia-and-the-south-sandwich-islands",
+      "key": "flag.south-georgia-and-the-south-sandwich-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/south-georgia-and-the-south-sandwich-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "56c2e7dc91659cd1c9991415e2cf903088043791482833ce4e71cebe59be89fc",
+      "sourcePath": "flags/4x3/gs.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.south-sudan",
+      "key": "flag.south-sudan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/south-sudan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1cb2e64ff24b1b440a37c4bef6a47f9a9e81c37cd0f1e6dd9e9153a8944012e4",
+      "sourcePath": "flags/4x3/ss.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.spain",
+      "key": "flag.spain.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/spain.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "831906ce4ab54e085dad872e56524b2f68032c515b80b8dce1c530f27ae19d81",
+      "sourcePath": "flags/4x3/es.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.sri-lanka",
+      "key": "flag.sri-lanka.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/sri-lanka.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "a351066f9ba6fb2bf23132da0bda27e2d75f8f29892ad4183a05fe0ad7e98353",
+      "sourcePath": "flags/4x3/lk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.state-of-palestine",
+      "key": "flag.state-of-palestine.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/state-of-palestine.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f88e79ca5ddee9f6983bfc27c95ee0a6bd1a9e66eee1c64dd5608033f4809600",
+      "sourcePath": "flags/4x3/ps.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.sudan",
+      "key": "flag.sudan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/sudan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b5674a317893f4e2f5a5f147e4ffce447a53d7670a5f58e27ee3989b55863c70",
+      "sourcePath": "flags/4x3/sd.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.suriname",
+      "key": "flag.suriname.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/suriname.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "44b8ce9603f7dfde80fc166efb8407819e73748b679e49397efe4a4479ac8546",
+      "sourcePath": "flags/4x3/sr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.svalbard-and-jan-mayen-islands",
+      "key": "flag.svalbard-and-jan-mayen-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/svalbard-and-jan-mayen-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "9855f56f1db7312165aa3d940e1a1893dedb51d4f52e73f76cd7ef8a6416d47d",
+      "sourcePath": "flags/4x3/sj.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.sweden",
+      "key": "flag.sweden.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/sweden.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "beef4fc41f8f8efd8cf5e652742e5439a1074acd0edffb31b0777490b62de210",
+      "sourcePath": "flags/4x3/se.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.switzerland",
+      "key": "flag.switzerland.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/switzerland.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "5e02de47eda3b9d833823f988ef6c44358d67ed242bf1ed9309573cafc1bec6e",
+      "sourcePath": "flags/4x3/ch.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.syrian-arab-republic",
+      "key": "flag.syrian-arab-republic.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/syrian-arab-republic.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "098cb695a99b40c4997a1b132f0fff8f7c03b88cf8155e7dbdeaf088fdf1d5b2",
+      "sourcePath": "flags/4x3/sy.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.taiwan",
+      "key": "flag.taiwan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/taiwan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "efab3797d365683c886415a0b62af1e03ab0d632d58315ff851bd989b7299199",
+      "sourcePath": "flags/4x3/tw.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.tajikistan",
+      "key": "flag.tajikistan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/tajikistan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b4a15cd82604fbe9391b965180ac199a6c028f29f12d140ffb2bcdbdebd4bd82",
+      "sourcePath": "flags/4x3/tj.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.thailand",
+      "key": "flag.thailand.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/thailand.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "205c20396adde715261b600a7e1fa992635dfcd1e1247c691a4f7d97101386d1",
+      "sourcePath": "flags/4x3/th.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.timor-leste",
+      "key": "flag.timor-leste.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/timor-leste.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "bfd1f5d97074cefbcb5744c6f551f09e3cf55ec2c95a60d33f94d3991fc88417",
+      "sourcePath": "flags/4x3/tl.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.togo",
+      "key": "flag.togo.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/togo.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "a7a3133b8df26a26b3d75bd158ad1bad153a43f7327ba853b8691873fae39074",
+      "sourcePath": "flags/4x3/tg.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.tokelau",
+      "key": "flag.tokelau.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/tokelau.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ad3ed1e46f9dcbc425d37057ba3bd446f0d716fd50e6a12f4c815e47c51bdb62",
+      "sourcePath": "flags/4x3/tk.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.tonga",
+      "key": "flag.tonga.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/tonga.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "ab77bf04d3a1f273a789699f2cdd13285fe31af203ec56ec835626fe5654d23e",
+      "sourcePath": "flags/4x3/to.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.trinidad-and-tobago",
+      "key": "flag.trinidad-and-tobago.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/trinidad-and-tobago.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "f8dc578cc49b879f991f26faad04ce883e0e2e58ccafc4f598f12a4a6f973f60",
+      "sourcePath": "flags/4x3/tt.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.tunisia",
+      "key": "flag.tunisia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/tunisia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "c396d24e164730dcbeff407901af4057e0936629fcc3374997a256e4a7f3c720",
+      "sourcePath": "flags/4x3/tn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.turkiye",
+      "key": "flag.turkiye.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/turkiye.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "365ae53c39753c83f028f18cb9124334db521268c50268c3a1083b85644b03df",
+      "sourcePath": "flags/4x3/tr.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.turkmenistan",
+      "key": "flag.turkmenistan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/turkmenistan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "0cab414cf5699c1ecfbb488bde5709f10ee681a02679a30736a2e6034c15652f",
+      "sourcePath": "flags/4x3/tm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.turks-and-caicos-islands",
+      "key": "flag.turks-and-caicos-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/turks-and-caicos-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "57a6692ef19b5c9283e2709ededb0764259d7d2dd8e92996954dd3319cb821f0",
+      "sourcePath": "flags/4x3/tc.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.tuvalu",
+      "key": "flag.tuvalu.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/tuvalu.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "84b8f280bdf697b8a8570e8f1cb689343b2dceff5be81a9e8cb39f50c12774e6",
+      "sourcePath": "flags/4x3/tv.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.uganda",
+      "key": "flag.uganda.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/uganda.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "fc4aeeeb46ae13480f65994db6564761da683eca1b91d3d7a96fc302b9c4878a",
+      "sourcePath": "flags/4x3/ug.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.ukraine",
+      "key": "flag.ukraine.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/ukraine.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "61fbce01c4405a0bcbcdf40058e4b3fd12c62c37c60dafe0d4f0a2c1c74c3905",
+      "sourcePath": "flags/4x3/ua.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.united_states",
+      "key": "flag.united_states.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/united_states.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "e9252d953fd905e884c035955d5c1b3e8c243e0c9e5cebd3c4ceeea729410676",
+      "sourcePath": "flags/4x3/us.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.united-arab-emirates",
+      "key": "flag.united-arab-emirates.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/united-arab-emirates.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "8350340827501c5b04e02e0df30e96a241770555f22c9d7cdf29d3a512f73533",
+      "sourcePath": "flags/4x3/ae.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.united-kingdom-of-great-britain-and-northern-ireland",
+      "key": "flag.united-kingdom-of-great-britain-and-northern-ireland.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/united-kingdom-of-great-britain-and-northern-ireland.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "24f9b3b53b4936c85d19fae54cfd26d498a9e0b28864088aa84b2d300fcc4ffc",
+      "sourcePath": "flags/4x3/gb.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.united-republic-of-tanzania",
+      "key": "flag.united-republic-of-tanzania.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/united-republic-of-tanzania.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "08fa5d954e987c3980baf917637688ec7fea7a67c3dcd33b26d747120557f382",
+      "sourcePath": "flags/4x3/tz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "area.united-states-minor-outlying-islands",
+      "key": "flag.united-states-minor-outlying-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/united-states-minor-outlying-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "79e3117ccead6c73827494e6e1bef521835b1ba41cf8728bef098681d75b857c",
+      "sourcePath": "flags/4x3/um.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.united-states-virgin-islands",
+      "key": "flag.united-states-virgin-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/united-states-virgin-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "80b1a77adf47c23433bdde1fee15631abe3b8c7743c3f5078558e51ed905be5b",
+      "sourcePath": "flags/4x3/vi.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.uruguay",
+      "key": "flag.uruguay.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/uruguay.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "b07fcc4b2630faedb5f194974308ccf891ea77f59102c71207e6720aac51cc1d",
+      "sourcePath": "flags/4x3/uy.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.uzbekistan",
+      "key": "flag.uzbekistan.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/uzbekistan.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "572d50f53ef93407a07582ec53fecefdb7268bb9073bb3aab24b659c5d739e74",
+      "sourcePath": "flags/4x3/uz.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.vanuatu",
+      "key": "flag.vanuatu.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/vanuatu.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "84761f4d565acc0ec7abd305134b0b905c4fabc8f6fb3ff41ff7e7d3f54e5f00",
+      "sourcePath": "flags/4x3/vu.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.venezuela-bolivarian-republic-of",
+      "key": "flag.venezuela-bolivarian-republic-of.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/venezuela-bolivarian-republic-of.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "7b1abb7cd7387e37d7b4fc879ef80c475dcaa00653c535b5f5ae34de95368ca5",
+      "sourcePath": "flags/4x3/ve.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.viet-nam",
+      "key": "flag.viet-nam.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/viet-nam.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1c8f2e474cc64603d1d7641beb5261c0aac2802f0fab2f3e811192fc0b8e6aea",
+      "sourcePath": "flags/4x3/vn.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "territory.wallis-and-futuna-islands",
+      "key": "flag.wallis-and-futuna-islands.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/wallis-and-futuna-islands.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "bedc232d2e636a0225fb6db9333e2304d56b78045ca02d911daf760199ee7b88",
+      "sourcePath": "flags/4x3/wf.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.western-sahara",
+      "key": "flag.western-sahara.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/western-sahara.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "1e6353725dda1ef28b89ef6f0ce7c9f9ff7db00a0ce6c9feea296f1fb047f4ad",
+      "sourcePath": "flags/4x3/eh.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.yemen",
+      "key": "flag.yemen.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/yemen.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "8cf91267fa61c1a390fce3abaed1b0f14657d208f75e54c1fd637f61c5171168",
+      "sourcePath": "flags/4x3/ye.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.zambia",
+      "key": "flag.zambia.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/zambia.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "35aa4fff5a9e08a774a15b0348e60401e2b39e8c7c1a16689f727ab635995ce0",
+      "sourcePath": "flags/4x3/zm.svg",
+      "validFrom": null,
+      "validTo": null
+    },
+    {
+      "aspectRatio": 1.333333,
+      "attribution": "lipis/flag-icons contributors",
+      "entityKey": "country.zimbabwe",
+      "key": "flag.zimbabwe.current",
+      "license": "MIT",
+      "mimeType": "image/svg+xml",
+      "path": "assets/svg/zimbabwe.svg",
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:28.468Z",
+        "revision": "v7.5.0",
+        "sourceKey": "flag-icons"
+      },
+      "sha256": "6d97533329826fe9cd8f7835499575b21bef4e2edf03ae52f07ca7b425e20b00",
+      "sourcePath": "flags/4x3/zw.svg",
+      "validFrom": null,
+      "validTo": null
+    }
+  ],
+  "schemaVersion": 1
+}

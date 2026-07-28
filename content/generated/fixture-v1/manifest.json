@@ -1,0 +1,96 @@
+{
+  "$schema": "../../../contracts/schemas/content/manifest.v1.schema.json",
+  "assetBaseUrl": "https://cdn.country-flags.app/content/fixture-v1/",
+  "changeCursor": "content:fixture-v1:0",
+  "contentVersion": "fixture-v1",
+  "createdAt": "2026-07-28T13:13:41.707Z",
+  "defaultLocale": "ru",
+  "files": [
+    {
+      "bytes": 150632,
+      "path": "assets/assets.json",
+      "schemaId": "https://country-flags.app/content/v1/asset-registry.schema.json",
+      "sha256": "3bbf4249decea5c52ae9d53b7c07127769d2c4be015b11b71f72d231f7871a64"
+    },
+    {
+      "bytes": 256522,
+      "path": "catalog.json",
+      "schemaId": "https://country-flags.example/schemas/catalog.schema.json",
+      "sha256": "2b5850f804ed843015306c24f34fa8dc03761916488ea8e555651dfb9b224bae"
+    },
+    {
+      "bytes": 89092,
+      "path": "facts/capitals.json",
+      "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
+      "sha256": "a0eece63a80fab790393b74fba5a885ca1557e04f851a493b222262bb4bcf369"
+    },
+    {
+      "bytes": 110910,
+      "path": "facts/currencies.json",
+      "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
+      "sha256": "63970ec9db3ef7264904933f3f8e95c5980b24b1ac4de0d98ce59fab65dcbced"
+    },
+    {
+      "bytes": 100470,
+      "path": "facts/languages.json",
+      "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
+      "sha256": "8a132cb7e4e674c481b689905724d3cd0f3871611decd11004a503c4b8b1b124"
+    },
+    {
+      "bytes": 73804,
+      "path": "facts/population.json",
+      "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
+      "sha256": "49bf792fe39b8ad98dd936c9f5e08c7c4481b6982e6d27af2f21c46ea389d61c"
+    },
+    {
+      "bytes": 817127,
+      "path": "provenance/provenance.json",
+      "schemaId": "https://country-flags.app/content/v1/provenance.schema.json",
+      "sha256": "22fa12b6227d19c5827894115fd51ca5440f3229c5a4591b23398b75d015b22c"
+    },
+    {
+      "bytes": 326465,
+      "path": "reports/field-conflicts.json",
+      "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
+      "sha256": "87901afc42817a327945f4a1d99112598107380711ed1233d5377b7f0ad98627"
+    },
+    {
+      "bytes": 75,
+      "path": "reports/license-problems.json",
+      "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
+      "sha256": "ade5d39eea962e1b9c02f57b26d4ef5bfdd33e6d16d7e5b338146f7c0dfacb9b"
+    },
+    {
+      "bytes": 73,
+      "path": "reports/missing-assets.json",
+      "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
+      "sha256": "98f9df481859260304a5638fed26d45d7f20006f2ca6632181373ad43f72a3c6"
+    },
+    {
+      "bytes": 79,
+      "path": "reports/missing-translations.json",
+      "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
+      "sha256": "e6197a03afda64e9c3c7203d30a56039f0e888d4cf109e86628b0864a7c0da5f"
+    },
+    {
+      "bytes": 78,
+      "path": "reports/unresolved-entities.json",
+      "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
+      "sha256": "a25b93cc7b3940f0fb06f3dcdaded0dfda88ac40c6bd8c7c05e29f2e93ccb323"
+    }
+  ],
+  "minimumClientVersion": "1.0.0",
+  "schemaVersion": 1,
+  "signature": {
+    "algorithm": "Ed25519",
+    "keyId": "unsigned-candidate",
+    "value": ""
+  },
+  "supportedLocales": [
+    "en",
+    "ru"
+  ],
+  "supportedTemplateSchemaVersions": [
+    1
+  ]
+}

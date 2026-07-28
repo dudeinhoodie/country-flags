@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://country-flags.app/content/v1/provenance.schema.json",
+  "title": "Country Flags field provenance map",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "fields"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "fields": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sourceKey", "revision", "retrievedAt"],
+        "properties": {
+          "sourceKey": { "type": "string", "minLength": 1 },
+          "revision": { "type": "string", "minLength": 1 },
+          "retrievedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

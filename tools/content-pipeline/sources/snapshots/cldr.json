@@ -1,0 +1,3626 @@
+{
+  "containment": [
+    {
+      "isoAlpha2": "AD",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "AE",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "AF",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "AG",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "AI",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "AL",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "AM",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "AO",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "AQ",
+      "region": "oceania",
+      "subregion": "outlying-oceania"
+    },
+    {
+      "isoAlpha2": "AR",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "AS",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "AT",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "AU",
+      "region": "oceania",
+      "subregion": "australasia"
+    },
+    {
+      "isoAlpha2": "AW",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "AX",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "AZ",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "BA",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "BB",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "BD",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "BE",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "BF",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "BG",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "BH",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "BI",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "BJ",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "BL",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "BM",
+      "region": "americas",
+      "subregion": "northern-america"
+    },
+    {
+      "isoAlpha2": "BN",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "BO",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "BQ",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "BR",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "BS",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "BT",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "BV",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "BW",
+      "region": "africa",
+      "subregion": "southern-africa"
+    },
+    {
+      "isoAlpha2": "BY",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "BZ",
+      "region": "americas",
+      "subregion": "central-america"
+    },
+    {
+      "isoAlpha2": "CA",
+      "region": "americas",
+      "subregion": "northern-america"
+    },
+    {
+      "isoAlpha2": "CC",
+      "region": "oceania",
+      "subregion": "australasia"
+    },
+    {
+      "isoAlpha2": "CD",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "CF",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "CG",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "CH",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "CI",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "CK",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "CL",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "CM",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "CN",
+      "region": "asia",
+      "subregion": "eastern-asia"
+    },
+    {
+      "isoAlpha2": "CO",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "CR",
+      "region": "americas",
+      "subregion": "central-america"
+    },
+    {
+      "isoAlpha2": "CU",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "CV",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "CW",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "CX",
+      "region": "oceania",
+      "subregion": "australasia"
+    },
+    {
+      "isoAlpha2": "CY",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "CZ",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "DE",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "DJ",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "DK",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "DM",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "DO",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "DZ",
+      "region": "africa",
+      "subregion": "northern-africa"
+    },
+    {
+      "isoAlpha2": "EC",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "EE",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "EG",
+      "region": "africa",
+      "subregion": "northern-africa"
+    },
+    {
+      "isoAlpha2": "EH",
+      "region": "africa",
+      "subregion": "northern-africa"
+    },
+    {
+      "isoAlpha2": "ER",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "ES",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "ET",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "FI",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "FJ",
+      "region": "oceania",
+      "subregion": "melanesia"
+    },
+    {
+      "isoAlpha2": "FK",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "FM",
+      "region": "oceania",
+      "subregion": "micronesian-region"
+    },
+    {
+      "isoAlpha2": "FO",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "FR",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "GA",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "GB",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "GD",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "GE",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "GF",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "GG",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "GH",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "GI",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "GL",
+      "region": "americas",
+      "subregion": "northern-america"
+    },
+    {
+      "isoAlpha2": "GM",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "GN",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "GP",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "GQ",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "GR",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "GS",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "GT",
+      "region": "americas",
+      "subregion": "central-america"
+    },
+    {
+      "isoAlpha2": "GU",
+      "region": "oceania",
+      "subregion": "micronesian-region"
+    },
+    {
+      "isoAlpha2": "GW",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "GY",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "HK",
+      "region": "asia",
+      "subregion": "eastern-asia"
+    },
+    {
+      "isoAlpha2": "HM",
+      "region": "oceania",
+      "subregion": "australasia"
+    },
+    {
+      "isoAlpha2": "HN",
+      "region": "americas",
+      "subregion": "central-america"
+    },
+    {
+      "isoAlpha2": "HR",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "HT",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "HU",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "ID",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "IE",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "IL",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "IM",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "IN",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "IO",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "IQ",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "IR",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "IS",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "IT",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "JE",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "JM",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "JO",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "JP",
+      "region": "asia",
+      "subregion": "eastern-asia"
+    },
+    {
+      "isoAlpha2": "KE",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "KG",
+      "region": "asia",
+      "subregion": "central-asia"
+    },
+    {
+      "isoAlpha2": "KH",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "KI",
+      "region": "oceania",
+      "subregion": "micronesian-region"
+    },
+    {
+      "isoAlpha2": "KM",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "KN",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "KP",
+      "region": "asia",
+      "subregion": "eastern-asia"
+    },
+    {
+      "isoAlpha2": "KR",
+      "region": "asia",
+      "subregion": "eastern-asia"
+    },
+    {
+      "isoAlpha2": "KW",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "KY",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "KZ",
+      "region": "asia",
+      "subregion": "central-asia"
+    },
+    {
+      "isoAlpha2": "LA",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "LB",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "LC",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "LI",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "LK",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "LR",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "LS",
+      "region": "africa",
+      "subregion": "southern-africa"
+    },
+    {
+      "isoAlpha2": "LT",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "LU",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "LV",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "LY",
+      "region": "africa",
+      "subregion": "northern-africa"
+    },
+    {
+      "isoAlpha2": "MA",
+      "region": "africa",
+      "subregion": "northern-africa"
+    },
+    {
+      "isoAlpha2": "MC",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "MD",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "ME",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "MF",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "MG",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "MH",
+      "region": "oceania",
+      "subregion": "micronesian-region"
+    },
+    {
+      "isoAlpha2": "MK",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "ML",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "MM",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "MN",
+      "region": "asia",
+      "subregion": "eastern-asia"
+    },
+    {
+      "isoAlpha2": "MO",
+      "region": "asia",
+      "subregion": "eastern-asia"
+    },
+    {
+      "isoAlpha2": "MP",
+      "region": "oceania",
+      "subregion": "micronesian-region"
+    },
+    {
+      "isoAlpha2": "MQ",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "MR",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "MS",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "MT",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "MU",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "MV",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "MW",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "MX",
+      "region": "americas",
+      "subregion": "central-america"
+    },
+    {
+      "isoAlpha2": "MY",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "MZ",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "NA",
+      "region": "africa",
+      "subregion": "southern-africa"
+    },
+    {
+      "isoAlpha2": "NC",
+      "region": "oceania",
+      "subregion": "melanesia"
+    },
+    {
+      "isoAlpha2": "NE",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "NF",
+      "region": "oceania",
+      "subregion": "australasia"
+    },
+    {
+      "isoAlpha2": "NG",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "NI",
+      "region": "americas",
+      "subregion": "central-america"
+    },
+    {
+      "isoAlpha2": "NL",
+      "region": "europe",
+      "subregion": "western-europe"
+    },
+    {
+      "isoAlpha2": "NO",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "NP",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "NR",
+      "region": "oceania",
+      "subregion": "micronesian-region"
+    },
+    {
+      "isoAlpha2": "NU",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "NZ",
+      "region": "oceania",
+      "subregion": "australasia"
+    },
+    {
+      "isoAlpha2": "OM",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "PA",
+      "region": "americas",
+      "subregion": "central-america"
+    },
+    {
+      "isoAlpha2": "PE",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "PF",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "PG",
+      "region": "oceania",
+      "subregion": "melanesia"
+    },
+    {
+      "isoAlpha2": "PH",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "PK",
+      "region": "asia",
+      "subregion": "southern-asia"
+    },
+    {
+      "isoAlpha2": "PL",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "PM",
+      "region": "americas",
+      "subregion": "northern-america"
+    },
+    {
+      "isoAlpha2": "PN",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "PR",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "PS",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "PT",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "PW",
+      "region": "oceania",
+      "subregion": "micronesian-region"
+    },
+    {
+      "isoAlpha2": "PY",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "QA",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "RE",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "RO",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "RS",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "RU",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "RW",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "SA",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "SB",
+      "region": "oceania",
+      "subregion": "melanesia"
+    },
+    {
+      "isoAlpha2": "SC",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "SD",
+      "region": "africa",
+      "subregion": "northern-africa"
+    },
+    {
+      "isoAlpha2": "SE",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "SG",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "SH",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "SI",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "SJ",
+      "region": "europe",
+      "subregion": "northern-europe"
+    },
+    {
+      "isoAlpha2": "SK",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "SL",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "SM",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "SN",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "SO",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "SR",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "SS",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "ST",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "SV",
+      "region": "americas",
+      "subregion": "central-america"
+    },
+    {
+      "isoAlpha2": "SX",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "SY",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "SZ",
+      "region": "africa",
+      "subregion": "southern-africa"
+    },
+    {
+      "isoAlpha2": "TC",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "TD",
+      "region": "africa",
+      "subregion": "middle-africa"
+    },
+    {
+      "isoAlpha2": "TF",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "TG",
+      "region": "africa",
+      "subregion": "western-africa"
+    },
+    {
+      "isoAlpha2": "TH",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "TJ",
+      "region": "asia",
+      "subregion": "central-asia"
+    },
+    {
+      "isoAlpha2": "TK",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "TL",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "TM",
+      "region": "asia",
+      "subregion": "central-asia"
+    },
+    {
+      "isoAlpha2": "TN",
+      "region": "africa",
+      "subregion": "northern-africa"
+    },
+    {
+      "isoAlpha2": "TO",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "TR",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "TT",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "TV",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "TW",
+      "region": "asia",
+      "subregion": "eastern-asia"
+    },
+    {
+      "isoAlpha2": "TZ",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "UA",
+      "region": "europe",
+      "subregion": "eastern-europe"
+    },
+    {
+      "isoAlpha2": "UG",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "UM",
+      "region": "oceania",
+      "subregion": "micronesian-region"
+    },
+    {
+      "isoAlpha2": "US",
+      "region": "americas",
+      "subregion": "northern-america"
+    },
+    {
+      "isoAlpha2": "UY",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "UZ",
+      "region": "asia",
+      "subregion": "central-asia"
+    },
+    {
+      "isoAlpha2": "VA",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "VC",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "VE",
+      "region": "americas",
+      "subregion": "south-america"
+    },
+    {
+      "isoAlpha2": "VG",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "VI",
+      "region": "americas",
+      "subregion": "caribbean"
+    },
+    {
+      "isoAlpha2": "VN",
+      "region": "asia",
+      "subregion": "southeast-asia"
+    },
+    {
+      "isoAlpha2": "VU",
+      "region": "oceania",
+      "subregion": "melanesia"
+    },
+    {
+      "isoAlpha2": "WF",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "WS",
+      "region": "oceania",
+      "subregion": "polynesia"
+    },
+    {
+      "isoAlpha2": "XK",
+      "region": "europe",
+      "subregion": "southern-europe"
+    },
+    {
+      "isoAlpha2": "YE",
+      "region": "asia",
+      "subregion": "western-asia"
+    },
+    {
+      "isoAlpha2": "YT",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "ZA",
+      "region": "africa",
+      "subregion": "southern-africa"
+    },
+    {
+      "isoAlpha2": "ZM",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    },
+    {
+      "isoAlpha2": "ZW",
+      "region": "africa",
+      "subregion": "eastern-africa"
+    }
+  ],
+  "currencies": {
+    "AED": {
+      "en": "United Arab Emirates Dirham",
+      "ru": "дирхам ОАЭ"
+    },
+    "AFN": {
+      "en": "Afghan Afghani",
+      "ru": "афгани"
+    },
+    "ALL": {
+      "en": "Albanian Lek",
+      "ru": "албанский лек"
+    },
+    "AMD": {
+      "en": "Armenian Dram",
+      "ru": "армянский драм"
+    },
+    "AOA": {
+      "en": "Angolan Kwanza",
+      "ru": "ангольская кванза"
+    },
+    "ARS": {
+      "en": "Argentine Peso",
+      "ru": "аргентинский песо"
+    },
+    "AUD": {
+      "en": "Australian Dollar",
+      "ru": "австралийский доллар"
+    },
+    "AWG": {
+      "en": "Aruban Florin",
+      "ru": "арубанский флорин"
+    },
+    "AZN": {
+      "en": "Azerbaijani Manat",
+      "ru": "азербайджанский манат"
+    },
+    "BAM": {
+      "en": "Bosnia-Herzegovina Convertible Mark",
+      "ru": "конвертируемая марка Боснии и Герцеговины"
+    },
+    "BBD": {
+      "en": "Barbadian Dollar",
+      "ru": "барбадосский доллар"
+    },
+    "BDT": {
+      "en": "Bangladeshi Taka",
+      "ru": "бангладешская така"
+    },
+    "BHD": {
+      "en": "Bahraini Dinar",
+      "ru": "бахрейнский динар"
+    },
+    "BIF": {
+      "en": "Burundian Franc",
+      "ru": "бурундийский франк"
+    },
+    "BMD": {
+      "en": "Bermudan Dollar",
+      "ru": "бермудский доллар"
+    },
+    "BND": {
+      "en": "Brunei Dollar",
+      "ru": "брунейский доллар"
+    },
+    "BOB": {
+      "en": "Bolivian Boliviano",
+      "ru": "боливийский боливиано"
+    },
+    "BRL": {
+      "en": "Brazilian Real",
+      "ru": "бразильский реал"
+    },
+    "BSD": {
+      "en": "Bahamian Dollar",
+      "ru": "багамский доллар"
+    },
+    "BTN": {
+      "en": "Bhutanese Ngultrum",
+      "ru": "бутанский нгултрум"
+    },
+    "BWP": {
+      "en": "Botswanan Pula",
+      "ru": "ботсванская пула"
+    },
+    "BYN": {
+      "en": "Belarusian Ruble",
+      "ru": "белорусский рубль"
+    },
+    "BZD": {
+      "en": "Belize Dollar",
+      "ru": "белизский доллар"
+    },
+    "CAD": {
+      "en": "Canadian Dollar",
+      "ru": "канадский доллар"
+    },
+    "CDF": {
+      "en": "Congolese Franc",
+      "ru": "конголезский франк"
+    },
+    "CHF": {
+      "en": "Swiss Franc",
+      "ru": "швейцарский франк"
+    },
+    "CLP": {
+      "en": "Chilean Peso",
+      "ru": "чилийский песо"
+    },
+    "CNY": {
+      "en": "Chinese Yuan",
+      "ru": "китайский юань"
+    },
+    "COP": {
+      "en": "Colombian Peso",
+      "ru": "колумбийский песо"
+    },
+    "CRC": {
+      "en": "Costa Rican Colón",
+      "ru": "костариканский колон"
+    },
+    "CUP": {
+      "en": "Cuban Peso",
+      "ru": "кубинский песо"
+    },
+    "CVE": {
+      "en": "Cape Verdean Escudo",
+      "ru": "эскудо Кабо-Верде"
+    },
+    "CZK": {
+      "en": "Czech Koruna",
+      "ru": "чешская крона"
+    },
+    "DJF": {
+      "en": "Djiboutian Franc",
+      "ru": "франк Джибути"
+    },
+    "DKK": {
+      "en": "Danish Krone",
+      "ru": "датская крона"
+    },
+    "DOP": {
+      "en": "Dominican Peso",
+      "ru": "доминиканский песо"
+    },
+    "DZD": {
+      "en": "Algerian Dinar",
+      "ru": "алжирский динар"
+    },
+    "EGP": {
+      "en": "Egyptian Pound",
+      "ru": "египетский фунт"
+    },
+    "ERN": {
+      "en": "Eritrean Nakfa",
+      "ru": "эритрейская накфа"
+    },
+    "ETB": {
+      "en": "Ethiopian Birr",
+      "ru": "эфиопский быр"
+    },
+    "EUR": {
+      "en": "Euro",
+      "ru": "евро"
+    },
+    "FJD": {
+      "en": "Fijian Dollar",
+      "ru": "доллар Фиджи"
+    },
+    "FKP": {
+      "en": "Falkland Islands Pound",
+      "ru": "фунт Фолклендских островов"
+    },
+    "GBP": {
+      "en": "British Pound",
+      "ru": "британский фунт стерлингов"
+    },
+    "GEL": {
+      "en": "Georgian Lari",
+      "ru": "грузинский лари"
+    },
+    "GHS": {
+      "en": "Ghanaian Cedi",
+      "ru": "ганский седи"
+    },
+    "GIP": {
+      "en": "Gibraltar Pound",
+      "ru": "гибралтарский фунт"
+    },
+    "GMD": {
+      "en": "Gambian Dalasi",
+      "ru": "гамбийский даласи"
+    },
+    "GNF": {
+      "en": "Guinean Franc",
+      "ru": "гвинейский франк"
+    },
+    "GTQ": {
+      "en": "Guatemalan Quetzal",
+      "ru": "гватемальский кетсаль"
+    },
+    "GYD": {
+      "en": "Guyanaese Dollar",
+      "ru": "гайанский доллар"
+    },
+    "HKD": {
+      "en": "Hong Kong Dollar",
+      "ru": "гонконгский доллар"
+    },
+    "HNL": {
+      "en": "Honduran Lempira",
+      "ru": "гондурасская лемпира"
+    },
+    "HTG": {
+      "en": "Haitian Gourde",
+      "ru": "гаитянский гурд"
+    },
+    "HUF": {
+      "en": "Hungarian Forint",
+      "ru": "венгерский форинт"
+    },
+    "IDR": {
+      "en": "Indonesian Rupiah",
+      "ru": "индонезийская рупия"
+    },
+    "ILS": {
+      "en": "Israeli New Shekel",
+      "ru": "новый израильский шекель"
+    },
+    "INR": {
+      "en": "Indian Rupee",
+      "ru": "индийская рупия"
+    },
+    "IQD": {
+      "en": "Iraqi Dinar",
+      "ru": "иракский динар"
+    },
+    "IRR": {
+      "en": "Iranian Rial",
+      "ru": "иранский риал"
+    },
+    "ISK": {
+      "en": "Icelandic Króna",
+      "ru": "исландская крона"
+    },
+    "JMD": {
+      "en": "Jamaican Dollar",
+      "ru": "ямайский доллар"
+    },
+    "JOD": {
+      "en": "Jordanian Dinar",
+      "ru": "иорданский динар"
+    },
+    "JPY": {
+      "en": "Japanese Yen",
+      "ru": "японская иена"
+    },
+    "KES": {
+      "en": "Kenyan Shilling",
+      "ru": "кенийский шиллинг"
+    },
+    "KGS": {
+      "en": "Kyrgyz Som",
+      "ru": "киргизский сом"
+    },
+    "KHR": {
+      "en": "Cambodian Riel",
+      "ru": "камбоджийский риель"
+    },
+    "KMF": {
+      "en": "Comorian Franc",
+      "ru": "коморский франк"
+    },
+    "KPW": {
+      "en": "North Korean Won",
+      "ru": "северокорейская вона"
+    },
+    "KRW": {
+      "en": "South Korean Won",
+      "ru": "южнокорейская вона"
+    },
+    "KWD": {
+      "en": "Kuwaiti Dinar",
+      "ru": "кувейтский динар"
+    },
+    "KYD": {
+      "en": "Cayman Islands Dollar",
+      "ru": "доллар Островов Кайман"
+    },
+    "KZT": {
+      "en": "Kazakhstani Tenge",
+      "ru": "казахский тенге"
+    },
+    "LAK": {
+      "en": "Laotian Kip",
+      "ru": "лаосский кип"
+    },
+    "LBP": {
+      "en": "Lebanese Pound",
+      "ru": "ливанский фунт"
+    },
+    "LKR": {
+      "en": "Sri Lankan Rupee",
+      "ru": "шри-ланкийская рупия"
+    },
+    "LRD": {
+      "en": "Liberian Dollar",
+      "ru": "либерийский доллар"
+    },
+    "LSL": {
+      "en": "Lesotho Loti",
+      "ru": "лоти"
+    },
+    "LYD": {
+      "en": "Libyan Dinar",
+      "ru": "ливийский динар"
+    },
+    "MAD": {
+      "en": "Moroccan Dirham",
+      "ru": "марокканский дирхам"
+    },
+    "MDL": {
+      "en": "Moldovan Leu",
+      "ru": "молдавский лей"
+    },
+    "MGA": {
+      "en": "Malagasy Ariary",
+      "ru": "малагасийский ариари"
+    },
+    "MKD": {
+      "en": "Macedonian Denar",
+      "ru": "македонский денар"
+    },
+    "MMK": {
+      "en": "Myanmar Kyat",
+      "ru": "мьянманский кьят"
+    },
+    "MNT": {
+      "en": "Mongolian Tugrik",
+      "ru": "монгольский тугрик"
+    },
+    "MOP": {
+      "en": "Macanese Pataca",
+      "ru": "патака Макао"
+    },
+    "MRU": {
+      "en": "Mauritanian Ouguiya",
+      "ru": "мавританская угия"
+    },
+    "MUR": {
+      "en": "Mauritian Rupee",
+      "ru": "маврикийская рупия"
+    },
+    "MVR": {
+      "en": "Maldivian Rufiyaa",
+      "ru": "мальдивская руфия"
+    },
+    "MWK": {
+      "en": "Malawian Kwacha",
+      "ru": "малавийская квача"
+    },
+    "MXN": {
+      "en": "Mexican Peso",
+      "ru": "мексиканский песо"
+    },
+    "MYR": {
+      "en": "Malaysian Ringgit",
+      "ru": "малайзийский ринггит"
+    },
+    "MZN": {
+      "en": "Mozambican Metical",
+      "ru": "мозамбикский метикал"
+    },
+    "NAD": {
+      "en": "Namibian Dollar",
+      "ru": "доллар Намибии"
+    },
+    "NGN": {
+      "en": "Nigerian Naira",
+      "ru": "нигерийская найра"
+    },
+    "NIO": {
+      "en": "Nicaraguan Córdoba",
+      "ru": "никарагуанская кордоба"
+    },
+    "NOK": {
+      "en": "Norwegian Krone",
+      "ru": "норвежская крона"
+    },
+    "NPR": {
+      "en": "Nepalese Rupee",
+      "ru": "непальская рупия"
+    },
+    "NZD": {
+      "en": "New Zealand Dollar",
+      "ru": "новозеландский доллар"
+    },
+    "OMR": {
+      "en": "Omani Rial",
+      "ru": "оманский риал"
+    },
+    "PAB": {
+      "en": "Panamanian Balboa",
+      "ru": "панамский бальбоа"
+    },
+    "PEN": {
+      "en": "Peruvian Sol",
+      "ru": "перуанский соль"
+    },
+    "PGK": {
+      "en": "Papua New Guinean Kina",
+      "ru": "кина Папуа – Новой Гвинеи"
+    },
+    "PHP": {
+      "en": "Philippine Peso",
+      "ru": "филиппинский песо"
+    },
+    "PKR": {
+      "en": "Pakistani Rupee",
+      "ru": "пакистанская рупия"
+    },
+    "PLN": {
+      "en": "Polish Zloty",
+      "ru": "польский злотый"
+    },
+    "PYG": {
+      "en": "Paraguayan Guarani",
+      "ru": "парагвайский гуарани"
+    },
+    "QAR": {
+      "en": "Qatari Riyal",
+      "ru": "катарский риал"
+    },
+    "RON": {
+      "en": "Romanian Leu",
+      "ru": "румынский лей"
+    },
+    "RSD": {
+      "en": "Serbian Dinar",
+      "ru": "сербский динар"
+    },
+    "RUB": {
+      "en": "Russian Ruble",
+      "ru": "российский рубль"
+    },
+    "RWF": {
+      "en": "Rwandan Franc",
+      "ru": "франк Руанды"
+    },
+    "SAR": {
+      "en": "Saudi Riyal",
+      "ru": "саудовский риял"
+    },
+    "SBD": {
+      "en": "Solomon Islands Dollar",
+      "ru": "доллар Соломоновых Островов"
+    },
+    "SCR": {
+      "en": "Seychellois Rupee",
+      "ru": "сейшельская рупия"
+    },
+    "SDG": {
+      "en": "Sudanese Pound",
+      "ru": "суданский фунт"
+    },
+    "SEK": {
+      "en": "Swedish Krona",
+      "ru": "шведская крона"
+    },
+    "SGD": {
+      "en": "Singapore Dollar",
+      "ru": "сингапурский доллар"
+    },
+    "SHP": {
+      "en": "St. Helena Pound",
+      "ru": "фунт острова Святой Елены"
+    },
+    "SLE": {
+      "en": "Sierra Leonean Leone",
+      "ru": "леоне"
+    },
+    "SOS": {
+      "en": "Somali Shilling",
+      "ru": "сомалийский шиллинг"
+    },
+    "SRD": {
+      "en": "Surinamese Dollar",
+      "ru": "суринамский доллар"
+    },
+    "SSP": {
+      "en": "South Sudanese Pound",
+      "ru": "южносуданский фунт"
+    },
+    "STN": {
+      "en": "São Tomé & Príncipe Dobra",
+      "ru": "добра Сан-Томе и Принсипи"
+    },
+    "SYP": {
+      "en": "Syrian Pound",
+      "ru": "сирийский фунт"
+    },
+    "SZL": {
+      "en": "Swazi Lilangeni",
+      "ru": "свазилендский лилангени"
+    },
+    "THB": {
+      "en": "Thai Baht",
+      "ru": "таиландский бат"
+    },
+    "TJS": {
+      "en": "Tajikistani Somoni",
+      "ru": "таджикский сомони"
+    },
+    "TMT": {
+      "en": "Turkmenistani Manat",
+      "ru": "новый туркменский манат"
+    },
+    "TND": {
+      "en": "Tunisian Dinar",
+      "ru": "тунисский динар"
+    },
+    "TOP": {
+      "en": "Tongan Paʻanga",
+      "ru": "тонганская паанга"
+    },
+    "TRY": {
+      "en": "Turkish Lira",
+      "ru": "турецкая лира"
+    },
+    "TTD": {
+      "en": "Trinidad & Tobago Dollar",
+      "ru": "доллар Тринидада и Тобаго"
+    },
+    "TWD": {
+      "en": "New Taiwan Dollar",
+      "ru": "новый тайваньский доллар"
+    },
+    "TZS": {
+      "en": "Tanzanian Shilling",
+      "ru": "танзанийский шиллинг"
+    },
+    "UAH": {
+      "en": "Ukrainian Hryvnia",
+      "ru": "украинская гривна"
+    },
+    "UGX": {
+      "en": "Ugandan Shilling",
+      "ru": "угандийский шиллинг"
+    },
+    "USD": {
+      "en": "US Dollar",
+      "ru": "доллар США"
+    },
+    "UYU": {
+      "en": "Uruguayan Peso",
+      "ru": "уругвайский песо"
+    },
+    "UZS": {
+      "en": "Uzbekistani Som",
+      "ru": "узбекский сум"
+    },
+    "VES": {
+      "en": "Venezuelan Bolívar",
+      "ru": "венесуэльский боливар"
+    },
+    "VND": {
+      "en": "Vietnamese Dong",
+      "ru": "вьетнамский донг"
+    },
+    "VUV": {
+      "en": "Vanuatu Vatu",
+      "ru": "вату Вануату"
+    },
+    "WST": {
+      "en": "Samoan Tala",
+      "ru": "самоанская тала"
+    },
+    "XAF": {
+      "en": "Central African CFA Franc",
+      "ru": "франк КФА BEAC"
+    },
+    "XCD": {
+      "en": "East Caribbean Dollar",
+      "ru": "восточно-карибский доллар"
+    },
+    "XCG": {
+      "en": "Caribbean guilder",
+      "ru": "карибский гульден"
+    },
+    "XOF": {
+      "en": "West African CFA Franc",
+      "ru": "франк КФА ВСЕАО"
+    },
+    "XPF": {
+      "en": "CFP Franc",
+      "ru": "французский тихоокеанский франк"
+    },
+    "YER": {
+      "en": "Yemeni Rial",
+      "ru": "йеменский риал"
+    },
+    "ZAR": {
+      "en": "South African Rand",
+      "ru": "южноафриканский рэнд"
+    },
+    "ZMW": {
+      "en": "Zambian Kwacha",
+      "ru": "замбийская квача"
+    },
+    "ZWG": {
+      "en": "Zimbabwean Gold",
+      "ru": "зимбабвийский золотой"
+    }
+  },
+  "currencyUsage": {
+    "AD": [
+      "EUR"
+    ],
+    "AE": [
+      "AED"
+    ],
+    "AF": [
+      "AFN"
+    ],
+    "AG": [
+      "XCD"
+    ],
+    "AI": [
+      "XCD"
+    ],
+    "AL": [
+      "ALL"
+    ],
+    "AM": [
+      "AMD"
+    ],
+    "AO": [
+      "AOA"
+    ],
+    "AR": [
+      "ARS"
+    ],
+    "AS": [
+      "USD"
+    ],
+    "AT": [
+      "EUR"
+    ],
+    "AU": [
+      "AUD"
+    ],
+    "AW": [
+      "AWG"
+    ],
+    "AX": [
+      "EUR"
+    ],
+    "AZ": [
+      "AZN"
+    ],
+    "BA": [
+      "BAM"
+    ],
+    "BB": [
+      "BBD"
+    ],
+    "BD": [
+      "BDT"
+    ],
+    "BE": [
+      "EUR"
+    ],
+    "BF": [
+      "XOF"
+    ],
+    "BG": [
+      "EUR"
+    ],
+    "BH": [
+      "BHD"
+    ],
+    "BI": [
+      "BIF"
+    ],
+    "BJ": [
+      "XOF"
+    ],
+    "BL": [
+      "EUR"
+    ],
+    "BM": [
+      "BMD"
+    ],
+    "BN": [
+      "BND"
+    ],
+    "BO": [
+      "BOB"
+    ],
+    "BQ": [
+      "USD"
+    ],
+    "BR": [
+      "BRL"
+    ],
+    "BS": [
+      "BSD"
+    ],
+    "BT": [
+      "BTN",
+      "INR"
+    ],
+    "BV": [
+      "NOK"
+    ],
+    "BW": [
+      "BWP"
+    ],
+    "BY": [
+      "BYN"
+    ],
+    "BZ": [
+      "BZD"
+    ],
+    "CA": [
+      "CAD"
+    ],
+    "CC": [
+      "AUD"
+    ],
+    "CD": [
+      "CDF"
+    ],
+    "CF": [
+      "XAF"
+    ],
+    "CG": [
+      "XAF"
+    ],
+    "CH": [
+      "CHF"
+    ],
+    "CI": [
+      "XOF"
+    ],
+    "CK": [
+      "NZD"
+    ],
+    "CL": [
+      "CLP"
+    ],
+    "CM": [
+      "XAF"
+    ],
+    "CN": [
+      "CNY"
+    ],
+    "CO": [
+      "COP"
+    ],
+    "CR": [
+      "CRC"
+    ],
+    "CU": [
+      "CUP"
+    ],
+    "CV": [
+      "CVE"
+    ],
+    "CW": [
+      "XCG"
+    ],
+    "CX": [
+      "AUD"
+    ],
+    "CY": [
+      "EUR"
+    ],
+    "CZ": [
+      "CZK"
+    ],
+    "DE": [
+      "EUR"
+    ],
+    "DJ": [
+      "DJF"
+    ],
+    "DK": [
+      "DKK"
+    ],
+    "DM": [
+      "XCD"
+    ],
+    "DO": [
+      "DOP"
+    ],
+    "DZ": [
+      "DZD"
+    ],
+    "EC": [
+      "USD"
+    ],
+    "EE": [
+      "EUR"
+    ],
+    "EG": [
+      "EGP"
+    ],
+    "EH": [
+      "MAD"
+    ],
+    "ER": [
+      "ERN"
+    ],
+    "ES": [
+      "EUR"
+    ],
+    "ET": [
+      "ETB"
+    ],
+    "FI": [
+      "EUR"
+    ],
+    "FJ": [
+      "FJD"
+    ],
+    "FK": [
+      "FKP"
+    ],
+    "FM": [
+      "USD"
+    ],
+    "FO": [
+      "DKK"
+    ],
+    "FR": [
+      "EUR"
+    ],
+    "GA": [
+      "XAF"
+    ],
+    "GB": [
+      "GBP"
+    ],
+    "GD": [
+      "XCD"
+    ],
+    "GE": [
+      "GEL"
+    ],
+    "GF": [
+      "EUR"
+    ],
+    "GG": [
+      "GBP"
+    ],
+    "GH": [
+      "GHS"
+    ],
+    "GI": [
+      "GIP"
+    ],
+    "GL": [
+      "DKK"
+    ],
+    "GM": [
+      "GMD"
+    ],
+    "GN": [
+      "GNF"
+    ],
+    "GP": [
+      "EUR"
+    ],
+    "GQ": [
+      "XAF"
+    ],
+    "GR": [
+      "EUR"
+    ],
+    "GS": [
+      "GBP"
+    ],
+    "GT": [
+      "GTQ"
+    ],
+    "GU": [
+      "USD"
+    ],
+    "GW": [
+      "XOF"
+    ],
+    "GY": [
+      "GYD"
+    ],
+    "HK": [
+      "HKD"
+    ],
+    "HM": [
+      "AUD"
+    ],
+    "HN": [
+      "HNL"
+    ],
+    "HR": [
+      "EUR"
+    ],
+    "HT": [
+      "HTG",
+      "USD"
+    ],
+    "HU": [
+      "HUF"
+    ],
+    "ID": [
+      "IDR"
+    ],
+    "IE": [
+      "EUR"
+    ],
+    "IL": [
+      "ILS"
+    ],
+    "IM": [
+      "GBP"
+    ],
+    "IN": [
+      "INR"
+    ],
+    "IO": [
+      "USD"
+    ],
+    "IQ": [
+      "IQD"
+    ],
+    "IR": [
+      "IRR"
+    ],
+    "IS": [
+      "ISK"
+    ],
+    "IT": [
+      "EUR"
+    ],
+    "JE": [
+      "GBP"
+    ],
+    "JM": [
+      "JMD"
+    ],
+    "JO": [
+      "JOD"
+    ],
+    "JP": [
+      "JPY"
+    ],
+    "KE": [
+      "KES"
+    ],
+    "KG": [
+      "KGS"
+    ],
+    "KH": [
+      "KHR"
+    ],
+    "KI": [
+      "AUD"
+    ],
+    "KM": [
+      "KMF"
+    ],
+    "KN": [
+      "XCD"
+    ],
+    "KP": [
+      "KPW"
+    ],
+    "KR": [
+      "KRW"
+    ],
+    "KW": [
+      "KWD"
+    ],
+    "KY": [
+      "KYD"
+    ],
+    "KZ": [
+      "KZT"
+    ],
+    "LA": [
+      "LAK"
+    ],
+    "LB": [
+      "LBP"
+    ],
+    "LC": [
+      "XCD"
+    ],
+    "LI": [
+      "CHF"
+    ],
+    "LK": [
+      "LKR"
+    ],
+    "LR": [
+      "LRD"
+    ],
+    "LS": [
+      "LSL",
+      "ZAR"
+    ],
+    "LT": [
+      "EUR"
+    ],
+    "LU": [
+      "EUR"
+    ],
+    "LV": [
+      "EUR"
+    ],
+    "LY": [
+      "LYD"
+    ],
+    "MA": [
+      "MAD"
+    ],
+    "MC": [
+      "EUR"
+    ],
+    "MD": [
+      "MDL"
+    ],
+    "ME": [
+      "EUR"
+    ],
+    "MF": [
+      "EUR"
+    ],
+    "MG": [
+      "MGA"
+    ],
+    "MH": [
+      "USD"
+    ],
+    "MK": [
+      "MKD"
+    ],
+    "ML": [
+      "XOF"
+    ],
+    "MM": [
+      "MMK"
+    ],
+    "MN": [
+      "MNT"
+    ],
+    "MO": [
+      "MOP"
+    ],
+    "MP": [
+      "USD"
+    ],
+    "MQ": [
+      "EUR"
+    ],
+    "MR": [
+      "MRU"
+    ],
+    "MS": [
+      "XCD"
+    ],
+    "MT": [
+      "EUR"
+    ],
+    "MU": [
+      "MUR"
+    ],
+    "MV": [
+      "MVR"
+    ],
+    "MW": [
+      "MWK"
+    ],
+    "MX": [
+      "MXN"
+    ],
+    "MY": [
+      "MYR"
+    ],
+    "MZ": [
+      "MZN"
+    ],
+    "NA": [
+      "NAD",
+      "ZAR"
+    ],
+    "NC": [
+      "XPF"
+    ],
+    "NE": [
+      "XOF"
+    ],
+    "NF": [
+      "AUD"
+    ],
+    "NG": [
+      "NGN"
+    ],
+    "NI": [
+      "NIO"
+    ],
+    "NL": [
+      "EUR"
+    ],
+    "NO": [
+      "NOK"
+    ],
+    "NP": [
+      "NPR"
+    ],
+    "NR": [
+      "AUD"
+    ],
+    "NU": [
+      "NZD"
+    ],
+    "NZ": [
+      "NZD"
+    ],
+    "OM": [
+      "OMR"
+    ],
+    "PA": [
+      "PAB",
+      "USD"
+    ],
+    "PE": [
+      "PEN"
+    ],
+    "PF": [
+      "XPF"
+    ],
+    "PG": [
+      "PGK"
+    ],
+    "PH": [
+      "PHP"
+    ],
+    "PK": [
+      "PKR"
+    ],
+    "PL": [
+      "PLN"
+    ],
+    "PM": [
+      "EUR"
+    ],
+    "PN": [
+      "NZD"
+    ],
+    "PR": [
+      "USD"
+    ],
+    "PS": [
+      "ILS",
+      "JOD"
+    ],
+    "PT": [
+      "EUR"
+    ],
+    "PW": [
+      "USD"
+    ],
+    "PY": [
+      "PYG"
+    ],
+    "QA": [
+      "QAR"
+    ],
+    "RE": [
+      "EUR"
+    ],
+    "RO": [
+      "RON"
+    ],
+    "RS": [
+      "RSD"
+    ],
+    "RU": [
+      "RUB"
+    ],
+    "RW": [
+      "RWF"
+    ],
+    "SA": [
+      "SAR"
+    ],
+    "SB": [
+      "SBD"
+    ],
+    "SC": [
+      "SCR"
+    ],
+    "SD": [
+      "SDG"
+    ],
+    "SE": [
+      "SEK"
+    ],
+    "SG": [
+      "SGD"
+    ],
+    "SH": [
+      "SHP"
+    ],
+    "SI": [
+      "EUR"
+    ],
+    "SJ": [
+      "NOK"
+    ],
+    "SK": [
+      "EUR"
+    ],
+    "SL": [
+      "SLE"
+    ],
+    "SM": [
+      "EUR"
+    ],
+    "SN": [
+      "XOF"
+    ],
+    "SO": [
+      "SOS"
+    ],
+    "SR": [
+      "SRD"
+    ],
+    "SS": [
+      "SSP"
+    ],
+    "ST": [
+      "STN"
+    ],
+    "SV": [
+      "USD"
+    ],
+    "SX": [
+      "XCG"
+    ],
+    "SY": [
+      "SYP"
+    ],
+    "SZ": [
+      "SZL"
+    ],
+    "TC": [
+      "USD"
+    ],
+    "TD": [
+      "XAF"
+    ],
+    "TF": [
+      "EUR"
+    ],
+    "TG": [
+      "XOF"
+    ],
+    "TH": [
+      "THB"
+    ],
+    "TJ": [
+      "TJS"
+    ],
+    "TK": [
+      "NZD"
+    ],
+    "TL": [
+      "USD"
+    ],
+    "TM": [
+      "TMT"
+    ],
+    "TN": [
+      "TND"
+    ],
+    "TO": [
+      "TOP"
+    ],
+    "TR": [
+      "TRY"
+    ],
+    "TT": [
+      "TTD"
+    ],
+    "TV": [
+      "AUD"
+    ],
+    "TW": [
+      "TWD"
+    ],
+    "TZ": [
+      "TZS"
+    ],
+    "UA": [
+      "UAH"
+    ],
+    "UG": [
+      "UGX"
+    ],
+    "UM": [
+      "USD"
+    ],
+    "US": [
+      "USD"
+    ],
+    "UY": [
+      "UYU"
+    ],
+    "UZ": [
+      "UZS"
+    ],
+    "VA": [
+      "EUR"
+    ],
+    "VC": [
+      "XCD"
+    ],
+    "VE": [
+      "VES"
+    ],
+    "VG": [
+      "USD"
+    ],
+    "VI": [
+      "USD"
+    ],
+    "VN": [
+      "VND"
+    ],
+    "VU": [
+      "VUV"
+    ],
+    "WF": [
+      "XPF"
+    ],
+    "WS": [
+      "WST"
+    ],
+    "XK": [
+      "EUR"
+    ],
+    "YE": [
+      "YER"
+    ],
+    "YT": [
+      "EUR"
+    ],
+    "ZA": [
+      "ZAR"
+    ],
+    "ZM": [
+      "ZMW"
+    ],
+    "ZW": [
+      "USD",
+      "ZWG"
+    ]
+  },
+  "territories": {
+    "AD": {
+      "en": "Andorra",
+      "ru": "Андорра"
+    },
+    "AE": {
+      "en": "United Arab Emirates",
+      "ru": "ОАЭ"
+    },
+    "AF": {
+      "en": "Afghanistan",
+      "ru": "Афганистан"
+    },
+    "AG": {
+      "en": "Antigua & Barbuda",
+      "ru": "Антигуа и Барбуда"
+    },
+    "AI": {
+      "en": "Anguilla",
+      "ru": "Ангилья"
+    },
+    "AL": {
+      "en": "Albania",
+      "ru": "Албания"
+    },
+    "AM": {
+      "en": "Armenia",
+      "ru": "Армения"
+    },
+    "AO": {
+      "en": "Angola",
+      "ru": "Ангола"
+    },
+    "AQ": {
+      "en": "Antarctica",
+      "ru": "Антарктида"
+    },
+    "AR": {
+      "en": "Argentina",
+      "ru": "Аргентина"
+    },
+    "AS": {
+      "en": "American Samoa",
+      "ru": "Американское Самоа"
+    },
+    "AT": {
+      "en": "Austria",
+      "ru": "Австрия"
+    },
+    "AU": {
+      "en": "Australia",
+      "ru": "Австралия"
+    },
+    "AW": {
+      "en": "Aruba",
+      "ru": "Аруба"
+    },
+    "AX": {
+      "en": "Åland Islands",
+      "ru": "Аландские о-ва"
+    },
+    "AZ": {
+      "en": "Azerbaijan",
+      "ru": "Азербайджан"
+    },
+    "BA": {
+      "en": "Bosnia & Herzegovina",
+      "ru": "Босния и Герцеговина"
+    },
+    "BB": {
+      "en": "Barbados",
+      "ru": "Барбадос"
+    },
+    "BD": {
+      "en": "Bangladesh",
+      "ru": "Бангладеш"
+    },
+    "BE": {
+      "en": "Belgium",
+      "ru": "Бельгия"
+    },
+    "BF": {
+      "en": "Burkina Faso",
+      "ru": "Буркина-Фасо"
+    },
+    "BG": {
+      "en": "Bulgaria",
+      "ru": "Болгария"
+    },
+    "BH": {
+      "en": "Bahrain",
+      "ru": "Бахрейн"
+    },
+    "BI": {
+      "en": "Burundi",
+      "ru": "Бурунди"
+    },
+    "BJ": {
+      "en": "Benin",
+      "ru": "Бенин"
+    },
+    "BL": {
+      "en": "St. Barthélemy",
+      "ru": "Сен-Бартелеми"
+    },
+    "BM": {
+      "en": "Bermuda",
+      "ru": "Бермудские о-ва"
+    },
+    "BN": {
+      "en": "Brunei",
+      "ru": "Бруней"
+    },
+    "BO": {
+      "en": "Bolivia",
+      "ru": "Боливия"
+    },
+    "BQ": {
+      "en": "Caribbean Netherlands",
+      "ru": "Бонэйр, Синт-Эстатиус и Саба"
+    },
+    "BR": {
+      "en": "Brazil",
+      "ru": "Бразилия"
+    },
+    "BS": {
+      "en": "Bahamas",
+      "ru": "Багамы"
+    },
+    "BT": {
+      "en": "Bhutan",
+      "ru": "Бутан"
+    },
+    "BV": {
+      "en": "Bouvet Island",
+      "ru": "о-в Буве"
+    },
+    "BW": {
+      "en": "Botswana",
+      "ru": "Ботсвана"
+    },
+    "BY": {
+      "en": "Belarus",
+      "ru": "Беларусь"
+    },
+    "BZ": {
+      "en": "Belize",
+      "ru": "Белиз"
+    },
+    "CA": {
+      "en": "Canada",
+      "ru": "Канада"
+    },
+    "CC": {
+      "en": "Cocos (Keeling) Islands",
+      "ru": "Кокосовые о-ва"
+    },
+    "CD": {
+      "en": "Congo - Kinshasa",
+      "ru": "Конго - Киншаса"
+    },
+    "CF": {
+      "en": "Central African Republic",
+      "ru": "Центрально-Африканская Республика"
+    },
+    "CG": {
+      "en": "Congo - Brazzaville",
+      "ru": "Конго - Браззавиль"
+    },
+    "CH": {
+      "en": "Switzerland",
+      "ru": "Швейцария"
+    },
+    "CI": {
+      "en": "Côte d’Ivoire",
+      "ru": "Кот-д’Ивуар"
+    },
+    "CK": {
+      "en": "Cook Islands",
+      "ru": "о-ва Кука"
+    },
+    "CL": {
+      "en": "Chile",
+      "ru": "Чили"
+    },
+    "CM": {
+      "en": "Cameroon",
+      "ru": "Камерун"
+    },
+    "CN": {
+      "en": "China",
+      "ru": "Китай"
+    },
+    "CO": {
+      "en": "Colombia",
+      "ru": "Колумбия"
+    },
+    "CR": {
+      "en": "Costa Rica",
+      "ru": "Коста-Рика"
+    },
+    "CU": {
+      "en": "Cuba",
+      "ru": "Куба"
+    },
+    "CV": {
+      "en": "Cape Verde",
+      "ru": "Кабо-Верде"
+    },
+    "CW": {
+      "en": "Curaçao",
+      "ru": "Кюрасао"
+    },
+    "CX": {
+      "en": "Christmas Island",
+      "ru": "о-в Рождества"
+    },
+    "CY": {
+      "en": "Cyprus",
+      "ru": "Кипр"
+    },
+    "CZ": {
+      "en": "Czechia",
+      "ru": "Чехия"
+    },
+    "DE": {
+      "en": "Germany",
+      "ru": "Германия"
+    },
+    "DJ": {
+      "en": "Djibouti",
+      "ru": "Джибути"
+    },
+    "DK": {
+      "en": "Denmark",
+      "ru": "Дания"
+    },
+    "DM": {
+      "en": "Dominica",
+      "ru": "Доминика"
+    },
+    "DO": {
+      "en": "Dominican Republic",
+      "ru": "Доминиканская Республика"
+    },
+    "DZ": {
+      "en": "Algeria",
+      "ru": "Алжир"
+    },
+    "EC": {
+      "en": "Ecuador",
+      "ru": "Эквадор"
+    },
+    "EE": {
+      "en": "Estonia",
+      "ru": "Эстония"
+    },
+    "EG": {
+      "en": "Egypt",
+      "ru": "Египет"
+    },
+    "EH": {
+      "en": "Western Sahara",
+      "ru": "Западная Сахара"
+    },
+    "ER": {
+      "en": "Eritrea",
+      "ru": "Эритрея"
+    },
+    "ES": {
+      "en": "Spain",
+      "ru": "Испания"
+    },
+    "ET": {
+      "en": "Ethiopia",
+      "ru": "Эфиопия"
+    },
+    "FI": {
+      "en": "Finland",
+      "ru": "Финляндия"
+    },
+    "FJ": {
+      "en": "Fiji",
+      "ru": "Фиджи"
+    },
+    "FK": {
+      "en": "Falkland Islands",
+      "ru": "Фолклендские о-ва"
+    },
+    "FM": {
+      "en": "Micronesia",
+      "ru": "Федеративные Штаты Микронезии"
+    },
+    "FO": {
+      "en": "Faroe Islands",
+      "ru": "Фарерские о-ва"
+    },
+    "FR": {
+      "en": "France",
+      "ru": "Франция"
+    },
+    "GA": {
+      "en": "Gabon",
+      "ru": "Габон"
+    },
+    "GB": {
+      "en": "United Kingdom",
+      "ru": "Великобритания"
+    },
+    "GD": {
+      "en": "Grenada",
+      "ru": "Гренада"
+    },
+    "GE": {
+      "en": "Georgia",
+      "ru": "Грузия"
+    },
+    "GF": {
+      "en": "French Guiana",
+      "ru": "Французская Гвиана"
+    },
+    "GG": {
+      "en": "Guernsey",
+      "ru": "Гернси"
+    },
+    "GH": {
+      "en": "Ghana",
+      "ru": "Гана"
+    },
+    "GI": {
+      "en": "Gibraltar",
+      "ru": "Гибралтар"
+    },
+    "GL": {
+      "en": "Greenland",
+      "ru": "Гренландия"
+    },
+    "GM": {
+      "en": "Gambia",
+      "ru": "Гамбия"
+    },
+    "GN": {
+      "en": "Guinea",
+      "ru": "Гвинея"
+    },
+    "GP": {
+      "en": "Guadeloupe",
+      "ru": "Гваделупа"
+    },
+    "GQ": {
+      "en": "Equatorial Guinea",
+      "ru": "Экваториальная Гвинея"
+    },
+    "GR": {
+      "en": "Greece",
+      "ru": "Греция"
+    },
+    "GS": {
+      "en": "South Georgia & South Sandwich Islands",
+      "ru": "Южная Георгия и Южные Сандвичевы о-ва"
+    },
+    "GT": {
+      "en": "Guatemala",
+      "ru": "Гватемала"
+    },
+    "GU": {
+      "en": "Guam",
+      "ru": "Гуам"
+    },
+    "GW": {
+      "en": "Guinea-Bissau",
+      "ru": "Гвинея-Бисау"
+    },
+    "GY": {
+      "en": "Guyana",
+      "ru": "Гайана"
+    },
+    "HK": {
+      "en": "Hong Kong SAR China",
+      "ru": "Гонконг (САР)"
+    },
+    "HM": {
+      "en": "Heard & McDonald Islands",
+      "ru": "о-ва Херд и Макдональд"
+    },
+    "HN": {
+      "en": "Honduras",
+      "ru": "Гондурас"
+    },
+    "HR": {
+      "en": "Croatia",
+      "ru": "Хорватия"
+    },
+    "HT": {
+      "en": "Haiti",
+      "ru": "Гаити"
+    },
+    "HU": {
+      "en": "Hungary",
+      "ru": "Венгрия"
+    },
+    "ID": {
+      "en": "Indonesia",
+      "ru": "Индонезия"
+    },
+    "IE": {
+      "en": "Ireland",
+      "ru": "Ирландия"
+    },
+    "IL": {
+      "en": "Israel",
+      "ru": "Израиль"
+    },
+    "IM": {
+      "en": "Isle of Man",
+      "ru": "о-в Мэн"
+    },
+    "IN": {
+      "en": "India",
+      "ru": "Индия"
+    },
+    "IO": {
+      "en": "British Indian Ocean Territory",
+      "ru": "Британская территория в Индийском океане"
+    },
+    "IQ": {
+      "en": "Iraq",
+      "ru": "Ирак"
+    },
+    "IR": {
+      "en": "Iran",
+      "ru": "Иран"
+    },
+    "IS": {
+      "en": "Iceland",
+      "ru": "Исландия"
+    },
+    "IT": {
+      "en": "Italy",
+      "ru": "Италия"
+    },
+    "JE": {
+      "en": "Jersey",
+      "ru": "Джерси"
+    },
+    "JM": {
+      "en": "Jamaica",
+      "ru": "Ямайка"
+    },
+    "JO": {
+      "en": "Jordan",
+      "ru": "Иордания"
+    },
+    "JP": {
+      "en": "Japan",
+      "ru": "Япония"
+    },
+    "KE": {
+      "en": "Kenya",
+      "ru": "Кения"
+    },
+    "KG": {
+      "en": "Kyrgyzstan",
+      "ru": "Киргизия"
+    },
+    "KH": {
+      "en": "Cambodia",
+      "ru": "Камбоджа"
+    },
+    "KI": {
+      "en": "Kiribati",
+      "ru": "Кирибати"
+    },
+    "KM": {
+      "en": "Comoros",
+      "ru": "Коморы"
+    },
+    "KN": {
+      "en": "St. Kitts & Nevis",
+      "ru": "Сент-Китс и Невис"
+    },
+    "KP": {
+      "en": "North Korea",
+      "ru": "КНДР"
+    },
+    "KR": {
+      "en": "South Korea",
+      "ru": "Республика Корея"
+    },
+    "KW": {
+      "en": "Kuwait",
+      "ru": "Кувейт"
+    },
+    "KY": {
+      "en": "Cayman Islands",
+      "ru": "о-ва Кайман"
+    },
+    "KZ": {
+      "en": "Kazakhstan",
+      "ru": "Казахстан"
+    },
+    "LA": {
+      "en": "Laos",
+      "ru": "Лаос"
+    },
+    "LB": {
+      "en": "Lebanon",
+      "ru": "Ливан"
+    },
+    "LC": {
+      "en": "St. Lucia",
+      "ru": "Сент-Люсия"
+    },
+    "LI": {
+      "en": "Liechtenstein",
+      "ru": "Лихтенштейн"
+    },
+    "LK": {
+      "en": "Sri Lanka",
+      "ru": "Шри-Ланка"
+    },
+    "LR": {
+      "en": "Liberia",
+      "ru": "Либерия"
+    },
+    "LS": {
+      "en": "Lesotho",
+      "ru": "Лесото"
+    },
+    "LT": {
+      "en": "Lithuania",
+      "ru": "Литва"
+    },
+    "LU": {
+      "en": "Luxembourg",
+      "ru": "Люксембург"
+    },
+    "LV": {
+      "en": "Latvia",
+      "ru": "Латвия"
+    },
+    "LY": {
+      "en": "Libya",
+      "ru": "Ливия"
+    },
+    "MA": {
+      "en": "Morocco",
+      "ru": "Марокко"
+    },
+    "MC": {
+      "en": "Monaco",
+      "ru": "Монако"
+    },
+    "MD": {
+      "en": "Moldova",
+      "ru": "Молдова"
+    },
+    "ME": {
+      "en": "Montenegro",
+      "ru": "Черногория"
+    },
+    "MF": {
+      "en": "St. Martin",
+      "ru": "Сен-Мартен"
+    },
+    "MG": {
+      "en": "Madagascar",
+      "ru": "Мадагаскар"
+    },
+    "MH": {
+      "en": "Marshall Islands",
+      "ru": "Маршалловы о-ва"
+    },
+    "MK": {
+      "en": "North Macedonia",
+      "ru": "Северная Македония"
+    },
+    "ML": {
+      "en": "Mali",
+      "ru": "Мали"
+    },
+    "MM": {
+      "en": "Myanmar (Burma)",
+      "ru": "Мьянма (Бирма)"
+    },
+    "MN": {
+      "en": "Mongolia",
+      "ru": "Монголия"
+    },
+    "MO": {
+      "en": "Macao SAR China",
+      "ru": "Макао (САР)"
+    },
+    "MP": {
+      "en": "Northern Mariana Islands",
+      "ru": "Северные Марианские о-ва"
+    },
+    "MQ": {
+      "en": "Martinique",
+      "ru": "Мартиника"
+    },
+    "MR": {
+      "en": "Mauritania",
+      "ru": "Мавритания"
+    },
+    "MS": {
+      "en": "Montserrat",
+      "ru": "Монтсеррат"
+    },
+    "MT": {
+      "en": "Malta",
+      "ru": "Мальта"
+    },
+    "MU": {
+      "en": "Mauritius",
+      "ru": "Маврикий"
+    },
+    "MV": {
+      "en": "Maldives",
+      "ru": "Мальдивы"
+    },
+    "MW": {
+      "en": "Malawi",
+      "ru": "Малави"
+    },
+    "MX": {
+      "en": "Mexico",
+      "ru": "Мексика"
+    },
+    "MY": {
+      "en": "Malaysia",
+      "ru": "Малайзия"
+    },
+    "MZ": {
+      "en": "Mozambique",
+      "ru": "Мозамбик"
+    },
+    "NA": {
+      "en": "Namibia",
+      "ru": "Намибия"
+    },
+    "NC": {
+      "en": "New Caledonia",
+      "ru": "Новая Каледония"
+    },
+    "NE": {
+      "en": "Niger",
+      "ru": "Нигер"
+    },
+    "NF": {
+      "en": "Norfolk Island",
+      "ru": "о-в Норфолк"
+    },
+    "NG": {
+      "en": "Nigeria",
+      "ru": "Нигерия"
+    },
+    "NI": {
+      "en": "Nicaragua",
+      "ru": "Никарагуа"
+    },
+    "NL": {
+      "en": "Netherlands",
+      "ru": "Нидерланды"
+    },
+    "NO": {
+      "en": "Norway",
+      "ru": "Норвегия"
+    },
+    "NP": {
+      "en": "Nepal",
+      "ru": "Непал"
+    },
+    "NR": {
+      "en": "Nauru",
+      "ru": "Науру"
+    },
+    "NU": {
+      "en": "Niue",
+      "ru": "Ниуэ"
+    },
+    "NZ": {
+      "en": "New Zealand",
+      "ru": "Новая Зеландия"
+    },
+    "OM": {
+      "en": "Oman",
+      "ru": "Оман"
+    },
+    "PA": {
+      "en": "Panama",
+      "ru": "Панама"
+    },
+    "PE": {
+      "en": "Peru",
+      "ru": "Перу"
+    },
+    "PF": {
+      "en": "French Polynesia",
+      "ru": "Французская Полинезия"
+    },
+    "PG": {
+      "en": "Papua New Guinea",
+      "ru": "Папуа — Новая Гвинея"
+    },
+    "PH": {
+      "en": "Philippines",
+      "ru": "Филиппины"
+    },
+    "PK": {
+      "en": "Pakistan",
+      "ru": "Пакистан"
+    },
+    "PL": {
+      "en": "Poland",
+      "ru": "Польша"
+    },
+    "PM": {
+      "en": "St. Pierre & Miquelon",
+      "ru": "Сен-Пьер и Микелон"
+    },
+    "PN": {
+      "en": "Pitcairn Islands",
+      "ru": "о-ва Питкэрн"
+    },
+    "PR": {
+      "en": "Puerto Rico",
+      "ru": "Пуэрто-Рико"
+    },
+    "PS": {
+      "en": "Palestinian Territories",
+      "ru": "Палестинские территории"
+    },
+    "PT": {
+      "en": "Portugal",
+      "ru": "Португалия"
+    },
+    "PW": {
+      "en": "Palau",
+      "ru": "Палау"
+    },
+    "PY": {
+      "en": "Paraguay",
+      "ru": "Парагвай"
+    },
+    "QA": {
+      "en": "Qatar",
+      "ru": "Катар"
+    },
+    "RE": {
+      "en": "Réunion",
+      "ru": "Реюньон"
+    },
+    "RO": {
+      "en": "Romania",
+      "ru": "Румыния"
+    },
+    "RS": {
+      "en": "Serbia",
+      "ru": "Сербия"
+    },
+    "RU": {
+      "en": "Russia",
+      "ru": "Россия"
+    },
+    "RW": {
+      "en": "Rwanda",
+      "ru": "Руанда"
+    },
+    "SA": {
+      "en": "Saudi Arabia",
+      "ru": "Саудовская Аравия"
+    },
+    "SB": {
+      "en": "Solomon Islands",
+      "ru": "Соломоновы о-ва"
+    },
+    "SC": {
+      "en": "Seychelles",
+      "ru": "Сейшельские о-ва"
+    },
+    "SD": {
+      "en": "Sudan",
+      "ru": "Судан"
+    },
+    "SE": {
+      "en": "Sweden",
+      "ru": "Швеция"
+    },
+    "SG": {
+      "en": "Singapore",
+      "ru": "Сингапур"
+    },
+    "SH": {
+      "en": "St. Helena",
+      "ru": "о-в Св. Елены"
+    },
+    "SI": {
+      "en": "Slovenia",
+      "ru": "Словения"
+    },
+    "SJ": {
+      "en": "Svalbard & Jan Mayen",
+      "ru": "Шпицберген и Ян-Майен"
+    },
+    "SK": {
+      "en": "Slovakia",
+      "ru": "Словакия"
+    },
+    "SL": {
+      "en": "Sierra Leone",
+      "ru": "Сьерра-Леоне"
+    },
+    "SM": {
+      "en": "San Marino",
+      "ru": "Сан-Марино"
+    },
+    "SN": {
+      "en": "Senegal",
+      "ru": "Сенегал"
+    },
+    "SO": {
+      "en": "Somalia",
+      "ru": "Сомали"
+    },
+    "SR": {
+      "en": "Suriname",
+      "ru": "Суринам"
+    },
+    "SS": {
+      "en": "South Sudan",
+      "ru": "Южный Судан"
+    },
+    "ST": {
+      "en": "São Tomé & Príncipe",
+      "ru": "Сан-Томе и Принсипи"
+    },
+    "SV": {
+      "en": "El Salvador",
+      "ru": "Сальвадор"
+    },
+    "SX": {
+      "en": "Sint Maarten",
+      "ru": "Синт-Мартен"
+    },
+    "SY": {
+      "en": "Syria",
+      "ru": "Сирия"
+    },
+    "SZ": {
+      "en": "Eswatini",
+      "ru": "Эсватини"
+    },
+    "TC": {
+      "en": "Turks & Caicos Islands",
+      "ru": "Тёркс и Кайкос"
+    },
+    "TD": {
+      "en": "Chad",
+      "ru": "Чад"
+    },
+    "TF": {
+      "en": "French Southern Territories",
+      "ru": "Французские Южные территории"
+    },
+    "TG": {
+      "en": "Togo",
+      "ru": "Того"
+    },
+    "TH": {
+      "en": "Thailand",
+      "ru": "Таиланд"
+    },
+    "TJ": {
+      "en": "Tajikistan",
+      "ru": "Таджикистан"
+    },
+    "TK": {
+      "en": "Tokelau",
+      "ru": "Токелау"
+    },
+    "TL": {
+      "en": "Timor-Leste",
+      "ru": "Восточный Тимор"
+    },
+    "TM": {
+      "en": "Turkmenistan",
+      "ru": "Туркменистан"
+    },
+    "TN": {
+      "en": "Tunisia",
+      "ru": "Тунис"
+    },
+    "TO": {
+      "en": "Tonga",
+      "ru": "Тонга"
+    },
+    "TR": {
+      "en": "Türkiye",
+      "ru": "Турция"
+    },
+    "TT": {
+      "en": "Trinidad & Tobago",
+      "ru": "Тринидад и Тобаго"
+    },
+    "TV": {
+      "en": "Tuvalu",
+      "ru": "Тувалу"
+    },
+    "TW": {
+      "en": "Taiwan",
+      "ru": "Тайвань"
+    },
+    "TZ": {
+      "en": "Tanzania",
+      "ru": "Танзания"
+    },
+    "UA": {
+      "en": "Ukraine",
+      "ru": "Украина"
+    },
+    "UG": {
+      "en": "Uganda",
+      "ru": "Уганда"
+    },
+    "UM": {
+      "en": "U.S. Outlying Islands",
+      "ru": "Внешние малые о-ва (США)"
+    },
+    "US": {
+      "en": "United States",
+      "ru": "Соединенные Штаты"
+    },
+    "UY": {
+      "en": "Uruguay",
+      "ru": "Уругвай"
+    },
+    "UZ": {
+      "en": "Uzbekistan",
+      "ru": "Узбекистан"
+    },
+    "VA": {
+      "en": "Vatican City",
+      "ru": "Ватикан"
+    },
+    "VC": {
+      "en": "St. Vincent & Grenadines",
+      "ru": "Сент-Винсент и Гренадины"
+    },
+    "VE": {
+      "en": "Venezuela",
+      "ru": "Венесуэла"
+    },
+    "VG": {
+      "en": "British Virgin Islands",
+      "ru": "Виргинские о-ва (Великобритания)"
+    },
+    "VI": {
+      "en": "U.S. Virgin Islands",
+      "ru": "Виргинские о-ва (США)"
+    },
+    "VN": {
+      "en": "Vietnam",
+      "ru": "Вьетнам"
+    },
+    "VU": {
+      "en": "Vanuatu",
+      "ru": "Вануату"
+    },
+    "WF": {
+      "en": "Wallis & Futuna",
+      "ru": "Уоллис и Футуна"
+    },
+    "WS": {
+      "en": "Samoa",
+      "ru": "Самоа"
+    },
+    "XK": {
+      "en": "Kosovo",
+      "ru": "Косово"
+    },
+    "YE": {
+      "en": "Yemen",
+      "ru": "Йемен"
+    },
+    "YT": {
+      "en": "Mayotte",
+      "ru": "Майотта"
+    },
+    "ZA": {
+      "en": "South Africa",
+      "ru": "Южно-Африканская Республика"
+    },
+    "ZM": {
+      "en": "Zambia",
+      "ru": "Замбия"
+    },
+    "ZW": {
+      "en": "Zimbabwe",
+      "ru": "Зимбабве"
+    }
+  }
+}

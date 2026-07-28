@@ -1,0 +1,4231 @@
+{
+  "factType": "languages",
+  "records": [
+    {
+      "entityKey": "area.antarctica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": []
+    },
+    {
+      "entityKey": "area.bouvet-island",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "no",
+          "role": "official_or_common"
+        },
+        {
+          "code": "nb",
+          "role": "official_or_common"
+        },
+        {
+          "code": "nn",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "area.cook-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "area.french-southern-territories",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "area.heard-island-and-mcdonald-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "area.niue",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "area.united-states-minor-outlying-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.afghanistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ps",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fa",
+          "role": "official_or_common"
+        },
+        {
+          "code": "uz",
+          "role": "official_or_common"
+        },
+        {
+          "code": "tk",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.albania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sq",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.algeria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.andorra",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ca",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.angola",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.antigua-and-barbuda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.argentina",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        },
+        {
+          "code": "gn",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.armenia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "hy",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ru",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.australia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.austria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "de",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.azerbaijan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "az",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bahamas",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bahrain",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bangladesh",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "bn",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.barbados",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.belarus",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "be",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ru",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.belgium",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "nl",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "de",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.belize",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.benin",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bhutan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "dz",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bolivia-plurinational-state-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ay",
+          "role": "official_or_common"
+        },
+        {
+          "code": "qu",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bosnia-and-herzegovina",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "bs",
+          "role": "official_or_common"
+        },
+        {
+          "code": "hr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.botswana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "tn",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.brazil",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.brunei-darussalam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ms",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bulgaria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "bg",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.burkina-faso",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ff",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.burundi",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "rn",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cabo-verde",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cambodia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "km",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cameroon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.canada",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.central-african-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sg",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.chad",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.chile",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.china",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "zh",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.colombia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.comoros",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.congo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ln",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.costa-rica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cote-d-ivoire",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.croatia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "hr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cuba",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cyprus",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "el",
+          "role": "official_or_common"
+        },
+        {
+          "code": "tr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "hy",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.czechia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "cs",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.democratic-people-s-republic-of-korea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ko",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.democratic-republic-of-the-congo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ln",
+          "role": "official_or_common"
+        },
+        {
+          "code": "kg",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sw",
+          "role": "official_or_common"
+        },
+        {
+          "code": "lu",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.denmark",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "da",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.djibouti",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.dominica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.dominican-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ecuador",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.egypt",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.el-salvador",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.equatorial-guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.eritrea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ti",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.estonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "et",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.eswatini",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ss",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ethiopia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "am",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.fiji",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fj",
+          "role": "official_or_common"
+        },
+        {
+          "code": "hi",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ur",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.finland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fi",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sv",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.france",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.gabon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.gambia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.georgia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ka",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.germany",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "de",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ghana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.greece",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "el",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.grenada",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.guatemala",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ff",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.guinea-bissau",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.guyana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.haiti",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ht",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.holy-see",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "it",
+          "role": "official_or_common"
+        },
+        {
+          "code": "la",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.honduras",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.hungary",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "hu",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.iceland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "is",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.india",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "hi",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.indonesia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "id",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.iran-islamic-republic-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fa",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.iraq",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ku",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ireland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ga",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.israel",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "he",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.italy",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "it",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.jamaica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.japan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ja",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.jordan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kazakhstan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "kk",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ru",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kenya",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sw",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kiribati",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kosovo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sq",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kuwait",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kyrgyzstan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ky",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ru",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.lao-people-s-democratic-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "lo",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.latvia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "lv",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.lebanon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.lesotho",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "st",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.liberia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.libya",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.liechtenstein",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "de",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.lithuania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "lt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.luxembourg",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "de",
+          "role": "official_or_common"
+        },
+        {
+          "code": "lb",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.madagascar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "mg",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.malawi",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ny",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.malaysia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ms",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.maldives",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "dv",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mali",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.malta",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "mt",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.marshall-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "mh",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mauritania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mauritius",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mexico",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.micronesia-federated-states-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.monaco",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mongolia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "mn",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.montenegro",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "bs",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sq",
+          "role": "official_or_common"
+        },
+        {
+          "code": "hr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.morocco",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mozambique",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.myanmar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "my",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.namibia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "af",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.nauru",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "na",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.nepal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ne",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.netherlands-kingdom-of-the",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "nl",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.new-zealand",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "mi",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.nicaragua",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.niger",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.nigeria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.north-macedonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "mk",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.norway",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "no",
+          "role": "official_or_common"
+        },
+        {
+          "code": "nb",
+          "role": "official_or_common"
+        },
+        {
+          "code": "nn",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.oman",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.pakistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ur",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.palau",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.panama",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.papua-new-guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.paraguay",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        },
+        {
+          "code": "gn",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.peru",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.philippines",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "tl",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.poland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pl",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.portugal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.qatar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.republic-of-korea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ko",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.republic-of-moldova",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ro",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.romania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ro",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.russia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ru",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.rwanda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "rw",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.saint-kitts-and-nevis",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.saint-lucia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.saint-vincent-and-the-grenadines",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.samoa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sm",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.san-marino",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "it",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sao-tome-and-principe",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.saudi-arabia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.senegal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.serbia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.seychelles",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sierra-leone",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.singapore",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ms",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ta",
+          "role": "official_or_common"
+        },
+        {
+          "code": "zh",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.slovakia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sk",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.slovenia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sl",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.solomon-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.somalia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "so",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.south-africa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "af",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "nr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "st",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ss",
+          "role": "official_or_common"
+        },
+        {
+          "code": "tn",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ts",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ve",
+          "role": "official_or_common"
+        },
+        {
+          "code": "xh",
+          "role": "official_or_common"
+        },
+        {
+          "code": "zu",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.south-sudan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.spain",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        },
+        {
+          "code": "eu",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ca",
+          "role": "official_or_common"
+        },
+        {
+          "code": "gl",
+          "role": "official_or_common"
+        },
+        {
+          "code": "oc",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sri-lanka",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "si",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ta",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.state-of-palestine",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sudan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.suriname",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "nl",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sweden",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sv",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.switzerland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "de",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "it",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.syrian-arab-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.taiwan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "zh",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.tajikistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "tg",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ru",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.thailand",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "th",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.timor-leste",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.togo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.tonga",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "to",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.trinidad-and-tobago",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.tunisia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.turkiye",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "tr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.turkmenistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "tk",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ru",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.tuvalu",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.uganda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sw",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ukraine",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "uk",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.united-arab-emirates",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.united-kingdom-of-great-britain-and-northern-ireland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.united-republic-of-tanzania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sw",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.united_states",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.uruguay",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.uzbekistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "uz",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ru",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.vanuatu",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "bi",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.venezuela-bolivarian-republic-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.viet-nam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "vi",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.western-sahara",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.yemen",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "ar",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.zambia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.zimbabwe",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sn",
+          "role": "official_or_common"
+        },
+        {
+          "code": "nd",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.aland-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "sv",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.american-samoa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "sm",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.anguilla",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.aruba",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "nl",
+          "role": "official_or_common"
+        },
+        {
+          "code": "pa",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.bermuda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.bonaire-sint-eustatius-and-saba",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "nl",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.british-indian-ocean-territory",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.british-virgin-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.cayman-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.china-hong-kong-special-administrative-region",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "zh",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.china-macao-special-administrative-region",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "zh",
+          "role": "official_or_common"
+        },
+        {
+          "code": "pt",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.christmas-island",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.cocos-keeling-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.curacao",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "nl",
+          "role": "official_or_common"
+        },
+        {
+          "code": "pa",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.falkland-islands-malvinas",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.faroe-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fo",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.french-guiana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.french-polynesia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.gibraltar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.greenland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "kl",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.guadeloupe",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.guam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ch",
+          "role": "official_or_common"
+        },
+        {
+          "code": "es",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.guernsey",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.isle-of-man",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "gv",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.jersey",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.martinique",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.mayotte",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.montserrat",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.new-caledonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.norfolk-island",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.northern-mariana-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "ch",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.pitcairn",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.puerto-rico",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "es",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.reunion",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.saint-barthelemy",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.saint-helena",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.saint-martin-french-part",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        },
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        },
+        {
+          "code": "nl",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.saint-pierre-and-miquelon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.sint-maarten-dutch-part",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "nl",
+          "role": "official_or_common"
+        },
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.south-georgia-and-the-south-sandwich-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.svalbard-and-jan-mayen-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "no",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.tokelau",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.turks-and-caicos-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.united-states-virgin-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "en",
+          "role": "official_or_common"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.wallis-and-futuna-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "code": "fr",
+          "role": "official_or_common"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 1
+}

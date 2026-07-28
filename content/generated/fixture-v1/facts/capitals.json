@@ -1,0 +1,3731 @@
+{
+  "factType": "capitals",
+  "records": [
+    {
+      "entityKey": "area.antarctica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": []
+    },
+    {
+      "entityKey": "area.bouvet-island",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": []
+    },
+    {
+      "entityKey": "area.cook-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Avarua",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "area.french-southern-territories",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Port-aux-Français",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "area.heard-island-and-mcdonald-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": []
+    },
+    {
+      "entityKey": "area.niue",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Alofi",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "area.united-states-minor-outlying-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": []
+    },
+    {
+      "entityKey": "country.afghanistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kabul",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.albania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tirana",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.algeria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Algiers",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.andorra",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Andorra la Vella",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.angola",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Luanda",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.antigua-and-barbuda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Saint John's",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.argentina",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Buenos Aires",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.armenia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Yerevan",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.australia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Canberra",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.austria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Vienna",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.azerbaijan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Baku",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bahamas",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Nassau",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bahrain",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Manama",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bangladesh",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Dhaka",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.barbados",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bridgetown",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.belarus",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Minsk",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.belgium",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Brussels",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.belize",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Belmopan",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.benin",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Porto-Novo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bhutan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Thimphu",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bolivia-plurinational-state-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Sucre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bosnia-and-herzegovina",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Sarajevo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.botswana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Gaborone",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.brazil",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Brasília",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.brunei-darussalam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bandar Seri Begawan",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.bulgaria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Sofia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.burkina-faso",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Ouagadougou",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.burundi",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Gitega",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cabo-verde",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Praia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cambodia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Phnom Penh",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cameroon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Yaoundé",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.canada",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Ottawa",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.central-african-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bangui",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.chad",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "N'Djamena",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.chile",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Santiago",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.china",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Beijing",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.colombia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bogotá",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.comoros",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Moroni",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.congo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Brazzaville",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.costa-rica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "San José",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cote-d-ivoire",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Yamoussoukro",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.croatia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Zagreb",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cuba",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Havana",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.cyprus",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Nicosia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.czechia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Prague",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.democratic-people-s-republic-of-korea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Pyongyang",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.democratic-republic-of-the-congo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kinshasa",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.denmark",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Copenhagen",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.djibouti",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Djibouti",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.dominica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Roseau",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.dominican-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Santo Domingo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ecuador",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Quito",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.egypt",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Cairo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.el-salvador",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "San Salvador",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.equatorial-guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Malabo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.eritrea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Asmara",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.estonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tallinn",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.eswatini",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Lobamba",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ethiopia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Addis Ababa",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.fiji",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Suva",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.finland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Helsinki",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.france",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Paris",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.gabon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Libreville",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.gambia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Banjul",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.georgia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tbilisi",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.germany",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Berlin",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ghana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Accra",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.greece",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Athens",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.grenada",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "St. George's",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.guatemala",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Guatemala City",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Conakry",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.guinea-bissau",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bissau",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.guyana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Georgetown",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.haiti",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Port-au-Prince",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.holy-see",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Vatican City",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.honduras",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tegucigalpa",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.hungary",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Budapest",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.iceland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Reykjavik",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.india",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "New Delhi",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.indonesia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Jakarta",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.iran-islamic-republic-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tehran",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.iraq",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Baghdad",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ireland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Dublin",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.israel",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Jerusalem",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.italy",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Rome",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.jamaica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kingston",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.japan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tokyo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.jordan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Amman",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kazakhstan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Astana",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kenya",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Nairobi",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kiribati",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "South Tarawa",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kosovo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Pristina",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kuwait",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kuwait City",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.kyrgyzstan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bishkek",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.lao-people-s-democratic-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Vientiane",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.latvia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Riga",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.lebanon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Beirut",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.lesotho",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Maseru",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.liberia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Monrovia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.libya",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tripoli",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.liechtenstein",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Vaduz",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.lithuania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Vilnius",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.luxembourg",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Luxembourg",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.madagascar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Antananarivo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.malawi",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Lilongwe",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.malaysia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kuala Lumpur",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.maldives",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Malé",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mali",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bamako",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.malta",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Valletta",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.marshall-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Majuro",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mauritania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Nouakchott",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mauritius",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Port Louis",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mexico",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Mexico City",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.micronesia-federated-states-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Palikir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.monaco",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Monaco",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mongolia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Ulan Bator",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.montenegro",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Podgorica",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.morocco",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Rabat",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.mozambique",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Maputo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.myanmar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Naypyidaw",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.namibia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Windhoek",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.nauru",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Yaren",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.nepal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kathmandu",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.netherlands-kingdom-of-the",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Amsterdam",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.new-zealand",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Wellington",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.nicaragua",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Managua",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.niger",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Niamey",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.nigeria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Abuja",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.north-macedonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Skopje",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.norway",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Oslo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.oman",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Muscat",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.pakistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Islamabad",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.palau",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Ngerulmud",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.panama",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Panama City",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.papua-new-guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Port Moresby",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.paraguay",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Asunción",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.peru",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Lima",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.philippines",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Manila",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.poland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Warsaw",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.portugal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Lisbon",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.qatar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Doha",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.republic-of-korea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Seoul",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.republic-of-moldova",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Chișinău",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.romania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bucharest",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.russia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Moscow",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.rwanda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kigali",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.saint-kitts-and-nevis",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Basseterre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.saint-lucia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Castries",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.saint-vincent-and-the-grenadines",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kingstown",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.samoa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Apia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.san-marino",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "City of San Marino",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sao-tome-and-principe",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "São Tomé",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.saudi-arabia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Riyadh",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.senegal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Dakar",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.serbia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Belgrade",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.seychelles",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Victoria",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sierra-leone",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Freetown",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.singapore",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Singapore",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.slovakia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bratislava",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.slovenia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Ljubljana",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.solomon-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Honiara",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.somalia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Mogadishu",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.south-africa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Pretoria",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.south-sudan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Juba",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.spain",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Madrid",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sri-lanka",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Colombo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.state-of-palestine",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Ramallah",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sudan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Khartoum",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.suriname",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Paramaribo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.sweden",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Stockholm",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.switzerland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bern",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.syrian-arab-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Damascus",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.taiwan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Taipei",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.tajikistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Dushanbe",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.thailand",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Bangkok",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.timor-leste",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Dili",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.togo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Lomé",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.tonga",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Nuku'alofa",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.trinidad-and-tobago",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Port of Spain",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.tunisia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tunis",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.turkiye",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Ankara",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.turkmenistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Ashgabat",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.tuvalu",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Funafuti",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.uganda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kampala",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.ukraine",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kyiv",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.united-arab-emirates",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Abu Dhabi",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.united-kingdom-of-great-britain-and-northern-ireland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "London",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.united-republic-of-tanzania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Dodoma",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.united_states",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Washington D.C.",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.uruguay",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Montevideo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.uzbekistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tashkent",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.vanuatu",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Port Vila",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.venezuela-bolivarian-republic-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Caracas",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.viet-nam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Hanoi",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.western-sahara",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "El Aaiún",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.yemen",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Sana'a",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.zambia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Lusaka",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "country.zimbabwe",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Harare",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.aland-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Mariehamn",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.american-samoa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Pago Pago",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.anguilla",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "The Valley",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.aruba",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Oranjestad",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.bermuda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Hamilton",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.bonaire-sint-eustatius-and-saba",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kralendijk",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.british-indian-ocean-territory",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Diego Garcia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.british-virgin-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Road Town",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.cayman-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "George Town",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.china-hong-kong-special-administrative-region",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "City of Victoria",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.china-macao-special-administrative-region",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": []
+    },
+    {
+      "entityKey": "territory.christmas-island",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Flying Fish Cove",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.cocos-keeling-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "West Island",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.curacao",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Willemstad",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.falkland-islands-malvinas",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Stanley",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.faroe-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Tórshavn",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.french-guiana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Cayenne",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.french-polynesia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Papeetē",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.gibraltar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Gibraltar",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.greenland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Nuuk",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.guadeloupe",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Basse-Terre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.guam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Hagåtña",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.guernsey",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "St. Peter Port",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.isle-of-man",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Douglas",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.jersey",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Saint Helier",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.martinique",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Fort-de-France",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.mayotte",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Mamoudzou",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.montserrat",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Plymouth",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.new-caledonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Nouméa",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.norfolk-island",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Kingston",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.northern-mariana-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Saipan",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.pitcairn",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Adamstown",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.puerto-rico",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "San Juan",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.reunion",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Saint-Denis",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.saint-barthelemy",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Gustavia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.saint-helena",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Jamestown",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.saint-martin-french-part",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Marigot",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.saint-pierre-and-miquelon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Saint-Pierre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.sint-maarten-dutch-part",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Philipsburg",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.south-georgia-and-the-south-sandwich-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "King Edward Point",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.svalbard-and-jan-mayen-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Longyearbyen",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.tokelau",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Fakaofo",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.turks-and-caicos-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Cockburn Town",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.united-states-virgin-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Charlotte Amalie",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "entityKey": "territory.wallis-and-futuna-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.716Z",
+        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
+        "sourceKey": "annexare"
+      },
+      "value": [
+        {
+          "name": "Mata-Utu",
+          "role": "official"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 1
+}

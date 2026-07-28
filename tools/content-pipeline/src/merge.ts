@@ -1,0 +1,372 @@
+import { isDeepStrictEqual } from "node:util";
+
+import { buildAsset, type BuiltAsset } from "./assets.js";
+import { editorialPatches, type EntityMatcher } from "./matching.js";
+import type {
+  Conflict,
+  EditorialCatalog,
+  FieldPatch,
+  NormalizedSource,
+  PipelineReports,
+  Provenance,
+} from "./types.js";
+
+type MutableRecord = Record<string, unknown>;
+
+export interface MergedContent {
+  catalog: MutableRecord;
+  facts: Record<string, MutableRecord>;
+  assets: BuiltAsset[];
+  provenance: Record<string, Provenance>;
+  reports: PipelineReports;
+}
+
+function setPath(target: MutableRecord, path: string, value: unknown): void {
+  const segments = path.split(".");
+  let cursor = target;
+  for (const segment of segments.slice(0, -1)) {
+    const child = cursor[segment];
+    if (child === null || typeof child !== "object" || Array.isArray(child)) {
+      cursor[segment] = {};
+    }
+    cursor = cursor[segment] as MutableRecord;
+  }
+  const last = segments.at(-1);
+  if (last !== undefined) {
+    cursor[last] = value;
+  }
+}
+
+function groupedPatches(
+  patches: FieldPatch[],
+  matcher: EntityMatcher,
+  reports: PipelineReports,
+): Map<string, FieldPatch[]> {
+  const groups = new Map<string, FieldPatch[]>();
+  for (const patch of patches) {
+    const entityKey = matcher.resolve(patch.entity, patch.provenance.sourceKey);
+    if (entityKey === undefined) {
+      reports.unresolvedEntities.push(
+        matcher.unresolved(patch.entity, patch.provenance.sourceKey),
+      );
+      continue;
+    }
+    const key = `${entityKey}\u0000${patch.path}`;
+    const group = groups.get(key) ?? [];
+    group.push(patch);
+    groups.set(key, group);
+  }
+  return groups;
+}
+
+function choosePatch(
+  entityKey: string,
+  path: string,
+  patches: FieldPatch[],
+  conflicts: Conflict[],
+): FieldPatch {
+  const ordered = [...patches].sort(
+    (left, right) =>
+      right.priority - left.priority ||
+      left.provenance.sourceKey.localeCompare(right.provenance.sourceKey, "en"),
+  );
+  const winner = ordered[0];
+  if (winner === undefined) {
+    throw new Error("Cannot choose from an empty patch group");
+  }
+  const distinct = ordered.filter(
+    (candidate, index) =>
+      ordered.findIndex((other) =>
+        isDeepStrictEqual(other.value, candidate.value),
+      ) === index,
+  );
+  if (distinct.length > 1) {
+    const topPriority = winner.priority;
+    const tiedWinners = distinct.filter(
+      ({ priority }) => priority === topPriority,
+    );
+    const resolvedByEditorial = winner.provenance.sourceKey === "editorial";
+    const blocking = tiedWinners.length > 1 && !resolvedByEditorial;
+    conflicts.push({
+      entityKey,
+      path,
+      selected: winner.value,
+      candidates: distinct.map(({ value, provenance, priority }) => ({
+        value,
+        provenance,
+        priority,
+      })),
+      blocking,
+      resolution: resolvedByEditorial
+        ? "editorial_override"
+        : blocking
+          ? "unresolved"
+          : "source_priority",
+      resolvedByEditorial,
+    });
+  }
+  return winner;
+}
+
+export async function mergeContent(
+  outputDirectory: string,
+  catalogVersion: string,
+  editorial: EditorialCatalog,
+  normalized: NormalizedSource[],
+  matcher: EntityMatcher,
+  editorialProvenance: Provenance,
+): Promise<MergedContent> {
+  const reports: PipelineReports = {
+    unresolvedEntities: [],
+    fieldConflicts: [],
+    missingTranslations: [],
+    missingAssets: [],
+    licenseProblems: [],
+  };
+  const provenanceMap: Record<string, Provenance> = {};
+  const byEntity = new Map<string, MutableRecord>();
+  for (const entity of editorial.entities) {
+    const codes = Object.fromEntries(
+      (["isoAlpha2", "isoAlpha3", "m49", "customCode"] as const).flatMap(
+        (kind) => {
+          const value = entity.identifiers?.[kind];
+          return value === undefined ? [] : [[kind, value]];
+        },
+      ),
+    );
+    byEntity.set(entity.key, {
+      key: entity.key,
+      type: entity.type,
+      status: entity.status,
+      includeInCountryCatalog: entity.includeInCountryCatalog,
+      recognition: {
+        status: entity.recognitionStatus,
+        ...(entity.recognitionAsOf === undefined
+          ? {}
+          : { asOf: entity.recognitionAsOf }),
+      },
+      ...(entity.validFrom === undefined
+        ? {}
+        : { validFrom: entity.validFrom }),
+      ...(entity.validTo === undefined ? {} : { validTo: entity.validTo }),
+      ...(Object.keys(codes).length === 0 ? {} : { codes }),
+    });
+    for (const path of [
+      "type",
+      "status",
+      "includeInCountryCatalog",
+      "recognition.status",
+    ]) {
+      provenanceMap[`${entity.key}/${path}`] = editorialProvenance;
+    }
+    if (entity.recognitionAsOf !== undefined) {
+      provenanceMap[`${entity.key}/recognition.asOf`] = editorialProvenance;
+    }
+    for (const identifier of Object.keys(codes)) {
+      provenanceMap[`${entity.key}/codes.${identifier}`] = editorialProvenance;
+    }
+    if (entity.validFrom !== undefined) {
+      provenanceMap[`${entity.key}/validFrom`] = editorialProvenance;
+    }
+    if (entity.validTo !== undefined) {
+      provenanceMap[`${entity.key}/validTo`] = editorialProvenance;
+    }
+  }
+
+  const patches = [
+    ...normalized.flatMap(({ patches }) => patches),
+    ...editorialPatches(editorial, editorialProvenance),
+  ];
+  for (const [groupKey, group] of groupedPatches(patches, matcher, reports)) {
+    const [entityKey, path] = groupKey.split("\u0000");
+    if (entityKey === undefined || path === undefined) {
+      continue;
+    }
+    const winner = choosePatch(entityKey, path, group, reports.fieldConflicts);
+    const entity = byEntity.get(entityKey);
+    if (entity !== undefined) {
+      setPath(entity, path, winner.value);
+      provenanceMap[`${entityKey}/${path}`] = winner.provenance;
+    }
+  }
+
+  const assets: BuiltAsset[] = [];
+  for (const candidate of normalized.flatMap(({ assets }) => assets)) {
+    const entityKey = matcher.resolve(
+      candidate.entity,
+      candidate.provenance.sourceKey,
+    );
+    if (entityKey === undefined) {
+      reports.unresolvedEntities.push(
+        matcher.unresolved(candidate.entity, candidate.provenance.sourceKey),
+      );
+      continue;
+    }
+    try {
+      assets.push(await buildAsset(outputDirectory, entityKey, candidate));
+    } catch (error) {
+      reports.licenseProblems.push({
+        entityKey,
+        reason: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+  const assetsByEntity = new Map(
+    assets.map((asset) => [asset.entityKey, asset]),
+  );
+
+  for (const entity of byEntity.values()) {
+    if (entity.includeInCountryCatalog !== true) {
+      continue;
+    }
+    const names = entity.names as
+      | Record<string, { short?: string }>
+      | undefined;
+    for (const locale of editorial.supportedLocales) {
+      if (names?.[locale]?.short === undefined) {
+        reports.missingTranslations.push({
+          entityKey: String(entity.key),
+          locale,
+        });
+      }
+    }
+    const asset = assetsByEntity.get(String(entity.key));
+    if (asset === undefined) {
+      reports.missingAssets.push({ entityKey: String(entity.key) });
+    } else {
+      entity.assetKeys = [asset.key];
+    }
+  }
+
+  const relations = normalized
+    .flatMap(({ relations }) => relations)
+    .flatMap((candidate) => {
+      const childKey = matcher.resolve(
+        candidate.child,
+        candidate.provenance.sourceKey,
+      );
+      const parentKey = candidate.parentKey;
+      if (childKey === undefined || !byEntity.has(parentKey)) {
+        if (childKey === undefined) {
+          reports.unresolvedEntities.push(
+            matcher.unresolved(candidate.child, candidate.provenance.sourceKey),
+          );
+        }
+        return [];
+      }
+      provenanceMap[
+        `relation/${parentKey}/${childKey}/${candidate.taxonomyKey}`
+      ] = candidate.provenance;
+      return [
+        {
+          parentKey,
+          childKey,
+          taxonomyKey: candidate.taxonomyKey,
+          relationType: candidate.relationType,
+          primary: candidate.primary,
+        },
+      ];
+    });
+  relations.push(...editorial.additionalRelations);
+  for (const relation of editorial.additionalRelations) {
+    provenanceMap[
+      `relation/${relation.parentKey}/${relation.childKey}/${relation.taxonomyKey}`
+    ] = editorialProvenance;
+  }
+  const uniqueRelations = [
+    ...new Map(
+      relations.map((relation) => [
+        `${relation.parentKey}/${relation.childKey}/${relation.taxonomyKey}/${relation.relationType}`,
+        relation,
+      ]),
+    ).values(),
+  ];
+
+  const currentKeys = [...byEntity.values()]
+    .filter(
+      (entity) =>
+        entity.includeInCountryCatalog === true && entity.status === "active",
+    )
+    .map((entity) => String(entity.key))
+    .sort();
+  const decks = editorial.decks.map((deck) => ({
+    key: deck.key,
+    kind: deck.kind,
+    names: deck.names,
+    memberEntityKeys:
+      deck.members === "all-current" ? currentKeys : [...deck.members].sort(),
+  }));
+  for (const deck of editorial.decks) {
+    provenanceMap[`deck/${deck.key}`] = editorialProvenance;
+  }
+
+  const facts = Object.fromEntries(
+    ["capitals", "currencies", "languages", "population"].map((factType) => [
+      factType,
+      {
+        schemaVersion: 1,
+        factType,
+        records: currentKeys.map((entityKey) => {
+          const entity = byEntity.get(entityKey);
+          if (entity === undefined) {
+            throw new Error(`Missing merged entity ${entityKey}`);
+          }
+          const value = (entity.facts as MutableRecord | undefined)?.[factType];
+          const source = provenanceMap[`${entityKey}/facts.${factType}`];
+          return value === undefined
+            ? {
+                entityKey,
+                gap: true,
+                reason: "source_value_unavailable",
+              }
+            : {
+                entityKey,
+                gap: false,
+                value,
+                provenance: source,
+              };
+        }),
+      },
+    ]),
+  );
+
+  const catalogEntities = [...byEntity.values()]
+    .map((entity) =>
+      Object.fromEntries(
+        Object.entries(entity).filter(
+          ([key]) => !["facts", "crossChecks", "identifiers"].includes(key),
+        ),
+      ),
+    )
+    .sort((left, right) =>
+      String(left.key).localeCompare(String(right.key), "en"),
+    );
+
+  return {
+    catalog: {
+      $schema: "../../../content/schemas/catalog.schema.json",
+      schemaVersion: 1,
+      catalogVersion,
+      defaultLocale: editorial.defaultLocale,
+      supportedLocales: [...editorial.supportedLocales].sort(),
+      entities: catalogEntities,
+      relations: uniqueRelations.sort((left, right) =>
+        `${left.parentKey}/${left.childKey}/${left.taxonomyKey}`.localeCompare(
+          `${right.parentKey}/${right.childKey}/${right.taxonomyKey}`,
+          "en",
+        ),
+      ),
+      decks,
+    },
+    facts,
+    assets: assets.sort((left, right) =>
+      left.key.localeCompare(right.key, "en"),
+    ),
+    provenance: Object.fromEntries(
+      Object.entries(provenanceMap).sort(([left], [right]) =>
+        left.localeCompare(right, "en"),
+      ),
+    ),
+    reports,
+  };
+}

@@ -1,0 +1,2887 @@
+{
+  "additionalRelations": [
+    {
+      "childKey": "country.russia",
+      "parentKey": "region.asia",
+      "primary": false,
+      "relationType": "associated_with",
+      "taxonomyKey": "taxonomy.editorial.v1"
+    },
+    {
+      "childKey": "country.kosovo",
+      "parentKey": "region.europe",
+      "primary": true,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
+    }
+  ],
+  "decks": [
+    {
+      "key": "deck.all",
+      "kind": "curated",
+      "members": "all-current",
+      "names": {
+        "en": {
+          "description": "Approved development catalog",
+          "name": "All countries"
+        },
+        "ru": {
+          "description": "Утверждённый каталог разработки",
+          "name": "Все страны"
+        }
+      }
+    },
+    {
+      "key": "deck.europe",
+      "kind": "taxonomy",
+      "members": [
+        "country.france",
+        "country.germany",
+        "country.kosovo",
+        "country.russia"
+      ],
+      "names": {
+        "en": {
+          "description": "European collection",
+          "name": "Europe"
+        },
+        "ru": {
+          "description": "Европейская подборка",
+          "name": "Европа"
+        }
+      }
+    }
+  ],
+  "defaultLocale": "ru",
+  "entities": [
+    {
+      "identifiers": {
+        "isoAlpha2": "AQ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "area.antarctica",
+      "recognitionStatus": "special_area",
+      "status": "active",
+      "type": "area"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BV"
+      },
+      "includeInCountryCatalog": true,
+      "key": "area.bouvet-island",
+      "recognitionStatus": "special_area",
+      "status": "active",
+      "type": "area"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "area.cook-islands",
+      "recognitionStatus": "special_area",
+      "status": "active",
+      "type": "area"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "area.french-southern-territories",
+      "recognitionStatus": "special_area",
+      "status": "active",
+      "type": "area"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "HM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "area.heard-island-and-mcdonald-islands",
+      "recognitionStatus": "special_area",
+      "status": "active",
+      "type": "area"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "area.niue",
+      "recognitionStatus": "special_area",
+      "status": "active",
+      "type": "area"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "UM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "area.united-states-minor-outlying-islands",
+      "recognitionStatus": "special_area",
+      "status": "active",
+      "type": "area"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.afghanistan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.albania",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "DZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.algeria",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AD"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.andorra",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.angola",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.antigua-and-barbuda",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.argentina",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.armenia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.australia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.austria",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.azerbaijan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.bahamas",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.bahrain",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BD"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.bangladesh",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BB"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.barbados",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.belarus",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.belgium",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.belize",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BJ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.benin",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.bhutan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.bolivia-plurinational-state-of",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.bosnia-and-herzegovina",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.botswana",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.brazil",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.brunei-darussalam",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.bulgaria",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.burkina-faso",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.burundi",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CV"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.cabo-verde",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.cambodia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.cameroon",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.canada",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.central-african-republic",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TD"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.chad",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.chile",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.china",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.colombia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.comoros",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.congo",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.costa-rica",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.cote-d-ivoire",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "HR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.croatia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.cuba",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.cyprus",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.czechia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KP"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.democratic-people-s-republic-of-korea",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CD"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.democratic-republic-of-the-congo",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "DK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.denmark",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "DJ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.djibouti",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "DM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.dominica",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "DO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.dominican-republic",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "EC"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.ecuador",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "EG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.egypt",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SV"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.el-salvador",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GQ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.equatorial-guinea",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ER"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.eritrea",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "EE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.estonia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.eswatini",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ET"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.ethiopia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "FJ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.fiji",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "FI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.finland",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "FR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.france",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.gabon",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.gambia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.georgia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "DE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.germany",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.ghana",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.greece",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GD"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.grenada",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.guatemala",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.guinea",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.guinea-bissau",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.guyana",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "HT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.haiti",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "VA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.holy-see",
+      "recognitionStatus": "un_observer",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "HN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.honduras",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "HU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.hungary",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.iceland",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.india",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ID"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.indonesia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.iran-islamic-republic-of",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IQ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.iraq",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.ireland",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.israel",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.italy",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "JM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.jamaica",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "JP"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.japan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "JO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.jordan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.kazakhstan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.kenya",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.kiribati",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "customCode": "XK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.kosovo",
+      "overrides": {
+        "names.en.short": "Kosovo",
+        "names.ru.short": "Косово"
+      },
+      "recognitionAsOf": "2026-07-28",
+      "recognitionStatus": "partially_recognized",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.kuwait",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.kyrgyzstan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.lao-people-s-democratic-republic",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LV"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.latvia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LB"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.lebanon",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.lesotho",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.liberia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.libya",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.liechtenstein",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.lithuania",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.luxembourg",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.madagascar",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.malawi",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.malaysia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MV"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.maldives",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ML"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.mali",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.malta",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.marshall-islands",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.mauritania",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.mauritius",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MX"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.mexico",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "FM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.micronesia-federated-states-of",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MC"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.monaco",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.mongolia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ME"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.montenegro",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.morocco",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.mozambique",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.myanmar",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.namibia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.nauru",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NP"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.nepal",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.netherlands-kingdom-of-the",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.new-zealand",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.nicaragua",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.niger",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.nigeria",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.north-macedonia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.norway",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "OM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.oman",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.pakistan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.palau",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.panama",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.papua-new-guinea",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.paraguay",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.peru",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.philippines",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.poland",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.portugal",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "QA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.qatar",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.republic-of-korea",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MD"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.republic-of-moldova",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "RO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.romania",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "RU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.russia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "RW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.rwanda",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.saint-kitts-and-nevis",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LC"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.saint-lucia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "VC"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.saint-vincent-and-the-grenadines",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "WS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.samoa",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.san-marino",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ST"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.sao-tome-and-principe",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.saudi-arabia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.senegal",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "RS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.serbia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SC"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.seychelles",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.sierra-leone",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.singapore",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.slovakia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.slovenia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SB"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.solomon-islands",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.somalia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ZA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.south-africa",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.south-sudan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ES"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.spain",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "LK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.sri-lanka",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.state-of-palestine",
+      "recognitionStatus": "un_observer",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SD"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.sudan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.suriname",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.sweden",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.switzerland",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.syrian-arab-republic",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TW",
+        "isoAlpha3": "TWN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.taiwan",
+      "recognitionAsOf": "2026-07-28",
+      "recognitionStatus": "partially_recognized",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TJ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.tajikistan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.thailand",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.timor-leste",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.togo",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.tonga",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.trinidad-and-tobago",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.tunisia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.turkiye",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.turkmenistan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TV"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.tuvalu",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "UG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.uganda",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "UA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.ukraine",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "US"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.united_states",
+      "overrides": {
+        "names.ru.short": "США"
+      },
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.united-arab-emirates",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GB"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.united-kingdom-of-great-britain-and-northern-ireland",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.united-republic-of-tanzania",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "UY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.uruguay",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "UZ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.uzbekistan",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "VU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.vanuatu",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "VE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.venezuela-bolivarian-republic-of",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "VN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.viet-nam",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "EH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.western-sahara",
+      "recognitionAsOf": "2026-07-28",
+      "recognitionStatus": "partially_recognized",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "YE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.yemen",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ZM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.zambia",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "ZW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.zimbabwe",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "region.africa",
+      "overrides": {
+        "names.en.short": "Africa",
+        "names.ru.short": "Африка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "region"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "region.americas",
+      "overrides": {
+        "names.en.short": "Americas",
+        "names.ru.short": "Америка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "region"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "region.asia",
+      "overrides": {
+        "names.en.short": "Asia",
+        "names.ru.short": "Азия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "region"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "region.europe",
+      "overrides": {
+        "names.en.short": "Europe",
+        "names.ru.short": "Европа"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "region"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "region.oceania",
+      "overrides": {
+        "names.en.short": "Oceania",
+        "names.ru.short": "Океания"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "region"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.australia-and-new-zealand",
+      "overrides": {
+        "names.en.short": "Australia and New Zealand",
+        "names.ru.short": "Австралия и Новая Зеландия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.caribbean",
+      "overrides": {
+        "names.en.short": "Caribbean",
+        "names.ru.short": "Карибский бассейн"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.central-america",
+      "overrides": {
+        "names.en.short": "Central America",
+        "names.ru.short": "Центральная Америка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.central-asia",
+      "overrides": {
+        "names.en.short": "Central Asia",
+        "names.ru.short": "Центральная Азия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.eastern-africa",
+      "overrides": {
+        "names.en.short": "Eastern Africa",
+        "names.ru.short": "Восточная Африка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.eastern-asia",
+      "overrides": {
+        "names.en.short": "Eastern Asia",
+        "names.ru.short": "Восточная Азия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.eastern-europe",
+      "overrides": {
+        "names.en.short": "Eastern Europe",
+        "names.ru.short": "Восточная Европа"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.melanesia",
+      "overrides": {
+        "names.en.short": "Melanesia",
+        "names.ru.short": "Меланезия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.micronesia",
+      "overrides": {
+        "names.en.short": "Micronesia",
+        "names.ru.short": "Микронезия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.middle-africa",
+      "overrides": {
+        "names.en.short": "Middle Africa",
+        "names.ru.short": "Центральная Африка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.northern-africa",
+      "overrides": {
+        "names.en.short": "Northern Africa",
+        "names.ru.short": "Северная Африка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.northern-america",
+      "overrides": {
+        "names.en.short": "Northern America",
+        "names.ru.short": "Северная Америка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.northern-europe",
+      "overrides": {
+        "names.en.short": "Northern Europe",
+        "names.ru.short": "Северная Европа"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.outlying-oceania",
+      "overrides": {
+        "names.en.short": "Outlying Oceania",
+        "names.ru.short": "Внешняя Океания"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.polynesia",
+      "overrides": {
+        "names.en.short": "Polynesia",
+        "names.ru.short": "Полинезия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.south-america",
+      "overrides": {
+        "names.en.short": "South America",
+        "names.ru.short": "Южная Америка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.south-eastern-asia",
+      "overrides": {
+        "names.en.short": "South-eastern Asia",
+        "names.ru.short": "Юго-Восточная Азия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.southern-africa",
+      "overrides": {
+        "names.en.short": "Southern Africa",
+        "names.ru.short": "Южная Африка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.southern-asia",
+      "overrides": {
+        "names.en.short": "Southern Asia",
+        "names.ru.short": "Южная Азия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.southern-europe",
+      "overrides": {
+        "names.en.short": "Southern Europe",
+        "names.ru.short": "Южная Европа"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.western-africa",
+      "overrides": {
+        "names.en.short": "Western Africa",
+        "names.ru.short": "Западная Африка"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.western-asia",
+      "overrides": {
+        "names.en.short": "Western Asia",
+        "names.ru.short": "Западная Азия"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "subregion.western-europe",
+      "overrides": {
+        "names.en.short": "Western Europe",
+        "names.ru.short": "Западная Европа"
+      },
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subregion"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AX"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.aland-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.american-samoa",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.anguilla",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "AW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.aruba",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.bermuda",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BQ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.bonaire-sint-eustatius-and-saba",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.british-indian-ocean-territory",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "VG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.british-virgin-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "KY"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.cayman-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "HK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.china-hong-kong-special-administrative-region",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.china-macao-special-administrative-region",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CX"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.christmas-island",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CC"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.cocos-keeling-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "CW"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.curacao",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "FK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.falkland-islands-malvinas",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "FO"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.faroe-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.french-guiana",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.french-polynesia",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.gibraltar",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.greenland",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GP"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.guadeloupe",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GU"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.guam",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GG"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.guernsey",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "IM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.isle-of-man",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "JE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.jersey",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MQ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.martinique",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "YT"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.mayotte",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.montserrat",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NC"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.new-caledonia",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "NF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.norfolk-island",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MP"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.northern-mariana-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PN"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.pitcairn",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PR"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.puerto-rico",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "RE"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.reunion",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "BL"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.saint-barthelemy",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SH"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.saint-helena",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "MF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.saint-martin-french-part",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "PM"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.saint-pierre-and-miquelon",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SX"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.sint-maarten-dutch-part",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "GS"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.south-georgia-and-the-south-sandwich-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "SJ"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.svalbard-and-jan-mayen-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TK"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.tokelau",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "TC"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.turks-and-caicos-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "VI"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.united-states-virgin-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    },
+    {
+      "identifiers": {
+        "isoAlpha2": "WF"
+      },
+      "includeInCountryCatalog": true,
+      "key": "territory.wallis-and-futuna-islands",
+      "recognitionStatus": "dependent_territory",
+      "status": "active",
+      "type": "territory"
+    }
+  ],
+  "schemaVersion": 1,
+  "sourceAliases": {
+    "annexare:XK": "country.kosovo",
+    "cldr:XK": "country.kosovo",
+    "flag-icons:country.kosovo": "country.kosovo",
+    "flag-icons:XK": "country.kosovo",
+    "wikidata:country.kosovo": "country.kosovo",
+    "wikidata:XK": "country.kosovo"
+  },
+  "supportedLocales": ["ru", "en"]
+}

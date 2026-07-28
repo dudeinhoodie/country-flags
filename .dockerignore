@@ -14,6 +14,9 @@ coverage
 **/coverage
 contracts/dist
 contracts/**/dist
+tools/**/dist
+tools/**/.cache
+tools/**/generated
 *.tsbuildinfo
 **/*.tsbuildinfo
 *.log

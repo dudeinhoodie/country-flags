@@ -1,0 +1,2976 @@
+{
+  "factType": "population",
+  "records": [
+    {
+      "entityKey": "area.antarctica",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "area.bouvet-island",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "area.cook-islands",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "area.french-southern-territories",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "area.heard-island-and-mcdonald-islands",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "area.niue",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "area.united-states-minor-outlying-islands",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "country.afghanistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 42647492,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.albania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2377128,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.algeria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 46814308,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.andorra",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 81938,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.angola",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 37885849,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.antigua-and-barbuda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 93772,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.argentina",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 45696159,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.armenia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3033500,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.australia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 27194286,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.austria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 9177982,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.azerbaijan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10202830,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.bahamas",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 401283,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.bahrain",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1588670,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.bangladesh",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 173562364,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.barbados",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 282467,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.belarus",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 9132629,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.belgium",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 11858610,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.belize",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 417072,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.benin",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 14462724,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.bhutan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 791524,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.bolivia-plurinational-state-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 12413315,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.bosnia-and-herzegovina",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3164253,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.botswana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2521139,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.brazil",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 211998573,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.brunei-darussalam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 462721,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.bulgaria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 6441421,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.burkina-faso",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 23548781,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.burundi",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 14047786,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.cabo-verde",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 524877,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.cambodia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 17638801,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.cameroon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 29123744,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.canada",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 41262329,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.central-african-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5330690,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.chad",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 20299123,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.chile",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 19764771,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.china",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1408975000,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.colombia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 52886363,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.comoros",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 866628,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.congo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 6332961,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.costa-rica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5129910,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.cote-d-ivoire",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 31934230,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.croatia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3866200,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.cuba",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10979783,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.cyprus",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1358282,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.czechia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10905028,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.democratic-people-s-republic-of-korea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 26498823,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.democratic-republic-of-the-congo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 109276265,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.denmark",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5976992,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.djibouti",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1168722,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.dominica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 66205,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.dominican-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 11427557,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.ecuador",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 18135478,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.egypt",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 116538258,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.el-salvador",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 6338193,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.equatorial-guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1892516,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.eritrea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3535603,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.estonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1372341,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.eswatini",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1242822,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.ethiopia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 132059767,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.fiji",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 928784,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.finland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5619911,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.france",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 68551653,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.gabon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2538952,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.gambia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2759988,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.georgia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3812518,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.germany",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 83516593,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.ghana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 34427414,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.greece",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10405134,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.grenada",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 117207,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.guatemala",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 18406359,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 14754785,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.guinea-bissau",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2201352,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.guyana",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 831087,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.haiti",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 11772557,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.holy-see",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "country.honduras",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10825703,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.hungary",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 9562065,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.iceland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 386506,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.india",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1450935791,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.indonesia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 283487931,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.iran-islamic-republic-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 91567738,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.iraq",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 46042015,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.ireland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5395790,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.israel",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10002200,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.italy",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 58952704,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.jamaica",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2839175,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.japan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 123975371,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.jordan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 11552876,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.kazakhstan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 20592571,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.kenya",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 56432944,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.kiribati",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 134518,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.kosovo",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "country.kuwait",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 4897263,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.kyrgyzstan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 7221868,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.lao-people-s-democratic-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 7769819,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.latvia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1866124,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.lebanon",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5805962,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.lesotho",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2337423,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.liberia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5612817,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.libya",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 7381023,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.liechtenstein",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 40450,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.lithuania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2888278,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.luxembourg",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 677012,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.madagascar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 31964956,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.malawi",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 21655286,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.malaysia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 35557673,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.maldives",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 527799,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.mali",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 24478595,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.malta",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 568847,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.marshall-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 37548,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.mauritania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5169395,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.mauritius",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1245779,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.mexico",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 130861007,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.micronesia-federated-states-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 113160,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.monaco",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 38631,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.mongolia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3524788,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.montenegro",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 623525,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.morocco",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 38081173,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.mozambique",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 34631766,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.myanmar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 54500091,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.namibia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3030131,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.nauru",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 11947,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.nepal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 29651054,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.netherlands-kingdom-of-the",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 17993485,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.new-zealand",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5290000,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.nicaragua",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 6916140,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.niger",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 27032412,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.nigeria",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 232679478,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.north-macedonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1824359,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.norway",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5572279,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.oman",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5281538,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.pakistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 251269164,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.palau",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 17695,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.panama",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 4515577,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.papua-new-guinea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10576502,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.paraguay",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 6929153,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.peru",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 34217848,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.philippines",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 115843670,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.poland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 36559233,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.portugal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10694681,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.qatar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2857822,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.republic-of-korea",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 51751065,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.republic-of-moldova",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2402306,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.romania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 19051804,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.russia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 143669648,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.rwanda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 14256567,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.saint-kitts-and-nevis",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 46843,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.saint-lucia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 179744,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.saint-vincent-and-the-grenadines",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 100616,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.samoa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 218019,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.san-marino",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 33977,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.sao-tome-and-principe",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 235536,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.saudi-arabia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 35300280,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.senegal",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 18501984,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.serbia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 6586476,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.seychelles",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 121354,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.sierra-leone",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 8642022,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.singapore",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 6036860,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.slovakia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5422069,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.slovenia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 2127400,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.solomon-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 819198,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.somalia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 19009151,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.south-africa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 64007187,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.south-sudan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 11943408,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.spain",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 48848840,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.sri-lanka",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 21916000,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.state-of-palestine",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 5289152,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.sudan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 50448963,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.suriname",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 634431,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.sweden",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10569709,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.switzerland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 9005582,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.syrian-arab-republic",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 24672760,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.taiwan",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "country.tajikistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10590927,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.thailand",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 71668011,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.timor-leste",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1400638,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.togo",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 8406558,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.tonga",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 104175,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.trinidad-and-tobago",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 1368333,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.tunisia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 12277109,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.turkiye",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 85518661,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.turkmenistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 7494498,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.tuvalu",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 9646,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.uganda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 50015092,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.ukraine",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 37860221,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.united-arab-emirates",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 10986400,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.united-kingdom-of-great-britain-and-northern-ireland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 69281000,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.united-republic-of-tanzania",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 68560157,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.united_states",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 340003797,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.uruguay",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3386588,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.uzbekistan",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 36361859,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.vanuatu",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 327777,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.venezuela-bolivarian-republic-of",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 28405543,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.viet-nam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 100987686,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.western-sahara",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "country.yemen",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 40583164,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.zambia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 21314956,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "country.zimbabwe",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 16634373,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.aland-islands",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.american-samoa",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 46765,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.anguilla",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.aruba",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 107995,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.bermuda",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 64636,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.bonaire-sint-eustatius-and-saba",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.british-indian-ocean-territory",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.british-virgin-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 39471,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.cayman-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 74457,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.china-hong-kong-special-administrative-region",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 7524100,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.china-macao-special-administrative-region",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 687000,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.christmas-island",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.cocos-keeling-islands",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.curacao",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 155967,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.falkland-islands-malvinas",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.faroe-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 54640,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.french-guiana",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.french-polynesia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 281807,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.gibraltar",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 39329,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.greenland",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 56836,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.guadeloupe",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.guam",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 167777,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.guernsey",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.isle-of-man",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 84160,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.jersey",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.martinique",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.mayotte",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.montserrat",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.new-caledonia",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 292639,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.norfolk-island",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.northern-mariana-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 44278,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.pitcairn",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.puerto-rico",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 3202521,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.reunion",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.saint-barthelemy",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.saint-helena",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.saint-martin-french-part",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 26129,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.saint-pierre-and-miquelon",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.sint-maarten-dutch-part",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 43350,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.south-georgia-and-the-south-sandwich-islands",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.svalbard-and-jan-mayen-islands",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.tokelau",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    },
+    {
+      "entityKey": "territory.turks-and-caicos-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 46535,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.united-states-virgin-islands",
+      "gap": false,
+      "provenance": {
+        "retrievedAt": "2026-07-28T13:07:17.935Z",
+        "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+        "sourceKey": "world-bank"
+      },
+      "value": {
+        "value": 104377,
+        "year": 2024
+      }
+    },
+    {
+      "entityKey": "territory.wallis-and-futuna-islands",
+      "gap": true,
+      "reason": "source_value_unavailable"
+    }
+  ],
+  "schemaVersion": 1
+}

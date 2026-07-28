@@ -76,6 +76,17 @@ jobs:
       - name: Test
         run: corepack yarn test:ci
 
+      - name: Rebuild deterministic content fixture
+        run: >-
+          corepack yarn content build
+          --catalog-version fixture-v1
+          --publish-ready
+
+      - name: Check generated content diff
+        run: |
+          git diff --exit-code -- content/generated/fixture-v1
+          test -z "$(git status --porcelain --untracked-files=all -- content/generated/fixture-v1)"
+
       - name: Build
         run: corepack yarn build
 

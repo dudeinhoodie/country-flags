@@ -14,6 +14,7 @@ RUN corepack enable
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY backend/package.json backend/package.json
 COPY contracts/package.json contracts/package.json
+COPY tools/content-pipeline/package.json tools/content-pipeline/package.json
 COPY backend/prisma/schema.prisma backend/prisma/schema.prisma
 
 RUN corepack yarn install --immutable
@@ -25,7 +26,7 @@ ENV DATABASE_URL=postgresql://build:build@localhost:5432/build?schema=public
 COPY backend backend
 
 RUN corepack yarn prisma:generate
-RUN corepack yarn build
+RUN corepack yarn workspace @country-flags/backend build
 RUN corepack yarn workspaces focus @country-flags/backend --production
 
 FROM base AS runner

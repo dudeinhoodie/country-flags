@@ -7,18 +7,20 @@
   },
   "workspaces": [
     "backend",
-    "contracts"
+    "contracts",
+    "tools/*"
   ],
   "scripts": {
-    "build": "yarn workspace @country-flags/backend build",
+    "build": "yarn workspace @country-flags/backend build && yarn workspace @country-flags/content-pipeline build",
     "dev": "yarn workspace @country-flags/backend start:dev",
     "start": "yarn workspace @country-flags/backend start",
-    "format": "yarn workspace @country-flags/backend format && yarn workspace @country-flags/contracts format",
-    "format:check": "yarn workspace @country-flags/backend format:check && yarn workspace @country-flags/contracts format:check",
-    "lint": "yarn workspace @country-flags/backend lint",
-    "typecheck": "yarn workspace @country-flags/backend typecheck",
-    "test": "yarn workspace @country-flags/backend test",
-    "test:ci": "yarn workspace @country-flags/backend test:ci",
+    "format": "yarn workspace @country-flags/backend format && yarn workspace @country-flags/contracts format && yarn workspace @country-flags/content-pipeline format",
+    "format:check": "yarn workspace @country-flags/backend format:check && yarn workspace @country-flags/contracts format:check && yarn workspace @country-flags/content-pipeline format:check",
+    "lint": "yarn workspace @country-flags/backend lint && yarn workspace @country-flags/content-pipeline lint",
+    "typecheck": "yarn workspace @country-flags/backend typecheck && yarn workspace @country-flags/content-pipeline typecheck",
+    "test": "yarn workspace @country-flags/backend test && yarn workspace @country-flags/content-pipeline test",
+    "test:ci": "yarn workspace @country-flags/backend test:ci && yarn workspace @country-flags/content-pipeline test",
+    "content": "yarn workspace @country-flags/content-pipeline content",
     "contracts:lint": "yarn workspace @country-flags/contracts lint",
     "contracts:bundle": "yarn workspace @country-flags/contracts bundle",
     "contracts:schemas": "yarn workspace @country-flags/contracts schemas",
