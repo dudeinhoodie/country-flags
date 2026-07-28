@@ -1,0 +1,50 @@
+{
+  "$schema": "../schemas/configuration/ad-placement-registry.v1.schema.json",
+  "schemaVersion": 1,
+  "placements": [
+    {
+      "key": "home.bottom_banner",
+      "format": "BANNER",
+      "defaultEnabled": false,
+      "approvedForRelease": false,
+      "featureFlag": "ads.home.bottom_banner.enabled",
+      "activationPolicy": "immediate",
+      "allowedSurfaces": ["HOME"],
+      "owner": "monetization",
+      "description": "Optional contextual banner below home content"
+    },
+    {
+      "key": "catalog.inline_native",
+      "format": "NATIVE",
+      "defaultEnabled": false,
+      "approvedForRelease": false,
+      "featureFlag": "ads.catalog.inline_native.enabled",
+      "activationPolicy": "immediate",
+      "allowedSurfaces": ["CATALOG"],
+      "owner": "monetization",
+      "description": "Optional contextual native unit in the catalog"
+    },
+    {
+      "key": "session_result.interstitial",
+      "format": "INTERSTITIAL",
+      "defaultEnabled": false,
+      "approvedForRelease": false,
+      "featureFlag": "ads.session_result.interstitial.enabled",
+      "activationPolicy": "immediate",
+      "allowedSurfaces": ["SESSION_RESULT"],
+      "owner": "monetization",
+      "description": "Optional interstitial after the session result is visible"
+    },
+    {
+      "key": "rewarded.optional_bonus",
+      "format": "REWARDED",
+      "defaultEnabled": false,
+      "approvedForRelease": false,
+      "featureFlag": "ads.rewarded.optional_bonus.enabled",
+      "activationPolicy": "immediate",
+      "allowedSurfaces": ["OPTIONAL_BONUS"],
+      "owner": "monetization",
+      "description": "Reserved optional rewarded placement; not approved for MVP"
+    }
+  ]
+}

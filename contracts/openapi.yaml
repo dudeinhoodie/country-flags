@@ -1,0 +1,944 @@
+openapi: 3.1.0
+info:
+  title: Country Flags API
+  version: 1.0.0
+  summary: Canonical contract for Country Flags clients
+  description: |
+    Contract-first REST API for content, authentication, study sessions,
+    progress synchronization, configuration and privacy-aware telemetry.
+    Operations marked `planned` define the stable MVP contract before their
+    NestJS implementation lands.
+  license:
+    name: UNLICENSED
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://api.country-flags.app
+    description: Production placeholder
+tags:
+  - name: Health
+    description: Process liveness and required dependency readiness.
+  - name: Configuration
+    description: Evaluated client configuration and compatibility policy.
+  - name: Authentication
+    description: Provider authentication and Country Flags token lifecycle.
+  - name: Account
+    description: Profile, identities, devices, privacy and account lifecycle.
+  - name: Settings
+    description: Versioned synchronized user preferences.
+  - name: Content
+    description: Immutable content manifests, cursors, entities and decks.
+  - name: Study
+    description: Reproducible sessions and immutable review ingestion.
+  - name: Progress
+    description: Due state, mastery, achievements and guest migration.
+  - name: Analytics
+    description: Allowlisted privacy-aware product and operational events.
+  - name: Diagnostics
+    description: Sanitized bounded platform diagnostics.
+paths:
+  /v1/health/live:
+    get:
+      tags: [Health]
+      summary: Check process liveness
+      operationId: getHealthLive
+      x-implementation-status: implemented
+      security: []
+      responses:
+        "200":
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/HealthLive
+              example:
+                status: ok
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/health/ready:
+    get:
+      tags: [Health]
+      summary: Check service readiness
+      operationId: getHealthReady
+      x-implementation-status: implemented
+      security: []
+      responses:
+        "200":
+          description: Service and PostgreSQL are ready
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/HealthReady
+              example:
+                status: ok
+                checks:
+                  database:
+                    status: up
+                    latencyMs: 4.2
+        "503":
+          description: A required dependency is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/HealthReady
+              example:
+                status: error
+                checks:
+                  database:
+                    status: down
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/app-config:
+    get:
+      tags: [Configuration]
+      summary: Get evaluated application configuration
+      operationId: getAppConfig
+      x-implementation-status: planned
+      security:
+        - {}
+        - BearerAuth: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/Platform
+        - $ref: ./openapi/components.yaml#/parameters/AppVersion
+        - $ref: ./openapi/components.yaml#/parameters/Locale
+        - $ref: ./openapi/components.yaml#/parameters/IfNoneMatch
+      responses:
+        "200":
+          description: Evaluated, cacheable configuration snapshot
+          headers:
+            ETag:
+              $ref: ./openapi/components.yaml#/headers/ETag
+            Cache-Control:
+              $ref: ./openapi/components.yaml#/headers/CacheControl
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/configuration/app-config.v1.schema.json
+        "304":
+          description: Cached configuration is still current
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/auth/apple:
+    post:
+      tags: [Authentication]
+      summary: Authenticate with Sign in with Apple
+      operationId: authenticateWithApple
+      x-implementation-status: planned
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/AppleAuthRequest
+      responses:
+        "200":
+          $ref: ./openapi/components.yaml#/responses/AuthSessionResponse
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/auth/google:
+    post:
+      tags: [Authentication]
+      summary: Authenticate with Google
+      operationId: authenticateWithGoogle
+      x-implementation-status: planned
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/GoogleAuthRequest
+      responses:
+        "200":
+          $ref: ./openapi/components.yaml#/responses/AuthSessionResponse
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Rotate a refresh token
+      operationId: refreshSession
+      x-implementation-status: planned
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/RefreshRequest
+      responses:
+        "200":
+          description: Rotated token pair
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/TokenPair
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Revoke the current refresh session
+      operationId: logout
+      x-implementation-status: planned
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/LogoutRequest
+      responses:
+        "204":
+          description: Session revoked
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/auth/logout-all:
+    post:
+      tags: [Authentication]
+      summary: Revoke every session for the current user
+      operationId: logoutAll
+      x-implementation-status: planned
+      responses:
+        "204":
+          description: All sessions revoked
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me:
+    get:
+      tags: [Account]
+      summary: Get the current user profile
+      operationId: getMe
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: Current profile
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/User
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    patch:
+      tags: [Account]
+      summary: Update the current user profile
+      operationId: updateMe
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/UpdateUserRequest
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/User
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    delete:
+      tags: [Account]
+      summary: Request complete account deletion
+      operationId: deleteMe
+      x-implementation-status: planned
+      security:
+        - BearerAuth: []
+          ReauthenticationToken: []
+      responses:
+        "202":
+          description: Deletion request accepted
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/AccountDeletionResult
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/identities:
+    get:
+      tags: [Account]
+      summary: List linked authentication identities
+      operationId: listIdentities
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: Linked identities
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/IdentityList
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/identities/apple:
+    post:
+      tags: [Account]
+      summary: Link an Apple identity
+      operationId: linkAppleIdentity
+      x-implementation-status: planned
+      security:
+        - BearerAuth: []
+          ReauthenticationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/AppleIdentityLinkRequest
+      responses:
+        "201":
+          description: Linked identity
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/AuthIdentity
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/identities/google:
+    post:
+      tags: [Account]
+      summary: Link a Google identity
+      operationId: linkGoogleIdentity
+      x-implementation-status: planned
+      security:
+        - BearerAuth: []
+          ReauthenticationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/GoogleIdentityLinkRequest
+      responses:
+        "201":
+          description: Linked identity
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/AuthIdentity
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/identities/{provider}:
+    delete:
+      tags: [Account]
+      summary: Unlink an additional authentication identity
+      operationId: unlinkIdentity
+      x-implementation-status: planned
+      security:
+        - BearerAuth: []
+          ReauthenticationToken: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/IdentityProvider
+      responses:
+        "204":
+          description: Identity unlinked
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/devices:
+    get:
+      tags: [Account]
+      summary: List current user devices
+      operationId: listDevices
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: Registered devices
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/DeviceList
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/devices/{deviceId}:
+    delete:
+      tags: [Account]
+      summary: Revoke a device and its sessions
+      operationId: deleteDevice
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/DeviceId
+      responses:
+        "204":
+          description: Device revoked
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/settings:
+    get:
+      tags: [Settings]
+      summary: Get synchronized user settings
+      operationId: getSettings
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: User settings
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/UserSettings
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    patch:
+      tags: [Settings]
+      summary: Update user settings with optimistic concurrency
+      operationId: updateSettings
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/IfMatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/UpdateSettingsRequest
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/UserSettings
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/guest-imports:
+    post:
+      tags: [Progress]
+      summary: Import guest sessions and immutable reviews
+      operationId: createGuestImport
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/security/guest-import.v1.schema.json
+      responses:
+        "202":
+          description: Import accepted or previously completed
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/GuestImportResult
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/guest-imports/{migrationId}:
+    get:
+      tags: [Progress]
+      summary: Get guest import status
+      operationId: getGuestImport
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/MigrationId
+      responses:
+        "200":
+          description: Guest import status
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/GuestImportResult
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/data-exports:
+    post:
+      tags: [Account]
+      summary: Request a machine-readable data export
+      operationId: createDataExport
+      x-implementation-status: planned
+      security:
+        - BearerAuth: []
+          ReauthenticationToken: []
+      responses:
+        "202":
+          description: Export request accepted
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/DataExport
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/data-exports/{exportId}:
+    get:
+      tags: [Account]
+      summary: Get data export status and short-lived download URL
+      operationId: getDataExport
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/ExportId
+      responses:
+        "200":
+          description: Export status
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/DataExport
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/content/manifest:
+    get:
+      tags: [Content]
+      summary: Get the active immutable content manifest
+      operationId: getContentManifest
+      x-implementation-status: planned
+      security: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/Locale
+        - $ref: ./openapi/components.yaml#/parameters/IfNoneMatch
+      responses:
+        "200":
+          description: Active content manifest
+          headers:
+            ETag:
+              $ref: ./openapi/components.yaml#/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/content/manifest.v1.schema.json
+        "304":
+          description: Cached manifest is still current
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/content/changes:
+    get:
+      tags: [Content]
+      summary: Get content changes after an opaque cursor
+      operationId: getContentChanges
+      x-implementation-status: planned
+      security: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/AfterCursor
+        - $ref: ./openapi/components.yaml#/parameters/Locale
+        - $ref: ./openapi/components.yaml#/parameters/Limit
+      responses:
+        "200":
+          description: Ordered page of content changes
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ContentChangePage
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/entities/{entityId}:
+    get:
+      tags: [Content]
+      summary: Get one localized geographic entity
+      operationId: getEntity
+      x-implementation-status: planned
+      security: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/EntityId
+        - $ref: ./openapi/components.yaml#/parameters/Locale
+      responses:
+        "200":
+          description: Geographic entity
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/GeoEntity
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/decks:
+    get:
+      tags: [Content]
+      summary: List localized decks
+      operationId: listDecks
+      x-implementation-status: planned
+      security:
+        - {}
+        - BearerAuth: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/Locale
+        - $ref: ./openapi/components.yaml#/parameters/Cursor
+        - $ref: ./openapi/components.yaml#/parameters/Limit
+      responses:
+        "200":
+          description: Cursor page of decks
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/DeckPage
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/decks/{deckId}:
+    get:
+      tags: [Content]
+      summary: Get one localized deck
+      operationId: getDeck
+      x-implementation-status: planned
+      security:
+        - {}
+        - BearerAuth: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/DeckId
+        - $ref: ./openapi/components.yaml#/parameters/Locale
+      responses:
+        "200":
+          description: Deck
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/Deck
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/decks/{deckId}/cards:
+    get:
+      tags: [Content]
+      summary: List immutable card snapshots for a deck
+      operationId: listDeckCards
+      x-implementation-status: planned
+      security:
+        - {}
+        - BearerAuth: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/DeckId
+        - $ref: ./openapi/components.yaml#/parameters/Locale
+        - $ref: ./openapi/components.yaml#/parameters/Cursor
+        - $ref: ./openapi/components.yaml#/parameters/Limit
+      responses:
+        "200":
+          description: Cursor page of learning cards
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/LearningCardPage
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/study-sessions:
+    post:
+      tags: [Study]
+      summary: Create or idempotently import a study session
+      operationId: createStudySession
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/CreateStudySessionRequest
+      responses:
+        "201":
+          description: Created study session snapshot
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/StudySession
+        "200":
+          description: Existing idempotent study session
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/StudySession
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/study-sessions/{sessionId}:
+    get:
+      tags: [Study]
+      summary: Get a reproducible study session snapshot
+      operationId: getStudySession
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/SessionId
+      responses:
+        "200":
+          description: Study session
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/StudySession
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/study-sessions/{sessionId}/complete:
+    post:
+      tags: [Study]
+      summary: Complete a study session idempotently
+      operationId: completeStudySession
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/SessionId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/CompleteStudySessionRequest
+      responses:
+        "200":
+          description: Completed session with canonical summary
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/StudySession
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/reviews/batch:
+    post:
+      tags: [Study]
+      summary: Ingest discriminated immutable review events
+      operationId: createReviewBatch
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/ReviewBatchRequest
+      responses:
+        "200":
+          description: Per-event canonical ingestion results
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ReviewBatchResult
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/due-summary:
+    get:
+      tags: [Progress]
+      summary: Get due counts grouped by learning state
+      operationId: getDueSummary
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: Due summary
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/DueSummary
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/progress:
+    get:
+      tags: [Progress]
+      summary: Get aggregate account learning progress
+      operationId: getProgress
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: Account progress
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ProgressSummary
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    delete:
+      tags: [Progress]
+      summary: Delete all learning progress but preserve the account
+      operationId: deleteProgress
+      x-implementation-status: planned
+      security:
+        - BearerAuth: []
+          ReauthenticationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/DeleteProgressRequest
+      responses:
+        "202":
+          description: Progress deletion accepted
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ProgressDeletionResult
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/decks/{deckId}/progress:
+    get:
+      tags: [Progress]
+      summary: Get progress and mastery for one deck
+      operationId: getDeckProgress
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/DeckId
+      responses:
+        "200":
+          description: Deck progress
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/DeckProgress
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/achievements:
+    get:
+      tags: [Progress]
+      summary: List earned and locked achievements
+      operationId: listAchievements
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/Cursor
+        - $ref: ./openapi/components.yaml#/parameters/Limit
+      responses:
+        "200":
+          description: Cursor page of achievements
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/AchievementPage
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/analytics/events/batch:
+    post:
+      tags: [Analytics]
+      summary: Ingest allowlisted analytics events
+      operationId: createAnalyticsBatch
+      x-implementation-status: planned
+      security:
+        - {}
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/analytics/batch.v1.schema.json
+      responses:
+        "200":
+          description: Per-event ingestion results
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/BatchIngestionResult
+        "413":
+          $ref: ./openapi/components.yaml#/responses/PayloadTooLargeResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "429":
+          $ref: ./openapi/components.yaml#/responses/RateLimitResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/diagnostics/metrickit:
+    post:
+      tags: [Diagnostics]
+      summary: Upload a sanitized MetricKit report
+      operationId: createMetricKitReport
+      x-implementation-status: planned
+      security:
+        - {}
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/MetricKitReport
+      responses:
+        "202":
+          description: Sanitized report accepted
+        "413":
+          $ref: ./openapi/components.yaml#/responses/PayloadTooLargeResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "429":
+          $ref: ./openapi/components.yaml#/responses/RateLimitResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/privacy-settings:
+    get:
+      tags: [Account]
+      summary: Get analytics and diagnostics consent settings
+      operationId: getPrivacySettings
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: Privacy settings
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/PrivacySettings
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    patch:
+      tags: [Account]
+      summary: Update privacy consent settings
+      operationId: updatePrivacySettings
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/UpdatePrivacySettingsRequest
+      responses:
+        "200":
+          description: Updated privacy settings
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/PrivacySettings
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Short-lived Country Flags access token.
+    ReauthenticationToken:
+      type: apiKey
+      in: header
+      name: X-Reauthentication-Token
+      description: Short-lived proof of fresh provider reauthentication.
+security:
+  - BearerAuth: []

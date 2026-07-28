@@ -1,0 +1,228 @@
+{
+  "$schema": "../schemas/analytics/event-registry.v1.schema.json",
+  "schemaVersion": 1,
+  "events": [
+    {
+      "name": "onboarding.completed",
+      "schemaVersion": 1,
+      "owner": "growth",
+      "purpose": "Measure completion of the initial product introduction",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "authState": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["guest", "authenticated"]
+        }
+      }
+    },
+    {
+      "name": "deck.opened",
+      "schemaVersion": 1,
+      "owner": "discovery",
+      "purpose": "Measure aggregate deck discovery",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "deckType": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["system", "dynamic", "custom"]
+        }
+      }
+    },
+    {
+      "name": "study.session_started",
+      "schemaVersion": 1,
+      "owner": "learning",
+      "purpose": "Measure study session starts by mode and requested size",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["self_rated", "multiple_choice"]
+        },
+        "requestedCardCount": {
+          "type": "integer",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "study.session_completed",
+      "schemaVersion": 1,
+      "owner": "learning",
+      "purpose": "Measure aggregate session completion and difficulty",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["self_rated", "multiple_choice"]
+        },
+        "deckType": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["system", "dynamic", "custom"]
+        },
+        "requestedCardCount": {
+          "type": "integer",
+          "required": true
+        },
+        "uniqueCardCount": {
+          "type": "integer",
+          "required": true
+        },
+        "reviewCount": {
+          "type": "integer",
+          "required": true
+        },
+        "durationBucket": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["under_60s", "60_180s", "over_180s"]
+        },
+        "correctRateBucket": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["0_49", "50_79", "80_89", "90_100"]
+        }
+      }
+    },
+    {
+      "name": "study.session_abandoned",
+      "schemaVersion": 1,
+      "owner": "learning",
+      "purpose": "Measure sessions abandoned before completion",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["self_rated", "multiple_choice"]
+        },
+        "progressBucket": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["0_24", "25_49", "50_74", "75_99"]
+        }
+      }
+    },
+    {
+      "name": "achievement.earned",
+      "schemaVersion": 1,
+      "owner": "learning",
+      "purpose": "Measure aggregate achievement progression",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "category": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["mastery", "consistency", "objective"]
+        },
+        "tier": {
+          "type": "string",
+          "required": false,
+          "enumValues": ["bronze", "silver", "gold", "platinum"]
+        }
+      }
+    },
+    {
+      "name": "feature.exposed",
+      "schemaVersion": 1,
+      "owner": "platform",
+      "purpose": "Record an experiment variant that was actually displayed",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "flagKey": {
+          "type": "string",
+          "required": true
+        },
+        "variant": {
+          "type": "string",
+          "required": true
+        },
+        "experimentId": {
+          "type": "string",
+          "required": true
+        },
+        "surface": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "auth.completed",
+      "schemaVersion": 1,
+      "owner": "identity",
+      "purpose": "Measure authentication outcome without provider identity",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["apple", "google"]
+        },
+        "result": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["success", "cancelled", "failed"]
+        }
+      }
+    },
+    {
+      "name": "sync.completed",
+      "schemaVersion": 1,
+      "owner": "sync",
+      "purpose": "Measure aggregate synchronization health",
+      "category": "operational",
+      "consentCategory": "essential_operations",
+      "retentionClass": "operational_short",
+      "properties": {
+        "result": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["success", "partial", "failed"]
+        },
+        "durationBucket": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["under_1s", "1_5s", "over_5s"]
+        }
+      }
+    },
+    {
+      "name": "content.update_completed",
+      "schemaVersion": 1,
+      "owner": "content",
+      "purpose": "Measure aggregate content update health",
+      "category": "operational",
+      "consentCategory": "essential_operations",
+      "retentionClass": "operational_short",
+      "properties": {
+        "result": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["success", "failed"]
+        }
+      }
+    }
+  ]
+}

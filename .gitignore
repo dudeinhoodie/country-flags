@@ -4,6 +4,7 @@ node_modules/
 .pnp.*
 dist/
 coverage/
+contracts/dist/
 *.tsbuildinfo
 *.log
 .env

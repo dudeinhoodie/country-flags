@@ -13,6 +13,7 @@ RUN corepack enable
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY backend/package.json backend/package.json
+COPY contracts/package.json contracts/package.json
 COPY backend/prisma/schema.prisma backend/prisma/schema.prisma
 
 RUN corepack yarn install --immutable

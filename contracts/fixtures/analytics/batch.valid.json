@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/analytics/batch.v1.schema.json",
+  "payloadVersion": 1,
+  "events": [
+    {
+      "eventId": "f0b1de1c-c938-41e3-9520-aee1d3467964",
+      "eventName": "study.session_completed",
+      "schemaVersion": 1,
+      "occurredAt": "2026-07-28T12:00:00Z",
+      "anonymousId": "anonymous-install-01",
+      "sessionId": "analytics-session-01",
+      "context": {
+        "platform": "ios",
+        "appVersion": "1.0.0",
+        "build": "100",
+        "locale": "ru",
+        "featureConfigVersion": "config-2026-07-28.1"
+      },
+      "properties": {
+        "mode": "multiple_choice",
+        "deckType": "system",
+        "requestedCardCount": 10,
+        "uniqueCardCount": 10,
+        "reviewCount": 10,
+        "durationBucket": "60_180s",
+        "correctRateBucket": "80_89"
+      }
+    }
+  ]
+}
