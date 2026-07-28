@@ -6,18 +6,24 @@
     "node": ">=22.0.0"
   },
   "workspaces": [
-    "backend"
+    "backend",
+    "contracts"
   ],
   "scripts": {
     "build": "yarn workspace @country-flags/backend build",
     "dev": "yarn workspace @country-flags/backend start:dev",
     "start": "yarn workspace @country-flags/backend start",
-    "format": "yarn workspace @country-flags/backend format",
-    "format:check": "yarn workspace @country-flags/backend format:check",
+    "format": "yarn workspace @country-flags/backend format && yarn workspace @country-flags/contracts format",
+    "format:check": "yarn workspace @country-flags/backend format:check && yarn workspace @country-flags/contracts format:check",
     "lint": "yarn workspace @country-flags/backend lint",
     "typecheck": "yarn workspace @country-flags/backend typecheck",
     "test": "yarn workspace @country-flags/backend test",
     "test:ci": "yarn workspace @country-flags/backend test:ci",
+    "contracts:lint": "yarn workspace @country-flags/contracts lint",
+    "contracts:bundle": "yarn workspace @country-flags/contracts bundle",
+    "contracts:schemas": "yarn workspace @country-flags/contracts schemas",
+    "contracts:compat": "yarn workspace @country-flags/contracts compatibility",
+    "contracts:check": "yarn workspace @country-flags/contracts check",
     "prisma:generate": "yarn workspace @country-flags/backend prisma:generate",
     "prisma:validate": "yarn workspace @country-flags/backend prisma:validate",
     "docker:build": "docker build --file backend/Dockerfile --tag country-flags-backend:local .",

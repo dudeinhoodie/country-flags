@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/content/manifest.v1.schema.json",
+  "schemaVersion": 1,
+  "contentVersion": "2026.07-draft.1",
+  "createdAt": "2026-07-28T12:00:00Z",
+  "defaultLocale": "ru",
+  "supportedLocales": ["ru", "en"],
+  "minimumClientVersion": "1.0.0",
+  "supportedTemplateSchemaVersions": [1],
+  "assetBaseUrl": "https://cdn.country-flags.app/content/2026.07-draft.1/",
+  "changeCursor": "content:2026.07-draft.1:0",
+  "files": [
+    {
+      "path": "catalog.json",
+      "bytes": 2048,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "schemaId": "https://country-flags.app/content/v1/catalog.schema.json"
+    }
+  ],
+  "signature": {
+    "algorithm": "Ed25519",
+    "keyId": "content-signing-dev-1",
+    "value": "VEVTVF9PTkxZX1NJR05BVFVSRS=="
+  }
+}

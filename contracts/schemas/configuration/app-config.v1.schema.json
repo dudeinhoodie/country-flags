@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://country-flags.app/contracts/configuration/v1/app-config.schema.json",
+  "title": "App configuration snapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "configVersion",
+    "generatedAt",
+    "expiresAt",
+    "minimumClientVersions",
+    "contentVersion",
+    "supportedTemplateSchemaVersions",
+    "featureFlags",
+    "advertising"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "configVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "minimumClientVersions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ios"],
+      "properties": {
+        "ios": {
+          "$ref": "#/$defs/clientVersionPolicy"
+        },
+        "android": {
+          "$ref": "#/$defs/clientVersionPolicy"
+        },
+        "web": {
+          "$ref": "#/$defs/clientVersionPolicy"
+        }
+      }
+    },
+    "contentVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "supportedTemplateSchemaVersions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "featureFlags": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*){1,}$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/evaluatedFlag"
+      }
+    },
+    "advertising": {
+      "$ref": "#/$defs/advertisingPolicy"
+    }
+  },
+  "$defs": {
+    "clientVersionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimumSupported", "latest"],
+      "properties": {
+        "minimumSupported": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "latest": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "updateMode": {
+          "enum": ["NONE", "SOFT", "FORCED"]
+        }
+      }
+    },
+    "evaluatedFlag": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/booleanFlag"
+        },
+        {
+          "$ref": "#/$defs/stringFlag"
+        },
+        {
+          "$ref": "#/$defs/numberFlag"
+        }
+      ]
+    },
+    "booleanFlag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value", "variant", "activationPolicy"],
+      "properties": {
+        "type": {
+          "const": "boolean"
+        },
+        "value": {
+          "type": "boolean"
+        },
+        "variant": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "activationPolicy": {
+          "enum": ["immediate", "nextSession", "nextLaunch"]
+        }
+      }
+    },
+    "stringFlag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value", "variant", "activationPolicy"],
+      "properties": {
+        "type": {
+          "const": "string"
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "variant": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "activationPolicy": {
+          "enum": ["immediate", "nextSession", "nextLaunch"]
+        }
+      }
+    },
+    "numberFlag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value", "variant", "activationPolicy"],
+      "properties": {
+        "type": {
+          "const": "number"
+        },
+        "value": {
+          "type": "number"
+        },
+        "variant": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "activationPolicy": {
+          "enum": ["immediate", "nextSession", "nextLaunch"]
+        }
+      }
+    },
+    "advertisingPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policyVersion",
+        "enabled",
+        "mode",
+        "placements",
+        "refreshAfter"
+      ],
+      "properties": {
+        "policyVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "mode": {
+          "enum": ["DISABLED", "CONTEXTUAL_ONLY"]
+        },
+        "placements": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/placementPolicy"
+          }
+        },
+        "refreshAfter": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "placementPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "format"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "format": {
+          "enum": ["BANNER", "NATIVE", "INTERSTITIAL", "REWARDED"]
+        }
+      }
+    }
+  }
+}

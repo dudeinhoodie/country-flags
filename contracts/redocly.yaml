@@ -1,0 +1,16 @@
+extends:
+  - recommended-strict
+
+apis:
+  country-flags@v1:
+    root: ./openapi.yaml
+
+rules:
+  no-server-example.com: off
+  operation-4xx-response: off
+  operation-description: off
+  operation-operationId: error
+  operation-summary: error
+  security-defined: error
+  no-invalid-media-type-examples: error
+  no-invalid-parameter-examples: error

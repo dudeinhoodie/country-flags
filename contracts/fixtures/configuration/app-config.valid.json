@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/configuration/app-config.v1.schema.json",
+  "configVersion": "config-2026-07-28.1",
+  "generatedAt": "2026-07-28T12:00:00Z",
+  "expiresAt": "2026-07-28T12:15:00Z",
+  "minimumClientVersions": {
+    "ios": {
+      "minimumSupported": "1.0.0",
+      "latest": "1.0.0",
+      "updateMode": "NONE"
+    }
+  },
+  "contentVersion": "2026.07-draft.1",
+  "supportedTemplateSchemaVersions": [1],
+  "featureFlags": {
+    "study.multiple_choice.enabled": {
+      "type": "boolean",
+      "value": false,
+      "variant": "disabled",
+      "activationPolicy": "nextSession"
+    },
+    "home.recommended_decks.variant": {
+      "type": "string",
+      "value": "control",
+      "variant": "control",
+      "activationPolicy": "nextLaunch"
+    }
+  },
+  "advertising": {
+    "policyVersion": "ads-policy-v1",
+    "enabled": false,
+    "mode": "DISABLED",
+    "placements": {
+      "home.bottom_banner": {
+        "enabled": false,
+        "format": "BANNER"
+      }
+    },
+    "refreshAfter": "2026-07-28T12:15:00Z"
+  }
+}

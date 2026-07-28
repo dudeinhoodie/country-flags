@@ -1,0 +1,29 @@
+{
+  "$schema": "../../schemas/security/guest-import.v1.schema.json",
+  "payloadVersion": 1,
+  "migrationId": "631476c2-69f3-4f64-9a56-ee5a5933b3d9",
+  "sourceInstallId": "guest-install-0001",
+  "sessions": [
+    {
+      "id": "826a0c28-c8aa-4a79-86d4-a8248624e80d",
+      "deckId": "7926e847-d130-48ff-899d-5d6219c4352a",
+      "mode": "SELF_RATED",
+      "requestedUniqueCount": 5,
+      "contentVersion": "2026.07-draft.1",
+      "startedAt": "2026-07-28T11:00:00Z",
+      "completedAt": "2026-07-28T11:05:00Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "46348e84-0263-4f77-a40e-4d6aadf0c7f1",
+      "sessionId": "826a0c28-c8aa-4a79-86d4-a8248624e80d",
+      "learningCardId": "de0def8b-bf5d-4c46-8d4e-e601502304d5",
+      "answerMode": "SELF_RATED",
+      "rating": "GOOD",
+      "clientOccurredAt": "2026-07-28T11:01:00Z",
+      "clientSequence": 1,
+      "responseTimeMs": 4200
+    }
+  ]
+}

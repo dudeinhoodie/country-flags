@@ -1,0 +1,22 @@
+{
+  "name": "@country-flags/contracts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "format": "prettier --write \"**/*.{json,mjs,yaml}\"",
+    "format:check": "prettier --check \"**/*.{json,mjs,yaml}\"",
+    "lint": "redocly check-config && redocly lint country-flags@v1",
+    "bundle": "redocly bundle country-flags@v1 --output dist/openapi.bundle.yaml",
+    "schemas": "node scripts/validate-json-schemas.mjs",
+    "compatibility": "node scripts/check-compatibility.mjs",
+    "check": "yarn lint && yarn bundle && yarn schemas && yarn compatibility"
+  },
+  "devDependencies": {
+    "@redocly/cli": "1.34.17",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "prettier": "3.6.2",
+    "yaml": "2.9.0"
+  }
+}

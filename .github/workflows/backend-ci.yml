@@ -33,10 +33,13 @@ jobs:
       PORT: 3000
       LOG_LEVEL: info
       DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
+      CONTRACT_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -54,6 +57,9 @@ jobs:
 
       - name: Validate Prisma schema
         run: corepack yarn prisma:validate
+
+      - name: Validate API and JSON Schema contracts
+        run: corepack yarn contracts:check
 
       - name: Check formatting
         run: corepack yarn format:check

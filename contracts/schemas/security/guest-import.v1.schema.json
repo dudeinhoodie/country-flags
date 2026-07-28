@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://country-flags.app/contracts/security/v1/guest-import.schema.json",
+  "title": "Guest progress import request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "payloadVersion",
+    "migrationId",
+    "sourceInstallId",
+    "sessions",
+    "reviews"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "payloadVersion": {
+      "const": 1
+    },
+    "migrationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "sourceInstallId": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 128
+    },
+    "sessions": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/$defs/session"
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "$ref": "#/$defs/review"
+      }
+    }
+  },
+  "$defs": {
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "deckId",
+        "mode",
+        "requestedUniqueCount",
+        "contentVersion",
+        "startedAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "deckId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "mode": {
+          "enum": ["SELF_RATED", "MULTIPLE_CHOICE"]
+        },
+        "requestedUniqueCount": {
+          "enum": [5, 10, 20]
+        },
+        "contentVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "review": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/selfRatedReview"
+        },
+        {
+          "$ref": "#/$defs/multipleChoiceReview"
+        }
+      ]
+    },
+    "selfRatedReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sessionId",
+        "learningCardId",
+        "answerMode",
+        "rating",
+        "clientOccurredAt",
+        "clientSequence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sessionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "learningCardId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "answerMode": {
+          "const": "SELF_RATED"
+        },
+        "rating": {
+          "enum": ["AGAIN", "HARD", "GOOD", "EASY"]
+        },
+        "clientOccurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "clientSequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "responseTimeMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 86400000
+        }
+      }
+    },
+    "multipleChoiceReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sessionId",
+        "learningCardId",
+        "answerMode",
+        "selectedOptionId",
+        "clientOccurredAt",
+        "clientSequence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sessionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "learningCardId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "answerMode": {
+          "const": "MULTIPLE_CHOICE"
+        },
+        "selectedOptionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "clientOccurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "clientSequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "responseTimeMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 86400000
+        }
+      }
+    }
+  }
+}
