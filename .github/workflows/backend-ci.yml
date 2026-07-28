@@ -58,6 +58,9 @@ jobs:
       - name: Validate Prisma schema
         run: corepack yarn prisma:validate
 
+      - name: Apply database migrations
+        run: corepack yarn prisma:migrate:deploy
+
       - name: Validate API and JSON Schema contracts
         run: corepack yarn contracts:check
 

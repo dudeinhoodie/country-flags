@@ -6,3 +6,1069 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum UserStatus {
+  ACTIVE
+  DELETION_PENDING
+  DELETED
+  BLOCKED
+}
+
+enum AuthProvider {
+  APPLE
+  GOOGLE
+}
+
+enum ClientPlatform {
+  IOS
+  ANDROID
+  WEB
+}
+
+enum AnswerMode {
+  SELF_RATED
+  MULTIPLE_CHOICE
+  TEXT
+}
+
+enum ConsentStatus {
+  UNKNOWN
+  GRANTED
+  DENIED
+  NOT_REQUIRED
+}
+
+enum ConsentCategory {
+  PRODUCT_ANALYTICS
+  DIAGNOSTICS
+}
+
+enum ConsentSource {
+  IOS
+  ANDROID
+  WEB
+  SUPPORT
+}
+
+enum GuestImportStatus {
+  PENDING
+  APPLIED
+  PARTIAL
+  FAILED
+}
+
+enum DataExportStatus {
+  PENDING
+  PROCESSING
+  READY
+  EXPIRED
+  FAILED
+}
+
+enum ContentReleaseStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum ContentChangeOperation {
+  UPSERT
+  RETIRE
+}
+
+enum ContentResourceType {
+  ENTITY
+  DECK
+  LEARNING_CARD
+  ASSET
+  FACT
+}
+
+enum GeoEntityKind {
+  COUNTRY
+  TERRITORY
+  DEPENDENCY
+  DISPUTED_AREA
+  REGION
+  SUBREGION
+  OTHER
+}
+
+enum GeoEntityStatus {
+  ACTIVE
+  HISTORICAL
+  HIDDEN
+}
+
+enum RecognitionStatus {
+  UN_MEMBER
+  UN_OBSERVER
+  PARTIALLY_RECOGNIZED
+  UNRECOGNIZED
+  DEPENDENT_TERRITORY
+  SPECIAL_AREA
+  NOT_APPLICABLE
+}
+
+enum GeoNameType {
+  SHORT
+  OFFICIAL
+  COMMON
+  ALTERNATIVE
+}
+
+enum GeoRelationType {
+  CONTAINS
+  ASSOCIATED_WITH
+}
+
+enum FactType {
+  POPULATION
+  CAPITAL
+  AREA
+  LANGUAGE
+  CURRENCY
+  OTHER
+}
+
+enum PublicationStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum CurrencyUsageType {
+  PRIMARY
+  SECONDARY
+  DE_FACTO
+}
+
+enum AssetType {
+  FLAG
+  COAT_OF_ARMS
+  MAP
+  OTHER
+}
+
+enum AssetStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum GradingMode {
+  SELF_RATED
+  MULTIPLE_CHOICE
+  TEXT
+}
+
+enum CardStatus {
+  ACTIVE
+  RETIRED
+}
+
+enum RevisionChangeClassification {
+  TECHNICAL
+  EQUIVALENT
+}
+
+enum ProgressPolicy {
+  PRESERVE
+}
+
+enum DeckKind {
+  CURATED
+  TAXONOMY
+  DYNAMIC_USER
+  CUSTOM
+}
+
+enum DeckStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum SelectionOrigin {
+  SERVER
+  CLIENT_OFFLINE
+}
+
+enum StudySessionStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+
+enum SelectionReason {
+  OVERDUE
+  LEARNING
+  ERROR
+  NEW
+  MAINTENANCE
+}
+
+enum ReviewRating {
+  AGAIN
+  HARD
+  GOOD
+  EASY
+}
+
+enum TimeConfidence {
+  CALIBRATED
+  BOUNDED
+  RECEIVED_AT_FALLBACK
+}
+
+enum CardLearningState {
+  NEW
+  LEARNING
+  REVIEW
+  RELEARNING
+}
+
+enum SchedulerAlgorithm {
+  FSRS
+}
+
+enum SchedulerDefinitionStatus {
+  DRAFT
+  CANARY
+  ACTIVE
+  RETIRED
+}
+
+enum AchievementScopeType {
+  GLOBAL
+  DECK
+  REGION
+}
+
+enum MasteryTier {
+  NONE
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum OutboxDeliveryStatus {
+  PENDING
+  PROCESSING
+  DELIVERED
+  FAILED
+}
+
+enum IdempotencyStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id                   String                         @id @default(uuid()) @db.Uuid
+  displayName          String?                        @map("display_name")
+  preferredLocale      String                         @default("ru") @map("preferred_locale")
+  status               UserStatus                     @default(ACTIVE)
+  createdAt            DateTime                       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime                       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletionRequestedAt  DateTime?                      @map("deletion_requested_at") @db.Timestamptz(3)
+  deletedAt            DateTime?                      @map("deleted_at") @db.Timestamptz(3)
+  authIdentities       AuthIdentity[]
+  refreshSessions      RefreshSession[]
+  devices              Device[]
+  settings             UserSettings?
+  privacySettings      UserPrivacySettings?
+  privacyEvents        PrivacyConsentEvent[]
+  guestImports         GuestImportOperation[]
+  dataExports          DataExportRequest[]
+  ownedDecks           Deck[]
+  studySessions        StudySession[]
+  reviewEvents         ReviewEvent[]
+  cardStates           UserCardState[]
+  schedulerCheckpoints SchedulerMigrationCheckpoint[]
+  achievements         UserAchievement[]
+  deckMastery          UserDeckMastery[]
+  auditEvents          AuditEvent[]
+
+  @@index([status, deletionRequestedAt])
+  @@map("users")
+}
+
+model AuthIdentity {
+  id              String       @id @default(uuid()) @db.Uuid
+  userId          String       @map("user_id") @db.Uuid
+  provider        AuthProvider
+  providerSubject String       @map("provider_subject")
+  email           String?
+  emailVerified   Boolean?     @map("email_verified")
+  isPrivateEmail  Boolean?     @map("is_private_email")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastLoginAt     DateTime     @default(now()) @map("last_login_at") @db.Timestamptz(3)
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerSubject])
+  @@unique([userId, provider])
+  @@index([userId])
+  @@map("auth_identities")
+}
+
+model Device {
+  id                     String           @id @default(uuid()) @db.Uuid
+  userId                 String           @map("user_id") @db.Uuid
+  clientGeneratedId      String           @map("client_generated_id")
+  platform               ClientPlatform
+  appVersion             String           @map("app_version")
+  locale                 String
+  timezone               String
+  lastClientTimeSample   DateTime?        @map("last_client_time_sample") @db.Timestamptz(3)
+  lastServerTimeSample   DateTime?        @map("last_server_time_sample") @db.Timestamptz(3)
+  estimatedClockOffsetMs Int?             @map("estimated_clock_offset_ms")
+  pushTokenEncrypted     String?          @map("push_token_encrypted")
+  lastSeenAt             DateTime         @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+  createdAt              DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  user                   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshSessions        RefreshSession[]
+  reviewEvents           ReviewEvent[]
+
+  @@unique([userId, clientGeneratedId])
+  @@index([userId, lastSeenAt])
+  @@map("devices")
+}
+
+model RefreshSession {
+  id            String          @id @default(uuid()) @db.Uuid
+  userId        String          @map("user_id") @db.Uuid
+  deviceId      String?         @map("device_id") @db.Uuid
+  tokenHash     String          @unique @map("token_hash")
+  tokenFamilyId String          @map("token_family_id") @db.Uuid
+  rotatedFromId String?         @unique @map("rotated_from_id") @db.Uuid
+  expiresAt     DateTime        @map("expires_at") @db.Timestamptz(3)
+  revokedAt     DateTime?       @map("revoked_at") @db.Timestamptz(3)
+  lastUsedAt    DateTime        @default(now()) @map("last_used_at") @db.Timestamptz(3)
+  createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  ipHash        String?         @map("ip_hash")
+  userAgent     String?         @map("user_agent")
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device        Device?         @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  rotatedFrom   RefreshSession? @relation("RefreshRotation", fields: [rotatedFromId], references: [id], onDelete: SetNull)
+  rotatedTo     RefreshSession? @relation("RefreshRotation")
+
+  @@index([userId, tokenFamilyId])
+  @@index([userId, expiresAt])
+  @@map("refresh_sessions")
+}
+
+model UserSettings {
+  userId            String     @id @map("user_id") @db.Uuid
+  sessionSize       Int        @default(10) @map("session_size") @db.SmallInt
+  contentLocale     String     @default("ru") @map("content_locale")
+  defaultAnswerMode AnswerMode @default(SELF_RATED) @map("default_answer_mode")
+  extraFactTypes    FactType[] @default([]) @map("extra_fact_types")
+  soundEnabled      Boolean    @default(true) @map("sound_enabled")
+  hapticsEnabled    Boolean    @default(true) @map("haptics_enabled")
+  remindersEnabled  Boolean    @default(false) @map("reminders_enabled")
+  reminderLocalTime DateTime?  @map("reminder_local_time") @db.Time(0)
+  reminderWeekdays  Int[]      @default([]) @map("reminder_weekdays")
+  desiredRetention  Decimal    @default(0.900) @map("desired_retention") @db.Decimal(4, 3)
+  timezone          String     @default("UTC")
+  version           Int        @default(1)
+  updatedAt         DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model UserPrivacySettings {
+  userId                 String        @id @map("user_id") @db.Uuid
+  productAnalyticsStatus ConsentStatus @default(UNKNOWN) @map("product_analytics_status")
+  diagnosticsStatus      ConsentStatus @default(UNKNOWN) @map("diagnostics_status")
+  policyVersion          String        @map("policy_version")
+  updatedAt              DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user                   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_privacy_settings")
+}
+
+model PrivacyConsentEvent {
+  id             String          @id @default(uuid()) @db.Uuid
+  userId         String          @map("user_id") @db.Uuid
+  category       ConsentCategory
+  previousStatus ConsentStatus   @map("previous_status")
+  newStatus      ConsentStatus   @map("new_status")
+  policyVersion  String          @map("policy_version")
+  source         ConsentSource
+  occurredAt     DateTime        @default(now()) @map("occurred_at") @db.Timestamptz(3)
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+  @@map("privacy_consent_events")
+}
+
+model GuestImportOperation {
+  id                  String            @id @db.Uuid
+  userId              String            @map("user_id") @db.Uuid
+  sourceInstallIdHash String            @map("source_install_id_hash")
+  status              GuestImportStatus @default(PENDING)
+  acceptedEventCount  Int               @default(0) @map("accepted_event_count")
+  duplicateEventCount Int               @default(0) @map("duplicate_event_count")
+  rejectedEventCount  Int               @default(0) @map("rejected_event_count")
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  completedAt         DateTime?         @map("completed_at") @db.Timestamptz(3)
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sourceInstallIdHash, id])
+  @@index([userId, createdAt])
+  @@map("guest_import_operations")
+}
+
+model DataExportRequest {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @map("user_id") @db.Uuid
+  status      DataExportStatus @default(PENDING)
+  objectKey   String?          @map("object_key")
+  sha256      String?          @db.Char(64)
+  expiresAt   DateTime?        @map("expires_at") @db.Timestamptz(3)
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  completedAt DateTime?        @map("completed_at") @db.Timestamptz(3)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status, expiresAt])
+  @@map("data_export_requests")
+}
+
+model ContentRelease {
+  version          String                 @id
+  schemaVersion    Int                    @map("schema_version")
+  status           ContentReleaseStatus   @default(DRAFT)
+  manifestChecksum String                 @map("manifest_checksum") @db.Char(64)
+  metadata         Json                   @db.JsonB
+  createdAt        DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  publishedAt      DateTime?              @map("published_at") @db.Timestamptz(3)
+  retiredAt        DateTime?              @map("retired_at") @db.Timestamptz(3)
+  pointers         ContentPointer[]
+  changes          ContentChange[]
+  entities         GeoEntity[]
+  facts            Fact[]
+  assets           Asset[]
+  learningCards    LearningCard[]
+  cardRevisions    LearningCardRevision[]
+  decks            Deck[]
+  studySessions    StudySession[]
+
+  @@index([status, publishedAt])
+  @@map("content_releases")
+}
+
+model ContentPointer {
+  key            String         @id
+  contentVersion String         @unique @map("content_version")
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  release        ContentRelease @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+
+  @@map("content_pointers")
+}
+
+model ContentChange {
+  sequence       BigInt                 @id @default(autoincrement())
+  contentVersion String                 @map("content_version")
+  operation      ContentChangeOperation
+  resourceType   ContentResourceType    @map("resource_type")
+  resourceId     String                 @map("resource_id") @db.Uuid
+  payload        Json?                  @db.JsonB
+  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  release        ContentRelease         @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+
+  @@index([contentVersion, sequence])
+  @@index([resourceType, resourceId])
+  @@map("content_changes")
+}
+
+model GeoEntity {
+  id                      String                   @id @default(uuid()) @db.Uuid
+  contentKey              String                   @unique @map("content_key")
+  kind                    GeoEntityKind
+  slug                    String                   @unique
+  isoAlpha2               String?                  @map("iso_alpha2") @db.Char(2)
+  isoAlpha3               String?                  @map("iso_alpha3") @db.Char(3)
+  m49Code                 String?                  @map("m49_code") @db.Char(3)
+  customCode              String?                  @map("custom_code")
+  status                  GeoEntityStatus          @default(ACTIVE)
+  includeInCountryCatalog Boolean                  @default(false) @map("include_in_country_catalog")
+  recognitionStatus       RecognitionStatus?       @map("recognition_status")
+  recognitionAsOf         DateTime?                @map("recognition_as_of") @db.Date
+  recognitionNote         Json?                    @map("recognition_note") @db.JsonB
+  validFrom               DateTime?                @map("valid_from") @db.Date
+  validTo                 DateTime?                @map("valid_to") @db.Date
+  metadata                Json                     @db.JsonB
+  contentVersion          String                   @map("content_version")
+  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt               DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
+  release                 ContentRelease           @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+  names                   GeoEntityName[]
+  parentRelations         GeoRelation[]            @relation("GeoRelationParent")
+  childRelations          GeoRelation[]            @relation("GeoRelationChild")
+  facts                   Fact[]
+  currencies              GeoEntityCurrency[]
+  assets                  Asset[]
+  learningCards           LearningCard[]
+  sessionCardOptions      StudySessionCardOption[]
+
+  @@index([kind, status])
+  @@index([contentVersion])
+  @@map("geo_entities")
+}
+
+model GeoEntityName {
+  id          String      @id @default(uuid()) @db.Uuid
+  geoEntityId String      @map("geo_entity_id") @db.Uuid
+  locale      String
+  nameType    GeoNameType @map("name_type")
+  value       String
+  isPrimary   Boolean     @default(false) @map("is_primary")
+  sourceId    String?     @map("source_id") @db.Uuid
+  entity      GeoEntity   @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+  source      Source?     @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([geoEntityId, locale, nameType, value])
+  @@index([geoEntityId, locale])
+  @@map("geo_entity_names")
+}
+
+model GeoRelation {
+  id             String          @id @default(uuid()) @db.Uuid
+  parentEntityId String          @map("parent_entity_id") @db.Uuid
+  childEntityId  String          @map("child_entity_id") @db.Uuid
+  taxonomyCode   String          @map("taxonomy_code")
+  relationType   GeoRelationType @map("relation_type")
+  validFrom      DateTime?       @map("valid_from") @db.Date
+  validTo        DateTime?       @map("valid_to") @db.Date
+  sortOrder      Int?            @map("sort_order")
+  metadata       Json            @db.JsonB
+  parent         GeoEntity       @relation("GeoRelationParent", fields: [parentEntityId], references: [id], onDelete: Restrict)
+  child          GeoEntity       @relation("GeoRelationChild", fields: [childEntityId], references: [id], onDelete: Restrict)
+
+  @@unique([parentEntityId, childEntityId, taxonomyCode, relationType, validFrom], map: "geo_relations_identity_unique")
+  @@index([parentEntityId, taxonomyCode, relationType])
+  @@index([childEntityId, taxonomyCode, relationType])
+  @@map("geo_relations")
+}
+
+model Source {
+  id          String              @id @default(uuid()) @db.Uuid
+  name        String
+  url         String
+  licenseName String?             @map("license_name")
+  licenseUrl  String?             @map("license_url")
+  retrievedAt DateTime            @map("retrieved_at") @db.Timestamptz(3)
+  metadata    Json                @db.JsonB
+  entityNames GeoEntityName[]
+  facts       Fact[]
+  currencies  GeoEntityCurrency[]
+  assets      Asset[]
+
+  @@map("sources")
+}
+
+model Fact {
+  id             String            @id @default(uuid()) @db.Uuid
+  geoEntityId    String            @map("geo_entity_id") @db.Uuid
+  factType       FactType          @map("fact_type")
+  value          Json              @db.JsonB
+  unit           String?
+  observedAt     DateTime?         @map("observed_at") @db.Date
+  effectiveFrom  DateTime?         @map("effective_from") @db.Date
+  effectiveTo    DateTime?         @map("effective_to") @db.Date
+  sourceId       String            @map("source_id") @db.Uuid
+  status         PublicationStatus @default(DRAFT)
+  contentVersion String            @map("content_version")
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  entity         GeoEntity         @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+  source         Source            @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  release        ContentRelease    @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+
+  @@index([geoEntityId, factType, status])
+  @@index([contentVersion])
+  @@map("facts")
+}
+
+model Currency {
+  id          String              @id @default(uuid()) @db.Uuid
+  code        String              @unique @db.Char(3)
+  numericCode String?             @unique @map("numeric_code") @db.Char(3)
+  decimals    Int?                @db.SmallInt
+  symbol      String?
+  metadata    Json                @db.JsonB
+  names       CurrencyName[]
+  entities    GeoEntityCurrency[]
+
+  @@map("currencies")
+}
+
+model CurrencyName {
+  currencyId String   @map("currency_id") @db.Uuid
+  locale     String
+  name       String
+  currency   Currency @relation(fields: [currencyId], references: [id], onDelete: Cascade)
+
+  @@id([currencyId, locale])
+  @@map("currency_names")
+}
+
+model GeoEntityCurrency {
+  id          String            @id @default(uuid()) @db.Uuid
+  geoEntityId String            @map("geo_entity_id") @db.Uuid
+  currencyId  String            @map("currency_id") @db.Uuid
+  usageType   CurrencyUsageType @map("usage_type")
+  validFrom   DateTime?         @map("valid_from") @db.Date
+  validTo     DateTime?         @map("valid_to") @db.Date
+  sourceId    String            @map("source_id") @db.Uuid
+  entity      GeoEntity         @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+  currency    Currency          @relation(fields: [currencyId], references: [id], onDelete: Restrict)
+  source      Source            @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([geoEntityId, currencyId, usageType, validFrom], map: "geo_entity_currencies_identity_unique")
+  @@index([geoEntityId, usageType])
+  @@map("geo_entity_currencies")
+}
+
+model Asset {
+  id             String                 @id @default(uuid()) @db.Uuid
+  geoEntityId    String?                @map("geo_entity_id") @db.Uuid
+  assetType      AssetType              @map("asset_type")
+  variant        String
+  objectKey      String                 @unique @map("object_key")
+  publicUrl      String                 @map("public_url")
+  mimeType       String                 @map("mime_type")
+  sha256         String                 @db.Char(64)
+  width          Int?
+  height         Int?
+  aspectRatio    Decimal?               @map("aspect_ratio") @db.Decimal(12, 6)
+  sourceId       String                 @map("source_id") @db.Uuid
+  licenseName    String                 @map("license_name")
+  licenseUrl     String?                @map("license_url")
+  attribution    String?
+  validFrom      DateTime?              @map("valid_from") @db.Date
+  validTo        DateTime?              @map("valid_to") @db.Date
+  status         AssetStatus            @default(DRAFT)
+  contentVersion String                 @map("content_version")
+  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+  entity         GeoEntity?             @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+  source         Source                 @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  release        ContentRelease         @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+  cardRevisions  LearningCardRevision[]
+
+  @@index([geoEntityId, assetType, status])
+  @@index([sha256])
+  @@index([contentVersion])
+  @@map("assets")
+}
+
+model CardTemplate {
+  id                String            @id @default(uuid()) @db.Uuid
+  code              String
+  schemaVersion     Int               @map("schema_version")
+  promptType        String            @map("prompt_type")
+  answerType        String            @map("answer_type")
+  gradingMode       GradingMode       @map("grading_mode")
+  promptSpec        Json              @map("prompt_spec") @db.JsonB
+  answerSpec        Json              @map("answer_spec") @db.JsonB
+  backSideFactTypes FactType[]        @default([]) @map("back_side_fact_types")
+  status            PublicationStatus @default(DRAFT)
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  learningCards     LearningCard[]
+
+  @@unique([code, schemaVersion])
+  @@map("card_templates")
+}
+
+model LearningCard {
+  id                       String                         @id @default(uuid()) @db.Uuid
+  subjectEntityId          String                         @map("subject_entity_id") @db.Uuid
+  templateId               String                         @map("template_id") @db.Uuid
+  semanticVersion          Int                            @map("semantic_version")
+  supersedesLearningCardId String?                        @map("supersedes_learning_card_id") @db.Uuid
+  status                   CardStatus                     @default(ACTIVE)
+  difficultyHint           Decimal?                       @map("difficulty_hint") @db.Decimal(8, 4)
+  contentVersion           String                         @map("content_version")
+  createdAt                DateTime                       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                DateTime                       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  subject                  GeoEntity                      @relation(fields: [subjectEntityId], references: [id], onDelete: Restrict)
+  template                 CardTemplate                   @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  release                  ContentRelease                 @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+  supersedes               LearningCard?                  @relation("CardSupersession", fields: [supersedesLearningCardId], references: [id], onDelete: Restrict)
+  supersededBy             LearningCard[]                 @relation("CardSupersession")
+  revisions                LearningCardRevision[]
+  deckCards                DeckCard[]
+  sessionCards             StudySessionCard[]
+  reviewEvents             ReviewEvent[]
+  userStates               UserCardState[]
+  schedulerCheckpoints     SchedulerMigrationCheckpoint[]
+
+  @@unique([subjectEntityId, templateId, semanticVersion])
+  @@index([subjectEntityId, templateId, status])
+  @@index([contentVersion])
+  @@map("learning_cards")
+}
+
+model LearningCardRevision {
+  id                   String                       @id @default(uuid()) @db.Uuid
+  learningCardId       String                       @map("learning_card_id") @db.Uuid
+  revision             Int
+  promptAssetId        String?                      @map("prompt_asset_id") @db.Uuid
+  promptFingerprint    String                       @map("prompt_fingerprint")
+  changeClassification RevisionChangeClassification @map("change_classification")
+  progressPolicy       ProgressPolicy               @default(PRESERVE) @map("progress_policy")
+  contentVersion       String                       @map("content_version")
+  effectiveFrom        DateTime                     @map("effective_from") @db.Timestamptz(3)
+  retiredAt            DateTime?                    @map("retired_at") @db.Timestamptz(3)
+  createdAt            DateTime                     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime                     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  learningCard         LearningCard                 @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
+  promptAsset          Asset?                       @relation(fields: [promptAssetId], references: [id], onDelete: Restrict)
+  release              ContentRelease               @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+  sessionCards         StudySessionCard[]
+
+  @@unique([learningCardId, revision])
+  @@index([contentVersion])
+  @@map("learning_card_revisions")
+}
+
+model Deck {
+  id             String             @id @default(uuid()) @db.Uuid
+  code           String             @unique
+  kind           DeckKind
+  ownerUserId    String?            @map("owner_user_id") @db.Uuid
+  ruleSpec       Json?              @map("rule_spec") @db.JsonB
+  status         DeckStatus         @default(DRAFT)
+  contentVersion String             @map("content_version")
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+  owner          User?              @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  release        ContentRelease     @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+  localizations  DeckLocalization[]
+  cards          DeckCard[]
+  studySessions  StudySession[]
+  mastery        UserDeckMastery[]
+
+  @@index([kind, status])
+  @@index([ownerUserId])
+  @@index([contentVersion])
+  @@map("decks")
+}
+
+model DeckLocalization {
+  deckId      String @map("deck_id") @db.Uuid
+  locale      String
+  name        String
+  description String
+  deck        Deck   @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  @@id([deckId, locale])
+  @@map("deck_localizations")
+}
+
+model DeckCard {
+  deckId            String       @map("deck_id") @db.Uuid
+  learningCardId    String       @map("learning_card_id") @db.Uuid
+  sortOrder         Int?         @map("sort_order")
+  membershipVersion Int          @default(1) @map("membership_version")
+  deck              Deck         @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  learningCard      LearningCard @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
+
+  @@id([deckId, learningCardId])
+  @@index([deckId, sortOrder])
+  @@map("deck_cards")
+}
+
+model StudySession {
+  id                   String              @id @db.Uuid
+  userId               String              @map("user_id") @db.Uuid
+  deckId               String              @map("deck_id") @db.Uuid
+  mode                 AnswerMode
+  selectionOrigin      SelectionOrigin     @map("selection_origin")
+  requestedUniqueCount Int                 @map("requested_unique_count") @db.SmallInt
+  selectedUniqueCount  Int                 @map("selected_unique_count") @db.SmallInt
+  status               StudySessionStatus  @default(ACTIVE)
+  contentVersion       String              @map("content_version")
+  schedulerVersion     String              @map("scheduler_version")
+  startedAt            DateTime            @map("started_at") @db.Timestamptz(3)
+  completedAt          DateTime?           @map("completed_at") @db.Timestamptz(3)
+  summary              Json?               @db.JsonB
+  user                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deck                 Deck                @relation(fields: [deckId], references: [id], onDelete: Restrict)
+  release              ContentRelease      @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+  scheduler            SchedulerDefinition @relation(fields: [schedulerVersion], references: [version], onDelete: Restrict)
+  cards                StudySessionCard[]
+  reviewEvents         ReviewEvent[]
+
+  @@unique([userId, id])
+  @@index([userId, status, startedAt])
+  @@map("study_sessions")
+}
+
+model StudySessionCard {
+  id                      String                   @id @default(uuid()) @db.Uuid
+  sessionId               String                   @map("session_id") @db.Uuid
+  learningCardId          String                   @map("learning_card_id") @db.Uuid
+  learningCardRevisionId  String                   @map("learning_card_revision_id") @db.Uuid
+  initialOrder            Int                      @map("initial_order") @db.SmallInt
+  selectionReason         SelectionReason          @map("selection_reason")
+  stateVersionAtSelection Int?                     @map("state_version_at_selection")
+  distractorPolicyVersion String?                  @map("distractor_policy_version")
+  randomSeed              String                   @map("random_seed")
+  snapshot                Json                     @db.JsonB
+  session                 StudySession             @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  learningCard            LearningCard             @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
+  learningCardRevision    LearningCardRevision     @relation(fields: [learningCardRevisionId], references: [id], onDelete: Restrict)
+  options                 StudySessionCardOption[]
+
+  @@unique([sessionId, learningCardId])
+  @@unique([sessionId, initialOrder])
+  @@map("study_session_cards")
+}
+
+model StudySessionCardOption {
+  id                 String           @id @default(uuid()) @db.Uuid
+  studySessionCardId String           @map("study_session_card_id") @db.Uuid
+  position           Int              @db.SmallInt
+  answerEntityId     String           @map("answer_entity_id") @db.Uuid
+  displaySnapshot    Json             @map("display_snapshot") @db.JsonB
+  isCorrect          Boolean          @map("is_correct")
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  sessionCard        StudySessionCard @relation(fields: [studySessionCardId], references: [id], onDelete: Cascade)
+  answerEntity       GeoEntity        @relation(fields: [answerEntityId], references: [id], onDelete: Restrict)
+  reviewEvents       ReviewEvent[]
+
+  @@unique([studySessionCardId, position])
+  @@unique([studySessionCardId, answerEntityId])
+  @@map("study_session_card_options")
+}
+
+model ReviewEvent {
+  id                         String                  @default(uuid()) @db.Uuid
+  userId                     String                  @map("user_id") @db.Uuid
+  learningCardId             String                  @map("learning_card_id") @db.Uuid
+  sessionId                  String?                 @map("session_id") @db.Uuid
+  deviceId                   String?                 @map("device_id") @db.Uuid
+  rating                     ReviewRating
+  isCorrect                  Boolean                 @map("is_correct")
+  answerMode                 AnswerMode              @map("answer_mode")
+  selectedOptionId           String?                 @map("selected_option_id") @db.Uuid
+  responseTimeMs             Int?                    @map("response_time_ms")
+  clientOccurredAt           DateTime                @map("client_occurred_at") @db.Timestamptz(3)
+  estimatedServerOccurredAt  DateTime?               @map("estimated_server_occurred_at") @db.Timestamptz(3)
+  effectiveOccurredAt        DateTime                @map("effective_occurred_at") @db.Timestamptz(3)
+  receivedAt                 DateTime                @default(now()) @map("received_at") @db.Timestamptz(3)
+  clientSequence             BigInt                  @map("client_sequence")
+  timeConfidence             TimeConfidence          @map("time_confidence")
+  baseStateVersion           Int?                    @map("base_state_version")
+  schedulerVersion           String                  @map("scheduler_version")
+  schedulerParametersVersion String                  @map("scheduler_parameters_version")
+  payloadVersion             Int                     @map("payload_version")
+  payloadHash                String                  @map("payload_hash") @db.Char(64)
+  metadata                   Json                    @db.JsonB
+  user                       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningCard               LearningCard            @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
+  session                    StudySession?           @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  device                     Device?                 @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  selectedOption             StudySessionCardOption? @relation(fields: [selectedOptionId], references: [id], onDelete: Restrict)
+  scheduler                  SchedulerDefinition     @relation(fields: [schedulerVersion], references: [version], onDelete: Restrict)
+
+  @@id([userId, id])
+  @@unique([userId, deviceId, clientSequence])
+  @@index([userId, learningCardId, effectiveOccurredAt, id])
+  @@index([sessionId])
+  @@map("review_events")
+}
+
+model UserCardState {
+  userId                     String              @map("user_id") @db.Uuid
+  learningCardId             String              @map("learning_card_id") @db.Uuid
+  state                      CardLearningState   @default(NEW)
+  difficulty                 Decimal             @db.Decimal(12, 6)
+  stability                  Decimal             @db.Decimal(14, 6)
+  retrievabilityAtReview     Decimal?            @map("retrievability_at_review") @db.Decimal(8, 6)
+  dueAt                      DateTime            @map("due_at") @db.Timestamptz(3)
+  lastReviewedAt             DateTime?           @map("last_reviewed_at") @db.Timestamptz(3)
+  repetitions                Int                 @default(0)
+  lapses                     Int                 @default(0)
+  schedulerVersion           String              @map("scheduler_version")
+  schedulerParametersVersion String              @map("scheduler_parameters_version")
+  stateVersion               Int                 @default(1) @map("state_version")
+  updatedAt                  DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user                       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningCard               LearningCard        @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
+  scheduler                  SchedulerDefinition @relation(fields: [schedulerVersion], references: [version], onDelete: Restrict)
+
+  @@id([userId, learningCardId])
+  @@index([userId, dueAt])
+  @@map("user_card_states")
+}
+
+model SchedulerDefinition {
+  version                 String                         @id
+  algorithm               SchedulerAlgorithm
+  algorithmMajor          Int                            @map("algorithm_major")
+  packageName             String                         @map("package_name")
+  packageVersion          String                         @map("package_version")
+  parametersVersion       String                         @map("parameters_version")
+  parameters              Json                           @db.JsonB
+  defaultDesiredRetention Decimal                        @map("default_desired_retention") @db.Decimal(4, 3)
+  status                  SchedulerDefinitionStatus      @default(DRAFT)
+  activeFrom              DateTime?                      @map("active_from") @db.Timestamptz(3)
+  createdAt               DateTime                       @default(now()) @map("created_at") @db.Timestamptz(3)
+  studySessions           StudySession[]
+  reviewEvents            ReviewEvent[]
+  cardStates              UserCardState[]
+  migrationsFrom          SchedulerMigrationCheckpoint[] @relation("SchedulerMigrationFrom")
+  migrationsTo            SchedulerMigrationCheckpoint[] @relation("SchedulerMigrationTo")
+
+  @@unique([version, parametersVersion])
+  @@index([status, activeFrom])
+  @@map("scheduler_definitions")
+}
+
+model SchedulerMigrationCheckpoint {
+  id                        String              @id @default(uuid()) @db.Uuid
+  userId                    String              @map("user_id") @db.Uuid
+  learningCardId            String              @map("learning_card_id") @db.Uuid
+  fromSchedulerVersion      String              @map("from_scheduler_version")
+  toSchedulerVersion        String              @map("to_scheduler_version")
+  cutoffEffectiveOccurredAt DateTime            @map("cutoff_effective_occurred_at") @db.Timestamptz(3)
+  cutoffEventId             String              @map("cutoff_event_id") @db.Uuid
+  migratedState             Json                @map("migrated_state") @db.JsonB
+  stateChecksum             String              @map("state_checksum") @db.Char(64)
+  createdAt                 DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  user                      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningCard              LearningCard        @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
+  fromScheduler             SchedulerDefinition @relation("SchedulerMigrationFrom", fields: [fromSchedulerVersion], references: [version], onDelete: Restrict)
+  toScheduler               SchedulerDefinition @relation("SchedulerMigrationTo", fields: [toSchedulerVersion], references: [version], onDelete: Restrict)
+
+  @@unique([userId, learningCardId, toSchedulerVersion])
+  @@index([userId, learningCardId, cutoffEffectiveOccurredAt])
+  @@map("scheduler_migration_checkpoints")
+}
+
+model AchievementDefinition {
+  id               String                    @id @default(uuid()) @db.Uuid
+  code             String
+  category         String
+  tier             MasteryTier?
+  ruleVersion      Int                       @map("rule_version")
+  ruleSpec         Json                      @map("rule_spec") @db.JsonB
+  activeFrom       DateTime                  @map("active_from") @db.Timestamptz(3)
+  activeTo         DateTime?                 @map("active_to") @db.Timestamptz(3)
+  localizations    AchievementLocalization[]
+  userAchievements UserAchievement[]
+
+  @@unique([code, ruleVersion])
+  @@map("achievement_definitions")
+}
+
+model AchievementLocalization {
+  definitionId String                @map("definition_id") @db.Uuid
+  locale       String
+  title        String
+  description  String
+  definition   AchievementDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+
+  @@id([definitionId, locale])
+  @@map("achievement_localizations")
+}
+
+model UserAchievement {
+  id           String                @id @default(uuid()) @db.Uuid
+  userId       String                @map("user_id") @db.Uuid
+  definitionId String                @map("definition_id") @db.Uuid
+  scopeType    AchievementScopeType  @map("scope_type")
+  scopeId      String?               @map("scope_id") @db.Uuid
+  earnedAt     DateTime              @default(now()) @map("earned_at") @db.Timestamptz(3)
+  ruleVersion  Int                   @map("rule_version")
+  evidence     Json                  @db.JsonB
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  definition   AchievementDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, definitionId, scopeType, scopeId], map: "user_achievements_once_per_scope")
+  @@index([userId, earnedAt])
+  @@map("user_achievements")
+}
+
+model UserDeckMastery {
+  userId            String      @map("user_id") @db.Uuid
+  deckId            String      @map("deck_id") @db.Uuid
+  tier              MasteryTier @default(NONE)
+  masteredCardCount Int         @default(0) @map("mastered_card_count")
+  totalCardCount    Int         @default(0) @map("total_card_count")
+  projectionVersion Int         @default(1) @map("projection_version")
+  updatedAt         DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deck              Deck        @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  @@id([userId, deckId])
+  @@map("user_deck_mastery")
+}
+
+model IdempotencyRecord {
+  id             String            @id @default(uuid()) @db.Uuid
+  scope          String
+  key            String
+  requestHash    String            @map("request_hash") @db.Char(64)
+  status         IdempotencyStatus @default(PROCESSING)
+  responseStatus Int?              @map("response_status")
+  responseBody   Json?             @map("response_body") @db.JsonB
+  resourceType   String?           @map("resource_type")
+  resourceId     String?           @map("resource_id")
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  completedAt    DateTime?         @map("completed_at") @db.Timestamptz(3)
+  expiresAt      DateTime          @map("expires_at") @db.Timestamptz(3)
+
+  @@unique([scope, key])
+  @@index([expiresAt])
+  @@map("idempotency_records")
+}
+
+model AnalyticsOutboxEvent {
+  eventId            String               @id @map("event_id") @db.Uuid
+  eventName          String               @map("event_name")
+  schemaVersion      Int                  @map("schema_version")
+  occurredAt         DateTime             @map("occurred_at") @db.Timestamptz(3)
+  receivedAt         DateTime             @default(now()) @map("received_at") @db.Timestamptz(3)
+  analyticsSubjectId String?              @map("analytics_subject_id")
+  anonymousId        String?              @map("anonymous_id")
+  properties         Json                 @db.JsonB
+  context            Json                 @db.JsonB
+  consentCategory    ConsentCategory      @map("consent_category")
+  deliveryStatus     OutboxDeliveryStatus @default(PENDING) @map("delivery_status")
+  attemptCount       Int                  @default(0) @map("attempt_count")
+  nextAttemptAt      DateTime?            @map("next_attempt_at") @db.Timestamptz(3)
+  deliveredAt        DateTime?            @map("delivered_at") @db.Timestamptz(3)
+  expiresAt          DateTime             @map("expires_at") @db.Timestamptz(3)
+
+  @@index([deliveryStatus, nextAttemptAt])
+  @@index([expiresAt])
+  @@map("analytics_outbox")
+}
+
+model AuditEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  actorUserId String?   @map("actor_user_id") @db.Uuid
+  action      String
+  targetType  String    @map("target_type")
+  targetId    String?   @map("target_id")
+  requestId   String?   @map("request_id") @db.Uuid
+  metadata    Json      @db.JsonB
+  occurredAt  DateTime  @default(now()) @map("occurred_at") @db.Timestamptz(3)
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz(3)
+  actor       User?     @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([targetType, targetId, occurredAt])
+  @@index([actorUserId, occurredAt])
+  @@index([expiresAt])
+  @@map("audit_events")
+}

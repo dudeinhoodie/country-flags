@@ -64,12 +64,17 @@ corepack yarn typecheck
 corepack yarn test
 corepack yarn contracts:check
 corepack yarn prisma:validate
+corepack yarn prisma:migrate:deploy
 corepack yarn build
 corepack yarn docker:build
 ```
 
 `corepack yarn test` использует локальную PostgreSQL из `corepack yarn db:up`
 для HTTP E2E-проверки readiness.
+
+`corepack yarn prisma:migrate:deploy` применяет committed migrations без
+интерактивных шагов. Правила модели, retention и ручных PostgreSQL constraints
+описаны в [`backend/prisma/README.md`](./backend/prisma/README.md).
 
 Канонический API-контракт находится в
 [`contracts/openapi.yaml`](./contracts/openapi.yaml). Проверки контрактов

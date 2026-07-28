@@ -14,8 +14,10 @@
     "test": "jest --runInBand",
     "test:unit": "jest --runInBand --testPathIgnorePatterns=e2e-spec",
     "test:e2e": "jest --runInBand --testPathPattern=e2e-spec",
+    "test:migrations": "jest --runInBand --testPathPattern=migrations.e2e-spec",
     "test:ci": "jest --ci --runInBand --coverage",
     "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:validate": "prisma validate"
   },
   "dependencies": {
