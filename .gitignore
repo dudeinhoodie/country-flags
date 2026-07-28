@@ -4,6 +4,7 @@ node_modules/
 .pnp.*
 dist/
 coverage/
+*.tsbuildinfo
 *.log
 .env
 .env.*

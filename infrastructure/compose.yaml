@@ -1,4 +1,22 @@
 services:
+  api:
+    profiles:
+      - app
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      LOG_LEVEL: info
+      DATABASE_URL: postgresql://country_flags:country_flags@postgres:5432/country_flags?schema=public
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    init: true
+
   postgres:
     image: postgres:16-alpine
     environment:
