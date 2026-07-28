@@ -21,6 +21,7 @@
     "test": "yarn workspace @country-flags/backend test && yarn workspace @country-flags/content-pipeline test",
     "test:ci": "yarn workspace @country-flags/backend test:ci && yarn workspace @country-flags/content-pipeline test",
     "content": "yarn workspace @country-flags/content-pipeline content",
+    "content:import:test": "yarn workspace @country-flags/backend content:import:test",
     "contracts:lint": "yarn workspace @country-flags/contracts lint",
     "contracts:bundle": "yarn workspace @country-flags/contracts bundle",
     "contracts:schemas": "yarn workspace @country-flags/contracts schemas",
