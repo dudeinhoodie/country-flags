@@ -517,7 +517,7 @@ paths:
       tags: [Content]
       summary: Get the active immutable content manifest
       operationId: getContentManifest
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security: []
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/Locale
@@ -582,7 +582,7 @@ paths:
       tags: [Content]
       summary: List localized decks
       operationId: listDecks
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - {}
         - BearerAuth: []
@@ -627,7 +627,7 @@ paths:
       tags: [Content]
       summary: List immutable card snapshots for a deck
       operationId: listDeckCards
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - {}
         - BearerAuth: []

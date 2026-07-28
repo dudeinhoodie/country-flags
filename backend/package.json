@@ -18,7 +18,8 @@
     "test:ci": "jest --ci --runInBand --coverage",
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:validate": "prisma validate"
+    "prisma:validate": "prisma validate",
+    "content:import:test": "ts-node src/cli/import-test-content.ts"
   },
   "dependencies": {
     "@nestjs/common": "11.1.6",

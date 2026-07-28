@@ -16,6 +16,19 @@ database schema.
   triggers находятся в migration SQL, потому что Prisma schema не может
   выразить их полностью.
 
+## Test-only content fixture
+
+После применения миграций development/test базу можно наполнить отдельным
+детерминированным набором:
+
+```bash
+corepack yarn content:import:test
+```
+
+Команда идемпотентна, публикует release с marker `TEST_ONLY` и намеренно
+завершается ошибкой при `NODE_ENV=production`. Она не является production
+seed/publish pipeline.
+
 ## Time and lifecycle rules
 
 - Момент времени хранится только в PostgreSQL `TIMESTAMPTZ` и передаётся как
