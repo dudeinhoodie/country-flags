@@ -1,0 +1,572 @@
+{
+  "info": {
+    "_postman_id": "98f0718e-2983-45a8-942d-f6d40463a050",
+    "name": "Country Flags API",
+    "description": "Локальная коллекция реализованных Country Flags API. Запускайте запросы сверху вниз: коллекция автоматически сохраняет ETag, deckId и cursor для следующих запросов.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Liveness",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Process is alive\", function () {",
+                  "  pm.expect(pm.response.json()).to.eql({ status: \"ok\" });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/health/live",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "health", "live"]
+            },
+            "description": "Проверяет, что процесс backend запущен."
+          },
+          "response": []
+        },
+        {
+          "name": "Readiness",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"PostgreSQL is available\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql(\"ok\");",
+                  "  pm.expect(body.checks.database.status).to.eql(\"up\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/health/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "health", "ready"]
+            },
+            "description": "Проверяет готовность backend и соединение с PostgreSQL."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Content",
+      "item": [
+        {
+          "name": "Get active manifest",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Manifest is TEST_ONLY fixture\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.schemaVersion).to.eql(1);",
+                  "  pm.expect(body.signature.keyId).to.eql(\"TEST_ONLY\");",
+                  "});",
+                  "const etag = pm.response.headers.get(\"ETag\");",
+                  "if (etag) {",
+                  "  pm.collectionVariables.set(\"manifestEtag\", etag);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/content/manifest?locale={{locale}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "content", "manifest"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                }
+              ]
+            },
+            "description": "Возвращает активный immutable manifest и сохраняет ETag в collection variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Get cached manifest (304)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 304\", function () {",
+                  "  pm.response.to.have.status(304);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "If-None-Match",
+                "value": "{{manifestEtag}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/content/manifest?locale={{locale}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "content", "manifest"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                }
+              ]
+            },
+            "description": "Запускайте после Get active manifest: использует сохранённый ETag."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Decks",
+      "item": [
+        {
+          "name": "List decks - first page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Deck page has items\", function () {",
+                  "  pm.expect(body.items).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "if (body.items.length > 0) {",
+                  "  pm.collectionVariables.set(\"deckId\", body.items[0].id);",
+                  "}",
+                  "if (body.page.nextCursor) {",
+                  "  pm.collectionVariables.set(\"deckCursor\", body.page.nextCursor);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/decks?locale={{locale}}&limit=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "decks"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Получает первую колоду и сохраняет deckId и cursor."
+          },
+          "response": []
+        },
+        {
+          "name": "List decks - next page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Page has no duplicate ALL deck\", function () {",
+                  "  const codes = pm.response.json().items.map((item) => item.code);",
+                  "  pm.expect(codes).not.to.include(\"ALL\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/decks?locale={{locale}}&limit=1&cursor={{deckCursor}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "decks"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "1"
+                },
+                {
+                  "key": "cursor",
+                  "value": "{{deckCursor}}"
+                }
+              ]
+            },
+            "description": "Запускайте после первой страницы колод."
+          },
+          "response": []
+        },
+        {
+          "name": "List deck cards - first page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Cards are unique\", function () {",
+                  "  const ids = body.items.map((item) => item.id);",
+                  "  pm.expect(new Set(ids).size).to.eql(ids.length);",
+                  "});",
+                  "if (body.page.nextCursor) {",
+                  "  pm.collectionVariables.set(\"cardCursor\", body.page.nextCursor);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/decks/{{deckId}}/cards?locale={{locale}}&limit={{pageSize}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "decks", "{{deckId}}", "cards"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{pageSize}}"
+                }
+              ]
+            },
+            "description": "Использует deckId из первой страницы колод и сохраняет card cursor."
+          },
+          "response": []
+        },
+        {
+          "name": "List deck cards - next page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response follows cursor page shape\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.items).to.be.an(\"array\");",
+                  "  pm.expect(body.page.hasMore).to.be.a(\"boolean\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/decks/{{deckId}}/cards?locale={{locale}}&limit={{pageSize}}&cursor={{cardCursor}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "decks", "{{deckId}}", "cards"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{pageSize}}"
+                },
+                {
+                  "key": "cursor",
+                  "value": "{{cardCursor}}"
+                }
+              ]
+            },
+            "description": "Запускайте после первой страницы карточек."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Study Sessions",
+      "item": [
+        {
+          "name": "Create study session",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(",
+                  "  \"sessionId\",",
+                  "  pm.variables.replaceIn(\"{{$guid}}\"),",
+                  ");"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Session contains five unique cards\", function () {",
+                  "  pm.expect(body.selectedUniqueCount).to.eql(5);",
+                  "  pm.expect(body.cards).to.have.lengthOf(5);",
+                  "  const ids = body.cards.map((card) => card.learningCard.id);",
+                  "  pm.expect(new Set(ids).size).to.eql(5);",
+                  "});",
+                  "pm.test(\"Due and learning cards have priority\", function () {",
+                  "  pm.expect(body.cards[0].selectionReason).to.eql(\"OVERDUE\");",
+                  "  pm.expect(body.cards[1].selectionReason).to.eql(\"LEARNING\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{sessionId}}\",\n  \"deckId\": \"{{deckId}}\",\n  \"requestedUniqueCount\": 5,\n  \"mode\": \"SELF_RATED\",\n  \"locale\": \"{{locale}}\",\n  \"selectionOrigin\": \"SERVER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/study-sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "study-sessions"]
+            },
+            "description": "Создаёт новый sessionId, сохраняет immutable snapshot и возвращает 201."
+          },
+          "response": []
+        },
+        {
+          "name": "Repeat study session creation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Idempotent retry returns 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"The same session ID is returned\", function () {",
+                  "  pm.expect(pm.response.json().id).to.eql(",
+                  "    pm.collectionVariables.get(\"sessionId\"),",
+                  "  );",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{sessionId}}\",\n  \"deckId\": \"{{deckId}}\",\n  \"requestedUniqueCount\": 5,\n  \"mode\": \"SELF_RATED\",\n  \"locale\": \"{{locale}}\",\n  \"selectionOrigin\": \"SERVER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/study-sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "study-sessions"]
+            },
+            "description": "Повторяет тот же payload и проверяет идемпотентный ответ 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Get study session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Persisted snapshot is returned\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.id).to.eql(",
+                  "    pm.collectionVariables.get(\"sessionId\"),",
+                  "  );",
+                  "  pm.expect(body.cards).to.have.lengthOf(5);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/study-sessions/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "study-sessions", "{{sessionId}}"]
+            },
+            "description": "Возвращает сохранённый snapshot созданной сессии."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "pm.test(\"Response has request ID\", function () {",
+          "  pm.expect(pm.response.headers.get(\"X-Request-ID\")).to.match(/^[0-9a-f-]{36}$/i);",
+          "});"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "manifestEtag",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deckId",
+      "value": "70000000-0000-4000-8000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "deckCursor",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cardCursor",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

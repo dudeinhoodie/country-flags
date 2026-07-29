@@ -498,6 +498,7 @@ __metadata:
     "@types/jest": "npm:29.5.14"
     "@types/node": "npm:22.17.0"
     "@types/supertest": "npm:6.0.3"
+    dotenv: "npm:16.4.7"
     eslint: "npm:9.32.0"
     eslint-config-prettier: "npm:10.1.8"
     globals: "npm:16.3.0"

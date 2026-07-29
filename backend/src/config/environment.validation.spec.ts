@@ -14,6 +14,7 @@ describe("validateEnvironment", () => {
       PORT: 3001,
       LOG_LEVEL: "warn",
       DATABASE_URL: validConfig.DATABASE_URL,
+      TEST_AUTH_ENABLED: true,
     });
   });
 
@@ -34,6 +35,25 @@ describe("validateEnvironment", () => {
         LOG_LEVEL: "info",
       }),
     ).toThrow("DATABASE_URL is required");
+  });
+
+  it("prevents the test auth guard from being enabled in production", () => {
+    expect(() =>
+      validateEnvironment({
+        ...validConfig,
+        NODE_ENV: "production",
+        TEST_AUTH_ENABLED: "true",
+      }),
+    ).toThrow("TEST_AUTH_ENABLED cannot be enabled in production");
+  });
+
+  it("disables test auth by default in production", () => {
+    expect(
+      validateEnvironment({
+        ...validConfig,
+        NODE_ENV: "production",
+      }),
+    ).toMatchObject({ TEST_AUTH_ENABLED: false });
   });
 
   it("rejects a non-PostgreSQL database URL", () => {

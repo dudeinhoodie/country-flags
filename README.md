@@ -16,6 +16,7 @@ foundation первой итерации.
 - [ТЗ на логирование, ошибки и аналитику](./docs/06-observability-analytics.md)
 - [ТЗ на опциональную рекламу](./docs/07-advertising.md)
 - [Стартовый handoff для Backend Agent](./docs/08-backend-agent-handoff.md)
+- [Postman Collection для локального API](./postman/README.md)
 
 ## Локальный запуск backend
 
@@ -31,6 +32,8 @@ cp backend/.env.example backend/.env
 corepack yarn install --immutable
 corepack yarn prisma:generate
 corepack yarn db:up
+corepack yarn prisma:migrate:deploy
+corepack yarn study:seed:test
 corepack yarn dev
 ```
 

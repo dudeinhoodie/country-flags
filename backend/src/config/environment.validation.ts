@@ -9,6 +9,7 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   PORT: number;
   LOG_LEVEL: LogLevel;
   DATABASE_URL: string;
+  TEST_AUTH_ENABLED: boolean;
 }
 
 function isOneOf<const T extends readonly string[]>(
@@ -73,6 +74,20 @@ function validateDatabaseUrl(value: string): string {
   return value;
 }
 
+function parseBoolean(value: unknown, fallback: boolean, key: string): boolean {
+  if (value === undefined) {
+    return fallback;
+  }
+  if (value === "true" || value === true) {
+    return true;
+  }
+  if (value === "false" || value === false) {
+    return false;
+  }
+
+  throw new Error(`Environment variable ${key} must be true or false`);
+}
+
 export function validateEnvironment(
   config: Record<string, unknown>,
 ): EnvironmentVariables {
@@ -95,11 +110,21 @@ export function validateEnvironment(
     );
   }
 
+  const testAuthEnabled = parseBoolean(
+    config.TEST_AUTH_ENABLED,
+    nodeEnvironment !== "production",
+    "TEST_AUTH_ENABLED",
+  );
+  if (nodeEnvironment === "production" && testAuthEnabled) {
+    throw new Error("TEST_AUTH_ENABLED cannot be enabled in production");
+  }
+
   return {
     ...config,
     NODE_ENV: nodeEnvironment,
     PORT: parsePort(config.PORT ?? 3000),
     LOG_LEVEL: logLevel,
     DATABASE_URL: validateDatabaseUrl(requiredString(config, "DATABASE_URL")),
+    TEST_AUTH_ENABLED: testAuthEnabled,
   };
 }
