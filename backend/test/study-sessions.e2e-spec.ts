@@ -145,7 +145,7 @@ describe("study session creation and retrieval (integration)", () => {
     expect(first).toEqual({
       marker: "TEST_ONLY",
       userId: TEST_STUDY_USER_ID,
-      schedulerVersion: "test-fsrs-6-v1",
+      schedulerVersion: "test-fsrs-6-v2",
       cardStates: 3,
     });
     await expect(
@@ -175,7 +175,7 @@ describe("study session creation and retrieval (integration)", () => {
       requestedUniqueCount: 5,
       selectedUniqueCount: 5,
       contentVersion: "test-only-fixture-v1",
-      schedulerVersion: "test-fsrs-6-v1",
+      schedulerVersion: "test-fsrs-6-v2",
     });
     expect(body.cards.map(({ selectionReason }) => selectionReason)).toEqual([
       "OVERDUE",

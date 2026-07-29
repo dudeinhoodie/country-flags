@@ -724,7 +724,7 @@ paths:
       tags: [Study]
       summary: Ingest discriminated immutable review events
       operationId: createReviewBatch
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: true
         content:

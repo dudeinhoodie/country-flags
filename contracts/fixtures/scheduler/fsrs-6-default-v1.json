@@ -1,0 +1,58 @@
+{
+  "schedulerVersion": "fsrs-6-test",
+  "parametersVersion": "fsrs-6-default-21-v1",
+  "reviews": [
+    {
+      "occurredAt": "2026-01-01T00:00:00.000Z",
+      "rating": "GOOD",
+      "expected": {
+        "state": "LEARNING",
+        "difficulty": 2.118104,
+        "stability": 2.3065,
+        "retrievabilityAtReview": null,
+        "dueAt": "2026-01-01T00:10:00.000Z",
+        "repetitions": 1,
+        "lapses": 0
+      }
+    },
+    {
+      "occurredAt": "2026-01-02T00:00:00.000Z",
+      "rating": "AGAIN",
+      "expected": {
+        "state": "LEARNING",
+        "difficulty": 7.394503,
+        "stability": 0.571299,
+        "retrievabilityAtReview": 0.946848,
+        "dueAt": "2026-01-02T00:01:00.000Z",
+        "repetitions": 2,
+        "lapses": 0
+      }
+    },
+    {
+      "occurredAt": "2026-01-03T00:00:00.000Z",
+      "rating": "HARD",
+      "expected": {
+        "state": "LEARNING",
+        "difficulty": 8.255578,
+        "stability": 1.635698,
+        "retrievabilityAtReview": 0.857212,
+        "dueAt": "2026-01-03T00:06:00.000Z",
+        "repetitions": 3,
+        "lapses": 0
+      }
+    },
+    {
+      "occurredAt": "2026-01-04T00:00:00.000Z",
+      "rating": "EASY",
+      "expected": {
+        "state": "REVIEW",
+        "difficulty": 7.657902,
+        "stability": 4.515564,
+        "retrievabilityAtReview": 0.930148,
+        "dueAt": "2026-01-09T00:00:00.000Z",
+        "repetitions": 4,
+        "lapses": 0
+      }
+    }
+  ]
+}

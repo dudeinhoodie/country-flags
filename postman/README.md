@@ -2,7 +2,8 @@
 
 Коллекция содержит все реализованные HTTP endpoints и тесты основных
 контрактов. Динамические значения `manifestEtag`, `deckId`, `deckCursor`,
-`cardCursor` и `sessionId` сохраняются автоматически на уровне коллекции.
+`cardCursor`, `sessionId`, review UUID, device sequence и canonical due date
+сохраняются автоматически на уровне коллекции.
 
 ## Подготовка backend
 
@@ -29,7 +30,9 @@ corepack yarn dev
 - `testAccessToken` — test-only JWT для локального пользователя.
 
 `study:seed:test` идемпотентно импортирует content fixture, test user, active
-test scheduler и due/new card states. Test auth и fixture import разрешены
+test scheduler, test device и due/new card states. Запросы в папке `Reviews`
+нужно запускать после `Create study session`; повторный запрос проверяет
+idempotent `DUPLICATE`. Test auth и fixture import разрешены
 только для development/test и не могут быть включены при production config.
 
 При необходимости test-only JWT можно пересоздать командой:

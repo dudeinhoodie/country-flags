@@ -288,6 +288,7 @@ model User {
   reviewEvents         ReviewEvent[]
   cardStates           UserCardState[]
   schedulerCheckpoints SchedulerMigrationCheckpoint[]
+  learningOutbox       LearningOutboxEvent[]
   achievements         UserAchievement[]
   deckMastery          UserDeckMastery[]
   auditEvents          AuditEvent[]
@@ -954,6 +955,27 @@ model SchedulerMigrationCheckpoint {
   @@unique([userId, learningCardId, toSchedulerVersion])
   @@index([userId, learningCardId, cutoffEffectiveOccurredAt])
   @@map("scheduler_migration_checkpoints")
+}
+
+model LearningOutboxEvent {
+  id             String               @id @default(uuid()) @db.Uuid
+  userId         String               @map("user_id") @db.Uuid
+  sourceEventId  String               @map("source_event_id") @db.Uuid
+  learningCardId String               @map("learning_card_id") @db.Uuid
+  eventType      String               @map("event_type")
+  payload        Json                 @db.JsonB
+  occurredAt     DateTime             @map("occurred_at") @db.Timestamptz(3)
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  deliveryStatus OutboxDeliveryStatus @default(PENDING) @map("delivery_status")
+  attemptCount   Int                  @default(0) @map("attempt_count")
+  nextAttemptAt  DateTime?            @map("next_attempt_at") @db.Timestamptz(3)
+  deliveredAt    DateTime?            @map("delivered_at") @db.Timestamptz(3)
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sourceEventId, eventType])
+  @@index([deliveryStatus, nextAttemptAt])
+  @@index([userId, learningCardId, occurredAt])
+  @@map("learning_outbox")
 }
 
 model AchievementDefinition {

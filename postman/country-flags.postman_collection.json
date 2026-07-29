@@ -379,6 +379,10 @@
                   "  const ids = body.cards.map((card) => card.learningCard.id);",
                   "  pm.expect(new Set(ids).size).to.eql(5);",
                   "});",
+                  "pm.collectionVariables.set(",
+                  "  \"reviewLearningCardId\",",
+                  "  body.cards[2].learningCard.id,",
+                  ");",
                   "pm.test(\"Due and learning cards have priority\", function () {",
                   "  pm.expect(body.cards[0].selectionReason).to.eql(\"OVERDUE\");",
                   "  pm.expect(body.cards[1].selectionReason).to.eql(\"LEARNING\");",
@@ -527,6 +531,154 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Ingest self-rated review",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(",
+                  "  \"reviewEventId\",",
+                  "  pm.variables.replaceIn(\"{{$guid}}\"),",
+                  ");",
+                  "pm.collectionVariables.set(",
+                  "  \"reviewOccurredAt\",",
+                  "  new Date().toISOString(),",
+                  ");",
+                  "pm.collectionVariables.set(",
+                  "  \"reviewClientSequence\",",
+                  "  String(Date.now()),",
+                  ");"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Review is accepted with canonical FSRS state\", function () {",
+                  "  pm.expect(body.results).to.have.lengthOf(1);",
+                  "  pm.expect(body.results[0].status).to.eql(\"ACCEPTED\");",
+                  "  pm.expect(body.results[0].canonicalRating).to.eql(\"GOOD\");",
+                  "  pm.expect(body.results[0].isCorrect).to.eql(true);",
+                  "  pm.expect(body.results[0].cardState.stateVersion).to.be.above(0);",
+                  "});",
+                  "pm.collectionVariables.set(",
+                  "  \"reviewDueAt\",",
+                  "  body.results[0].cardState.dueAt,",
+                  ");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payloadVersion\": 1,\n  \"events\": [\n    {\n      \"id\": \"{{reviewEventId}}\",\n      \"sessionId\": \"{{sessionId}}\",\n      \"learningCardId\": \"{{reviewLearningCardId}}\",\n      \"deviceId\": \"{{reviewDeviceId}}\",\n      \"answerMode\": \"SELF_RATED\",\n      \"rating\": \"GOOD\",\n      \"responseTimeMs\": 4200,\n      \"clientOccurredAt\": \"{{reviewOccurredAt}}\",\n      \"estimatedServerOccurredAt\": \"{{reviewOccurredAt}}\",\n      \"clientSequence\": {{reviewClientSequence}},\n      \"baseStateVersion\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/reviews/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "reviews", "batch"]
+            },
+            "description": "Принимает immutable self-rated review, пересчитывает FSRS projection и сохраняет значения для idempotent retry."
+          },
+          "response": []
+        },
+        {
+          "name": "Repeat review ingestion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Retry is duplicate and state is unchanged\", function () {",
+                  "  const result = pm.response.json().results[0];",
+                  "  pm.expect(result.status).to.eql(\"DUPLICATE\");",
+                  "  pm.expect(result.cardState.dueAt).to.eql(",
+                  "    pm.collectionVariables.get(\"reviewDueAt\"),",
+                  "  );",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payloadVersion\": 1,\n  \"events\": [\n    {\n      \"id\": \"{{reviewEventId}}\",\n      \"sessionId\": \"{{sessionId}}\",\n      \"learningCardId\": \"{{reviewLearningCardId}}\",\n      \"deviceId\": \"{{reviewDeviceId}}\",\n      \"answerMode\": \"SELF_RATED\",\n      \"rating\": \"GOOD\",\n      \"responseTimeMs\": 4200,\n      \"clientOccurredAt\": \"{{reviewOccurredAt}}\",\n      \"estimatedServerOccurredAt\": \"{{reviewOccurredAt}}\",\n      \"clientSequence\": {{reviewClientSequence}},\n      \"baseStateVersion\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/reviews/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "reviews", "batch"]
+            },
+            "description": "Повторяет идентичное событие и ожидает DUPLICATE без изменения projection/outbox."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
@@ -565,6 +717,36 @@
     },
     {
       "key": "sessionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewLearningCardId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewDeviceId",
+      "value": "81000000-0000-4000-8000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "reviewEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewOccurredAt",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewClientSequence",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewDueAt",
       "value": "",
       "type": "string"
     }

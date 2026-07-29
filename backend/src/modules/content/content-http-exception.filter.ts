@@ -44,6 +44,7 @@ export class ContentHttpExceptionFilter implements ExceptionFilter {
       401: "UNAUTHORIZED",
       404: "RESOURCE_NOT_FOUND",
       409: "IDEMPOTENCY_CONFLICT",
+      422: "VALIDATION_FAILED",
       503: "SERVICE_UNAVAILABLE",
     };
     const code = codeByStatus[status] ?? "REQUEST_FAILED";
