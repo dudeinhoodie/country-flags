@@ -1,0 +1,216 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
+
+import { ApiException } from "../../common/http/api.exception";
+import type { RequestWithId } from "../../common/http/request-id.middleware";
+import { ProviderIdentityVerifier } from "./provider-identity-verifier";
+import { AuthRateLimiter } from "./auth-rate-limiter.service";
+import { AuthService } from "./auth.service";
+import {
+  parseAppleAuthRequest,
+  parseAppleIdentityLinkRequest,
+  parseGoogleAuthRequest,
+  parseGoogleIdentityLinkRequest,
+  parseLogoutRequest,
+  parseProvider,
+  parseRefreshRequest,
+} from "./auth.request";
+import { AuthGuard, type AuthenticatedRequest } from "./auth.guard";
+
+type PublicAuthRequest = RequestWithId;
+type PrivateAuthRequest = RequestWithId & AuthenticatedRequest;
+
+function requestContext(request: PublicAuthRequest): {
+  requestId: string;
+  ipAddress: string;
+  userAgent: string | undefined;
+} {
+  return {
+    requestId: request.requestId,
+    ipAddress: request.ip ?? request.socket.remoteAddress ?? "unknown-client",
+    userAgent: request.header("user-agent"),
+  };
+}
+
+function sessionId(request: PrivateAuthRequest): string {
+  if (request.authenticatedSessionId === null) {
+    throw new ApiException(
+      HttpStatus.UNAUTHORIZED,
+      "SESSION_ACCESS_TOKEN_REQUIRED",
+      "A session access token is required for this operation",
+    );
+  }
+  return request.authenticatedSessionId;
+}
+
+@Controller("auth")
+export class AuthController {
+  constructor(
+    private readonly auth: AuthService,
+    private readonly verifier: ProviderIdentityVerifier,
+    private readonly rateLimiter: AuthRateLimiter,
+  ) {}
+
+  @Post("apple")
+  @HttpCode(HttpStatus.OK)
+  async apple(
+    @Req() request: PublicAuthRequest,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    await this.rateLimiter.consume("auth:apple", request.ip ?? "unknown", 10);
+    const parsed = parseAppleAuthRequest(body);
+    let identity;
+    try {
+      identity = await this.verifier.verifyApple(
+        parsed.identityToken,
+        parsed.rawNonce,
+      );
+    } catch (error) {
+      await this.auth.recordAuthenticationFailure("APPLE", request.requestId);
+      throw error;
+    }
+    return this.auth.login(identity, parsed.device, requestContext(request));
+  }
+
+  @Post("google")
+  @HttpCode(HttpStatus.OK)
+  async google(
+    @Req() request: PublicAuthRequest,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    await this.rateLimiter.consume("auth:google", request.ip ?? "unknown", 10);
+    const parsed = parseGoogleAuthRequest(body);
+    let identity;
+    try {
+      identity = await this.verifier.verifyGoogle(parsed.idToken);
+    } catch (error) {
+      await this.auth.recordAuthenticationFailure("GOOGLE", request.requestId);
+      throw error;
+    }
+    return this.auth.login(identity, parsed.device, requestContext(request));
+  }
+
+  @Post("refresh")
+  @HttpCode(HttpStatus.OK)
+  async refresh(
+    @Req() request: PublicAuthRequest,
+    @Body() body: unknown,
+  ): Promise<unknown> {
+    await this.rateLimiter.consume("auth:refresh", request.ip ?? "unknown", 30);
+    return this.auth.rotateRefreshToken(
+      parseRefreshRequest(body),
+      requestContext(request),
+    );
+  }
+
+  @Post("logout")
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
+    @Req() request: PrivateAuthRequest,
+    @Body() body: unknown,
+  ): Promise<void> {
+    await this.auth.logout(
+      request.authenticatedUserId,
+      sessionId(request),
+      parseLogoutRequest(body),
+      request.requestId,
+    );
+  }
+
+  @Post("logout-all")
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  logoutAll(@Req() request: PrivateAuthRequest): Promise<void> {
+    sessionId(request);
+    return this.auth.logoutAll(request.authenticatedUserId, request.requestId);
+  }
+}
+
+@Controller("me/identities")
+@UseGuards(AuthGuard)
+export class AuthIdentitiesController {
+  constructor(
+    private readonly auth: AuthService,
+    private readonly verifier: ProviderIdentityVerifier,
+    private readonly rateLimiter: AuthRateLimiter,
+  ) {}
+
+  @Get()
+  list(@Req() request: PrivateAuthRequest): Promise<Record<string, unknown>> {
+    sessionId(request);
+    return this.auth.listIdentities(request.authenticatedUserId);
+  }
+
+  @Post("apple")
+  async linkApple(
+    @Req() request: PrivateAuthRequest,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    sessionId(request);
+    await this.rateLimiter.consume(
+      "auth:link",
+      request.authenticatedUserId,
+      10,
+    );
+    const parsed = parseAppleIdentityLinkRequest(body);
+    const identity = await this.verifier.verifyApple(
+      parsed.identityToken,
+      parsed.rawNonce,
+    );
+    return this.auth.linkIdentity(
+      request.authenticatedUserId,
+      identity,
+      request.requestId,
+    );
+  }
+
+  @Post("google")
+  async linkGoogle(
+    @Req() request: PrivateAuthRequest,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    sessionId(request);
+    await this.rateLimiter.consume(
+      "auth:link",
+      request.authenticatedUserId,
+      10,
+    );
+    const parsed = parseGoogleIdentityLinkRequest(body);
+    const identity = await this.verifier.verifyGoogle(parsed.idToken);
+    return this.auth.linkIdentity(
+      request.authenticatedUserId,
+      identity,
+      request.requestId,
+    );
+  }
+
+  @Delete(":provider")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unlink(
+    @Req() request: PrivateAuthRequest,
+    @Param("provider") provider: string,
+  ): Promise<void> {
+    sessionId(request);
+    await this.rateLimiter.consume(
+      "auth:unlink",
+      request.authenticatedUserId,
+      10,
+    );
+    await this.auth.unlinkIdentity(
+      request.authenticatedUserId,
+      parseProvider(provider),
+      request.requestId,
+    );
+  }
+}

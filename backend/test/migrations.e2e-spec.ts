@@ -14,6 +14,7 @@ interface CountRow {
 const REQUIRED_TABLES = [
   "analytics_outbox",
   "audit_events",
+  "auth_rate_limit_buckets",
   "auth_identities",
   "content_changes",
   "content_releases",

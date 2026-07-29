@@ -11,17 +11,18 @@
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"*.{json,mjs}\" && prisma format --check",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "test": "jest --runInBand",
-    "test:unit": "jest --runInBand --testPathIgnorePatterns=e2e-spec",
-    "test:e2e": "jest --runInBand --testPathPattern=e2e-spec",
-    "test:migrations": "jest --runInBand --testPathPattern=migrations.e2e-spec",
-    "test:ci": "jest --ci --runInBand --coverage",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
+    "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --testPathIgnorePatterns=e2e-spec",
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --testPathPattern=e2e-spec",
+    "test:migrations": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --testPathPattern=migrations.e2e-spec",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules jest --ci --runInBand --coverage",
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:validate": "prisma validate",
     "content:import:test": "ts-node src/cli/import-test-content.ts",
     "study:seed:test": "ts-node src/cli/import-test-study-seed.ts",
-    "study:token:test": "ts-node src/cli/print-test-access-token.ts"
+    "study:token:test": "ts-node src/cli/print-test-access-token.ts",
+    "auth:provider-token:test": "ts-node src/cli/print-test-provider-token.ts"
   },
   "dependencies": {
     "@nestjs/common": "11.1.6",
@@ -30,6 +31,7 @@
     "@nestjs/platform-express": "11.1.6",
     "@prisma/client": "6.13.0",
     "dotenv": "16.4.7",
+    "jose": "6.2.4",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "ts-fsrs": "5.4.1"

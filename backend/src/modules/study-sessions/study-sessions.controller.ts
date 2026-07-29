@@ -11,22 +11,19 @@ import {
 } from "@nestjs/common";
 import type { Response } from "express";
 
-import {
-  type TestAuthenticatedRequest,
-  TestAuthGuard,
-} from "../auth/testing/test-auth.guard";
+import { type AuthenticatedRequest, AuthGuard } from "../auth/auth.guard";
 import { parseUuid } from "../content/content-query";
 import { parseCreateStudySessionRequest } from "./study-session.request";
 import { StudySessionsService } from "./study-sessions.service";
 
 @Controller("study-sessions")
-@UseGuards(TestAuthGuard)
+@UseGuards(AuthGuard)
 export class StudySessionsController {
   constructor(private readonly sessions: StudySessionsService) {}
 
   @Post()
   async create(
-    @Req() request: TestAuthenticatedRequest,
+    @Req() request: AuthenticatedRequest,
     @Body() body: unknown,
     @Res({ passthrough: true }) response: Response,
   ): Promise<Record<string, unknown>> {
@@ -40,7 +37,7 @@ export class StudySessionsController {
 
   @Get(":sessionId")
   get(
-    @Req() request: TestAuthenticatedRequest,
+    @Req() request: AuthenticatedRequest,
     @Param("sessionId") sessionId: string,
   ): Promise<Record<string, unknown>> {
     return this.sessions.get(

@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
 
-import { TestAuthModule } from "../auth/testing/test-auth.module";
+import { AuthModule } from "../auth/auth.module";
 import { StudySessionsController } from "./study-sessions.controller";
 import { StudySessionsService } from "./study-sessions.service";
 
 @Module({
-  imports: [TestAuthModule],
+  imports: [AuthModule],
   controllers: [StudySessionsController],
   providers: [StudySessionsService],
 })

@@ -1,8 +1,9 @@
 # Postman
 
 Коллекция содержит все реализованные HTTP endpoints и тесты основных
-контрактов. Динамические значения `manifestEtag`, `deckId`, `deckCursor`,
-`cardCursor`, `sessionId`, review UUID, device sequence и canonical due date
+контрактов. Папка `Authentication` использует локальные test-only Apple/Google
+tokens, сохраняет application access/refresh tokens, проверяет linking,
+logout, rotation и replay detection. Остальные динамические значения тоже
 сохраняются автоматически на уровне коллекции.
 
 ## Подготовка backend
@@ -28,6 +29,9 @@ corepack yarn dev
 - `locale` — локаль контента;
 - `pageSize` — размер страницы карточек.
 - `testAccessToken` — test-only JWT для локального пользователя.
+- `testGoogleIdToken` — локальный Google-like ID token;
+- `testAppleIdentityToken`, `testAppleRawNonce` и
+  `testAppleAuthorizationCode` — локальные Apple-like credentials.
 
 `study:seed:test` идемпотентно импортирует content fixture, test user, active
 test scheduler, test device и due/new card states. Запросы в папке `Reviews`
@@ -40,3 +44,15 @@ idempotent `DUPLICATE`. Test auth и fixture import разрешены
 ```bash
 corepack yarn study:token:test
 ```
+
+Provider tokens можно пересоздать без обращения к Apple/Google:
+
+```bash
+corepack yarn auth:provider-token:test google
+corepack yarn auth:provider-token:test apple
+```
+
+Команды печатают JSON. Скопируйте `token` и Apple `rawNonce` в Postman
+environment. Эти credentials принимаются только при
+`AUTH_PROVIDER_TEST_TOKENS_ENABLED=true`; production-конфигурация с таким
+режимом не запускается.
