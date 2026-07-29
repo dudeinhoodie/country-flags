@@ -16,7 +16,7 @@ database schema.
   triggers находятся в migration SQL, потому что Prisma schema не может
   выразить их полностью.
 
-## Test-only content fixture
+## Test-only fixtures
 
 После применения миграций development/test базу можно наполнить отдельным
 детерминированным набором:
@@ -28,6 +28,17 @@ corepack yarn content:import:test
 Команда идемпотентна, публикует release с marker `TEST_ONLY` и намеренно
 завершается ошибкой при `NODE_ENV=production`. Она не является production
 seed/publish pipeline.
+
+Для проверки study-session API используется расширенный seed:
+
+```bash
+corepack yarn study:seed:test
+```
+
+Он также импортирует content fixture, затем создаёт детерминированного test
+user, active test scheduler и card states для сценариев overdue/learning/new.
+Test JWT можно получить через `corepack yarn study:token:test`. Обе команды
+запрещены при `NODE_ENV=production`.
 
 ## Time and lifecycle rules
 

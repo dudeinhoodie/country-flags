@@ -7,6 +7,7 @@ import { validateEnvironment } from "../config/environment.validation";
 import { DatabaseModule } from "../infrastructure/database/database.module";
 import { ContentModule } from "../modules/content/content.module";
 import { HealthModule } from "../modules/health/health.module";
+import { StudySessionsModule } from "../modules/study-sessions/study-sessions.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { HealthModule } from "../modules/health/health.module";
     DatabaseModule,
     ContentModule,
     HealthModule,
+    StudySessionsModule,
   ],
 })
 export class AppModule implements NestModule {

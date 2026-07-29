@@ -19,7 +19,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:validate": "prisma validate",
-    "content:import:test": "ts-node src/cli/import-test-content.ts"
+    "content:import:test": "ts-node src/cli/import-test-content.ts",
+    "study:seed:test": "ts-node src/cli/import-test-study-seed.ts",
+    "study:token:test": "ts-node src/cli/print-test-access-token.ts"
   },
   "dependencies": {
     "@nestjs/common": "11.1.6",
@@ -27,6 +29,7 @@
     "@nestjs/core": "11.1.6",
     "@nestjs/platform-express": "11.1.6",
     "@prisma/client": "6.13.0",
+    "dotenv": "16.4.7",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2"
   },

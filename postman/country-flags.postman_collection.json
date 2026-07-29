@@ -346,6 +346,187 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Study Sessions",
+      "item": [
+        {
+          "name": "Create study session",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(",
+                  "  \"sessionId\",",
+                  "  pm.variables.replaceIn(\"{{$guid}}\"),",
+                  ");"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Session contains five unique cards\", function () {",
+                  "  pm.expect(body.selectedUniqueCount).to.eql(5);",
+                  "  pm.expect(body.cards).to.have.lengthOf(5);",
+                  "  const ids = body.cards.map((card) => card.learningCard.id);",
+                  "  pm.expect(new Set(ids).size).to.eql(5);",
+                  "});",
+                  "pm.test(\"Due and learning cards have priority\", function () {",
+                  "  pm.expect(body.cards[0].selectionReason).to.eql(\"OVERDUE\");",
+                  "  pm.expect(body.cards[1].selectionReason).to.eql(\"LEARNING\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{sessionId}}\",\n  \"deckId\": \"{{deckId}}\",\n  \"requestedUniqueCount\": 5,\n  \"mode\": \"SELF_RATED\",\n  \"locale\": \"{{locale}}\",\n  \"selectionOrigin\": \"SERVER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/study-sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "study-sessions"]
+            },
+            "description": "Создаёт новый sessionId, сохраняет immutable snapshot и возвращает 201."
+          },
+          "response": []
+        },
+        {
+          "name": "Repeat study session creation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Idempotent retry returns 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"The same session ID is returned\", function () {",
+                  "  pm.expect(pm.response.json().id).to.eql(",
+                  "    pm.collectionVariables.get(\"sessionId\"),",
+                  "  );",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{sessionId}}\",\n  \"deckId\": \"{{deckId}}\",\n  \"requestedUniqueCount\": 5,\n  \"mode\": \"SELF_RATED\",\n  \"locale\": \"{{locale}}\",\n  \"selectionOrigin\": \"SERVER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/study-sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "study-sessions"]
+            },
+            "description": "Повторяет тот же payload и проверяет идемпотентный ответ 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Get study session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Persisted snapshot is returned\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.id).to.eql(",
+                  "    pm.collectionVariables.get(\"sessionId\"),",
+                  "  );",
+                  "  pm.expect(body.cards).to.have.lengthOf(5);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/study-sessions/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "study-sessions", "{{sessionId}}"]
+            },
+            "description": "Возвращает сохранённый snapshot созданной сессии."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
@@ -379,6 +560,11 @@
     },
     {
       "key": "cardCursor",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
       "value": "",
       "type": "string"
     }

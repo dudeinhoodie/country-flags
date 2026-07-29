@@ -39,12 +39,14 @@ export class ContentHttpExceptionFilter implements ExceptionFilter {
     const message = Array.isArray(rawMessage)
       ? rawMessage.join("; ")
       : String(rawMessage);
-    const code =
-      status === 404
-        ? "RESOURCE_NOT_FOUND"
-        : status === 400
-          ? "VALIDATION_FAILED"
-          : "REQUEST_FAILED";
+    const codeByStatus: Record<number, string> = {
+      400: "VALIDATION_FAILED",
+      401: "UNAUTHORIZED",
+      404: "RESOURCE_NOT_FOUND",
+      409: "IDEMPOTENCY_CONFLICT",
+      503: "SERVICE_UNAVAILABLE",
+    };
+    const code = codeByStatus[status] ?? "REQUEST_FAILED";
 
     response.status(status).json({
       error: {

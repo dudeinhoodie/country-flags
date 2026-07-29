@@ -32,6 +32,8 @@ cp backend/.env.example backend/.env
 corepack yarn install --immutable
 corepack yarn prisma:generate
 corepack yarn db:up
+corepack yarn prisma:migrate:deploy
+corepack yarn study:seed:test
 corepack yarn dev
 ```
 

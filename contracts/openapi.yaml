@@ -651,8 +651,9 @@ paths:
     post:
       tags: [Study]
       summary: Create or idempotently import a study session
+      description: The current increment accepts SERVER selection in SELF_RATED mode.
       operationId: createStudySession
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: true
         content:
@@ -681,7 +682,7 @@ paths:
       tags: [Study]
       summary: Get a reproducible study session snapshot
       operationId: getStudySession
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/SessionId
       responses:

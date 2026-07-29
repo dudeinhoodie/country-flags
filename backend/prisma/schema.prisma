@@ -797,6 +797,7 @@ model StudySession {
   status               StudySessionStatus  @default(ACTIVE)
   contentVersion       String              @map("content_version")
   schedulerVersion     String              @map("scheduler_version")
+  requestHash          String              @map("request_hash") @db.Char(64)
   startedAt            DateTime            @map("started_at") @db.Timestamptz(3)
   completedAt          DateTime?           @map("completed_at") @db.Timestamptz(3)
   summary              Json?               @db.JsonB
