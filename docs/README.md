@@ -16,6 +16,8 @@
 - [06-observability-analytics.md](./06-observability-analytics.md) — логирование, crash/error reporting, метрики, трассировка и продуктовая аналитика.
 - [07-advertising.md](./07-advertising.md) — архитектурная подготовка опциональной рекламы, privacy/ATT и рекламных placements.
 - [08-backend-agent-handoff.md](./08-backend-agent-handoff.md) — точка входа для начала backend-разработки в VS Code.
+- [ADR-003](./adr/ADR-003-review-ordering-and-idempotency.md) — canonical ordering, clock normalization и idempotency review.
+- [ADR-004](./adr/ADR-004-fsrs6-versioning-and-migrations.md) — pinned FSRS-6 adapter, definitions и checkpoints.
 
 ## Подтверждённые продуктовые решения
 

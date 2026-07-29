@@ -86,6 +86,9 @@ corepack yarn docker:build
 
 Решение о структуре и package manager зафиксировано в
 [ADR-001](./docs/adr/ADR-001-monorepo-modular-monolith.md).
+Правила immutable review ordering и pinned FSRS-6 описаны в
+[ADR-003](./docs/adr/ADR-003-review-ordering-and-idempotency.md) и
+[ADR-004](./docs/adr/ADR-004-fsrs6-versioning-and-migrations.md).
 
 Команды явно используют `corepack yarn`, чтобы системный Yarn Classic не мог
 случайно проигнорировать закреплённую в проекте версию Yarn.

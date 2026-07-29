@@ -7,6 +7,7 @@ import { validateEnvironment } from "../config/environment.validation";
 import { DatabaseModule } from "../infrastructure/database/database.module";
 import { ContentModule } from "../modules/content/content.module";
 import { HealthModule } from "../modules/health/health.module";
+import { ReviewsModule } from "../modules/reviews/reviews.module";
 import { StudySessionsModule } from "../modules/study-sessions/study-sessions.module";
 
 @Module({
@@ -20,6 +21,7 @@ import { StudySessionsModule } from "../modules/study-sessions/study-sessions.mo
     DatabaseModule,
     ContentModule,
     HealthModule,
+    ReviewsModule,
     StudySessionsModule,
   ],
 })

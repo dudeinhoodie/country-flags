@@ -41,12 +41,18 @@ export async function importTestStudySeed(
   if (existingScheduler === null) {
     const anotherActive = await prisma.schedulerDefinition.findFirst({
       where: { status: SchedulerDefinitionStatus.ACTIVE },
-      select: { version: true },
+      select: { version: true, packageName: true },
     });
     if (anotherActive !== null) {
-      throw new Error(
-        `Cannot install TEST_ONLY scheduler while ${anotherActive.version} is active`,
-      );
+      if (anotherActive.packageName !== "TEST_ONLY") {
+        throw new Error(
+          `Cannot install TEST_ONLY scheduler while ${anotherActive.version} is active`,
+        );
+      }
+      await prisma.schedulerDefinition.update({
+        where: { version: anotherActive.version },
+        data: { status: SchedulerDefinitionStatus.RETIRED },
+      });
     }
     await prisma.schedulerDefinition.create({
       data: {
@@ -74,6 +80,24 @@ export async function importTestStudySeed(
       ...fixture.settings,
     },
     update: fixture.settings,
+  });
+  await prisma.device.upsert({
+    where: {
+      userId_clientGeneratedId: {
+        userId: fixture.user.id,
+        clientGeneratedId: fixture.device.clientGeneratedId,
+      },
+    },
+    create: {
+      ...fixture.device,
+      userId: fixture.user.id,
+    },
+    update: {
+      platform: fixture.device.platform,
+      appVersion: fixture.device.appVersion,
+      locale: fixture.device.locale,
+      timezone: fixture.device.timezone,
+    },
   });
 
   const activeCards = new Map(

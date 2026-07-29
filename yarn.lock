@@ -508,6 +508,7 @@ __metadata:
     reflect-metadata: "npm:0.2.2"
     rxjs: "npm:7.8.2"
     supertest: "npm:7.1.4"
+    ts-fsrs: "npm:5.4.1"
     ts-jest: "npm:29.4.0"
     ts-node: "npm:10.9.2"
     typescript: "npm:5.8.3"
@@ -8227,6 +8228,13 @@ __metadata:
   peerDependencies:
     typescript: ">=4.8.4"
   checksum: 10c0/767849383c114e7f1971fa976b20e73ac28fd0c70d8d65c0004790bf4d8f89888c7e4cf6d5949f9c1beae9bc3c64835bef77bbe27fddf45a3c7b60cebcf85c8c
+  languageName: node
+  linkType: hard
+
+"ts-fsrs@npm:5.4.1":
+  version: 5.4.1
+  resolution: "ts-fsrs@npm:5.4.1"
+  checksum: 10c0/2473a907a35566dec28aa089fa30fb077bc677cbf7307406a5fff59ab7474996d008a1eba0f4c1b29b633e1e3ae136a342810f9211fd7b3aa1f9086d328adcce
   languageName: node
   linkType: hard
 

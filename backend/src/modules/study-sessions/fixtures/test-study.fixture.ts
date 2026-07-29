@@ -6,8 +6,16 @@ import {
   UserStatus,
 } from "@prisma/client";
 
+import {
+  FSRS6_DEFAULT_PARAMETERS,
+  FSRS_PACKAGE_NAME,
+  FSRS_PACKAGE_VERSION,
+  FSRS_PARAMETERS_VERSION,
+} from "../../scheduler/fsrs6-scheduler.adapter";
+
 export const TEST_STUDY_USER_ID = "80000000-0000-4000-8000-000000000001";
-export const TEST_SCHEDULER_VERSION = "test-fsrs-6-v1";
+export const TEST_STUDY_DEVICE_ID = "81000000-0000-4000-8000-000000000001";
+export const TEST_SCHEDULER_VERSION = "test-fsrs-6-v2";
 
 export const TEST_STUDY_FIXTURE = {
   marker: "TEST_ONLY",
@@ -15,10 +23,10 @@ export const TEST_STUDY_FIXTURE = {
     version: TEST_SCHEDULER_VERSION,
     algorithm: SchedulerAlgorithm.FSRS,
     algorithmMajor: 6,
-    packageName: "TEST_ONLY",
-    packageVersion: "0.0.0",
-    parametersVersion: "test-parameters-v1",
-    parameters: { marker: "TEST_ONLY" },
+    packageName: FSRS_PACKAGE_NAME,
+    packageVersion: FSRS_PACKAGE_VERSION,
+    parametersVersion: FSRS_PARAMETERS_VERSION,
+    parameters: FSRS6_DEFAULT_PARAMETERS,
     defaultDesiredRetention: 0.9,
     status: SchedulerDefinitionStatus.ACTIVE,
     activeFrom: "2026-07-29T00:00:00.000Z",
@@ -28,6 +36,14 @@ export const TEST_STUDY_FIXTURE = {
     displayName: "Test Learner",
     preferredLocale: "ru",
     status: UserStatus.ACTIVE,
+  },
+  device: {
+    id: TEST_STUDY_DEVICE_ID,
+    clientGeneratedId: "TEST_ONLY_DEVICE",
+    platform: "IOS" as const,
+    appVersion: "0.1.0-test",
+    locale: "ru",
+    timezone: "Europe/Moscow",
   },
   settings: {
     sessionSize: 5,

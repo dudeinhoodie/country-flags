@@ -36,7 +36,8 @@ corepack yarn study:seed:test
 ```
 
 Он также импортирует content fixture, затем создаёт детерминированного test
-user, active test scheduler и card states для сценариев overdue/learning/new.
+  user, device, active test scheduler и card states для сценариев
+  overdue/learning/new.
 Test JWT можно получить через `corepack yarn study:token:test`. Обе команды
 запрещены при `NODE_ENV=production`.
 
@@ -58,6 +59,8 @@ Test JWT можно получить через `corepack yarn study:token:test`
   `audit_events` содержат `expires_at`. Worker удаляет только истёкшие записи
   согласно policy конкретного модуля; доставленные analytics rows не являются
   постоянной копией review history.
+- `learning_outbox` атомарно сопровождает принятую review projection и остаётся
+  отдельным от analytics operational потоком.
 - Refresh sessions используют `expires_at` и `revoked_at`; в базе хранится
   только hash токена.
 

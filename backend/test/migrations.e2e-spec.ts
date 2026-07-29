@@ -23,6 +23,7 @@ const REQUIRED_TABLES = [
   "guest_import_operations",
   "idempotency_records",
   "learning_cards",
+  "learning_outbox",
   "privacy_consent_events",
   "refresh_sessions",
   "review_events",
