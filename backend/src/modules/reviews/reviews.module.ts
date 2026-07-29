@@ -9,5 +9,6 @@ import { ReviewsService } from "./reviews.service";
   imports: [AuthModule, SchedulerModule],
   controllers: [ReviewsController],
   providers: [ReviewsService],
+  exports: [ReviewsService],
 })
 export class ReviewsModule {}

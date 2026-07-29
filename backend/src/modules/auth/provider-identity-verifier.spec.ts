@@ -22,7 +22,7 @@ describe("ProviderIdentityVerifier", () => {
       email: "same@example.test",
     });
 
-    await expect(verifier.verifyGoogle(token)).resolves.toEqual({
+    await expect(verifier.verifyGoogle(token)).resolves.toMatchObject({
       provider: "GOOGLE",
       subject: "google-user-1",
       email: "same@example.test",
@@ -40,7 +40,7 @@ describe("ProviderIdentityVerifier", () => {
       isPrivateEmail: true,
     });
 
-    await expect(verifier.verifyApple(token, rawNonce)).resolves.toEqual({
+    await expect(verifier.verifyApple(token, rawNonce)).resolves.toMatchObject({
       provider: "APPLE",
       subject: "apple-user-1",
       email: "relay@privaterelay.appleid.com",

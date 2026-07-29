@@ -172,6 +172,26 @@
           "type": "string",
           "format": "uuid"
         },
+        "options": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "answerEntityId"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "answerEntityId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
         "clientOccurredAt": {
           "type": "string",
           "format": "date-time"

@@ -17,7 +17,11 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   AUTH_ACCESS_TOKEN_AUDIENCE: string;
   AUTH_ACCESS_TOKEN_TTL_SECONDS: number;
   AUTH_REFRESH_TOKEN_TTL_SECONDS: number;
+  AUTH_REAUTH_TOKEN_TTL_SECONDS: number;
   AUTH_RATE_LIMIT_SECRET: string;
+  ACCOUNT_DATA_HASH_SECRET: string;
+  DATA_EXPORT_DOWNLOAD_TTL_SECONDS: number;
+  PUBLIC_BASE_URL: string;
   APPLE_CLIENT_IDS: string[];
   GOOGLE_CLIENT_IDS: string[];
 }
@@ -28,6 +32,8 @@ const TEST_ACCESS_SECRET =
   "TEST_ONLY_country_flags_access_signing_key_v1_never_for_production";
 const TEST_RATE_LIMIT_SECRET =
   "TEST_ONLY_country_flags_rate_limit_key_v1_never_for_production";
+const TEST_ACCOUNT_DATA_HASH_SECRET =
+  "TEST_ONLY_country_flags_account_data_hash_key_v1_never_for_production";
 
 function isOneOf<const T extends readonly string[]>(
   value: string,
@@ -89,6 +95,19 @@ function validateDatabaseUrl(value: string): string {
   }
 
   return value;
+}
+
+function validateHttpUrl(value: string, key: string): string {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(value);
+  } catch {
+    throw new Error(`Environment variable ${key} must be a valid URL`);
+  }
+  if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+    throw new Error(`Environment variable ${key} must use HTTP or HTTPS`);
+  }
+  return value.replace(/\/+$/, "");
 }
 
 function parseBoolean(value: unknown, fallback: boolean, key: string): boolean {
@@ -287,11 +306,41 @@ export function validateEnvironment(
       24 * 60 * 60,
       90 * 24 * 60 * 60,
     ),
+    AUTH_REAUTH_TOKEN_TTL_SECONDS: parseInteger(
+      config.AUTH_REAUTH_TOKEN_TTL_SECONDS,
+      300,
+      "AUTH_REAUTH_TOKEN_TTL_SECONDS",
+      60,
+      600,
+    ),
     AUTH_RATE_LIMIT_SECRET: authSecret(
       config,
       "AUTH_RATE_LIMIT_SECRET",
       TEST_RATE_LIMIT_SECRET,
       nodeEnvironment,
+    ),
+    ACCOUNT_DATA_HASH_SECRET: authSecret(
+      config,
+      "ACCOUNT_DATA_HASH_SECRET",
+      TEST_ACCOUNT_DATA_HASH_SECRET,
+      nodeEnvironment,
+    ),
+    DATA_EXPORT_DOWNLOAD_TTL_SECONDS: parseInteger(
+      config.DATA_EXPORT_DOWNLOAD_TTL_SECONDS,
+      300,
+      "DATA_EXPORT_DOWNLOAD_TTL_SECONDS",
+      60,
+      3_600,
+    ),
+    PUBLIC_BASE_URL: validateHttpUrl(
+      nodeEnvironment === "production"
+        ? requiredString(config, "PUBLIC_BASE_URL")
+        : optionalString(
+            config.PUBLIC_BASE_URL,
+            "http://localhost:3000",
+            "PUBLIC_BASE_URL",
+          ),
+      "PUBLIC_BASE_URL",
     ),
     APPLE_CLIENT_IDS: appleClientIds,
     GOOGLE_CLIENT_IDS: googleClientIds,
