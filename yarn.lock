@@ -503,6 +503,7 @@ __metadata:
     eslint-config-prettier: "npm:10.1.8"
     globals: "npm:16.3.0"
     jest: "npm:29.7.0"
+    jose: "npm:6.2.4"
     prettier: "npm:3.6.2"
     prisma: "npm:6.13.0"
     reflect-metadata: "npm:0.2.2"
@@ -5795,6 +5796,13 @@ __metadata:
   bin:
     jiti: lib/jiti-cli.mjs
   checksum: 10c0/1b1e2310a490dce1aeea3da5f5dfe18273516c20ce48be2e98eb8ea452d5f3dcc8fd0cfd6d28b4052a24c5dbab6e3089b2d7e79f0bce7915b10d750929563c42
+  languageName: node
+  linkType: hard
+
+"jose@npm:6.2.4":
+  version: 6.2.4
+  resolution: "jose@npm:6.2.4"
+  checksum: 10c0/aaba866d71a8cd5bfd7c2c228367318df99f36318d7c6f1e7bca835c3bdd74ea3fe38783277f7bf7c9703ae24338bb3642a6ccdef6aa54c006d29a9711e6f782
   languageName: node
   linkType: hard
 

@@ -24,7 +24,26 @@ export class ContentHttpExceptionFilter implements ExceptionFilter {
       typeof exceptionResponse.error === "object" &&
       exceptionResponse.error !== null
     ) {
-      response.status(status).json(exceptionResponse);
+      if (
+        status === 429 &&
+        "details" in exceptionResponse.error &&
+        typeof exceptionResponse.error.details === "object" &&
+        exceptionResponse.error.details !== null &&
+        "retryAfter" in exceptionResponse.error.details &&
+        typeof exceptionResponse.error.details.retryAfter === "number"
+      ) {
+        response.setHeader(
+          "Retry-After",
+          String(exceptionResponse.error.details.retryAfter),
+        );
+      }
+      response.status(status).json({
+        ...exceptionResponse,
+        error: {
+          ...exceptionResponse.error,
+          requestId: request.requestId,
+        },
+      });
       return;
     }
 
@@ -44,6 +63,7 @@ export class ContentHttpExceptionFilter implements ExceptionFilter {
       401: "UNAUTHORIZED",
       404: "RESOURCE_NOT_FOUND",
       409: "IDEMPOTENCY_CONFLICT",
+      429: "RATE_LIMIT_EXCEEDED",
       422: "VALIDATION_FAILED",
       503: "SERVICE_UNAVAILABLE",
     };

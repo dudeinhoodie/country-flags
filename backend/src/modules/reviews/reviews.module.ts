@@ -1,12 +1,12 @@
 import { Module } from "@nestjs/common";
 
-import { TestAuthModule } from "../auth/testing/test-auth.module";
+import { AuthModule } from "../auth/auth.module";
 import { SchedulerModule } from "../scheduler/scheduler.module";
 import { ReviewsController } from "./reviews.controller";
 import { ReviewsService } from "./reviews.service";
 
 @Module({
-  imports: [TestAuthModule, SchedulerModule],
+  imports: [AuthModule, SchedulerModule],
   controllers: [ReviewsController],
   providers: [ReviewsService],
 })

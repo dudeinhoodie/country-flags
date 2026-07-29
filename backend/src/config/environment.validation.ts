@@ -10,7 +10,24 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   LOG_LEVEL: LogLevel;
   DATABASE_URL: string;
   TEST_AUTH_ENABLED: boolean;
+  AUTH_PROVIDER_TEST_TOKENS_ENABLED: boolean;
+  AUTH_PROVIDER_TEST_SECRET: string;
+  AUTH_ACCESS_TOKEN_SECRET: string;
+  AUTH_ACCESS_TOKEN_ISSUER: string;
+  AUTH_ACCESS_TOKEN_AUDIENCE: string;
+  AUTH_ACCESS_TOKEN_TTL_SECONDS: number;
+  AUTH_REFRESH_TOKEN_TTL_SECONDS: number;
+  AUTH_RATE_LIMIT_SECRET: string;
+  APPLE_CLIENT_IDS: string[];
+  GOOGLE_CLIENT_IDS: string[];
 }
+
+const TEST_PROVIDER_SECRET =
+  "TEST_ONLY_country_flags_provider_signing_key_v1_never_for_production";
+const TEST_ACCESS_SECRET =
+  "TEST_ONLY_country_flags_access_signing_key_v1_never_for_production";
+const TEST_RATE_LIMIT_SECRET =
+  "TEST_ONLY_country_flags_rate_limit_key_v1_never_for_production";
 
 function isOneOf<const T extends readonly string[]>(
   value: string,
@@ -88,6 +105,75 @@ function parseBoolean(value: unknown, fallback: boolean, key: string): boolean {
   throw new Error(`Environment variable ${key} must be true or false`);
 }
 
+function parseInteger(
+  value: unknown,
+  fallback: number,
+  key: string,
+  minimum: number,
+  maximum: number,
+): number {
+  const parsed = value === undefined ? fallback : Number(value);
+  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) {
+    throw new Error(
+      `Environment variable ${key} must be an integer from ${minimum} to ${maximum}`,
+    );
+  }
+
+  return parsed;
+}
+
+function commaSeparated(
+  value: unknown,
+  fallback: string[],
+  key: string,
+): string[] {
+  if (value === undefined) {
+    return fallback;
+  }
+  if (typeof value !== "string") {
+    throw new Error(
+      `Environment variable ${key} must be a comma-separated string`,
+    );
+  }
+
+  const entries = value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+  if (entries.length === 0) {
+    throw new Error(
+      `Environment variable ${key} must contain at least one value`,
+    );
+  }
+
+  return [...new Set(entries)];
+}
+
+function authSecret(
+  config: Record<string, unknown>,
+  key: string,
+  fallback: string,
+  nodeEnvironment: NodeEnvironment,
+): string {
+  if (nodeEnvironment === "production") {
+    const value = requiredString(config, key);
+    if (value.length < 32) {
+      throw new Error(
+        `Environment variable ${key} must contain at least 32 characters`,
+      );
+    }
+    return value;
+  }
+
+  const value = optionalString(config[key], fallback, key);
+  if (value.length < 32) {
+    throw new Error(
+      `Environment variable ${key} must contain at least 32 characters`,
+    );
+  }
+  return value;
+}
+
 export function validateEnvironment(
   config: Record<string, unknown>,
 ): EnvironmentVariables {
@@ -118,6 +204,35 @@ export function validateEnvironment(
   if (nodeEnvironment === "production" && testAuthEnabled) {
     throw new Error("TEST_AUTH_ENABLED cannot be enabled in production");
   }
+  const providerTestTokensEnabled = parseBoolean(
+    config.AUTH_PROVIDER_TEST_TOKENS_ENABLED,
+    nodeEnvironment !== "production",
+    "AUTH_PROVIDER_TEST_TOKENS_ENABLED",
+  );
+  if (nodeEnvironment === "production" && providerTestTokensEnabled) {
+    throw new Error(
+      "AUTH_PROVIDER_TEST_TOKENS_ENABLED cannot be enabled in production",
+    );
+  }
+
+  const appleClientIds = commaSeparated(
+    config.APPLE_CLIENT_IDS,
+    nodeEnvironment === "production" ? [] : ["com.countryflags.local"],
+    "APPLE_CLIENT_IDS",
+  );
+  const googleClientIds = commaSeparated(
+    config.GOOGLE_CLIENT_IDS,
+    nodeEnvironment === "production"
+      ? []
+      : ["country-flags-local.apps.googleusercontent.com"],
+    "GOOGLE_CLIENT_IDS",
+  );
+  if (nodeEnvironment === "production" && appleClientIds.length === 0) {
+    throw new Error("Environment variable APPLE_CLIENT_IDS is required");
+  }
+  if (nodeEnvironment === "production" && googleClientIds.length === 0) {
+    throw new Error("Environment variable GOOGLE_CLIENT_IDS is required");
+  }
 
   return {
     ...config,
@@ -126,5 +241,59 @@ export function validateEnvironment(
     LOG_LEVEL: logLevel,
     DATABASE_URL: validateDatabaseUrl(requiredString(config, "DATABASE_URL")),
     TEST_AUTH_ENABLED: testAuthEnabled,
+    AUTH_PROVIDER_TEST_TOKENS_ENABLED: providerTestTokensEnabled,
+    AUTH_PROVIDER_TEST_SECRET:
+      nodeEnvironment === "production"
+        ? ""
+        : authSecret(
+            config,
+            "AUTH_PROVIDER_TEST_SECRET",
+            TEST_PROVIDER_SECRET,
+            nodeEnvironment,
+          ),
+    AUTH_ACCESS_TOKEN_SECRET: authSecret(
+      config,
+      "AUTH_ACCESS_TOKEN_SECRET",
+      TEST_ACCESS_SECRET,
+      nodeEnvironment,
+    ),
+    AUTH_ACCESS_TOKEN_ISSUER:
+      nodeEnvironment === "production"
+        ? requiredString(config, "AUTH_ACCESS_TOKEN_ISSUER")
+        : optionalString(
+            config.AUTH_ACCESS_TOKEN_ISSUER,
+            "country-flags-local",
+            "AUTH_ACCESS_TOKEN_ISSUER",
+          ),
+    AUTH_ACCESS_TOKEN_AUDIENCE:
+      nodeEnvironment === "production"
+        ? requiredString(config, "AUTH_ACCESS_TOKEN_AUDIENCE")
+        : optionalString(
+            config.AUTH_ACCESS_TOKEN_AUDIENCE,
+            "country-flags-api",
+            "AUTH_ACCESS_TOKEN_AUDIENCE",
+          ),
+    AUTH_ACCESS_TOKEN_TTL_SECONDS: parseInteger(
+      config.AUTH_ACCESS_TOKEN_TTL_SECONDS,
+      900,
+      "AUTH_ACCESS_TOKEN_TTL_SECONDS",
+      300,
+      1_800,
+    ),
+    AUTH_REFRESH_TOKEN_TTL_SECONDS: parseInteger(
+      config.AUTH_REFRESH_TOKEN_TTL_SECONDS,
+      30 * 24 * 60 * 60,
+      "AUTH_REFRESH_TOKEN_TTL_SECONDS",
+      24 * 60 * 60,
+      90 * 24 * 60 * 60,
+    ),
+    AUTH_RATE_LIMIT_SECRET: authSecret(
+      config,
+      "AUTH_RATE_LIMIT_SECRET",
+      TEST_RATE_LIMIT_SECRET,
+      nodeEnvironment,
+    ),
+    APPLE_CLIENT_IDS: appleClientIds,
+    GOOGLE_CLIENT_IDS: googleClientIds,
   };
 }

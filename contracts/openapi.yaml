@@ -124,7 +124,7 @@ paths:
       tags: [Authentication]
       summary: Authenticate with Sign in with Apple
       operationId: authenticateWithApple
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security: []
       requestBody:
         required: true
@@ -146,7 +146,7 @@ paths:
       tags: [Authentication]
       summary: Authenticate with Google
       operationId: authenticateWithGoogle
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security: []
       requestBody:
         required: true
@@ -168,7 +168,7 @@ paths:
       tags: [Authentication]
       summary: Rotate a refresh token
       operationId: refreshSession
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security: []
       requestBody:
         required: true
@@ -192,7 +192,7 @@ paths:
       tags: [Authentication]
       summary: Revoke the current refresh session
       operationId: logout
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: false
         content:
@@ -211,7 +211,7 @@ paths:
       tags: [Authentication]
       summary: Revoke every session for the current user
       operationId: logoutAll
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "204":
           description: All sessions revoked
@@ -282,7 +282,7 @@ paths:
       tags: [Account]
       summary: List linked authentication identities
       operationId: listIdentities
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: Linked identities
@@ -299,10 +299,9 @@ paths:
       tags: [Account]
       summary: Link an Apple identity
       operationId: linkAppleIdentity
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - BearerAuth: []
-          ReauthenticationToken: []
       requestBody:
         required: true
         content:
@@ -325,10 +324,9 @@ paths:
       tags: [Account]
       summary: Link a Google identity
       operationId: linkGoogleIdentity
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - BearerAuth: []
-          ReauthenticationToken: []
       requestBody:
         required: true
         content:
@@ -351,10 +349,9 @@ paths:
       tags: [Account]
       summary: Unlink an additional authentication identity
       operationId: unlinkIdentity
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - BearerAuth: []
-          ReauthenticationToken: []
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/IdentityProvider
       responses:

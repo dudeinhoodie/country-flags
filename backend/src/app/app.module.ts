@@ -5,6 +5,7 @@ import { RequestIdMiddleware } from "../common/http/request-id.middleware";
 import { LoggingModule } from "../common/logging/logging.module";
 import { validateEnvironment } from "../config/environment.validation";
 import { DatabaseModule } from "../infrastructure/database/database.module";
+import { AuthModule } from "../modules/auth/auth.module";
 import { ContentModule } from "../modules/content/content.module";
 import { HealthModule } from "../modules/health/health.module";
 import { ReviewsModule } from "../modules/reviews/reviews.module";
@@ -19,6 +20,7 @@ import { StudySessionsModule } from "../modules/study-sessions/study-sessions.mo
     }),
     LoggingModule,
     DatabaseModule,
+    AuthModule,
     ContentModule,
     HealthModule,
     ReviewsModule,

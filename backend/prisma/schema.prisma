@@ -1095,3 +1095,14 @@ model AuditEvent {
   @@index([expiresAt])
   @@map("audit_events")
 }
+
+model AuthRateLimitBucket {
+  keyHash         String   @id @map("key_hash") @db.Char(64)
+  scope           String
+  windowStartedAt DateTime @map("window_started_at") @db.Timestamptz(3)
+  requestCount    Int      @default(0) @map("request_count")
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([scope, windowStartedAt])
+  @@map("auth_rate_limit_buckets")
+}
