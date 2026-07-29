@@ -17,6 +17,7 @@ export interface VerifiedProviderIdentity {
   email: string | null;
   emailVerified: boolean | null;
   isPrivateEmail: boolean | null;
+  issuedAt: Date;
 }
 
 const APPLE_ISSUER = "https://appleid.apple.com";
@@ -150,6 +151,7 @@ export class ProviderIdentityVerifier {
       emailVerified: optionalBoolean(payload.email_verified),
       isPrivateEmail:
         provider === "APPLE" ? optionalBoolean(payload.is_private_email) : null,
+      issuedAt: new Date(payload.iat! * 1_000),
     };
   }
 

@@ -187,6 +187,52 @@ paths:
           $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/auth/reauth/apple:
+    post:
+      tags: [Authentication]
+      summary: Create fresh account-operation proof with Apple
+      operationId: reauthenticateApple
+      x-implementation-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/AppleIdentityLinkRequest
+      responses:
+        "200":
+          description: Short-lived proof bound to the current backend session
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ReauthenticationProof
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/auth/reauth/google:
+    post:
+      tags: [Authentication]
+      summary: Create fresh account-operation proof with Google
+      operationId: reauthenticateGoogle
+      x-implementation-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/GoogleIdentityLinkRequest
+      responses:
+        "200":
+          description: Short-lived proof bound to the current backend session
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ReauthenticationProof
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/auth/logout:
     post:
       tags: [Authentication]
@@ -224,7 +270,7 @@ paths:
       tags: [Account]
       summary: Get the current user profile
       operationId: getMe
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: Current profile
@@ -240,7 +286,7 @@ paths:
       tags: [Account]
       summary: Update the current user profile
       operationId: updateMe
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: true
         content:
@@ -262,7 +308,7 @@ paths:
       tags: [Account]
       summary: Request complete account deletion
       operationId: deleteMe
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - BearerAuth: []
           ReauthenticationToken: []
@@ -366,7 +412,7 @@ paths:
       tags: [Account]
       summary: List current user devices
       operationId: listDevices
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: Registered devices
@@ -381,7 +427,7 @@ paths:
       tags: [Account]
       summary: Revoke a device and its sessions
       operationId: deleteDevice
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/DeviceId
       responses:
@@ -396,10 +442,13 @@ paths:
       tags: [Settings]
       summary: Get synchronized user settings
       operationId: getSettings
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: User settings
+          headers:
+            ETag:
+              $ref: ./openapi/components.yaml#/headers/ETag
           content:
             application/json:
               schema:
@@ -410,7 +459,7 @@ paths:
       tags: [Settings]
       summary: Update user settings with optimistic concurrency
       operationId: updateSettings
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/IfMatch
       requestBody:
@@ -422,6 +471,9 @@ paths:
       responses:
         "200":
           description: Updated settings
+          headers:
+            ETag:
+              $ref: ./openapi/components.yaml#/headers/ETag
           content:
             application/json:
               schema:
@@ -435,7 +487,7 @@ paths:
       tags: [Progress]
       summary: Import guest sessions and immutable reviews
       operationId: createGuestImport
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: true
         content:
@@ -458,7 +510,7 @@ paths:
       tags: [Progress]
       summary: Get guest import status
       operationId: getGuestImport
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/MigrationId
       responses:
@@ -477,7 +529,7 @@ paths:
       tags: [Account]
       summary: Request a machine-readable data export
       operationId: createDataExport
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - BearerAuth: []
           ReauthenticationToken: []
@@ -495,7 +547,7 @@ paths:
       tags: [Account]
       summary: Get data export status and short-lived download URL
       operationId: getDataExport
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/ExportId
       responses:
@@ -505,6 +557,37 @@ paths:
             application/json:
               schema:
                 $ref: ./openapi/components.yaml#/schemas/DataExport
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/data-exports/{exportId}/download:
+    get:
+      tags: [Account]
+      summary: Download a ready export through its short-lived signed URL
+      operationId: downloadDataExport
+      x-implementation-status: implemented
+      security: []
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/ExportId
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 32
+            maxLength: 256
+      responses:
+        "200":
+          description: Machine-readable account archive
+          headers:
+            Cache-Control:
+              $ref: ./openapi/components.yaml#/headers/CacheControl
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         default:

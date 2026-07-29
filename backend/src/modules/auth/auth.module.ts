@@ -6,6 +6,7 @@ import { AuthGuard } from "./auth.guard";
 import { AuthRateLimiter } from "./auth-rate-limiter.service";
 import { AuthService } from "./auth.service";
 import { ProviderIdentityVerifier } from "./provider-identity-verifier";
+import { ReauthenticationTokenService } from "./reauthentication-token.service";
 import { TestJwtSigner } from "./testing/test-jwt-signer";
 import { TestProviderTokenSigner } from "./testing/test-provider-token-signer";
 
@@ -17,12 +18,15 @@ import { TestProviderTokenSigner } from "./testing/test-provider-token-signer";
     AuthRateLimiter,
     AuthService,
     ProviderIdentityVerifier,
+    ReauthenticationTokenService,
     TestJwtSigner,
     TestProviderTokenSigner,
   ],
   exports: [
     AccessTokenService,
     AuthGuard,
+    AuthRateLimiter,
+    ReauthenticationTokenService,
     TestJwtSigner,
     TestProviderTokenSigner,
   ],

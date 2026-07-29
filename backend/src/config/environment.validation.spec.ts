@@ -15,6 +15,9 @@ describe("validateEnvironment", () => {
     AUTH_ACCESS_TOKEN_AUDIENCE: "country-flags-api",
     AUTH_RATE_LIMIT_SECRET:
       "production-rate-limit-secret-with-at-least-32-characters",
+    ACCOUNT_DATA_HASH_SECRET:
+      "production-account-data-secret-with-at-least-32-characters",
+    PUBLIC_BASE_URL: "https://api.country-flags.example",
     APPLE_CLIENT_IDS: "com.countryflags.ios",
     GOOGLE_CLIENT_IDS: "web.apps.googleusercontent.com",
   };
@@ -29,6 +32,9 @@ describe("validateEnvironment", () => {
       AUTH_PROVIDER_TEST_TOKENS_ENABLED: true,
       AUTH_ACCESS_TOKEN_TTL_SECONDS: 900,
       AUTH_REFRESH_TOKEN_TTL_SECONDS: 2_592_000,
+      AUTH_REAUTH_TOKEN_TTL_SECONDS: 300,
+      DATA_EXPORT_DOWNLOAD_TTL_SECONDS: 300,
+      PUBLIC_BASE_URL: "http://localhost:3000",
       APPLE_CLIENT_IDS: ["com.countryflags.local"],
       GOOGLE_CLIENT_IDS: ["country-flags-local.apps.googleusercontent.com"],
     });

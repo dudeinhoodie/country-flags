@@ -79,6 +79,11 @@ corepack yarn docker:build
 интерактивных шагов. Правила модели, retention и ручных PostgreSQL constraints
 описаны в [`backend/prisma/README.md`](./backend/prisma/README.md).
 
+Полный environment contract находится в `backend/.env.example`. Для production
+обязательны отдельный `ACCOUNT_DATA_HASH_SECRET` и канонический
+`PUBLIC_BASE_URL`; TTL re-authentication и download URL задаются
+`AUTH_REAUTH_TOKEN_TTL_SECONDS` и `DATA_EXPORT_DOWNLOAD_TTL_SECONDS`.
+
 Канонический API-контракт находится в
 [`contracts/openapi.yaml`](./contracts/openapi.yaml). Проверки контрактов
 валидируют OpenAPI, собирают single-file bundle, проверяют JSON Schema fixtures
@@ -89,6 +94,8 @@ corepack yarn docker:build
 Правила immutable review ordering и pinned FSRS-6 описаны в
 [ADR-003](./docs/adr/ADR-003-review-ordering-and-idempotency.md) и
 [ADR-004](./docs/adr/ADR-004-fsrs6-versioning-and-migrations.md).
+Хранение и migration path приватных account exports зафиксированы в
+[ADR-007](./docs/adr/ADR-007-account-data-export-storage.md).
 
 Команды явно используют `corepack yarn`, чтобы системный Yarn Classic не мог
 случайно проигнорировать закреплённую в проекте версию Yarn.

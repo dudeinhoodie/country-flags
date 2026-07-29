@@ -397,6 +397,18 @@ schemas:
         writeOnly: true
       accessTokenExpiresAt:
         $ref: "#/schemas/DateTime"
+  ReauthenticationProof:
+    type: object
+    additionalProperties: false
+    required: [reauthenticationToken, expiresAt]
+    properties:
+      reauthenticationToken:
+        type: string
+        minLength: 32
+        maxLength: 4096
+        writeOnly: true
+      expiresAt:
+        $ref: "#/schemas/DateTime"
   AuthSession:
     type: object
     additionalProperties: false

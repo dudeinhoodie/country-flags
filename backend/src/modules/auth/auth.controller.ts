@@ -16,6 +16,7 @@ import type { RequestWithId } from "../../common/http/request-id.middleware";
 import { ProviderIdentityVerifier } from "./provider-identity-verifier";
 import { AuthRateLimiter } from "./auth-rate-limiter.service";
 import { AuthService } from "./auth.service";
+import { ReauthenticationTokenService } from "./reauthentication-token.service";
 import {
   parseAppleAuthRequest,
   parseAppleIdentityLinkRequest,
@@ -59,6 +60,7 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly verifier: ProviderIdentityVerifier,
     private readonly rateLimiter: AuthRateLimiter,
+    private readonly reauthentication: ReauthenticationTokenService,
   ) {}
 
   @Post("apple")
@@ -134,6 +136,55 @@ export class AuthController {
   logoutAll(@Req() request: PrivateAuthRequest): Promise<void> {
     sessionId(request);
     return this.auth.logoutAll(request.authenticatedUserId, request.requestId);
+  }
+
+  @Post("reauth/apple")
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async reauthenticateApple(
+    @Req() request: PrivateAuthRequest,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    const currentSessionId = sessionId(request);
+    await this.rateLimiter.consume(
+      "auth:reauth",
+      request.authenticatedUserId,
+      10,
+    );
+    const parsed = parseAppleIdentityLinkRequest(body);
+    const identity = await this.verifier.verifyApple(
+      parsed.identityToken,
+      parsed.rawNonce,
+    );
+    return this.reauthentication.issue(
+      request.authenticatedUserId,
+      currentSessionId,
+      identity,
+      request.requestId,
+    );
+  }
+
+  @Post("reauth/google")
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async reauthenticateGoogle(
+    @Req() request: PrivateAuthRequest,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    const currentSessionId = sessionId(request);
+    await this.rateLimiter.consume(
+      "auth:reauth",
+      request.authenticatedUserId,
+      10,
+    );
+    const parsed = parseGoogleIdentityLinkRequest(body);
+    const identity = await this.verifier.verifyGoogle(parsed.idToken);
+    return this.reauthentication.issue(
+      request.authenticatedUserId,
+      currentSessionId,
+      identity,
+      request.requestId,
+    );
   }
 }
 

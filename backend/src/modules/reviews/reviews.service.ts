@@ -33,7 +33,7 @@ interface ProjectionWithVersion extends SchedulerCardState {
   updatedAt: Date;
 }
 
-interface ReviewResult {
+export interface ReviewResult {
   eventId: string;
   status: "ACCEPTED" | "DUPLICATE" | "REJECTED";
   rejectionCode: string | null;
@@ -41,6 +41,14 @@ interface ReviewResult {
   isCorrect: boolean | null;
   correctOptionId: string | null;
   cardState: Record<string, unknown> | null;
+}
+
+export interface ReviewBatchResult extends Record<string, unknown> {
+  results: ReviewResult[];
+  achievements: unknown[];
+  deckSummaries: unknown[];
+  serverTime: string;
+  nextSyncCursor: string;
 }
 
 interface CanonicalGrading {
@@ -241,7 +249,7 @@ export class ReviewsService {
   async ingestBatch(
     userId: string,
     request: ReviewBatchRequest,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<ReviewBatchResult> {
     const results: ReviewResult[] = [];
     for (const event of request.events) {
       try {
