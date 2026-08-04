@@ -13,3 +13,7 @@ contracts/dist/
 backend/.env
 backend/.env.*
 !backend/.env.example
+
+# oh-my-codex local runtime state
+.omx/
+.cmax/
