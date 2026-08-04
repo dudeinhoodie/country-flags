@@ -94,7 +94,7 @@ paths:
       tags: [Configuration]
       summary: Get evaluated application configuration
       operationId: getAppConfig
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - {}
         - BearerAuth: []

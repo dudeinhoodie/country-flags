@@ -24,6 +24,7 @@ FROM dependencies AS builder
 ENV DATABASE_URL=postgresql://build:build@localhost:5432/build?schema=public
 
 COPY backend backend
+COPY contracts contracts
 
 RUN corepack yarn prisma:generate
 RUN corepack yarn workspace @country-flags/backend build
@@ -40,6 +41,7 @@ COPY --from=builder --chown=node:node /workspace/node_modules ./node_modules
 COPY --from=builder --chown=node:node /workspace/backend/package.json ./backend/package.json
 COPY --from=builder --chown=node:node /workspace/backend/dist ./backend/dist
 COPY --from=builder --chown=node:node /workspace/backend/prisma ./backend/prisma
+COPY --from=builder --chown=node:node /workspace/contracts ./contracts
 
 USER node
 

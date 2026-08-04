@@ -493,6 +493,8 @@ __metadata:
     "@nestjs/core": "npm:11.1.6"
     "@nestjs/platform-express": "npm:11.1.6"
     "@nestjs/testing": "npm:11.1.6"
+    "@openfeature/core": "npm:^1.12.0"
+    "@openfeature/server-sdk": "npm:^1.23.0"
     "@prisma/client": "npm:6.13.0"
     "@types/express": "npm:5.0.3"
     "@types/jest": "npm:29.5.14"
@@ -1550,6 +1552,22 @@ __metadata:
   bin:
     opencollective: bin/opencollective.js
   checksum: 10c0/ef2835d8635d2928152eff8b5a1ec42c145e2ab00cb02ff4bb61f0a6f5528afc9b169c06c32308c783779fe26855ebc67419743046caa80e582e814cff73187d
+  languageName: node
+  linkType: hard
+
+"@openfeature/core@npm:^1.12.0":
+  version: 1.12.0
+  resolution: "@openfeature/core@npm:1.12.0"
+  checksum: 10c0/561aa31810b6bad7c787a61dfeef11615b3151773f751548b0d3bc894cf50d863ef45832f9b92f390bc7da7ba1c41be12ce6226a78c36a504dfd5e7fb97120bd
+  languageName: node
+  linkType: hard
+
+"@openfeature/server-sdk@npm:^1.23.0":
+  version: 1.23.0
+  resolution: "@openfeature/server-sdk@npm:1.23.0"
+  peerDependencies:
+    "@openfeature/core": ^1.12.0
+  checksum: 10c0/2e9a5b57dece1d08a37a80f9a4118f1b22978693b865b4d8f9f89a97272aa9b125c5f94aa908670e3d83411252a43f2a9379c6b81d94f9361e8739740c1226e0
   languageName: node
   linkType: hard
 
