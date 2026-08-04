@@ -42,5 +42,19 @@ describe("review batch request", () => {
         events: [{ ...event, isCorrect: true }],
       }),
     ).toThrow("unknown field isCorrect");
+
+    expect(() =>
+      parseReviewBatchRequest({
+        payloadVersion: 1,
+        events: [
+          {
+            ...event,
+            answerMode: AnswerMode.MULTIPLE_CHOICE,
+            selectedOptionId: "93000000-0000-4000-8000-000000000001",
+            rating: ReviewRating.GOOD,
+          },
+        ],
+      }),
+    ).toThrow("unknown field rating");
   });
 });

@@ -22,10 +22,13 @@ interface StudyCardBody {
   randomSeed: string;
   learningCard: {
     id: string;
+    answerMode: string;
     semanticVersion: number;
     revision: number;
     answer: { displayName: string };
   };
+  distractorPolicyVersion: string | null;
+  options?: Array<{ id: string; position: number; displayName: string }>;
 }
 
 interface StudySessionBody {
@@ -228,6 +231,78 @@ describe("study session creation and retrieval (integration)", () => {
     expect(conflictBody.error.code).toBe("IDEMPOTENCY_CONFLICT");
   });
 
+  it("persists four localized options without exposing correctness", async () => {
+    const sessionId = "90000000-0000-4000-8000-000000000004";
+    const response = await request(httpServer)
+      .post("/v1/study-sessions")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        id: sessionId,
+        deckId: "70000000-0000-4000-8000-000000000001",
+        requestedUniqueCount: 5,
+        mode: "MULTIPLE_CHOICE",
+        locale: "en-US",
+        selectionOrigin: "SERVER",
+      })
+      .expect(201);
+    const body = response.body as unknown as StudySessionBody;
+
+    expect(body.cards).toHaveLength(5);
+    for (const card of body.cards) {
+      expect(card.learningCard.answerMode).toBe("MULTIPLE_CHOICE");
+      expect(card.distractorPolicyVersion).toBe(
+        "mvp-distractors-v1@test-only-fixture-v1",
+      );
+      expect(card.options).toHaveLength(4);
+      expect(card.options?.map(({ position }) => position)).toEqual([
+        0, 1, 2, 3,
+      ]);
+      expect(new Set(card.options?.map(({ id }) => id)).size).toBe(4);
+      expect(
+        card.options?.every(
+          (option) => !("isCorrect" in (option as Record<string, unknown>)),
+        ),
+      ).toBe(true);
+    }
+
+    const persisted = await database.studySessionCard.findMany({
+      where: { sessionId },
+      include: { options: true },
+    });
+    expect(persisted).toHaveLength(5);
+    expect(
+      persisted.every(
+        ({ options }) =>
+          options.length === 4 &&
+          options.filter(({ isCorrect }) => isCorrect).length === 1,
+      ),
+    ).toBe(true);
+
+    const firstOption = body.cards[0]?.options?.[0];
+    const persistedOption = persisted
+      .flatMap(({ options }) => options)
+      .find(({ id }) => id === firstOption?.id);
+    if (firstOption === undefined || persistedOption === undefined) {
+      throw new Error("Objective session has no persisted option");
+    }
+    await database.geoEntityName.updateMany({
+      where: {
+        geoEntityId: persistedOption.answerEntityId,
+        locale: "en",
+        isPrimary: true,
+      },
+      data: { value: "Changed after session creation" },
+    });
+    const unchanged = await request(httpServer)
+      .get(`/v1/study-sessions/${sessionId}`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .expect(200);
+    const unchangedBody = unchanged.body as unknown as StudySessionBody;
+    expect(unchangedBody.cards[0]?.options?.[0]?.displayName).toBe(
+      firstOption.displayName,
+    );
+  });
+
   it("retrieves only the authenticated user's persisted snapshot", async () => {
     const sessionId = "90000000-0000-4000-8000-000000000001";
     const ownResponse = await request(httpServer)
@@ -318,5 +393,40 @@ describe("study session creation and retrieval (integration)", () => {
     expect(
       nextBody.cards.map(({ learningCard }) => learningCard.id),
     ).not.toContain(firstCardId);
+  });
+
+  it("returns a typed error when the global localized pool is insufficient", async () => {
+    const active = await database.geoEntity.findMany({
+      where: { status: "ACTIVE", includeInCountryCatalog: true },
+      orderBy: { id: "asc" },
+      select: { id: true },
+    });
+    const hiddenIds = active.slice(3).map(({ id }) => id);
+    await database.geoEntity.updateMany({
+      where: { id: { in: hiddenIds } },
+      data: { status: "HIDDEN" },
+    });
+
+    try {
+      const response = await request(httpServer)
+        .post("/v1/study-sessions")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send({
+          id: "90000000-0000-4000-8000-000000000005",
+          deckId: "70000000-0000-4000-8000-000000000001",
+          requestedUniqueCount: 5,
+          mode: "MULTIPLE_CHOICE",
+          locale: "ru",
+          selectionOrigin: "SERVER",
+        })
+        .expect(422);
+      const body = response.body as unknown as ErrorBody;
+      expect(body.error.code).toBe("DISTRACTOR_POOL_INSUFFICIENT");
+    } finally {
+      await database.geoEntity.updateMany({
+        where: { id: { in: hiddenIds } },
+        data: { status: "ACTIVE" },
+      });
+    }
   });
 });

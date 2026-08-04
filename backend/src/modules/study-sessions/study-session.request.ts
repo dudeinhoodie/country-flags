@@ -9,7 +9,7 @@ export interface CreateServerStudySessionRequest {
   id: string;
   deckId: string;
   requestedUniqueCount: 5 | 10 | 20;
-  mode: typeof AnswerMode.SELF_RATED;
+  mode: typeof AnswerMode.SELF_RATED | typeof AnswerMode.MULTIPLE_CHOICE;
   locale: string;
   selectionOrigin: typeof SelectionOrigin.SERVER;
 }
@@ -49,10 +49,11 @@ export function parseCreateStudySessionRequest(
   if (![5, 10, 20].includes(body.requestedUniqueCount as number)) {
     throw new BadRequestException("requestedUniqueCount must be 5, 10, or 20");
   }
-  if (body.mode !== AnswerMode.SELF_RATED) {
-    throw new BadRequestException(
-      "Only SELF_RATED sessions are supported in this increment",
-    );
+  if (
+    body.mode !== AnswerMode.SELF_RATED &&
+    body.mode !== AnswerMode.MULTIPLE_CHOICE
+  ) {
+    throw new BadRequestException("mode must be SELF_RATED or MULTIPLE_CHOICE");
   }
   if (body.selectionOrigin !== SelectionOrigin.SERVER) {
     throw new BadRequestException(
@@ -67,7 +68,7 @@ export function parseCreateStudySessionRequest(
     id: parseUuid(body.id, "id"),
     deckId: parseUuid(body.deckId, "deckId"),
     requestedUniqueCount: body.requestedUniqueCount as 5 | 10 | 20,
-    mode: AnswerMode.SELF_RATED,
+    mode: body.mode,
     locale: parseLocale(body.locale),
     selectionOrigin: SelectionOrigin.SERVER,
   };

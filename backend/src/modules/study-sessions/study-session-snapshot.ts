@@ -1,4 +1,10 @@
-import { AssetStatus, PublicationStatus, type Prisma } from "@prisma/client";
+import {
+  type AnswerMode,
+  AssetStatus,
+  type GradingMode,
+  PublicationStatus,
+  type Prisma,
+} from "@prisma/client";
 
 import { localeCandidates } from "../content/content-query";
 
@@ -62,6 +68,7 @@ export function buildLearningCardSnapshot(
   card: SnapshotLearningCard,
   requestedLocale: string,
   defaultLocale: string,
+  answerMode: AnswerMode | GradingMode = card.template.gradingMode,
 ): Record<string, unknown> {
   const revision = card.revisions[0];
   if (revision?.promptAsset === null || revision === undefined) {
@@ -91,7 +98,7 @@ export function buildLearningCardSnapshot(
     templateSchemaVersion: card.template.schemaVersion,
     semanticVersion: card.semanticVersion,
     revision: revision.revision,
-    answerMode: card.template.gradingMode,
+    answerMode,
     prompt: {
       asset: {
         id: asset.id,
