@@ -1431,6 +1431,9 @@ schemas:
       relearning:
         type: integer
         minimum: 0
+      review:
+        type: integer
+        minimum: 0
       newCards:
         type: integer
         minimum: 0
@@ -1463,10 +1466,54 @@ schemas:
       dueCards:
         type: integer
         minimum: 0
+      overdueCards:
+        type: integer
+        minimum: 0
+      dueLearningCards:
+        type: integer
+        minimum: 0
+      dueRelearningCards:
+        type: integer
+        minimum: 0
       currentMasteryTier:
         $ref: "#/schemas/MasteryTier"
       highestAchievementTier:
         $ref: "#/schemas/MasteryTier"
+      newCards:
+        type: integer
+        minimum: 0
+      learningCards:
+        type: integer
+        minimum: 0
+      relearningCards:
+        type: integer
+        minimum: 0
+      reviewCards:
+        type: integer
+        minimum: 0
+      successfulReviews:
+        type: integer
+        minimum: 0
+      reviewCount:
+        type: integer
+        minimum: 0
+      accuracy30Days:
+        type: number
+        minimum: 0
+        maximum: 1
+      ruleVersion:
+        type: integer
+        minimum: 1
+      decks:
+        type: array
+        items:
+          $ref: "#/schemas/DeckProgress"
+      regions:
+        type: array
+        items:
+          $ref: "#/schemas/RegionProgress"
+      updatedAt:
+        $ref: "#/schemas/DateTime"
   DeckProgress:
     type: object
     additionalProperties: false
@@ -1490,12 +1537,109 @@ schemas:
       dueCards:
         type: integer
         minimum: 0
+      overdueCards:
+        type: integer
+        minimum: 0
+      dueLearningCards:
+        type: integer
+        minimum: 0
+      dueRelearningCards:
+        type: integer
+        minimum: 0
       currentMasteryTier:
         $ref: "#/schemas/MasteryTier"
       highestAchievementTier:
         $ref: "#/schemas/MasteryTier"
       updatedAt:
         $ref: "#/schemas/DateTime"
+      newCards:
+        type: integer
+        minimum: 0
+      learningCards:
+        type: integer
+        minimum: 0
+      relearningCards:
+        type: integer
+        minimum: 0
+      reviewCards:
+        type: integer
+        minimum: 0
+      successfulReviews:
+        type: integer
+        minimum: 0
+      reviewCount:
+        type: integer
+        minimum: 0
+      accuracy30Days:
+        type: number
+        minimum: 0
+        maximum: 1
+      ruleVersion:
+        type: integer
+        minimum: 1
+  RegionProgress:
+    type: object
+    additionalProperties: false
+    required:
+      - regionId
+      - totalCards
+      - learnedCards
+      - dueCards
+      - currentMasteryTier
+      - highestAchievementTier
+      - updatedAt
+    properties:
+      regionId:
+        $ref: "#/schemas/Uuid"
+      totalCards:
+        type: integer
+        minimum: 0
+      learnedCards:
+        type: integer
+        minimum: 0
+      dueCards:
+        type: integer
+        minimum: 0
+      overdueCards:
+        type: integer
+        minimum: 0
+      dueLearningCards:
+        type: integer
+        minimum: 0
+      dueRelearningCards:
+        type: integer
+        minimum: 0
+      currentMasteryTier:
+        $ref: "#/schemas/MasteryTier"
+      highestAchievementTier:
+        $ref: "#/schemas/MasteryTier"
+      updatedAt:
+        $ref: "#/schemas/DateTime"
+      newCards:
+        type: integer
+        minimum: 0
+      learningCards:
+        type: integer
+        minimum: 0
+      relearningCards:
+        type: integer
+        minimum: 0
+      reviewCards:
+        type: integer
+        minimum: 0
+      successfulReviews:
+        type: integer
+        minimum: 0
+      reviewCount:
+        type: integer
+        minimum: 0
+      accuracy30Days:
+        type: number
+        minimum: 0
+        maximum: 1
+      ruleVersion:
+        type: integer
+        minimum: 1
   Achievement:
     type: object
     additionalProperties: false
@@ -1503,8 +1647,6 @@ schemas:
       - id
       - code
       - category
-      - title
-      - description
       - earned
       - ruleVersion
     properties:
@@ -1522,6 +1664,12 @@ schemas:
         type: string
       description:
         type: string
+      scopeType:
+        type: string
+        enum: [GLOBAL, DECK, REGION]
+      scopeId:
+        type: [string, "null"]
+        format: uuid
       earned:
         type: boolean
       earnedAt:
@@ -1530,6 +1678,8 @@ schemas:
       ruleVersion:
         type: integer
         minimum: 1
+      evidence:
+        type: object
   AchievementPage:
     type: object
     additionalProperties: false

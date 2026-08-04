@@ -14,6 +14,7 @@ import {
 } from "@prisma/client";
 
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { ProgressService } from "../progress/progress.service";
 import { Fsrs6SchedulerAdapter } from "../scheduler/fsrs6-scheduler.adapter";
 import type {
   SchedulerCardState,
@@ -243,6 +244,7 @@ function prismaErrorCode(error: unknown): string | null {
 export class ReviewsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly progress: ProgressService,
     private readonly scheduler: Fsrs6SchedulerAdapter,
   ) {}
 
@@ -273,11 +275,12 @@ export class ReviewsService {
       }
     }
 
+    const projection = await this.progress.rebuildUser(userId);
     const serverTime = new Date();
     return {
       results,
-      achievements: [],
-      deckSummaries: [],
+      achievements: projection.newAchievements,
+      deckSummaries: projection.decks,
       serverTime: serverTime.toISOString(),
       nextSyncCursor: Buffer.from(
         JSON.stringify({ receivedBefore: serverTime.toISOString() }),
