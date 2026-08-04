@@ -9,6 +9,7 @@ import { AuthModule } from "../modules/auth/auth.module";
 import { AccountLifecycleModule } from "../modules/account-lifecycle/account-lifecycle.module";
 import { ContentModule } from "../modules/content/content.module";
 import { HealthModule } from "../modules/health/health.module";
+import { ProgressModule } from "../modules/progress/progress.module";
 import { ReviewsModule } from "../modules/reviews/reviews.module";
 import { StudySessionsModule } from "../modules/study-sessions/study-sessions.module";
 import { DevicesModule } from "../modules/devices/devices.module";
@@ -29,6 +30,7 @@ import { UsersModule } from "../modules/users/users.module";
     ContentModule,
     DevicesModule,
     HealthModule,
+    ProgressModule,
     ReviewsModule,
     StudySessionsModule,
     SettingsModule,

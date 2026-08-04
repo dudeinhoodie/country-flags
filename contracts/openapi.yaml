@@ -838,7 +838,7 @@ paths:
       tags: [Progress]
       summary: Get due counts grouped by learning state
       operationId: getDueSummary
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: Due summary
@@ -853,7 +853,7 @@ paths:
       tags: [Progress]
       summary: Get aggregate account learning progress
       operationId: getProgress
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: Account progress
@@ -893,7 +893,7 @@ paths:
       tags: [Progress]
       summary: Get progress and mastery for one deck
       operationId: getDeckProgress
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/DeckId
       responses:
@@ -910,9 +910,9 @@ paths:
   /v1/me/achievements:
     get:
       tags: [Progress]
-      summary: List earned and locked achievements
+      summary: List earned achievements
       operationId: listAchievements
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/Cursor
         - $ref: ./openapi/components.yaml#/parameters/Limit
