@@ -18,6 +18,7 @@ import { AppModule } from "../src/app/app.module";
 import { PrismaService } from "../src/infrastructure/database/prisma.service";
 import { TestJwtSigner } from "../src/modules/auth/testing/test-jwt-signer";
 import { importTestContent } from "../src/modules/content/import/test-content-importer";
+import { ReconciliationWorker } from "../src/modules/reviews/reconciliation.worker";
 import {
   FSRS6_DEFAULT_PARAMETERS,
   FSRS_PACKAGE_NAME,
@@ -47,7 +48,7 @@ interface ReviewStateBody {
 interface ReviewBatchBody {
   results: Array<{
     eventId: string;
-    status: "ACCEPTED" | "DUPLICATE" | "REJECTED";
+    status: "ACCEPTED" | "DUPLICATE" | "REJECTED" | "RECONCILIATION_PENDING";
     rejectionCode: string | null;
     canonicalRating: ReviewRating | null;
     isCorrect: boolean | null;
@@ -213,6 +214,13 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
   }
 
   it("atomically persists immutable event, projection and outbox", async () => {
+    const initialChangesResponse = await request(httpServer)
+      .get("/v1/me/changes")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .expect(200);
+    const initialChanges = initialChangesResponse.body as unknown as {
+      nextCursor: string;
+    };
     const body = await sendEvent(selfRatedEvent());
 
     expect(body.results[0]).toMatchObject({
@@ -236,6 +244,30 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
         where: { userId: TEST_STUDY_USER_ID, learningCardId },
       }),
     ).resolves.toBe(1);
+    const changesUrl = `/v1/me/changes?after=${encodeURIComponent(
+      initialChanges.nextCursor,
+    )}`;
+    const firstChanges = await request(httpServer)
+      .get(changesUrl)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .expect(200);
+    expect(firstChanges.body).toMatchObject({
+      items: [
+        {
+          operation: "UPSERT",
+          resourceType: "CARD_STATE",
+          resourceId: learningCardId,
+          payload: { learningCardId, stateVersion: 1 },
+        },
+      ],
+      hasMore: false,
+      nextCursor: body.nextSyncCursor,
+    });
+    const repeatedChanges = await request(httpServer)
+      .get(changesUrl)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .expect(200);
+    expect(repeatedChanges.body).toEqual(firstChanges.body);
   });
 
   it("returns the saved result for duplicate and rejects payload reuse", async () => {
@@ -530,6 +562,124 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
         data: { rating: ReviewRating.EASY },
       }),
     ).rejects.toThrow("updates are forbidden for immutable table");
+  });
+
+  it("resumes late-event reconciliation from a PostgreSQL checkpoint after restart", async () => {
+    const secondDeviceId = "94000000-0000-4000-8000-000000000002";
+    await database.device.create({
+      data: {
+        id: secondDeviceId,
+        userId: TEST_STUDY_USER_ID,
+        clientGeneratedId: "reviews-reconciliation-device",
+        platform: "IOS",
+        appVersion: "1.0.0",
+        locale: "en",
+        timezone: "UTC",
+      },
+    });
+    const stateBefore = await database.userCardState.findUniqueOrThrow({
+      where: {
+        userId_learningCardId: {
+          userId: TEST_STUDY_USER_ID,
+          learningCardId,
+        },
+      },
+    });
+    const lateEventId = "92000000-0000-4000-8000-000000000012";
+    const response = await sendEvent(
+      selfRatedEvent({
+        id: lateEventId,
+        deviceId: secondDeviceId,
+        clientSequence: 1,
+        clientOccurredAt: "2026-07-29T09:00:00.000Z",
+        estimatedServerOccurredAt: "2026-07-29T09:00:00.000Z",
+        baseStateVersion: stateBefore.stateVersion,
+      }),
+    );
+    expect(response.results[0]).toMatchObject({
+      status: "RECONCILIATION_PENDING",
+      cardState: { stateVersion: stateBefore.stateVersion },
+    });
+    await expect(
+      database.reviewEvent.count({
+        where: { userId: TEST_STUDY_USER_ID, id: lateEventId },
+      }),
+    ).resolves.toBe(1);
+
+    await app.close();
+    await startApplication();
+    let completedJobId: string | undefined;
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      const job = await database.reconciliationJob.findFirstOrThrow({
+        where: {
+          userId: TEST_STUDY_USER_ID,
+          learningCardId,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      if (job.status === "COMPLETED") {
+        completedJobId = job.id;
+        break;
+      }
+      await new Promise((resolvePromise) => setTimeout(resolvePromise, 20));
+    }
+    expect(completedJobId).toBeDefined();
+    const reconciled = await database.userCardState.findUniqueOrThrow({
+      where: {
+        userId_learningCardId: {
+          userId: TEST_STUDY_USER_ID,
+          learningCardId,
+        },
+      },
+    });
+    expect(reconciled.stateVersion).toBe(stateBefore.stateVersion + 1);
+    const reconciledCheckpoint =
+      await database.schedulerMigrationCheckpoint.findUniqueOrThrow({
+        where: {
+          userId_learningCardId_toSchedulerVersion: {
+            userId: TEST_STUDY_USER_ID,
+            learningCardId,
+            toSchedulerVersion: "test-fsrs-6-v3",
+          },
+        },
+        select: { reconciliationVersion: true, lastReconciledAt: true },
+      });
+    expect(reconciledCheckpoint.reconciliationVersion).toBe(1);
+    expect(reconciledCheckpoint.lastReconciledAt).toBeInstanceOf(Date);
+
+    await database.userCardState.delete({
+      where: {
+        userId_learningCardId: {
+          userId: TEST_STUDY_USER_ID,
+          learningCardId,
+        },
+      },
+    });
+    await database.reconciliationJob.create({
+      data: {
+        userId: TEST_STUDY_USER_ID,
+        learningCardId,
+        targetSchedulerVersion: "test-fsrs-6-v3",
+        reason: "PROJECTION_DRIFT",
+      },
+    });
+    await app.get(ReconciliationWorker).drain();
+    const replayed = await database.userCardState.findUniqueOrThrow({
+      where: {
+        userId_learningCardId: {
+          userId: TEST_STUDY_USER_ID,
+          learningCardId,
+        },
+      },
+    });
+    expect(replayed).toMatchObject({
+      state: reconciled.state,
+      difficulty: reconciled.difficulty,
+      stability: reconciled.stability,
+      dueAt: reconciled.dueAt,
+      stateVersion: reconciled.stateVersion,
+      schedulerVersion: reconciled.schedulerVersion,
+    });
   });
 
   it("rolls back a review when an active scheduler definition is unsupported", async () => {

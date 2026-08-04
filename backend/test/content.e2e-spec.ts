@@ -5,7 +5,13 @@ import { resolve } from "node:path";
 import type { INestApplication } from "@nestjs/common";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { Test } from "@nestjs/testing";
-import { PrismaClient } from "@prisma/client";
+import {
+  ContentChangeOperation,
+  ContentReleaseStatus,
+  ContentResourceType,
+  Prisma,
+  PrismaClient,
+} from "@prisma/client";
 import request from "supertest";
 
 import { AppModule } from "../src/app/app.module";
@@ -361,5 +367,67 @@ describe("content fixture and read API (integration)", () => {
     expect(missingBody.error.code).toBe("RESOURCE_NOT_FOUND");
     expect(missingBody.error.requestId).toMatch(/^[0-9a-f-]{36}$/iu);
     expect(missingBody.error.details).toEqual({});
+  });
+
+  it("repeats content pages stably and represents deletion as a tombstone", async () => {
+    const manifest = await request(httpServer)
+      .get("/v1/content/manifest")
+      .query({ locale: "en" })
+      .expect(200);
+    const after = String(
+      (manifest.body as unknown as { changeCursor: string }).changeCursor,
+    );
+    const retiredResourceId = "10000000-0000-4000-8000-000000000001";
+    await database.$transaction([
+      database.contentRelease.create({
+        data: {
+          version: "test-only-fixture-v2",
+          schemaVersion: 1,
+          status: ContentReleaseStatus.PUBLISHED,
+          manifestChecksum: "2".repeat(64),
+          metadata: { marker: "TEST_ONLY", manifest: {} },
+          publishedAt: new Date(),
+        },
+      }),
+      database.contentChange.create({
+        data: {
+          contentVersion: "test-only-fixture-v2",
+          operation: ContentChangeOperation.RETIRE,
+          resourceType: ContentResourceType.ENTITY,
+          resourceId: retiredResourceId,
+          payload: Prisma.DbNull,
+        },
+      }),
+      database.contentPointer.update({
+        where: { key: "active" },
+        data: { contentVersion: "test-only-fixture-v2" },
+      }),
+    ]);
+
+    const first = await request(httpServer)
+      .get("/v1/content/changes")
+      .query({ locale: "en", after, limit: 100 })
+      .expect(200);
+    const repeated = await request(httpServer)
+      .get("/v1/content/changes")
+      .query({ locale: "en", after, limit: 100 })
+      .expect(200);
+
+    expect(repeated.body).toEqual(first.body);
+    expect(first.body).toMatchObject({
+      items: [
+        {
+          operation: "RETIRE",
+          resourceType: "ENTITY",
+          resourceId: retiredResourceId,
+          contentVersion: "test-only-fixture-v2",
+        },
+      ],
+      hasMore: false,
+      contentVersion: "test-only-fixture-v2",
+    });
+    expect((first.body as { items: unknown[] }).items[0]).not.toHaveProperty(
+      "payload",
+    );
   });
 });

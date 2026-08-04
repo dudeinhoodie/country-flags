@@ -36,7 +36,14 @@ parameters:
     name: after
     in: query
     required: true
-    description: Opaque content cursor; client timestamps are not accepted.
+    description: Opaque monotonic feed cursor; client timestamps are not accepted.
+    schema:
+      $ref: "#/schemas/OpaqueCursor"
+  UserAfterCursor:
+    name: after
+    in: query
+    required: false
+    description: Opaque account-scoped cursor; omitted for the initial page.
     schema:
       $ref: "#/schemas/OpaqueCursor"
   Limit:
@@ -973,6 +980,38 @@ schemas:
         $ref: "#/schemas/Uuid"
       contentVersion:
         type: string
+  UserChangePage:
+    type: object
+    additionalProperties: false
+    required: [items, nextCursor, hasMore]
+    properties:
+      items:
+        type: array
+        items:
+          $ref: "#/schemas/UserChange"
+      nextCursor:
+        $ref: "#/schemas/OpaqueCursor"
+      hasMore:
+        type: boolean
+  UserChange:
+    type: object
+    additionalProperties: false
+    required: [operation, resourceType, resourceId, payload, occurredAt]
+    properties:
+      operation:
+        type: string
+        enum: [UPSERT, TOMBSTONE]
+      resourceType:
+        type: string
+        enum: [CARD_STATE]
+      resourceId:
+        $ref: "#/schemas/Uuid"
+      payload:
+        oneOf:
+          - $ref: "#/schemas/CardState"
+          - type: "null"
+      occurredAt:
+        $ref: "#/schemas/DateTime"
   SelectionOrigin:
     type: string
     enum: [SERVER, CLIENT_OFFLINE]
@@ -1401,7 +1440,7 @@ schemas:
         $ref: "#/schemas/Uuid"
       status:
         type: string
-        enum: [ACCEPTED, DUPLICATE, REJECTED]
+        enum: [ACCEPTED, DUPLICATE, REJECTED, RECONCILIATION_PENDING]
       rejectionCode:
         type: [string, "null"]
       canonicalRating:

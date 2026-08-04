@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import type { Response } from "express";
 
-import { parseLocale } from "./content-query";
+import { parseLimit, parseLocale } from "./content-query";
 import { ContentService } from "./content.service";
 
 @Controller("content")
@@ -31,5 +31,15 @@ export class ContentController {
     }
 
     return manifest;
+  }
+
+  @Get("changes")
+  listChanges(
+    @Query("after") after: string | undefined,
+    @Query("locale") localeValue: string | undefined,
+    @Query("limit") limitValue: string | undefined,
+  ): ReturnType<ContentService["listChanges"]> {
+    parseLocale(localeValue);
+    return this.contentService.listChanges(after, parseLimit(limitValue));
   }
 }

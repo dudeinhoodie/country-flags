@@ -621,7 +621,7 @@ paths:
       tags: [Content]
       summary: Get content changes after an opaque cursor
       operationId: getContentChanges
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security: []
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/AfterCursor
@@ -831,6 +831,24 @@ paths:
           $ref: ./openapi/components.yaml#/responses/ConflictResponse
         "422":
           $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/changes:
+    get:
+      tags: [Progress]
+      summary: Get immutable user changes after an opaque cursor
+      operationId: getUserChanges
+      x-implementation-status: implemented
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/UserAfterCursor
+        - $ref: ./openapi/components.yaml#/parameters/Limit
+      responses:
+        "200":
+          description: Ordered page of account-scoped changes
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/UserChangePage
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/me/due-summary:
