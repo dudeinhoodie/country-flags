@@ -731,7 +731,10 @@ paths:
     post:
       tags: [Study]
       summary: Create or idempotently import a study session
-      description: The current increment accepts SERVER selection in SELF_RATED mode.
+      description: >-
+        SERVER selection supports SELF_RATED and MULTIPLE_CHOICE. Objective
+        sessions persist four versioned option snapshots and never expose the
+        correct option before grading.
       operationId: createStudySession
       x-implementation-status: implemented
       requestBody:
@@ -755,6 +758,12 @@ paths:
                 $ref: ./openapi/components.yaml#/schemas/StudySession
         "409":
           $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          description: No card has three unique localized distractors
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/study-sessions/{sessionId}:

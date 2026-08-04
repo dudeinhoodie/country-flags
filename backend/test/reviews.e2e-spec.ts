@@ -30,7 +30,11 @@ import {
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
 
 interface SessionBody {
-  cards: Array<{ learningCard: { id: string } }>;
+  cards: Array<{
+    id: string;
+    learningCard: { id: string };
+    options?: Array<{ id: string; position: number; displayName: string }>;
+  }>;
 }
 
 interface ReviewStateBody {
@@ -366,91 +370,68 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
 
   it("derives objective grading only from the persisted option snapshot", async () => {
     const objectiveSessionId = "91000000-0000-4000-8000-000000000002";
-    const objectiveCard = await database.learningCard.findFirstOrThrow({
-      where: { id: { not: learningCardId }, status: "ACTIVE" },
-      include: {
-        revisions: {
-          where: { retiredAt: null },
-          orderBy: { revision: "desc" },
-          take: 1,
-        },
-      },
-    });
-    const revision = objectiveCard.revisions[0];
-    if (revision === undefined) {
-      throw new Error("Objective test card has no revision");
-    }
-    const optionEntities = await database.geoEntity.findMany({
-      where: { status: "ACTIVE" },
-      orderBy: { id: "asc" },
-      take: 4,
-      select: { id: true },
-    });
-    if (
-      optionEntities.length !== 4 ||
-      !optionEntities.some(({ id }) => id === objectiveCard.subjectEntityId)
-    ) {
-      optionEntities[3] = { id: objectiveCard.subjectEntityId };
-    }
-    const optionIds = optionEntities.map(
-      (_, index) => `93000000-0000-4000-8000-00000000000${index + 1}`,
-    );
-    await database.studySession.create({
-      data: {
+    const session = await request(httpServer)
+      .post("/v1/study-sessions")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
         id: objectiveSessionId,
-        userId: TEST_STUDY_USER_ID,
         deckId: "70000000-0000-4000-8000-000000000001",
         mode: AnswerMode.MULTIPLE_CHOICE,
         selectionOrigin: "SERVER",
         requestedUniqueCount: 5,
-        selectedUniqueCount: 1,
-        contentVersion: "test-only-fixture-v1",
-        schedulerVersion: "test-fsrs-6-v2",
-        requestHash: "a".repeat(64),
-        startedAt: new Date("2026-07-29T09:00:00.000Z"),
-        cards: {
-          create: {
-            id: "94000000-0000-4000-8000-000000000001",
-            learningCardId: objectiveCard.id,
-            learningCardRevisionId: revision.id,
-            initialOrder: 0,
-            selectionReason: "NEW",
-            distractorPolicyVersion: "TEST_ONLY",
-            randomSeed: "TEST_ONLY",
-            snapshot: { marker: "TEST_ONLY" },
-            options: {
-              create: optionEntities.map(({ id }, index) => ({
-                id: optionIds[index]!,
-                position: index,
-                answerEntityId: id,
-                displaySnapshot: { marker: "TEST_ONLY", position: index },
-                isCorrect: id === objectiveCard.subjectEntityId,
-              })),
-            },
-          },
-        },
-      },
+        locale: "en",
+      })
+      .expect(201);
+    const sessionBody = session.body as unknown as SessionBody;
+    const objectiveCard = sessionBody.cards[0];
+    if (objectiveCard === undefined || objectiveCard.options?.length !== 4) {
+      throw new Error("Generated objective session has no complete option set");
+    }
+    const persistedOptions = await database.studySessionCardOption.findMany({
+      where: { studySessionCardId: objectiveCard.id },
+      orderBy: { position: "asc" },
     });
-    const correctIndex = optionEntities.findIndex(
-      ({ id }) => id === objectiveCard.subjectEntityId,
-    );
-    const correctOptionId = optionIds[correctIndex]!;
-    const wrongOptionId = optionIds.find((id) => id !== correctOptionId)!;
+    const correctOptionId = persistedOptions.find(
+      ({ isCorrect }) => isCorrect,
+    )?.id;
+    const wrongOptionId = persistedOptions.find(
+      ({ isCorrect }) => !isCorrect,
+    )?.id;
+    if (correctOptionId === undefined || wrongOptionId === undefined) {
+      throw new Error("Persisted objective options have invalid correctness");
+    }
     const objectiveEvent = (
       id: string,
       selectedOptionId: string,
       clientSequence: number,
-    ): Record<string, unknown> => ({
-      id,
-      sessionId: objectiveSessionId,
-      learningCardId: objectiveCard.id,
-      deviceId: TEST_STUDY_DEVICE_ID,
-      answerMode: AnswerMode.MULTIPLE_CHOICE,
-      selectedOptionId,
-      clientOccurredAt: `2026-07-29T10:${clientSequence}:00.000Z`,
-      estimatedServerOccurredAt: `2026-07-29T10:${clientSequence}:00.000Z`,
-      clientSequence,
-      baseStateVersion: clientSequence === 10 ? 0 : 1,
+    ): Record<string, unknown> => {
+      const minute = clientSequence.toString().padStart(2, "0");
+      return {
+        id,
+        sessionId: objectiveSessionId,
+        learningCardId: objectiveCard.learningCard.id,
+        deviceId: TEST_STUDY_DEVICE_ID,
+        answerMode: AnswerMode.MULTIPLE_CHOICE,
+        selectedOptionId,
+        clientOccurredAt: `2026-07-29T10:${minute}:00.000Z`,
+        estimatedServerOccurredAt: `2026-07-29T10:${minute}:00.000Z`,
+        clientSequence,
+        baseStateVersion: null,
+      };
+    };
+
+    const outsideSnapshot = await sendEvent(
+      objectiveEvent(
+        "92000000-0000-4000-8000-000000000009",
+        "93000000-0000-4000-8000-000000000099",
+        9,
+      ),
+    );
+    expect(outsideSnapshot.results[0]).toMatchObject({
+      status: "REJECTED",
+      rejectionCode: "OPTION_NOT_IN_SESSION",
+      canonicalRating: null,
+      isCorrect: null,
     });
 
     const correct = await sendEvent(
@@ -466,6 +447,9 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
       isCorrect: true,
       correctOptionId,
     });
+
+    await app.close();
+    await startApplication();
     const wrong = await sendEvent(
       objectiveEvent("92000000-0000-4000-8000-000000000011", wrongOptionId, 11),
     );

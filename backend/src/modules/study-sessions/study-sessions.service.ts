@@ -3,19 +3,24 @@ import { createHash } from "node:crypto";
 import {
   ConflictException,
   Injectable,
+  HttpStatus,
   NotFoundException,
   ServiceUnavailableException,
   UnauthorizedException,
 } from "@nestjs/common";
 import {
+  AnswerMode,
   CardStatus,
   DeckStatus,
+  GeoEntityStatus,
   type Prisma,
   SchedulerDefinitionStatus,
   UserStatus,
 } from "@prisma/client";
 
+import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { generateMultipleChoiceOptions } from "./multiple-choice-options";
 import {
   type SessionCandidate,
   type SelectedCandidate,
@@ -33,6 +38,11 @@ import {
 const SESSION_INCLUDE = {
   cards: {
     orderBy: { initialOrder: "asc" },
+    include: {
+      options: {
+        orderBy: { position: "asc" },
+      },
+    },
   },
 } satisfies Prisma.StudySessionInclude;
 
@@ -73,6 +83,19 @@ function manifestDefaultLocale(metadata: Prisma.JsonValue): string {
     return metadata.manifest.defaultLocale;
   }
   throw new Error("Active content release has no default locale");
+}
+
+function optionDisplayName(snapshot: Prisma.JsonValue): string {
+  if (
+    typeof snapshot === "object" &&
+    snapshot !== null &&
+    !Array.isArray(snapshot) &&
+    "displayName" in snapshot &&
+    typeof snapshot.displayName === "string"
+  ) {
+    return snapshot.displayName;
+  }
+  throw new Error("Study option snapshot has no display name");
 }
 
 @Injectable()
@@ -156,16 +179,62 @@ export class StudySessionsService {
           },
         });
         const now = new Date();
-        const selected = selectSessionCandidates(
+        const ranked = selectSessionCandidates(
           memberships.map((membership) => ({
             ...membership,
             state: membership.learningCard.userStates[0] ?? null,
           })),
-          request.requestedUniqueCount,
+          request.mode === AnswerMode.MULTIPLE_CHOICE
+            ? memberships.length
+            : request.requestedUniqueCount,
           request.id,
           now,
         );
         const defaultLocale = manifestDefaultLocale(pointer.release.metadata);
+        const distractorPool =
+          request.mode === AnswerMode.MULTIPLE_CHOICE
+            ? await transaction.geoEntity.findMany({
+                where: {
+                  status: GeoEntityStatus.ACTIVE,
+                  includeInCountryCatalog: true,
+                  contentVersion: deck.contentVersion,
+                },
+                orderBy: { id: "asc" },
+                include: { names: true },
+              })
+            : [];
+        const cards: Prisma.StudySessionCardCreateWithoutSessionInput[] = [];
+        for (const selection of ranked) {
+          const card = this.sessionCardCreateData(
+            selection,
+            request,
+            defaultLocale,
+            cards.length,
+            distractorPool,
+            deck.contentVersion,
+          );
+          if (card !== null) {
+            cards.push(card);
+          }
+          if (cards.length === request.requestedUniqueCount) {
+            break;
+          }
+        }
+        if (
+          request.mode === AnswerMode.MULTIPLE_CHOICE &&
+          ranked.length > 0 &&
+          cards.length === 0
+        ) {
+          throw new ApiException(
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            "DISTRACTOR_POOL_INSUFFICIENT",
+            "No card has three unique localized distractors",
+            {
+              requestedUniqueCount: request.requestedUniqueCount,
+              poolVersion: deck.contentVersion,
+            },
+          );
+        }
 
         await transaction.studySession.create({
           data: {
@@ -175,20 +244,13 @@ export class StudySessionsService {
             mode: request.mode,
             selectionOrigin: request.selectionOrigin,
             requestedUniqueCount: request.requestedUniqueCount,
-            selectedUniqueCount: selected.length,
+            selectedUniqueCount: cards.length,
             contentVersion: deck.contentVersion,
             schedulerVersion: scheduler.version,
             requestHash: hash,
             startedAt: now,
             cards: {
-              create: selected.map((selection, index) =>
-                this.sessionCardCreateData(
-                  selection,
-                  request,
-                  defaultLocale,
-                  index,
-                ),
-              ),
+              create: cards,
             },
           },
         });
@@ -239,7 +301,9 @@ export class StudySessionsService {
     request: CreateServerStudySessionRequest,
     defaultLocale: string,
     initialOrder: number,
-  ): Prisma.StudySessionCardCreateWithoutSessionInput {
+    distractorPool: Parameters<typeof generateMultipleChoiceOptions>[0]["pool"],
+    poolVersion: string,
+  ): Prisma.StudySessionCardCreateWithoutSessionInput | null {
     const revision = selection.candidate.learningCard.revisions[0];
     if (revision === undefined) {
       throw new Error(
@@ -250,12 +314,33 @@ export class StudySessionsService {
       selection.candidate.learningCard,
       request.locale,
       defaultLocale,
+      request.mode,
     ) as Prisma.InputJsonObject;
+    const sessionCardId = deterministicUuid(
+      `${request.id}:${selection.candidate.learningCardId}`,
+    );
+    const randomSeed = deterministicValue(
+      `${request.id}:${selection.candidate.learningCardId}:random`,
+    );
+    const optionSet =
+      request.mode === AnswerMode.MULTIPLE_CHOICE
+        ? generateMultipleChoiceOptions({
+            sessionCardId,
+            correctEntityId: selection.candidate.learningCard.subjectEntityId,
+            correctEntityKind: selection.candidate.learningCard.subject.kind,
+            requestedLocale: request.locale,
+            defaultLocale,
+            randomSeed,
+            poolVersion,
+            pool: distractorPool,
+          })
+        : null;
+    if (request.mode === AnswerMode.MULTIPLE_CHOICE && optionSet === null) {
+      return null;
+    }
 
     return {
-      id: deterministicUuid(
-        `${request.id}:${selection.candidate.learningCardId}`,
-      ),
+      id: sessionCardId,
       learningCard: {
         connect: { id: selection.candidate.learningCardId },
       },
@@ -265,11 +350,22 @@ export class StudySessionsService {
       initialOrder,
       selectionReason: selection.reason,
       stateVersionAtSelection: selection.candidate.state?.stateVersion ?? null,
-      distractorPolicyVersion: null,
-      randomSeed: deterministicValue(
-        `${request.id}:${selection.candidate.learningCardId}:random`,
-      ),
+      distractorPolicyVersion: optionSet?.distractorPolicyVersion ?? null,
+      randomSeed,
       snapshot,
+      ...(optionSet === null
+        ? {}
+        : {
+            options: {
+              create: optionSet.options.map((option) => ({
+                id: option.id,
+                position: option.position,
+                answerEntity: { connect: { id: option.answerEntityId } },
+                displaySnapshot: option.displaySnapshot,
+                isCorrect: option.isCorrect,
+              })),
+            },
+          }),
     };
   }
 
@@ -294,6 +390,15 @@ export class StudySessionsService {
         selectionReason: card.selectionReason,
         randomSeed: card.randomSeed,
         distractorPolicyVersion: card.distractorPolicyVersion,
+        ...(card.options.length === 0
+          ? {}
+          : {
+              options: card.options.map((option) => ({
+                id: option.id,
+                position: option.position,
+                displayName: optionDisplayName(option.displaySnapshot),
+              })),
+            }),
       })),
       summary: session.summary,
       serverTime: new Date().toISOString(),

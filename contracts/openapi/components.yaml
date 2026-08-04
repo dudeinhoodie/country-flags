@@ -998,7 +998,8 @@ schemas:
         type: integer
         enum: [5, 10, 20]
       mode:
-        $ref: "#/schemas/AnswerMode"
+        type: string
+        enum: [SELF_RATED, MULTIPLE_CHOICE]
       locale:
         $ref: "#/schemas/Locale"
       selectionOrigin:
