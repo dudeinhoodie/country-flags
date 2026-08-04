@@ -11,7 +11,17 @@ interface CardCursor {
   learningCardId: string;
 }
 
-type ContentCursor = DeckCursor | CardCursor;
+interface ContentChangeCursor {
+  version: string;
+  sequence: bigint;
+}
+
+type EncodedContentChangeCursor = {
+  version: string;
+  sequence: string;
+};
+
+type ContentCursor = DeckCursor | CardCursor | EncodedContentChangeCursor;
 
 function encode(payload: ContentCursor): string {
   return Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -80,5 +90,46 @@ export function decodeCardCursor(value: string): CardCursor {
     kind: "card",
     sortOrder: cursor.sortOrder,
     learningCardId: cursor.learningCardId,
+  };
+}
+
+export function encodeContentChangeCursor(
+  version: string,
+  sequence: bigint,
+): string {
+  return encode({ version, sequence: sequence.toString() });
+}
+
+export function decodeContentChangeCursor(value: string): ContentChangeCursor {
+  const cursor = decode(value);
+  if (
+    typeof cursor !== "object" ||
+    cursor === null ||
+    !("version" in cursor) ||
+    typeof cursor.version !== "string" ||
+    cursor.version.length === 0 ||
+    !("sequence" in cursor) ||
+    (typeof cursor.sequence !== "string" && typeof cursor.sequence !== "number")
+  ) {
+    throw new BadRequestException(
+      "cursor does not belong to the content change feed",
+    );
+  }
+
+  const sequenceValue = cursor.sequence;
+  if (
+    (typeof sequenceValue === "string" &&
+      !/^(?:0|[1-9][0-9]*)$/u.test(sequenceValue)) ||
+    (typeof sequenceValue === "number" &&
+      (!Number.isSafeInteger(sequenceValue) || sequenceValue < 0))
+  ) {
+    throw new BadRequestException(
+      "cursor does not belong to the content change feed",
+    );
+  }
+
+  return {
+    version: cursor.version,
+    sequence: BigInt(sequenceValue),
   };
 }

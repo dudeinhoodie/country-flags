@@ -11,6 +11,8 @@ import {
   type Prisma,
   ReviewRating,
   SchedulerDefinitionStatus,
+  UserChangeOperation,
+  UserChangeResourceType,
 } from "@prisma/client";
 
 import { PrismaService } from "../../infrastructure/database/prisma.service";
@@ -20,6 +22,7 @@ import type {
   SchedulerCardState,
   SchedulerDefinitionData,
 } from "../scheduler/scheduler";
+import { UserChangesService } from "../sync/user-changes.service";
 import {
   type ReviewBatchRequest,
   type ReviewEventRequest,
@@ -36,7 +39,7 @@ interface ProjectionWithVersion extends SchedulerCardState {
 
 export interface ReviewResult {
   eventId: string;
-  status: "ACCEPTED" | "DUPLICATE" | "REJECTED";
+  status: "ACCEPTED" | "DUPLICATE" | "REJECTED" | "RECONCILIATION_PENDING";
   rejectionCode: string | null;
   canonicalRating: ReviewRating | null;
   isCorrect: boolean | null;
@@ -205,7 +208,7 @@ function projectionFromSnapshot(
 function stateResponse(
   learningCardId: string,
   state: ProjectionWithVersion | null,
-): Record<string, unknown> | null {
+): Prisma.InputJsonObject | null {
   if (state === null) {
     return null;
   }
@@ -240,12 +243,26 @@ function prismaErrorCode(error: unknown): string | null {
   return null;
 }
 
+function compareCanonicalTuple(
+  left: { id: string; effectiveOccurredAt: Date; receivedAt: Date },
+  right: { id: string; effectiveOccurredAt: Date; receivedAt: Date },
+): number {
+  const effective =
+    left.effectiveOccurredAt.getTime() - right.effectiveOccurredAt.getTime();
+  if (effective !== 0) {
+    return effective;
+  }
+  const received = left.receivedAt.getTime() - right.receivedAt.getTime();
+  return received !== 0 ? received : left.id.localeCompare(right.id);
+}
+
 @Injectable()
 export class ReviewsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly progress: ProgressService,
     private readonly scheduler: Fsrs6SchedulerAdapter,
+    private readonly userChanges: UserChangesService,
   ) {}
 
   async ingestBatch(
@@ -282,9 +299,7 @@ export class ReviewsService {
       achievements: projection.newAchievements,
       deckSummaries: projection.decks,
       serverTime: serverTime.toISOString(),
-      nextSyncCursor: Buffer.from(
-        JSON.stringify({ receivedBefore: serverTime.toISOString() }),
-      ).toString("base64url"),
+      nextSyncCursor: await this.userChanges.latestCursor(userId),
     };
   }
 
@@ -522,72 +537,86 @@ export class ReviewsService {
       },
     });
 
-    const allEvents = await transaction.reviewEvent.findMany({
-      where: { userId, learningCardId: event.learningCardId },
-    });
-    const definitions = await transaction.schedulerDefinition.findMany({
-      where: {
-        version: {
-          in: [
-            ...new Set(
-              allEvents.map(({ schedulerVersion }) => schedulerVersion),
-            ),
-          ],
+    const checkpointCandidates =
+      await transaction.schedulerMigrationCheckpoint.findMany({
+        where: {
+          userId,
+          learningCardId: event.learningCardId,
+          cutoffEffectiveOccurredAt: {
+            gte: normalizedTime.effectiveOccurredAt,
+          },
         },
-      },
-    });
-    const definitionByVersion = new Map(
-      definitions.map((definition) => [
-        definition.version,
-        definitionData(definition),
-      ]),
-    );
-    const orderedEvents = orderReviewEvents(allEvents);
-    const base =
-      allEvents
-        .map(({ metadata: storedMetadata }) =>
-          projectionFromSnapshot(storedMetadata),
-        )
-        .find((projection) => projection !== null) ?? null;
-    let projection: SchedulerCardState | null = base;
-    for (const storedEvent of orderedEvents) {
-      const definition = definitionByVersion.get(storedEvent.schedulerVersion);
-      if (definition === undefined) {
-        throw new Error(
-          `Scheduler definition ${storedEvent.schedulerVersion} is missing`,
-        );
+        orderBy: { cutoffEffectiveOccurredAt: "desc" },
+      });
+    let lateCheckpoint: (typeof checkpointCandidates)[number] | null = null;
+    for (const checkpoint of checkpointCandidates) {
+      const cutoffEvent = await transaction.reviewEvent.findUnique({
+        where: {
+          userId_id: { userId, id: checkpoint.cutoffEventId },
+        },
+        select: {
+          id: true,
+          effectiveOccurredAt: true,
+          receivedAt: true,
+        },
+      });
+      if (
+        cutoffEvent !== null &&
+        compareCanonicalTuple(
+          {
+            id: event.id,
+            effectiveOccurredAt: normalizedTime.effectiveOccurredAt,
+            receivedAt,
+          },
+          cutoffEvent,
+        ) < 0
+      ) {
+        lateCheckpoint = checkpoint;
+        break;
       }
-      projection = this.scheduler.applyReview(
-        projection,
-        {
-          rating: storedEvent.rating,
-          occurredAt: storedEvent.effectiveOccurredAt,
+    }
+    if (lateCheckpoint !== null) {
+      await transaction.reconciliationJob.createMany({
+        data: {
+          userId,
+          learningCardId: event.learningCardId,
+          targetSchedulerVersion: activeDefinition.version,
+          reason: "LATE_EVENT_BEFORE_SCHEDULER_CHECKPOINT",
         },
-        definition,
-      );
+        skipDuplicates: true,
+      });
+      await transaction.learningOutboxEvent.create({
+        data: {
+          userId,
+          sourceEventId: event.id,
+          learningCardId: event.learningCardId,
+          eventType: "learning.reconciliation.pending",
+          occurredAt: receivedAt,
+          payload: {
+            reviewEventId: event.id,
+            learningCardId: event.learningCardId,
+            checkpointId: lateCheckpoint.id,
+            cardState: stateResponse(event.learningCardId, currentState),
+          },
+        },
+      });
+      return {
+        eventId: event.id,
+        status: "RECONCILIATION_PENDING",
+        rejectionCode: null,
+        canonicalRating: grading.rating,
+        isCorrect: grading.isCorrect,
+        correctOptionId: grading.correctOptionId,
+        cardState: stateResponse(event.learningCardId, currentState),
+      };
     }
-    if (projection === null) {
-      throw new Error("Accepted review did not produce a projection");
-    }
-    const latestReceivedAt = new Date(
-      Math.max(...allEvents.map(({ receivedAt: value }) => value.getTime())),
+
+    const canonical = await this.computeCanonicalProjection(
+      transaction,
+      userId,
+      event.learningCardId,
+      activeDefinition,
     );
-    const projected: ProjectionWithVersion = {
-      ...projection,
-      stateVersion: (base?.stateVersion ?? 0) + allEvents.length,
-      updatedAt: latestReceivedAt,
-    };
-    const canonical =
-      projected.schedulerVersion === activeDefinition.version
-        ? projected
-        : await this.migrateProjection(
-            transaction,
-            userId,
-            event.learningCardId,
-            projected,
-            activeDefinition,
-            orderedEvents.at(-1),
-          );
 
     await transaction.userCardState.upsert({
       where: {
@@ -616,11 +645,23 @@ export class ReviewsService {
           stateVersion: canonical.stateVersion,
           schedulerVersion: canonical.schedulerVersion,
           schedulerParametersVersion: canonical.schedulerParametersVersion,
+          cardState: stateResponse(event.learningCardId, canonical),
           replayed: previousEvents.some(
             ({ effectiveOccurredAt }) =>
               effectiveOccurredAt > normalizedTime.effectiveOccurredAt,
           ),
         },
+      },
+    });
+    await transaction.userChange.create({
+      data: {
+        userId,
+        operation: UserChangeOperation.UPSERT,
+        resourceType: UserChangeResourceType.CARD_STATE,
+        resourceId: event.learningCardId,
+        sourceOperationId: event.id,
+        payload: stateResponse(event.learningCardId, canonical)!,
+        occurredAt: receivedAt,
       },
     });
 
@@ -633,6 +674,108 @@ export class ReviewsService {
       correctOptionId: grading.correctOptionId,
       cardState: stateResponse(event.learningCardId, canonical),
     };
+  }
+
+  async reconcileCard(
+    jobId: string,
+    userId: string,
+    learningCardId: string,
+    targetSchedulerVersion: string,
+    leaseToken: string,
+  ): Promise<Record<string, unknown>> {
+    return this.prisma.$transaction(
+      async (transaction) => {
+        await transaction.$queryRaw`
+          SELECT pg_advisory_xact_lock(
+            hashtextextended(${`${userId}:${learningCardId}`}, 0)
+          )::text AS lock_result
+        `;
+        const targetScheduler =
+          await transaction.schedulerDefinition.findUnique({
+            where: { version: targetSchedulerVersion },
+          });
+        if (targetScheduler === null) {
+          throw new Error("Target scheduler definition is unavailable");
+        }
+        const targetDefinition = definitionData(targetScheduler);
+        const canonical = await this.computeCanonicalProjection(
+          transaction,
+          userId,
+          learningCardId,
+          targetDefinition,
+        );
+        await transaction.userCardState.upsert({
+          where: { userId_learningCardId: { userId, learningCardId } },
+          create: {
+            userId,
+            learningCardId,
+            ...this.projectionData(canonical),
+          },
+          update: this.projectionData(canonical),
+        });
+        const snapshot = projectionSnapshot(canonical);
+        await transaction.schedulerMigrationCheckpoint.updateMany({
+          where: {
+            userId,
+            learningCardId,
+            toSchedulerVersion: targetDefinition.version,
+          },
+          data: {
+            migratedState: snapshot,
+            stateChecksum: checksum(snapshot),
+            reconciliationVersion: { increment: 1 },
+            lastReconciledAt: new Date(),
+          },
+        });
+        const reconciledAt = new Date();
+        await transaction.learningOutboxEvent.createMany({
+          data: {
+            userId,
+            sourceEventId: jobId,
+            learningCardId,
+            eventType: "learning.projection.reconciled",
+            occurredAt: reconciledAt,
+            payload: {
+              learningCardId,
+              cardState: stateResponse(learningCardId, canonical),
+              stateChecksum: checksum(snapshot),
+            },
+          },
+          skipDuplicates: true,
+        });
+        await transaction.userChange.createMany({
+          data: {
+            userId,
+            operation: UserChangeOperation.UPSERT,
+            resourceType: UserChangeResourceType.CARD_STATE,
+            resourceId: learningCardId,
+            sourceOperationId: jobId,
+            payload: stateResponse(learningCardId, canonical)!,
+            occurredAt: reconciledAt,
+          },
+          skipDuplicates: true,
+        });
+        const completed = await transaction.reconciliationJob.updateMany({
+          where: {
+            id: jobId,
+            status: "PROCESSING",
+            leaseToken,
+          },
+          data: {
+            status: "COMPLETED",
+            completedAt: reconciledAt,
+            leaseToken: null,
+            leaseExpiresAt: null,
+            lastErrorCode: null,
+          },
+        });
+        if (completed.count !== 1) {
+          throw new Error("Reconciliation lease was lost");
+        }
+        return stateResponse(learningCardId, canonical) ?? {};
+      },
+      { isolationLevel: "Serializable", maxWait: 10_000, timeout: 30_000 },
+    );
   }
 
   private grade(
@@ -683,6 +826,74 @@ export class ReviewsService {
       stateVersion: state.stateVersion,
       updatedAt: state.updatedAt,
     };
+  }
+
+  private async computeCanonicalProjection(
+    transaction: Transaction,
+    userId: string,
+    learningCardId: string,
+    activeDefinition: SchedulerDefinitionData,
+  ): Promise<ProjectionWithVersion> {
+    const allEvents = await transaction.reviewEvent.findMany({
+      where: { userId, learningCardId },
+    });
+    const definitions = await transaction.schedulerDefinition.findMany({
+      where: {
+        version: {
+          in: [
+            ...new Set(
+              allEvents.map(({ schedulerVersion }) => schedulerVersion),
+            ),
+          ],
+        },
+      },
+    });
+    const definitionByVersion = new Map(
+      definitions.map((definition) => [
+        definition.version,
+        definitionData(definition),
+      ]),
+    );
+    const orderedEvents = orderReviewEvents(allEvents);
+    const base =
+      allEvents
+        .map(({ metadata }) => projectionFromSnapshot(metadata))
+        .find((projection) => projection !== null) ?? null;
+    let projection: SchedulerCardState | null = base;
+    for (const event of orderedEvents) {
+      const definition = definitionByVersion.get(event.schedulerVersion);
+      if (definition === undefined) {
+        throw new Error(
+          `Scheduler definition ${event.schedulerVersion} is missing`,
+        );
+      }
+      projection = this.scheduler.applyReview(
+        projection,
+        { rating: event.rating, occurredAt: event.effectiveOccurredAt },
+        definition,
+      );
+    }
+    if (projection === null) {
+      throw new Error("Review history did not produce a projection");
+    }
+    const latestReceivedAt = new Date(
+      Math.max(...allEvents.map(({ receivedAt }) => receivedAt.getTime())),
+    );
+    const projected: ProjectionWithVersion = {
+      ...projection,
+      stateVersion: (base?.stateVersion ?? 0) + allEvents.length,
+      updatedAt: latestReceivedAt,
+    };
+    return projected.schedulerVersion === activeDefinition.version
+      ? projected
+      : this.migrateProjection(
+          transaction,
+          userId,
+          learningCardId,
+          projected,
+          activeDefinition,
+          orderedEvents.at(-1),
+        );
   }
 
   private async migrateProjection(

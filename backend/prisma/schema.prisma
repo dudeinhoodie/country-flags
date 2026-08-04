@@ -260,6 +260,22 @@ enum OutboxDeliveryStatus {
   FAILED
 }
 
+enum ReconciliationJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum UserChangeOperation {
+  UPSERT
+  TOMBSTONE
+}
+
+enum UserChangeResourceType {
+  CARD_STATE
+}
+
 enum IdempotencyStatus {
   PROCESSING
   COMPLETED
@@ -268,6 +284,7 @@ enum IdempotencyStatus {
 
 model User {
   id                   String                         @id @default(uuid()) @db.Uuid
+  syncStreamId         String                         @default(uuid()) @map("sync_stream_id") @db.Uuid
   displayName          String?                        @map("display_name")
   preferredLocale      String                         @default("ru") @map("preferred_locale")
   status               UserStatus                     @default(ACTIVE)
@@ -289,6 +306,8 @@ model User {
   cardStates           UserCardState[]
   schedulerCheckpoints SchedulerMigrationCheckpoint[]
   learningOutbox       LearningOutboxEvent[]
+  userChanges          UserChange[]
+  reconciliationJobs   ReconciliationJob[]
   achievements         UserAchievement[]
   deckMastery          UserDeckMastery[]
   auditEvents          AuditEvent[]
@@ -713,6 +732,7 @@ model LearningCard {
   reviewEvents             ReviewEvent[]
   userStates               UserCardState[]
   schedulerCheckpoints     SchedulerMigrationCheckpoint[]
+  reconciliationJobs       ReconciliationJob[]
 
   @@unique([subjectEntityId, templateId, semanticVersion])
   @@index([subjectEntityId, templateId, status])
@@ -933,6 +953,8 @@ model SchedulerDefinition {
   cardStates              UserCardState[]
   migrationsFrom          SchedulerMigrationCheckpoint[] @relation("SchedulerMigrationFrom")
   migrationsTo            SchedulerMigrationCheckpoint[] @relation("SchedulerMigrationTo")
+  reconciliationJobs      ReconciliationJob[]
+  migrationRuns           SchedulerMigrationRun[]
 
   @@unique([version, parametersVersion])
   @@index([status, activeFrom])
@@ -949,6 +971,8 @@ model SchedulerMigrationCheckpoint {
   cutoffEventId             String              @map("cutoff_event_id") @db.Uuid
   migratedState             Json                @map("migrated_state") @db.JsonB
   stateChecksum             String              @map("state_checksum") @db.Char(64)
+  reconciliationVersion     Int                 @default(0) @map("reconciliation_version")
+  lastReconciledAt          DateTime?           @map("last_reconciled_at") @db.Timestamptz(3)
   createdAt                 DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
   user                      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   learningCard              LearningCard        @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
@@ -972,13 +996,72 @@ model LearningOutboxEvent {
   deliveryStatus OutboxDeliveryStatus @default(PENDING) @map("delivery_status")
   attemptCount   Int                  @default(0) @map("attempt_count")
   nextAttemptAt  DateTime?            @map("next_attempt_at") @db.Timestamptz(3)
+  leaseToken     String?              @map("lease_token") @db.Uuid
+  leaseExpiresAt DateTime?            @map("lease_expires_at") @db.Timestamptz(3)
+  lastErrorCode  String?              @map("last_error_code")
   deliveredAt    DateTime?            @map("delivered_at") @db.Timestamptz(3)
   user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, sourceEventId, eventType])
-  @@index([deliveryStatus, nextAttemptAt])
+  @@index([deliveryStatus, nextAttemptAt, leaseExpiresAt])
   @@index([userId, learningCardId, occurredAt])
   @@map("learning_outbox")
+}
+
+model UserChange {
+  sequence          BigInt                 @id @default(autoincrement())
+  userId            String                 @map("user_id") @db.Uuid
+  operation         UserChangeOperation
+  resourceType      UserChangeResourceType @map("resource_type")
+  resourceId        String                 @map("resource_id") @db.Uuid
+  sourceOperationId String                 @map("source_operation_id") @db.Uuid
+  payload           Json?                  @db.JsonB
+  occurredAt        DateTime               @map("occurred_at") @db.Timestamptz(3)
+  createdAt         DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  user              User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sourceOperationId, resourceType, operation])
+  @@index([userId, sequence])
+  @@map("user_changes")
+}
+
+model ReconciliationJob {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  userId                 String                  @map("user_id") @db.Uuid
+  learningCardId         String                  @map("learning_card_id") @db.Uuid
+  targetSchedulerVersion String                  @map("target_scheduler_version")
+  status                 ReconciliationJobStatus @default(PENDING)
+  reason                 String
+  attemptCount           Int                     @default(0) @map("attempt_count")
+  availableAt            DateTime                @default(now()) @map("available_at") @db.Timestamptz(3)
+  leaseToken             String?                 @map("lease_token") @db.Uuid
+  leaseExpiresAt         DateTime?               @map("lease_expires_at") @db.Timestamptz(3)
+  lastErrorCode          String?                 @map("last_error_code")
+  createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
+  completedAt            DateTime?               @map("completed_at") @db.Timestamptz(3)
+  deadLetteredAt         DateTime?               @map("dead_lettered_at") @db.Timestamptz(3)
+  user                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningCard           LearningCard            @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
+  targetScheduler        SchedulerDefinition     @relation(fields: [targetSchedulerVersion], references: [version], onDelete: Restrict)
+
+  @@index([status, availableAt, leaseExpiresAt, createdAt])
+  @@map("reconciliation_jobs")
+}
+
+model SchedulerMigrationRun {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  targetSchedulerVersion String                  @unique @map("target_scheduler_version")
+  status                 ReconciliationJobStatus @default(PENDING)
+  afterUserId            String?                 @map("after_user_id") @db.Uuid
+  afterLearningCardId    String?                 @map("after_learning_card_id") @db.Uuid
+  createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
+  completedAt            DateTime?               @map("completed_at") @db.Timestamptz(3)
+  targetScheduler        SchedulerDefinition     @relation(fields: [targetSchedulerVersion], references: [version], onDelete: Restrict)
+
+  @@index([status, updatedAt])
+  @@map("scheduler_migration_runs")
 }
 
 model AchievementDefinition {

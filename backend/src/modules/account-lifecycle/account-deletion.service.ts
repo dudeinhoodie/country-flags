@@ -60,10 +60,18 @@ export class AccountDeletionService {
           transaction.learningOutboxEvent.deleteMany({ where: { userId } }),
         );
         await remove(
+          "userChanges",
+          transaction.userChange.deleteMany({ where: { userId } }),
+        );
+        await remove(
           "schedulerCheckpoints",
           transaction.schedulerMigrationCheckpoint.deleteMany({
             where: { userId },
           }),
+        );
+        await remove(
+          "reconciliationJobs",
+          transaction.reconciliationJob.deleteMany({ where: { userId } }),
         );
         await remove(
           "userCardStates",

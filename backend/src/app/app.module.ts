@@ -12,6 +12,7 @@ import { HealthModule } from "../modules/health/health.module";
 import { ProgressModule } from "../modules/progress/progress.module";
 import { ReviewsModule } from "../modules/reviews/reviews.module";
 import { StudySessionsModule } from "../modules/study-sessions/study-sessions.module";
+import { SyncModule } from "../modules/sync/sync.module";
 import { DevicesModule } from "../modules/devices/devices.module";
 import { SettingsModule } from "../modules/settings/settings.module";
 import { UsersModule } from "../modules/users/users.module";
@@ -33,6 +34,7 @@ import { UsersModule } from "../modules/users/users.module";
     ProgressModule,
     ReviewsModule,
     StudySessionsModule,
+    SyncModule,
     SettingsModule,
     UsersModule,
   ],

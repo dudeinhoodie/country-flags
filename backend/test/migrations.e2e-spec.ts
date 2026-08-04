@@ -27,12 +27,15 @@ const REQUIRED_TABLES = [
   "learning_outbox",
   "privacy_consent_events",
   "refresh_sessions",
+  "reconciliation_jobs",
   "review_events",
   "scheduler_definitions",
   "scheduler_migration_checkpoints",
+  "scheduler_migration_runs",
   "study_sessions",
   "user_achievements",
   "user_card_states",
+  "user_changes",
   "users",
 ];
 
@@ -377,5 +380,60 @@ describe("baseline database migration (integration)", () => {
     ).rejects.toThrow(
       "updates are forbidden for immutable table review_events",
     );
+  });
+
+  it("enforces immutable change rows and one active reconciliation job", async () => {
+    const userId = "10000000-0000-4000-8000-000000000001";
+    const cardId = "40000000-0000-4000-8000-000000000001";
+    const changeId = "51000000-0000-4000-8000-000000000001";
+    await database!.$executeRawUnsafe(`
+      INSERT INTO user_changes (
+        user_id, operation, resource_type, resource_id,
+        source_operation_id, payload, occurred_at
+      ) VALUES (
+        '${userId}', 'UPSERT', 'CARD_STATE', '${cardId}',
+        '${changeId}', '{}'::jsonb, now()
+      )
+    `);
+    await expect(
+      database!.$executeRawUnsafe(`
+        UPDATE user_changes SET payload = '{"changed":true}'::jsonb
+        WHERE source_operation_id = '${changeId}'
+      `),
+    ).rejects.toThrow("updates are forbidden for immutable table user_changes");
+    await expect(
+      database!.$executeRawUnsafe(`
+        INSERT INTO user_changes (
+          user_id, operation, resource_type, resource_id,
+          source_operation_id, payload, occurred_at
+        ) VALUES (
+          '${userId}', 'TOMBSTONE', 'CARD_STATE', '${cardId}',
+          '51000000-0000-4000-8000-000000000002', '{}'::jsonb, now()
+        )
+      `),
+    ).rejects.toThrow();
+
+    const insertJob = (id: string): Promise<number> =>
+      database!.$executeRawUnsafe(`
+        INSERT INTO reconciliation_jobs (
+          id, user_id, learning_card_id, target_scheduler_version,
+          reason, created_at, updated_at
+        ) VALUES (
+          '${id}', '${userId}', '${cardId}', 'fsrs-6/test',
+          'TEST', now(), now()
+        )
+      `);
+    await insertJob("52000000-0000-4000-8000-000000000001");
+    await expect(
+      insertJob("52000000-0000-4000-8000-000000000002"),
+    ).rejects.toThrow();
+    await database!.$executeRawUnsafe(`
+      UPDATE reconciliation_jobs
+      SET status = 'COMPLETED', completed_at = now(), updated_at = now()
+      WHERE id = '52000000-0000-4000-8000-000000000001'
+    `);
+    await expect(
+      insertJob("52000000-0000-4000-8000-000000000002"),
+    ).resolves.toBe(1);
   });
 });

@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import {
   AssetStatus,
   CardStatus,
+  ContentReleaseStatus,
   DeckStatus,
   PublicationStatus,
   type Prisma,
@@ -10,8 +15,10 @@ import {
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
   decodeCardCursor,
+  decodeContentChangeCursor,
   decodeDeckCursor,
   encodeCardCursor,
+  encodeContentChangeCursor,
   encodeDeckCursor,
 } from "./content-cursor";
 import { localeCandidates } from "./content-query";
@@ -136,6 +143,76 @@ export class ContentService {
             : null,
         hasMore,
       },
+    };
+  }
+
+  async listChanges(
+    after: string | undefined,
+    limit: number,
+  ): Promise<{
+    items: Array<Record<string, unknown>>;
+    nextCursor: string;
+    hasMore: boolean;
+    contentVersion: string;
+  }> {
+    if (after === undefined) {
+      throw new BadRequestException("after cursor is required");
+    }
+    const cursor = decodeContentChangeCursor(after);
+    const [pointer, changes] = await this.prisma.$transaction(
+      async (transaction) =>
+        Promise.all([
+          transaction.contentPointer.findUnique({
+            where: { key: "active" },
+            select: { contentVersion: true },
+          }),
+          transaction.contentChange.findMany({
+            where: {
+              sequence: { gt: cursor.sequence },
+              release: {
+                status: {
+                  in: [
+                    ContentReleaseStatus.PUBLISHED,
+                    ContentReleaseStatus.RETIRED,
+                  ],
+                },
+                publishedAt: { not: null },
+              },
+            },
+            orderBy: { sequence: "asc" },
+            take: limit + 1,
+            select: {
+              sequence: true,
+              operation: true,
+              resourceType: true,
+              resourceId: true,
+              contentVersion: true,
+            },
+          }),
+        ]),
+      { isolationLevel: "RepeatableRead" },
+    );
+    if (pointer === null) {
+      throw new NotFoundException("Active content manifest was not found");
+    }
+
+    const hasMore = changes.length > limit;
+    const pageItems = hasMore ? changes.slice(0, limit) : changes;
+    const nextSequence = pageItems.at(-1)?.sequence ?? cursor.sequence;
+
+    return {
+      items: pageItems.map((change) => ({
+        operation: change.operation,
+        resourceType: change.resourceType,
+        resourceId: change.resourceId,
+        contentVersion: change.contentVersion,
+      })),
+      nextCursor: encodeContentChangeCursor(
+        pointer.contentVersion,
+        nextSequence,
+      ),
+      hasMore,
+      contentVersion: pointer.contentVersion,
     };
   }
 
