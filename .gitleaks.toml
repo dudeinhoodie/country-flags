@@ -1,0 +1,17 @@
+title = "country-flags gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated/example content data and local-only Postman fixtures that trip default entropy-based rules (generic-api-key, jwt) but contain no real secrets — see docs/09-retention.md and docs/01-backend-spec.md §11 for the actual secrets-handling requirements this does not weaken."
+paths = [
+  '''content/generated/.*''',
+  '''content/examples/.*''',
+  '''postman/local\.postman_environment\.json''',
+]
+regexes = [
+  # Editorial taxonomy keys (e.g. "taxonomy.un-m49") — domain vocabulary, not secrets,
+  # but happen to clear the generic-api-key entropy threshold.
+  '''taxonomy\.[a-z0-9-]+''',
+]

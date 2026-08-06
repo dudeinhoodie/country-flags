@@ -87,6 +87,38 @@ describe("HttpExceptionFilter", () => {
     });
   });
 
+  it("maps a body-parser payload-too-large error to 413 without reporting it as a bug", () => {
+    const report = jest.fn();
+    const recordError = jest.fn();
+    const filter = new HttpExceptionFilter(
+      { report } as never,
+      { recordError } as never,
+    );
+    const request = {
+      requestId: "req-4",
+      method: "POST",
+      originalUrl: "/v1/analytics/events/batch",
+    };
+    const response = mockResponse();
+    const bodyParserError = Object.assign(
+      new Error("request entity too large"),
+      { status: 413, type: "entity.too.large" },
+    );
+
+    filter.catch(bodyParserError, host(request, response));
+
+    expect(report).not.toHaveBeenCalled();
+    expect(response.statusCode).toBe(413);
+    expect(response.body).toMatchObject({
+      error: {
+        code: "BODY_TOO_LARGE",
+        message: "request entity too large",
+        requestId: "req-4",
+      },
+    });
+    expect(recordError).toHaveBeenCalledWith("BODY_TOO_LARGE");
+  });
+
   it("reports an uncaught exception and never leaks its raw message to the client", () => {
     const report = jest.fn();
     const recordError = jest.fn();

@@ -16,9 +16,9 @@ import {
 import type { Response } from "express";
 
 import { ApiException } from "../../common/http/api.exception";
-import { requiredString, uuid } from "../../common/http/request-validation";
 import type { RequestWithId } from "../../common/http/request-id.middleware";
-import { AuthRateLimiter } from "../auth/auth-rate-limiter.service";
+import { requiredString, uuid } from "../../common/http/request-validation";
+import { RateLimiter } from "../../common/security/rate-limiter.service";
 import { AuthGuard, type AuthenticatedRequest } from "../auth/auth.guard";
 import { ReauthenticationTokenService } from "../auth/reauthentication-token.service";
 import { AccountDeletionService } from "./account-deletion.service";
@@ -44,7 +44,7 @@ function currentSessionId(request: PrivateRequest): string {
 export class GuestImportsController {
   constructor(
     private readonly imports: GuestImportsService,
-    private readonly rateLimiter: AuthRateLimiter,
+    private readonly rateLimiter: RateLimiter,
   ) {}
 
   @Post()
@@ -91,7 +91,7 @@ export class DataExportsController {
   constructor(
     private readonly exportsService: DataExportsService,
     private readonly reauthentication: ReauthenticationTokenService,
-    private readonly rateLimiter: AuthRateLimiter,
+    private readonly rateLimiter: RateLimiter,
   ) {}
 
   @Post()
@@ -138,7 +138,10 @@ export class DataExportsController {
 
 @Controller("data-exports")
 export class DataExportDownloadsController {
-  constructor(private readonly exportsService: DataExportsService) {}
+  constructor(
+    private readonly exportsService: DataExportsService,
+    private readonly rateLimiter: RateLimiter,
+  ) {}
 
   @Get(":exportId/download")
   async download(
@@ -147,6 +150,11 @@ export class DataExportDownloadsController {
     @Param("exportId") exportId: string,
     @Query("token") token: unknown,
   ): Promise<void> {
+    await this.rateLimiter.consume(
+      "account:export-download",
+      request.ip ?? "unknown-client",
+      20,
+    );
     const dataExport = await this.exportsService.download(
       uuid(exportId, "exportId"),
       requiredString(token, "token", 32, 256),
@@ -179,7 +187,7 @@ export class AccountDeletionController {
   constructor(
     private readonly deletion: AccountDeletionService,
     private readonly reauthentication: ReauthenticationTokenService,
-    private readonly rateLimiter: AuthRateLimiter,
+    private readonly rateLimiter: RateLimiter,
   ) {}
 
   @Delete()

@@ -7,13 +7,17 @@ import { HealthService } from "./health.service";
 describe("HealthService", () => {
   const ping = jest.fn<Promise<void>, []>();
   const warn = jest.fn<void, [unknown]>();
+  const log = jest.fn<void, [unknown]>();
+  const configGet = jest.fn<number | undefined, [string]>();
   const service = new HealthService(
     { ping } as unknown as PrismaService,
-    { warn } as unknown as JsonLoggerService,
+    { warn, log } as unknown as JsonLoggerService,
+    { get: configGet } as never,
   );
 
   beforeEach(() => {
     jest.clearAllMocks();
+    configGet.mockReturnValue(0);
   });
 
   it("reports liveness without checking external dependencies", () => {
@@ -45,5 +49,43 @@ describe("HealthService", () => {
         event: "readiness_check_failed",
       }),
     );
+  });
+
+  it("does not drain or mark unready on a signal-less close (e.g. test teardown)", async () => {
+    const fresh = new HealthService(
+      { ping } as unknown as PrismaService,
+      { warn, log } as unknown as JsonLoggerService,
+      { get: configGet } as never,
+    );
+
+    await fresh.beforeApplicationShutdown(undefined);
+
+    expect(log).not.toHaveBeenCalled();
+    ping.mockResolvedValueOnce(undefined);
+    await expect(fresh.getReadiness()).resolves.toMatchObject({
+      status: "ok",
+    });
+  });
+
+  it("marks readiness as failing immediately once a real shutdown signal arrives", async () => {
+    const fresh = new HealthService(
+      { ping } as unknown as PrismaService,
+      { warn, log } as unknown as JsonLoggerService,
+      { get: configGet } as never,
+    );
+    configGet.mockReturnValue(0);
+
+    await fresh.beforeApplicationShutdown("SIGTERM");
+
+    expect(log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "application_shutdown_draining",
+        signal: "SIGTERM",
+      }),
+    );
+    await expect(fresh.getReadiness()).rejects.toBeInstanceOf(
+      ServiceUnavailableException,
+    );
+    expect(ping).not.toHaveBeenCalled();
   });
 });

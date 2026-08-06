@@ -24,6 +24,8 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   PUBLIC_BASE_URL: string;
   APPLE_CLIENT_IDS: string[];
   GOOGLE_CLIENT_IDS: string[];
+  CORS_ALLOWED_ORIGINS: string[];
+  SHUTDOWN_DRAIN_MS: number;
 }
 
 const TEST_PROVIDER_SECRET =
@@ -253,6 +255,17 @@ export function validateEnvironment(
     throw new Error("Environment variable GOOGLE_CLIENT_IDS is required");
   }
 
+  const corsAllowedOrigins = commaSeparated(
+    config.CORS_ALLOWED_ORIGINS,
+    nodeEnvironment === "production" ? [] : ["http://localhost:5173"],
+    "CORS_ALLOWED_ORIGINS",
+  );
+  if (corsAllowedOrigins.includes("*")) {
+    throw new Error(
+      "Environment variable CORS_ALLOWED_ORIGINS must not contain a wildcard",
+    );
+  }
+
   return {
     ...config,
     NODE_ENV: nodeEnvironment,
@@ -344,5 +357,13 @@ export function validateEnvironment(
     ),
     APPLE_CLIENT_IDS: appleClientIds,
     GOOGLE_CLIENT_IDS: googleClientIds,
+    CORS_ALLOWED_ORIGINS: corsAllowedOrigins,
+    SHUTDOWN_DRAIN_MS: parseInteger(
+      config.SHUTDOWN_DRAIN_MS,
+      5_000,
+      "SHUTDOWN_DRAIN_MS",
+      0,
+      30_000,
+    ),
   };
 }

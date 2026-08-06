@@ -1,0 +1,112 @@
+name: Load & abuse tests (k6)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  k6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: country_flags
+          POSTGRES_USER: country_flags
+          POSTGRES_PASSWORD: country_flags
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U country_flags -d country_flags"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      LOG_LEVEL: info
+      DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: corepack yarn install --immutable
+
+      - name: Generate Prisma client
+        run: corepack yarn prisma:generate
+
+      - name: Apply database migrations
+        run: corepack yarn prisma:migrate:deploy
+
+      - name: Seed test content and study data
+        run: |
+          corepack yarn content:import:test
+          corepack yarn study:seed:test
+
+      - name: Build backend
+        run: corepack yarn workspace @country-flags/backend build
+
+      - name: Start backend
+        run: |
+          nohup node backend/dist/main.js > backend.log 2>&1 &
+          echo $! > backend.pid
+          for _ in $(seq 1 30); do
+            if curl -fsS http://localhost:3000/v1/health/ready >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Backend never became ready" >&2
+          cat backend.log
+          exit 1
+
+      - name: Generate test access token
+        id: token
+        run: |
+          token="$(corepack yarn study:token:test)"
+          echo "::add-mask::$token"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
+
+      - name: Run k6 — auth login abuse
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: backend/test/load/k6/auth-login.js
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Run k6 — reviews batch abuse
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: backend/test/load/k6/reviews-batch-abuse.js
+        env:
+          BASE_URL: http://localhost:3000
+          ACCESS_TOKEN: ${{ steps.token.outputs.token }}
+
+      - name: Run k6 — mixed critical flows
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: backend/test/load/k6/mixed-critical-flows.js
+        env:
+          BASE_URL: http://localhost:3000
+          ACCESS_TOKEN: ${{ steps.token.outputs.token }}
+
+      - name: Stop backend
+        if: always()
+        run: |
+          if [ -f backend.pid ]; then
+            kill "$(cat backend.pid)" || true
+          fi
+          cat backend.log || true

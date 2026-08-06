@@ -13,8 +13,8 @@ import {
 
 import { ApiException } from "../../common/http/api.exception";
 import type { RequestWithId } from "../../common/http/request-id.middleware";
+import { RateLimiter } from "../../common/security/rate-limiter.service";
 import { ProviderIdentityVerifier } from "./provider-identity-verifier";
-import { AuthRateLimiter } from "./auth-rate-limiter.service";
 import { AuthService } from "./auth.service";
 import { ReauthenticationTokenService } from "./reauthentication-token.service";
 import {
@@ -59,7 +59,7 @@ export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly verifier: ProviderIdentityVerifier,
-    private readonly rateLimiter: AuthRateLimiter,
+    private readonly rateLimiter: RateLimiter,
     private readonly reauthentication: ReauthenticationTokenService,
   ) {}
 
@@ -122,6 +122,11 @@ export class AuthController {
     @Req() request: PrivateAuthRequest,
     @Body() body: unknown,
   ): Promise<void> {
+    await this.rateLimiter.consume(
+      "auth:logout",
+      request.authenticatedUserId,
+      20,
+    );
     await this.auth.logout(
       request.authenticatedUserId,
       sessionId(request),
@@ -133,8 +138,13 @@ export class AuthController {
   @Post("logout-all")
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  logoutAll(@Req() request: PrivateAuthRequest): Promise<void> {
+  async logoutAll(@Req() request: PrivateAuthRequest): Promise<void> {
     sessionId(request);
+    await this.rateLimiter.consume(
+      "auth:logout-all",
+      request.authenticatedUserId,
+      5,
+    );
     return this.auth.logoutAll(request.authenticatedUserId, request.requestId);
   }
 
@@ -194,7 +204,7 @@ export class AuthIdentitiesController {
   constructor(
     private readonly auth: AuthService,
     private readonly verifier: ProviderIdentityVerifier,
-    private readonly rateLimiter: AuthRateLimiter,
+    private readonly rateLimiter: RateLimiter,
   ) {}
 
   @Get()

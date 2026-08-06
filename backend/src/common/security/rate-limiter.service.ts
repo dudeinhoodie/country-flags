@@ -3,17 +3,24 @@ import { createHmac } from "node:crypto";
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-import { ApiException } from "../../common/http/api.exception";
 import type { EnvironmentVariables } from "../../config/environment.validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { ApiException } from "../http/api.exception";
 
 interface CounterRow {
   request_count: number;
   window_started_at: Date;
 }
 
+/**
+ * Postgres-backed fixed-window limiter shared across every module that needs to bound
+ * request frequency (auth, account lifecycle, reviews, sync, analytics, diagnostics).
+ * Not tied to auth specifically — `scope` namespaces callers, `clientKey` is whatever
+ * identity (user ID, IP) the caller wants to bucket by. Backed by a single Postgres
+ * table rather than in-memory state so limits hold across multiple app instances.
+ */
 @Injectable()
-export class AuthRateLimiter {
+export class RateLimiter {
   private static readonly WINDOW_SECONDS = 60;
 
   constructor(
@@ -28,7 +35,7 @@ export class AuthRateLimiter {
   ): Promise<void> {
     const now = new Date();
     const windowStart = new Date(
-      now.getTime() - AuthRateLimiter.WINDOW_SECONDS * 1_000,
+      now.getTime() - RateLimiter.WINDOW_SECONDS * 1_000,
     );
     const keyHash = createHmac(
       "sha256",
@@ -61,7 +68,7 @@ export class AuthRateLimiter {
         1,
         Math.ceil(
           (counter.window_started_at.getTime() +
-            AuthRateLimiter.WINDOW_SECONDS * 1_000 -
+            RateLimiter.WINDOW_SECONDS * 1_000 -
             now.getTime()) /
             1_000,
         ),
@@ -69,7 +76,7 @@ export class AuthRateLimiter {
       throw new ApiException(
         HttpStatus.TOO_MANY_REQUESTS,
         "RATE_LIMIT_EXCEEDED",
-        "Too many authentication attempts",
+        "Too many requests",
         { retryAfter },
       );
     }
