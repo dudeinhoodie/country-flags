@@ -3,10 +3,7 @@
   "schemaVersion": 1,
   "catalogVersion": "2026.07-draft.1",
   "defaultLocale": "ru",
-  "supportedLocales": [
-    "ru",
-    "en"
-  ],
+  "supportedLocales": ["ru", "en"],
   "entities": [
     {
       "key": "region.europe",
@@ -52,9 +49,7 @@
           "aliases": []
         }
       },
-      "assetKeys": [
-        "flag.france.current"
-      ]
+      "assetKeys": ["flag.france.current"]
     },
     {
       "key": "country.kosovo",
@@ -80,9 +75,7 @@
           "aliases": []
         }
       },
-      "assetKeys": [
-        "flag.kosovo.current"
-      ]
+      "assetKeys": ["flag.kosovo.current"]
     }
   ],
   "relations": [
@@ -115,10 +108,7 @@
           "description": "The complete approved catalog"
         }
       },
-      "memberEntityKeys": [
-        "country.france",
-        "country.kosovo"
-      ]
+      "memberEntityKeys": ["country.france", "country.kosovo"]
     },
     {
       "key": "deck.europe",
@@ -133,10 +123,7 @@
           "description": "Countries in the European collection"
         }
       },
-      "memberEntityKeys": [
-        "country.france",
-        "country.kosovo"
-      ]
+      "memberEntityKeys": ["country.france", "country.kosovo"]
     },
     {
       "key": "deck.popular",
@@ -151,9 +138,7 @@
           "description": "Commonly encountered flags"
         }
       },
-      "memberEntityKeys": [
-        "country.france"
-      ]
+      "memberEntityKeys": ["country.france"]
     }
   ]
 }

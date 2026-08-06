@@ -205,4 +205,3 @@ feature flag service или telemetry provider в обычном CI.
   внешних blockers;
 - Pull Request связан с Issue через `Closes #<issue-number>`, если создание PR
   входило в запрос.
-

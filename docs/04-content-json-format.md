@@ -218,10 +218,7 @@ Fallback locale задаётся клиентом и manifest:
       "description": "Commonly encountered flags"
     }
   },
-  "memberEntityKeys": [
-    "country.france",
-    "country.japan"
-  ]
+  "memberEntityKeys": ["country.france", "country.japan"]
 }
 ```
 

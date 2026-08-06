@@ -67,9 +67,7 @@
     "localizedName": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "short"
-      ],
+      "required": ["short"],
       "properties": {
         "short": {
           "type": "string",
@@ -113,9 +111,7 @@
     "recognition": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "status"
-      ],
+      "required": ["status"],
       "properties": {
         "status": {
           "enum": [
@@ -176,21 +172,10 @@
           "$ref": "#/$defs/entityKey"
         },
         "type": {
-          "enum": [
-            "country",
-            "territory",
-            "area",
-            "region",
-            "subregion"
-          ]
+          "enum": ["country", "territory", "area", "region", "subregion"]
         },
         "status": {
-          "enum": [
-            "active",
-            "historical",
-            "retired",
-            "hidden"
-          ]
+          "enum": ["active", "historical", "retired", "hidden"]
         },
         "includeInCountryCatalog": {
           "type": "boolean"
@@ -244,10 +229,7 @@
           "pattern": "^taxonomy\\.[a-z0-9][a-z0-9._-]*$"
         },
         "relationType": {
-          "enum": [
-            "contains",
-            "associated_with"
-          ]
+          "enum": ["contains", "associated_with"]
         },
         "primary": {
           "type": "boolean"
@@ -257,9 +239,7 @@
     "deckLocalizedText": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "name"
-      ],
+      "required": ["name"],
       "properties": {
         "name": {
           "type": "string",
@@ -273,22 +253,14 @@
     "deck": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "key",
-        "kind",
-        "names",
-        "memberEntityKeys"
-      ],
+      "required": ["key", "kind", "names", "memberEntityKeys"],
       "properties": {
         "key": {
           "type": "string",
           "pattern": "^deck\\.[a-z0-9][a-z0-9._-]*$"
         },
         "kind": {
-          "enum": [
-            "curated",
-            "taxonomy"
-          ]
+          "enum": ["curated", "taxonomy"]
         },
         "names": {
           "type": "object",

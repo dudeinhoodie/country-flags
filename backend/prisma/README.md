@@ -36,8 +36,8 @@ corepack yarn study:seed:test
 ```
 
 Он также импортирует content fixture, затем создаёт детерминированного test
-  user, device, active test scheduler и card states для сценариев
-  overdue/learning/new.
+user, device, active test scheduler и card states для сценариев
+overdue/learning/new.
 Test JWT можно получить через `corepack yarn study:token:test`. Обе команды
 запрещены при `NODE_ENV=production`.
 
