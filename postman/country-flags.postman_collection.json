@@ -683,6 +683,81 @@
       ]
     },
     {
+      "name": "App Config",
+      "item": [
+        {
+          "name": "Get evaluated app config",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.featureFlags).to.be.an(\"object\");",
+                  "pm.expect(body.advertising.enabled).to.eql(false);",
+                  "pm.collectionVariables.set(\"appConfigEtag\", pm.response.headers.get(\"ETag\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/app-config?platform=ios&appVersion=1.0.0&locale={{locale}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "app-config"],
+              "query": [
+                { "key": "platform", "value": "ios" },
+                { "key": "appVersion", "value": "1.0.0" },
+                { "key": "locale", "value": "{{locale}}" }
+              ]
+            },
+            "description": "Возвращает evaluated feature flags и advertising policy; реклама default-off даже когда все флаги включены."
+          },
+          "response": []
+        },
+        {
+          "name": "Get cached app config (304)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 304\", function () { pm.response.to.have.status(304); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "If-None-Match",
+                "value": "{{appConfigEtag}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/app-config?platform=ios&appVersion=1.0.0&locale={{locale}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "app-config"],
+              "query": [
+                { "key": "platform", "value": "ios" },
+                { "key": "appVersion", "value": "1.0.0" },
+                { "key": "locale", "value": "{{locale}}" }
+              ]
+            },
+            "description": "Запускайте после Get evaluated app config: использует сохранённый ETag."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Content",
       "item": [
         {
@@ -701,6 +776,7 @@
                   "  pm.expect(body.signature.keyId).to.eql(\"TEST_ONLY\");",
                   "});",
                   "pm.collectionVariables.set(\"contentVersion\", pm.response.json().contentVersion);",
+                  "pm.collectionVariables.set(\"changeCursor\", pm.response.json().changeCursor);",
                   "const etag = pm.response.headers.get(\"ETag\");",
                   "if (etag) {",
                   "  pm.collectionVariables.set(\"manifestEtag\", etag);",
@@ -764,6 +840,39 @@
               ]
             },
             "description": "Запускайте после Get active manifest: использует сохранённый ETag."
+          },
+          "response": []
+        },
+        {
+          "name": "Get content changes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.items).to.be.an(\"array\");",
+                  "pm.expect(body.hasMore).to.be.a(\"boolean\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/content/changes?locale={{locale}}&after={{changeCursor}}&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "content", "changes"],
+              "query": [
+                { "key": "locale", "value": "{{locale}}" },
+                { "key": "after", "value": "{{changeCursor}}" },
+                { "key": "limit", "value": "100" }
+              ]
+            },
+            "description": "Запускайте после Get active manifest: использует сохранённый changeCursor как отправную точку feed."
           },
           "response": []
         }
@@ -1291,6 +1400,323 @@
       ]
     },
     {
+      "name": "Progress and Sync",
+      "item": [
+        {
+          "name": "Get account progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.decks).to.be.an(\"array\");",
+                  "pm.expect(body.regions).to.be.an(\"array\");",
+                  "pm.expect(typeof body.totalCards).to.eql(\"number\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/me/progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "me", "progress"]
+            },
+            "description": "Аккаунтные агрегаты по колодам и регионам для пользователя, засеянного study:seed:test."
+          },
+          "response": []
+        },
+        {
+          "name": "Get deck progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(typeof body.totalCards).to.eql(\"number\");",
+                  "pm.expect(typeof body.currentMasteryTier).to.eql(\"string\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/me/decks/{{deckId}}/progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "me", "decks", "{{deckId}}", "progress"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get due summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(typeof body.totalDue).to.eql(\"number\");",
+                  "pm.expect(typeof body.newCards).to.eql(\"number\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/me/due-summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "me", "due-summary"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List earned achievements",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.items).to.be.an(\"array\");",
+                  "pm.expect(body.items.every((item) => !(\"title\" in item))).to.be.true;"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/me/achievements",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "me", "achievements"]
+            },
+            "description": "Evidence локаль-нейтрален; title/description формирует клиент, backend их не возвращает."
+          },
+          "response": []
+        },
+        {
+          "name": "Get account changes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.items).to.be.an(\"array\");",
+                  "pm.expect(typeof body.hasMore).to.eql(\"boolean\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/me/changes",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "me", "changes"]
+            },
+            "description": "Immutable account-scoped change feed для offline sync клиента."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics and Diagnostics",
+      "item": [
+        {
+          "name": "Ingest analytics event",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(",
+                  "  \"analyticsEventId\",",
+                  "  pm.variables.replaceIn(\"{{$guid}}\"),",
+                  ");"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.results[0]).to.include({",
+                  "  status: \"ACCEPTED\",",
+                  "  rejectionCode: null,",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payloadVersion\": 1,\n  \"events\": [\n    {\n      \"eventId\": \"{{analyticsEventId}}\",\n      \"eventName\": \"deck.opened\",\n      \"schemaVersion\": 1,\n      \"occurredAt\": \"{{$isoTimestamp}}\",\n      \"anonymousId\": \"postman-anonymous-id-000001\",\n      \"sessionId\": \"postman-analytics-session\",\n      \"context\": {\n        \"platform\": \"ios\",\n        \"appVersion\": \"1.0.0\",\n        \"build\": \"100\",\n        \"locale\": \"{{locale}}\"\n      },\n      \"properties\": { \"deckType\": \"system\" }\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/analytics/events/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "analytics", "events", "batch"]
+            },
+            "description": "Authorization опционален (OptionalAuthGuard). Принимает только allowlisted eventName из registry."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload MetricKit report",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const bytes = CryptoJS.enc.Utf8.parse(\"postman fake metrickit payload\");",
+                  "pm.collectionVariables.set(",
+                  "  \"metrickitPayload\",",
+                  "  CryptoJS.enc.Base64.stringify(bytes),",
+                  ");",
+                  "pm.collectionVariables.set(",
+                  "  \"metrickitSha256\",",
+                  "  CryptoJS.SHA256(bytes).toString(CryptoJS.enc.Hex),",
+                  ");",
+                  "pm.collectionVariables.set(",
+                  "  \"metrickitReportId\",",
+                  "  pm.variables.replaceIn(\"{{$guid}}\"),",
+                  ");"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 202\", function () { pm.response.to.have.status(202); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportId\": \"{{metrickitReportId}}\",\n  \"payloadVersion\": 1,\n  \"appVersion\": \"1.0.0\",\n  \"build\": \"100\",\n  \"generatedAt\": \"{{$isoTimestamp}}\",\n  \"encoding\": \"gzip_base64\",\n  \"sha256\": \"{{metrickitSha256}}\",\n  \"payload\": \"{{metrickitPayload}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/diagnostics/metrickit",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "diagnostics", "metrickit"]
+            },
+            "description": "Authorization опционален. sha256 вычисляется в prerequest script над raw bytes до base64."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Guest Import",
       "item": [
         {
@@ -1633,6 +2059,109 @@
           "response": []
         },
         {
+          "name": "Get privacy settings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect([\"UNKNOWN\", \"GRANTED\", \"DENIED\"]).to.include(",
+                  "  body.productAnalyticsStatus,",
+                  ");",
+                  "pm.collectionVariables.set(",
+                  "  \"privacySettingsEtag\",",
+                  "  pm.response.headers.get(\"ETag\"),",
+                  ");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{appAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/me/privacy-settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "me", "privacy-settings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update privacy settings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.productAnalyticsStatus).to.eql(\"GRANTED\");",
+                  "pm.collectionVariables.set(",
+                  "  \"privacySettingsEtag\",",
+                  "  pm.response.headers.get(\"ETag\"),",
+                  ");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{appAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{privacySettingsEtag}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productAnalyticsStatus\": \"GRANTED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/me/privacy-settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "me", "privacy-settings"]
+            },
+            "description": "Требует свежий ETag из Get privacy settings (optimistic concurrency, как в /me/settings)."
+          },
+          "response": []
+        },
+        {
           "name": "List safe device metadata",
           "event": [
             {
@@ -1790,7 +2319,7 @@
                   "const body = pm.response.json();",
                   "pm.expect([\"PENDING\", \"PROCESSING\", \"READY\"]).to.include(body.status);",
                   "pm.collectionVariables.set(\"dataExportId\", body.id);",
-                  "if (body.downloadUrl) pm.collectionVariables.set(\"downloadUrl\", body.downloadUrl);"
+                  "if (body.downloadUrl) pm.collectionVariables.set(\"dataExportDownloadUrl\", body.downloadUrl);"
                 ],
                 "type": "text/javascript"
               }
@@ -1833,7 +2362,7 @@
                   "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
                   "const body = pm.response.json();",
                   "pm.expect([\"PENDING\", \"PROCESSING\", \"READY\"]).to.include(body.status);",
-                  "if (body.downloadUrl) pm.collectionVariables.set(\"downloadUrl\", body.downloadUrl);"
+                  "if (body.downloadUrl) pm.collectionVariables.set(\"dataExportDownloadUrl\", body.downloadUrl);"
                 ],
                 "type": "text/javascript"
               }
@@ -2078,6 +2607,41 @@
     },
     {
       "key": "guestOccurredAt",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "appConfigEtag",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "changeCursor",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "privacySettingsEtag",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "analyticsEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "metrickitReportId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "metrickitPayload",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "metrickitSha256",
       "value": "",
       "type": "string"
     }
