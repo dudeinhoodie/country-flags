@@ -948,7 +948,7 @@ paths:
       tags: [Analytics]
       summary: Ingest allowlisted analytics events
       operationId: createAnalyticsBatch
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - {}
         - BearerAuth: []
@@ -978,7 +978,7 @@ paths:
       tags: [Diagnostics]
       summary: Upload a sanitized MetricKit report
       operationId: createMetricKitReport
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - {}
         - BearerAuth: []
@@ -1004,10 +1004,13 @@ paths:
       tags: [Account]
       summary: Get analytics and diagnostics consent settings
       operationId: getPrivacySettings
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: Privacy settings
+          headers:
+            ETag:
+              $ref: ./openapi/components.yaml#/headers/ETag
           content:
             application/json:
               schema:
@@ -1016,9 +1019,11 @@ paths:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
     patch:
       tags: [Account]
-      summary: Update privacy consent settings
+      summary: Update privacy consent settings with optimistic concurrency
       operationId: updatePrivacySettings
-      x-implementation-status: planned
+      x-implementation-status: implemented
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/IfMatch
       requestBody:
         required: true
         content:
@@ -1028,6 +1033,9 @@ paths:
       responses:
         "200":
           description: Updated privacy settings
+          headers:
+            ETag:
+              $ref: ./openapi/components.yaml#/headers/ETag
           content:
             application/json:
               schema:

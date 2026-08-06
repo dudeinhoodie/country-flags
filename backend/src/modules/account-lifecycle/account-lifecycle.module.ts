@@ -11,6 +11,8 @@ import {
 import { AccountDeletionService } from "./account-deletion.service";
 import { DataExportsService } from "./data-exports.service";
 import { GuestImportsService } from "./guest-imports.service";
+import { PrivacySettingsController } from "./privacy-settings.controller";
+import { PrivacySettingsService } from "./privacy-settings.service";
 
 @Module({
   imports: [AuthModule, ReviewsModule],
@@ -19,8 +21,14 @@ import { GuestImportsService } from "./guest-imports.service";
     DataExportsController,
     DataExportDownloadsController,
     AccountDeletionController,
+    PrivacySettingsController,
   ],
-  providers: [GuestImportsService, DataExportsService, AccountDeletionService],
+  providers: [
+    GuestImportsService,
+    DataExportsService,
+    AccountDeletionService,
+    PrivacySettingsService,
+  ],
   exports: [AccountDeletionService],
 })
 export class AccountLifecycleModule {}
