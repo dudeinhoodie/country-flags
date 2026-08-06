@@ -755,3 +755,223 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
     ).resolves.toEqual(stateBefore);
   });
 });
+
+// A separate throwaway database, deliberately: the suite above hand-tunes exact
+// stateVersion counts for one shared card across many sequential tests, and any
+// extra session-creation call shifts which card the "due/learning priority" selector
+// hands back next (a just-reviewed card can immediately re-qualify as due). Isolating
+// this flow avoids coupling it to that fragile ordering.
+describe("mixed-mode study flow (integration)", () => {
+  jest.setTimeout(120_000);
+
+  const baseUrl = process.env.DATABASE_URL;
+  const originalDatabaseUrl = process.env.DATABASE_URL;
+  const originalNodeEnvironment = process.env.NODE_ENV;
+  const originalTestAuthEnabled = process.env.TEST_AUTH_ENABLED;
+  const databaseName =
+    `country_flags_mixed_flow_${process.pid}_${Date.now()}`.toLowerCase();
+  let admin: PrismaClient;
+  let database: PrismaService;
+  let app: INestApplication;
+  let httpServer: Server;
+  let accessToken: string;
+
+  beforeAll(async () => {
+    if (baseUrl === undefined) {
+      throw new Error("DATABASE_URL is required for review integration tests");
+    }
+    admin = new PrismaClient({ datasources: { db: { url: baseUrl } } });
+    await admin.$executeRawUnsafe(`CREATE DATABASE "${databaseName}"`);
+    const testDatabaseUrl = databaseUrlFor(baseUrl, databaseName);
+    const prismaCli = require.resolve("prisma/build/index.js");
+    const migration = spawnSync(
+      process.execPath,
+      [
+        prismaCli,
+        "migrate",
+        "deploy",
+        "--schema",
+        resolve(__dirname, "../prisma/schema.prisma"),
+      ],
+      {
+        cwd: resolve(__dirname, ".."),
+        encoding: "utf8",
+        env: { ...process.env, DATABASE_URL: testDatabaseUrl },
+      },
+    );
+    if (migration.status !== 0) {
+      throw new Error(
+        `Mixed-flow test migration failed:\n${migration.stdout}\n${migration.stderr}`,
+      );
+    }
+
+    process.env.DATABASE_URL = testDatabaseUrl;
+    process.env.NODE_ENV = "test";
+    process.env.TEST_AUTH_ENABLED = "true";
+
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    const expressApp =
+      moduleRef.createNestApplication<NestExpressApplication>();
+    expressApp.setGlobalPrefix("v1");
+    await expressApp.init();
+    app = expressApp;
+    database = app.get(PrismaService);
+    httpServer = app.getHttpServer() as Server;
+    accessToken = app.get(TestJwtSigner).sign(TEST_STUDY_USER_ID);
+
+    await importTestContent(database);
+    await importTestStudySeed(database);
+  });
+
+  afterAll(async () => {
+    process.env.DATABASE_URL = originalDatabaseUrl;
+    process.env.NODE_ENV = originalNodeEnvironment;
+    process.env.TEST_AUTH_ENABLED = originalTestAuthEnabled;
+    await app?.close();
+    if (admin !== undefined) {
+      await admin.$executeRawUnsafe(
+        `DROP DATABASE IF EXISTS "${databaseName}" WITH (FORCE)`,
+      );
+      await admin.$disconnect();
+    }
+  });
+
+  async function sendMixedFlowEvent(
+    event: Record<string, unknown>,
+  ): Promise<ReviewBatchBody> {
+    const response = await request(httpServer)
+      .post("/v1/reviews/batch")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ payloadVersion: 1, events: [event] })
+      .expect(200);
+    return response.body as unknown as ReviewBatchBody;
+  }
+
+  async function newCardIn(
+    body: SessionBody,
+  ): Promise<SessionBody["cards"][number]> {
+    const candidates = await Promise.all(
+      body.cards.map(async (card) => ({
+        card,
+        state: await database.userCardState.findUnique({
+          where: {
+            userId_learningCardId: {
+              userId: TEST_STUDY_USER_ID,
+              learningCardId: card.learningCard.id,
+            },
+          },
+        }),
+      })),
+    );
+    // A just-reviewed card can immediately re-qualify as due/learning priority in
+    // the very next session request, so never assume cards[0] is unreviewed.
+    const picked = candidates.find(({ state }) => state === null)?.card;
+    if (picked === undefined) {
+      throw new Error("Mixed-flow test has no new card in this session");
+    }
+    return picked;
+  }
+
+  it("grades both SELF_RATED and MULTIPLE_CHOICE reviews and updates FSRS state for each, in one continuous flow", async () => {
+    const selfRatedSessionId = "95000000-0000-4000-8000-000000000001";
+    const selfRatedSession = await request(httpServer)
+      .post("/v1/study-sessions")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        id: selfRatedSessionId,
+        deckId: "70000000-0000-4000-8000-000000000001",
+        requestedUniqueCount: 5,
+        mode: AnswerMode.SELF_RATED,
+        locale: "en",
+        selectionOrigin: "SERVER",
+      })
+      .expect(201);
+    const selfRatedCard = await newCardIn(
+      selfRatedSession.body as unknown as SessionBody,
+    );
+
+    const selfRatedResult = await sendMixedFlowEvent({
+      id: "96000000-0000-4000-8000-000000000001",
+      sessionId: selfRatedSessionId,
+      learningCardId: selfRatedCard.learningCard.id,
+      deviceId: TEST_STUDY_DEVICE_ID,
+      answerMode: AnswerMode.SELF_RATED,
+      rating: ReviewRating.GOOD,
+      responseTimeMs: 4200,
+      clientOccurredAt: "2026-07-29T10:00:00.000Z",
+      estimatedServerOccurredAt: "2026-07-29T10:00:00.000Z",
+      clientSequence: 1,
+      baseStateVersion: 0,
+    });
+    expect(selfRatedResult.results[0]).toMatchObject({
+      status: "ACCEPTED",
+      canonicalRating: ReviewRating.GOOD,
+      isCorrect: true,
+      cardState: {
+        learningCardId: selfRatedCard.learningCard.id,
+        stateVersion: 1,
+      },
+    });
+    expect(typeof selfRatedResult.results[0]?.cardState?.dueAt).toBe("string");
+
+    const multipleChoiceSessionId = "95000000-0000-4000-8000-000000000002";
+    const multipleChoiceSession = await request(httpServer)
+      .post("/v1/study-sessions")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        id: multipleChoiceSessionId,
+        deckId: "70000000-0000-4000-8000-000000000001",
+        requestedUniqueCount: 5,
+        mode: AnswerMode.MULTIPLE_CHOICE,
+        selectionOrigin: "SERVER",
+        locale: "en",
+      })
+      .expect(201);
+    const multipleChoiceCard = await newCardIn(
+      multipleChoiceSession.body as unknown as SessionBody,
+    );
+    if (multipleChoiceCard.options?.length !== 4) {
+      throw new Error(
+        "Mixed-flow test has no complete MULTIPLE_CHOICE option set",
+      );
+    }
+    const persistedOptions = await database.studySessionCardOption.findMany({
+      where: { studySessionCardId: multipleChoiceCard.id },
+      orderBy: { position: "asc" },
+    });
+    const correctOptionId = persistedOptions.find(
+      ({ isCorrect }) => isCorrect,
+    )?.id;
+    if (correctOptionId === undefined) {
+      throw new Error("Mixed-flow test has no correct option");
+    }
+
+    const multipleChoiceResult = await sendMixedFlowEvent({
+      id: "96000000-0000-4000-8000-000000000002",
+      sessionId: multipleChoiceSessionId,
+      learningCardId: multipleChoiceCard.learningCard.id,
+      deviceId: TEST_STUDY_DEVICE_ID,
+      answerMode: AnswerMode.MULTIPLE_CHOICE,
+      selectedOptionId: correctOptionId,
+      clientOccurredAt: "2026-07-29T11:00:00.000Z",
+      estimatedServerOccurredAt: "2026-07-29T11:00:00.000Z",
+      clientSequence: 2,
+      baseStateVersion: null,
+    });
+    expect(multipleChoiceResult.results[0]).toMatchObject({
+      status: "ACCEPTED",
+      canonicalRating: ReviewRating.GOOD,
+      isCorrect: true,
+      correctOptionId,
+      cardState: {
+        learningCardId: multipleChoiceCard.learningCard.id,
+        stateVersion: 1,
+      },
+    });
+    expect(typeof multipleChoiceResult.results[0]?.cardState?.dueAt).toBe(
+      "string",
+    );
+  });
+});

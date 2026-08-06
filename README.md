@@ -42,11 +42,22 @@ corepack yarn dev
 ```bash
 curl http://localhost:3000/v1/health/live
 curl http://localhost:3000/v1/health/ready
+curl "http://localhost:3000/v1/content/manifest?locale=en"
 ```
 
-Полный локальный стек в контейнерах:
+Первые два запроса подтверждают только то, что процесс жив и видит PostgreSQL;
+третий — что `study:seed:test` действительно загрузил fixture и она доступна
+через реальный API, а не просто что health-check проходит.
+
+Полный локальный стек в контейнерах. `api`-сервис в
+[`infrastructure/compose.yaml`](./infrastructure/compose.yaml) не применяет
+миграции сам — это отдельный deployment step по дизайну (см.
+[11-migration-deployment-runbook.md](./docs/11-migration-deployment-runbook.md)),
+поэтому `db:up` и `prisma:migrate:deploy` должны отработать до `app:up`:
 
 ```bash
+corepack yarn db:up
+corepack yarn prisma:migrate:deploy
 corepack yarn app:up
 curl http://localhost:3000/v1/health/live
 curl http://localhost:3000/v1/health/ready
@@ -91,11 +102,20 @@ corepack yarn docker:build
 
 Решение о структуре и package manager зафиксировано в
 [ADR-001](./docs/adr/ADR-001-monorepo-modular-monolith.md).
+Provider identities и refresh-token rotation описаны в
+[ADR-002](./docs/adr/ADR-002-auth-and-refresh-token-rotation.md).
 Правила immutable review ordering и pinned FSRS-6 описаны в
 [ADR-003](./docs/adr/ADR-003-review-ordering-and-idempotency.md) и
 [ADR-004](./docs/adr/ADR-004-fsrs6-versioning-and-migrations.md).
 Хранение и migration path приватных account exports зафиксированы в
 [ADR-007](./docs/adr/ADR-007-account-data-export-storage.md).
+
+Известные ограничения текущего MVP сведены в
+[12-known-limitations.md](./docs/12-known-limitations.md). Retention-политика,
+backup/PITR runbook и migration/deployment runbook — в
+[09-retention.md](./docs/09-retention.md),
+[10-backup-restore-runbook.md](./docs/10-backup-restore-runbook.md) и
+[11-migration-deployment-runbook.md](./docs/11-migration-deployment-runbook.md).
 
 Команды явно используют `corepack yarn`, чтобы системный Yarn Classic не мог
 случайно проигнорировать закреплённую в проекте версию Yarn.

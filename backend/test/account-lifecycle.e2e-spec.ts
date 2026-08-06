@@ -229,6 +229,21 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
       version: 2,
     });
 
+    // Settings are account-scoped, not per-device — a second logged-in device
+    // must see the same update, not just the device that made it.
+    const fromSecondDevice = await request(httpServer)
+      .get("/v1/me/settings")
+      .set("Authorization", `Bearer ${secondDeviceAccount.tokens.accessToken}`)
+      .expect(200);
+    expect(fromSecondDevice.headers.etag).toBe('W/"2"');
+    expect(fromSecondDevice.body).toMatchObject({
+      sessionSize: 20,
+      contentLocale: "en-US",
+      reminderWeekdays: [1, 3, 5],
+      desiredRetention: 0.91,
+      version: 2,
+    });
+
     const stale = await request(httpServer)
       .patch("/v1/me/settings")
       .set("Authorization", `Bearer ${account.tokens.accessToken}`)
