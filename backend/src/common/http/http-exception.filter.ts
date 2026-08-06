@@ -17,10 +17,29 @@ const CODE_BY_STATUS: Record<number, string> = {
   401: "UNAUTHORIZED",
   404: "RESOURCE_NOT_FOUND",
   409: "IDEMPOTENCY_CONFLICT",
+  413: "BODY_TOO_LARGE",
   422: "VALIDATION_FAILED",
   429: "RATE_LIMIT_EXCEEDED",
   503: "SERVICE_UNAVAILABLE",
 };
+
+/**
+ * body-parser (invoked by Nest's body parsing middleware before a controller — or our own
+ * HttpException handling — ever runs) throws plain `http-errors`-shaped objects for things
+ * like an oversized or malformed body, not `HttpException` instances. Without this check
+ * those errors fall through to the 500/unexpected path and get sent to the ErrorReporter
+ * as if they were application bugs, even though they're ordinary client mistakes.
+ */
+function clientHttpErrorStatus(exception: unknown): number | undefined {
+  if (typeof exception !== "object" || exception === null) {
+    return undefined;
+  }
+  const candidate = exception as { status?: unknown; statusCode?: unknown };
+  const status = candidate.status ?? candidate.statusCode;
+  return typeof status === "number" && status >= 400 && status < 500
+    ? status
+    : undefined;
+}
 
 /**
  * Every thrown exception passes through here. A deliberately-thrown
@@ -43,9 +62,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = context.getRequest<RequestWithId>();
     const response = context.getResponse<Response>();
     const traceId = trace.getActiveSpan()?.spanContext().traceId;
+    const clientErrorStatus = clientHttpErrorStatus(exception);
     const expected = exception instanceof HttpException;
 
-    if (!expected) {
+    if (!expected && clientErrorStatus === undefined) {
       const error =
         exception instanceof Error ? exception : new Error(String(exception));
       this.errorReporter.report(error, {
@@ -60,6 +80,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (expected) {
       this.respondExpected(exception, request, response, traceId);
+      return;
+    }
+    if (clientErrorStatus !== undefined) {
+      this.respondClientError(
+        clientErrorStatus,
+        exception,
+        request,
+        response,
+        traceId,
+      );
       return;
     }
     this.respondUnexpected(request, response, traceId);
@@ -121,6 +151,31 @@ export class HttpExceptionFilter implements ExceptionFilter {
       ? rawMessage.join("; ")
       : String(rawMessage);
     const code = CODE_BY_STATUS[status] ?? "REQUEST_FAILED";
+
+    this.metrics.recordError(code);
+    response.status(status).json({
+      error: {
+        code,
+        message,
+        requestId: request.requestId,
+        ...(traceId !== undefined ? { traceId } : {}),
+        details: {},
+      },
+    });
+  }
+
+  private respondClientError(
+    status: number,
+    exception: unknown,
+    request: RequestWithId,
+    response: Response,
+    traceId: string | undefined,
+  ): void {
+    const code = CODE_BY_STATUS[status] ?? "REQUEST_FAILED";
+    const message =
+      exception instanceof Error
+        ? exception.message
+        : "The request could not be processed";
 
     this.metrics.recordError(code);
     response.status(status).json({

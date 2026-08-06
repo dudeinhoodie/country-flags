@@ -6,6 +6,7 @@ import { ErrorsModule } from "../common/errors/errors.module";
 import { HttpExceptionFilter } from "../common/http/http-exception.filter";
 import { RequestIdMiddleware } from "../common/http/request-id.middleware";
 import { LoggingModule } from "../common/logging/logging.module";
+import { RateLimiterModule } from "../common/security/rate-limiter.module";
 import { TelemetryModule } from "../common/telemetry/telemetry.module";
 import { validateEnvironment } from "../config/environment.validation";
 import { DatabaseModule } from "../infrastructure/database/database.module";
@@ -35,6 +36,7 @@ import { UsersModule } from "../modules/users/users.module";
     LoggingModule,
     TelemetryModule,
     ErrorsModule,
+    RateLimiterModule,
     DatabaseModule,
     AuthModule,
     AccountLifecycleModule,

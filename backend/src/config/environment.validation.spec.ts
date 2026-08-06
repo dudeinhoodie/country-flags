@@ -37,7 +37,37 @@ describe("validateEnvironment", () => {
       PUBLIC_BASE_URL: "http://localhost:3000",
       APPLE_CLIENT_IDS: ["com.countryflags.local"],
       GOOGLE_CLIENT_IDS: ["country-flags-local.apps.googleusercontent.com"],
+      CORS_ALLOWED_ORIGINS: ["http://localhost:5173"],
+      SHUTDOWN_DRAIN_MS: 5_000,
     });
+  });
+
+  it("rejects a SHUTDOWN_DRAIN_MS outside the allowed range", () => {
+    expect(() =>
+      validateEnvironment({
+        ...validConfig,
+        SHUTDOWN_DRAIN_MS: "60000",
+      }),
+    ).toThrow("SHUTDOWN_DRAIN_MS must be an integer");
+  });
+
+  it("defaults CORS_ALLOWED_ORIGINS to an empty allowlist in production", () => {
+    expect(
+      validateEnvironment({
+        ...validConfig,
+        NODE_ENV: "production",
+        ...productionAuthConfig,
+      }),
+    ).toMatchObject({ CORS_ALLOWED_ORIGINS: [] });
+  });
+
+  it("rejects a wildcard CORS origin", () => {
+    expect(() =>
+      validateEnvironment({
+        ...validConfig,
+        CORS_ALLOWED_ORIGINS: "*",
+      }),
+    ).toThrow("CORS_ALLOWED_ORIGINS must not contain a wildcard");
   });
 
   it("rejects a missing database URL", () => {

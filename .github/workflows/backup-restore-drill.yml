@@ -1,0 +1,63 @@
+name: Backup restore drill
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Monthly, off-peak UTC — proves the restore procedure still works (docs/10-backup-restore-runbook.md
+    # requires this quarterly at minimum). Intentionally NOT on pull_request/push: this is a
+    # standing-infrastructure check, not a per-PR gate.
+    - cron: "31 3 1 * *"
+
+permissions:
+  contents: read
+
+jobs:
+  restore-drill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: country_flags
+          POSTGRES_USER: country_flags
+          POSTGRES_PASSWORD: country_flags
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U country_flags -d country_flags"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      LOG_LEVEL: info
+      DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: corepack yarn install --immutable
+
+      - name: Generate Prisma client
+        run: corepack yarn prisma:generate
+
+      - name: Apply database migrations
+        run: corepack yarn prisma:migrate:deploy
+
+      - name: Seed representative data
+        run: corepack yarn content:import:test
+
+      - name: Run restore drill
+        run: bash backend/scripts/db-backup-restore-drill.sh
