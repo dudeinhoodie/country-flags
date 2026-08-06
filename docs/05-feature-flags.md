@@ -337,14 +337,16 @@ Debug/UITest builds MAY иметь локальные overrides и debug menu. R
 Пример server enforcement:
 
 ```ts
-if (!(await flags.getBoolean(
-  FeatureFlag.StudyMultipleChoiceEnabled,
-  false,
-  context,
-)).value) {
-  throw new FeatureDisabledException(
-    FeatureFlag.StudyMultipleChoiceEnabled,
-  );
+if (
+  !(
+    await flags.getBoolean(
+      FeatureFlag.StudyMultipleChoiceEnabled,
+      false,
+      context,
+    )
+  ).value
+) {
+  throw new FeatureDisabledException(FeatureFlag.StudyMultipleChoiceEnabled);
 }
 ```
 

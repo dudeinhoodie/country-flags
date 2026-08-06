@@ -1,29 +1,19 @@
 {
   "bindings": [
     {
-      "capitals": [
-        "Q1863"
-      ],
+      "capitals": ["Q1863"],
       "isoAlpha2": "AD",
-      "languages": [
-        "Q7026"
-      ],
+      "languages": ["Q7026"],
       "wikidataId": "Q228"
     },
     {
-      "capitals": [
-        "Q1519"
-      ],
+      "capitals": ["Q1519"],
       "isoAlpha2": "AE",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q878"
     },
     {
-      "capitals": [
-        "Q5838"
-      ],
+      "capitals": ["Q5838"],
       "isoAlpha2": "AF",
       "languages": [
         "Q13955",
@@ -39,53 +29,33 @@
       "wikidataId": "Q889"
     },
     {
-      "capitals": [
-        "Q36262"
-      ],
+      "capitals": ["Q36262"],
       "isoAlpha2": "AG",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q781"
     },
     {
-      "capitals": [
-        "Q30994"
-      ],
+      "capitals": ["Q30994"],
       "isoAlpha2": "AI",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q25228"
     },
     {
-      "capitals": [
-        "Q19689"
-      ],
+      "capitals": ["Q19689"],
       "isoAlpha2": "AL",
-      "languages": [
-        "Q8748"
-      ],
+      "languages": ["Q8748"],
       "wikidataId": "Q222"
     },
     {
-      "capitals": [
-        "Q1953"
-      ],
+      "capitals": ["Q1953"],
       "isoAlpha2": "AM",
-      "languages": [
-        "Q8785"
-      ],
+      "languages": ["Q8785"],
       "wikidataId": "Q399"
     },
     {
-      "capitals": [
-        "Q3897"
-      ],
+      "capitals": ["Q3897"],
       "isoAlpha2": "AO",
-      "languages": [
-        "Q5146"
-      ],
+      "languages": ["Q5146"],
       "wikidataId": "Q916"
     },
     {
@@ -95,261 +65,147 @@
       "wikidataId": "Q51"
     },
     {
-      "capitals": [
-        "Q1486"
-      ],
+      "capitals": ["Q1486"],
       "isoAlpha2": "AR",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q414"
     },
     {
-      "capitals": [
-        "Q51678"
-      ],
+      "capitals": ["Q51678"],
       "isoAlpha2": "AS",
-      "languages": [
-        "Q1860",
-        "Q34011"
-      ],
+      "languages": ["Q1860", "Q34011"],
       "wikidataId": "Q16641"
     },
     {
-      "capitals": [
-        "Q1741"
-      ],
+      "capitals": ["Q1741"],
       "isoAlpha2": "AT",
-      "languages": [
-        "Q188",
-        "Q36668"
-      ],
+      "languages": ["Q188", "Q36668"],
       "wikidataId": "Q40"
     },
     {
-      "capitals": [
-        "Q3114"
-      ],
+      "capitals": ["Q3114"],
       "isoAlpha2": "AU",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q408"
     },
     {
-      "capitals": [
-        "Q131243"
-      ],
+      "capitals": ["Q131243"],
       "isoAlpha2": "AW",
-      "languages": [
-        "Q33856",
-        "Q7411"
-      ],
+      "languages": ["Q33856", "Q7411"],
       "wikidataId": "Q21203"
     },
     {
-      "capitals": [
-        "Q48329"
-      ],
+      "capitals": ["Q48329"],
       "isoAlpha2": "AX",
-      "languages": [
-        "Q9027"
-      ],
+      "languages": ["Q9027"],
       "wikidataId": "Q5689"
     },
     {
-      "capitals": [
-        "Q9248"
-      ],
+      "capitals": ["Q9248"],
       "isoAlpha2": "AZ",
-      "languages": [
-        "Q55698568",
-        "Q9292"
-      ],
+      "languages": ["Q55698568", "Q9292"],
       "wikidataId": "Q227"
     },
     {
-      "capitals": [
-        "Q11194"
-      ],
+      "capitals": ["Q11194"],
       "isoAlpha2": "BA",
-      "languages": [
-        "Q6654",
-        "Q9299",
-        "Q9303"
-      ],
+      "languages": ["Q6654", "Q9299", "Q9303"],
       "wikidataId": "Q225"
     },
     {
-      "capitals": [
-        "Q36168"
-      ],
+      "capitals": ["Q36168"],
       "isoAlpha2": "BB",
-      "languages": [
-        "Q1860",
-        "Q2524014"
-      ],
+      "languages": ["Q1860", "Q2524014"],
       "wikidataId": "Q244"
     },
     {
-      "capitals": [
-        "Q1354"
-      ],
+      "capitals": ["Q1354"],
       "isoAlpha2": "BD",
-      "languages": [
-        "Q9610"
-      ],
+      "languages": ["Q9610"],
       "wikidataId": "Q902"
     },
     {
-      "capitals": [
-        "Q239"
-      ],
+      "capitals": ["Q239"],
       "isoAlpha2": "BE",
-      "languages": [
-        "Q150",
-        "Q188",
-        "Q7411"
-      ],
+      "languages": ["Q150", "Q188", "Q7411"],
       "wikidataId": "Q31"
     },
     {
-      "capitals": [
-        "Q3777"
-      ],
+      "capitals": ["Q3777"],
       "isoAlpha2": "BF",
-      "languages": [
-        "Q32706",
-        "Q32934",
-        "Q36096"
-      ],
+      "languages": ["Q32706", "Q32934", "Q36096"],
       "wikidataId": "Q965"
     },
     {
-      "capitals": [
-        "Q472"
-      ],
+      "capitals": ["Q472"],
       "isoAlpha2": "BG",
-      "languages": [
-        "Q7918"
-      ],
+      "languages": ["Q7918"],
       "wikidataId": "Q219"
     },
     {
-      "capitals": [
-        "Q3882"
-      ],
+      "capitals": ["Q3882"],
       "isoAlpha2": "BH",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q398"
     },
     {
-      "capitals": [
-        "Q167551"
-      ],
+      "capitals": ["Q167551"],
       "isoAlpha2": "BI",
-      "languages": [
-        "Q150",
-        "Q1860",
-        "Q33583"
-      ],
+      "languages": ["Q150", "Q1860", "Q33583"],
       "wikidataId": "Q967"
     },
     {
-      "capitals": [
-        "Q3799"
-      ],
+      "capitals": ["Q3799"],
       "isoAlpha2": "BJ",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q962"
     },
     {
-      "capitals": [
-        "Q34112"
-      ],
+      "capitals": ["Q34112"],
       "isoAlpha2": "BL",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q25362"
     },
     {
-      "capitals": [
-        "Q30985"
-      ],
+      "capitals": ["Q30985"],
       "isoAlpha2": "BM",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q23635"
     },
     {
-      "capitals": [
-        "Q9279"
-      ],
+      "capitals": ["Q9279"],
       "isoAlpha2": "BN",
-      "languages": [
-        "Q7979",
-        "Q9237"
-      ],
+      "languages": ["Q7979", "Q9237"],
       "wikidataId": "Q921"
     },
     {
-      "capitals": [
-        "Q1491",
-        "Q2907"
-      ],
+      "capitals": ["Q1491", "Q2907"],
       "isoAlpha2": "BO",
-      "languages": [
-        "Q1321",
-        "Q35876",
-        "Q4627",
-        "Q5218"
-      ],
+      "languages": ["Q1321", "Q35876", "Q4627", "Q5218"],
       "wikidataId": "Q750"
     },
     {
       "capitals": [],
       "isoAlpha2": "BQ",
-      "languages": [
-        "Q1860",
-        "Q33856",
-        "Q7411"
-      ],
+      "languages": ["Q1860", "Q33856", "Q7411"],
       "wikidataId": "Q27561"
     },
     {
-      "capitals": [
-        "Q2844"
-      ],
+      "capitals": ["Q2844"],
       "isoAlpha2": "BR",
-      "languages": [
-        "Q5146"
-      ],
+      "languages": ["Q5146"],
       "wikidataId": "Q155"
     },
     {
-      "capitals": [
-        "Q2467"
-      ],
+      "capitals": ["Q2467"],
       "isoAlpha2": "BS",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q778"
     },
     {
-      "capitals": [
-        "Q9270"
-      ],
+      "capitals": ["Q9270"],
       "isoAlpha2": "BT",
-      "languages": [
-        "Q33081"
-      ],
+      "languages": ["Q33081"],
       "wikidataId": "Q917"
     },
     {
@@ -359,1154 +215,667 @@
       "wikidataId": "Q23408"
     },
     {
-      "capitals": [
-        "Q3919"
-      ],
+      "capitals": ["Q3919"],
       "isoAlpha2": "BW",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q963"
     },
     {
-      "capitals": [
-        "Q2280"
-      ],
+      "capitals": ["Q2280"],
       "isoAlpha2": "BY",
-      "languages": [
-        "Q7737",
-        "Q9091"
-      ],
+      "languages": ["Q7737", "Q9091"],
       "wikidataId": "Q184"
     },
     {
-      "capitals": [
-        "Q3043"
-      ],
+      "capitals": ["Q3043"],
       "isoAlpha2": "BZ",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q242"
     },
     {
-      "capitals": [
-        "Q1930"
-      ],
+      "capitals": ["Q1930"],
       "isoAlpha2": "CA",
-      "languages": [
-        "Q150",
-        "Q1860"
-      ],
+      "languages": ["Q150", "Q1860"],
       "wikidataId": "Q16"
     },
     {
-      "capitals": [
-        "Q48675"
-      ],
+      "capitals": ["Q48675"],
       "isoAlpha2": "CC",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q36004"
     },
     {
-      "capitals": [
-        "Q3838"
-      ],
+      "capitals": ["Q3838"],
       "isoAlpha2": "CD",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q974"
     },
     {
-      "capitals": [
-        "Q3832"
-      ],
+      "capitals": ["Q3832"],
       "isoAlpha2": "CF",
-      "languages": [
-        "Q150",
-        "Q33954"
-      ],
+      "languages": ["Q150", "Q33954"],
       "wikidataId": "Q929"
     },
     {
-      "capitals": [
-        "Q3844"
-      ],
+      "capitals": ["Q3844"],
       "isoAlpha2": "CG",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q971"
     },
     {
-      "capitals": [
-        "Q70"
-      ],
+      "capitals": ["Q70"],
       "isoAlpha2": "CH",
-      "languages": [
-        "Q13199",
-        "Q150",
-        "Q188",
-        "Q652"
-      ],
+      "languages": ["Q13199", "Q150", "Q188", "Q652"],
       "wikidataId": "Q39"
     },
     {
-      "capitals": [
-        "Q3768"
-      ],
+      "capitals": ["Q3768"],
       "isoAlpha2": "CI",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q1008"
     },
     {
-      "capitals": [
-        "Q170482"
-      ],
+      "capitals": ["Q170482"],
       "isoAlpha2": "CK",
-      "languages": [
-        "Q1860",
-        "Q36745"
-      ],
+      "languages": ["Q1860", "Q36745"],
       "wikidataId": "Q26988"
     },
     {
-      "capitals": [
-        "Q2887"
-      ],
+      "capitals": ["Q2887"],
       "isoAlpha2": "CL",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q298"
     },
     {
-      "capitals": [
-        "Q3808"
-      ],
+      "capitals": ["Q3808"],
       "isoAlpha2": "CM",
-      "languages": [
-        "Q150",
-        "Q1860"
-      ],
+      "languages": ["Q150", "Q1860"],
       "wikidataId": "Q1009"
     },
     {
-      "capitals": [
-        "Q956"
-      ],
+      "capitals": ["Q956"],
       "isoAlpha2": "CN",
-      "languages": [
-        "Q24841726"
-      ],
+      "languages": ["Q24841726"],
       "wikidataId": "Q148"
     },
     {
-      "capitals": [
-        "Q2841"
-      ],
+      "capitals": ["Q2841"],
       "isoAlpha2": "CO",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q739"
     },
     {
-      "capitals": [
-        "Q3070"
-      ],
+      "capitals": ["Q3070"],
       "isoAlpha2": "CR",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q800"
     },
     {
-      "capitals": [
-        "Q1563"
-      ],
+      "capitals": ["Q1563"],
       "isoAlpha2": "CU",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q241"
     },
     {
-      "capitals": [
-        "Q3751"
-      ],
+      "capitals": ["Q3751"],
       "isoAlpha2": "CV",
-      "languages": [
-        "Q35963",
-        "Q5146"
-      ],
+      "languages": ["Q35963", "Q5146"],
       "wikidataId": "Q1011"
     },
     {
-      "capitals": [
-        "Q132679"
-      ],
+      "capitals": ["Q132679"],
       "isoAlpha2": "CW",
-      "languages": [
-        "Q1860",
-        "Q33856",
-        "Q7411"
-      ],
+      "languages": ["Q1860", "Q33856", "Q7411"],
       "wikidataId": "Q25279"
     },
     {
-      "capitals": [
-        "Q30980"
-      ],
+      "capitals": ["Q30980"],
       "isoAlpha2": "CX",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q31063"
     },
     {
-      "capitals": [
-        "Q3856"
-      ],
+      "capitals": ["Q3856"],
       "isoAlpha2": "CY",
-      "languages": [
-        "Q256",
-        "Q36510"
-      ],
+      "languages": ["Q256", "Q36510"],
       "wikidataId": "Q229"
     },
     {
-      "capitals": [
-        "Q1085"
-      ],
+      "capitals": ["Q1085"],
       "isoAlpha2": "CZ",
-      "languages": [
-        "Q9056"
-      ],
+      "languages": ["Q9056"],
       "wikidataId": "Q213"
     },
     {
-      "capitals": [
-        "Q64"
-      ],
+      "capitals": ["Q64"],
       "isoAlpha2": "DE",
-      "languages": [
-        "Q188"
-      ],
+      "languages": ["Q188"],
       "wikidataId": "Q183"
     },
     {
-      "capitals": [
-        "Q3604"
-      ],
+      "capitals": ["Q3604"],
       "isoAlpha2": "DJ",
-      "languages": [
-        "Q13955",
-        "Q150"
-      ],
+      "languages": ["Q13955", "Q150"],
       "wikidataId": "Q977"
     },
     {
-      "capitals": [
-        "Q1748"
-      ],
+      "capitals": ["Q1748"],
       "isoAlpha2": "DK",
-      "languages": [
-        "Q9035"
-      ],
+      "languages": ["Q9035"],
       "wikidataId": "Q35"
     },
     {
-      "capitals": [
-        "Q36281"
-      ],
+      "capitals": ["Q36281"],
       "isoAlpha2": "DM",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q784"
     },
     {
-      "capitals": [
-        "Q34820"
-      ],
+      "capitals": ["Q34820"],
       "isoAlpha2": "DO",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q786"
     },
     {
-      "capitals": [
-        "Q3561"
-      ],
+      "capitals": ["Q3561"],
       "isoAlpha2": "DZ",
-      "languages": [
-        "Q13955",
-        "Q61053330"
-      ],
+      "languages": ["Q13955", "Q61053330"],
       "wikidataId": "Q262"
     },
     {
-      "capitals": [
-        "Q2900"
-      ],
+      "capitals": ["Q2900"],
       "isoAlpha2": "EC",
-      "languages": [
-        "Q1321",
-        "Q1740805",
-        "Q617291"
-      ],
+      "languages": ["Q1321", "Q1740805", "Q617291"],
       "wikidataId": "Q736"
     },
     {
-      "capitals": [
-        "Q1770"
-      ],
+      "capitals": ["Q1770"],
       "isoAlpha2": "EE",
-      "languages": [
-        "Q9072"
-      ],
+      "languages": ["Q9072"],
       "wikidataId": "Q191"
     },
     {
-      "capitals": [
-        "Q85"
-      ],
+      "capitals": ["Q85"],
       "isoAlpha2": "EG",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q79"
     },
     {
       "capitals": [],
       "isoAlpha2": "EH",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q6250"
     },
     {
-      "capitals": [
-        "Q3642"
-      ],
+      "capitals": ["Q3642"],
       "isoAlpha2": "ER",
-      "languages": [
-        "Q13955",
-        "Q1860",
-        "Q34124"
-      ],
+      "languages": ["Q13955", "Q1860", "Q34124"],
       "wikidataId": "Q986"
     },
     {
-      "capitals": [
-        "Q2807"
-      ],
+      "capitals": ["Q2807"],
       "isoAlpha2": "ES",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q29"
     },
     {
-      "capitals": [
-        "Q3624"
-      ],
+      "capitals": ["Q3624"],
       "isoAlpha2": "ET",
-      "languages": [
-        "Q28244"
-      ],
+      "languages": ["Q28244"],
       "wikidataId": "Q115"
     },
     {
-      "capitals": [
-        "Q1757"
-      ],
+      "capitals": ["Q1757"],
       "isoAlpha2": "FI",
-      "languages": [
-        "Q1412",
-        "Q9027"
-      ],
+      "languages": ["Q1412", "Q9027"],
       "wikidataId": "Q33"
     },
     {
-      "capitals": [
-        "Q38807"
-      ],
+      "capitals": ["Q38807"],
       "isoAlpha2": "FJ",
-      "languages": [
-        "Q1860",
-        "Q33295",
-        "Q46728"
-      ],
+      "languages": ["Q1860", "Q33295", "Q46728"],
       "wikidataId": "Q712"
     },
     {
-      "capitals": [
-        "Q12245"
-      ],
+      "capitals": ["Q12245"],
       "isoAlpha2": "FK",
-      "languages": [
-        "Q7979"
-      ],
+      "languages": ["Q7979"],
       "wikidataId": "Q9648"
     },
     {
-      "capitals": [
-        "Q42751"
-      ],
+      "capitals": ["Q42751"],
       "isoAlpha2": "FM",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q702"
     },
     {
-      "capitals": [
-        "Q10704"
-      ],
+      "capitals": ["Q10704"],
       "isoAlpha2": "FO",
-      "languages": [
-        "Q25258",
-        "Q9035"
-      ],
+      "languages": ["Q25258", "Q9035"],
       "wikidataId": "Q4628"
     },
     {
-      "capitals": [
-        "Q90"
-      ],
+      "capitals": ["Q90"],
       "isoAlpha2": "FR",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q142"
     },
     {
-      "capitals": [
-        "Q3825"
-      ],
+      "capitals": ["Q3825"],
       "isoAlpha2": "GA",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q1000"
     },
     {
-      "capitals": [
-        "Q84"
-      ],
+      "capitals": ["Q84"],
       "isoAlpha2": "GB",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q145"
     },
     {
-      "capitals": [
-        "Q41547"
-      ],
+      "capitals": ["Q41547"],
       "isoAlpha2": "GD",
-      "languages": [
-        "Q1860",
-        "Q4252500"
-      ],
+      "languages": ["Q1860", "Q4252500"],
       "wikidataId": "Q769"
     },
     {
-      "capitals": [
-        "Q994"
-      ],
+      "capitals": ["Q994"],
       "isoAlpha2": "GE",
-      "languages": [
-        "Q8108"
-      ],
+      "languages": ["Q8108"],
       "wikidataId": "Q230"
     },
     {
-      "capitals": [
-        "Q44401"
-      ],
+      "capitals": ["Q44401"],
       "isoAlpha2": "GF",
-      "languages": [
-        "Q1363072",
-        "Q150"
-      ],
+      "languages": ["Q1363072", "Q150"],
       "wikidataId": "Q3769"
     },
     {
-      "capitals": [
-        "Q174262"
-      ],
+      "capitals": ["Q174262"],
       "isoAlpha2": "GG",
-      "languages": [
-        "Q150",
-        "Q1860"
-      ],
+      "languages": ["Q150", "Q1860"],
       "wikidataId": "Q25230"
     },
     {
-      "capitals": [
-        "Q3761"
-      ],
+      "capitals": ["Q3761"],
       "isoAlpha2": "GH",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q117"
     },
     {
-      "capitals": [
-        "Q1410"
-      ],
+      "capitals": ["Q1410"],
       "isoAlpha2": "GI",
-      "languages": [
-        "Q7979"
-      ],
+      "languages": ["Q7979"],
       "wikidataId": "Q1410"
     },
     {
-      "capitals": [
-        "Q226"
-      ],
+      "capitals": ["Q226"],
       "isoAlpha2": "GL",
-      "languages": [
-        "Q25355"
-      ],
+      "languages": ["Q25355"],
       "wikidataId": "Q223"
     },
     {
-      "capitals": [
-        "Q3726"
-      ],
+      "capitals": ["Q3726"],
       "isoAlpha2": "GM",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q1005"
     },
     {
-      "capitals": [
-        "Q3733"
-      ],
+      "capitals": ["Q3733"],
       "isoAlpha2": "GN",
-      "languages": [
-        "Q1339026",
-        "Q150"
-      ],
+      "languages": ["Q1339026", "Q150"],
       "wikidataId": "Q1006"
     },
     {
-      "capitals": [
-        "Q167024"
-      ],
+      "capitals": ["Q167024"],
       "isoAlpha2": "GP",
       "languages": [],
       "wikidataId": "Q17012"
     },
     {
-      "capitals": [
-        "Q1140136"
-      ],
+      "capitals": ["Q1140136"],
       "isoAlpha2": "GQ",
-      "languages": [
-        "Q1321",
-        "Q150",
-        "Q5146"
-      ],
+      "languages": ["Q1321", "Q150", "Q5146"],
       "wikidataId": "Q983"
     },
     {
-      "capitals": [
-        "Q1524"
-      ],
+      "capitals": ["Q1524"],
       "isoAlpha2": "GR",
-      "languages": [
-        "Q9129"
-      ],
+      "languages": ["Q9129"],
       "wikidataId": "Q41"
     },
     {
-      "capitals": [
-        "Q393878"
-      ],
+      "capitals": ["Q393878"],
       "isoAlpha2": "GS",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q35086"
     },
     {
-      "capitals": [
-        "Q1555"
-      ],
+      "capitals": ["Q1555"],
       "isoAlpha2": "GT",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q774"
     },
     {
-      "capitals": [
-        "Q30988"
-      ],
+      "capitals": ["Q30988"],
       "isoAlpha2": "GU",
-      "languages": [
-        "Q1860",
-        "Q33262"
-      ],
+      "languages": ["Q1860", "Q33262"],
       "wikidataId": "Q16635"
     },
     {
-      "capitals": [
-        "Q3739"
-      ],
+      "capitals": ["Q3739"],
       "isoAlpha2": "GW",
-      "languages": [
-        "Q5146"
-      ],
+      "languages": ["Q5146"],
       "wikidataId": "Q1007"
     },
     {
-      "capitals": [
-        "Q10717"
-      ],
+      "capitals": ["Q10717"],
       "isoAlpha2": "GY",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q734"
     },
     {
       "capitals": [],
       "isoAlpha2": "HK",
-      "languages": [
-        "Q727694"
-      ],
+      "languages": ["Q727694"],
       "wikidataId": "Q8646"
     },
     {
       "capitals": [],
       "isoAlpha2": "HM",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q131198"
     },
     {
-      "capitals": [
-        "Q3238"
-      ],
+      "capitals": ["Q3238"],
       "isoAlpha2": "HN",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q783"
     },
     {
-      "capitals": [
-        "Q1435"
-      ],
+      "capitals": ["Q1435"],
       "isoAlpha2": "HR",
-      "languages": [
-        "Q6654"
-      ],
+      "languages": ["Q6654"],
       "wikidataId": "Q224"
     },
     {
-      "capitals": [
-        "Q34261"
-      ],
+      "capitals": ["Q34261"],
       "isoAlpha2": "HT",
-      "languages": [
-        "Q150",
-        "Q33491"
-      ],
+      "languages": ["Q150", "Q33491"],
       "wikidataId": "Q790"
     },
     {
-      "capitals": [
-        "Q1781"
-      ],
+      "capitals": ["Q1781"],
       "isoAlpha2": "HU",
-      "languages": [
-        "Q9067"
-      ],
+      "languages": ["Q9067"],
       "wikidataId": "Q28"
     },
     {
-      "capitals": [
-        "Q3630"
-      ],
+      "capitals": ["Q3630"],
       "isoAlpha2": "ID",
-      "languages": [
-        "Q9240"
-      ],
+      "languages": ["Q9240"],
       "wikidataId": "Q252"
     },
     {
-      "capitals": [
-        "Q1761"
-      ],
+      "capitals": ["Q1761"],
       "isoAlpha2": "IE",
-      "languages": [
-        "Q1860",
-        "Q9142"
-      ],
+      "languages": ["Q1860", "Q9142"],
       "wikidataId": "Q27"
     },
     {
-      "capitals": [
-        "Q1218"
-      ],
+      "capitals": ["Q1218"],
       "isoAlpha2": "IL",
-      "languages": [
-        "Q9288"
-      ],
+      "languages": ["Q9288"],
       "wikidataId": "Q801"
     },
     {
-      "capitals": [
-        "Q18569"
-      ],
+      "capitals": ["Q18569"],
       "isoAlpha2": "IM",
-      "languages": [
-        "Q12175",
-        "Q1860"
-      ],
+      "languages": ["Q12175", "Q1860"],
       "wikidataId": "Q9676"
     },
     {
-      "capitals": [
-        "Q987"
-      ],
+      "capitals": ["Q987"],
       "isoAlpha2": "IN",
-      "languages": [
-        "Q1568",
-        "Q1860"
-      ],
+      "languages": ["Q1568", "Q1860"],
       "wikidataId": "Q668"
     },
     {
-      "capitals": [
-        "Q184851"
-      ],
+      "capitals": ["Q184851"],
       "isoAlpha2": "IO",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q43448"
     },
     {
-      "capitals": [
-        "Q1530"
-      ],
+      "capitals": ["Q1530"],
       "isoAlpha2": "IQ",
-      "languages": [
-        "Q13955",
-        "Q36368"
-      ],
+      "languages": ["Q13955", "Q36368"],
       "wikidataId": "Q796"
     },
     {
-      "capitals": [
-        "Q3616"
-      ],
+      "capitals": ["Q3616"],
       "isoAlpha2": "IR",
-      "languages": [
-        "Q9168"
-      ],
+      "languages": ["Q9168"],
       "wikidataId": "Q794"
     },
     {
-      "capitals": [
-        "Q1764"
-      ],
+      "capitals": ["Q1764"],
       "isoAlpha2": "IS",
-      "languages": [
-        "Q294"
-      ],
+      "languages": ["Q294"],
       "wikidataId": "Q189"
     },
     {
-      "capitals": [
-        "Q220"
-      ],
+      "capitals": ["Q220"],
       "isoAlpha2": "IT",
-      "languages": [
-        "Q652"
-      ],
+      "languages": ["Q652"],
       "wikidataId": "Q38"
     },
     {
-      "capitals": [
-        "Q147738"
-      ],
+      "capitals": ["Q147738"],
       "isoAlpha2": "JE",
-      "languages": [
-        "Q1860",
-        "Q2047043",
-        "Q56430"
-      ],
+      "languages": ["Q1860", "Q2047043", "Q56430"],
       "wikidataId": "Q785"
     },
     {
-      "capitals": [
-        "Q34692"
-      ],
+      "capitals": ["Q34692"],
       "isoAlpha2": "JM",
-      "languages": [
-        "Q1860",
-        "Q35939"
-      ],
+      "languages": ["Q1860", "Q35939"],
       "wikidataId": "Q766"
     },
     {
-      "capitals": [
-        "Q3805"
-      ],
+      "capitals": ["Q3805"],
       "isoAlpha2": "JO",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q810"
     },
     {
-      "capitals": [
-        "Q1490"
-      ],
+      "capitals": ["Q1490"],
       "isoAlpha2": "JP",
-      "languages": [
-        "Q5287"
-      ],
+      "languages": ["Q5287"],
       "wikidataId": "Q17"
     },
     {
-      "capitals": [
-        "Q3870"
-      ],
+      "capitals": ["Q3870"],
       "isoAlpha2": "KE",
-      "languages": [
-        "Q1860",
-        "Q7838"
-      ],
+      "languages": ["Q1860", "Q7838"],
       "wikidataId": "Q114"
     },
     {
-      "capitals": [
-        "Q9361"
-      ],
+      "capitals": ["Q9361"],
       "isoAlpha2": "KG",
-      "languages": [
-        "Q9255"
-      ],
+      "languages": ["Q9255"],
       "wikidataId": "Q813"
     },
     {
-      "capitals": [
-        "Q1850"
-      ],
+      "capitals": ["Q1850"],
       "isoAlpha2": "KH",
-      "languages": [
-        "Q9205"
-      ],
+      "languages": ["Q9205"],
       "wikidataId": "Q424"
     },
     {
-      "capitals": [
-        "Q131233"
-      ],
+      "capitals": ["Q131233"],
       "isoAlpha2": "KI",
-      "languages": [
-        "Q1860",
-        "Q30898"
-      ],
+      "languages": ["Q1860", "Q30898"],
       "wikidataId": "Q710"
     },
     {
-      "capitals": [
-        "Q3901"
-      ],
+      "capitals": ["Q3901"],
       "isoAlpha2": "KM",
-      "languages": [
-        "Q13955",
-        "Q150",
-        "Q33077"
-      ],
+      "languages": ["Q13955", "Q150", "Q33077"],
       "wikidataId": "Q970"
     },
     {
-      "capitals": [
-        "Q41295"
-      ],
+      "capitals": ["Q41295"],
       "isoAlpha2": "KN",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q763"
     },
     {
-      "capitals": [
-        "Q18808"
-      ],
+      "capitals": ["Q18808"],
       "isoAlpha2": "KP",
-      "languages": [
-        "Q18784",
-        "Q9176"
-      ],
+      "languages": ["Q18784", "Q9176"],
       "wikidataId": "Q423"
     },
     {
-      "capitals": [
-        "Q8684"
-      ],
+      "capitals": ["Q8684"],
       "isoAlpha2": "KR",
-      "languages": [
-        "Q3073428",
-        "Q9176"
-      ],
+      "languages": ["Q3073428", "Q9176"],
       "wikidataId": "Q884"
     },
     {
-      "capitals": [
-        "Q35178"
-      ],
+      "capitals": ["Q35178"],
       "isoAlpha2": "KW",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q817"
     },
     {
-      "capitals": [
-        "Q172996"
-      ],
+      "capitals": ["Q172996"],
       "isoAlpha2": "KY",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q5785"
     },
     {
-      "capitals": [
-        "Q1520"
-      ],
+      "capitals": ["Q1520"],
       "isoAlpha2": "KZ",
-      "languages": [
-        "Q7737",
-        "Q9252"
-      ],
+      "languages": ["Q7737", "Q9252"],
       "wikidataId": "Q232"
     },
     {
-      "capitals": [
-        "Q9326"
-      ],
+      "capitals": ["Q9326"],
       "isoAlpha2": "LA",
-      "languages": [
-        "Q9211"
-      ],
+      "languages": ["Q9211"],
       "wikidataId": "Q819"
     },
     {
-      "capitals": [
-        "Q3820"
-      ],
+      "capitals": ["Q3820"],
       "isoAlpha2": "LB",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q822"
     },
     {
-      "capitals": [
-        "Q41699"
-      ],
+      "capitals": ["Q41699"],
       "isoAlpha2": "LC",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q760"
     },
     {
-      "capitals": [
-        "Q1844"
-      ],
+      "capitals": ["Q1844"],
       "isoAlpha2": "LI",
-      "languages": [
-        "Q188"
-      ],
+      "languages": ["Q188"],
       "wikidataId": "Q347"
     },
     {
-      "capitals": [
-        "Q35381",
-        "Q41963"
-      ],
+      "capitals": ["Q35381", "Q41963"],
       "isoAlpha2": "LK",
-      "languages": [
-        "Q13267",
-        "Q5885"
-      ],
+      "languages": ["Q13267", "Q5885"],
       "wikidataId": "Q854"
     },
     {
-      "capitals": [
-        "Q3748"
-      ],
+      "capitals": ["Q3748"],
       "isoAlpha2": "LR",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q1014"
     },
     {
-      "capitals": [
-        "Q3909"
-      ],
+      "capitals": ["Q3909"],
       "isoAlpha2": "LS",
-      "languages": [
-        "Q1860",
-        "Q34340"
-      ],
+      "languages": ["Q1860", "Q34340"],
       "wikidataId": "Q1013"
     },
     {
-      "capitals": [
-        "Q216"
-      ],
+      "capitals": ["Q216"],
       "isoAlpha2": "LT",
-      "languages": [
-        "Q9083"
-      ],
+      "languages": ["Q9083"],
       "wikidataId": "Q37"
     },
     {
-      "capitals": [
-        "Q1842"
-      ],
+      "capitals": ["Q1842"],
       "isoAlpha2": "LU",
-      "languages": [
-        "Q150",
-        "Q188",
-        "Q9051"
-      ],
+      "languages": ["Q150", "Q188", "Q9051"],
       "wikidataId": "Q32"
     },
     {
-      "capitals": [
-        "Q1773"
-      ],
+      "capitals": ["Q1773"],
       "isoAlpha2": "LV",
-      "languages": [
-        "Q9078"
-      ],
+      "languages": ["Q9078"],
       "wikidataId": "Q211"
     },
     {
-      "capitals": [
-        "Q3579"
-      ],
+      "capitals": ["Q3579"],
       "isoAlpha2": "LY",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q1016"
     },
     {
-      "capitals": [
-        "Q3551"
-      ],
+      "capitals": ["Q3551"],
       "isoAlpha2": "MA",
-      "languages": [
-        "Q13955",
-        "Q7598268"
-      ],
+      "languages": ["Q13955", "Q7598268"],
       "wikidataId": "Q1028"
     },
     {
-      "capitals": [
-        "Q235"
-      ],
+      "capitals": ["Q235"],
       "isoAlpha2": "MC",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q235"
     },
     {
-      "capitals": [
-        "Q21197"
-      ],
+      "capitals": ["Q21197"],
       "isoAlpha2": "MD",
-      "languages": [
-        "Q7913"
-      ],
+      "languages": ["Q7913"],
       "wikidataId": "Q217"
     },
     {
-      "capitals": [
-        "Q23564"
-      ],
+      "capitals": ["Q23564"],
       "isoAlpha2": "ME",
-      "languages": [
-        "Q8821"
-      ],
+      "languages": ["Q8821"],
       "wikidataId": "Q236"
     },
     {
-      "capitals": [
-        "Q200605"
-      ],
+      "capitals": ["Q200605"],
       "isoAlpha2": "MF",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q126125"
     },
     {
-      "capitals": [
-        "Q3915"
-      ],
+      "capitals": ["Q3915"],
       "isoAlpha2": "MG",
-      "languages": [
-        "Q150",
-        "Q7930"
-      ],
+      "languages": ["Q150", "Q7930"],
       "wikidataId": "Q1019"
     },
     {
-      "capitals": [
-        "Q12919"
-      ],
+      "capitals": ["Q12919"],
       "isoAlpha2": "MH",
-      "languages": [
-        "Q1860",
-        "Q36280"
-      ],
+      "languages": ["Q1860", "Q36280"],
       "wikidataId": "Q709"
     },
     {
-      "capitals": [
-        "Q384"
-      ],
+      "capitals": ["Q384"],
       "isoAlpha2": "MK",
-      "languages": [
-        "Q8748",
-        "Q9296"
-      ],
+      "languages": ["Q8748", "Q9296"],
       "wikidataId": "Q221"
     },
     {
-      "capitals": [
-        "Q3703"
-      ],
+      "capitals": ["Q3703"],
       "isoAlpha2": "ML",
       "languages": [
         "Q1234776",
@@ -1526,876 +895,499 @@
       "wikidataId": "Q912"
     },
     {
-      "capitals": [
-        "Q37400"
-      ],
+      "capitals": ["Q37400"],
       "isoAlpha2": "MM",
-      "languages": [
-        "Q9228"
-      ],
+      "languages": ["Q9228"],
       "wikidataId": "Q836"
     },
     {
-      "capitals": [
-        "Q23430"
-      ],
+      "capitals": ["Q23430"],
       "isoAlpha2": "MN",
-      "languages": [
-        "Q9246"
-      ],
+      "languages": ["Q9246"],
       "wikidataId": "Q711"
     },
     {
       "capitals": [],
       "isoAlpha2": "MO",
-      "languages": [
-        "Q5146",
-        "Q727694",
-        "Q9186"
-      ],
+      "languages": ["Q5146", "Q727694", "Q9186"],
       "wikidataId": "Q14773"
     },
     {
-      "capitals": [
-        "Q49755159"
-      ],
+      "capitals": ["Q49755159"],
       "isoAlpha2": "MP",
-      "languages": [
-        "Q1860",
-        "Q28427",
-        "Q33262"
-      ],
+      "languages": ["Q1860", "Q28427", "Q33262"],
       "wikidataId": "Q16644"
     },
     {
-      "capitals": [
-        "Q81621"
-      ],
+      "capitals": ["Q81621"],
       "isoAlpha2": "MQ",
       "languages": [],
       "wikidataId": "Q17054"
     },
     {
-      "capitals": [
-        "Q3688"
-      ],
+      "capitals": ["Q3688"],
       "isoAlpha2": "MR",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q1025"
     },
     {
-      "capitals": [
-        "Q30990",
-        "Q31006"
-      ],
+      "capitals": ["Q30990", "Q31006"],
       "isoAlpha2": "MS",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q13353"
     },
     {
-      "capitals": [
-        "Q23800"
-      ],
+      "capitals": ["Q23800"],
       "isoAlpha2": "MT",
-      "languages": [
-        "Q1860",
-        "Q9166"
-      ],
+      "languages": ["Q1860", "Q9166"],
       "wikidataId": "Q233"
     },
     {
-      "capitals": [
-        "Q3929"
-      ],
+      "capitals": ["Q3929"],
       "isoAlpha2": "MU",
-      "languages": [
-        "Q150",
-        "Q1860"
-      ],
+      "languages": ["Q150", "Q1860"],
       "wikidataId": "Q1027"
     },
     {
-      "capitals": [
-        "Q9347"
-      ],
+      "capitals": ["Q9347"],
       "isoAlpha2": "MV",
-      "languages": [
-        "Q32656"
-      ],
+      "languages": ["Q32656"],
       "wikidataId": "Q826"
     },
     {
-      "capitals": [
-        "Q3876"
-      ],
+      "capitals": ["Q3876"],
       "isoAlpha2": "MW",
-      "languages": [
-        "Q1860",
-        "Q33273",
-        "Q34138"
-      ],
+      "languages": ["Q1860", "Q33273", "Q34138"],
       "wikidataId": "Q1020"
     },
     {
-      "capitals": [
-        "Q1489"
-      ],
+      "capitals": ["Q1489"],
       "isoAlpha2": "MX",
-      "languages": [
-        "Q1321",
-        "Q13300",
-        "Q13354"
-      ],
+      "languages": ["Q1321", "Q13300", "Q13354"],
       "wikidataId": "Q96"
     },
     {
-      "capitals": [
-        "Q1865"
-      ],
+      "capitals": ["Q1865"],
       "isoAlpha2": "MY",
-      "languages": [
-        "Q9237"
-      ],
+      "languages": ["Q9237"],
       "wikidataId": "Q833"
     },
     {
-      "capitals": [
-        "Q3889"
-      ],
+      "capitals": ["Q3889"],
       "isoAlpha2": "MZ",
-      "languages": [
-        "Q5146"
-      ],
+      "languages": ["Q5146"],
       "wikidataId": "Q1029"
     },
     {
-      "capitals": [
-        "Q3935"
-      ],
+      "capitals": ["Q3935"],
       "isoAlpha2": "NA",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q1030"
     },
     {
-      "capitals": [
-        "Q9733"
-      ],
+      "capitals": ["Q9733"],
       "isoAlpha2": "NC",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q33788"
     },
     {
-      "capitals": [
-        "Q3674"
-      ],
+      "capitals": ["Q3674"],
       "isoAlpha2": "NE",
-      "languages": [
-        "Q56475"
-      ],
+      "languages": ["Q56475"],
       "wikidataId": "Q1032"
     },
     {
-      "capitals": [
-        "Q30963"
-      ],
+      "capitals": ["Q30963"],
       "isoAlpha2": "NF",
-      "languages": [
-        "Q1860",
-        "Q33797"
-      ],
+      "languages": ["Q1860", "Q33797"],
       "wikidataId": "Q31057"
     },
     {
-      "capitals": [
-        "Q3787"
-      ],
+      "capitals": ["Q3787"],
       "isoAlpha2": "NG",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q1033"
     },
     {
-      "capitals": [
-        "Q3274"
-      ],
+      "capitals": ["Q3274"],
       "isoAlpha2": "NI",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q811"
     },
     {
-      "capitals": [
-        "Q727"
-      ],
+      "capitals": ["Q727"],
       "isoAlpha2": "NL",
-      "languages": [
-        "Q7411"
-      ],
+      "languages": ["Q7411"],
       "wikidataId": "Q29999"
     },
     {
-      "capitals": [
-        "Q585"
-      ],
+      "capitals": ["Q585"],
       "isoAlpha2": "NO",
-      "languages": [
-        "Q25164",
-        "Q25167",
-        "Q56463",
-        "Q9043"
-      ],
+      "languages": ["Q25164", "Q25167", "Q56463", "Q9043"],
       "wikidataId": "Q20"
     },
     {
-      "capitals": [
-        "Q3037"
-      ],
+      "capitals": ["Q3037"],
       "isoAlpha2": "NP",
-      "languages": [
-        "Q33823"
-      ],
+      "languages": ["Q33823"],
       "wikidataId": "Q837"
     },
     {
-      "capitals": [
-        "Q31026"
-      ],
+      "capitals": ["Q31026"],
       "isoAlpha2": "NR",
-      "languages": [
-        "Q13307",
-        "Q1860"
-      ],
+      "languages": ["Q13307", "Q1860"],
       "wikidataId": "Q697"
     },
     {
-      "capitals": [
-        "Q30966"
-      ],
+      "capitals": ["Q30966"],
       "isoAlpha2": "NU",
-      "languages": [
-        "Q1860",
-        "Q33790"
-      ],
+      "languages": ["Q1860", "Q33790"],
       "wikidataId": "Q34020"
     },
     {
-      "capitals": [
-        "Q23661"
-      ],
+      "capitals": ["Q23661"],
       "isoAlpha2": "NZ",
-      "languages": [
-        "Q1860",
-        "Q36239",
-        "Q36451"
-      ],
+      "languages": ["Q1860", "Q36239", "Q36451"],
       "wikidataId": "Q664"
     },
     {
-      "capitals": [
-        "Q3826"
-      ],
+      "capitals": ["Q3826"],
       "isoAlpha2": "OM",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q842"
     },
     {
-      "capitals": [
-        "Q3306"
-      ],
+      "capitals": ["Q3306"],
       "isoAlpha2": "PA",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q804"
     },
     {
-      "capitals": [
-        "Q2868"
-      ],
+      "capitals": ["Q2868"],
       "isoAlpha2": "PE",
-      "languages": [
-        "Q1321",
-        "Q4627",
-        "Q5218"
-      ],
+      "languages": ["Q1321", "Q4627", "Q5218"],
       "wikidataId": "Q419"
     },
     {
-      "capitals": [
-        "Q130800"
-      ],
+      "capitals": ["Q130800"],
       "isoAlpha2": "PF",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q30971"
     },
     {
-      "capitals": [
-        "Q36526"
-      ],
+      "capitals": ["Q36526"],
       "isoAlpha2": "PG",
-      "languages": [
-        "Q1860",
-        "Q25044405",
-        "Q33617",
-        "Q34159"
-      ],
+      "languages": ["Q1860", "Q25044405", "Q33617", "Q34159"],
       "wikidataId": "Q691"
     },
     {
-      "capitals": [
-        "Q1461"
-      ],
+      "capitals": ["Q1461"],
       "isoAlpha2": "PH",
-      "languages": [
-        "Q1860",
-        "Q2530387",
-        "Q33298"
-      ],
+      "languages": ["Q1860", "Q2530387", "Q33298"],
       "wikidataId": "Q928"
     },
     {
-      "capitals": [
-        "Q1362"
-      ],
+      "capitals": ["Q1362"],
       "isoAlpha2": "PK",
-      "languages": [
-        "Q1617",
-        "Q1860"
-      ],
+      "languages": ["Q1617", "Q1860"],
       "wikidataId": "Q843"
     },
     {
-      "capitals": [
-        "Q270"
-      ],
+      "capitals": ["Q270"],
       "isoAlpha2": "PL",
-      "languages": [
-        "Q809"
-      ],
+      "languages": ["Q809"],
       "wikidataId": "Q36"
     },
     {
-      "capitals": [
-        "Q185678"
-      ],
+      "capitals": ["Q185678"],
       "isoAlpha2": "PM",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q34617"
     },
     {
-      "capitals": [
-        "Q48273"
-      ],
+      "capitals": ["Q48273"],
       "isoAlpha2": "PN",
-      "languages": [
-        "Q1860",
-        "Q36554"
-      ],
+      "languages": ["Q1860", "Q36554"],
       "wikidataId": "Q35672"
     },
     {
-      "capitals": [
-        "Q41211"
-      ],
+      "capitals": ["Q41211"],
       "isoAlpha2": "PR",
-      "languages": [
-        "Q1321",
-        "Q1860"
-      ],
+      "languages": ["Q1321", "Q1860"],
       "wikidataId": "Q1183"
     },
     {
-      "capitals": [
-        "Q158119",
-        "Q212938"
-      ],
+      "capitals": ["Q158119", "Q212938"],
       "isoAlpha2": "PS",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q219060"
     },
     {
-      "capitals": [
-        "Q597"
-      ],
+      "capitals": ["Q597"],
       "isoAlpha2": "PT",
-      "languages": [
-        "Q5146"
-      ],
+      "languages": ["Q5146"],
       "wikidataId": "Q45"
     },
     {
-      "capitals": [
-        "Q515229"
-      ],
+      "capitals": ["Q515229"],
       "isoAlpha2": "PW",
-      "languages": [
-        "Q1860",
-        "Q33776",
-        "Q5287"
-      ],
+      "languages": ["Q1860", "Q33776", "Q5287"],
       "wikidataId": "Q695"
     },
     {
-      "capitals": [
-        "Q2933"
-      ],
+      "capitals": ["Q2933"],
       "isoAlpha2": "PY",
-      "languages": [
-        "Q1321",
-        "Q35876"
-      ],
+      "languages": ["Q1321", "Q35876"],
       "wikidataId": "Q733"
     },
     {
-      "capitals": [
-        "Q3861"
-      ],
+      "capitals": ["Q3861"],
       "isoAlpha2": "QA",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q846"
     },
     {
-      "capitals": [
-        "Q47045"
-      ],
+      "capitals": ["Q47045"],
       "isoAlpha2": "RE",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q17070"
     },
     {
-      "capitals": [
-        "Q19660"
-      ],
+      "capitals": ["Q19660"],
       "isoAlpha2": "RO",
-      "languages": [
-        "Q7913"
-      ],
+      "languages": ["Q7913"],
       "wikidataId": "Q218"
     },
     {
-      "capitals": [
-        "Q3711"
-      ],
+      "capitals": ["Q3711"],
       "isoAlpha2": "RS",
-      "languages": [
-        "Q9299"
-      ],
+      "languages": ["Q9299"],
       "wikidataId": "Q403"
     },
     {
-      "capitals": [
-        "Q649"
-      ],
+      "capitals": ["Q649"],
       "isoAlpha2": "RU",
-      "languages": [
-        "Q7737"
-      ],
+      "languages": ["Q7737"],
       "wikidataId": "Q159"
     },
     {
-      "capitals": [
-        "Q3859"
-      ],
+      "capitals": ["Q3859"],
       "isoAlpha2": "RW",
-      "languages": [
-        "Q150",
-        "Q1860",
-        "Q33573",
-        "Q7838"
-      ],
+      "languages": ["Q150", "Q1860", "Q33573", "Q7838"],
       "wikidataId": "Q1037"
     },
     {
-      "capitals": [
-        "Q3692"
-      ],
+      "capitals": ["Q3692"],
       "isoAlpha2": "SA",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q851"
     },
     {
-      "capitals": [
-        "Q40921"
-      ],
+      "capitals": ["Q40921"],
       "isoAlpha2": "SB",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q685"
     },
     {
-      "capitals": [
-        "Q3940"
-      ],
+      "capitals": ["Q3940"],
       "isoAlpha2": "SC",
-      "languages": [
-        "Q150",
-        "Q1860",
-        "Q34015"
-      ],
+      "languages": ["Q150", "Q1860", "Q34015"],
       "wikidataId": "Q1042"
     },
     {
-      "capitals": [
-        "Q1963"
-      ],
+      "capitals": ["Q1963"],
       "isoAlpha2": "SD",
-      "languages": [
-        "Q13955",
-        "Q1860"
-      ],
+      "languages": ["Q13955", "Q1860"],
       "wikidataId": "Q1049"
     },
     {
-      "capitals": [
-        "Q1754"
-      ],
+      "capitals": ["Q1754"],
       "isoAlpha2": "SE",
-      "languages": [
-        "Q9027"
-      ],
+      "languages": ["Q9027"],
       "wikidataId": "Q34"
     },
     {
-      "capitals": [
-        "Q334"
-      ],
+      "capitals": ["Q334"],
       "isoAlpha2": "SG",
-      "languages": [
-        "Q1860",
-        "Q5885",
-        "Q727694",
-        "Q9237"
-      ],
+      "languages": ["Q1860", "Q5885", "Q727694", "Q9237"],
       "wikidataId": "Q334"
     },
     {
-      "capitals": [
-        "Q30970"
-      ],
+      "capitals": ["Q30970"],
       "isoAlpha2": "SH",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q192184"
     },
     {
-      "capitals": [
-        "Q437"
-      ],
+      "capitals": ["Q437"],
       "isoAlpha2": "SI",
-      "languages": [
-        "Q9063"
-      ],
+      "languages": ["Q9063"],
       "wikidataId": "Q215"
     },
     {
       "capitals": [],
       "isoAlpha2": "SJ",
-      "languages": [
-        "Q9043"
-      ],
+      "languages": ["Q9043"],
       "wikidataId": "Q842829"
     },
     {
-      "capitals": [
-        "Q1780"
-      ],
+      "capitals": ["Q1780"],
       "isoAlpha2": "SK",
-      "languages": [
-        "Q9058"
-      ],
+      "languages": ["Q9058"],
       "wikidataId": "Q214"
     },
     {
-      "capitals": [
-        "Q3780"
-      ],
+      "capitals": ["Q3780"],
       "isoAlpha2": "SL",
-      "languages": [
-        "Q1860",
-        "Q35744"
-      ],
+      "languages": ["Q1860", "Q35744"],
       "wikidataId": "Q1044"
     },
     {
-      "capitals": [
-        "Q1848"
-      ],
+      "capitals": ["Q1848"],
       "isoAlpha2": "SM",
-      "languages": [
-        "Q652"
-      ],
+      "languages": ["Q652"],
       "wikidataId": "Q238"
     },
     {
-      "capitals": [
-        "Q3718"
-      ],
+      "capitals": ["Q3718"],
       "isoAlpha2": "SN",
-      "languages": [
-        "Q150",
-        "Q34257",
-        "Q35006",
-        "Q35095"
-      ],
+      "languages": ["Q150", "Q34257", "Q35006", "Q35095"],
       "wikidataId": "Q1041"
     },
     {
-      "capitals": [
-        "Q2449"
-      ],
+      "capitals": ["Q2449"],
       "isoAlpha2": "SO",
-      "languages": [
-        "Q13275",
-        "Q13955"
-      ],
+      "languages": ["Q13275", "Q13955"],
       "wikidataId": "Q1045"
     },
     {
-      "capitals": [
-        "Q3001"
-      ],
+      "capitals": ["Q3001"],
       "isoAlpha2": "SR",
-      "languages": [
-        "Q7411"
-      ],
+      "languages": ["Q7411"],
       "wikidataId": "Q730"
     },
     {
-      "capitals": [
-        "Q1947"
-      ],
+      "capitals": ["Q1947"],
       "isoAlpha2": "SS",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q958"
     },
     {
-      "capitals": [
-        "Q3932"
-      ],
+      "capitals": ["Q3932"],
       "isoAlpha2": "ST",
-      "languages": [
-        "Q5146"
-      ],
+      "languages": ["Q5146"],
       "wikidataId": "Q1039"
     },
     {
-      "capitals": [
-        "Q3110"
-      ],
+      "capitals": ["Q3110"],
       "isoAlpha2": "SV",
-      "languages": [
-        "Q1321"
-      ],
+      "languages": ["Q1321"],
       "wikidataId": "Q792"
     },
     {
-      "capitals": [
-        "Q30958"
-      ],
+      "capitals": ["Q30958"],
       "isoAlpha2": "SX",
-      "languages": [
-        "Q1860",
-        "Q7411"
-      ],
+      "languages": ["Q1860", "Q7411"],
       "wikidataId": "Q26273"
     },
     {
-      "capitals": [
-        "Q3766"
-      ],
+      "capitals": ["Q3766"],
       "isoAlpha2": "SY",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q858"
     },
     {
-      "capitals": [
-        "Q101418",
-        "Q3904"
-      ],
+      "capitals": ["Q101418", "Q3904"],
       "isoAlpha2": "SZ",
-      "languages": [
-        "Q1860",
-        "Q34014"
-      ],
+      "languages": ["Q1860", "Q34014"],
       "wikidataId": "Q1050"
     },
     {
-      "capitals": [
-        "Q34205"
-      ],
+      "capitals": ["Q34205"],
       "isoAlpha2": "TC",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q18221"
     },
     {
-      "capitals": [
-        "Q3659"
-      ],
+      "capitals": ["Q3659"],
       "isoAlpha2": "TD",
-      "languages": [
-        "Q13955",
-        "Q150"
-      ],
+      "languages": ["Q13955", "Q150"],
       "wikidataId": "Q657"
     },
     {
-      "capitals": [
-        "Q839559"
-      ],
+      "capitals": ["Q839559"],
       "isoAlpha2": "TF",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q129003"
     },
     {
-      "capitals": [
-        "Q3792"
-      ],
+      "capitals": ["Q3792"],
       "isoAlpha2": "TG",
-      "languages": [
-        "Q150"
-      ],
+      "languages": ["Q150"],
       "wikidataId": "Q945"
     },
     {
-      "capitals": [
-        "Q1861"
-      ],
+      "capitals": ["Q1861"],
       "isoAlpha2": "TH",
-      "languages": [
-        "Q9217"
-      ],
+      "languages": ["Q9217"],
       "wikidataId": "Q869"
     },
     {
-      "capitals": [
-        "Q9365"
-      ],
+      "capitals": ["Q9365"],
       "isoAlpha2": "TJ",
-      "languages": [
-        "Q9260"
-      ],
+      "languages": ["Q9260"],
       "wikidataId": "Q863"
     },
     {
       "capitals": [],
       "isoAlpha2": "TK",
-      "languages": [
-        "Q1860",
-        "Q34097"
-      ],
+      "languages": ["Q1860", "Q34097"],
       "wikidataId": "Q36823"
     },
     {
-      "capitals": [
-        "Q9310"
-      ],
+      "capitals": ["Q9310"],
       "isoAlpha2": "TL",
-      "languages": [
-        "Q34125",
-        "Q5146"
-      ],
+      "languages": ["Q34125", "Q5146"],
       "wikidataId": "Q574"
     },
     {
-      "capitals": [
-        "Q23438"
-      ],
+      "capitals": ["Q23438"],
       "isoAlpha2": "TM",
-      "languages": [
-        "Q9267"
-      ],
+      "languages": ["Q9267"],
       "wikidataId": "Q874"
     },
     {
-      "capitals": [
-        "Q3572"
-      ],
+      "capitals": ["Q3572"],
       "isoAlpha2": "TN",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q948"
     },
     {
-      "capitals": [
-        "Q38834"
-      ],
+      "capitals": ["Q38834"],
       "isoAlpha2": "TO",
-      "languages": [
-        "Q1860",
-        "Q34094"
-      ],
+      "languages": ["Q1860", "Q34094"],
       "wikidataId": "Q678"
     },
     {
-      "capitals": [
-        "Q3640"
-      ],
+      "capitals": ["Q3640"],
       "isoAlpha2": "TR",
-      "languages": [
-        "Q256"
-      ],
+      "languages": ["Q256"],
       "wikidataId": "Q43"
     },
     {
-      "capitals": [
-        "Q39178"
-      ],
+      "capitals": ["Q39178"],
       "isoAlpha2": "TT",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q754"
     },
     {
-      "capitals": [
-        "Q34126"
-      ],
+      "capitals": ["Q34126"],
       "isoAlpha2": "TV",
-      "languages": [
-        "Q1860",
-        "Q34055"
-      ],
+      "languages": ["Q1860", "Q34055"],
       "wikidataId": "Q672"
     },
     {
-      "capitals": [
-        "Q1867"
-      ],
+      "capitals": ["Q1867"],
       "isoAlpha2": "TW",
       "languages": [
         "Q11071864",
@@ -2424,212 +1416,121 @@
       "wikidataId": "Q865"
     },
     {
-      "capitals": [
-        "Q3866"
-      ],
+      "capitals": ["Q3866"],
       "isoAlpha2": "TZ",
-      "languages": [
-        "Q1860",
-        "Q7838"
-      ],
+      "languages": ["Q1860", "Q7838"],
       "wikidataId": "Q924"
     },
     {
-      "capitals": [
-        "Q1899"
-      ],
+      "capitals": ["Q1899"],
       "isoAlpha2": "UA",
-      "languages": [
-        "Q8798"
-      ],
+      "languages": ["Q8798"],
       "wikidataId": "Q212"
     },
     {
-      "capitals": [
-        "Q3894"
-      ],
+      "capitals": ["Q3894"],
       "isoAlpha2": "UG",
-      "languages": [
-        "Q1860",
-        "Q7838"
-      ],
+      "languages": ["Q1860", "Q7838"],
       "wikidataId": "Q1036"
     },
     {
       "capitals": [],
       "isoAlpha2": "UM",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q16645"
     },
     {
-      "capitals": [
-        "Q61"
-      ],
+      "capitals": ["Q61"],
       "isoAlpha2": "US",
-      "languages": [
-        "Q1321",
-        "Q33569"
-      ],
+      "languages": ["Q1321", "Q33569"],
       "wikidataId": "Q30"
     },
     {
-      "capitals": [
-        "Q1335"
-      ],
+      "capitals": ["Q1335"],
       "isoAlpha2": "UY",
       "languages": [],
       "wikidataId": "Q77"
     },
     {
-      "capitals": [
-        "Q269"
-      ],
+      "capitals": ["Q269"],
       "isoAlpha2": "UZ",
-      "languages": [
-        "Q9264"
-      ],
+      "languages": ["Q9264"],
       "wikidataId": "Q265"
     },
     {
-      "capitals": [
-        "Q237"
-      ],
+      "capitals": ["Q237"],
       "isoAlpha2": "VA",
-      "languages": [
-        "Q397",
-        "Q652"
-      ],
+      "languages": ["Q397", "Q652"],
       "wikidataId": "Q237"
     },
     {
-      "capitals": [
-        "Q41474"
-      ],
+      "capitals": ["Q41474"],
       "isoAlpha2": "VC",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q757"
     },
     {
-      "capitals": [
-        "Q1533"
-      ],
+      "capitals": ["Q1533"],
       "isoAlpha2": "VE",
-      "languages": [
-        "Q1321",
-        "Q3322064"
-      ],
+      "languages": ["Q1321", "Q3322064"],
       "wikidataId": "Q717"
     },
     {
-      "capitals": [
-        "Q179431"
-      ],
+      "capitals": ["Q179431"],
       "isoAlpha2": "VG",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q25305"
     },
     {
-      "capitals": [
-        "Q51681"
-      ],
+      "capitals": ["Q51681"],
       "isoAlpha2": "VI",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q11703"
     },
     {
-      "capitals": [
-        "Q1858"
-      ],
+      "capitals": ["Q1858"],
       "isoAlpha2": "VN",
-      "languages": [
-        "Q9199"
-      ],
+      "languages": ["Q9199"],
       "wikidataId": "Q881"
     },
     {
-      "capitals": [
-        "Q37806"
-      ],
+      "capitals": ["Q37806"],
       "isoAlpha2": "VU",
-      "languages": [
-        "Q150",
-        "Q1860",
-        "Q35452"
-      ],
+      "languages": ["Q150", "Q1860", "Q35452"],
       "wikidataId": "Q686"
     },
     {
-      "capitals": [
-        "Q31002"
-      ],
+      "capitals": ["Q31002"],
       "isoAlpha2": "WF",
-      "languages": [
-        "Q150",
-        "Q35334",
-        "Q36979"
-      ],
+      "languages": ["Q150", "Q35334", "Q36979"],
       "wikidataId": "Q35555"
     },
     {
-      "capitals": [
-        "Q36260"
-      ],
+      "capitals": ["Q36260"],
       "isoAlpha2": "WS",
-      "languages": [
-        "Q1860",
-        "Q34011"
-      ],
+      "languages": ["Q1860", "Q34011"],
       "wikidataId": "Q683"
     },
     {
-      "capitals": [
-        "Q25270"
-      ],
+      "capitals": ["Q25270"],
       "isoAlpha2": "XK",
-      "languages": [
-        "Q8748",
-        "Q9299"
-      ],
+      "languages": ["Q8748", "Q9299"],
       "wikidataId": "Q1246"
     },
     {
-      "capitals": [
-        "Q131694",
-        "Q2471"
-      ],
+      "capitals": ["Q131694", "Q2471"],
       "isoAlpha2": "YE",
-      "languages": [
-        "Q13955"
-      ],
+      "languages": ["Q13955"],
       "wikidataId": "Q805"
     },
     {
-      "capitals": [
-        "Q132676",
-        "Q846048"
-      ],
+      "capitals": ["Q132676", "Q846048"],
       "isoAlpha2": "YT",
-      "languages": [
-        "Q150",
-        "Q34075",
-        "Q5150795"
-      ],
+      "languages": ["Q150", "Q34075", "Q5150795"],
       "wikidataId": "Q17063"
     },
     {
-      "capitals": [
-        "Q37701",
-        "Q3926",
-        "Q5465"
-      ],
+      "capitals": ["Q37701", "Q3926", "Q5465"],
       "isoAlpha2": "ZA",
       "languages": [
         "Q10179",
@@ -2648,19 +1549,13 @@
       "wikidataId": "Q258"
     },
     {
-      "capitals": [
-        "Q3881"
-      ],
+      "capitals": ["Q3881"],
       "isoAlpha2": "ZM",
-      "languages": [
-        "Q1860"
-      ],
+      "languages": ["Q1860"],
       "wikidataId": "Q953"
     },
     {
-      "capitals": [
-        "Q3921"
-      ],
+      "capitals": ["Q3921"],
       "isoAlpha2": "ZW",
       "languages": [
         "Q13218",

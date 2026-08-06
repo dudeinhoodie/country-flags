@@ -1,104 +1,52 @@
 {
   "countries": [
     {
-      "capital": [
-        "Andorra la Vella"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Andorra la Vella"],
+      "currencies": ["EUR"],
       "isoAlpha2": "AD",
-      "languages": [
-        "ca"
-      ]
+      "languages": ["ca"]
     },
     {
-      "capital": [
-        "Abu Dhabi"
-      ],
-      "currencies": [
-        "AED"
-      ],
+      "capital": ["Abu Dhabi"],
+      "currencies": ["AED"],
       "isoAlpha2": "AE",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Kabul"
-      ],
-      "currencies": [
-        "AFN"
-      ],
+      "capital": ["Kabul"],
+      "currencies": ["AFN"],
       "isoAlpha2": "AF",
-      "languages": [
-        "ps",
-        "fa",
-        "uz",
-        "tk"
-      ]
+      "languages": ["ps", "fa", "uz", "tk"]
     },
     {
-      "capital": [
-        "Saint John's"
-      ],
-      "currencies": [
-        "XCD"
-      ],
+      "capital": ["Saint John's"],
+      "currencies": ["XCD"],
       "isoAlpha2": "AG",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "The Valley"
-      ],
-      "currencies": [
-        "XCD"
-      ],
+      "capital": ["The Valley"],
+      "currencies": ["XCD"],
       "isoAlpha2": "AI",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Tirana"
-      ],
-      "currencies": [
-        "ALL"
-      ],
+      "capital": ["Tirana"],
+      "currencies": ["ALL"],
       "isoAlpha2": "AL",
-      "languages": [
-        "sq"
-      ]
+      "languages": ["sq"]
     },
     {
-      "capital": [
-        "Yerevan"
-      ],
-      "currencies": [
-        "AMD"
-      ],
+      "capital": ["Yerevan"],
+      "currencies": ["AMD"],
       "isoAlpha2": "AM",
-      "languages": [
-        "hy",
-        "ru"
-      ]
+      "languages": ["hy", "ru"]
     },
     {
-      "capital": [
-        "Luanda"
-      ],
-      "currencies": [
-        "AOA"
-      ],
+      "capital": ["Luanda"],
+      "currencies": ["AOA"],
       "isoAlpha2": "AO",
-      "languages": [
-        "pt"
-      ]
+      "languages": ["pt"]
     },
     {
       "capital": [],
@@ -107,3009 +55,1447 @@
       "languages": []
     },
     {
-      "capital": [
-        "Buenos Aires"
-      ],
-      "currencies": [
-        "ARS"
-      ],
+      "capital": ["Buenos Aires"],
+      "currencies": ["ARS"],
       "isoAlpha2": "AR",
-      "languages": [
-        "es",
-        "gn"
-      ]
+      "languages": ["es", "gn"]
     },
     {
-      "capital": [
-        "Pago Pago"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Pago Pago"],
+      "currencies": ["USD"],
       "isoAlpha2": "AS",
-      "languages": [
-        "en",
-        "sm"
-      ]
+      "languages": ["en", "sm"]
     },
     {
-      "capital": [
-        "Vienna"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Vienna"],
+      "currencies": ["EUR"],
       "isoAlpha2": "AT",
-      "languages": [
-        "de"
-      ]
+      "languages": ["de"]
     },
     {
-      "capital": [
-        "Canberra"
-      ],
-      "currencies": [
-        "AUD"
-      ],
+      "capital": ["Canberra"],
+      "currencies": ["AUD"],
       "isoAlpha2": "AU",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Oranjestad"
-      ],
-      "currencies": [
-        "AWG"
-      ],
+      "capital": ["Oranjestad"],
+      "currencies": ["AWG"],
       "isoAlpha2": "AW",
-      "languages": [
-        "nl",
-        "pa"
-      ]
+      "languages": ["nl", "pa"]
     },
     {
-      "capital": [
-        "Mariehamn"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Mariehamn"],
+      "currencies": ["EUR"],
       "isoAlpha2": "AX",
-      "languages": [
-        "sv"
-      ]
+      "languages": ["sv"]
     },
     {
-      "capital": [
-        "Baku"
-      ],
-      "currencies": [
-        "AZN"
-      ],
+      "capital": ["Baku"],
+      "currencies": ["AZN"],
       "isoAlpha2": "AZ",
-      "languages": [
-        "az"
-      ]
+      "languages": ["az"]
     },
     {
-      "capital": [
-        "Sarajevo"
-      ],
-      "currencies": [
-        "BAM"
-      ],
+      "capital": ["Sarajevo"],
+      "currencies": ["BAM"],
       "isoAlpha2": "BA",
-      "languages": [
-        "bs",
-        "hr",
-        "sr"
-      ]
+      "languages": ["bs", "hr", "sr"]
     },
     {
-      "capital": [
-        "Bridgetown"
-      ],
-      "currencies": [
-        "BBD"
-      ],
+      "capital": ["Bridgetown"],
+      "currencies": ["BBD"],
       "isoAlpha2": "BB",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Dhaka"
-      ],
-      "currencies": [
-        "BDT"
-      ],
+      "capital": ["Dhaka"],
+      "currencies": ["BDT"],
       "isoAlpha2": "BD",
-      "languages": [
-        "bn"
-      ]
+      "languages": ["bn"]
     },
     {
-      "capital": [
-        "Brussels"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Brussels"],
+      "currencies": ["EUR"],
       "isoAlpha2": "BE",
-      "languages": [
-        "nl",
-        "fr",
-        "de"
-      ]
+      "languages": ["nl", "fr", "de"]
     },
     {
-      "capital": [
-        "Ouagadougou"
-      ],
-      "currencies": [
-        "XOF"
-      ],
+      "capital": ["Ouagadougou"],
+      "currencies": ["XOF"],
       "isoAlpha2": "BF",
-      "languages": [
-        "fr",
-        "ff"
-      ]
+      "languages": ["fr", "ff"]
     },
     {
-      "capital": [
-        "Sofia"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Sofia"],
+      "currencies": ["EUR"],
       "isoAlpha2": "BG",
-      "languages": [
-        "bg"
-      ]
+      "languages": ["bg"]
     },
     {
-      "capital": [
-        "Manama"
-      ],
-      "currencies": [
-        "BHD"
-      ],
+      "capital": ["Manama"],
+      "currencies": ["BHD"],
       "isoAlpha2": "BH",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Gitega"
-      ],
-      "currencies": [
-        "BIF"
-      ],
+      "capital": ["Gitega"],
+      "currencies": ["BIF"],
       "isoAlpha2": "BI",
-      "languages": [
-        "fr",
-        "rn"
-      ]
+      "languages": ["fr", "rn"]
     },
     {
-      "capital": [
-        "Porto-Novo"
-      ],
-      "currencies": [
-        "XOF"
-      ],
+      "capital": ["Porto-Novo"],
+      "currencies": ["XOF"],
       "isoAlpha2": "BJ",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Gustavia"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Gustavia"],
+      "currencies": ["EUR"],
       "isoAlpha2": "BL",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Hamilton"
-      ],
-      "currencies": [
-        "BMD"
-      ],
+      "capital": ["Hamilton"],
+      "currencies": ["BMD"],
       "isoAlpha2": "BM",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Bandar Seri Begawan"
-      ],
-      "currencies": [
-        "BND"
-      ],
+      "capital": ["Bandar Seri Begawan"],
+      "currencies": ["BND"],
       "isoAlpha2": "BN",
-      "languages": [
-        "ms"
-      ]
+      "languages": ["ms"]
     },
     {
-      "capital": [
-        "Sucre"
-      ],
-      "currencies": [
-        "BOB",
-        "BOV"
-      ],
+      "capital": ["Sucre"],
+      "currencies": ["BOB", "BOV"],
       "isoAlpha2": "BO",
-      "languages": [
-        "es",
-        "ay",
-        "qu"
-      ]
+      "languages": ["es", "ay", "qu"]
     },
     {
-      "capital": [
-        "Kralendijk"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Kralendijk"],
+      "currencies": ["USD"],
       "isoAlpha2": "BQ",
-      "languages": [
-        "nl"
-      ]
+      "languages": ["nl"]
     },
     {
-      "capital": [
-        "Brasília"
-      ],
-      "currencies": [
-        "BRL"
-      ],
+      "capital": ["Brasília"],
+      "currencies": ["BRL"],
       "isoAlpha2": "BR",
-      "languages": [
-        "pt"
-      ]
+      "languages": ["pt"]
     },
     {
-      "capital": [
-        "Nassau"
-      ],
-      "currencies": [
-        "BSD"
-      ],
+      "capital": ["Nassau"],
+      "currencies": ["BSD"],
       "isoAlpha2": "BS",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Thimphu"
-      ],
-      "currencies": [
-        "BTN",
-        "INR"
-      ],
+      "capital": ["Thimphu"],
+      "currencies": ["BTN", "INR"],
       "isoAlpha2": "BT",
-      "languages": [
-        "dz"
-      ]
+      "languages": ["dz"]
     },
     {
       "capital": [],
-      "currencies": [
-        "NOK"
-      ],
+      "currencies": ["NOK"],
       "isoAlpha2": "BV",
-      "languages": [
-        "no",
-        "nb",
-        "nn"
-      ]
+      "languages": ["no", "nb", "nn"]
     },
     {
-      "capital": [
-        "Gaborone"
-      ],
-      "currencies": [
-        "BWP"
-      ],
+      "capital": ["Gaborone"],
+      "currencies": ["BWP"],
       "isoAlpha2": "BW",
-      "languages": [
-        "en",
-        "tn"
-      ]
+      "languages": ["en", "tn"]
     },
     {
-      "capital": [
-        "Minsk"
-      ],
-      "currencies": [
-        "BYN"
-      ],
+      "capital": ["Minsk"],
+      "currencies": ["BYN"],
       "isoAlpha2": "BY",
-      "languages": [
-        "be",
-        "ru"
-      ]
+      "languages": ["be", "ru"]
     },
     {
-      "capital": [
-        "Belmopan"
-      ],
-      "currencies": [
-        "BZD"
-      ],
+      "capital": ["Belmopan"],
+      "currencies": ["BZD"],
       "isoAlpha2": "BZ",
-      "languages": [
-        "en",
-        "es"
-      ]
+      "languages": ["en", "es"]
     },
     {
-      "capital": [
-        "Ottawa"
-      ],
-      "currencies": [
-        "CAD"
-      ],
+      "capital": ["Ottawa"],
+      "currencies": ["CAD"],
       "isoAlpha2": "CA",
-      "languages": [
-        "en",
-        "fr"
-      ]
+      "languages": ["en", "fr"]
     },
     {
-      "capital": [
-        "West Island"
-      ],
-      "currencies": [
-        "AUD"
-      ],
+      "capital": ["West Island"],
+      "currencies": ["AUD"],
       "isoAlpha2": "CC",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Kinshasa"
-      ],
-      "currencies": [
-        "CDF"
-      ],
+      "capital": ["Kinshasa"],
+      "currencies": ["CDF"],
       "isoAlpha2": "CD",
-      "languages": [
-        "fr",
-        "ln",
-        "kg",
-        "sw",
-        "lu"
-      ]
+      "languages": ["fr", "ln", "kg", "sw", "lu"]
     },
     {
-      "capital": [
-        "Bangui"
-      ],
-      "currencies": [
-        "XAF"
-      ],
+      "capital": ["Bangui"],
+      "currencies": ["XAF"],
       "isoAlpha2": "CF",
-      "languages": [
-        "fr",
-        "sg"
-      ]
+      "languages": ["fr", "sg"]
     },
     {
-      "capital": [
-        "Brazzaville"
-      ],
-      "currencies": [
-        "XAF"
-      ],
+      "capital": ["Brazzaville"],
+      "currencies": ["XAF"],
       "isoAlpha2": "CG",
-      "languages": [
-        "fr",
-        "ln"
-      ]
+      "languages": ["fr", "ln"]
     },
     {
-      "capital": [
-        "Bern"
-      ],
-      "currencies": [
-        "CHF",
-        "CHE",
-        "CHW"
-      ],
+      "capital": ["Bern"],
+      "currencies": ["CHF", "CHE", "CHW"],
       "isoAlpha2": "CH",
-      "languages": [
-        "de",
-        "fr",
-        "it"
-      ]
+      "languages": ["de", "fr", "it"]
     },
     {
-      "capital": [
-        "Yamoussoukro"
-      ],
-      "currencies": [
-        "XOF"
-      ],
+      "capital": ["Yamoussoukro"],
+      "currencies": ["XOF"],
       "isoAlpha2": "CI",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Avarua"
-      ],
-      "currencies": [
-        "NZD"
-      ],
+      "capital": ["Avarua"],
+      "currencies": ["NZD"],
       "isoAlpha2": "CK",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Santiago"
-      ],
-      "currencies": [
-        "CLP",
-        "CLF"
-      ],
+      "capital": ["Santiago"],
+      "currencies": ["CLP", "CLF"],
       "isoAlpha2": "CL",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Yaoundé"
-      ],
-      "currencies": [
-        "XAF"
-      ],
+      "capital": ["Yaoundé"],
+      "currencies": ["XAF"],
       "isoAlpha2": "CM",
-      "languages": [
-        "en",
-        "fr"
-      ]
+      "languages": ["en", "fr"]
     },
     {
-      "capital": [
-        "Beijing"
-      ],
-      "currencies": [
-        "CNY"
-      ],
+      "capital": ["Beijing"],
+      "currencies": ["CNY"],
       "isoAlpha2": "CN",
-      "languages": [
-        "zh"
-      ]
+      "languages": ["zh"]
     },
     {
-      "capital": [
-        "Bogotá"
-      ],
-      "currencies": [
-        "COP"
-      ],
+      "capital": ["Bogotá"],
+      "currencies": ["COP"],
       "isoAlpha2": "CO",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "San José"
-      ],
-      "currencies": [
-        "CRC"
-      ],
+      "capital": ["San José"],
+      "currencies": ["CRC"],
       "isoAlpha2": "CR",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Havana"
-      ],
-      "currencies": [
-        "CUP"
-      ],
+      "capital": ["Havana"],
+      "currencies": ["CUP"],
       "isoAlpha2": "CU",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Praia"
-      ],
-      "currencies": [
-        "CVE"
-      ],
+      "capital": ["Praia"],
+      "currencies": ["CVE"],
       "isoAlpha2": "CV",
-      "languages": [
-        "pt"
-      ]
+      "languages": ["pt"]
     },
     {
-      "capital": [
-        "Willemstad"
-      ],
-      "currencies": [
-        "XCG"
-      ],
+      "capital": ["Willemstad"],
+      "currencies": ["XCG"],
       "isoAlpha2": "CW",
-      "languages": [
-        "nl",
-        "pa",
-        "en"
-      ]
+      "languages": ["nl", "pa", "en"]
     },
     {
-      "capital": [
-        "Flying Fish Cove"
-      ],
-      "currencies": [
-        "AUD"
-      ],
+      "capital": ["Flying Fish Cove"],
+      "currencies": ["AUD"],
       "isoAlpha2": "CX",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Nicosia"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Nicosia"],
+      "currencies": ["EUR"],
       "isoAlpha2": "CY",
-      "languages": [
-        "el",
-        "tr",
-        "hy"
-      ]
+      "languages": ["el", "tr", "hy"]
     },
     {
-      "capital": [
-        "Prague"
-      ],
-      "currencies": [
-        "CZK"
-      ],
+      "capital": ["Prague"],
+      "currencies": ["CZK"],
       "isoAlpha2": "CZ",
-      "languages": [
-        "cs"
-      ]
+      "languages": ["cs"]
     },
     {
-      "capital": [
-        "Berlin"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Berlin"],
+      "currencies": ["EUR"],
       "isoAlpha2": "DE",
-      "languages": [
-        "de"
-      ]
+      "languages": ["de"]
     },
     {
-      "capital": [
-        "Djibouti"
-      ],
-      "currencies": [
-        "DJF"
-      ],
+      "capital": ["Djibouti"],
+      "currencies": ["DJF"],
       "isoAlpha2": "DJ",
-      "languages": [
-        "fr",
-        "ar"
-      ]
+      "languages": ["fr", "ar"]
     },
     {
-      "capital": [
-        "Copenhagen"
-      ],
-      "currencies": [
-        "DKK"
-      ],
+      "capital": ["Copenhagen"],
+      "currencies": ["DKK"],
       "isoAlpha2": "DK",
-      "languages": [
-        "da"
-      ]
+      "languages": ["da"]
     },
     {
-      "capital": [
-        "Roseau"
-      ],
-      "currencies": [
-        "XCD"
-      ],
+      "capital": ["Roseau"],
+      "currencies": ["XCD"],
       "isoAlpha2": "DM",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Santo Domingo"
-      ],
-      "currencies": [
-        "DOP"
-      ],
+      "capital": ["Santo Domingo"],
+      "currencies": ["DOP"],
       "isoAlpha2": "DO",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Algiers"
-      ],
-      "currencies": [
-        "DZD"
-      ],
+      "capital": ["Algiers"],
+      "currencies": ["DZD"],
       "isoAlpha2": "DZ",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Quito"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Quito"],
+      "currencies": ["USD"],
       "isoAlpha2": "EC",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Tallinn"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Tallinn"],
+      "currencies": ["EUR"],
       "isoAlpha2": "EE",
-      "languages": [
-        "et"
-      ]
+      "languages": ["et"]
     },
     {
-      "capital": [
-        "Cairo"
-      ],
-      "currencies": [
-        "EGP"
-      ],
+      "capital": ["Cairo"],
+      "currencies": ["EGP"],
       "isoAlpha2": "EG",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "El Aaiún"
-      ],
-      "currencies": [
-        "MAD",
-        "DZD",
-        "MRU"
-      ],
+      "capital": ["El Aaiún"],
+      "currencies": ["MAD", "DZD", "MRU"],
       "isoAlpha2": "EH",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Asmara"
-      ],
-      "currencies": [
-        "ERN"
-      ],
+      "capital": ["Asmara"],
+      "currencies": ["ERN"],
       "isoAlpha2": "ER",
-      "languages": [
-        "ti",
-        "ar",
-        "en"
-      ]
+      "languages": ["ti", "ar", "en"]
     },
     {
-      "capital": [
-        "Madrid"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Madrid"],
+      "currencies": ["EUR"],
       "isoAlpha2": "ES",
-      "languages": [
-        "es",
-        "eu",
-        "ca",
-        "gl",
-        "oc"
-      ]
+      "languages": ["es", "eu", "ca", "gl", "oc"]
     },
     {
-      "capital": [
-        "Addis Ababa"
-      ],
-      "currencies": [
-        "ETB"
-      ],
+      "capital": ["Addis Ababa"],
+      "currencies": ["ETB"],
       "isoAlpha2": "ET",
-      "languages": [
-        "am"
-      ]
+      "languages": ["am"]
     },
     {
-      "capital": [
-        "Helsinki"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Helsinki"],
+      "currencies": ["EUR"],
       "isoAlpha2": "FI",
-      "languages": [
-        "fi",
-        "sv"
-      ]
+      "languages": ["fi", "sv"]
     },
     {
-      "capital": [
-        "Suva"
-      ],
-      "currencies": [
-        "FJD"
-      ],
+      "capital": ["Suva"],
+      "currencies": ["FJD"],
       "isoAlpha2": "FJ",
-      "languages": [
-        "en",
-        "fj",
-        "hi",
-        "ur"
-      ]
+      "languages": ["en", "fj", "hi", "ur"]
     },
     {
-      "capital": [
-        "Stanley"
-      ],
-      "currencies": [
-        "FKP"
-      ],
+      "capital": ["Stanley"],
+      "currencies": ["FKP"],
       "isoAlpha2": "FK",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Palikir"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Palikir"],
+      "currencies": ["USD"],
       "isoAlpha2": "FM",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Tórshavn"
-      ],
-      "currencies": [
-        "DKK"
-      ],
+      "capital": ["Tórshavn"],
+      "currencies": ["DKK"],
       "isoAlpha2": "FO",
-      "languages": [
-        "fo"
-      ]
+      "languages": ["fo"]
     },
     {
-      "capital": [
-        "Paris"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Paris"],
+      "currencies": ["EUR"],
       "isoAlpha2": "FR",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Libreville"
-      ],
-      "currencies": [
-        "XAF"
-      ],
+      "capital": ["Libreville"],
+      "currencies": ["XAF"],
       "isoAlpha2": "GA",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "London"
-      ],
-      "currencies": [
-        "GBP"
-      ],
+      "capital": ["London"],
+      "currencies": ["GBP"],
       "isoAlpha2": "GB",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "St. George's"
-      ],
-      "currencies": [
-        "XCD"
-      ],
+      "capital": ["St. George's"],
+      "currencies": ["XCD"],
       "isoAlpha2": "GD",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Tbilisi"
-      ],
-      "currencies": [
-        "GEL"
-      ],
+      "capital": ["Tbilisi"],
+      "currencies": ["GEL"],
       "isoAlpha2": "GE",
-      "languages": [
-        "ka"
-      ]
+      "languages": ["ka"]
     },
     {
-      "capital": [
-        "Cayenne"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Cayenne"],
+      "currencies": ["EUR"],
       "isoAlpha2": "GF",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "St. Peter Port"
-      ],
-      "currencies": [
-        "GBP"
-      ],
+      "capital": ["St. Peter Port"],
+      "currencies": ["GBP"],
       "isoAlpha2": "GG",
-      "languages": [
-        "en",
-        "fr"
-      ]
+      "languages": ["en", "fr"]
     },
     {
-      "capital": [
-        "Accra"
-      ],
-      "currencies": [
-        "GHS"
-      ],
+      "capital": ["Accra"],
+      "currencies": ["GHS"],
       "isoAlpha2": "GH",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Gibraltar"
-      ],
-      "currencies": [
-        "GIP"
-      ],
+      "capital": ["Gibraltar"],
+      "currencies": ["GIP"],
       "isoAlpha2": "GI",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Nuuk"
-      ],
-      "currencies": [
-        "DKK"
-      ],
+      "capital": ["Nuuk"],
+      "currencies": ["DKK"],
       "isoAlpha2": "GL",
-      "languages": [
-        "kl"
-      ]
+      "languages": ["kl"]
     },
     {
-      "capital": [
-        "Banjul"
-      ],
-      "currencies": [
-        "GMD"
-      ],
+      "capital": ["Banjul"],
+      "currencies": ["GMD"],
       "isoAlpha2": "GM",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Conakry"
-      ],
-      "currencies": [
-        "GNF"
-      ],
+      "capital": ["Conakry"],
+      "currencies": ["GNF"],
       "isoAlpha2": "GN",
-      "languages": [
-        "fr",
-        "ff"
-      ]
+      "languages": ["fr", "ff"]
     },
     {
-      "capital": [
-        "Basse-Terre"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Basse-Terre"],
+      "currencies": ["EUR"],
       "isoAlpha2": "GP",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Malabo"
-      ],
-      "currencies": [
-        "XAF"
-      ],
+      "capital": ["Malabo"],
+      "currencies": ["XAF"],
       "isoAlpha2": "GQ",
-      "languages": [
-        "es",
-        "fr"
-      ]
+      "languages": ["es", "fr"]
     },
     {
-      "capital": [
-        "Athens"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Athens"],
+      "currencies": ["EUR"],
       "isoAlpha2": "GR",
-      "languages": [
-        "el"
-      ]
+      "languages": ["el"]
     },
     {
-      "capital": [
-        "King Edward Point"
-      ],
-      "currencies": [
-        "GBP"
-      ],
+      "capital": ["King Edward Point"],
+      "currencies": ["GBP"],
       "isoAlpha2": "GS",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Guatemala City"
-      ],
-      "currencies": [
-        "GTQ"
-      ],
+      "capital": ["Guatemala City"],
+      "currencies": ["GTQ"],
       "isoAlpha2": "GT",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Hagåtña"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Hagåtña"],
+      "currencies": ["USD"],
       "isoAlpha2": "GU",
-      "languages": [
-        "en",
-        "ch",
-        "es"
-      ]
+      "languages": ["en", "ch", "es"]
     },
     {
-      "capital": [
-        "Bissau"
-      ],
-      "currencies": [
-        "XOF"
-      ],
+      "capital": ["Bissau"],
+      "currencies": ["XOF"],
       "isoAlpha2": "GW",
-      "languages": [
-        "pt"
-      ]
+      "languages": ["pt"]
     },
     {
-      "capital": [
-        "Georgetown"
-      ],
-      "currencies": [
-        "GYD"
-      ],
+      "capital": ["Georgetown"],
+      "currencies": ["GYD"],
       "isoAlpha2": "GY",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "City of Victoria"
-      ],
-      "currencies": [
-        "HKD"
-      ],
+      "capital": ["City of Victoria"],
+      "currencies": ["HKD"],
       "isoAlpha2": "HK",
-      "languages": [
-        "zh",
-        "en"
-      ]
+      "languages": ["zh", "en"]
     },
     {
       "capital": [],
-      "currencies": [
-        "AUD"
-      ],
+      "currencies": ["AUD"],
       "isoAlpha2": "HM",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Tegucigalpa"
-      ],
-      "currencies": [
-        "HNL"
-      ],
+      "capital": ["Tegucigalpa"],
+      "currencies": ["HNL"],
       "isoAlpha2": "HN",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Zagreb"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Zagreb"],
+      "currencies": ["EUR"],
       "isoAlpha2": "HR",
-      "languages": [
-        "hr"
-      ]
+      "languages": ["hr"]
     },
     {
-      "capital": [
-        "Port-au-Prince"
-      ],
-      "currencies": [
-        "HTG",
-        "USD"
-      ],
+      "capital": ["Port-au-Prince"],
+      "currencies": ["HTG", "USD"],
       "isoAlpha2": "HT",
-      "languages": [
-        "fr",
-        "ht"
-      ]
+      "languages": ["fr", "ht"]
     },
     {
-      "capital": [
-        "Budapest"
-      ],
-      "currencies": [
-        "HUF"
-      ],
+      "capital": ["Budapest"],
+      "currencies": ["HUF"],
       "isoAlpha2": "HU",
-      "languages": [
-        "hu"
-      ]
+      "languages": ["hu"]
     },
     {
-      "capital": [
-        "Jakarta"
-      ],
-      "currencies": [
-        "IDR"
-      ],
+      "capital": ["Jakarta"],
+      "currencies": ["IDR"],
       "isoAlpha2": "ID",
-      "languages": [
-        "id"
-      ]
+      "languages": ["id"]
     },
     {
-      "capital": [
-        "Dublin"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Dublin"],
+      "currencies": ["EUR"],
       "isoAlpha2": "IE",
-      "languages": [
-        "ga",
-        "en"
-      ]
+      "languages": ["ga", "en"]
     },
     {
-      "capital": [
-        "Jerusalem"
-      ],
-      "currencies": [
-        "ILS"
-      ],
+      "capital": ["Jerusalem"],
+      "currencies": ["ILS"],
       "isoAlpha2": "IL",
-      "languages": [
-        "he",
-        "ar"
-      ]
+      "languages": ["he", "ar"]
     },
     {
-      "capital": [
-        "Douglas"
-      ],
-      "currencies": [
-        "GBP"
-      ],
+      "capital": ["Douglas"],
+      "currencies": ["GBP"],
       "isoAlpha2": "IM",
-      "languages": [
-        "en",
-        "gv"
-      ]
+      "languages": ["en", "gv"]
     },
     {
-      "capital": [
-        "New Delhi"
-      ],
-      "currencies": [
-        "INR"
-      ],
+      "capital": ["New Delhi"],
+      "currencies": ["INR"],
       "isoAlpha2": "IN",
-      "languages": [
-        "hi",
-        "en"
-      ]
+      "languages": ["hi", "en"]
     },
     {
-      "capital": [
-        "Diego Garcia"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Diego Garcia"],
+      "currencies": ["USD"],
       "isoAlpha2": "IO",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Baghdad"
-      ],
-      "currencies": [
-        "IQD"
-      ],
+      "capital": ["Baghdad"],
+      "currencies": ["IQD"],
       "isoAlpha2": "IQ",
-      "languages": [
-        "ar",
-        "ku"
-      ]
+      "languages": ["ar", "ku"]
     },
     {
-      "capital": [
-        "Tehran"
-      ],
-      "currencies": [
-        "IRR"
-      ],
+      "capital": ["Tehran"],
+      "currencies": ["IRR"],
       "isoAlpha2": "IR",
-      "languages": [
-        "fa"
-      ]
+      "languages": ["fa"]
     },
     {
-      "capital": [
-        "Reykjavik"
-      ],
-      "currencies": [
-        "ISK"
-      ],
+      "capital": ["Reykjavik"],
+      "currencies": ["ISK"],
       "isoAlpha2": "IS",
-      "languages": [
-        "is"
-      ]
+      "languages": ["is"]
     },
     {
-      "capital": [
-        "Rome"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Rome"],
+      "currencies": ["EUR"],
       "isoAlpha2": "IT",
-      "languages": [
-        "it"
-      ]
+      "languages": ["it"]
     },
     {
-      "capital": [
-        "Saint Helier"
-      ],
-      "currencies": [
-        "GBP"
-      ],
+      "capital": ["Saint Helier"],
+      "currencies": ["GBP"],
       "isoAlpha2": "JE",
-      "languages": [
-        "en",
-        "fr"
-      ]
+      "languages": ["en", "fr"]
     },
     {
-      "capital": [
-        "Kingston"
-      ],
-      "currencies": [
-        "JMD"
-      ],
+      "capital": ["Kingston"],
+      "currencies": ["JMD"],
       "isoAlpha2": "JM",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Amman"
-      ],
-      "currencies": [
-        "JOD"
-      ],
+      "capital": ["Amman"],
+      "currencies": ["JOD"],
       "isoAlpha2": "JO",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Tokyo"
-      ],
-      "currencies": [
-        "JPY"
-      ],
+      "capital": ["Tokyo"],
+      "currencies": ["JPY"],
       "isoAlpha2": "JP",
-      "languages": [
-        "ja"
-      ]
+      "languages": ["ja"]
     },
     {
-      "capital": [
-        "Nairobi"
-      ],
-      "currencies": [
-        "KES"
-      ],
+      "capital": ["Nairobi"],
+      "currencies": ["KES"],
       "isoAlpha2": "KE",
-      "languages": [
-        "en",
-        "sw"
-      ]
+      "languages": ["en", "sw"]
     },
     {
-      "capital": [
-        "Bishkek"
-      ],
-      "currencies": [
-        "KGS"
-      ],
+      "capital": ["Bishkek"],
+      "currencies": ["KGS"],
       "isoAlpha2": "KG",
-      "languages": [
-        "ky",
-        "ru"
-      ]
+      "languages": ["ky", "ru"]
     },
     {
-      "capital": [
-        "Phnom Penh"
-      ],
-      "currencies": [
-        "KHR"
-      ],
+      "capital": ["Phnom Penh"],
+      "currencies": ["KHR"],
       "isoAlpha2": "KH",
-      "languages": [
-        "km"
-      ]
+      "languages": ["km"]
     },
     {
-      "capital": [
-        "South Tarawa"
-      ],
-      "currencies": [
-        "AUD"
-      ],
+      "capital": ["South Tarawa"],
+      "currencies": ["AUD"],
       "isoAlpha2": "KI",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Moroni"
-      ],
-      "currencies": [
-        "KMF"
-      ],
+      "capital": ["Moroni"],
+      "currencies": ["KMF"],
       "isoAlpha2": "KM",
-      "languages": [
-        "ar",
-        "fr"
-      ]
+      "languages": ["ar", "fr"]
     },
     {
-      "capital": [
-        "Basseterre"
-      ],
-      "currencies": [
-        "XCD"
-      ],
+      "capital": ["Basseterre"],
+      "currencies": ["XCD"],
       "isoAlpha2": "KN",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Pyongyang"
-      ],
-      "currencies": [
-        "KPW"
-      ],
+      "capital": ["Pyongyang"],
+      "currencies": ["KPW"],
       "isoAlpha2": "KP",
-      "languages": [
-        "ko"
-      ]
+      "languages": ["ko"]
     },
     {
-      "capital": [
-        "Seoul"
-      ],
-      "currencies": [
-        "KRW"
-      ],
+      "capital": ["Seoul"],
+      "currencies": ["KRW"],
       "isoAlpha2": "KR",
-      "languages": [
-        "ko"
-      ]
+      "languages": ["ko"]
     },
     {
-      "capital": [
-        "Kuwait City"
-      ],
-      "currencies": [
-        "KWD"
-      ],
+      "capital": ["Kuwait City"],
+      "currencies": ["KWD"],
       "isoAlpha2": "KW",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "George Town"
-      ],
-      "currencies": [
-        "KYD"
-      ],
+      "capital": ["George Town"],
+      "currencies": ["KYD"],
       "isoAlpha2": "KY",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Astana"
-      ],
-      "currencies": [
-        "KZT"
-      ],
+      "capital": ["Astana"],
+      "currencies": ["KZT"],
       "isoAlpha2": "KZ",
-      "languages": [
-        "kk",
-        "ru"
-      ]
+      "languages": ["kk", "ru"]
     },
     {
-      "capital": [
-        "Vientiane"
-      ],
-      "currencies": [
-        "LAK"
-      ],
+      "capital": ["Vientiane"],
+      "currencies": ["LAK"],
       "isoAlpha2": "LA",
-      "languages": [
-        "lo"
-      ]
+      "languages": ["lo"]
     },
     {
-      "capital": [
-        "Beirut"
-      ],
-      "currencies": [
-        "LBP"
-      ],
+      "capital": ["Beirut"],
+      "currencies": ["LBP"],
       "isoAlpha2": "LB",
-      "languages": [
-        "ar",
-        "fr"
-      ]
+      "languages": ["ar", "fr"]
     },
     {
-      "capital": [
-        "Castries"
-      ],
-      "currencies": [
-        "XCD"
-      ],
+      "capital": ["Castries"],
+      "currencies": ["XCD"],
       "isoAlpha2": "LC",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Vaduz"
-      ],
-      "currencies": [
-        "CHF"
-      ],
+      "capital": ["Vaduz"],
+      "currencies": ["CHF"],
       "isoAlpha2": "LI",
-      "languages": [
-        "de"
-      ]
+      "languages": ["de"]
     },
     {
-      "capital": [
-        "Colombo"
-      ],
-      "currencies": [
-        "LKR"
-      ],
+      "capital": ["Colombo"],
+      "currencies": ["LKR"],
       "isoAlpha2": "LK",
-      "languages": [
-        "si",
-        "ta"
-      ]
+      "languages": ["si", "ta"]
     },
     {
-      "capital": [
-        "Monrovia"
-      ],
-      "currencies": [
-        "LRD"
-      ],
+      "capital": ["Monrovia"],
+      "currencies": ["LRD"],
       "isoAlpha2": "LR",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Maseru"
-      ],
-      "currencies": [
-        "LSL",
-        "ZAR"
-      ],
+      "capital": ["Maseru"],
+      "currencies": ["LSL", "ZAR"],
       "isoAlpha2": "LS",
-      "languages": [
-        "en",
-        "st"
-      ]
+      "languages": ["en", "st"]
     },
     {
-      "capital": [
-        "Vilnius"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Vilnius"],
+      "currencies": ["EUR"],
       "isoAlpha2": "LT",
-      "languages": [
-        "lt"
-      ]
+      "languages": ["lt"]
     },
     {
-      "capital": [
-        "Luxembourg"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Luxembourg"],
+      "currencies": ["EUR"],
       "isoAlpha2": "LU",
-      "languages": [
-        "fr",
-        "de",
-        "lb"
-      ]
+      "languages": ["fr", "de", "lb"]
     },
     {
-      "capital": [
-        "Riga"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Riga"],
+      "currencies": ["EUR"],
       "isoAlpha2": "LV",
-      "languages": [
-        "lv"
-      ]
+      "languages": ["lv"]
     },
     {
-      "capital": [
-        "Tripoli"
-      ],
-      "currencies": [
-        "LYD"
-      ],
+      "capital": ["Tripoli"],
+      "currencies": ["LYD"],
       "isoAlpha2": "LY",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Rabat"
-      ],
-      "currencies": [
-        "MAD"
-      ],
+      "capital": ["Rabat"],
+      "currencies": ["MAD"],
       "isoAlpha2": "MA",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Monaco"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Monaco"],
+      "currencies": ["EUR"],
       "isoAlpha2": "MC",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Chișinău"
-      ],
-      "currencies": [
-        "MDL"
-      ],
+      "capital": ["Chișinău"],
+      "currencies": ["MDL"],
       "isoAlpha2": "MD",
-      "languages": [
-        "ro"
-      ]
+      "languages": ["ro"]
     },
     {
-      "capital": [
-        "Podgorica"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Podgorica"],
+      "currencies": ["EUR"],
       "isoAlpha2": "ME",
-      "languages": [
-        "sr",
-        "bs",
-        "sq",
-        "hr"
-      ]
+      "languages": ["sr", "bs", "sq", "hr"]
     },
     {
-      "capital": [
-        "Marigot"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Marigot"],
+      "currencies": ["EUR"],
       "isoAlpha2": "MF",
-      "languages": [
-        "en",
-        "fr",
-        "nl"
-      ]
+      "languages": ["en", "fr", "nl"]
     },
     {
-      "capital": [
-        "Antananarivo"
-      ],
-      "currencies": [
-        "MGA"
-      ],
+      "capital": ["Antananarivo"],
+      "currencies": ["MGA"],
       "isoAlpha2": "MG",
-      "languages": [
-        "fr",
-        "mg"
-      ]
+      "languages": ["fr", "mg"]
     },
     {
-      "capital": [
-        "Majuro"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Majuro"],
+      "currencies": ["USD"],
       "isoAlpha2": "MH",
-      "languages": [
-        "en",
-        "mh"
-      ]
+      "languages": ["en", "mh"]
     },
     {
-      "capital": [
-        "Skopje"
-      ],
-      "currencies": [
-        "MKD"
-      ],
+      "capital": ["Skopje"],
+      "currencies": ["MKD"],
       "isoAlpha2": "MK",
-      "languages": [
-        "mk"
-      ]
+      "languages": ["mk"]
     },
     {
-      "capital": [
-        "Bamako"
-      ],
-      "currencies": [
-        "XOF"
-      ],
+      "capital": ["Bamako"],
+      "currencies": ["XOF"],
       "isoAlpha2": "ML",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Naypyidaw"
-      ],
-      "currencies": [
-        "MMK"
-      ],
+      "capital": ["Naypyidaw"],
+      "currencies": ["MMK"],
       "isoAlpha2": "MM",
-      "languages": [
-        "my"
-      ]
+      "languages": ["my"]
     },
     {
-      "capital": [
-        "Ulan Bator"
-      ],
-      "currencies": [
-        "MNT"
-      ],
+      "capital": ["Ulan Bator"],
+      "currencies": ["MNT"],
       "isoAlpha2": "MN",
-      "languages": [
-        "mn"
-      ]
+      "languages": ["mn"]
     },
     {
       "capital": [],
-      "currencies": [
-        "MOP"
-      ],
+      "currencies": ["MOP"],
       "isoAlpha2": "MO",
-      "languages": [
-        "zh",
-        "pt"
-      ]
+      "languages": ["zh", "pt"]
     },
     {
-      "capital": [
-        "Saipan"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Saipan"],
+      "currencies": ["USD"],
       "isoAlpha2": "MP",
-      "languages": [
-        "en",
-        "ch"
-      ]
+      "languages": ["en", "ch"]
     },
     {
-      "capital": [
-        "Fort-de-France"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Fort-de-France"],
+      "currencies": ["EUR"],
       "isoAlpha2": "MQ",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Nouakchott"
-      ],
-      "currencies": [
-        "MRU"
-      ],
+      "capital": ["Nouakchott"],
+      "currencies": ["MRU"],
       "isoAlpha2": "MR",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Plymouth"
-      ],
-      "currencies": [
-        "XCD"
-      ],
+      "capital": ["Plymouth"],
+      "currencies": ["XCD"],
       "isoAlpha2": "MS",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Valletta"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Valletta"],
+      "currencies": ["EUR"],
       "isoAlpha2": "MT",
-      "languages": [
-        "mt",
-        "en"
-      ]
+      "languages": ["mt", "en"]
     },
     {
-      "capital": [
-        "Port Louis"
-      ],
-      "currencies": [
-        "MUR"
-      ],
+      "capital": ["Port Louis"],
+      "currencies": ["MUR"],
       "isoAlpha2": "MU",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Malé"
-      ],
-      "currencies": [
-        "MVR"
-      ],
+      "capital": ["Malé"],
+      "currencies": ["MVR"],
       "isoAlpha2": "MV",
-      "languages": [
-        "dv"
-      ]
+      "languages": ["dv"]
     },
     {
-      "capital": [
-        "Lilongwe"
-      ],
-      "currencies": [
-        "MWK"
-      ],
+      "capital": ["Lilongwe"],
+      "currencies": ["MWK"],
       "isoAlpha2": "MW",
-      "languages": [
-        "en",
-        "ny"
-      ]
+      "languages": ["en", "ny"]
     },
     {
-      "capital": [
-        "Mexico City"
-      ],
-      "currencies": [
-        "MXN"
-      ],
+      "capital": ["Mexico City"],
+      "currencies": ["MXN"],
       "isoAlpha2": "MX",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Kuala Lumpur"
-      ],
-      "currencies": [
-        "MYR"
-      ],
+      "capital": ["Kuala Lumpur"],
+      "currencies": ["MYR"],
       "isoAlpha2": "MY",
-      "languages": [
-        "ms"
-      ]
+      "languages": ["ms"]
     },
     {
-      "capital": [
-        "Maputo"
-      ],
-      "currencies": [
-        "MZN"
-      ],
+      "capital": ["Maputo"],
+      "currencies": ["MZN"],
       "isoAlpha2": "MZ",
-      "languages": [
-        "pt"
-      ]
+      "languages": ["pt"]
     },
     {
-      "capital": [
-        "Windhoek"
-      ],
-      "currencies": [
-        "NAD",
-        "ZAR"
-      ],
+      "capital": ["Windhoek"],
+      "currencies": ["NAD", "ZAR"],
       "isoAlpha2": "NA",
-      "languages": [
-        "en",
-        "af"
-      ]
+      "languages": ["en", "af"]
     },
     {
-      "capital": [
-        "Nouméa"
-      ],
-      "currencies": [
-        "XPF"
-      ],
+      "capital": ["Nouméa"],
+      "currencies": ["XPF"],
       "isoAlpha2": "NC",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Niamey"
-      ],
-      "currencies": [
-        "XOF"
-      ],
+      "capital": ["Niamey"],
+      "currencies": ["XOF"],
       "isoAlpha2": "NE",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Kingston"
-      ],
-      "currencies": [
-        "AUD"
-      ],
+      "capital": ["Kingston"],
+      "currencies": ["AUD"],
       "isoAlpha2": "NF",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Abuja"
-      ],
-      "currencies": [
-        "NGN"
-      ],
+      "capital": ["Abuja"],
+      "currencies": ["NGN"],
       "isoAlpha2": "NG",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Managua"
-      ],
-      "currencies": [
-        "NIO"
-      ],
+      "capital": ["Managua"],
+      "currencies": ["NIO"],
       "isoAlpha2": "NI",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Amsterdam"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Amsterdam"],
+      "currencies": ["EUR"],
       "isoAlpha2": "NL",
-      "languages": [
-        "nl"
-      ]
+      "languages": ["nl"]
     },
     {
-      "capital": [
-        "Oslo"
-      ],
-      "currencies": [
-        "NOK"
-      ],
+      "capital": ["Oslo"],
+      "currencies": ["NOK"],
       "isoAlpha2": "NO",
-      "languages": [
-        "no",
-        "nb",
-        "nn"
-      ]
+      "languages": ["no", "nb", "nn"]
     },
     {
-      "capital": [
-        "Kathmandu"
-      ],
-      "currencies": [
-        "NPR"
-      ],
+      "capital": ["Kathmandu"],
+      "currencies": ["NPR"],
       "isoAlpha2": "NP",
-      "languages": [
-        "ne"
-      ]
+      "languages": ["ne"]
     },
     {
-      "capital": [
-        "Yaren"
-      ],
-      "currencies": [
-        "AUD"
-      ],
+      "capital": ["Yaren"],
+      "currencies": ["AUD"],
       "isoAlpha2": "NR",
-      "languages": [
-        "en",
-        "na"
-      ]
+      "languages": ["en", "na"]
     },
     {
-      "capital": [
-        "Alofi"
-      ],
-      "currencies": [
-        "NZD"
-      ],
+      "capital": ["Alofi"],
+      "currencies": ["NZD"],
       "isoAlpha2": "NU",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Wellington"
-      ],
-      "currencies": [
-        "NZD"
-      ],
+      "capital": ["Wellington"],
+      "currencies": ["NZD"],
       "isoAlpha2": "NZ",
-      "languages": [
-        "en",
-        "mi"
-      ]
+      "languages": ["en", "mi"]
     },
     {
-      "capital": [
-        "Muscat"
-      ],
-      "currencies": [
-        "OMR"
-      ],
+      "capital": ["Muscat"],
+      "currencies": ["OMR"],
       "isoAlpha2": "OM",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Panama City"
-      ],
-      "currencies": [
-        "PAB",
-        "USD"
-      ],
+      "capital": ["Panama City"],
+      "currencies": ["PAB", "USD"],
       "isoAlpha2": "PA",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Lima"
-      ],
-      "currencies": [
-        "PEN"
-      ],
+      "capital": ["Lima"],
+      "currencies": ["PEN"],
       "isoAlpha2": "PE",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Papeetē"
-      ],
-      "currencies": [
-        "XPF"
-      ],
+      "capital": ["Papeetē"],
+      "currencies": ["XPF"],
       "isoAlpha2": "PF",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Port Moresby"
-      ],
-      "currencies": [
-        "PGK"
-      ],
+      "capital": ["Port Moresby"],
+      "currencies": ["PGK"],
       "isoAlpha2": "PG",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Manila"
-      ],
-      "currencies": [
-        "PHP"
-      ],
+      "capital": ["Manila"],
+      "currencies": ["PHP"],
       "isoAlpha2": "PH",
-      "languages": [
-        "en",
-        "tl"
-      ]
+      "languages": ["en", "tl"]
     },
     {
-      "capital": [
-        "Islamabad"
-      ],
-      "currencies": [
-        "PKR"
-      ],
+      "capital": ["Islamabad"],
+      "currencies": ["PKR"],
       "isoAlpha2": "PK",
-      "languages": [
-        "en",
-        "ur"
-      ]
+      "languages": ["en", "ur"]
     },
     {
-      "capital": [
-        "Warsaw"
-      ],
-      "currencies": [
-        "PLN"
-      ],
+      "capital": ["Warsaw"],
+      "currencies": ["PLN"],
       "isoAlpha2": "PL",
-      "languages": [
-        "pl"
-      ]
+      "languages": ["pl"]
     },
     {
-      "capital": [
-        "Saint-Pierre"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Saint-Pierre"],
+      "currencies": ["EUR"],
       "isoAlpha2": "PM",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Adamstown"
-      ],
-      "currencies": [
-        "NZD"
-      ],
+      "capital": ["Adamstown"],
+      "currencies": ["NZD"],
       "isoAlpha2": "PN",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "San Juan"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["San Juan"],
+      "currencies": ["USD"],
       "isoAlpha2": "PR",
-      "languages": [
-        "es",
-        "en"
-      ]
+      "languages": ["es", "en"]
     },
     {
-      "capital": [
-        "Ramallah"
-      ],
-      "currencies": [
-        "ILS"
-      ],
+      "capital": ["Ramallah"],
+      "currencies": ["ILS"],
       "isoAlpha2": "PS",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Lisbon"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Lisbon"],
+      "currencies": ["EUR"],
       "isoAlpha2": "PT",
-      "languages": [
-        "pt"
-      ]
+      "languages": ["pt"]
     },
     {
-      "capital": [
-        "Ngerulmud"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Ngerulmud"],
+      "currencies": ["USD"],
       "isoAlpha2": "PW",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Asunción"
-      ],
-      "currencies": [
-        "PYG"
-      ],
+      "capital": ["Asunción"],
+      "currencies": ["PYG"],
       "isoAlpha2": "PY",
-      "languages": [
-        "es",
-        "gn"
-      ]
+      "languages": ["es", "gn"]
     },
     {
-      "capital": [
-        "Doha"
-      ],
-      "currencies": [
-        "QAR"
-      ],
+      "capital": ["Doha"],
+      "currencies": ["QAR"],
       "isoAlpha2": "QA",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Saint-Denis"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Saint-Denis"],
+      "currencies": ["EUR"],
       "isoAlpha2": "RE",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Bucharest"
-      ],
-      "currencies": [
-        "RON"
-      ],
+      "capital": ["Bucharest"],
+      "currencies": ["RON"],
       "isoAlpha2": "RO",
-      "languages": [
-        "ro"
-      ]
+      "languages": ["ro"]
     },
     {
-      "capital": [
-        "Belgrade"
-      ],
-      "currencies": [
-        "RSD"
-      ],
+      "capital": ["Belgrade"],
+      "currencies": ["RSD"],
       "isoAlpha2": "RS",
-      "languages": [
-        "sr"
-      ]
+      "languages": ["sr"]
     },
     {
-      "capital": [
-        "Moscow"
-      ],
-      "currencies": [
-        "RUB"
-      ],
+      "capital": ["Moscow"],
+      "currencies": ["RUB"],
       "isoAlpha2": "RU",
-      "languages": [
-        "ru"
-      ]
+      "languages": ["ru"]
     },
     {
-      "capital": [
-        "Kigali"
-      ],
-      "currencies": [
-        "RWF"
-      ],
+      "capital": ["Kigali"],
+      "currencies": ["RWF"],
       "isoAlpha2": "RW",
-      "languages": [
-        "rw",
-        "en",
-        "fr"
-      ]
+      "languages": ["rw", "en", "fr"]
     },
     {
-      "capital": [
-        "Riyadh"
-      ],
-      "currencies": [
-        "SAR"
-      ],
+      "capital": ["Riyadh"],
+      "currencies": ["SAR"],
       "isoAlpha2": "SA",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Honiara"
-      ],
-      "currencies": [
-        "SBD"
-      ],
+      "capital": ["Honiara"],
+      "currencies": ["SBD"],
       "isoAlpha2": "SB",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Victoria"
-      ],
-      "currencies": [
-        "SCR"
-      ],
+      "capital": ["Victoria"],
+      "currencies": ["SCR"],
       "isoAlpha2": "SC",
-      "languages": [
-        "fr",
-        "en"
-      ]
+      "languages": ["fr", "en"]
     },
     {
-      "capital": [
-        "Khartoum"
-      ],
-      "currencies": [
-        "SDG"
-      ],
+      "capital": ["Khartoum"],
+      "currencies": ["SDG"],
       "isoAlpha2": "SD",
-      "languages": [
-        "ar",
-        "en"
-      ]
+      "languages": ["ar", "en"]
     },
     {
-      "capital": [
-        "Stockholm"
-      ],
-      "currencies": [
-        "SEK"
-      ],
+      "capital": ["Stockholm"],
+      "currencies": ["SEK"],
       "isoAlpha2": "SE",
-      "languages": [
-        "sv"
-      ]
+      "languages": ["sv"]
     },
     {
-      "capital": [
-        "Singapore"
-      ],
-      "currencies": [
-        "SGD"
-      ],
+      "capital": ["Singapore"],
+      "currencies": ["SGD"],
       "isoAlpha2": "SG",
-      "languages": [
-        "en",
-        "ms",
-        "ta",
-        "zh"
-      ]
+      "languages": ["en", "ms", "ta", "zh"]
     },
     {
-      "capital": [
-        "Jamestown"
-      ],
-      "currencies": [
-        "SHP"
-      ],
+      "capital": ["Jamestown"],
+      "currencies": ["SHP"],
       "isoAlpha2": "SH",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Ljubljana"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Ljubljana"],
+      "currencies": ["EUR"],
       "isoAlpha2": "SI",
-      "languages": [
-        "sl"
-      ]
+      "languages": ["sl"]
     },
     {
-      "capital": [
-        "Longyearbyen"
-      ],
-      "currencies": [
-        "NOK"
-      ],
+      "capital": ["Longyearbyen"],
+      "currencies": ["NOK"],
       "isoAlpha2": "SJ",
-      "languages": [
-        "no"
-      ]
+      "languages": ["no"]
     },
     {
-      "capital": [
-        "Bratislava"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Bratislava"],
+      "currencies": ["EUR"],
       "isoAlpha2": "SK",
-      "languages": [
-        "sk"
-      ]
+      "languages": ["sk"]
     },
     {
-      "capital": [
-        "Freetown"
-      ],
-      "currencies": [
-        "SLE"
-      ],
+      "capital": ["Freetown"],
+      "currencies": ["SLE"],
       "isoAlpha2": "SL",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "City of San Marino"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["City of San Marino"],
+      "currencies": ["EUR"],
       "isoAlpha2": "SM",
-      "languages": [
-        "it"
-      ]
+      "languages": ["it"]
     },
     {
-      "capital": [
-        "Dakar"
-      ],
-      "currencies": [
-        "XOF"
-      ],
+      "capital": ["Dakar"],
+      "currencies": ["XOF"],
       "isoAlpha2": "SN",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Mogadishu"
-      ],
-      "currencies": [
-        "SOS"
-      ],
+      "capital": ["Mogadishu"],
+      "currencies": ["SOS"],
       "isoAlpha2": "SO",
-      "languages": [
-        "so",
-        "ar"
-      ]
+      "languages": ["so", "ar"]
     },
     {
-      "capital": [
-        "Paramaribo"
-      ],
-      "currencies": [
-        "SRD"
-      ],
+      "capital": ["Paramaribo"],
+      "currencies": ["SRD"],
       "isoAlpha2": "SR",
-      "languages": [
-        "nl"
-      ]
+      "languages": ["nl"]
     },
     {
-      "capital": [
-        "Juba"
-      ],
-      "currencies": [
-        "SSP"
-      ],
+      "capital": ["Juba"],
+      "currencies": ["SSP"],
       "isoAlpha2": "SS",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "São Tomé"
-      ],
-      "currencies": [
-        "STN"
-      ],
+      "capital": ["São Tomé"],
+      "currencies": ["STN"],
       "isoAlpha2": "ST",
-      "languages": [
-        "pt"
-      ]
+      "languages": ["pt"]
     },
     {
-      "capital": [
-        "San Salvador"
-      ],
-      "currencies": [
-        "USD",
-        "SVC"
-      ],
+      "capital": ["San Salvador"],
+      "currencies": ["USD", "SVC"],
       "isoAlpha2": "SV",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Philipsburg"
-      ],
-      "currencies": [
-        "XCG"
-      ],
+      "capital": ["Philipsburg"],
+      "currencies": ["XCG"],
       "isoAlpha2": "SX",
-      "languages": [
-        "nl",
-        "en"
-      ]
+      "languages": ["nl", "en"]
     },
     {
-      "capital": [
-        "Damascus"
-      ],
-      "currencies": [
-        "SYP"
-      ],
+      "capital": ["Damascus"],
+      "currencies": ["SYP"],
       "isoAlpha2": "SY",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Lobamba"
-      ],
-      "currencies": [
-        "SZL"
-      ],
+      "capital": ["Lobamba"],
+      "currencies": ["SZL"],
       "isoAlpha2": "SZ",
-      "languages": [
-        "en",
-        "ss"
-      ]
+      "languages": ["en", "ss"]
     },
     {
-      "capital": [
-        "Cockburn Town"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Cockburn Town"],
+      "currencies": ["USD"],
       "isoAlpha2": "TC",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "N'Djamena"
-      ],
-      "currencies": [
-        "XAF"
-      ],
+      "capital": ["N'Djamena"],
+      "currencies": ["XAF"],
       "isoAlpha2": "TD",
-      "languages": [
-        "fr",
-        "ar"
-      ]
+      "languages": ["fr", "ar"]
     },
     {
-      "capital": [
-        "Port-aux-Français"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Port-aux-Français"],
+      "currencies": ["EUR"],
       "isoAlpha2": "TF",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Lomé"
-      ],
-      "currencies": [
-        "XOF"
-      ],
+      "capital": ["Lomé"],
+      "currencies": ["XOF"],
       "isoAlpha2": "TG",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Bangkok"
-      ],
-      "currencies": [
-        "THB"
-      ],
+      "capital": ["Bangkok"],
+      "currencies": ["THB"],
       "isoAlpha2": "TH",
-      "languages": [
-        "th"
-      ]
+      "languages": ["th"]
     },
     {
-      "capital": [
-        "Dushanbe"
-      ],
-      "currencies": [
-        "TJS"
-      ],
+      "capital": ["Dushanbe"],
+      "currencies": ["TJS"],
       "isoAlpha2": "TJ",
-      "languages": [
-        "tg",
-        "ru"
-      ]
+      "languages": ["tg", "ru"]
     },
     {
-      "capital": [
-        "Fakaofo"
-      ],
-      "currencies": [
-        "NZD"
-      ],
+      "capital": ["Fakaofo"],
+      "currencies": ["NZD"],
       "isoAlpha2": "TK",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Dili"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Dili"],
+      "currencies": ["USD"],
       "isoAlpha2": "TL",
-      "languages": [
-        "pt"
-      ]
+      "languages": ["pt"]
     },
     {
-      "capital": [
-        "Ashgabat"
-      ],
-      "currencies": [
-        "TMT"
-      ],
+      "capital": ["Ashgabat"],
+      "currencies": ["TMT"],
       "isoAlpha2": "TM",
-      "languages": [
-        "tk",
-        "ru"
-      ]
+      "languages": ["tk", "ru"]
     },
     {
-      "capital": [
-        "Tunis"
-      ],
-      "currencies": [
-        "TND"
-      ],
+      "capital": ["Tunis"],
+      "currencies": ["TND"],
       "isoAlpha2": "TN",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Nuku'alofa"
-      ],
-      "currencies": [
-        "TOP"
-      ],
+      "capital": ["Nuku'alofa"],
+      "currencies": ["TOP"],
       "isoAlpha2": "TO",
-      "languages": [
-        "en",
-        "to"
-      ]
+      "languages": ["en", "to"]
     },
     {
-      "capital": [
-        "Ankara"
-      ],
-      "currencies": [
-        "TRY"
-      ],
+      "capital": ["Ankara"],
+      "currencies": ["TRY"],
       "isoAlpha2": "TR",
-      "languages": [
-        "tr"
-      ]
+      "languages": ["tr"]
     },
     {
-      "capital": [
-        "Port of Spain"
-      ],
-      "currencies": [
-        "TTD"
-      ],
+      "capital": ["Port of Spain"],
+      "currencies": ["TTD"],
       "isoAlpha2": "TT",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Funafuti"
-      ],
-      "currencies": [
-        "AUD"
-      ],
+      "capital": ["Funafuti"],
+      "currencies": ["AUD"],
       "isoAlpha2": "TV",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Taipei"
-      ],
-      "currencies": [
-        "TWD"
-      ],
+      "capital": ["Taipei"],
+      "currencies": ["TWD"],
       "isoAlpha2": "TW",
-      "languages": [
-        "zh"
-      ]
+      "languages": ["zh"]
     },
     {
-      "capital": [
-        "Dodoma"
-      ],
-      "currencies": [
-        "TZS"
-      ],
+      "capital": ["Dodoma"],
+      "currencies": ["TZS"],
       "isoAlpha2": "TZ",
-      "languages": [
-        "sw",
-        "en"
-      ]
+      "languages": ["sw", "en"]
     },
     {
-      "capital": [
-        "Kyiv"
-      ],
-      "currencies": [
-        "UAH"
-      ],
+      "capital": ["Kyiv"],
+      "currencies": ["UAH"],
       "isoAlpha2": "UA",
-      "languages": [
-        "uk"
-      ]
+      "languages": ["uk"]
     },
     {
-      "capital": [
-        "Kampala"
-      ],
-      "currencies": [
-        "UGX"
-      ],
+      "capital": ["Kampala"],
+      "currencies": ["UGX"],
       "isoAlpha2": "UG",
-      "languages": [
-        "en",
-        "sw"
-      ]
+      "languages": ["en", "sw"]
     },
     {
       "capital": [],
-      "currencies": [
-        "USD"
-      ],
+      "currencies": ["USD"],
       "isoAlpha2": "UM",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Washington D.C."
-      ],
-      "currencies": [
-        "USD",
-        "USN"
-      ],
+      "capital": ["Washington D.C."],
+      "currencies": ["USD", "USN"],
       "isoAlpha2": "US",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Montevideo"
-      ],
-      "currencies": [
-        "UYU",
-        "UYI"
-      ],
+      "capital": ["Montevideo"],
+      "currencies": ["UYU", "UYI"],
       "isoAlpha2": "UY",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Tashkent"
-      ],
-      "currencies": [
-        "UZS"
-      ],
+      "capital": ["Tashkent"],
+      "currencies": ["UZS"],
       "isoAlpha2": "UZ",
-      "languages": [
-        "uz",
-        "ru"
-      ]
+      "languages": ["uz", "ru"]
     },
     {
-      "capital": [
-        "Vatican City"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Vatican City"],
+      "currencies": ["EUR"],
       "isoAlpha2": "VA",
-      "languages": [
-        "it",
-        "la"
-      ]
+      "languages": ["it", "la"]
     },
     {
-      "capital": [
-        "Kingstown"
-      ],
-      "currencies": [
-        "XCD"
-      ],
+      "capital": ["Kingstown"],
+      "currencies": ["XCD"],
       "isoAlpha2": "VC",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Caracas"
-      ],
-      "currencies": [
-        "VES"
-      ],
+      "capital": ["Caracas"],
+      "currencies": ["VES"],
       "isoAlpha2": "VE",
-      "languages": [
-        "es"
-      ]
+      "languages": ["es"]
     },
     {
-      "capital": [
-        "Road Town"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Road Town"],
+      "currencies": ["USD"],
       "isoAlpha2": "VG",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Charlotte Amalie"
-      ],
-      "currencies": [
-        "USD"
-      ],
+      "capital": ["Charlotte Amalie"],
+      "currencies": ["USD"],
       "isoAlpha2": "VI",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Hanoi"
-      ],
-      "currencies": [
-        "VND"
-      ],
+      "capital": ["Hanoi"],
+      "currencies": ["VND"],
       "isoAlpha2": "VN",
-      "languages": [
-        "vi"
-      ]
+      "languages": ["vi"]
     },
     {
-      "capital": [
-        "Port Vila"
-      ],
-      "currencies": [
-        "VUV"
-      ],
+      "capital": ["Port Vila"],
+      "currencies": ["VUV"],
       "isoAlpha2": "VU",
-      "languages": [
-        "bi",
-        "en",
-        "fr"
-      ]
+      "languages": ["bi", "en", "fr"]
     },
     {
-      "capital": [
-        "Mata-Utu"
-      ],
-      "currencies": [
-        "XPF"
-      ],
+      "capital": ["Mata-Utu"],
+      "currencies": ["XPF"],
       "isoAlpha2": "WF",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Apia"
-      ],
-      "currencies": [
-        "WST"
-      ],
+      "capital": ["Apia"],
+      "currencies": ["WST"],
       "isoAlpha2": "WS",
-      "languages": [
-        "sm",
-        "en"
-      ]
+      "languages": ["sm", "en"]
     },
     {
-      "capital": [
-        "Pristina"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Pristina"],
+      "currencies": ["EUR"],
       "isoAlpha2": "XK",
-      "languages": [
-        "sq",
-        "sr"
-      ]
+      "languages": ["sq", "sr"]
     },
     {
-      "capital": [
-        "Sana'a"
-      ],
-      "currencies": [
-        "YER"
-      ],
+      "capital": ["Sana'a"],
+      "currencies": ["YER"],
       "isoAlpha2": "YE",
-      "languages": [
-        "ar"
-      ]
+      "languages": ["ar"]
     },
     {
-      "capital": [
-        "Mamoudzou"
-      ],
-      "currencies": [
-        "EUR"
-      ],
+      "capital": ["Mamoudzou"],
+      "currencies": ["EUR"],
       "isoAlpha2": "YT",
-      "languages": [
-        "fr"
-      ]
+      "languages": ["fr"]
     },
     {
-      "capital": [
-        "Pretoria"
-      ],
-      "currencies": [
-        "ZAR"
-      ],
+      "capital": ["Pretoria"],
+      "currencies": ["ZAR"],
       "isoAlpha2": "ZA",
-      "languages": [
-        "af",
-        "en",
-        "nr",
-        "st",
-        "ss",
-        "tn",
-        "ts",
-        "ve",
-        "xh",
-        "zu"
-      ]
+      "languages": ["af", "en", "nr", "st", "ss", "tn", "ts", "ve", "xh", "zu"]
     },
     {
-      "capital": [
-        "Lusaka"
-      ],
-      "currencies": [
-        "ZMW"
-      ],
+      "capital": ["Lusaka"],
+      "currencies": ["ZMW"],
       "isoAlpha2": "ZM",
-      "languages": [
-        "en"
-      ]
+      "languages": ["en"]
     },
     {
-      "capital": [
-        "Harare"
-      ],
+      "capital": ["Harare"],
       "currencies": [
         "ZWG",
         "USD",
@@ -3122,11 +1508,7 @@
         "JPY"
       ],
       "isoAlpha2": "ZW",
-      "languages": [
-        "en",
-        "sn",
-        "nd"
-      ]
+      "languages": ["en", "sn", "nd"]
     }
   ],
   "selectedIsoAlpha2": [

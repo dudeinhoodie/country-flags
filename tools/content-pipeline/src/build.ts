@@ -119,7 +119,11 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     SCHEMAS.cardTemplates,
     learning.cardTemplates,
   );
-  await add("learning-cards.json", SCHEMAS.learningCards, learning.learningCards);
+  await add(
+    "learning-cards.json",
+    SCHEMAS.learningCards,
+    learning.learningCards,
+  );
   await add("provenance/provenance.json", SCHEMAS.provenance, {
     schemaVersion: 1,
     fields: merged.provenance,

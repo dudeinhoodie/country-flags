@@ -28,25 +28,25 @@ Backend-агент должен прочитать полностью:
 
 ## 2. Что уже решено
 
-| Область | Зафиксированное решение |
-|---|---|
-| API | REST JSON `/v1`, contract-first OpenAPI |
-| Backend | NestJS, strict TypeScript |
-| DB | PostgreSQL + Prisma migrations |
-| Package manager | Yarn workspaces через Corepack + `yarn.lock` |
-| Content flexibility | Normalized entities/relations/cards + validated JSONB |
-| Progress | Immutable review events + canonical projections |
-| Scheduler | FSRS-6, pinned `ts-fsrs`, desired retention 0.90 |
-| Offline conflicts | client sequence + normalized effective time + deterministic replay |
-| Scheduler upgrade | immutable definitions + migration checkpoints + reconciliation |
-| Multiple choice | server-generated versioned option snapshot; grading by option ID |
-| Card changes | technical revision preserves progress; material flag change creates new card |
-| Auth | Apple + Google identities, no merge by email |
-| Guest import | idempotent event import with migration ID |
-| Feature flags | OpenFeature; local static/default provider first |
-| Advertising | policy/default-off only; no ad SDK/backend network |
-| Analytics/errors | provider adapters and NoOp exporters first |
-| Production content | atomic signed/checksummed bundle |
+| Область             | Зафиксированное решение                                                      |
+| ------------------- | ---------------------------------------------------------------------------- |
+| API                 | REST JSON `/v1`, contract-first OpenAPI                                      |
+| Backend             | NestJS, strict TypeScript                                                    |
+| DB                  | PostgreSQL + Prisma migrations                                               |
+| Package manager     | Yarn workspaces через Corepack + `yarn.lock`                                 |
+| Content flexibility | Normalized entities/relations/cards + validated JSONB                        |
+| Progress            | Immutable review events + canonical projections                              |
+| Scheduler           | FSRS-6, pinned `ts-fsrs`, desired retention 0.90                             |
+| Offline conflicts   | client sequence + normalized effective time + deterministic replay           |
+| Scheduler upgrade   | immutable definitions + migration checkpoints + reconciliation               |
+| Multiple choice     | server-generated versioned option snapshot; grading by option ID             |
+| Card changes        | technical revision preserves progress; material flag change creates new card |
+| Auth                | Apple + Google identities, no merge by email                                 |
+| Guest import        | idempotent event import with migration ID                                    |
+| Feature flags       | OpenFeature; local static/default provider first                             |
+| Advertising         | policy/default-off only; no ad SDK/backend network                           |
+| Analytics/errors    | provider adapters and NoOp exporters first                                   |
+| Production content  | atomic signed/checksummed bundle                                             |
 
 ## 3. Отсутствующие данные не блокируют старт
 

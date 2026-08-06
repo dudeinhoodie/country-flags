@@ -98,11 +98,6 @@
     "keyId": "unsigned-candidate",
     "value": ""
   },
-  "supportedLocales": [
-    "en",
-    "ru"
-  ],
-  "supportedTemplateSchemaVersions": [
-    1
-  ]
+  "supportedLocales": ["en", "ru"],
+  "supportedTemplateSchemaVersions": [1]
 }
