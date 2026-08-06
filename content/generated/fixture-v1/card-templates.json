@@ -7,7 +7,12 @@
         "nameType": "SHORT"
       },
       "answerType": "GEO_ENTITY_NAME",
-      "backSideFactTypes": ["capital", "population", "currency", "language"],
+      "backSideFactTypes": [
+        "capital",
+        "population",
+        "currency",
+        "language"
+      ],
       "code": "FLAG_TO_COUNTRY",
       "gradingMode": "self_rated",
       "promptSpec": {

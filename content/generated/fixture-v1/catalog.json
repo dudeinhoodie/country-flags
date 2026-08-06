@@ -292,7 +292,9 @@
   "defaultLocale": "ru",
   "entities": [
     {
-      "assetKeys": ["flag.antarctica.current"],
+      "assetKeys": [
+        "flag.antarctica.current"
+      ],
       "codes": {
         "isoAlpha2": "AQ",
         "isoAlpha3": "ATA",
@@ -315,7 +317,9 @@
       "type": "area"
     },
     {
-      "assetKeys": ["flag.bouvet-island.current"],
+      "assetKeys": [
+        "flag.bouvet-island.current"
+      ],
       "codes": {
         "isoAlpha2": "BV",
         "isoAlpha3": "BVT",
@@ -338,7 +342,9 @@
       "type": "area"
     },
     {
-      "assetKeys": ["flag.cook-islands.current"],
+      "assetKeys": [
+        "flag.cook-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "CK",
         "isoAlpha3": "COK",
@@ -361,7 +367,9 @@
       "type": "area"
     },
     {
-      "assetKeys": ["flag.french-southern-territories.current"],
+      "assetKeys": [
+        "flag.french-southern-territories.current"
+      ],
       "codes": {
         "isoAlpha2": "TF",
         "isoAlpha3": "ATF",
@@ -384,7 +392,9 @@
       "type": "area"
     },
     {
-      "assetKeys": ["flag.heard-island-and-mcdonald-islands.current"],
+      "assetKeys": [
+        "flag.heard-island-and-mcdonald-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "HM",
         "isoAlpha3": "HMD",
@@ -407,7 +417,9 @@
       "type": "area"
     },
     {
-      "assetKeys": ["flag.niue.current"],
+      "assetKeys": [
+        "flag.niue.current"
+      ],
       "codes": {
         "isoAlpha2": "NU",
         "isoAlpha3": "NIU",
@@ -430,7 +442,9 @@
       "type": "area"
     },
     {
-      "assetKeys": ["flag.united-states-minor-outlying-islands.current"],
+      "assetKeys": [
+        "flag.united-states-minor-outlying-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "UM",
         "isoAlpha3": "UMI",
@@ -453,7 +467,9 @@
       "type": "area"
     },
     {
-      "assetKeys": ["flag.afghanistan.current"],
+      "assetKeys": [
+        "flag.afghanistan.current"
+      ],
       "codes": {
         "isoAlpha2": "AF",
         "isoAlpha3": "AFG",
@@ -476,7 +492,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.albania.current"],
+      "assetKeys": [
+        "flag.albania.current"
+      ],
       "codes": {
         "isoAlpha2": "AL",
         "isoAlpha3": "ALB",
@@ -499,7 +517,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.algeria.current"],
+      "assetKeys": [
+        "flag.algeria.current"
+      ],
       "codes": {
         "isoAlpha2": "DZ",
         "isoAlpha3": "DZA",
@@ -522,7 +542,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.andorra.current"],
+      "assetKeys": [
+        "flag.andorra.current"
+      ],
       "codes": {
         "isoAlpha2": "AD",
         "isoAlpha3": "AND",
@@ -545,7 +567,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.angola.current"],
+      "assetKeys": [
+        "flag.angola.current"
+      ],
       "codes": {
         "isoAlpha2": "AO",
         "isoAlpha3": "AGO",
@@ -568,7 +592,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.antigua-and-barbuda.current"],
+      "assetKeys": [
+        "flag.antigua-and-barbuda.current"
+      ],
       "codes": {
         "isoAlpha2": "AG",
         "isoAlpha3": "ATG",
@@ -591,7 +617,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.argentina.current"],
+      "assetKeys": [
+        "flag.argentina.current"
+      ],
       "codes": {
         "isoAlpha2": "AR",
         "isoAlpha3": "ARG",
@@ -614,7 +642,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.armenia.current"],
+      "assetKeys": [
+        "flag.armenia.current"
+      ],
       "codes": {
         "isoAlpha2": "AM",
         "isoAlpha3": "ARM",
@@ -637,7 +667,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.australia.current"],
+      "assetKeys": [
+        "flag.australia.current"
+      ],
       "codes": {
         "isoAlpha2": "AU",
         "isoAlpha3": "AUS",
@@ -660,7 +692,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.austria.current"],
+      "assetKeys": [
+        "flag.austria.current"
+      ],
       "codes": {
         "isoAlpha2": "AT",
         "isoAlpha3": "AUT",
@@ -683,7 +717,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.azerbaijan.current"],
+      "assetKeys": [
+        "flag.azerbaijan.current"
+      ],
       "codes": {
         "isoAlpha2": "AZ",
         "isoAlpha3": "AZE",
@@ -706,7 +742,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.bahamas.current"],
+      "assetKeys": [
+        "flag.bahamas.current"
+      ],
       "codes": {
         "isoAlpha2": "BS",
         "isoAlpha3": "BHS",
@@ -729,7 +767,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.bahrain.current"],
+      "assetKeys": [
+        "flag.bahrain.current"
+      ],
       "codes": {
         "isoAlpha2": "BH",
         "isoAlpha3": "BHR",
@@ -752,7 +792,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.bangladesh.current"],
+      "assetKeys": [
+        "flag.bangladesh.current"
+      ],
       "codes": {
         "isoAlpha2": "BD",
         "isoAlpha3": "BGD",
@@ -775,7 +817,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.barbados.current"],
+      "assetKeys": [
+        "flag.barbados.current"
+      ],
       "codes": {
         "isoAlpha2": "BB",
         "isoAlpha3": "BRB",
@@ -798,7 +842,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.belarus.current"],
+      "assetKeys": [
+        "flag.belarus.current"
+      ],
       "codes": {
         "isoAlpha2": "BY",
         "isoAlpha3": "BLR",
@@ -821,7 +867,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.belgium.current"],
+      "assetKeys": [
+        "flag.belgium.current"
+      ],
       "codes": {
         "isoAlpha2": "BE",
         "isoAlpha3": "BEL",
@@ -844,7 +892,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.belize.current"],
+      "assetKeys": [
+        "flag.belize.current"
+      ],
       "codes": {
         "isoAlpha2": "BZ",
         "isoAlpha3": "BLZ",
@@ -867,7 +917,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.benin.current"],
+      "assetKeys": [
+        "flag.benin.current"
+      ],
       "codes": {
         "isoAlpha2": "BJ",
         "isoAlpha3": "BEN",
@@ -890,7 +942,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.bhutan.current"],
+      "assetKeys": [
+        "flag.bhutan.current"
+      ],
       "codes": {
         "isoAlpha2": "BT",
         "isoAlpha3": "BTN",
@@ -913,7 +967,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.bolivia-plurinational-state-of.current"],
+      "assetKeys": [
+        "flag.bolivia-plurinational-state-of.current"
+      ],
       "codes": {
         "isoAlpha2": "BO",
         "isoAlpha3": "BOL",
@@ -936,7 +992,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.bosnia-and-herzegovina.current"],
+      "assetKeys": [
+        "flag.bosnia-and-herzegovina.current"
+      ],
       "codes": {
         "isoAlpha2": "BA",
         "isoAlpha3": "BIH",
@@ -959,7 +1017,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.botswana.current"],
+      "assetKeys": [
+        "flag.botswana.current"
+      ],
       "codes": {
         "isoAlpha2": "BW",
         "isoAlpha3": "BWA",
@@ -982,7 +1042,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.brazil.current"],
+      "assetKeys": [
+        "flag.brazil.current"
+      ],
       "codes": {
         "isoAlpha2": "BR",
         "isoAlpha3": "BRA",
@@ -1005,7 +1067,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.brunei-darussalam.current"],
+      "assetKeys": [
+        "flag.brunei-darussalam.current"
+      ],
       "codes": {
         "isoAlpha2": "BN",
         "isoAlpha3": "BRN",
@@ -1028,7 +1092,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.bulgaria.current"],
+      "assetKeys": [
+        "flag.bulgaria.current"
+      ],
       "codes": {
         "isoAlpha2": "BG",
         "isoAlpha3": "BGR",
@@ -1051,7 +1117,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.burkina-faso.current"],
+      "assetKeys": [
+        "flag.burkina-faso.current"
+      ],
       "codes": {
         "isoAlpha2": "BF",
         "isoAlpha3": "BFA",
@@ -1074,7 +1142,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.burundi.current"],
+      "assetKeys": [
+        "flag.burundi.current"
+      ],
       "codes": {
         "isoAlpha2": "BI",
         "isoAlpha3": "BDI",
@@ -1097,7 +1167,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.cabo-verde.current"],
+      "assetKeys": [
+        "flag.cabo-verde.current"
+      ],
       "codes": {
         "isoAlpha2": "CV",
         "isoAlpha3": "CPV",
@@ -1120,7 +1192,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.cambodia.current"],
+      "assetKeys": [
+        "flag.cambodia.current"
+      ],
       "codes": {
         "isoAlpha2": "KH",
         "isoAlpha3": "KHM",
@@ -1143,7 +1217,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.cameroon.current"],
+      "assetKeys": [
+        "flag.cameroon.current"
+      ],
       "codes": {
         "isoAlpha2": "CM",
         "isoAlpha3": "CMR",
@@ -1166,7 +1242,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.canada.current"],
+      "assetKeys": [
+        "flag.canada.current"
+      ],
       "codes": {
         "isoAlpha2": "CA",
         "isoAlpha3": "CAN",
@@ -1189,7 +1267,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.central-african-republic.current"],
+      "assetKeys": [
+        "flag.central-african-republic.current"
+      ],
       "codes": {
         "isoAlpha2": "CF",
         "isoAlpha3": "CAF",
@@ -1212,7 +1292,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.chad.current"],
+      "assetKeys": [
+        "flag.chad.current"
+      ],
       "codes": {
         "isoAlpha2": "TD",
         "isoAlpha3": "TCD",
@@ -1235,7 +1317,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.chile.current"],
+      "assetKeys": [
+        "flag.chile.current"
+      ],
       "codes": {
         "isoAlpha2": "CL",
         "isoAlpha3": "CHL",
@@ -1258,7 +1342,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.china.current"],
+      "assetKeys": [
+        "flag.china.current"
+      ],
       "codes": {
         "isoAlpha2": "CN",
         "isoAlpha3": "CHN",
@@ -1281,7 +1367,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.colombia.current"],
+      "assetKeys": [
+        "flag.colombia.current"
+      ],
       "codes": {
         "isoAlpha2": "CO",
         "isoAlpha3": "COL",
@@ -1304,7 +1392,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.comoros.current"],
+      "assetKeys": [
+        "flag.comoros.current"
+      ],
       "codes": {
         "isoAlpha2": "KM",
         "isoAlpha3": "COM",
@@ -1327,7 +1417,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.congo.current"],
+      "assetKeys": [
+        "flag.congo.current"
+      ],
       "codes": {
         "isoAlpha2": "CG",
         "isoAlpha3": "COG",
@@ -1350,7 +1442,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.costa-rica.current"],
+      "assetKeys": [
+        "flag.costa-rica.current"
+      ],
       "codes": {
         "isoAlpha2": "CR",
         "isoAlpha3": "CRI",
@@ -1373,7 +1467,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.cote-d-ivoire.current"],
+      "assetKeys": [
+        "flag.cote-d-ivoire.current"
+      ],
       "codes": {
         "isoAlpha2": "CI",
         "isoAlpha3": "CIV",
@@ -1396,7 +1492,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.croatia.current"],
+      "assetKeys": [
+        "flag.croatia.current"
+      ],
       "codes": {
         "isoAlpha2": "HR",
         "isoAlpha3": "HRV",
@@ -1419,7 +1517,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.cuba.current"],
+      "assetKeys": [
+        "flag.cuba.current"
+      ],
       "codes": {
         "isoAlpha2": "CU",
         "isoAlpha3": "CUB",
@@ -1442,7 +1542,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.cyprus.current"],
+      "assetKeys": [
+        "flag.cyprus.current"
+      ],
       "codes": {
         "isoAlpha2": "CY",
         "isoAlpha3": "CYP",
@@ -1465,7 +1567,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.czechia.current"],
+      "assetKeys": [
+        "flag.czechia.current"
+      ],
       "codes": {
         "isoAlpha2": "CZ",
         "isoAlpha3": "CZE",
@@ -1488,7 +1592,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.democratic-people-s-republic-of-korea.current"],
+      "assetKeys": [
+        "flag.democratic-people-s-republic-of-korea.current"
+      ],
       "codes": {
         "isoAlpha2": "KP",
         "isoAlpha3": "PRK",
@@ -1511,7 +1617,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.democratic-republic-of-the-congo.current"],
+      "assetKeys": [
+        "flag.democratic-republic-of-the-congo.current"
+      ],
       "codes": {
         "isoAlpha2": "CD",
         "isoAlpha3": "COD",
@@ -1534,7 +1642,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.denmark.current"],
+      "assetKeys": [
+        "flag.denmark.current"
+      ],
       "codes": {
         "isoAlpha2": "DK",
         "isoAlpha3": "DNK",
@@ -1557,7 +1667,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.djibouti.current"],
+      "assetKeys": [
+        "flag.djibouti.current"
+      ],
       "codes": {
         "isoAlpha2": "DJ",
         "isoAlpha3": "DJI",
@@ -1580,7 +1692,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.dominica.current"],
+      "assetKeys": [
+        "flag.dominica.current"
+      ],
       "codes": {
         "isoAlpha2": "DM",
         "isoAlpha3": "DMA",
@@ -1603,7 +1717,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.dominican-republic.current"],
+      "assetKeys": [
+        "flag.dominican-republic.current"
+      ],
       "codes": {
         "isoAlpha2": "DO",
         "isoAlpha3": "DOM",
@@ -1626,7 +1742,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.ecuador.current"],
+      "assetKeys": [
+        "flag.ecuador.current"
+      ],
       "codes": {
         "isoAlpha2": "EC",
         "isoAlpha3": "ECU",
@@ -1649,7 +1767,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.egypt.current"],
+      "assetKeys": [
+        "flag.egypt.current"
+      ],
       "codes": {
         "isoAlpha2": "EG",
         "isoAlpha3": "EGY",
@@ -1672,7 +1792,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.el-salvador.current"],
+      "assetKeys": [
+        "flag.el-salvador.current"
+      ],
       "codes": {
         "isoAlpha2": "SV",
         "isoAlpha3": "SLV",
@@ -1695,7 +1817,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.equatorial-guinea.current"],
+      "assetKeys": [
+        "flag.equatorial-guinea.current"
+      ],
       "codes": {
         "isoAlpha2": "GQ",
         "isoAlpha3": "GNQ",
@@ -1718,7 +1842,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.eritrea.current"],
+      "assetKeys": [
+        "flag.eritrea.current"
+      ],
       "codes": {
         "isoAlpha2": "ER",
         "isoAlpha3": "ERI",
@@ -1741,7 +1867,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.estonia.current"],
+      "assetKeys": [
+        "flag.estonia.current"
+      ],
       "codes": {
         "isoAlpha2": "EE",
         "isoAlpha3": "EST",
@@ -1764,7 +1892,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.eswatini.current"],
+      "assetKeys": [
+        "flag.eswatini.current"
+      ],
       "codes": {
         "isoAlpha2": "SZ",
         "isoAlpha3": "SWZ",
@@ -1787,7 +1917,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.ethiopia.current"],
+      "assetKeys": [
+        "flag.ethiopia.current"
+      ],
       "codes": {
         "isoAlpha2": "ET",
         "isoAlpha3": "ETH",
@@ -1810,7 +1942,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.fiji.current"],
+      "assetKeys": [
+        "flag.fiji.current"
+      ],
       "codes": {
         "isoAlpha2": "FJ",
         "isoAlpha3": "FJI",
@@ -1833,7 +1967,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.finland.current"],
+      "assetKeys": [
+        "flag.finland.current"
+      ],
       "codes": {
         "isoAlpha2": "FI",
         "isoAlpha3": "FIN",
@@ -1856,7 +1992,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.france.current"],
+      "assetKeys": [
+        "flag.france.current"
+      ],
       "codes": {
         "isoAlpha2": "FR",
         "isoAlpha3": "FRA",
@@ -1879,7 +2017,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.gabon.current"],
+      "assetKeys": [
+        "flag.gabon.current"
+      ],
       "codes": {
         "isoAlpha2": "GA",
         "isoAlpha3": "GAB",
@@ -1902,7 +2042,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.gambia.current"],
+      "assetKeys": [
+        "flag.gambia.current"
+      ],
       "codes": {
         "isoAlpha2": "GM",
         "isoAlpha3": "GMB",
@@ -1925,7 +2067,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.georgia.current"],
+      "assetKeys": [
+        "flag.georgia.current"
+      ],
       "codes": {
         "isoAlpha2": "GE",
         "isoAlpha3": "GEO",
@@ -1948,7 +2092,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.germany.current"],
+      "assetKeys": [
+        "flag.germany.current"
+      ],
       "codes": {
         "isoAlpha2": "DE",
         "isoAlpha3": "DEU",
@@ -1971,7 +2117,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.ghana.current"],
+      "assetKeys": [
+        "flag.ghana.current"
+      ],
       "codes": {
         "isoAlpha2": "GH",
         "isoAlpha3": "GHA",
@@ -1994,7 +2142,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.greece.current"],
+      "assetKeys": [
+        "flag.greece.current"
+      ],
       "codes": {
         "isoAlpha2": "GR",
         "isoAlpha3": "GRC",
@@ -2017,7 +2167,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.grenada.current"],
+      "assetKeys": [
+        "flag.grenada.current"
+      ],
       "codes": {
         "isoAlpha2": "GD",
         "isoAlpha3": "GRD",
@@ -2040,7 +2192,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.guatemala.current"],
+      "assetKeys": [
+        "flag.guatemala.current"
+      ],
       "codes": {
         "isoAlpha2": "GT",
         "isoAlpha3": "GTM",
@@ -2063,7 +2217,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.guinea.current"],
+      "assetKeys": [
+        "flag.guinea.current"
+      ],
       "codes": {
         "isoAlpha2": "GN",
         "isoAlpha3": "GIN",
@@ -2086,7 +2242,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.guinea-bissau.current"],
+      "assetKeys": [
+        "flag.guinea-bissau.current"
+      ],
       "codes": {
         "isoAlpha2": "GW",
         "isoAlpha3": "GNB",
@@ -2109,7 +2267,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.guyana.current"],
+      "assetKeys": [
+        "flag.guyana.current"
+      ],
       "codes": {
         "isoAlpha2": "GY",
         "isoAlpha3": "GUY",
@@ -2132,7 +2292,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.haiti.current"],
+      "assetKeys": [
+        "flag.haiti.current"
+      ],
       "codes": {
         "isoAlpha2": "HT",
         "isoAlpha3": "HTI",
@@ -2155,7 +2317,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.holy-see.current"],
+      "assetKeys": [
+        "flag.holy-see.current"
+      ],
       "codes": {
         "isoAlpha2": "VA",
         "isoAlpha3": "VAT",
@@ -2178,7 +2342,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.honduras.current"],
+      "assetKeys": [
+        "flag.honduras.current"
+      ],
       "codes": {
         "isoAlpha2": "HN",
         "isoAlpha3": "HND",
@@ -2201,7 +2367,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.hungary.current"],
+      "assetKeys": [
+        "flag.hungary.current"
+      ],
       "codes": {
         "isoAlpha2": "HU",
         "isoAlpha3": "HUN",
@@ -2224,7 +2392,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.iceland.current"],
+      "assetKeys": [
+        "flag.iceland.current"
+      ],
       "codes": {
         "isoAlpha2": "IS",
         "isoAlpha3": "ISL",
@@ -2247,7 +2417,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.india.current"],
+      "assetKeys": [
+        "flag.india.current"
+      ],
       "codes": {
         "isoAlpha2": "IN",
         "isoAlpha3": "IND",
@@ -2270,7 +2442,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.indonesia.current"],
+      "assetKeys": [
+        "flag.indonesia.current"
+      ],
       "codes": {
         "isoAlpha2": "ID",
         "isoAlpha3": "IDN",
@@ -2293,7 +2467,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.iran-islamic-republic-of.current"],
+      "assetKeys": [
+        "flag.iran-islamic-republic-of.current"
+      ],
       "codes": {
         "isoAlpha2": "IR",
         "isoAlpha3": "IRN",
@@ -2316,7 +2492,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.iraq.current"],
+      "assetKeys": [
+        "flag.iraq.current"
+      ],
       "codes": {
         "isoAlpha2": "IQ",
         "isoAlpha3": "IRQ",
@@ -2339,7 +2517,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.ireland.current"],
+      "assetKeys": [
+        "flag.ireland.current"
+      ],
       "codes": {
         "isoAlpha2": "IE",
         "isoAlpha3": "IRL",
@@ -2362,7 +2542,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.israel.current"],
+      "assetKeys": [
+        "flag.israel.current"
+      ],
       "codes": {
         "isoAlpha2": "IL",
         "isoAlpha3": "ISR",
@@ -2385,7 +2567,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.italy.current"],
+      "assetKeys": [
+        "flag.italy.current"
+      ],
       "codes": {
         "isoAlpha2": "IT",
         "isoAlpha3": "ITA",
@@ -2408,7 +2592,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.jamaica.current"],
+      "assetKeys": [
+        "flag.jamaica.current"
+      ],
       "codes": {
         "isoAlpha2": "JM",
         "isoAlpha3": "JAM",
@@ -2431,7 +2617,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.japan.current"],
+      "assetKeys": [
+        "flag.japan.current"
+      ],
       "codes": {
         "isoAlpha2": "JP",
         "isoAlpha3": "JPN",
@@ -2454,7 +2642,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.jordan.current"],
+      "assetKeys": [
+        "flag.jordan.current"
+      ],
       "codes": {
         "isoAlpha2": "JO",
         "isoAlpha3": "JOR",
@@ -2477,7 +2667,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.kazakhstan.current"],
+      "assetKeys": [
+        "flag.kazakhstan.current"
+      ],
       "codes": {
         "isoAlpha2": "KZ",
         "isoAlpha3": "KAZ",
@@ -2500,7 +2692,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.kenya.current"],
+      "assetKeys": [
+        "flag.kenya.current"
+      ],
       "codes": {
         "isoAlpha2": "KE",
         "isoAlpha3": "KEN",
@@ -2523,7 +2717,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.kiribati.current"],
+      "assetKeys": [
+        "flag.kiribati.current"
+      ],
       "codes": {
         "isoAlpha2": "KI",
         "isoAlpha3": "KIR",
@@ -2546,7 +2742,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.kosovo.current"],
+      "assetKeys": [
+        "flag.kosovo.current"
+      ],
       "codes": {
         "customCode": "XK"
       },
@@ -2568,7 +2766,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.kuwait.current"],
+      "assetKeys": [
+        "flag.kuwait.current"
+      ],
       "codes": {
         "isoAlpha2": "KW",
         "isoAlpha3": "KWT",
@@ -2591,7 +2791,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.kyrgyzstan.current"],
+      "assetKeys": [
+        "flag.kyrgyzstan.current"
+      ],
       "codes": {
         "isoAlpha2": "KG",
         "isoAlpha3": "KGZ",
@@ -2614,7 +2816,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.lao-people-s-democratic-republic.current"],
+      "assetKeys": [
+        "flag.lao-people-s-democratic-republic.current"
+      ],
       "codes": {
         "isoAlpha2": "LA",
         "isoAlpha3": "LAO",
@@ -2637,7 +2841,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.latvia.current"],
+      "assetKeys": [
+        "flag.latvia.current"
+      ],
       "codes": {
         "isoAlpha2": "LV",
         "isoAlpha3": "LVA",
@@ -2660,7 +2866,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.lebanon.current"],
+      "assetKeys": [
+        "flag.lebanon.current"
+      ],
       "codes": {
         "isoAlpha2": "LB",
         "isoAlpha3": "LBN",
@@ -2683,7 +2891,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.lesotho.current"],
+      "assetKeys": [
+        "flag.lesotho.current"
+      ],
       "codes": {
         "isoAlpha2": "LS",
         "isoAlpha3": "LSO",
@@ -2706,7 +2916,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.liberia.current"],
+      "assetKeys": [
+        "flag.liberia.current"
+      ],
       "codes": {
         "isoAlpha2": "LR",
         "isoAlpha3": "LBR",
@@ -2729,7 +2941,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.libya.current"],
+      "assetKeys": [
+        "flag.libya.current"
+      ],
       "codes": {
         "isoAlpha2": "LY",
         "isoAlpha3": "LBY",
@@ -2752,7 +2966,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.liechtenstein.current"],
+      "assetKeys": [
+        "flag.liechtenstein.current"
+      ],
       "codes": {
         "isoAlpha2": "LI",
         "isoAlpha3": "LIE",
@@ -2775,7 +2991,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.lithuania.current"],
+      "assetKeys": [
+        "flag.lithuania.current"
+      ],
       "codes": {
         "isoAlpha2": "LT",
         "isoAlpha3": "LTU",
@@ -2798,7 +3016,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.luxembourg.current"],
+      "assetKeys": [
+        "flag.luxembourg.current"
+      ],
       "codes": {
         "isoAlpha2": "LU",
         "isoAlpha3": "LUX",
@@ -2821,7 +3041,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.madagascar.current"],
+      "assetKeys": [
+        "flag.madagascar.current"
+      ],
       "codes": {
         "isoAlpha2": "MG",
         "isoAlpha3": "MDG",
@@ -2844,7 +3066,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.malawi.current"],
+      "assetKeys": [
+        "flag.malawi.current"
+      ],
       "codes": {
         "isoAlpha2": "MW",
         "isoAlpha3": "MWI",
@@ -2867,7 +3091,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.malaysia.current"],
+      "assetKeys": [
+        "flag.malaysia.current"
+      ],
       "codes": {
         "isoAlpha2": "MY",
         "isoAlpha3": "MYS",
@@ -2890,7 +3116,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.maldives.current"],
+      "assetKeys": [
+        "flag.maldives.current"
+      ],
       "codes": {
         "isoAlpha2": "MV",
         "isoAlpha3": "MDV",
@@ -2913,7 +3141,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.mali.current"],
+      "assetKeys": [
+        "flag.mali.current"
+      ],
       "codes": {
         "isoAlpha2": "ML",
         "isoAlpha3": "MLI",
@@ -2936,7 +3166,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.malta.current"],
+      "assetKeys": [
+        "flag.malta.current"
+      ],
       "codes": {
         "isoAlpha2": "MT",
         "isoAlpha3": "MLT",
@@ -2959,7 +3191,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.marshall-islands.current"],
+      "assetKeys": [
+        "flag.marshall-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "MH",
         "isoAlpha3": "MHL",
@@ -2982,7 +3216,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.mauritania.current"],
+      "assetKeys": [
+        "flag.mauritania.current"
+      ],
       "codes": {
         "isoAlpha2": "MR",
         "isoAlpha3": "MRT",
@@ -3005,7 +3241,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.mauritius.current"],
+      "assetKeys": [
+        "flag.mauritius.current"
+      ],
       "codes": {
         "isoAlpha2": "MU",
         "isoAlpha3": "MUS",
@@ -3028,7 +3266,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.mexico.current"],
+      "assetKeys": [
+        "flag.mexico.current"
+      ],
       "codes": {
         "isoAlpha2": "MX",
         "isoAlpha3": "MEX",
@@ -3051,7 +3291,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.micronesia-federated-states-of.current"],
+      "assetKeys": [
+        "flag.micronesia-federated-states-of.current"
+      ],
       "codes": {
         "isoAlpha2": "FM",
         "isoAlpha3": "FSM",
@@ -3074,7 +3316,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.monaco.current"],
+      "assetKeys": [
+        "flag.monaco.current"
+      ],
       "codes": {
         "isoAlpha2": "MC",
         "isoAlpha3": "MCO",
@@ -3097,7 +3341,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.mongolia.current"],
+      "assetKeys": [
+        "flag.mongolia.current"
+      ],
       "codes": {
         "isoAlpha2": "MN",
         "isoAlpha3": "MNG",
@@ -3120,7 +3366,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.montenegro.current"],
+      "assetKeys": [
+        "flag.montenegro.current"
+      ],
       "codes": {
         "isoAlpha2": "ME",
         "isoAlpha3": "MNE",
@@ -3143,7 +3391,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.morocco.current"],
+      "assetKeys": [
+        "flag.morocco.current"
+      ],
       "codes": {
         "isoAlpha2": "MA",
         "isoAlpha3": "MAR",
@@ -3166,7 +3416,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.mozambique.current"],
+      "assetKeys": [
+        "flag.mozambique.current"
+      ],
       "codes": {
         "isoAlpha2": "MZ",
         "isoAlpha3": "MOZ",
@@ -3189,7 +3441,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.myanmar.current"],
+      "assetKeys": [
+        "flag.myanmar.current"
+      ],
       "codes": {
         "isoAlpha2": "MM",
         "isoAlpha3": "MMR",
@@ -3212,7 +3466,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.namibia.current"],
+      "assetKeys": [
+        "flag.namibia.current"
+      ],
       "codes": {
         "isoAlpha2": "NA",
         "isoAlpha3": "NAM",
@@ -3235,7 +3491,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.nauru.current"],
+      "assetKeys": [
+        "flag.nauru.current"
+      ],
       "codes": {
         "isoAlpha2": "NR",
         "isoAlpha3": "NRU",
@@ -3258,7 +3516,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.nepal.current"],
+      "assetKeys": [
+        "flag.nepal.current"
+      ],
       "codes": {
         "isoAlpha2": "NP",
         "isoAlpha3": "NPL",
@@ -3281,7 +3541,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.netherlands-kingdom-of-the.current"],
+      "assetKeys": [
+        "flag.netherlands-kingdom-of-the.current"
+      ],
       "codes": {
         "isoAlpha2": "NL",
         "isoAlpha3": "NLD",
@@ -3304,7 +3566,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.new-zealand.current"],
+      "assetKeys": [
+        "flag.new-zealand.current"
+      ],
       "codes": {
         "isoAlpha2": "NZ",
         "isoAlpha3": "NZL",
@@ -3327,7 +3591,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.nicaragua.current"],
+      "assetKeys": [
+        "flag.nicaragua.current"
+      ],
       "codes": {
         "isoAlpha2": "NI",
         "isoAlpha3": "NIC",
@@ -3350,7 +3616,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.niger.current"],
+      "assetKeys": [
+        "flag.niger.current"
+      ],
       "codes": {
         "isoAlpha2": "NE",
         "isoAlpha3": "NER",
@@ -3373,7 +3641,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.nigeria.current"],
+      "assetKeys": [
+        "flag.nigeria.current"
+      ],
       "codes": {
         "isoAlpha2": "NG",
         "isoAlpha3": "NGA",
@@ -3396,7 +3666,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.north-macedonia.current"],
+      "assetKeys": [
+        "flag.north-macedonia.current"
+      ],
       "codes": {
         "isoAlpha2": "MK",
         "isoAlpha3": "MKD",
@@ -3419,7 +3691,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.norway.current"],
+      "assetKeys": [
+        "flag.norway.current"
+      ],
       "codes": {
         "isoAlpha2": "NO",
         "isoAlpha3": "NOR",
@@ -3442,7 +3716,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.oman.current"],
+      "assetKeys": [
+        "flag.oman.current"
+      ],
       "codes": {
         "isoAlpha2": "OM",
         "isoAlpha3": "OMN",
@@ -3465,7 +3741,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.pakistan.current"],
+      "assetKeys": [
+        "flag.pakistan.current"
+      ],
       "codes": {
         "isoAlpha2": "PK",
         "isoAlpha3": "PAK",
@@ -3488,7 +3766,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.palau.current"],
+      "assetKeys": [
+        "flag.palau.current"
+      ],
       "codes": {
         "isoAlpha2": "PW",
         "isoAlpha3": "PLW",
@@ -3511,7 +3791,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.panama.current"],
+      "assetKeys": [
+        "flag.panama.current"
+      ],
       "codes": {
         "isoAlpha2": "PA",
         "isoAlpha3": "PAN",
@@ -3534,7 +3816,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.papua-new-guinea.current"],
+      "assetKeys": [
+        "flag.papua-new-guinea.current"
+      ],
       "codes": {
         "isoAlpha2": "PG",
         "isoAlpha3": "PNG",
@@ -3557,7 +3841,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.paraguay.current"],
+      "assetKeys": [
+        "flag.paraguay.current"
+      ],
       "codes": {
         "isoAlpha2": "PY",
         "isoAlpha3": "PRY",
@@ -3580,7 +3866,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.peru.current"],
+      "assetKeys": [
+        "flag.peru.current"
+      ],
       "codes": {
         "isoAlpha2": "PE",
         "isoAlpha3": "PER",
@@ -3603,7 +3891,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.philippines.current"],
+      "assetKeys": [
+        "flag.philippines.current"
+      ],
       "codes": {
         "isoAlpha2": "PH",
         "isoAlpha3": "PHL",
@@ -3626,7 +3916,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.poland.current"],
+      "assetKeys": [
+        "flag.poland.current"
+      ],
       "codes": {
         "isoAlpha2": "PL",
         "isoAlpha3": "POL",
@@ -3649,7 +3941,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.portugal.current"],
+      "assetKeys": [
+        "flag.portugal.current"
+      ],
       "codes": {
         "isoAlpha2": "PT",
         "isoAlpha3": "PRT",
@@ -3672,7 +3966,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.qatar.current"],
+      "assetKeys": [
+        "flag.qatar.current"
+      ],
       "codes": {
         "isoAlpha2": "QA",
         "isoAlpha3": "QAT",
@@ -3695,7 +3991,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.republic-of-korea.current"],
+      "assetKeys": [
+        "flag.republic-of-korea.current"
+      ],
       "codes": {
         "isoAlpha2": "KR",
         "isoAlpha3": "KOR",
@@ -3718,7 +4016,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.republic-of-moldova.current"],
+      "assetKeys": [
+        "flag.republic-of-moldova.current"
+      ],
       "codes": {
         "isoAlpha2": "MD",
         "isoAlpha3": "MDA",
@@ -3741,7 +4041,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.romania.current"],
+      "assetKeys": [
+        "flag.romania.current"
+      ],
       "codes": {
         "isoAlpha2": "RO",
         "isoAlpha3": "ROU",
@@ -3764,7 +4066,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.russia.current"],
+      "assetKeys": [
+        "flag.russia.current"
+      ],
       "codes": {
         "isoAlpha2": "RU",
         "isoAlpha3": "RUS",
@@ -3787,7 +4091,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.rwanda.current"],
+      "assetKeys": [
+        "flag.rwanda.current"
+      ],
       "codes": {
         "isoAlpha2": "RW",
         "isoAlpha3": "RWA",
@@ -3810,7 +4116,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.saint-kitts-and-nevis.current"],
+      "assetKeys": [
+        "flag.saint-kitts-and-nevis.current"
+      ],
       "codes": {
         "isoAlpha2": "KN",
         "isoAlpha3": "KNA",
@@ -3833,7 +4141,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.saint-lucia.current"],
+      "assetKeys": [
+        "flag.saint-lucia.current"
+      ],
       "codes": {
         "isoAlpha2": "LC",
         "isoAlpha3": "LCA",
@@ -3856,7 +4166,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.saint-vincent-and-the-grenadines.current"],
+      "assetKeys": [
+        "flag.saint-vincent-and-the-grenadines.current"
+      ],
       "codes": {
         "isoAlpha2": "VC",
         "isoAlpha3": "VCT",
@@ -3879,7 +4191,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.samoa.current"],
+      "assetKeys": [
+        "flag.samoa.current"
+      ],
       "codes": {
         "isoAlpha2": "WS",
         "isoAlpha3": "WSM",
@@ -3902,7 +4216,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.san-marino.current"],
+      "assetKeys": [
+        "flag.san-marino.current"
+      ],
       "codes": {
         "isoAlpha2": "SM",
         "isoAlpha3": "SMR",
@@ -3925,7 +4241,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.sao-tome-and-principe.current"],
+      "assetKeys": [
+        "flag.sao-tome-and-principe.current"
+      ],
       "codes": {
         "isoAlpha2": "ST",
         "isoAlpha3": "STP",
@@ -3948,7 +4266,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.saudi-arabia.current"],
+      "assetKeys": [
+        "flag.saudi-arabia.current"
+      ],
       "codes": {
         "isoAlpha2": "SA",
         "isoAlpha3": "SAU",
@@ -3971,7 +4291,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.senegal.current"],
+      "assetKeys": [
+        "flag.senegal.current"
+      ],
       "codes": {
         "isoAlpha2": "SN",
         "isoAlpha3": "SEN",
@@ -3994,7 +4316,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.serbia.current"],
+      "assetKeys": [
+        "flag.serbia.current"
+      ],
       "codes": {
         "isoAlpha2": "RS",
         "isoAlpha3": "SRB",
@@ -4017,7 +4341,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.seychelles.current"],
+      "assetKeys": [
+        "flag.seychelles.current"
+      ],
       "codes": {
         "isoAlpha2": "SC",
         "isoAlpha3": "SYC",
@@ -4040,7 +4366,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.sierra-leone.current"],
+      "assetKeys": [
+        "flag.sierra-leone.current"
+      ],
       "codes": {
         "isoAlpha2": "SL",
         "isoAlpha3": "SLE",
@@ -4063,7 +4391,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.singapore.current"],
+      "assetKeys": [
+        "flag.singapore.current"
+      ],
       "codes": {
         "isoAlpha2": "SG",
         "isoAlpha3": "SGP",
@@ -4086,7 +4416,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.slovakia.current"],
+      "assetKeys": [
+        "flag.slovakia.current"
+      ],
       "codes": {
         "isoAlpha2": "SK",
         "isoAlpha3": "SVK",
@@ -4109,7 +4441,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.slovenia.current"],
+      "assetKeys": [
+        "flag.slovenia.current"
+      ],
       "codes": {
         "isoAlpha2": "SI",
         "isoAlpha3": "SVN",
@@ -4132,7 +4466,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.solomon-islands.current"],
+      "assetKeys": [
+        "flag.solomon-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "SB",
         "isoAlpha3": "SLB",
@@ -4155,7 +4491,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.somalia.current"],
+      "assetKeys": [
+        "flag.somalia.current"
+      ],
       "codes": {
         "isoAlpha2": "SO",
         "isoAlpha3": "SOM",
@@ -4178,7 +4516,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.south-africa.current"],
+      "assetKeys": [
+        "flag.south-africa.current"
+      ],
       "codes": {
         "isoAlpha2": "ZA",
         "isoAlpha3": "ZAF",
@@ -4201,7 +4541,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.south-sudan.current"],
+      "assetKeys": [
+        "flag.south-sudan.current"
+      ],
       "codes": {
         "isoAlpha2": "SS",
         "isoAlpha3": "SSD",
@@ -4224,7 +4566,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.spain.current"],
+      "assetKeys": [
+        "flag.spain.current"
+      ],
       "codes": {
         "isoAlpha2": "ES",
         "isoAlpha3": "ESP",
@@ -4247,7 +4591,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.sri-lanka.current"],
+      "assetKeys": [
+        "flag.sri-lanka.current"
+      ],
       "codes": {
         "isoAlpha2": "LK",
         "isoAlpha3": "LKA",
@@ -4270,7 +4616,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.state-of-palestine.current"],
+      "assetKeys": [
+        "flag.state-of-palestine.current"
+      ],
       "codes": {
         "isoAlpha2": "PS",
         "isoAlpha3": "PSE",
@@ -4293,7 +4641,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.sudan.current"],
+      "assetKeys": [
+        "flag.sudan.current"
+      ],
       "codes": {
         "isoAlpha2": "SD",
         "isoAlpha3": "SDN",
@@ -4316,7 +4666,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.suriname.current"],
+      "assetKeys": [
+        "flag.suriname.current"
+      ],
       "codes": {
         "isoAlpha2": "SR",
         "isoAlpha3": "SUR",
@@ -4339,7 +4691,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.sweden.current"],
+      "assetKeys": [
+        "flag.sweden.current"
+      ],
       "codes": {
         "isoAlpha2": "SE",
         "isoAlpha3": "SWE",
@@ -4362,7 +4716,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.switzerland.current"],
+      "assetKeys": [
+        "flag.switzerland.current"
+      ],
       "codes": {
         "isoAlpha2": "CH",
         "isoAlpha3": "CHE",
@@ -4385,7 +4741,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.syrian-arab-republic.current"],
+      "assetKeys": [
+        "flag.syrian-arab-republic.current"
+      ],
       "codes": {
         "isoAlpha2": "SY",
         "isoAlpha3": "SYR",
@@ -4408,7 +4766,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.taiwan.current"],
+      "assetKeys": [
+        "flag.taiwan.current"
+      ],
       "codes": {
         "isoAlpha2": "TW",
         "isoAlpha3": "TWN"
@@ -4431,7 +4791,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.tajikistan.current"],
+      "assetKeys": [
+        "flag.tajikistan.current"
+      ],
       "codes": {
         "isoAlpha2": "TJ",
         "isoAlpha3": "TJK",
@@ -4454,7 +4816,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.thailand.current"],
+      "assetKeys": [
+        "flag.thailand.current"
+      ],
       "codes": {
         "isoAlpha2": "TH",
         "isoAlpha3": "THA",
@@ -4477,7 +4841,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.timor-leste.current"],
+      "assetKeys": [
+        "flag.timor-leste.current"
+      ],
       "codes": {
         "isoAlpha2": "TL",
         "isoAlpha3": "TLS",
@@ -4500,7 +4866,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.togo.current"],
+      "assetKeys": [
+        "flag.togo.current"
+      ],
       "codes": {
         "isoAlpha2": "TG",
         "isoAlpha3": "TGO",
@@ -4523,7 +4891,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.tonga.current"],
+      "assetKeys": [
+        "flag.tonga.current"
+      ],
       "codes": {
         "isoAlpha2": "TO",
         "isoAlpha3": "TON",
@@ -4546,7 +4916,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.trinidad-and-tobago.current"],
+      "assetKeys": [
+        "flag.trinidad-and-tobago.current"
+      ],
       "codes": {
         "isoAlpha2": "TT",
         "isoAlpha3": "TTO",
@@ -4569,7 +4941,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.tunisia.current"],
+      "assetKeys": [
+        "flag.tunisia.current"
+      ],
       "codes": {
         "isoAlpha2": "TN",
         "isoAlpha3": "TUN",
@@ -4592,7 +4966,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.turkiye.current"],
+      "assetKeys": [
+        "flag.turkiye.current"
+      ],
       "codes": {
         "isoAlpha2": "TR",
         "isoAlpha3": "TUR",
@@ -4615,7 +4991,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.turkmenistan.current"],
+      "assetKeys": [
+        "flag.turkmenistan.current"
+      ],
       "codes": {
         "isoAlpha2": "TM",
         "isoAlpha3": "TKM",
@@ -4638,7 +5016,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.tuvalu.current"],
+      "assetKeys": [
+        "flag.tuvalu.current"
+      ],
       "codes": {
         "isoAlpha2": "TV",
         "isoAlpha3": "TUV",
@@ -4661,7 +5041,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.uganda.current"],
+      "assetKeys": [
+        "flag.uganda.current"
+      ],
       "codes": {
         "isoAlpha2": "UG",
         "isoAlpha3": "UGA",
@@ -4684,7 +5066,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.ukraine.current"],
+      "assetKeys": [
+        "flag.ukraine.current"
+      ],
       "codes": {
         "isoAlpha2": "UA",
         "isoAlpha3": "UKR",
@@ -4707,7 +5091,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.united_states.current"],
+      "assetKeys": [
+        "flag.united_states.current"
+      ],
       "codes": {
         "isoAlpha2": "US",
         "isoAlpha3": "USA",
@@ -4730,7 +5116,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.united-arab-emirates.current"],
+      "assetKeys": [
+        "flag.united-arab-emirates.current"
+      ],
       "codes": {
         "isoAlpha2": "AE",
         "isoAlpha3": "ARE",
@@ -4778,7 +5166,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.united-republic-of-tanzania.current"],
+      "assetKeys": [
+        "flag.united-republic-of-tanzania.current"
+      ],
       "codes": {
         "isoAlpha2": "TZ",
         "isoAlpha3": "TZA",
@@ -4801,7 +5191,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.uruguay.current"],
+      "assetKeys": [
+        "flag.uruguay.current"
+      ],
       "codes": {
         "isoAlpha2": "UY",
         "isoAlpha3": "URY",
@@ -4824,7 +5216,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.uzbekistan.current"],
+      "assetKeys": [
+        "flag.uzbekistan.current"
+      ],
       "codes": {
         "isoAlpha2": "UZ",
         "isoAlpha3": "UZB",
@@ -4847,7 +5241,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.vanuatu.current"],
+      "assetKeys": [
+        "flag.vanuatu.current"
+      ],
       "codes": {
         "isoAlpha2": "VU",
         "isoAlpha3": "VUT",
@@ -4870,7 +5266,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.venezuela-bolivarian-republic-of.current"],
+      "assetKeys": [
+        "flag.venezuela-bolivarian-republic-of.current"
+      ],
       "codes": {
         "isoAlpha2": "VE",
         "isoAlpha3": "VEN",
@@ -4893,7 +5291,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.viet-nam.current"],
+      "assetKeys": [
+        "flag.viet-nam.current"
+      ],
       "codes": {
         "isoAlpha2": "VN",
         "isoAlpha3": "VNM",
@@ -4916,7 +5316,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.western-sahara.current"],
+      "assetKeys": [
+        "flag.western-sahara.current"
+      ],
       "codes": {
         "isoAlpha2": "EH",
         "isoAlpha3": "ESH",
@@ -4940,7 +5342,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.yemen.current"],
+      "assetKeys": [
+        "flag.yemen.current"
+      ],
       "codes": {
         "isoAlpha2": "YE",
         "isoAlpha3": "YEM",
@@ -4963,7 +5367,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.zambia.current"],
+      "assetKeys": [
+        "flag.zambia.current"
+      ],
       "codes": {
         "isoAlpha2": "ZM",
         "isoAlpha3": "ZMB",
@@ -4986,7 +5392,9 @@
       "type": "country"
     },
     {
-      "assetKeys": ["flag.zimbabwe.current"],
+      "assetKeys": [
+        "flag.zimbabwe.current"
+      ],
       "codes": {
         "isoAlpha2": "ZW",
         "isoAlpha3": "ZWE",
@@ -5485,7 +5893,9 @@
       "type": "subregion"
     },
     {
-      "assetKeys": ["flag.aland-islands.current"],
+      "assetKeys": [
+        "flag.aland-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "AX",
         "isoAlpha3": "ALA",
@@ -5508,7 +5918,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.american-samoa.current"],
+      "assetKeys": [
+        "flag.american-samoa.current"
+      ],
       "codes": {
         "isoAlpha2": "AS",
         "isoAlpha3": "ASM",
@@ -5531,7 +5943,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.anguilla.current"],
+      "assetKeys": [
+        "flag.anguilla.current"
+      ],
       "codes": {
         "isoAlpha2": "AI",
         "isoAlpha3": "AIA",
@@ -5554,7 +5968,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.aruba.current"],
+      "assetKeys": [
+        "flag.aruba.current"
+      ],
       "codes": {
         "isoAlpha2": "AW",
         "isoAlpha3": "ABW",
@@ -5577,7 +5993,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.bermuda.current"],
+      "assetKeys": [
+        "flag.bermuda.current"
+      ],
       "codes": {
         "isoAlpha2": "BM",
         "isoAlpha3": "BMU",
@@ -5600,7 +6018,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.bonaire-sint-eustatius-and-saba.current"],
+      "assetKeys": [
+        "flag.bonaire-sint-eustatius-and-saba.current"
+      ],
       "codes": {
         "isoAlpha2": "BQ",
         "isoAlpha3": "BES",
@@ -5623,7 +6043,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.british-indian-ocean-territory.current"],
+      "assetKeys": [
+        "flag.british-indian-ocean-territory.current"
+      ],
       "codes": {
         "isoAlpha2": "IO",
         "isoAlpha3": "IOT",
@@ -5646,7 +6068,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.british-virgin-islands.current"],
+      "assetKeys": [
+        "flag.british-virgin-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "VG",
         "isoAlpha3": "VGB",
@@ -5669,7 +6093,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.cayman-islands.current"],
+      "assetKeys": [
+        "flag.cayman-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "KY",
         "isoAlpha3": "CYM",
@@ -5717,7 +6143,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.china-macao-special-administrative-region.current"],
+      "assetKeys": [
+        "flag.china-macao-special-administrative-region.current"
+      ],
       "codes": {
         "isoAlpha2": "MO",
         "isoAlpha3": "MAC",
@@ -5740,7 +6168,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.christmas-island.current"],
+      "assetKeys": [
+        "flag.christmas-island.current"
+      ],
       "codes": {
         "isoAlpha2": "CX",
         "isoAlpha3": "CXR",
@@ -5763,7 +6193,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.cocos-keeling-islands.current"],
+      "assetKeys": [
+        "flag.cocos-keeling-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "CC",
         "isoAlpha3": "CCK",
@@ -5786,7 +6218,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.curacao.current"],
+      "assetKeys": [
+        "flag.curacao.current"
+      ],
       "codes": {
         "isoAlpha2": "CW",
         "isoAlpha3": "CUW",
@@ -5809,7 +6243,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.falkland-islands-malvinas.current"],
+      "assetKeys": [
+        "flag.falkland-islands-malvinas.current"
+      ],
       "codes": {
         "isoAlpha2": "FK",
         "isoAlpha3": "FLK",
@@ -5832,7 +6268,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.faroe-islands.current"],
+      "assetKeys": [
+        "flag.faroe-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "FO",
         "isoAlpha3": "FRO",
@@ -5855,7 +6293,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.french-guiana.current"],
+      "assetKeys": [
+        "flag.french-guiana.current"
+      ],
       "codes": {
         "isoAlpha2": "GF",
         "isoAlpha3": "GUF",
@@ -5878,7 +6318,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.french-polynesia.current"],
+      "assetKeys": [
+        "flag.french-polynesia.current"
+      ],
       "codes": {
         "isoAlpha2": "PF",
         "isoAlpha3": "PYF",
@@ -5901,7 +6343,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.gibraltar.current"],
+      "assetKeys": [
+        "flag.gibraltar.current"
+      ],
       "codes": {
         "isoAlpha2": "GI",
         "isoAlpha3": "GIB",
@@ -5924,7 +6368,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.greenland.current"],
+      "assetKeys": [
+        "flag.greenland.current"
+      ],
       "codes": {
         "isoAlpha2": "GL",
         "isoAlpha3": "GRL",
@@ -5947,7 +6393,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.guadeloupe.current"],
+      "assetKeys": [
+        "flag.guadeloupe.current"
+      ],
       "codes": {
         "isoAlpha2": "GP",
         "isoAlpha3": "GLP",
@@ -5970,7 +6418,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.guam.current"],
+      "assetKeys": [
+        "flag.guam.current"
+      ],
       "codes": {
         "isoAlpha2": "GU",
         "isoAlpha3": "GUM",
@@ -5993,7 +6443,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.guernsey.current"],
+      "assetKeys": [
+        "flag.guernsey.current"
+      ],
       "codes": {
         "isoAlpha2": "GG",
         "isoAlpha3": "GGY",
@@ -6016,7 +6468,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.isle-of-man.current"],
+      "assetKeys": [
+        "flag.isle-of-man.current"
+      ],
       "codes": {
         "isoAlpha2": "IM",
         "isoAlpha3": "IMN",
@@ -6039,7 +6493,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.jersey.current"],
+      "assetKeys": [
+        "flag.jersey.current"
+      ],
       "codes": {
         "isoAlpha2": "JE",
         "isoAlpha3": "JEY",
@@ -6062,7 +6518,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.martinique.current"],
+      "assetKeys": [
+        "flag.martinique.current"
+      ],
       "codes": {
         "isoAlpha2": "MQ",
         "isoAlpha3": "MTQ",
@@ -6085,7 +6543,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.mayotte.current"],
+      "assetKeys": [
+        "flag.mayotte.current"
+      ],
       "codes": {
         "isoAlpha2": "YT",
         "isoAlpha3": "MYT",
@@ -6108,7 +6568,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.montserrat.current"],
+      "assetKeys": [
+        "flag.montserrat.current"
+      ],
       "codes": {
         "isoAlpha2": "MS",
         "isoAlpha3": "MSR",
@@ -6131,7 +6593,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.new-caledonia.current"],
+      "assetKeys": [
+        "flag.new-caledonia.current"
+      ],
       "codes": {
         "isoAlpha2": "NC",
         "isoAlpha3": "NCL",
@@ -6154,7 +6618,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.norfolk-island.current"],
+      "assetKeys": [
+        "flag.norfolk-island.current"
+      ],
       "codes": {
         "isoAlpha2": "NF",
         "isoAlpha3": "NFK",
@@ -6177,7 +6643,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.northern-mariana-islands.current"],
+      "assetKeys": [
+        "flag.northern-mariana-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "MP",
         "isoAlpha3": "MNP",
@@ -6200,7 +6668,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.pitcairn.current"],
+      "assetKeys": [
+        "flag.pitcairn.current"
+      ],
       "codes": {
         "isoAlpha2": "PN",
         "isoAlpha3": "PCN",
@@ -6223,7 +6693,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.puerto-rico.current"],
+      "assetKeys": [
+        "flag.puerto-rico.current"
+      ],
       "codes": {
         "isoAlpha2": "PR",
         "isoAlpha3": "PRI",
@@ -6246,7 +6718,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.reunion.current"],
+      "assetKeys": [
+        "flag.reunion.current"
+      ],
       "codes": {
         "isoAlpha2": "RE",
         "isoAlpha3": "REU",
@@ -6269,7 +6743,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.saint-barthelemy.current"],
+      "assetKeys": [
+        "flag.saint-barthelemy.current"
+      ],
       "codes": {
         "isoAlpha2": "BL",
         "isoAlpha3": "BLM",
@@ -6292,7 +6768,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.saint-helena.current"],
+      "assetKeys": [
+        "flag.saint-helena.current"
+      ],
       "codes": {
         "isoAlpha2": "SH",
         "isoAlpha3": "SHN",
@@ -6315,7 +6793,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.saint-martin-french-part.current"],
+      "assetKeys": [
+        "flag.saint-martin-french-part.current"
+      ],
       "codes": {
         "isoAlpha2": "MF",
         "isoAlpha3": "MAF",
@@ -6338,7 +6818,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.saint-pierre-and-miquelon.current"],
+      "assetKeys": [
+        "flag.saint-pierre-and-miquelon.current"
+      ],
       "codes": {
         "isoAlpha2": "PM",
         "isoAlpha3": "SPM",
@@ -6361,7 +6843,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.sint-maarten-dutch-part.current"],
+      "assetKeys": [
+        "flag.sint-maarten-dutch-part.current"
+      ],
       "codes": {
         "isoAlpha2": "SX",
         "isoAlpha3": "SXM",
@@ -6409,7 +6893,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.svalbard-and-jan-mayen-islands.current"],
+      "assetKeys": [
+        "flag.svalbard-and-jan-mayen-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "SJ",
         "isoAlpha3": "SJM",
@@ -6432,7 +6918,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.tokelau.current"],
+      "assetKeys": [
+        "flag.tokelau.current"
+      ],
       "codes": {
         "isoAlpha2": "TK",
         "isoAlpha3": "TKL",
@@ -6455,7 +6943,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.turks-and-caicos-islands.current"],
+      "assetKeys": [
+        "flag.turks-and-caicos-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "TC",
         "isoAlpha3": "TCA",
@@ -6478,7 +6968,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.united-states-virgin-islands.current"],
+      "assetKeys": [
+        "flag.united-states-virgin-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "VI",
         "isoAlpha3": "VIR",
@@ -6501,7 +6993,9 @@
       "type": "territory"
     },
     {
-      "assetKeys": ["flag.wallis-and-futuna-islands.current"],
+      "assetKeys": [
+        "flag.wallis-and-futuna-islands.current"
+      ],
       "codes": {
         "isoAlpha2": "WF",
         "isoAlpha3": "WLF",
@@ -10335,5 +10829,8 @@
     }
   ],
   "schemaVersion": 1,
-  "supportedLocales": ["en", "ru"]
+  "supportedLocales": [
+    "en",
+    "ru"
+  ]
 }
