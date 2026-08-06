@@ -16,8 +16,14 @@
 - [06-observability-analytics.md](./06-observability-analytics.md) — логирование, crash/error reporting, метрики, трассировка и продуктовая аналитика.
 - [07-advertising.md](./07-advertising.md) — архитектурная подготовка опциональной рекламы, privacy/ATT и рекламных placements.
 - [08-backend-agent-handoff.md](./08-backend-agent-handoff.md) — точка входа для начала backend-разработки в VS Code.
+- [09-retention.md](./09-retention.md) — утверждённая retention-политика и честный аудит того, что из неё реально enforced кодом.
+- [10-backup-restore-runbook.md](./10-backup-restore-runbook.md) — PostgreSQL backup/PITR runbook, RPO/RTO цели, restore drill.
+- [11-migration-deployment-runbook.md](./11-migration-deployment-runbook.md) — порядок деплоя, migrate-as-separate-step, откат миграций.
+- [12-known-limitations.md](./12-known-limitations.md) — сводный список известных ограничений backend MVP.
+- [ADR-002](./adr/ADR-002-auth-and-refresh-token-rotation.md) — provider identities и refresh-token rotation.
 - [ADR-003](./adr/ADR-003-review-ordering-and-idempotency.md) — canonical ordering, clock normalization и idempotency review.
 - [ADR-004](./adr/ADR-004-fsrs6-versioning-and-migrations.md) — pinned FSRS-6 adapter, definitions и checkpoints.
+- [ADR-007](./adr/ADR-007-account-data-export-storage.md) — хранение и migration path приватных account data exports.
 
 ## Подтверждённые продуктовые решения
 

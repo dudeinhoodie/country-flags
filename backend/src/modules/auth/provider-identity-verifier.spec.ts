@@ -94,4 +94,35 @@ describe("ProviderIdentityVerifier", () => {
       },
     });
   });
+
+  it("returns a clean 401 instead of crashing when the provider's JWKS cannot be resolved (Apple/Google outage)", async () => {
+    const productionEnvironment = validateEnvironment({
+      NODE_ENV: "test",
+      DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+      AUTH_PROVIDER_TEST_TOKENS_ENABLED: "false",
+    });
+    const productionConfig = new ConfigService<EnvironmentVariables>(
+      productionEnvironment,
+    );
+    const productionVerifier = new ProviderIdentityVerifier(productionConfig);
+    // Pre-seed the cached remote-JWKS resolver with one that always fails, standing
+    // in for Apple/Google's key endpoint being unreachable — no real network call
+    // and no module mocking needed, since `getRemoteJwks` only builds it lazily.
+    (
+      productionVerifier as unknown as { googleRemoteJwks: unknown }
+    ).googleRemoteJwks = (): Promise<never> =>
+      Promise.reject(new Error("JWKS endpoint unreachable"));
+    const wellFormedToken = await signer.signGoogle();
+
+    await expect(
+      productionVerifier.verifyGoogle(wellFormedToken),
+    ).rejects.toMatchObject({
+      response: {
+        error: {
+          code: "PROVIDER_TOKEN_INVALID",
+          details: { provider: "GOOGLE" },
+        },
+      },
+    });
+  });
 });

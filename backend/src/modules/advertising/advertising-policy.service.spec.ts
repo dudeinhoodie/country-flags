@@ -1,8 +1,17 @@
-import type { FeatureFlagsService } from "../feature-flags/feature-flags.service";
+import { OpenFeature, TypedInMemoryProvider } from "@openfeature/server-sdk";
+
+import { FeatureFlagsService } from "../feature-flags/feature-flags.service";
+import { LocalStaticFeatureProvider } from "../feature-flags/local-static-feature-provider";
 import {
   AdvertisingPolicyService,
   NoOpAdvertisingProvider,
 } from "./advertising-policy.service";
+
+class FailingProvider extends TypedInMemoryProvider {
+  override resolveBooleanEvaluation(): Promise<never> {
+    return Promise.reject(new Error("provider unavailable"));
+  }
+}
 
 const context = {
   platform: "ios" as const,
@@ -45,5 +54,35 @@ describe("AdvertisingPolicyService", () => {
       eligible: false,
       reason: "ADVERTISING_DISABLED",
     });
+  });
+
+  it("stays fail-closed end-to-end when the underlying feature-flag provider is down, rather than rejecting", async () => {
+    const flagsLogger = { warn: jest.fn() };
+    const flags = new FeatureFlagsService(
+      flagsLogger as never,
+      new LocalStaticFeatureProvider(),
+    );
+    await flags.onModuleInit();
+    try {
+      await OpenFeature.setProviderAndWait(new FailingProvider());
+      const outageService = new AdvertisingPolicyService(
+        flags,
+        new NoOpAdvertisingProvider(),
+      );
+
+      await expect(
+        outageService.snapshot(context, new Date("2026-01-01T00:00:00Z")),
+      ).resolves.toMatchObject({ enabled: false, mode: "DISABLED" });
+      await expect(
+        outageService.eligibility("home.bottom_banner", context),
+      ).resolves.toEqual({
+        placement: "home.bottom_banner",
+        eligible: false,
+        reason: "ADVERTISING_DISABLED",
+      });
+    } finally {
+      await OpenFeature.setProviderAndWait(new LocalStaticFeatureProvider());
+      await flags.onModuleDestroy();
+    }
   });
 });
