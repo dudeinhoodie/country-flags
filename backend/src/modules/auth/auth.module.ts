@@ -5,6 +5,7 @@ import { AuthController, AuthIdentitiesController } from "./auth.controller";
 import { AuthGuard } from "./auth.guard";
 import { AuthRateLimiter } from "./auth-rate-limiter.service";
 import { AuthService } from "./auth.service";
+import { OptionalAuthGuard } from "./optional-auth.guard";
 import { ProviderIdentityVerifier } from "./provider-identity-verifier";
 import { ReauthenticationTokenService } from "./reauthentication-token.service";
 import { TestJwtSigner } from "./testing/test-jwt-signer";
@@ -17,6 +18,7 @@ import { TestProviderTokenSigner } from "./testing/test-provider-token-signer";
     AuthGuard,
     AuthRateLimiter,
     AuthService,
+    OptionalAuthGuard,
     ProviderIdentityVerifier,
     ReauthenticationTokenService,
     TestJwtSigner,
@@ -26,6 +28,7 @@ import { TestProviderTokenSigner } from "./testing/test-provider-token-signer";
     AccessTokenService,
     AuthGuard,
     AuthRateLimiter,
+    OptionalAuthGuard,
     ReauthenticationTokenService,
     TestJwtSigner,
     TestProviderTokenSigner,

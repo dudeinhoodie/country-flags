@@ -405,6 +405,7 @@ model UserPrivacySettings {
   productAnalyticsStatus ConsentStatus @default(UNKNOWN) @map("product_analytics_status")
   diagnosticsStatus      ConsentStatus @default(UNKNOWN) @map("diagnostics_status")
   policyVersion          String        @map("policy_version")
+  version                Int           @default(1)
   updatedAt              DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   user                   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -1156,10 +1157,13 @@ model AnalyticsOutboxEvent {
   deliveryStatus     OutboxDeliveryStatus @default(PENDING) @map("delivery_status")
   attemptCount       Int                  @default(0) @map("attempt_count")
   nextAttemptAt      DateTime?            @map("next_attempt_at") @db.Timestamptz(3)
+  leaseToken         String?              @map("lease_token") @db.Uuid
+  leaseExpiresAt     DateTime?            @map("lease_expires_at") @db.Timestamptz(3)
+  lastErrorCode      String?              @map("last_error_code")
   deliveredAt        DateTime?            @map("delivered_at") @db.Timestamptz(3)
   expiresAt          DateTime             @map("expires_at") @db.Timestamptz(3)
 
-  @@index([deliveryStatus, nextAttemptAt])
+  @@index([deliveryStatus, nextAttemptAt, leaseExpiresAt])
   @@index([expiresAt])
   @@map("analytics_outbox")
 }

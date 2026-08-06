@@ -1,5 +1,9 @@
 import "reflect-metadata";
 
+import { bootstrapTelemetry } from "./common/telemetry/telemetry.bootstrap";
+
+bootstrapTelemetry();
+
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
