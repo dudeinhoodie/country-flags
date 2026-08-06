@@ -1,0 +1,5 @@
+# Generator output and pinned upstream snapshots are checksum-verified byte-for-byte
+# (against manifest.json / sources/registry.json). Reformatting them changes their
+# bytes without updating the recorded checksum, which breaks validation.
+content/generated/
+tools/content-pipeline/sources/snapshots/
