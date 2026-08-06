@@ -41,6 +41,8 @@ const SCHEMA_PATHS = [
   "content/schemas/asset-registry.schema.json",
   "content/schemas/provenance.schema.json",
   "content/schemas/pipeline-report.schema.json",
+  "content/schemas/card-templates.schema.json",
+  "content/schemas/learning-cards.schema.json",
   "contracts/schemas/content/manifest.v1.schema.json",
 ];
 

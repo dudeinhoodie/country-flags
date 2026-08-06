@@ -1,0 +1,194 @@
+import { loadBundle, type LoadedBundle } from "./bundle-reader";
+import { validateBundleSchemas } from "./bundle-schema-validator";
+import { verifyManifestSignature } from "./bundle-signer";
+import { parseBundleDomain, type BundleDomain } from "./bundle-domain";
+import { slugFromEntityKey } from "./bundle-mapper";
+
+export class BundleValidationError extends Error {
+  constructor(public readonly issues: string[]) {
+    super(
+      `Bundle validation failed with ${String(issues.length)} issue(s):\n${issues.join("\n")}`,
+    );
+    this.name = "BundleValidationError";
+  }
+}
+
+export interface ValidatedBundle {
+  bundle: LoadedBundle;
+  domain: BundleDomain;
+}
+
+function cardKey(
+  entityKey: string,
+  templateCode: string,
+  semanticVersion: number,
+): string {
+  return `${entityKey}:${templateCode}:${String(semanticVersion)}`;
+}
+
+function collectReferenceIssues(domain: BundleDomain): string[] {
+  const issues: string[] = [];
+  const entityByKey = new Map(domain.catalog.entities.map((e) => [e.key, e]));
+  const assetByKey = new Map(domain.assets.map((a) => [a.key, a]));
+  const templateByKey = new Map(
+    domain.cardTemplates.map((t) => [
+      `${t.code}:${String(t.schemaVersion)}`,
+      t,
+    ]),
+  );
+  const cardsByKey = new Map(
+    domain.learningCards.map((c) => [
+      cardKey(c.entityKey, c.templateCode, c.semanticVersion),
+      c,
+    ]),
+  );
+
+  // Slugs are derived by dropping the key's namespace prefix and must stay
+  // unique — geo_entities.slug is a unique column, so a collision that reached
+  // publish would only surface as an opaque constraint error mid-transaction.
+  const entityKeyBySlug = new Map<string, string>();
+  for (const entity of domain.catalog.entities) {
+    const slug = slugFromEntityKey(entity.key);
+    const owner = entityKeyBySlug.get(slug);
+    if (owner === undefined) {
+      entityKeyBySlug.set(slug, entity.key);
+    } else {
+      issues.push(
+        `entities ${owner} and ${entity.key} both map to slug "${slug}"; rename one editorially`,
+      );
+    }
+  }
+
+  for (const relation of domain.catalog.relations) {
+    if (!entityByKey.has(relation.parentKey)) {
+      issues.push(
+        `relation references unknown parentKey ${relation.parentKey}`,
+      );
+    }
+    if (!entityByKey.has(relation.childKey)) {
+      issues.push(`relation references unknown childKey ${relation.childKey}`);
+    }
+  }
+
+  for (const deck of domain.catalog.decks) {
+    for (const memberKey of deck.memberEntityKeys) {
+      if (!entityByKey.has(memberKey)) {
+        issues.push(`deck ${deck.key} references unknown entity ${memberKey}`);
+      }
+    }
+  }
+
+  for (const asset of domain.assets) {
+    if (!entityByKey.has(asset.entityKey)) {
+      issues.push(
+        `asset ${asset.key} references unknown entity ${asset.entityKey}`,
+      );
+    }
+    if (asset.license.trim().length === 0) {
+      issues.push(`asset ${asset.key} has an empty license`);
+    }
+  }
+
+  for (const collection of domain.facts) {
+    for (const record of collection.records) {
+      if (!entityByKey.has(record.entityKey)) {
+        issues.push(
+          `${collection.factType} fact references unknown entity ${record.entityKey}`,
+        );
+      }
+    }
+  }
+
+  for (const card of domain.learningCards) {
+    if (!entityByKey.has(card.entityKey)) {
+      issues.push(`learning card references unknown entity ${card.entityKey}`);
+    }
+    if (
+      !templateByKey.has(
+        `${card.templateCode}:${String(card.templateSchemaVersion)}`,
+      )
+    ) {
+      issues.push(
+        `learning card for ${card.entityKey} references unknown template ${card.templateCode}:${String(card.templateSchemaVersion)}`,
+      );
+    }
+    if (card.supersedesSemanticVersion !== null) {
+      const supersededKey = cardKey(
+        card.entityKey,
+        card.templateCode,
+        card.supersedesSemanticVersion,
+      );
+      if (!cardsByKey.has(supersededKey)) {
+        issues.push(
+          `learning card ${cardKey(card.entityKey, card.templateCode, card.semanticVersion)} supersedes a missing card version ${String(card.supersedesSemanticVersion)}`,
+        );
+      }
+    }
+    for (const revision of card.revisions) {
+      if (
+        revision.promptAssetKey !== null &&
+        !assetByKey.has(revision.promptAssetKey)
+      ) {
+        issues.push(
+          `learning card ${card.entityKey}:${card.templateCode} revision ${String(revision.revision)} references unknown asset ${revision.promptAssetKey}`,
+        );
+      }
+    }
+  }
+
+  return issues;
+}
+
+function collectLocaleIssues(
+  domain: BundleDomain,
+  manifestSupportedLocales: string[],
+): string[] {
+  const issues: string[] = [];
+
+  for (const entity of domain.catalog.entities) {
+    if (!entity.includeInCountryCatalog) {
+      continue;
+    }
+    for (const locale of domain.catalog.supportedLocales) {
+      if (entity.names[locale] === undefined) {
+        issues.push(`entity ${entity.key} is missing a ${locale} name`);
+      }
+    }
+  }
+
+  for (const locale of manifestSupportedLocales) {
+    if (!domain.catalog.supportedLocales.includes(locale)) {
+      issues.push(
+        `manifest supports locale ${locale} which catalog.supportedLocales does not declare`,
+      );
+    }
+  }
+
+  return issues;
+}
+
+export async function validateBundle(
+  bundleDir: string,
+  publicKeysByKeyId: Record<string, string>,
+): Promise<ValidatedBundle> {
+  const bundle = await loadBundle(bundleDir);
+  await validateBundleSchemas(bundle);
+
+  if (!verifyManifestSignature(bundle.manifest, publicKeysByKeyId)) {
+    throw new BundleValidationError([
+      `manifest signature is invalid or its keyId (${bundle.manifest.signature.keyId}) is unknown`,
+    ]);
+  }
+
+  const domain = parseBundleDomain(bundle);
+  const issues = [
+    ...collectReferenceIssues(domain),
+    ...collectLocaleIssues(domain, bundle.manifest.supportedLocales),
+  ];
+
+  if (issues.length > 0) {
+    throw new BundleValidationError(issues);
+  }
+
+  return { bundle, domain };
+}

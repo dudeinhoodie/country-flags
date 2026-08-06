@@ -2,6 +2,7 @@ import { mkdir, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 
 import { normalizeSource } from "./adapters.js";
+import { buildLearningContent } from "./learning.js";
 import { createMatcher } from "./matching.js";
 import { mergeContent } from "./merge.js";
 import { loadRegistry, loadVerifiedSnapshot } from "./registry.js";
@@ -21,6 +22,10 @@ const SCHEMAS = {
   assets: "https://country-flags.app/content/v1/asset-registry.schema.json",
   provenance: "https://country-flags.app/content/v1/provenance.schema.json",
   report: "https://country-flags.app/content/v1/pipeline-report.schema.json",
+  cardTemplates:
+    "https://country-flags.app/content/v1/card-templates.schema.json",
+  learningCards:
+    "https://country-flags.app/content/v1/learning-cards.schema.json",
 } as const;
 
 function assertVersion(version: string): void {
@@ -91,6 +96,16 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     files.push({ path, schemaId });
   };
 
+  const createdAt = registry.sources
+    .map(({ retrievedAt }) => retrievedAt)
+    .sort()
+    .at(-1);
+  const learning = buildLearningContent(
+    merged.catalog.decks as { key: string; memberEntityKeys: string[] }[],
+    merged.assets,
+    String(createdAt),
+  );
+
   await add("catalog.json", SCHEMAS.catalog, merged.catalog);
   for (const [factType, document] of Object.entries(merged.facts)) {
     await add(`facts/${factType}.json`, SCHEMAS.facts, document);
@@ -99,6 +114,12 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     schemaVersion: 1,
     assets: merged.assets,
   });
+  await add(
+    "card-templates.json",
+    SCHEMAS.cardTemplates,
+    learning.cardTemplates,
+  );
+  await add("learning-cards.json", SCHEMAS.learningCards, learning.learningCards);
   await add("provenance/provenance.json", SCHEMAS.provenance, {
     schemaVersion: 1,
     fields: merged.provenance,
@@ -131,10 +152,6 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
         };
       }),
   );
-  const createdAt = registry.sources
-    .map(({ retrievedAt }) => retrievedAt)
-    .sort()
-    .at(-1);
   await writeJson(join(outputDirectory, "manifest.json"), {
     $schema: "../../../contracts/schemas/content/manifest.v1.schema.json",
     schemaVersion: 1,
