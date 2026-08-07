@@ -100,6 +100,9 @@ describe("content fixture and read API (integration)", () => {
         env: {
           ...process.env,
           DATABASE_URL: testDatabaseUrl,
+          // The schema's directUrl drives `migrate deploy`; without this the
+          // migrations would land on the ambient database, not this test's.
+          DIRECT_DATABASE_URL: testDatabaseUrl,
         },
       },
     );

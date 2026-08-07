@@ -1,6 +1,7 @@
 import { Injectable, type LoggerService } from "@nestjs/common";
 import { trace } from "@opentelemetry/api";
 
+import { readDeploymentEnvironment } from "../../config/deployment-environment";
 import { redact } from "./redaction";
 
 type LogLevel = "debug" | "info" | "warn" | "error" | "fatal";
@@ -20,7 +21,9 @@ interface LogEntry {
 }
 
 const SERVICE_NAME = process.env.SERVICE_NAME ?? "country-flags-api";
-const ENVIRONMENT = process.env.NODE_ENV ?? "development";
+// The deployment environment, not NODE_ENV: dev and prod both run the production
+// build, so NODE_ENV alone cannot tell one deployment's logs from the other's.
+const ENVIRONMENT = readDeploymentEnvironment();
 const RELEASE = process.env.SERVICE_RELEASE ?? "dev";
 
 function isRecord(value: unknown): value is Record<string, unknown> {

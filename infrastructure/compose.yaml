@@ -6,10 +6,14 @@ services:
       context: ..
       dockerfile: backend/Dockerfile
     environment:
+      # The production build running against local infrastructure: NODE_ENV stays
+      # production, DEPLOYMENT_ENV says which resources it may touch.
       NODE_ENV: production
+      DEPLOYMENT_ENV: local
       PORT: 3000
       LOG_LEVEL: info
       DATABASE_URL: postgresql://country_flags:country_flags@postgres:5432/country_flags?schema=public
+      DIRECT_DATABASE_URL: postgresql://country_flags:country_flags@postgres:5432/country_flags?schema=public
     ports:
       - "3000:3000"
     depends_on:

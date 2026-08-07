@@ -10,6 +10,11 @@ database schema.
   файлы не редактируются.
 - Deployment выполняет `corepack yarn prisma:migrate:deploy` отдельным шагом до
   запуска новой версии API.
+- Migrations идут через `directUrl` (`DIRECT_DATABASE_URL`), а не через pooled
+  runtime `DATABASE_URL`: hosted pooler не умеет выполнять DDL. Локально и в CI
+  обе переменные указывают на одну и ту же базу, но задать нужно обе — тест,
+  который поднимает временную базу, обязан передать `DIRECT_DATABASE_URL`
+  вместе с `DATABASE_URL`, иначе migrations уедут в ambient database.
 - `test/migrations.e2e-spec.ts` создаёт временную пустую PostgreSQL database,
   применяет все migrations и проверяет ключевые constraints.
 - Check constraints, partial indexes, `NULLS NOT DISTINCT` indexes и immutable

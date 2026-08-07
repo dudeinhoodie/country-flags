@@ -95,6 +95,19 @@ corepack yarn docker:build
 `PUBLIC_BASE_URL`; TTL re-authentication и download URL задаются
 `AUTH_REAUTH_TOKEN_TTL_SECONDS` и `DATA_EXPORT_DOWNLOAD_TTL_SECONDS`.
 
+`NODE_ENV` задаёт runtime semantics Node.js, а `DEPLOYMENT_ENV` — окружение
+развёртывания (`local`, `ci`, `dev`, `prod`): ресурсы, telemetry labels, OAuth
+clients и data policy. `dev` и `prod` требуют `NODE_ENV=production`, а
+`NODE_ENV=production` требует явного `DEPLOYMENT_ENV`, потому что безопасного
+умолчания между `dev` и `prod` не существует. Test auth и provider test tokens
+доступны только вне production build. Матрица окружений описана в
+[`docs/13-deployment-environments.md`](./docs/13-deployment-environments.md).
+
+Prisma использует два подключения: pooled `DATABASE_URL` для runtime и прямой
+`DIRECT_DATABASE_URL` для migrations. Локально и в CI это один и тот же URL, но
+переменная обязательна — существующий `backend/.env` нужно дополнить ею после
+обновления ветки.
+
 Канонический API-контракт находится в
 [`contracts/openapi.yaml`](./contracts/openapi.yaml). Проверки контрактов
 валидируют OpenAPI, собирают single-file bundle, проверяют JSON Schema fixtures
