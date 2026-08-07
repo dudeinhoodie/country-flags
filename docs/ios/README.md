@@ -1,6 +1,7 @@
 # iOS development handoff
 
-Статус: ready for issue execution  
+Статус: ready for issue execution
+
 Baseline: Swift 6, SwiftUI, iOS 17+, SwiftData
 
 Этот раздел разбивает общее iOS ТЗ на независимые agent-ready work packages.
@@ -43,5 +44,6 @@ Baseline: Swift 6, SwiftUI, iOS 17+, SwiftData
 - изменения API сначала вносятся в канонический OpenAPI;
 - один Issue соответствует одной ветке и одному PR.
 
-Общее ТЗ: [02-ios-spec.md](../02-ios-spec.md).  
+Общее ТЗ: [02-ios-spec.md](../02-ios-spec.md).
+
 OpenAPI: [contracts/openapi.yaml](../../contracts/openapi.yaml).
