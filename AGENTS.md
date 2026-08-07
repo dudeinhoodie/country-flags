@@ -33,7 +33,9 @@ backend Issue не должна изменять `ios/`, если это пря�
 
 1. последнее явное указание владельца продукта в текущей задаче;
 2. описание текущей GitHub Issue;
-3. `docs/08-backend-agent-handoff.md` и `docs/01-backend-spec.md`;
+3. platform handoff и основное platform ТЗ:
+   - backend: `docs/08-backend-agent-handoff.md` и `docs/01-backend-spec.md`;
+   - iOS: `docs/ios/README.md` и `docs/02-ios-spec.md`;
 4. `docs/00-product-spec.md`;
 5. тематические документы и существующие ADR;
 6. существующая реализация.
@@ -50,9 +52,10 @@ backend Issue не должна изменять `ios/`, если это пря�
 4. тематическими `docs/05-*`, `docs/06-*` или `docs/07-*`, если Issue касается
    feature flags, observability/analytics или advertising.
 
-Для iOS-задач основным техническим документом является `docs/02-ios-spec.md`.
-iOS должен потреблять committed OpenAPI-контракт, а не придумывать
-несовместимые локальные DTO.
+Для iOS-задач агент сначала читает соответствующую спецификацию из
+`docs/ios/tasks/`, затем релевантные разделы `docs/02-ios-spec.md`. iOS
+должен потреблять committed OpenAPI-контракт, а не придумывать несовместимые
+локальные DTO.
 
 ## 3. Workflow GitHub Issue
 
