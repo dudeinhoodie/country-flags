@@ -108,7 +108,9 @@ Provider identities и refresh-token rotation описаны в
 [ADR-003](./docs/adr/ADR-003-review-ordering-and-idempotency.md) и
 [ADR-004](./docs/adr/ADR-004-fsrs6-versioning-and-migrations.md).
 Хранение и migration path приватных account exports зафиксированы в
-[ADR-007](./docs/adr/ADR-007-account-data-export-storage.md).
+[ADR-007](./docs/adr/ADR-007-account-data-export-storage.md). Топология
+dev/production deployment (Koyeb/Neon/R2, immutable promotion) зафиксирована в
+[ADR-008](./docs/adr/ADR-008-deployment-topology-and-promotion.md).
 
 Известные ограничения текущего MVP сведены в
 [12-known-limitations.md](./docs/12-known-limitations.md). Retention-политика,
@@ -116,6 +118,9 @@ backup/PITR runbook и migration/deployment runbook — в
 [09-retention.md](./docs/09-retention.md),
 [10-backup-restore-runbook.md](./docs/10-backup-restore-runbook.md) и
 [11-migration-deployment-runbook.md](./docs/11-migration-deployment-runbook.md).
+Deployment environments и agent handoff (local/CI/dev/prod, CI/CD, migrations,
+backup, rollback) — в [13-deployment-environments.md](./docs/13-deployment-environments.md)
+и [14-deployment-agent-handoff.md](./docs/14-deployment-agent-handoff.md).
 
 Команды явно используют `corepack yarn`, чтобы системный Yarn Classic не мог
 случайно проигнорировать закреплённую в проекте версию Yarn.

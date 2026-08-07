@@ -354,3 +354,28 @@ CMS не нужна для первого MVP, но нужно определи�
 - feature flags через backend-evaluated snapshot и provider adapter; без прямой зависимости feature-кода iOS от конкретного сервиса.
 - provider-agnostic error reporting и продуктовая аналитика; OpenTelemetry для backend traces/metrics, OSLog + MetricKit на iOS.
 - advertising abstraction с NoOp provider; реальный SDK и показы не входят в MVP.
+
+## 13. Infrastructure и deployment
+
+Рабочий baseline описан в
+[13-deployment-environments.md](./13-deployment-environments.md):
+
+- local — Compose с PostgreSQL и MinIO;
+- CI/testing — ephemeral PostgreSQL без shared database;
+- dev — Koyeb Free, отдельные Neon и R2;
+- production — always-on Koyeb Eco, отдельные Neon и R2;
+- master автоматически обновляет dev;
+- production получает тот же immutable GHCR image через manual promotion;
+- staging отложен до внешнего TestFlight/release train;
+- migrations выполняются отдельным job по expand/contract;
+- backup готов только после restore drill.
+
+До provisioning остаётся определить:
+
+- production API domain и DNS owner;
+- ownership Koyeb, Neon и Cloudflare accounts;
+- monthly budget и billing alerts;
+- момент upgrade Neon production;
+- observability/error providers и alert destination;
+- GitHub Pro/external secret manager при появлении команды;
+- public-launch RPO/RTO по реальным usage данным.
