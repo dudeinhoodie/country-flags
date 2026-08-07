@@ -4,11 +4,29 @@ import { resourceFromAttributes } from "@opentelemetry/resources";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import {
+  ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
 
+import { readDeploymentEnvironment } from "../../config/deployment-environment";
+
 let activeSdk: NodeSDK | undefined;
+
+/**
+ * Identifies which deployment produced a span or metric. `deployment.environment.name`
+ * carries what `service.version` alone cannot: dev and prod run the same production
+ * build, so only this attribute separates their telemetry.
+ */
+export function telemetryResourceAttributes(
+  env: NodeJS.ProcessEnv,
+): Record<string, string> {
+  return {
+    [ATTR_SERVICE_NAME]: env.SERVICE_NAME ?? "country-flags-api",
+    [ATTR_SERVICE_VERSION]: env.SERVICE_RELEASE ?? "dev",
+    [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: readDeploymentEnvironment(env),
+  };
+}
 
 /**
  * Starts OpenTelemetry export only when explicitly enabled. `@opentelemetry/api`'s
@@ -28,10 +46,7 @@ export function bootstrapTelemetry(env: NodeJS.ProcessEnv = process.env): void {
   const baseUrl = endpoint.replace(/\/+$/, "");
 
   activeSdk = new NodeSDK({
-    resource: resourceFromAttributes({
-      [ATTR_SERVICE_NAME]: env.SERVICE_NAME ?? "country-flags-api",
-      [ATTR_SERVICE_VERSION]: env.SERVICE_RELEASE ?? "dev",
-    }),
+    resource: resourceFromAttributes(telemetryResourceAttributes(env)),
     traceExporter: new OTLPTraceExporter({ url: `${baseUrl}/v1/traces` }),
     metricReaders: [
       new PeriodicExportingMetricReader({

@@ -30,9 +30,13 @@ jobs:
           --health-retries 10
     env:
       NODE_ENV: test
+      DEPLOYMENT_ENV: ci
       PORT: 3000
       LOG_LEVEL: info
       DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
+      # CI reaches the ephemeral database directly; only hosted environments split
+      # the pooled runtime URL from the direct migration URL.
+      DIRECT_DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
       CONTRACT_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
 
     steps:
@@ -105,7 +109,7 @@ jobs:
         run: |
           docker run -d --name backend-smoke --network host \
             -e DATABASE_URL="$DATABASE_URL" \
-            -e NODE_ENV=production -e PORT=3000 \
+            -e NODE_ENV=production -e DEPLOYMENT_ENV=ci -e PORT=3000 \
             -e AUTH_ACCESS_TOKEN_SECRET="$(openssl rand -hex 32)" \
             -e AUTH_ACCESS_TOKEN_ISSUER=ci -e AUTH_ACCESS_TOKEN_AUDIENCE=ci \
             -e AUTH_RATE_LIMIT_SECRET="$(openssl rand -hex 32)" \

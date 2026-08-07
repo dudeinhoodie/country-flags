@@ -1,3 +1,11 @@
+import {
+  DEPLOYMENT_ENVIRONMENTS,
+  type DeploymentEnvironment,
+  defaultDeploymentEnvironment,
+  isDeploymentEnvironment,
+  isHostedDeploymentEnvironment,
+} from "./deployment-environment";
+
 export const NODE_ENVIRONMENTS = ["development", "test", "production"] as const;
 export const LOG_LEVELS = ["debug", "info", "warn", "error", "fatal"] as const;
 
@@ -6,9 +14,13 @@ export type LogLevel = (typeof LOG_LEVELS)[number];
 
 export interface EnvironmentVariables extends Record<string, unknown> {
   NODE_ENV: NodeEnvironment;
+  DEPLOYMENT_ENV: DeploymentEnvironment;
   PORT: number;
   LOG_LEVEL: LogLevel;
   DATABASE_URL: string;
+  DIRECT_DATABASE_URL: string;
+  SERVICE_NAME: string;
+  SERVICE_RELEASE: string;
   TEST_AUTH_ENABLED: boolean;
   AUTH_PROVIDER_TEST_TOKENS_ENABLED: boolean;
   AUTH_PROVIDER_TEST_SECRET: string;
@@ -83,17 +95,17 @@ function parsePort(value: unknown): number {
   return port;
 }
 
-function validateDatabaseUrl(value: string): string {
+function validateDatabaseUrl(value: string, key: string): string {
   let parsedUrl: URL;
 
   try {
     parsedUrl = new URL(value);
   } catch {
-    throw new Error("Environment variable DATABASE_URL must be a valid URL");
+    throw new Error(`Environment variable ${key} must be a valid URL`);
   }
 
   if (!["postgres:", "postgresql:"].includes(parsedUrl.protocol)) {
-    throw new Error("Environment variable DATABASE_URL must use PostgreSQL");
+    throw new Error(`Environment variable ${key} must use PostgreSQL`);
   }
 
   return value;
@@ -195,6 +207,58 @@ function authSecret(
   return value;
 }
 
+function resolveDeploymentEnvironment(
+  config: Record<string, unknown>,
+  nodeEnvironment: NodeEnvironment,
+): DeploymentEnvironment {
+  const raw = config.DEPLOYMENT_ENV;
+
+  if (raw === undefined || (typeof raw === "string" && raw.trim() === "")) {
+    const fallback = defaultDeploymentEnvironment(nodeEnvironment);
+    if (fallback === undefined) {
+      throw new Error(
+        "Environment variable DEPLOYMENT_ENV is required when NODE_ENV is production",
+      );
+    }
+    return fallback;
+  }
+
+  if (typeof raw !== "string") {
+    throw new Error("Environment variable DEPLOYMENT_ENV must be a string");
+  }
+
+  const value = raw.trim();
+  if (!isDeploymentEnvironment(value)) {
+    throw new Error(
+      `Environment variable DEPLOYMENT_ENV must be one of: ${DEPLOYMENT_ENVIRONMENTS.join(", ")}`,
+    );
+  }
+
+  return value;
+}
+
+/**
+ * A hosted release must be traceable back to the image it was built from, so the
+ * placeholder that local and CI runs rely on is rejected there.
+ */
+function releaseIdentifier(
+  config: Record<string, unknown>,
+  hosted: boolean,
+): string {
+  if (!hosted) {
+    return optionalString(config.SERVICE_RELEASE, "dev", "SERVICE_RELEASE");
+  }
+
+  const value = requiredString(config, "SERVICE_RELEASE");
+  if (value === "dev") {
+    throw new Error(
+      "Environment variable SERVICE_RELEASE must identify the deployed release, not the local placeholder",
+    );
+  }
+
+  return value;
+}
+
 export function validateEnvironment(
   config: Record<string, unknown>,
 ): EnvironmentVariables {
@@ -217,23 +281,42 @@ export function validateEnvironment(
     );
   }
 
+  const deploymentEnvironment = resolveDeploymentEnvironment(
+    config,
+    nodeEnvironment,
+  );
+  const hosted = isHostedDeploymentEnvironment(deploymentEnvironment);
+  if (hosted && nodeEnvironment !== "production") {
+    throw new Error(
+      `Deployment environment ${deploymentEnvironment} requires NODE_ENV=production, received ${nodeEnvironment}`,
+    );
+  }
+
+  // Hosted environments are covered by `hosted`; the NODE_ENV check additionally
+  // holds a production build run locally (Compose, CI image smoke) to the same
+  // rule, so a release artifact never gains test auth by changing DEPLOYMENT_ENV.
+  const testShortcutsAllowed = !hosted && nodeEnvironment !== "production";
+  const rejectTestShortcut = (key: string): never => {
+    throw new Error(
+      `${key} cannot be enabled with NODE_ENV=${nodeEnvironment} and DEPLOYMENT_ENV=${deploymentEnvironment}`,
+    );
+  };
+
   const testAuthEnabled = parseBoolean(
     config.TEST_AUTH_ENABLED,
-    nodeEnvironment !== "production",
+    testShortcutsAllowed,
     "TEST_AUTH_ENABLED",
   );
-  if (nodeEnvironment === "production" && testAuthEnabled) {
-    throw new Error("TEST_AUTH_ENABLED cannot be enabled in production");
+  if (!testShortcutsAllowed && testAuthEnabled) {
+    rejectTestShortcut("TEST_AUTH_ENABLED");
   }
   const providerTestTokensEnabled = parseBoolean(
     config.AUTH_PROVIDER_TEST_TOKENS_ENABLED,
-    nodeEnvironment !== "production",
+    testShortcutsAllowed,
     "AUTH_PROVIDER_TEST_TOKENS_ENABLED",
   );
-  if (nodeEnvironment === "production" && providerTestTokensEnabled) {
-    throw new Error(
-      "AUTH_PROVIDER_TEST_TOKENS_ENABLED cannot be enabled in production",
-    );
+  if (!testShortcutsAllowed && providerTestTokensEnabled) {
+    rejectTestShortcut("AUTH_PROVIDER_TEST_TOKENS_ENABLED");
   }
 
   const appleClientIds = commaSeparated(
@@ -266,12 +349,37 @@ export function validateEnvironment(
     );
   }
 
+  const databaseUrl = validateDatabaseUrl(
+    requiredString(config, "DATABASE_URL"),
+    "DATABASE_URL",
+  );
+  // Hosted runtimes talk to a pooler that cannot run migrations, so the direct
+  // connection is a separate required variable there. Local and CI reach the same
+  // database either way and fall back to the runtime URL.
+  const rawDirectDatabaseUrl = config.DIRECT_DATABASE_URL;
+  const hasDirectDatabaseUrl =
+    typeof rawDirectDatabaseUrl === "string" &&
+    rawDirectDatabaseUrl.trim().length > 0;
+  if (hosted && !hasDirectDatabaseUrl) {
+    throw new Error("Environment variable DIRECT_DATABASE_URL is required");
+  }
+
   return {
     ...config,
     NODE_ENV: nodeEnvironment,
+    DEPLOYMENT_ENV: deploymentEnvironment,
     PORT: parsePort(config.PORT ?? 3000),
     LOG_LEVEL: logLevel,
-    DATABASE_URL: validateDatabaseUrl(requiredString(config, "DATABASE_URL")),
+    DATABASE_URL: databaseUrl,
+    DIRECT_DATABASE_URL: hasDirectDatabaseUrl
+      ? validateDatabaseUrl(rawDirectDatabaseUrl.trim(), "DIRECT_DATABASE_URL")
+      : databaseUrl,
+    SERVICE_NAME: optionalString(
+      config.SERVICE_NAME,
+      "country-flags-api",
+      "SERVICE_NAME",
+    ),
+    SERVICE_RELEASE: releaseIdentifier(config, hosted),
     TEST_AUTH_ENABLED: testAuthEnabled,
     AUTH_PROVIDER_TEST_TOKENS_ENABLED: providerTestTokensEnabled,
     AUTH_PROVIDER_TEST_SECRET:

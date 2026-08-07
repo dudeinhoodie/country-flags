@@ -84,6 +84,9 @@ describe("baseline database migration (integration)", () => {
         env: {
           ...process.env,
           DATABASE_URL: testDatabaseUrl,
+          // The schema's directUrl drives `migrate deploy`; without this the
+          // migrations would land on the ambient database, not the temporary one.
+          DIRECT_DATABASE_URL: testDatabaseUrl,
         },
       },
     );

@@ -121,7 +121,13 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
       {
         cwd: resolve(__dirname, ".."),
         encoding: "utf8",
-        env: { ...process.env, DATABASE_URL: testDatabaseUrl },
+        env: {
+          ...process.env,
+          DATABASE_URL: testDatabaseUrl,
+          // The schema's directUrl drives `migrate deploy`; without this the
+          // migrations would land on the ambient database, not this test's.
+          DIRECT_DATABASE_URL: testDatabaseUrl,
+        },
       },
     );
     if (migration.status !== 0) {
@@ -796,7 +802,13 @@ describe("mixed-mode study flow (integration)", () => {
       {
         cwd: resolve(__dirname, ".."),
         encoding: "utf8",
-        env: { ...process.env, DATABASE_URL: testDatabaseUrl },
+        env: {
+          ...process.env,
+          DATABASE_URL: testDatabaseUrl,
+          // The schema's directUrl drives `migrate deploy`; without this the
+          // migrations would land on the ambient database, not this test's.
+          DIRECT_DATABASE_URL: testDatabaseUrl,
+        },
       },
     );
     if (migration.status !== 0) {

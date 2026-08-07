@@ -22,7 +22,8 @@ async function bootstrap(): Promise<void> {
   const config = app.get<ConfigService<EnvironmentVariables>>(ConfigService);
   const logger = app.get(JsonLoggerService);
   const port = config.getOrThrow<number>("PORT");
-  const environment = config.getOrThrow<string>("NODE_ENV");
+  const nodeEnvironment = config.getOrThrow<string>("NODE_ENV");
+  const deploymentEnvironment = config.getOrThrow<string>("DEPLOYMENT_ENV");
   const corsAllowedOrigins = config.getOrThrow<string[]>(
     "CORS_ALLOWED_ORIGINS",
   );
@@ -47,7 +48,10 @@ async function bootstrap(): Promise<void> {
     message: "Country Flags backend started",
     event: "application_started",
     port,
-    environment,
+    // `environment` is the deployment environment, matching every other log
+    // entry: dev and prod share NODE_ENV=production, so it is reported separately.
+    environment: deploymentEnvironment,
+    nodeEnv: nodeEnvironment,
   });
 }
 
