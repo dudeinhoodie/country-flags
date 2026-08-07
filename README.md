@@ -108,6 +108,27 @@ Prisma использует два подключения: pooled `DATABASE_URL`
 переменная обязательна — существующий `backend/.env` нужно дополнить ею после
 обновления ветки.
 
+## Release image
+
+Успешный push в `master` публикует один production image в GHCR:
+
+```text
+ghcr.io/dudeinhoodie/country-flags-backend:sha-<commit>
+```
+
+Pull request никогда не публикует image. Tag неизменяем: если workflow
+перезапущен для того же commit, уже опубликованный artifact переиспользуется, а
+не пересобирается — пересборка того же commit дала бы другой digest, поэтому
+неизменность обеспечивается именно отказом от rebuild. Mutable `latest` не
+публикуется вообще: promotion и rollback обязаны ссылаться на digest
+(`ghcr.io/...@sha256:...`), который выводится в job summary вместе с source
+revision. Image несёт OCI labels `source`, `revision` и `created`, запускается
+non-root и проверяется liveness/readiness smoke прямо из registry.
+
+Топология и правила promotion описаны в
+[ADR-008](./docs/adr/ADR-008-deployment-topology-and-promotion.md) и
+[`docs/13-deployment-environments.md`](./docs/13-deployment-environments.md).
+
 Канонический API-контракт находится в
 [`contracts/openapi.yaml`](./contracts/openapi.yaml). Проверки контрактов
 валидируют OpenAPI, собирают single-file bundle, проверяют JSON Schema fixtures
