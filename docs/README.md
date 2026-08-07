@@ -20,10 +20,13 @@
 - [10-backup-restore-runbook.md](./10-backup-restore-runbook.md) — PostgreSQL backup/PITR runbook, RPO/RTO цели, restore drill.
 - [11-migration-deployment-runbook.md](./11-migration-deployment-runbook.md) — порядок деплоя, migrate-as-separate-step, откат миграций.
 - [12-known-limitations.md](./12-known-limitations.md) — сводный список известных ограничений backend MVP.
+- [13-deployment-environments.md](./13-deployment-environments.md) — local/CI/dev/prod, инфраструктура, CI/CD, миграции, backup и rollback.
+- [14-deployment-agent-handoff.md](./14-deployment-agent-handoff.md) — последовательность и критерии deployment work packages.
 - [ADR-002](./adr/ADR-002-auth-and-refresh-token-rotation.md) — provider identities и refresh-token rotation.
 - [ADR-003](./adr/ADR-003-review-ordering-and-idempotency.md) — canonical ordering, clock normalization и idempotency review.
 - [ADR-004](./adr/ADR-004-fsrs6-versioning-and-migrations.md) — pinned FSRS-6 adapter, definitions и checkpoints.
 - [ADR-007](./adr/ADR-007-account-data-export-storage.md) — хранение и migration path приватных account data exports.
+- [ADR-008](./adr/ADR-008-deployment-topology-and-promotion.md) — Koyeb/Neon/R2 и immutable promotion dev → production.
 
 ## Подтверждённые продуктовые решения
 
