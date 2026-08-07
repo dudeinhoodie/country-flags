@@ -1,13 +1,38 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Query,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
 
+import { ApiException } from "../../common/http/api.exception";
+import type { RequestWithId } from "../../common/http/request-id.middleware";
+import { RateLimiter } from "../../common/security/rate-limiter.service";
 import { type AuthenticatedRequest, AuthGuard } from "../auth/auth.guard";
+import { ReauthenticationTokenService } from "../auth/reauthentication-token.service";
 import { parseLimit, parseUuid } from "../content/content-query";
+import { parseDeleteProgressRequest } from "./delete-progress.request";
+import { ProgressDeletionService } from "./progress-deletion.service";
 import { ProgressService } from "./progress.service";
+
+type PrivateRequest = RequestWithId & AuthenticatedRequest;
 
 @Controller("me")
 @UseGuards(AuthGuard)
 export class ProgressController {
-  constructor(private readonly progress: ProgressService) {}
+  constructor(
+    private readonly progress: ProgressService,
+    private readonly deletion: ProgressDeletionService,
+    private readonly reauthentication: ReauthenticationTokenService,
+    private readonly rateLimiter: RateLimiter,
+  ) {}
 
   @Get("due-summary")
   dueSummary(
@@ -21,6 +46,34 @@ export class ProgressController {
     @Req() request: AuthenticatedRequest,
   ): Promise<Record<string, unknown>> {
     return this.progress.getProgress(request.authenticatedUserId);
+  }
+
+  @Delete("progress")
+  @HttpCode(HttpStatus.ACCEPTED)
+  async deleteProgress(
+    @Req() request: PrivateRequest,
+    @Headers("x-reauthentication-token") proof: string | undefined,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    parseDeleteProgressRequest(body);
+    if (request.authenticatedSessionId === null) {
+      throw new ApiException(
+        HttpStatus.UNAUTHORIZED,
+        "SESSION_ACCESS_TOKEN_REQUIRED",
+        "A session access token is required for this operation",
+      );
+    }
+    await this.reauthentication.verify(
+      proof,
+      request.authenticatedUserId,
+      request.authenticatedSessionId,
+    );
+    await this.rateLimiter.consume(
+      "account:delete-progress",
+      request.authenticatedUserId,
+      3,
+    );
+    return this.deletion.delete(request.authenticatedUserId, request.requestId);
   }
 
   @Get("decks/:deckId/progress")

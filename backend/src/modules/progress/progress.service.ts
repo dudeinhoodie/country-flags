@@ -115,7 +115,11 @@ function achievementResponse(achievement: {
     id: achievement.id,
     code: achievement.definition.code,
     category: achievement.definition.category,
-    tier: achievement.definition.tier,
+    // An untiered achievement omits the field; the contract types it as the
+    // MasteryTier enum so generated clients keep it.
+    ...(achievement.definition.tier === null
+      ? {}
+      : { tier: achievement.definition.tier }),
     scopeType: achievement.scopeType,
     scopeId: achievement.scopeId,
     earned: true,

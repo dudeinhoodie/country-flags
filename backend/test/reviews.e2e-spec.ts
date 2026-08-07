@@ -468,9 +468,11 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
     expect(outsideSnapshot.results[0]).toMatchObject({
       status: "REJECTED",
       rejectionCode: "OPTION_NOT_IN_SESSION",
-      canonicalRating: null,
       isCorrect: null,
     });
+    // Structured members are absent, not null, so a generated client keeps them.
+    expect(outsideSnapshot.results[0]).not.toHaveProperty("canonicalRating");
+    expect(outsideSnapshot.results[0]).not.toHaveProperty("cardState");
 
     const correct = await sendEvent(
       objectiveEvent(

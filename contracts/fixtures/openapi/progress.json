@@ -1,0 +1,63 @@
+{
+  "totalCards": 8,
+  "learnedCards": 3,
+  "dueCards": 2,
+  "overdueCards": 1,
+  "dueLearningCards": 1,
+  "dueRelearningCards": 0,
+  "currentMasteryTier": "BRONZE",
+  "highestAchievementTier": "BRONZE",
+  "newCards": 3,
+  "learningCards": 1,
+  "relearningCards": 0,
+  "reviewCards": 4,
+  "successfulReviews": 9,
+  "reviewCount": 11,
+  "accuracy30Days": 0.82,
+  "ruleVersion": 1,
+  "decks": [
+    {
+      "deckId": "70000000-0000-4000-8000-000000000001",
+      "totalCards": 8,
+      "learnedCards": 3,
+      "dueCards": 2,
+      "overdueCards": 1,
+      "dueLearningCards": 1,
+      "dueRelearningCards": 0,
+      "currentMasteryTier": "BRONZE",
+      "highestAchievementTier": "BRONZE",
+      "updatedAt": "2026-07-29T10:01:00.000Z",
+      "newCards": 3,
+      "learningCards": 1,
+      "relearningCards": 0,
+      "reviewCards": 4,
+      "successfulReviews": 9,
+      "reviewCount": 11,
+      "accuracy30Days": 0.82,
+      "ruleVersion": 1
+    }
+  ],
+  "regions": [
+    {
+      "regionId": "30000000-0000-4000-8000-000000000101",
+      "totalCards": 7,
+      "learnedCards": 3,
+      "dueCards": 2,
+      "overdueCards": 1,
+      "dueLearningCards": 1,
+      "dueRelearningCards": 0,
+      "currentMasteryTier": "BRONZE",
+      "highestAchievementTier": "BRONZE",
+      "updatedAt": "2026-07-29T10:01:00.000Z",
+      "newCards": 2,
+      "learningCards": 1,
+      "relearningCards": 0,
+      "reviewCards": 4,
+      "successfulReviews": 9,
+      "reviewCount": 11,
+      "accuracy30Days": 0.82,
+      "ruleVersion": 1
+    }
+  ],
+  "updatedAt": "2026-07-29T10:01:00.000Z"
+}

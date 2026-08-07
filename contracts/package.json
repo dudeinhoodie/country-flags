@@ -10,7 +10,8 @@
     "bundle": "redocly bundle country-flags@v1 --output dist/openapi.bundle.yaml",
     "schemas": "node scripts/validate-json-schemas.mjs",
     "compatibility": "node scripts/check-compatibility.mjs",
-    "check": "yarn lint && yarn bundle && yarn schemas && yarn compatibility"
+    "check": "yarn lint && yarn bundle && yarn schemas && yarn fixtures && yarn compatibility",
+    "fixtures": "node scripts/validate-openapi-fixtures.mjs"
   },
   "devDependencies": {
     "@redocly/cli": "1.34.17",

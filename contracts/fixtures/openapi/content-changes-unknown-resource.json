@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "operation": "UPSERT",
+      "resourceType": "ENTITY",
+      "resourceId": "30000000-0000-4000-8000-000000000005",
+      "contentVersion": "test-only-fixture-v2"
+    },
+    {
+      "operation": "RETIRE",
+      "resourceType": "LEARNING_CARD",
+      "resourceId": "50000000-0000-4000-8000-000000000007",
+      "contentVersion": "test-only-fixture-v2"
+    },
+    {
+      "operation": "UPSERT",
+      "resourceType": "CARD_TEMPLATE",
+      "resourceId": "20000000-0000-4000-8000-000000000001",
+      "contentVersion": "test-only-fixture-v2"
+    }
+  ],
+  "nextCursor": "eyJraW5kIjoiY29udGVudC1jaGFuZ2UiLCJjb250ZW50VmVyc2lvbiI6InRlc3Qtb25seS1maXh0dXJlLXYyIiwic2VxdWVuY2UiOiIxNyJ9",
+  "hasMore": false,
+  "contentVersion": "test-only-fixture-v2"
+}

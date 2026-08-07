@@ -1,0 +1,116 @@
+{
+  "results": [
+    {
+      "eventId": "92000000-0000-4000-8000-000000000001",
+      "status": "ACCEPTED",
+      "rejectionCode": null,
+      "canonicalRating": "GOOD",
+      "isCorrect": true,
+      "correctOptionId": null,
+      "cardState": {
+        "learningCardId": "50000000-0000-4000-8000-000000000005",
+        "state": "REVIEW",
+        "difficulty": 5.31,
+        "stability": 12.4,
+        "dueAt": "2026-08-10T10:00:00.000Z",
+        "repetitions": 4,
+        "lapses": 1,
+        "schedulerVersion": "test-fsrs-6-v2",
+        "schedulerParametersVersion": "fsrs-6-default-v1",
+        "stateVersion": 5,
+        "updatedAt": "2026-07-29T10:01:00.000Z"
+      }
+    },
+    {
+      "eventId": "92000000-0000-4000-8000-000000000002",
+      "status": "DUPLICATE",
+      "rejectionCode": null,
+      "canonicalRating": "AGAIN",
+      "isCorrect": false,
+      "correctOptionId": null,
+      "cardState": {
+        "learningCardId": "50000000-0000-4000-8000-000000000005",
+        "state": "REVIEW",
+        "difficulty": 5.31,
+        "stability": 12.4,
+        "dueAt": "2026-08-10T10:00:00.000Z",
+        "repetitions": 4,
+        "lapses": 1,
+        "schedulerVersion": "test-fsrs-6-v2",
+        "schedulerParametersVersion": "fsrs-6-default-v1",
+        "stateVersion": 5,
+        "updatedAt": "2026-07-29T10:01:00.000Z"
+      }
+    },
+    {
+      "eventId": "92000000-0000-4000-8000-000000000003",
+      "status": "REJECTED",
+      "rejectionCode": "UNKNOWN_LEARNING_CARD",
+      "isCorrect": null,
+      "correctOptionId": null
+    },
+    {
+      "eventId": "92000000-0000-4000-8000-000000000004",
+      "status": "RECONCILIATION_PENDING",
+      "rejectionCode": null,
+      "canonicalRating": "HARD",
+      "isCorrect": true,
+      "correctOptionId": "b1000000-0000-4000-8000-000000000001",
+      "cardState": {
+        "learningCardId": "50000000-0000-4000-8000-000000000005",
+        "state": "REVIEW",
+        "difficulty": 5.31,
+        "stability": 12.4,
+        "dueAt": "2026-08-10T10:00:00.000Z",
+        "repetitions": 4,
+        "lapses": 1,
+        "schedulerVersion": "test-fsrs-6-v2",
+        "schedulerParametersVersion": "fsrs-6-default-v1",
+        "stateVersion": 5,
+        "updatedAt": "2026-07-29T10:01:00.000Z"
+      }
+    }
+  ],
+  "achievements": [
+    {
+      "id": "c0000000-0000-4000-8000-000000000001",
+      "code": "DECK_BRONZE",
+      "category": "MASTERY",
+      "tier": "BRONZE",
+      "scopeType": "DECK",
+      "scopeId": "70000000-0000-4000-8000-000000000001",
+      "earned": true,
+      "earnedAt": "2026-07-29T10:01:00.000Z",
+      "ruleVersion": 1,
+      "evidence": {
+        "tier": "BRONZE",
+        "learnedCards": 3,
+        "totalCards": 8
+      }
+    }
+  ],
+  "deckSummaries": [
+    {
+      "deckId": "70000000-0000-4000-8000-000000000001",
+      "totalCards": 8,
+      "learnedCards": 3,
+      "dueCards": 2,
+      "overdueCards": 1,
+      "dueLearningCards": 1,
+      "dueRelearningCards": 0,
+      "currentMasteryTier": "BRONZE",
+      "highestAchievementTier": "BRONZE",
+      "updatedAt": "2026-07-29T10:01:00.000Z",
+      "newCards": 3,
+      "learningCards": 1,
+      "relearningCards": 0,
+      "reviewCards": 4,
+      "successfulReviews": 9,
+      "reviewCount": 11,
+      "accuracy30Days": 0.82,
+      "ruleVersion": 1
+    }
+  ],
+  "serverTime": "2026-07-29T10:01:00.500Z",
+  "nextSyncCursor": "eyJraW5kIjoidXNlci1jaGFuZ2UiLCJzY29wZUlkIjoiODEwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwic2VxdWVuY2UiOiI0MiJ9"
+}

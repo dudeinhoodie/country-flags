@@ -37,7 +37,9 @@ export class UserChangesService {
         operation: row.operation,
         resourceType: row.resourceType,
         resourceId: row.resourceId,
-        payload: row.payload,
+        // A tombstone omits the payload; the contract types it as a card state
+        // object so generated clients keep it.
+        ...(row.payload === null ? {} : { payload: row.payload }),
         occurredAt: row.occurredAt.toISOString(),
       })),
       nextCursor: encodeUserChangeCursor(

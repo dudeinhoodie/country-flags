@@ -47,3 +47,8 @@ Baseline: Swift 6, SwiftUI, iOS 17+, SwiftData
 Общее ТЗ: [02-ios-spec.md](../02-ios-spec.md).
 
 OpenAPI: [contracts/openapi.yaml](../../contracts/openapi.yaml).
+
+Результат readiness gate: [15-ios-client-readiness.md](../15-ios-client-readiness.md) —
+сопоставление каждого flow с операцией, форма контракта для генерируемых клиентов
+([ADR-009](../adr/ADR-009-generated-client-contract-shape.md)), fixtures в
+`contracts/fixtures/openapi/` и открытые вопросы.

@@ -539,7 +539,8 @@ schemas:
         uniqueItems: true
         items:
           type: string
-          enum: [POPULATION, CAPITAL, AREA, LANGUAGE, CURRENCY]
+          minLength: 1
+          x-extensible-enum: [POPULATION, CAPITAL, AREA, LANGUAGE, CURRENCY]
       soundEnabled:
         type: boolean
       hapticsEnabled:
@@ -734,7 +735,8 @@ schemas:
         $ref: "#/schemas/Uuid"
       type:
         type: string
-        enum: [FLAG, COAT_OF_ARMS, MAP, OTHER]
+        minLength: 1
+        x-extensible-enum: [FLAG, COAT_OF_ARMS, MAP, OTHER]
       url:
         type: string
         format: uri
@@ -765,7 +767,9 @@ schemas:
     properties:
       type:
         type: string
-        enum: [POPULATION, CAPITAL, AREA, LANGUAGE, CURRENCY, OTHER]
+        minLength: 1
+        x-extensible-enum:
+          [POPULATION, CAPITAL, AREA, LANGUAGE, CURRENCY, OTHER]
       displayValue:
         type: string
         minLength: 1
@@ -799,7 +803,8 @@ schemas:
         $ref: "#/schemas/Uuid"
       kind:
         type: string
-        enum:
+        minLength: 1
+        x-extensible-enum:
           [
             COUNTRY,
             TERRITORY,
@@ -814,7 +819,8 @@ schemas:
         enum: [ACTIVE, HISTORICAL, HIDDEN]
       recognitionStatus:
         type: string
-        enum:
+        minLength: 1
+        x-extensible-enum:
           - UN_MEMBER
           - UN_OBSERVER
           - PARTIALLY_RECOGNIZED
@@ -853,7 +859,8 @@ schemas:
         pattern: ^[A-Z][A-Z0-9_]*$
       kind:
         type: string
-        enum: [CURATED, TAXONOMY, DYNAMIC_USER, CUSTOM]
+        minLength: 1
+        x-extensible-enum: [CURATED, TAXONOMY, DYNAMIC_USER, CUSTOM]
       name:
         type: string
         minLength: 1
@@ -866,9 +873,7 @@ schemas:
         type: [integer, "null"]
         minimum: 0
       currentMasteryTier:
-        oneOf:
-          - $ref: "#/schemas/MasteryTier"
-          - type: "null"
+        $ref: "#/schemas/MasteryTier"
       contentVersion:
         type: string
   DeckPage:
@@ -975,7 +980,8 @@ schemas:
         enum: [UPSERT, RETIRE]
       resourceType:
         type: string
-        enum: [ENTITY, DECK, LEARNING_CARD, ASSET, FACT]
+        minLength: 1
+        x-extensible-enum: [ENTITY, DECK, LEARNING_CARD, ASSET, FACT]
       resourceId:
         $ref: "#/schemas/Uuid"
       contentVersion:
@@ -996,7 +1002,7 @@ schemas:
   UserChange:
     type: object
     additionalProperties: false
-    required: [operation, resourceType, resourceId, payload, occurredAt]
+    required: [operation, resourceType, resourceId, occurredAt]
     properties:
       operation:
         type: string
@@ -1007,9 +1013,7 @@ schemas:
       resourceId:
         $ref: "#/schemas/Uuid"
       payload:
-        oneOf:
-          - $ref: "#/schemas/CardState"
-          - type: "null"
+        $ref: "#/schemas/CardState"
       occurredAt:
         $ref: "#/schemas/DateTime"
   SelectionOrigin:
@@ -1165,9 +1169,7 @@ schemas:
         items:
           $ref: "#/schemas/StudySessionCard"
       summary:
-        oneOf:
-          - $ref: "#/schemas/StudySessionSummary"
-          - type: "null"
+        $ref: "#/schemas/StudySessionSummary"
       serverTime:
         $ref: "#/schemas/DateTime"
   StudySessionCard:
@@ -1189,7 +1191,8 @@ schemas:
         minimum: 0
       selectionReason:
         type: string
-        enum: [OVERDUE, LEARNING, ERROR, NEW, MAINTENANCE]
+        minLength: 1
+        x-extensible-enum: [OVERDUE, LEARNING, ERROR, NEW, MAINTENANCE]
       randomSeed:
         type: string
       distractorPolicyVersion:
@@ -1444,18 +1447,14 @@ schemas:
       rejectionCode:
         type: [string, "null"]
       canonicalRating:
-        oneOf:
-          - $ref: "#/schemas/Rating"
-          - type: "null"
+        $ref: "#/schemas/Rating"
       isCorrect:
         type: [boolean, "null"]
       correctOptionId:
         type: [string, "null"]
         format: uuid
       cardState:
-        oneOf:
-          - $ref: "#/schemas/CardState"
-          - type: "null"
+        $ref: "#/schemas/CardState"
   DueSummary:
     type: object
     additionalProperties: false
@@ -1696,9 +1695,7 @@ schemas:
       category:
         type: string
       tier:
-        oneOf:
-          - $ref: "#/schemas/MasteryTier"
-          - type: "null"
+        $ref: "#/schemas/MasteryTier"
       title:
         type: string
       description:

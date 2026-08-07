@@ -63,11 +63,12 @@ describe("UserChangesService", () => {
     });
     expect(result).toMatchObject({
       hasMore: true,
-      items: [
-        { operation: "UPSERT" },
-        { operation: "TOMBSTONE", payload: null },
-      ],
+      items: [{ operation: "UPSERT" }, { operation: "TOMBSTONE" }],
     });
+    // A tombstone omits the payload instead of sending null.
+    expect(
+      (result.items as Array<Record<string, unknown>>)[1],
+    ).not.toHaveProperty("payload");
     expect(decodeUserChangeCursor(result.nextCursor as string, scopeId)).toBe(
       9n,
     );

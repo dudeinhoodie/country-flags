@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": "70000000-0000-4000-8000-000000000001",
+      "code": "ALL_COUNTRIES",
+      "kind": "CURATED",
+      "name": "Все страны",
+      "description": "Полный каталог флагов",
+      "cardCount": 8,
+      "dueCount": 3,
+      "currentMasteryTier": "BRONZE",
+      "contentVersion": "test-only-fixture-v1"
+    },
+    {
+      "id": "70000000-0000-4000-8000-000000000002",
+      "code": "EUROPE",
+      "kind": "TAXONOMY",
+      "name": "Европа",
+      "description": "Европейские и трансконтинентальные страны",
+      "cardCount": 7,
+      "dueCount": null,
+      "contentVersion": "test-only-fixture-v1"
+    }
+  ],
+  "page": {
+    "nextCursor": null,
+    "hasMore": false
+  }
+}

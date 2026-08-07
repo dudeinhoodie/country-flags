@@ -1,0 +1,62 @@
+{
+  "id": "90000000-0000-4000-8000-000000000001",
+  "deckId": "70000000-0000-4000-8000-000000000001",
+  "mode": "SELF_RATED",
+  "selectionOrigin": "SERVER",
+  "requestedUniqueCount": 5,
+  "selectedUniqueCount": 1,
+  "status": "ACTIVE",
+  "contentVersion": "test-only-fixture-v1",
+  "schedulerVersion": "test-fsrs-6-v2",
+  "startedAt": "2026-07-29T10:00:00.000Z",
+  "completedAt": null,
+  "cards": [
+    {
+      "id": "a0000000-0000-4000-8000-000000000001",
+      "learningCard": {
+        "id": "50000000-0000-4000-8000-000000000005",
+        "templateCode": "FLAG_TO_COUNTRY",
+        "templateSchemaVersion": 1,
+        "semanticVersion": 1,
+        "revision": 1,
+        "answerMode": "SELF_RATED",
+        "prompt": {
+          "asset": {
+            "id": "40000000-0000-4000-8000-000000000005",
+            "type": "FLAG",
+            "url": "https://cdn.country-flags.test/test-only-fixture-v1/flags/kosovo.svg",
+            "mimeType": "image/svg+xml",
+            "sha256": "3f786850e387550fdab836ed7e6dc881de23001b8b9f4e0bd6c1b0aa5c0ba9b1",
+            "width": 840,
+            "height": 600,
+            "aspectRatio": 1.4,
+            "licenseName": "CC0-1.0",
+            "attribution": null
+          }
+        },
+        "answer": {
+          "entityId": "30000000-0000-4000-8000-000000000005",
+          "displayName": "Косово",
+          "aliases": ["Kosovo"]
+        },
+        "backSideFacts": [
+          {
+            "type": "CAPITAL",
+            "displayValue": "Приштина",
+            "observedAt": "2026-01-01",
+            "source": {
+              "name": "TEST_ONLY",
+              "url": "https://sources.country-flags.test/test-only"
+            }
+          }
+        ],
+        "contentVersion": "test-only-fixture-v1"
+      },
+      "initialOrder": 0,
+      "selectionReason": "OVERDUE",
+      "randomSeed": "0c5f6b1c2a3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7",
+      "distractorPolicyVersion": null
+    }
+  ],
+  "serverTime": "2026-07-29T10:00:00.100Z"
+}

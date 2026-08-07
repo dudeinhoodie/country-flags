@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "operation": "UPSERT",
+      "resourceType": "CARD_STATE",
+      "resourceId": "50000000-0000-4000-8000-000000000005",
+      "payload": {
+        "learningCardId": "50000000-0000-4000-8000-000000000005",
+        "state": "REVIEW",
+        "difficulty": 5.31,
+        "stability": 12.4,
+        "dueAt": "2026-08-10T10:00:00.000Z",
+        "repetitions": 4,
+        "lapses": 1,
+        "schedulerVersion": "test-fsrs-6-v2",
+        "schedulerParametersVersion": "fsrs-6-default-v1",
+        "stateVersion": 5,
+        "updatedAt": "2026-07-29T10:01:00.000Z"
+      },
+      "occurredAt": "2026-07-29T10:01:00.000Z"
+    },
+    {
+      "operation": "TOMBSTONE",
+      "resourceType": "CARD_STATE",
+      "resourceId": "50000000-0000-4000-8000-000000000007",
+      "occurredAt": "2026-07-29T10:01:05.000Z"
+    }
+  ],
+  "nextCursor": "eyJraW5kIjoidXNlci1jaGFuZ2UiLCJzY29wZUlkIjoiODEwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwic2VxdWVuY2UiOiI0MyJ9",
+  "hasMore": false
+}

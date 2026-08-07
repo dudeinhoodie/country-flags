@@ -1,0 +1,31 @@
+{
+  "tokens": {
+    "accessToken": "TEST_ONLY_rotated_access_token_placeholder_not_a_secret",
+    "refreshToken": "TEST_ONLY_rotated_refresh_token_placeholder_not_a_secret",
+    "accessTokenExpiresAt": "2026-07-29T10:30:00.000Z"
+  },
+  "user": {
+    "id": "80000000-0000-4000-8000-000000000001",
+    "displayName": null,
+    "preferredLocale": "ru",
+    "status": "ACTIVE",
+    "createdAt": "2026-07-01T08:00:00.000Z",
+    "updatedAt": "2026-07-29T09:59:00.000Z"
+  },
+  "settings": {
+    "sessionSize": 10,
+    "contentLocale": "ru",
+    "defaultAnswerMode": "SELF_RATED",
+    "extraFactTypes": ["CAPITAL", "POPULATION"],
+    "soundEnabled": true,
+    "hapticsEnabled": true,
+    "remindersEnabled": false,
+    "reminderLocalTime": null,
+    "reminderWeekdays": null,
+    "desiredRetention": 0.9,
+    "timezone": "Europe/Moscow",
+    "version": 4,
+    "updatedAt": "2026-07-29T09:59:00.000Z"
+  },
+  "serverTime": "2026-07-29T10:15:00.000Z"
+}
