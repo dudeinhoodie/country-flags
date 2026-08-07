@@ -94,7 +94,7 @@ jobs:
         run: corepack yarn docker:build
 
       - name: Scan production image for vulnerabilities
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: country-flags-backend:local
           severity: CRITICAL,HIGH
@@ -145,6 +145,11 @@ jobs:
   security:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      # gitleaks-action calls GET /repos/.../pulls/{number}/commits on pull_request
+      # events to scope its scan to the PR's commits; without this it 403s.
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4

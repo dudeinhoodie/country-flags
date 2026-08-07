@@ -32,6 +32,17 @@ RUN corepack yarn workspaces focus @country-flags/backend --production
 
 FROM base AS runner
 
+# The base Node image bundles a global npm/corepack install that the runtime
+# never invokes (CMD is a plain `node` call) — strip it so its own transitive
+# dependencies (e.g. tar, brace-expansion) can't show up as image CVEs that
+# have nothing to do with this application's actual dependency tree.
+RUN rm -rf \
+  /usr/local/lib/node_modules/npm \
+  /usr/local/lib/node_modules/corepack \
+  /usr/local/bin/npm \
+  /usr/local/bin/npx \
+  /usr/local/bin/corepack
+
 ENV NODE_ENV=production
 ENV PORT=3000
 
