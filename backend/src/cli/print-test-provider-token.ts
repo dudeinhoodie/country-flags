@@ -29,7 +29,11 @@ async function run(): Promise<void> {
     new ConfigService<EnvironmentVariables>(environment),
   );
   const options = {
-    issuedAt: new Date("2026-07-29T00:00:00.000Z"),
+    // issuedAt must be the actual current time: reauthentication rejects any
+    // provider token older than AUTH_REAUTH_TOKEN_TTL_SECONDS, so a fixed
+    // historical date would make this "print a fresh token" tool never
+    // actually produce a fresh one.
+    issuedAt: new Date(),
     expiresAt: new Date("2100-01-01T00:00:00.000Z"),
     ...(provider === "APPLE" ? { rawNonce: RAW_NONCE } : {}),
   };

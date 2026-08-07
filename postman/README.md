@@ -1,10 +1,20 @@
 # Postman
 
-Коллекция содержит все реализованные HTTP endpoints и тесты основных
-контрактов. Папка `Authentication` использует локальные test-only Apple/Google
+Коллекция содержит все реализованные (`x-implementation-status: implemented`
+в `contracts/openapi.yaml`) HTTP endpoints и тесты основных контрактов;
+endpoints со статусом `planned` (`GET /v1/entities/{entityId}`,
+`GET /v1/decks/{deckId}`, `POST /v1/study-sessions/{sessionId}/complete`,
+`DELETE /v1/me/progress`) в коллекции намеренно отсутствуют — их ещё нет в
+runtime. Папка `Authentication` использует локальные test-only Apple/Google
 tokens, сохраняет application access/refresh tokens, проверяет linking,
-logout, rotation и replay detection. Папки `Account and Settings`,
-`Guest Import` и `Account Lifecycle` проверяют синхронизацию настроек,
+logout, rotation и replay detection. Папка `App Config` проверяет evaluated
+feature flags и default-off advertising policy с ETag-кешированием. Папка
+`Progress and Sync` покрывает account/deck progress, due-summary, achievements
+и immutable change feed для пользователя, засеянного `study:seed:test`. Папка
+`Analytics and Diagnostics` проверяет allowlisted product events и sanitized
+MetricKit report ingestion (оба endpoint'а публичные, Authorization
+опционален). Папки `Account and Settings`, `Guest Import` и
+`Account Lifecycle` проверяют синхронизацию настроек и privacy consent,
 безопасный список устройств, идемпотентный импорт, fresh re-authentication,
 асинхронный экспорт и удаление аккаунта. Остальные динамические значения тоже
 сохраняются автоматически на уровне коллекции.
