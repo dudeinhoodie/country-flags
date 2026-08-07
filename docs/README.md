@@ -42,6 +42,7 @@
 10. Multi-device review не теряются: порядок нормализуется через client sequence/effective time, а stale events запускают deterministic reconciliation.
 11. Техническая замена изображения сохраняет progress; существенная смена официального флага создаёт новую learning card.
 12. Backend можно начинать с deterministic content/auth fixtures и NoOp providers, не ожидая production-каталог, credentials и внешнюю инфраструктуру.
+13. Deployment разделяет local, CI, dev и production; release image один раз публикуется в GHCR, проверяется в dev и тем же artifact продвигается в production.
 
 ## Решения по умолчанию в текущем черновике
 
