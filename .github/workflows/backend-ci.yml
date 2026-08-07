@@ -179,3 +179,248 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_CONFIG: .gitleaks.toml
+
+  publish-image:
+    name: Publish release image
+    # A pull request must never produce a release artifact, and both gates have to
+    # pass before one exists at all.
+    needs:
+      - quality
+      - security
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      # The only job in this workflow that may write packages.
+      packages: write
+    outputs:
+      image: ${{ steps.release.outputs.image }}
+      tag: ${{ steps.release.outputs.tag }}
+      digest: ${{ steps.digest.outputs.digest }}
+      reference: ${{ steps.digest.outputs.reference }}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: country_flags
+          POSTGRES_USER: country_flags
+          POSTGRES_PASSWORD: country_flags
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U country_flags -d country_flags"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
+      DIRECT_DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release coordinates
+        id: release
+        run: |
+          owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          {
+            echo "image=ghcr.io/${owner}/country-flags-backend"
+            echo "tag=sha-${GITHUB_SHA}"
+            echo "created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        # --password-stdin keeps the token out of the process table and the log.
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | docker login ghcr.io \
+            --username "${GITHUB_ACTOR}" --password-stdin
+
+      - name: Check whether this commit was already released
+        id: existing
+        env:
+          REFERENCE: ${{ steps.release.outputs.image }}:${{ steps.release.outputs.tag }}
+        run: |
+          # Re-running the workflow for a SHA must not replace the artifact that was
+          # already verified in dev, so an existing tag is reused rather than rebuilt.
+          if docker buildx imagetools inspect "$REFERENCE" >/dev/null 2>&1; then
+            echo "$REFERENCE already exists; keeping the immutable artifact."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Buildx
+        if: steps.existing.outputs.exists == 'false'
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Build and push release image
+        if: steps.existing.outputs.exists == 'false'
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: .
+          file: backend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          # Only the immutable sha- tag is published. `latest` is deliberately absent:
+          # promotion and rollback must name an exact commit, never a moving pointer.
+          tags: ${{ steps.release.outputs.image }}:${{ steps.release.outputs.tag }}
+          labels: |
+            org.opencontainers.image.title=country-flags-backend
+            org.opencontainers.image.description=Country Flags NestJS backend
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.release.outputs.created }}
+          # No build args, secrets or SSH forwarding reach the build, so the layer
+          # cache cannot carry credentials.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # A plain single-platform manifest keeps "pull by digest" unambiguous for the
+          # promotion workflow and for Koyeb; traceability comes from the OCI labels
+          # and from the digest recorded in the job summary.
+          provenance: false
+          sbom: false
+
+      - name: Resolve published digest
+        id: digest
+        env:
+          IMAGE: ${{ steps.release.outputs.image }}
+          REFERENCE: ${{ steps.release.outputs.image }}:${{ steps.release.outputs.tag }}
+        run: |
+          # `{{json .Manifest}}` is used rather than `{{.Manifest.Digest}}`: older
+          # buildx silently ignores the field template and prints its full report,
+          # which would hand a multi-line blob to the promotion workflow.
+          digest="$(
+            docker buildx imagetools inspect "$REFERENCE" --format '{{json .Manifest}}' \
+              | jq -r '.digest // empty'
+          )"
+          case "$digest" in
+            sha256:*) ;;
+            *)
+              echo "Could not resolve a digest for $REFERENCE (got: '$digest')" >&2
+              exit 1
+              ;;
+          esac
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "reference=${IMAGE}@${digest}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the published image carries no credentials
+        env:
+          REFERENCE: ${{ steps.digest.outputs.reference }}
+        run: |
+          docker pull --quiet "$REFERENCE"
+          # Config env and layer history ship with the artifact: a credential in
+          # either is readable by anyone who can pull the image.
+          shipped="$(
+            docker image inspect "$REFERENCE" --format '{{json .Config.Env}}'
+            docker history --no-trunc --format '{{.CreatedBy}}' "$REFERENCE"
+          )"
+          if printf '%s' "$shipped" | grep -Eq 'AUTH_ACCESS_TOKEN_SECRET=|AUTH_RATE_LIMIT_SECRET=|ACCOUNT_DATA_HASH_SECRET=|AUTH_PROVIDER_TEST_SECRET=|OBJECT_STORAGE_SECRET_ACCESS_KEY=|CONTENT_SIGNING_PRIVATE_KEY=|GITHUB_TOKEN='; then
+            echo "The published image ships a credential in its config or history" >&2
+            exit 1
+          fi
+          docker image inspect "$REFERENCE" --format '{{json .Config.Env}}'
+
+      - name: Verify OCI provenance labels
+        env:
+          REFERENCE: ${{ steps.digest.outputs.reference }}
+          EXPECTED_REVISION: ${{ github.sha }}
+        run: |
+          revision="$(docker image inspect "$REFERENCE" \
+            --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')"
+          source="$(docker image inspect "$REFERENCE" \
+            --format '{{index .Config.Labels "org.opencontainers.image.source"}}')"
+          created="$(docker image inspect "$REFERENCE" \
+            --format '{{index .Config.Labels "org.opencontainers.image.created"}}')"
+          echo "revision=$revision source=$source created=$created"
+          if [ "$revision" != "$EXPECTED_REVISION" ]; then
+            echo "Image revision label does not match the released commit" >&2
+            exit 1
+          fi
+          if [ -z "$source" ] || [ -z "$created" ]; then
+            echo "Image is missing the OCI source or created label" >&2
+            exit 1
+          fi
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: corepack yarn install --immutable
+
+      - name: Apply database migrations
+        run: corepack yarn prisma:migrate:deploy
+
+      - name: Smoke test the published image
+        env:
+          REFERENCE: ${{ steps.digest.outputs.reference }}
+          RELEASE: ${{ steps.release.outputs.tag }}
+        run: |
+          docker run -d --name release-smoke --network host \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -e DIRECT_DATABASE_URL="$DIRECT_DATABASE_URL" \
+            -e NODE_ENV=production -e DEPLOYMENT_ENV=ci -e PORT=3000 \
+            -e SERVICE_RELEASE="$RELEASE" \
+            -e AUTH_ACCESS_TOKEN_SECRET="$(openssl rand -hex 32)" \
+            -e AUTH_ACCESS_TOKEN_ISSUER=ci -e AUTH_ACCESS_TOKEN_AUDIENCE=ci \
+            -e AUTH_RATE_LIMIT_SECRET="$(openssl rand -hex 32)" \
+            -e ACCOUNT_DATA_HASH_SECRET="$(openssl rand -hex 32)" \
+            -e PUBLIC_BASE_URL=http://localhost:3000 \
+            -e APPLE_CLIENT_IDS=ci -e GOOGLE_CLIENT_IDS=ci \
+            -e CORS_ALLOWED_ORIGINS=http://localhost \
+            "$REFERENCE"
+
+          actual_user="$(docker exec release-smoke whoami)"
+          if [ "$actual_user" != "node" ]; then
+            echo "Published image is not running as the non-root 'node' user (got: $actual_user)" >&2
+            docker logs release-smoke || true
+            exit 1
+          fi
+
+          ready=""
+          for _ in $(seq 1 30); do
+            if curl -fsS http://localhost:3000/v1/health/live >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ -z "$ready" ]; then
+            echo "Published image never became healthy" >&2
+            docker logs release-smoke || true
+            exit 1
+          fi
+          curl -fsS http://localhost:3000/v1/health/live
+          curl -fsS http://localhost:3000/v1/health/ready
+
+      - name: Stop smoke test container
+        if: always()
+        run: docker rm -f release-smoke || true
+
+      - name: Record the release in the job summary
+        if: always() && steps.digest.outputs.digest != ''
+        run: |
+          {
+            echo "## Release image"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Image | \`${{ steps.release.outputs.image }}\` |"
+            echo "| Tag | \`${{ steps.release.outputs.tag }}\` |"
+            echo "| Digest | \`${{ steps.digest.outputs.digest }}\` |"
+            echo "| Pull by digest | \`${{ steps.digest.outputs.reference }}\` |"
+            echo "| Source revision | \`${{ github.sha }}\` |"
+            echo "| Source | ${{ github.server_url }}/${{ github.repository }} |"
+            echo "| Built this run | ${{ steps.existing.outputs.exists == 'true' && 'no — existing immutable artifact reused' || 'yes' }} |"
+            echo
+            echo "Promotion and rollback must reference the digest above."
+            echo "No \`latest\` tag is published."
+          } >> "$GITHUB_STEP_SUMMARY"
