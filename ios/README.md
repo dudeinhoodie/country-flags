@@ -16,8 +16,8 @@ ios/
 ├── CountryFlagsKit/            # local Swift package holding the logic
 │   ├── Contracts/                      # mirror of the bundled OpenAPI contract
 │   └── Sources/
-│       ├── CountryFlagsDomain          # types and rules; no UI, no SDKs
-│       ├── CountryFlagsInfrastructure  # generated client, transport, boundaries
+│       ├── CountryFlagsDomain          # types, rules, repository protocols
+│       ├── CountryFlagsInfrastructure  # generated client, transport, SwiftData
 │       └── CountryFlagsFeatures        # SwiftUI, navigation, design tokens
 ├── CountryFlagsUITests/        # launch smoke
 ├── Config/                     # one xcconfig per configuration
@@ -142,6 +142,40 @@ The transport is a stack of middlewares, outermost first: client context
 `APIError`, bounded retry with jitter, and authentication with a single-flight
 token refresh. Only operations whose contract makes a repeat safe are retried;
 `RetryPolicy.defaultIdempotentOperationIDs` is that list.
+
+## The local store
+
+The app reads its state from SwiftData, not from a response. `LocalStore` builds
+the container; repositories are `@ModelActor` actors and exchange plain
+`Sendable` value types, so a persistence model never reaches a view and the
+network layer never hands one back.
+
+Every user-owned record carries an `AccountScope`: `guest(installationID)`
+before signing in and `authenticated(userID)` afterwards. A guest and two
+accounts can share a device, so "the current user" is not enough to separate
+them — every query filters on the scope key, and signing out erases one scope
+while leaving the other and the shared content untouched.
+
+Content is deliberately unscoped: a flag is the same flag for everyone on the
+device, and copying it per account would multiply the download.
+
+An answer, its projected card state and the outbox entry are written in one
+transaction. A session may not advance until that commits: a review that
+reached the screen but not the outbox is work the device silently loses.
+
+Schema versions live in `LocalSchemaV1` and are registered in
+`LocalStoreMigrationPlan`. The plan exists before there is anything to migrate
+because an app update must never resolve a schema change by discarding the
+store — an unsynchronized outbox lives in it. Uniqueness is enforced by the
+repositories rather than by `#Unique`, which needs iOS 18.
+
+Session secrets live in the keychain through `SecureTokenStoring` and nowhere
+else; no model in the schema has a field that could hold one.
+
+`-reset-store` empties the store at launch. The hook is in the app target, not
+in the package: Xcode builds a local package in release for every configuration
+that is not named "Debug", so a `#if DEBUG` inside the package would not follow
+the app's Debug flag. Mock and Dev define it, Prod does not.
 
 ## Dependencies
 
