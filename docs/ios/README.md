@@ -10,9 +10,10 @@ Baseline: Swift 6, SwiftUI, iOS 17+, SwiftData
 1. прочитать GitHub Issue целиком;
 2. прочитать соответствующий документ из `docs/ios/tasks/`;
 3. прочитать релевантные разделы `docs/02-ios-spec.md`;
-4. проверить зависимости Issue;
-5. создать ветку `dev/<issue-number>-<short-slug>`;
-6. не придумывать DTO, отсутствующие в `contracts/openapi.yaml`.
+4. для задач с UI прочитать `docs/16-ios-design-language.md`;
+5. проверить зависимости Issue;
+6. создать ветку `dev/<issue-number>-<short-slug>`;
+7. не придумывать DTO, отсутствующие в `contracts/openapi.yaml`.
 
 ## Порядок выполнения
 
@@ -39,12 +40,17 @@ Baseline: Swift 6, SwiftUI, iOS 17+, SwiftData
 - Swift 6 strict concurrency warnings не подавляются массово;
 - каждый PR добавляет тесты для своих acceptance criteria;
 - UI читает состояние из локального store, а не прямо из network response;
+- PR с UI проходит «definition of done» из `docs/16-ios-design-language.md`;
 - tokens/PII не попадают в SwiftData, UserDefaults, logs или analytics;
 - Mock scheme детерминирован и не обращается к сети;
 - изменения API сначала вносятся в канонический OpenAPI;
 - один Issue соответствует одной ветке и одному PR.
 
 Общее ТЗ: [02-ios-spec.md](../02-ios-spec.md).
+
+Визуальный язык: [16-ios-design-language.md](../16-ios-design-language.md) —
+референсы (Lumy, Flighty, нативные приложения iOS), принципы, design tokens,
+motion, haptics, словарь нативных компонентов и checklist для UI-задач.
 
 OpenAPI: [contracts/openapi.yaml](../../contracts/openapi.yaml).
 
