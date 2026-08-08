@@ -1,0 +1,15 @@
+{
+  "sessionSize": 20,
+  "contentLocale": "en-GB",
+  "defaultAnswerMode": "MULTIPLE_CHOICE",
+  "extraFactTypes": ["CAPITAL", "CURRENCY", "SPOKEN_LANGUAGES"],
+  "soundEnabled": false,
+  "hapticsEnabled": true,
+  "remindersEnabled": true,
+  "reminderLocalTime": "19:30",
+  "reminderWeekdays": [1, 2, 3, 4, 5],
+  "desiredRetention": 0.9,
+  "timezone": "Europe/Berlin",
+  "version": 7,
+  "updatedAt": "2026-07-29T09:58:12.000Z"
+}

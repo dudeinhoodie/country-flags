@@ -15,6 +15,7 @@ import {
   GeoEntityStatus,
   type Prisma,
   SchedulerDefinitionStatus,
+  StudySessionStatus,
   UserStatus,
 } from "@prisma/client";
 
@@ -26,7 +27,9 @@ import {
   type SelectedCandidate,
   selectSessionCandidates,
 } from "./session-selection";
+import { buildSessionSummary, effectiveCompletedAt } from "./session-summary";
 import {
+  type CompleteStudySessionRequest,
   type CreateServerStudySessionRequest,
   requestHash,
 } from "./study-session.request";
@@ -289,6 +292,78 @@ export class StudySessionsService {
     return this.mapSession(session);
   }
 
+  async complete(
+    userId: string,
+    sessionId: string,
+    request: CompleteStudySessionRequest,
+  ): Promise<Record<string, unknown>> {
+    const session = await this.prisma.$transaction(
+      async (transaction) => {
+        const current = await transaction.studySession.findFirst({
+          where: { id: sessionId, userId },
+          include: SESSION_INCLUDE,
+        });
+        if (current === null) {
+          throw new NotFoundException("Study session was not found");
+        }
+        // Completion is idempotent: the first accepted call fixes the canonical
+        // summary, later retries observe it unchanged.
+        if (current.status === StudySessionStatus.COMPLETED) {
+          return current;
+        }
+        if (current.status !== StudySessionStatus.ACTIVE) {
+          throw new ConflictException(
+            "Study session is no longer active and cannot be completed",
+          );
+        }
+
+        const events = await transaction.reviewEvent.findMany({
+          where: { userId, sessionId },
+          select: { learningCardId: true, rating: true, isCorrect: true },
+        });
+        const completedAt = effectiveCompletedAt({
+          clientCompletedAt: request.completedAt,
+          startedAt: current.startedAt,
+          receivedAt: new Date(),
+        });
+        const summary = buildSessionSummary({
+          events,
+          startedAt: current.startedAt,
+          completedAt,
+        });
+        const updated = await transaction.studySession.updateMany({
+          where: {
+            id: sessionId,
+            userId,
+            status: StudySessionStatus.ACTIVE,
+          },
+          data: {
+            status: StudySessionStatus.COMPLETED,
+            completedAt,
+            summary: summary satisfies Prisma.InputJsonObject,
+          },
+        });
+        if (updated.count !== 1) {
+          throw new ConflictException(
+            "Study session was completed concurrently",
+          );
+        }
+
+        return transaction.studySession.findUniqueOrThrow({
+          where: { id: sessionId },
+          include: SESSION_INCLUDE,
+        });
+      },
+      {
+        isolationLevel: "Serializable",
+        maxWait: 10_000,
+        timeout: 30_000,
+      },
+    );
+
+    return this.mapSession(session);
+  }
+
   private sessionCardCreateData<
     T extends SessionCandidate & {
       learningCardId: string;
@@ -400,7 +475,11 @@ export class StudySessionsService {
               })),
             }),
       })),
-      summary: session.summary,
+      // An unfinished session omits the summary instead of sending null: the
+      // contract types it as a structured object so generated clients keep it.
+      ...(session.summary === null || session.summary === undefined
+        ? {}
+        : { summary: session.summary }),
       serverTime: new Date().toISOString(),
     };
   }

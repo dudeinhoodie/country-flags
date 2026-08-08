@@ -1,0 +1,37 @@
+{
+  "id": "30000000-0000-4000-8000-000000000005",
+  "kind": "COUNTRY",
+  "status": "ACTIVE",
+  "recognitionStatus": "PARTIALLY_RECOGNIZED",
+  "name": {
+    "short": "Косово",
+    "official": "Республика Косово",
+    "aliases": ["Kosovo", "Косово и Метохия"]
+  },
+  "assets": [
+    {
+      "id": "40000000-0000-4000-8000-000000000005",
+      "type": "FLAG",
+      "url": "https://cdn.country-flags.test/test-only-fixture-v1/flags/kosovo.svg",
+      "mimeType": "image/svg+xml",
+      "sha256": "3f786850e387550fdab836ed7e6dc881de23001b8b9f4e0bd6c1b0aa5c0ba9b1",
+      "width": 840,
+      "height": 600,
+      "aspectRatio": 1.4,
+      "licenseName": "CC0-1.0",
+      "attribution": null
+    }
+  ],
+  "facts": [
+    {
+      "type": "CAPITAL",
+      "displayValue": "Приштина",
+      "observedAt": "2026-01-01",
+      "source": {
+        "name": "TEST_ONLY",
+        "url": "https://sources.country-flags.test/test-only"
+      }
+    }
+  ],
+  "contentVersion": "test-only-fixture-v1"
+}

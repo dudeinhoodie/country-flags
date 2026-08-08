@@ -1,1 +1,3 @@
 dist/
+swift-client-check/.build/
+swift-client-check/Sources/CountryFlagsAPI/openapi.yaml

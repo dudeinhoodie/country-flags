@@ -12,7 +12,10 @@ import { AppModule } from "../src/app/app.module";
 import { PrismaService } from "../src/infrastructure/database/prisma.service";
 import { TestJwtSigner } from "../src/modules/auth/testing/test-jwt-signer";
 import { importTestContent } from "../src/modules/content/import/test-content-importer";
-import { TEST_STUDY_USER_ID } from "../src/modules/study-sessions/fixtures/test-study.fixture";
+import {
+  TEST_STUDY_DEVICE_ID,
+  TEST_STUDY_USER_ID,
+} from "../src/modules/study-sessions/fixtures/test-study.fixture";
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
 
 interface StudyCardBody {
@@ -31,13 +34,25 @@ interface StudyCardBody {
   options?: Array<{ id: string; position: number; displayName: string }>;
 }
 
+interface StudySessionSummaryBody {
+  uniqueCardCount: number;
+  reviewCount: number;
+  correctCount: number;
+  incorrectCount: number;
+  durationSeconds: number;
+  ratings: { again: number; hard: number; good: number; easy: number };
+}
+
 interface StudySessionBody {
   id: string;
   requestedUniqueCount: number;
   selectedUniqueCount: number;
+  status: string;
   contentVersion: string;
   schedulerVersion: string;
   startedAt: string;
+  completedAt: string | null;
+  summary?: StudySessionSummaryBody;
   cards: StudyCardBody[];
 }
 
@@ -396,6 +411,169 @@ describe("study session creation and retrieval (integration)", () => {
     expect(
       nextBody.cards.map(({ learningCard }) => learningCard.id),
     ).not.toContain(firstCardId);
+  });
+
+  it("completes a session once and keeps the canonical summary stable", async () => {
+    const sessionId = "90000000-0000-4000-8000-000000000006";
+    const created = await request(httpServer)
+      .post("/v1/study-sessions")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        id: sessionId,
+        deckId: "70000000-0000-4000-8000-000000000001",
+        requestedUniqueCount: 5,
+        mode: "SELF_RATED",
+        locale: "en",
+        selectionOrigin: "SERVER",
+      })
+      .expect(201);
+    const createdBody = created.body as unknown as StudySessionBody;
+    expect(createdBody.status).toBe("ACTIVE");
+    // An unfinished session omits the summary instead of sending null.
+    expect(created.body).not.toHaveProperty("summary");
+    const [first, second] = createdBody.cards;
+    if (first === undefined || second === undefined) {
+      throw new Error("Completion test session has too few cards");
+    }
+
+    await request(httpServer)
+      .post("/v1/reviews/batch")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        payloadVersion: 1,
+        events: [
+          {
+            id: "93000000-0000-4000-8000-000000000001",
+            sessionId,
+            learningCardId: first.learningCard.id,
+            deviceId: TEST_STUDY_DEVICE_ID,
+            answerMode: "SELF_RATED",
+            rating: "GOOD",
+            responseTimeMs: 3000,
+            clientOccurredAt: "2026-07-29T11:00:00.000Z",
+            estimatedServerOccurredAt: "2026-07-29T11:00:00.000Z",
+            clientSequence: 101,
+          },
+          {
+            id: "93000000-0000-4000-8000-000000000002",
+            sessionId,
+            learningCardId: second.learningCard.id,
+            deviceId: TEST_STUDY_DEVICE_ID,
+            answerMode: "SELF_RATED",
+            rating: "AGAIN",
+            responseTimeMs: 9000,
+            clientOccurredAt: "2026-07-29T11:00:30.000Z",
+            estimatedServerOccurredAt: "2026-07-29T11:00:30.000Z",
+            clientSequence: 102,
+          },
+        ],
+      })
+      .expect(200);
+
+    const startedAt = new Date(createdBody.startedAt).getTime();
+    const completed = await request(httpServer)
+      .post(`/v1/study-sessions/${sessionId}/complete`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ completedAt: new Date(startedAt + 90_000).toISOString() })
+      .expect(200);
+    const completedBody = completed.body as unknown as StudySessionBody;
+
+    expect(completedBody.status).toBe("COMPLETED");
+    expect(completedBody.completedAt).not.toBeNull();
+    expect(completedBody.summary).toEqual({
+      uniqueCardCount: 2,
+      reviewCount: 2,
+      correctCount: 1,
+      incorrectCount: 1,
+      durationSeconds: 90,
+      ratings: { again: 1, hard: 0, good: 1, easy: 0 },
+    });
+
+    // A retried completion is idempotent: neither the summary nor the
+    // canonical completion instant may move.
+    const retried = await request(httpServer)
+      .post(`/v1/study-sessions/${sessionId}/complete`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ completedAt: new Date(startedAt + 5_000_000).toISOString() })
+      .expect(200);
+    expect(retried.body).toMatchObject({
+      status: "COMPLETED",
+      completedAt: completedBody.completedAt,
+      summary: completedBody.summary,
+    });
+
+    const persisted = await request(httpServer)
+      .get(`/v1/study-sessions/${sessionId}`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .expect(200);
+    expect(persisted.body).toMatchObject({
+      status: "COMPLETED",
+      summary: completedBody.summary,
+    });
+  });
+
+  it("bounds a skewed completion instant and rejects invalid completion bodies", async () => {
+    const sessionId = "90000000-0000-4000-8000-000000000007";
+    const created = await request(httpServer)
+      .post("/v1/study-sessions")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        id: sessionId,
+        deckId: "70000000-0000-4000-8000-000000000001",
+        requestedUniqueCount: 5,
+        mode: "SELF_RATED",
+        locale: "en",
+        selectionOrigin: "SERVER",
+      })
+      .expect(201);
+    const startedAt = new Date(
+      (created.body as unknown as StudySessionBody).startedAt,
+    );
+
+    const invalid = await request(httpServer)
+      .post(`/v1/study-sessions/${sessionId}/complete`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ completedAt: "2026-07-29T11:00:00.000Z", extra: true })
+      .expect(422);
+    expect((invalid.body as unknown as ErrorBody).error.code).toBe(
+      "VALIDATION_FAILED",
+    );
+
+    // A device clock a year ahead must not inflate the reported duration.
+    const skewed = await request(httpServer)
+      .post(`/v1/study-sessions/${sessionId}/complete`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        completedAt: new Date(
+          startedAt.getTime() + 365 * 24 * 60 * 60 * 1_000,
+        ).toISOString(),
+      })
+      .expect(200);
+    const skewedBody = skewed.body as unknown as StudySessionBody;
+    expect(skewedBody.summary).toMatchObject({
+      uniqueCardCount: 0,
+      reviewCount: 0,
+      correctCount: 0,
+      incorrectCount: 0,
+    });
+    expect(skewedBody.summary?.durationSeconds).toBeLessThan(600);
+    expect(
+      new Date(String(skewedBody.completedAt)).getTime(),
+    ).toBeLessThanOrEqual(Date.now());
+
+    const foreign = await request(httpServer)
+      .post("/v1/study-sessions/90000000-0000-4000-8000-0000000000ff/complete")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ completedAt: new Date().toISOString() })
+      .expect(404);
+    expect((foreign.body as unknown as ErrorBody).error.code).toBe(
+      "RESOURCE_NOT_FOUND",
+    );
+
+    await request(httpServer)
+      .post(`/v1/study-sessions/${sessionId}/complete`)
+      .send({ completedAt: new Date().toISOString() })
+      .expect(401);
   });
 
   it("returns a typed error when the global localized pool is insufficient", async () => {

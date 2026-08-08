@@ -8,7 +8,10 @@ import {
   CardStatus,
   ContentReleaseStatus,
   DeckStatus,
+  GeoEntityStatus,
+  GeoNameType,
   PublicationStatus,
+  RecognitionStatus,
   type Prisma,
 } from "@prisma/client";
 
@@ -39,6 +42,13 @@ interface EntityName {
   value: string;
   isPrimary: boolean;
 }
+
+// Detail routes never serve entities the catalog hides; a hidden entity is
+// delivered to clients as a RETIRE content change instead.
+const READABLE_ENTITY_STATUSES = [
+  GeoEntityStatus.ACTIVE,
+  GeoEntityStatus.HISTORICAL,
+];
 
 @Injectable()
 export class ContentService {
@@ -117,21 +127,7 @@ export class ContentService {
     const hasMore = decks.length > limit;
     const pageItems = hasMore ? decks.slice(0, limit) : decks;
     const candidates = localeCandidates(locale, manifest.defaultLocale);
-    const items = pageItems.map((deck) => {
-      const localization = this.selectLocalization(
-        deck.localizations,
-        candidates,
-      );
-      return {
-        id: deck.id,
-        code: deck.code,
-        kind: deck.kind,
-        name: localization.name,
-        description: localization.description,
-        cardCount: deck._count.cards,
-        contentVersion: deck.contentVersion,
-      };
-    });
+    const items = pageItems.map((deck) => this.mapDeck(deck, candidates));
     const lastDeck = pageItems.at(-1);
 
     return {
@@ -143,6 +139,108 @@ export class ContentService {
             : null,
         hasMore,
       },
+    };
+  }
+
+  async getDeck(
+    deckId: string,
+    locale: string,
+  ): Promise<Record<string, unknown>> {
+    const [{ manifest }, deck] = await Promise.all([
+      this.getManifest(),
+      this.prisma.deck.findFirst({
+        where: { id: deckId, status: DeckStatus.PUBLISHED },
+        include: {
+          localizations: true,
+          _count: {
+            select: {
+              cards: {
+                where: {
+                  learningCard: { status: CardStatus.ACTIVE },
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+    if (deck === null) {
+      throw new NotFoundException("Deck was not found");
+    }
+
+    return this.mapDeck(deck, localeCandidates(locale, manifest.defaultLocale));
+  }
+
+  async getEntity(
+    entityId: string,
+    locale: string,
+  ): Promise<Record<string, unknown>> {
+    const [{ manifest }, entity] = await Promise.all([
+      this.getManifest(),
+      this.prisma.geoEntity.findFirst({
+        where: { id: entityId, status: { in: READABLE_ENTITY_STATUSES } },
+        include: {
+          names: true,
+          assets: {
+            where: { status: AssetStatus.PUBLISHED },
+            orderBy: [{ assetType: "asc" }, { id: "asc" }],
+          },
+          facts: {
+            where: { status: PublicationStatus.PUBLISHED },
+            include: { source: true },
+            orderBy: [{ factType: "asc" }, { id: "asc" }],
+          },
+        },
+      }),
+    ]);
+    if (entity === null) {
+      throw new NotFoundException("Entity was not found");
+    }
+
+    const candidates = localeCandidates(locale, manifest.defaultLocale);
+    const short = this.selectEntityName(entity.names, candidates);
+    const official = this.selectLocalizedNameValue(
+      entity.names,
+      candidates,
+      GeoNameType.OFFICIAL,
+    );
+    const aliases = entity.names
+      .filter(
+        (name) =>
+          candidates.includes(name.locale.toLowerCase()) &&
+          name.value !== short.value &&
+          name.value !== official,
+      )
+      .map(({ value }) => value)
+      .filter((value, index, values) => values.indexOf(value) === index);
+
+    return {
+      id: entity.id,
+      kind: entity.kind,
+      status: entity.status,
+      // The contract keeps recognitionStatus required; an unclassified entity
+      // is explicitly NOT_APPLICABLE instead of an absent field.
+      recognitionStatus:
+        entity.recognitionStatus ?? RecognitionStatus.NOT_APPLICABLE,
+      name: {
+        short: short.value,
+        official: official ?? null,
+        aliases,
+      },
+      assets: entity.assets.map((asset) => this.mapAsset(asset)),
+      facts: entity.facts.map((fact) => ({
+        type: fact.factType,
+        displayValue: this.factDisplayValue(fact.value),
+        observedAt:
+          fact.observedAt === null
+            ? null
+            : fact.observedAt.toISOString().slice(0, 10),
+        source: {
+          name: fact.source.name,
+          url: fact.source.url,
+        },
+      })),
+      contentVersion: entity.contentVersion,
     };
   }
 
@@ -358,6 +456,51 @@ export class ContentService {
         hasMore,
       },
     };
+  }
+
+  private mapDeck(
+    deck: {
+      id: string;
+      code: string;
+      kind: string;
+      contentVersion: string;
+      localizations: LocalizedValue[];
+      _count: { cards: number };
+    },
+    candidates: string[],
+  ): Record<string, unknown> {
+    const localization = this.selectLocalization(
+      deck.localizations,
+      candidates,
+    );
+    return {
+      id: deck.id,
+      code: deck.code,
+      kind: deck.kind,
+      name: localization.name,
+      description: localization.description,
+      cardCount: deck._count.cards,
+      contentVersion: deck.contentVersion,
+    };
+  }
+
+  private selectLocalizedNameValue(
+    values: Array<EntityName & { nameType: GeoNameType }>,
+    candidates: string[],
+    nameType: GeoNameType,
+  ): string | null {
+    for (const candidate of candidates) {
+      const name = values.find(
+        (value) =>
+          value.nameType === nameType &&
+          value.locale.toLowerCase() === candidate,
+      );
+      if (name !== undefined) {
+        return name.value;
+      }
+    }
+
+    return null;
   }
 
   private selectLocalization(

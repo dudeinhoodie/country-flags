@@ -11,6 +11,33 @@ The backend E2E suite compares implemented operations with the actual Express
 router. A new route without an OpenAPI operation, or an operation incorrectly
 marked as implemented, fails CI.
 
+## Enum forward compatibility
+
+Generated clients (including the official Swift OpenAPI Generator) turn `enum`
+into a closed type: an unrecognized value makes the whole payload fail to
+decode, not just one field. The contract therefore splits string enums in two:
+
+- **Protocol and state values** stay closed `enum`s — `AnswerMode`, `Rating`,
+  `SelectionOrigin`, study session `status`, `CardState.state`, review result
+  `status`, `MasteryTier`, `AuthProvider`, platform, consent status, request
+  bodies. Adding a value to one of them changes the client state machine and is
+  a breaking change that requires an API major version bump.
+- **Content and taxonomy values owned by the content pipeline** are declared as
+  `type: string` with an `x-extensible-enum` list of the values known today:
+  `Asset.type`, `Fact.type`, `GeoEntity.kind`, `GeoEntity.recognitionStatus`,
+  `Deck.kind`, `ContentChange.resourceType`,
+  `StudySessionCard.selectionReason` and `UserSettings.extraFactTypes`. New
+  values may ship with a content release without an API version bump.
+
+`x-extensible-enum` is documentation and lint input only; it never narrows the
+wire format. Clients MUST map an unlisted value onto their own `unknown(String)`
+case, keep the surrounding payload, and degrade the affected UI element rather
+than dropping the record. Requests stay closed: a client never sends a value it
+does not understand.
+
+`swift-client-check/` regenerates a Swift client from the bundle and asserts
+both halves of this rule.
+
 ## Layout
 
 ```text
@@ -24,7 +51,9 @@ contracts/
 │   └── security/
 ├── registries/
 ├── fixtures/
-└── scripts/
+│   └── openapi/           # response fixtures validated against the bundle
+├── scripts/
+└── swift-client-check/    # generated Swift client + forward-compatibility tests
 ```
 
 JSON Schemas use Draft 2020-12 and versioned absolute `$id` values. Registry and
@@ -45,8 +74,18 @@ From the repository root:
 corepack yarn contracts:lint
 corepack yarn contracts:bundle
 corepack yarn contracts:schemas
+corepack yarn contracts:fixtures
 corepack yarn contracts:compat
 corepack yarn contracts:check
+```
+
+`contracts:fixtures` validates every document in `fixtures/openapi/` against the
+component schema it claims to represent, so mock-server payloads cannot drift
+from the contract. The Swift check is separate because it needs a Swift 6
+toolchain and network access:
+
+```bash
+./swift-client-check/run.sh
 ```
 
 Bundled output is generated in `contracts/dist/` and is not committed.

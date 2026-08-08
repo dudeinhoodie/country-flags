@@ -9,6 +9,8 @@ import {
   ContentChangeOperation,
   ContentReleaseStatus,
   ContentResourceType,
+  GeoEntityStatus,
+  GeoNameType,
   Prisma,
   PrismaClient,
 } from "@prisma/client";
@@ -51,6 +53,17 @@ interface CardPageBody {
     answer: { displayName: string };
   }>;
   page: Page;
+}
+
+interface EntityBody {
+  id: string;
+  kind: string;
+  status: string;
+  recognitionStatus: string;
+  name: { short: string; official: string | null; aliases: string[] };
+  assets: Array<{ type: string; mimeType: string }>;
+  facts: Array<{ type: string; source: { name: string; url: string } }>;
+  contentVersion: string;
 }
 
 interface ErrorBody {
@@ -350,6 +363,150 @@ describe("content fixture and read API (integration)", () => {
     expect(new Set(ids)).toHaveProperty("size", 8);
     expect(russia).toMatchObject({ semanticVersion: 2 });
     expect(switzerland).toMatchObject({ semanticVersion: 1, revision: 2 });
+  });
+
+  it("returns one deck with the same representation as the list page", async () => {
+    const deckId = "70000000-0000-4000-8000-000000000001";
+    const list = await request(httpServer)
+      .get("/v1/decks")
+      .query({ locale: "en" })
+      .expect(200);
+    const listBody = list.body as unknown as DeckPageBody;
+    const detail = await request(httpServer)
+      .get(`/v1/decks/${deckId}`)
+      .query({ locale: "en" })
+      .expect(200);
+
+    expect(detail.body).toEqual(
+      listBody.items.find((deck) => deck.id === deckId),
+    );
+
+    const fallback = await request(httpServer)
+      .get(`/v1/decks/${deckId}`)
+      .query({ locale: "fr" })
+      .expect(200);
+    expect(fallback.body).toMatchObject({ name: "Все страны" });
+
+    const missing = await request(httpServer)
+      .get("/v1/decks/ffffffff-ffff-4fff-8fff-ffffffffffff")
+      .query({ locale: "en" })
+      .expect(404);
+    expect((missing.body as unknown as ErrorBody).error.code).toBe(
+      "RESOURCE_NOT_FOUND",
+    );
+  });
+
+  it("returns one localized entity with assets, facts, and alias names", async () => {
+    const entityId = "30000000-0000-4000-8000-000000000005";
+    await database.geoEntityName.createMany({
+      data: [
+        {
+          geoEntityId: entityId,
+          locale: "en",
+          nameType: GeoNameType.OFFICIAL,
+          value: "Republic of Kosovo",
+          isPrimary: false,
+        },
+        {
+          geoEntityId: entityId,
+          locale: "en",
+          nameType: GeoNameType.ALTERNATIVE,
+          value: "Kosovo and Metohija",
+          isPrimary: false,
+        },
+        {
+          geoEntityId: entityId,
+          locale: "de",
+          nameType: GeoNameType.ALTERNATIVE,
+          value: "Kosovo (de)",
+          isPrimary: false,
+        },
+      ],
+      skipDuplicates: true,
+    });
+
+    const response = await request(httpServer)
+      .get(`/v1/entities/${entityId}`)
+      .query({ locale: "en" })
+      .expect(200);
+    const body = response.body as unknown as EntityBody;
+
+    expect(body).toMatchObject({
+      id: entityId,
+      kind: "COUNTRY",
+      status: "ACTIVE",
+      recognitionStatus: "PARTIALLY_RECOGNIZED",
+      contentVersion: "test-only-fixture-v1",
+      name: {
+        short: "Kosovo",
+        official: "Republic of Kosovo",
+      },
+    });
+    // Aliases span the whole locale fallback chain, exactly like the card
+    // payload, so a client can match a name typed in the default locale.
+    expect([...body.name.aliases].sort()).toEqual([
+      "Kosovo and Metohija",
+      "Косово",
+    ]);
+    expect(body.assets.length).toBeGreaterThan(0);
+    expect(body.assets[0]).toMatchObject({
+      type: "FLAG",
+      mimeType: "image/svg+xml",
+    });
+    // The TEST_ONLY fixture publishes no facts; the field must still be an
+    // empty array so the generated client never decodes a missing member.
+    expect(body.facts).toEqual([]);
+
+    const localized = await request(httpServer)
+      .get(`/v1/entities/${entityId}`)
+      .query({ locale: "ru" })
+      .expect(200);
+    expect((localized.body as unknown as EntityBody).name).toMatchObject({
+      short: "Косово",
+      official: null,
+      aliases: [],
+    });
+
+    const region = await request(httpServer)
+      .get("/v1/entities/30000000-0000-4000-8000-000000000101")
+      .query({ locale: "en" })
+      .expect(200);
+    expect(region.body).toMatchObject({
+      kind: "REGION",
+      recognitionStatus: "NOT_APPLICABLE",
+      assets: [],
+    });
+  });
+
+  it("hides entities the catalog does not publish", async () => {
+    const entityId = "30000000-0000-4000-8000-000000000006";
+    await database.geoEntity.update({
+      where: { id: entityId },
+      data: { status: GeoEntityStatus.HIDDEN },
+    });
+
+    try {
+      const hidden = await request(httpServer)
+        .get(`/v1/entities/${entityId}`)
+        .query({ locale: "en" })
+        .expect(404);
+      expect((hidden.body as unknown as ErrorBody).error.code).toBe(
+        "RESOURCE_NOT_FOUND",
+      );
+    } finally {
+      await database.geoEntity.update({
+        where: { id: entityId },
+        data: { status: GeoEntityStatus.ACTIVE },
+      });
+    }
+
+    const invalid = await request(httpServer)
+      .get("/v1/entities/not-a-uuid")
+      .query({ locale: "en" })
+      .expect(400);
+    expect((invalid.body as unknown as ErrorBody).error.code).toBe(
+      "VALIDATION_FAILED",
+    );
   });
 
   it("uses the canonical error envelope for invalid cursors and missing decks", async () => {

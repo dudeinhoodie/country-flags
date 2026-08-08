@@ -47,8 +47,21 @@ export interface ReviewResult {
   cardState: Record<string, unknown> | null;
 }
 
+/**
+ * Structured members are omitted rather than sent as null: the contract types
+ * them as objects, so a generated client keeps them addressable.
+ */
+function reviewResultResponse(result: ReviewResult): Record<string, unknown> {
+  const { canonicalRating, cardState, ...rest } = result;
+  return {
+    ...rest,
+    ...(canonicalRating === null ? {} : { canonicalRating }),
+    ...(cardState === null ? {} : { cardState }),
+  };
+}
+
 export interface ReviewBatchResult extends Record<string, unknown> {
-  results: ReviewResult[];
+  results: Array<Record<string, unknown>>;
   achievements: unknown[];
   deckSummaries: unknown[];
   serverTime: string;
@@ -295,7 +308,7 @@ export class ReviewsService {
     const projection = await this.progress.rebuildUser(userId);
     const serverTime = new Date();
     return {
-      results,
+      results: results.map(reviewResultResponse),
       achievements: projection.newAchievements,
       deckSummaries: projection.decks,
       serverTime: serverTime.toISOString(),

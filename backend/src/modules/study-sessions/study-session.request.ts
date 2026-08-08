@@ -3,7 +3,27 @@ import { createHash } from "node:crypto";
 import { BadRequestException } from "@nestjs/common";
 import { AnswerMode, SelectionOrigin } from "@prisma/client";
 
+import {
+  dateTime,
+  exactRequestKeys,
+  requestRecord,
+} from "../../common/http/request-validation";
 import { parseLocale, parseUuid } from "../content/content-query";
+
+export interface CompleteStudySessionRequest {
+  completedAt: Date;
+}
+
+const COMPLETE_KEYS = ["completedAt"] as const;
+
+export function parseCompleteStudySessionRequest(
+  value: unknown,
+): CompleteStudySessionRequest {
+  const body = requestRecord(value, "body");
+  exactRequestKeys(body, COMPLETE_KEYS, "body");
+
+  return { completedAt: dateTime(body.completedAt, "body.completedAt") };
+}
 
 export interface CreateServerStudySessionRequest {
   id: string;

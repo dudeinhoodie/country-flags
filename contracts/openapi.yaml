@@ -640,8 +640,12 @@ paths:
     get:
       tags: [Content]
       summary: Get one localized geographic entity
+      description: >-
+        Resolves a single ENTITY resource reported by the content change feed.
+        Entities hidden from the catalog are not readable; clients apply the
+        matching RETIRE change instead.
       operationId: getEntity
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security: []
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/EntityId
@@ -683,8 +687,11 @@ paths:
     get:
       tags: [Content]
       summary: Get one localized deck
+      description: >-
+        Returns the same deck representation as the list page. Learning
+        progress for the deck is served by getDeckProgress.
       operationId: getDeck
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - {}
         - BearerAuth: []
@@ -789,8 +796,14 @@ paths:
     post:
       tags: [Study]
       summary: Complete a study session idempotently
+      description: >-
+        The first accepted call fixes the canonical summary from the review
+        events already ingested for the session; later retries return it
+        unchanged. A client completion instant is bounded by the session start
+        and the server receive time, so a skewed device clock cannot produce a
+        negative or inflated duration.
       operationId: completeStudySession
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/SessionId
       requestBody:
@@ -806,6 +819,12 @@ paths:
             application/json:
               schema:
                 $ref: ./openapi/components.yaml#/schemas/StudySession
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/reviews/batch:
@@ -884,8 +903,14 @@ paths:
     delete:
       tags: [Progress]
       summary: Delete all learning progress but preserve the account
+      description: >-
+        Removes review history, card states, study sessions, achievements and
+        deck mastery while keeping the account, identities, devices and
+        settings. The account change stream is rotated, so cursors issued
+        before the deletion stop resolving and every device performs a full
+        progress resynchronization.
       operationId: deleteProgress
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - BearerAuth: []
           ReauthenticationToken: []
@@ -904,6 +929,8 @@ paths:
                 $ref: ./openapi/components.yaml#/schemas/ProgressDeletionResult
         "401":
           $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/me/decks/{deckId}/progress:

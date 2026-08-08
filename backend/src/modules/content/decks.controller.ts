@@ -20,6 +20,17 @@ export class DecksController {
     );
   }
 
+  @Get(":deckId")
+  getDeck(
+    @Param("deckId") deckId: string,
+    @Query("locale") localeValue: string | undefined,
+  ): ReturnType<ContentService["getDeck"]> {
+    return this.contentService.getDeck(
+      parseUuid(deckId, "deckId"),
+      parseLocale(localeValue),
+    );
+  }
+
   @Get(":deckId/cards")
   listDeckCards(
     @Param("deckId") deckId: string,

@@ -22,12 +22,14 @@
 - [12-known-limitations.md](./12-known-limitations.md) — сводный список известных ограничений backend MVP.
 - [13-deployment-environments.md](./13-deployment-environments.md) — local/CI/dev/prod, инфраструктура, CI/CD, миграции, backup и rollback.
 - [14-deployment-agent-handoff.md](./14-deployment-agent-handoff.md) — последовательность и критерии deployment work packages.
+- [15-ios-client-readiness.md](./15-ios-client-readiness.md) — сопоставление iOS-сценариев с операциями контракта, решения по planned-операциям и client fixtures.
 - [ios/README.md](./ios/README.md) — порядок iOS-разработки и отдельные agent-ready спецификации IOS-000…IOS-013.
 - [ADR-002](./adr/ADR-002-auth-and-refresh-token-rotation.md) — provider identities и refresh-token rotation.
 - [ADR-003](./adr/ADR-003-review-ordering-and-idempotency.md) — canonical ordering, clock normalization и idempotency review.
 - [ADR-004](./adr/ADR-004-fsrs6-versioning-and-migrations.md) — pinned FSRS-6 adapter, definitions и checkpoints.
 - [ADR-007](./adr/ADR-007-account-data-export-storage.md) — хранение и migration path приватных account data exports.
 - [ADR-008](./adr/ADR-008-deployment-topology-and-promotion.md) — Koyeb/Neon/R2 и immutable promotion dev → production.
+- [ADR-009](./adr/ADR-009-generated-client-contract-shape.md) — extensible enum и nullable-структуры для генерируемых клиентов.
 
 ## Подтверждённые продуктовые решения
 

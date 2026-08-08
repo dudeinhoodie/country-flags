@@ -511,6 +511,114 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
       .expect(404);
   });
 
+  it("clears learning progress, rotates the sync stream, and keeps the account", async () => {
+    await expect(
+      database.reviewEvent.count({ where: { userId: account.user.id } }),
+    ).resolves.toBeGreaterThan(0);
+    await expect(
+      database.userCardState.count({ where: { userId: account.user.id } }),
+    ).resolves.toBeGreaterThan(0);
+    const changesBefore = await request(httpServer)
+      .get("/v1/me/changes")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(200);
+    const staleCursor = (
+      changesBefore.body as unknown as { nextCursor: string }
+    ).nextCursor;
+
+    const withoutProof = await request(httpServer)
+      .delete("/v1/me/progress")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .send({ confirmation: "DELETE_PROGRESS" })
+      .expect(401);
+    expect((withoutProof.body as unknown as ErrorBody).error.code).toBe(
+      "REAUTHENTICATION_REQUIRED",
+    );
+
+    const unconfirmed = await request(httpServer)
+      .delete("/v1/me/progress")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .set("X-Reauthentication-Token", await reauthenticate())
+      .send({ confirmation: "DELETE_EVERYTHING" })
+      .expect(422);
+    expect((unconfirmed.body as unknown as ErrorBody).error.code).toBe(
+      "VALIDATION_FAILED",
+    );
+
+    const cleared = await request(httpServer)
+      .delete("/v1/me/progress")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .set("X-Reauthentication-Token", await reauthenticate())
+      .send({ confirmation: "DELETE_PROGRESS" })
+      .expect(202);
+    expect(cleared.body).toMatchObject({ status: "COMPLETED" });
+    const clearedBody = cleared.body as unknown as {
+      operationId: string;
+      requestedAt: string;
+    };
+    expect(clearedBody.operationId).toMatch(/^[0-9a-f-]{36}$/iu);
+    expect(new Date(clearedBody.requestedAt).getTime()).not.toBeNaN();
+
+    const scopes = { where: { userId: account.user.id } };
+    await expect(database.reviewEvent.count(scopes)).resolves.toBe(0);
+    await expect(database.userCardState.count(scopes)).resolves.toBe(0);
+    await expect(database.studySession.count(scopes)).resolves.toBe(0);
+    await expect(database.userAchievement.count(scopes)).resolves.toBe(0);
+    await expect(database.userDeckMastery.count(scopes)).resolves.toBe(0);
+    await expect(database.userChange.count(scopes)).resolves.toBe(0);
+    await expect(database.learningOutboxEvent.count(scopes)).resolves.toBe(0);
+
+    // The account itself, its identities, devices and settings survive.
+    await request(httpServer)
+      .get("/v1/me")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(200);
+    await expect(database.authIdentity.count(scopes)).resolves.toBeGreaterThan(
+      0,
+    );
+    await expect(database.device.count(scopes)).resolves.toBeGreaterThan(0);
+    await expect(database.userSettings.count(scopes)).resolves.toBe(1);
+
+    // A cursor issued before the deletion no longer resolves, so every device
+    // resynchronizes from an empty progress stream instead of keeping state
+    // the account no longer has.
+    const stale = await request(httpServer)
+      .get("/v1/me/changes")
+      .query({ after: staleCursor })
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(400);
+    expect((stale.body as unknown as ErrorBody).error.code).toBe(
+      "VALIDATION_FAILED",
+    );
+    const rebuilt = await request(httpServer)
+      .get("/v1/me/changes")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(200);
+    expect(rebuilt.body).toMatchObject({ items: [], hasMore: false });
+    expect(
+      (rebuilt.body as unknown as { nextCursor: string }).nextCursor,
+    ).not.toBe(staleCursor);
+
+    const progress = await request(httpServer)
+      .get("/v1/me/progress")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(200);
+    expect(progress.body).toMatchObject({
+      learnedCards: 0,
+      reviewCount: 0,
+      currentMasteryTier: "NONE",
+      highestAchievementTier: "NONE",
+    });
+
+    const audit = await database.auditEvent.findFirst({
+      where: {
+        actorUserId: account.user.id,
+        action: "ACCOUNT_PROGRESS_DELETED",
+      },
+    });
+    expect(audit).not.toBeNull();
+  });
+
   it("deletes account data, revokes sessions, and is service-idempotent", async () => {
     reauthenticationToken = await reauthenticate();
     const deletion = await request(httpServer)

@@ -17,3 +17,8 @@ backend/.env.*
 # oh-my-codex local runtime state
 .omx/
 .cmax/
+
+# Swift contract check
+contracts/swift-client-check/.build/
+contracts/swift-client-check/Sources/CountryFlagsAPI/openapi.yaml
+contracts/swift-client-check/Package.resolved

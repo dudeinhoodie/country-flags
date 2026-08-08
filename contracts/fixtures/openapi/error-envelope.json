@@ -1,0 +1,15 @@
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "One or more fields are invalid",
+    "requestId": "e0000000-0000-4000-8000-000000000001",
+    "details": {
+      "fields": [
+        {
+          "field": "body.completedAt",
+          "message": "must be an RFC 3339 date-time"
+        }
+      ]
+    }
+  }
+}
