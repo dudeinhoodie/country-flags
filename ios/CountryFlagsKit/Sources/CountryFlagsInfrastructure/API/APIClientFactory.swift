@@ -87,6 +87,7 @@ public struct APIClientFactory: Sendable {
                 configuration: configuration,
                 identifiers: identifiers
             ),
+            ConditionalRequestMiddleware(),
             LoggingMiddleware(logger: logger),
             ErrorMappingMiddleware(),
             RetryMiddleware(policy: retryPolicy, scheduler: scheduler, jitter: jitter),

@@ -1,0 +1,117 @@
+{
+  "$schema": "../schemas/configuration/feature-flag-registry.v1.schema.json",
+  "schemaVersion": 1,
+  "flags": [
+    {
+      "key": "study.multiple_choice.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "nextSession",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "learning",
+      "description": "Enables objective multiple-choice study sessions",
+      "reviewAfter": "2026-12-31"
+    },
+    {
+      "key": "study.review_submission.enabled",
+      "type": "boolean",
+      "defaultValue": true,
+      "category": "operational",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "learning",
+      "description": "Kill switch for review submission",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "home.recommended_decks.variant",
+      "type": "string",
+      "defaultValue": "control",
+      "allowedValues": ["control", "personalized"],
+      "category": "experiment",
+      "activationPolicy": "nextLaunch",
+      "serverEnforced": false,
+      "clientVisible": true,
+      "owner": "discovery",
+      "description": "Chooses the recommended deck presentation",
+      "reviewAfter": "2026-12-31"
+    },
+    {
+      "key": "study.max_new_cards_per_session",
+      "type": "number",
+      "defaultValue": 10,
+      "minimum": 0,
+      "maximum": 20,
+      "category": "remote_configuration",
+      "activationPolicy": "nextSession",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "learning",
+      "description": "Limits new cards selected for one study session",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "ads.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "operational",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Global advertising kill switch",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "ads.home.bottom_banner.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Enables the optional home banner placement",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "ads.catalog.inline_native.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Enables the optional catalog native placement",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "ads.session_result.interstitial.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Enables the optional post-session interstitial placement",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "ads.rewarded.optional_bonus.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Reserves the rewarded placement as disabled",
+      "reviewAfter": "2027-07-01"
+    }
+  ]
+}

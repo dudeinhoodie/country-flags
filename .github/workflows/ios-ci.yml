@@ -67,6 +67,16 @@ jobs:
       - name: Check the contract mirror
         run: ./Scripts/sync-openapi.sh --check
 
+      # The typed Swift flag keys and ad placements have to keep matching the
+      # canonical registries the backend enforces.
+      - name: Check the registry mirrors
+        run: ./Scripts/sync-registries.sh --check
+
+      # Advertising is off in the MVP: no ad SDK, no advertising identifier and
+      # no tracking prompt may enter the app target.
+      - name: Check the advertising policy
+        run: ./Scripts/check-advertising-policy.sh
+
       # The device depends on the runner image, so it is picked from a
       # preference list and printed to the log.
       - name: Select simulator
