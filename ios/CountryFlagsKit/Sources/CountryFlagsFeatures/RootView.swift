@@ -1,0 +1,97 @@
+import SwiftUI
+
+import CountryFlagsDomain
+
+/// Корневая оболочка приложения.
+///
+/// Экранов ещё нет: задача фиксирует навигационную топологию и то, что View
+/// получает состояние снаружи, а не создаёт его сам.
+public struct RootView: View {
+    @State private var router: AppRouter
+    private let configuration: RuntimeConfiguration
+
+    public init(router: AppRouter, configuration: RuntimeConfiguration) {
+        _router = State(wrappedValue: router)
+        self.configuration = configuration
+    }
+
+    public var body: some View {
+        NavigationStack(path: $router.navigationPath) {
+            shell
+                .navigationDestination(for: AppRoute.self) { route in
+                    RouteView(route: route)
+                }
+        }
+    }
+
+    private var shell: some View {
+        VStack(spacing: DesignTokens.Spacing.large) {
+            Text(L10n.shellTitle)
+                .font(DesignTokens.Typography.screenTitle)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier(AccessibilityIdentifier.shellTitle)
+
+            Text(L10n.shellSubtitle)
+                .font(DesignTokens.Typography.body)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+
+            Button(L10n.shellOpenSettings) {
+                router.push(.settings)
+            }
+            .buttonStyle(.borderedProminent)
+            .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+            .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
+
+            if configuration.environment.allowsDebugAffordances {
+                Text(verbatim: configuration.environment.rawValue.uppercased())
+                    .font(DesignTokens.Typography.caption)
+                    .padding(.horizontal, DesignTokens.Spacing.small)
+                    .padding(.vertical, DesignTokens.Spacing.extraSmall)
+                    .background(.quaternary, in: .rect(cornerRadius: DesignTokens.Radius.small))
+                    .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
+            }
+        }
+        .padding(DesignTokens.Spacing.large)
+        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+    }
+}
+
+/// Заглушка назначения маршрута: реальные экраны приходят со своими задачами,
+/// но маршрут уже типизирован и проверяется UI-тестом.
+struct RouteView: View {
+    let route: AppRoute
+
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.medium) {
+            Text(title)
+                .font(DesignTokens.Typography.sectionTitle)
+            Text(L10n.routeNotImplemented)
+                .font(DesignTokens.Typography.body)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+        }
+        .padding(DesignTokens.Spacing.large)
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        .accessibilityIdentifier(AccessibilityIdentifier.routeScreen)
+    }
+
+    private var title: String {
+        switch route {
+        case .catalog: L10n.catalogTitle
+        case .deck: L10n.deckTitle
+        case .progress: L10n.progressTitle
+        case .settings: L10n.settingsTitle
+        }
+    }
+}
+
+/// Идентификаторы для UI-тестов. Они не локализуются, поэтому тест не зависит
+/// от языка симулятора.
+public enum AccessibilityIdentifier {
+    public static let shellTitle = "root.shell.title"
+    public static let openSettingsButton = "root.shell.openSettings"
+    public static let environmentBadge = "root.shell.environmentBadge"
+    public static let routeScreen = "root.route.screen"
+}

@@ -1,0 +1,38 @@
+// Общие настройки всех конфигураций. Значения, различающиеся между
+// окружениями, задаются в Mock/Dev/Prod.xcconfig.
+
+// Локальные переопределения разработчика (DEVELOPMENT_TEAM, суффикс bundle ID)
+// живут в незакоммиченном Local.xcconfig — см. Local.xcconfig.example.
+#include? "Local.xcconfig"
+
+PRODUCT_NAME = CountryFlags
+CF_BUNDLE_ID_BASE = app.countryflags.mobile
+PRODUCT_BUNDLE_IDENTIFIER = $(CF_BUNDLE_ID_BASE)$(CF_BUNDLE_ID_SUFFIX)
+
+IPHONEOS_DEPLOYMENT_TARGET = 17.0
+TARGETED_DEVICE_FAMILY = 1
+SUPPORTED_PLATFORMS = iphonesimulator iphoneos
+SWIFT_VERSION = 6.0
+SWIFT_STRICT_CONCURRENCY = complete
+SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES
+ENABLE_USER_SCRIPT_SANDBOXING = YES
+ALWAYS_SEARCH_USER_PATHS = NO
+CLANG_ENABLE_MODULES = YES
+ENABLE_MODULE_VERIFIER = NO
+GENERATE_INFOPLIST_FILE = YES
+
+// Проверка сборки в CI выполняется без учётных записей разработчика.
+CODE_SIGN_STYLE = Automatic
+CODE_SIGNING_REQUIRED = NO
+CODE_SIGNING_ALLOWED = NO
+DEVELOPMENT_TEAM = $(CF_DEVELOPMENT_TEAM)
+
+INFOPLIST_KEY_UILaunchScreen_Generation = YES
+INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES
+INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+
+// Значения читает RuntimeConfigurationLoader; они не содержат секретов.
+CF_DEEP_LINK_SCHEME = countryflags
+INFOPLIST_KEY_CFAppEnvironment = $(CF_APP_ENVIRONMENT)
+INFOPLIST_KEY_CFAPIBaseURL = $(CF_API_BASE_URL)
+INFOPLIST_KEY_CFDeepLinkScheme = $(CF_DEEP_LINK_SCHEME)
