@@ -58,12 +58,6 @@ final class SystemDependenciesTests: XCTestCase {
     }
 }
 
-private struct FixedDateProvider: DateProviding {
-    let instant: Date
-
-    func now() -> Date { instant }
-}
-
 private struct FixedIdentifierProvider: IdentifierProviding {
     let identifier: UUID
 

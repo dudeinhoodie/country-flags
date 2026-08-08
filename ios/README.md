@@ -138,10 +138,17 @@ models and `APIError`, never a contract type. Repositories that need an
 operation therefore live inside the Infrastructure module.
 
 The transport is a stack of middlewares, outermost first: client context
-(request identifier and platform headers), redacted logging, error mapping to
-`APIError`, bounded retry with jitter, and authentication with a single-flight
-token refresh. Only operations whose contract makes a repeat safe are retried;
-`RetryPolicy.defaultIdempotentOperationIDs` is that list.
+(request identifier and platform headers), entity tag repair, redacted logging,
+error mapping to `APIError`, bounded retry with jitter, and authentication with
+a single-flight token refresh. Only operations whose contract makes a repeat
+safe are retried; `RetryPolicy.defaultIdempotentOperationIDs` is that list.
+
+`ConditionalRequestMiddleware` exists because the generator emits
+`setHeaderFieldAsURI` for every header parameter, which percent-encodes the
+quotes an entity tag carries: `"config-1"` would leave as `%22config-1%22` and
+no server would match it, so every conditional request would answer `200` with a
+full body. The middleware decodes `If-None-Match` and `If-Match` back, once per
+logical request rather than once per attempt.
 
 ## The local store
 
@@ -172,6 +179,54 @@ repositories rather than by `#Unique`, which needs iOS 18.
 Session secrets live in the keychain through `SecureTokenStoring` and nowhere
 else; no model in the schema has a field that could hold one.
 
+## Feature flags, advertising and observability
+
+The backend evaluates the targeting rules and returns results, so the client
+holds no control plane SDK and no management credentials.
+`SnapshotOpenFeatureProvider` answers the OpenFeature evaluation API from a
+chain the spec fixes:
+
+1. a fresh snapshot fetched from `GET /v1/app-config`;
+2. the last snapshot cached from the previous run;
+3. the bundled registry default.
+
+Reads are synchronous and the bundled default is always available, so the first
+screen never waits for the network. A snapshot past its `expiresAt` is not
+served: a device that stays offline must not keep a killed feature running, and
+the registry defaults are chosen to be safe on their own.
+
+The typed registry in `FeatureFlagRegistry` is the client half of
+`contracts/registries/feature-flags.json`, and `FeatureFlagRegistryParityTests`
+reads the canonical file to fail when the key, type, default, category, owner or
+activation policy of a flag drifts from the backend's.
+
+`ActivatedFeatureFlags` applies the activation policy on top of the live values:
+`immediate` passes through, `nextSession` is frozen for the life of a study
+session and travels with it into storage, `nextLaunch` is frozen for the life of
+the process. A refresh that lands mid-session therefore cannot change its mode.
+
+The cache is one `UserDefaults` entry per `AccountScope`. It holds evaluated
+values, a version and two timestamps — nothing secret — and a snapshot is never
+read under a scope other than the one it was evaluated for.
+
+Debug overrides come from `-feature-flag <key>=<value>` and are gated on
+`AppEnvironment.allowsDebugAffordances`, not on `#if DEBUG`: Xcode builds a
+local package in release for every configuration not named "Debug". The Prod
+configuration parses no override at all.
+
+Advertising is off. No ad SDK is linked, no ATT prompt is shown, and
+`NoOpAdvertisingProvider` is the production default. `AdEligibilityService` is
+the one place that decides whether a placement may appear, and anything unknown
+blocks. `AdSlotView` renders nothing when a slot is hidden, so a build without a
+provider leaves no blank frame behind.
+
+Analytics, error reporting and diagnostics are protocols with NoOp
+implementations. `LogEntry` carries values a caller has classified as safe or
+sensitive, and `LogRedaction` scrubs the message as well, so a token, an address
+or a query string cannot reach a log through either channel. A failure reaching
+a screen is a `PresentableError`: copy chosen from its kind plus the request
+identifier support needs, never the server's own message.
+
 `-reset-store` empties the store at launch. The hook is in the app target, not
 in the package: Xcode builds a local package in release for every configuration
 that is not named "Debug", so a `#if DEBUG` inside the package would not follow
@@ -183,11 +238,18 @@ the app's Debug flag. Mock and Dev define it, Prod does not.
 tooling: the package pins its own resolution and the Xcode project pins the one
 used by the app.
 
-| Package                  | Why                                   |
-| ------------------------ | ------------------------------------- |
+| Package                  | Why                                     |
+| ------------------------ | --------------------------------------- |
 | swift-openapi-generator  | build tool plugin generating the client |
 | swift-openapi-runtime    | transport and middleware protocols      |
 | swift-openapi-urlsession | the URLSession transport                |
+| open-feature/swift-sdk   | the flag evaluation API                 |
+
+The OpenFeature SDK is the evaluation API only; the provider is ours. It is not
+audited for Swift 6 concurrency, so the two types that hold it —
+`SnapshotOpenFeatureProvider` and `OpenFeatureFlagClient` — declare
+`@unchecked Sendable` with the reason stated at the declaration. Nothing else in
+the package imports it.
 
 Google Sign-In arrives with IOS-009.
 

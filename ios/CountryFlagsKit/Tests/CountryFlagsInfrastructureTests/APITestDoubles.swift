@@ -122,6 +122,15 @@ struct SequentialIdentifierProvider: IdentifierProviding {
     }
 }
 
+/// A clock a test can place inside or outside the validity window of a snapshot.
+struct FixedDateProvider: DateProviding {
+    let instant: Date
+
+    func now() -> Date {
+        instant
+    }
+}
+
 /// Builds a client wired to the mock transport with deterministic policies.
 enum APITestClient {
     static let configuration = APIClientConfiguration(

@@ -72,7 +72,12 @@ public actor MockClientTransport: ClientTransport {
     private var fallbacks: [String: Response] = [:]
     public private(set) var recordedRequests: [RecordedRequest] = []
 
-    public init() {}
+    /// - Parameter fallbacks: answers registered before the transport is
+    ///   reachable. A caller that has to `await` its way in cannot be sure the
+    ///   registration wins the race against the first request.
+    public init(fallbacks: [String: Response] = [:]) {
+        self.fallbacks = fallbacks
+    }
 
     /// Queues answers consumed in order. Used when the same operation must
     /// behave differently across attempts, such as failing and then succeeding.

@@ -16,6 +16,9 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.9.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.8.0"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.1.0"),
+        // The evaluation API only. The provider is ours: the backend evaluates
+        // the rules, so no control plane SDK is linked into the app.
+        .package(url: "https://github.com/open-feature/swift-sdk", from: "0.5.0"),
     ],
     targets: [
         // Imports neither SwiftUI, SwiftData, OpenFeature nor an OAuth SDK.
@@ -28,6 +31,7 @@ let package = Package(
                 "CountryFlagsDomain",
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
+                .product(name: "OpenFeature", package: "swift-sdk"),
             ],
             plugins: [
                 .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")

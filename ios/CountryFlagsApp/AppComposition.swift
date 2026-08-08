@@ -20,6 +20,12 @@ protocol AppDependencies {
     var tokens: any SecureTokenStoring { get }
     var dates: DateProviding { get }
     var identifiers: IdentifierProviding { get }
+    var featureFlags: FeatureFlagCenter { get }
+    var advertising: any AdvertisingProviding { get }
+    var analytics: any AnalyticsTracking { get }
+    var errorReporter: any ErrorReporting { get }
+    var diagnostics: any DiagnosticsReporting { get }
+    var logger: any AppLogging { get }
 }
 
 @MainActor
@@ -32,6 +38,18 @@ struct AppComposition: AppDependencies {
     let tokens: any SecureTokenStoring
     let dates: DateProviding
     let identifiers: IdentifierProviding
+    let featureFlags: FeatureFlagCenter
+    let advertising: any AdvertisingProviding
+    let analytics: any AnalyticsTracking
+    let errorReporter: any ErrorReporting
+    let diagnostics: any DiagnosticsReporting
+    let logger: any AppLogging
+
+    /// The layers below `FeatureFlagCenter`, kept so the launch sequence can
+    /// drive them. Nothing else reaches for them.
+    private let flagClient: OpenFeatureFlagClient
+    private let activatedFlags: ActivatedFeatureFlags
+    private let scopes: GuestScopeProvider
 
     static func live(bundle: Bundle = .main) -> AppComposition {
         let configuration: RuntimeConfiguration
@@ -45,6 +63,8 @@ struct AppComposition: AppDependencies {
         }
 
         let identifiers = SystemIdentifierProvider()
+        let dates = SystemDateProvider()
+        let logger = OSLogAppLogger()
         let name = storeName(for: configuration)
         #if DEBUG
             // Before the store is opened, so a UI test starts from a known
@@ -63,34 +83,100 @@ struct AppComposition: AppDependencies {
             fatalError("The local store is unavailable: \(error)")
         }
 
+        let apiClientFactory = APIClientFactory(
+            configuration: APIClientConfiguration(
+                baseURL: configuration.apiBaseURL ?? Self.mockBaseURL,
+                appVersion: Self.appVersion(from: bundle),
+                locale: Self.locale()
+            ),
+            // Mock answers registered payloads only and never opens a socket,
+            // so that configuration is reproducible offline.
+            transport: mockTransport(for: configuration, dates: dates),
+            identifiers: identifiers
+        )
+
+        // A release build has no override, whatever the launch arguments say:
+        // the environment gate is what a local package can follow, since Xcode
+        // compiles it in release for every configuration not named "Debug".
+        let overrides = FeatureFlagOverrides.fromLaunchArguments(
+            ProcessInfo.processInfo.arguments,
+            environment: configuration.environment
+        )
+        let flagClient = OpenFeatureFlagClient(
+            service: AppConfigService(clientFactory: apiClientFactory, dates: dates),
+            cache: UserDefaultsAppConfigCache(),
+            overrides: overrides,
+            dates: dates,
+            logger: logger
+        )
+        let activatedFlags = ActivatedFeatureFlags(live: flagClient, dates: dates)
+        let tokens = KeychainTokenStore()
+
         return AppComposition(
             configuration: configuration,
             router: AppRouter(),
             deepLinkParser: DeepLinkParser(scheme: configuration.deepLinkScheme),
-            apiClientFactory: APIClientFactory(
-                configuration: APIClientConfiguration(
-                    baseURL: configuration.apiBaseURL ?? Self.mockBaseURL,
-                    appVersion: Self.appVersion(from: bundle),
-                    locale: Locale.current.identifier
-                ),
-                // Mock answers registered payloads only and never opens a
-                // socket, so that configuration is reproducible offline.
-                transport: configuration.environment == .mock
-                    ? MockClientTransport()
-                    : nil,
-                identifiers: identifiers
-            ),
+            apiClientFactory: apiClientFactory,
             store: store,
-            tokens: KeychainTokenStore(),
-            dates: SystemDateProvider(),
-            identifiers: identifiers
+            tokens: tokens,
+            dates: dates,
+            identifiers: identifiers,
+            featureFlags: FeatureFlagCenter(flags: activatedFlags),
+            // Advertising is off in the MVP: no SDK is linked and nothing is
+            // initialized. The boundary exists so that changing it later is a
+            // composition change rather than a change to every screen.
+            advertising: NoOpAdvertisingProvider(),
+            analytics: NoOpAnalyticsTracker(),
+            errorReporter: NoOpErrorReporter(),
+            diagnostics: NoOpDiagnosticsReporter(),
+            logger: logger,
+            flagClient: flagClient,
+            activatedFlags: activatedFlags,
+            scopes: GuestScopeProvider(
+                tokens: tokens,
+                identifiers: identifiers,
+                logger: logger
+            )
         )
+    }
+
+    /// Brings the flags up for the account this device is using.
+    ///
+    /// It runs after the first frame rather than before it: the cached snapshot
+    /// and the bundled defaults already answer every read, so nothing on screen
+    /// waits for the network.
+    func start() async {
+        let scope = await scopes.currentScope()
+        let context = FeatureFlagContext(
+            scope: scope,
+            environment: configuration.environment,
+            appVersion: Self.appVersion(from: .main),
+            locale: Self.locale()
+        )
+        // The cached snapshot first, without the network: from here on every
+        // read answers with what the previous run knew.
+        await flagClient.activate(context: context)
+        // The launch-scoped values are frozen against that, so a `nextLaunch`
+        // flag reflects the run it belongs to rather than a value that lands a
+        // moment later.
+        activatedFlags.freezeLaunchValues()
+        await featureFlags.refresh(context: context)
     }
 
     /// Each configuration keeps its own file, so running the Mock build does
     /// not overwrite the progress made against a real backend.
     private static func storeName(for configuration: RuntimeConfiguration) -> String {
         "CountryFlags-\(configuration.environment.rawValue)"
+    }
+
+    private static func mockTransport(
+        for configuration: RuntimeConfiguration,
+        dates: any DateProviding
+    ) -> MockClientTransport? {
+        guard configuration.environment == .mock else { return nil }
+        return MockClientTransport(
+            fallbacks: ["getAppConfig": MockAppConfig.response(now: dates.now())]
+        )
     }
 
     #if DEBUG
@@ -120,5 +206,11 @@ struct AppComposition: AppDependencies {
 
     private static func appVersion(from bundle: Bundle) -> String {
         bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+    }
+
+    /// BCP 47, which is what the contract validates. The system identifier uses
+    /// an underscore ("en_US") and would be rejected.
+    private static func locale() -> String {
+        Locale.current.identifier(.bcp47)
     }
 }

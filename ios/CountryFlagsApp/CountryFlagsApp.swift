@@ -23,6 +23,12 @@ struct CountryFlagsApp: App {
             .onOpenURL { url in
                 composition.router.open(url, using: composition.deepLinkParser)
             }
+            // After the first frame: every flag already answers from the
+            // bundled defaults or the cached snapshot, so nothing on screen
+            // waits for this.
+            .task {
+                await composition.start()
+            }
         }
     }
 }
