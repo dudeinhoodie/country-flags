@@ -19,6 +19,11 @@ ENABLE_USER_SCRIPT_SANDBOXING = YES
 ALWAYS_SEARCH_USER_PATHS = NO
 CLANG_ENABLE_MODULES = YES
 ENABLE_MODULE_VERIFIER = NO
+DEVELOPMENT_LANGUAGE = en
+
+// Test bundles are happy with a generated Info.plist. The app target overrides
+// this and points INFOPLIST_FILE at Config/App-Info.plist, because a generated
+// plist drops application specific keys.
 GENERATE_INFOPLIST_FILE = YES
 
 // CI verifies the build without any developer account.
@@ -27,12 +32,6 @@ CODE_SIGNING_REQUIRED = NO
 CODE_SIGNING_ALLOWED = NO
 DEVELOPMENT_TEAM = $(CF_DEVELOPMENT_TEAM)
 
-INFOPLIST_KEY_UILaunchScreen_Generation = YES
-INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES
-INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
-
-// RuntimeConfigurationLoader reads these values; none of them is a secret.
+// Config/App-Info.plist substitutes these into the app bundle, where
+// RuntimeConfigurationLoader reads them. None of them is a secret.
 CF_DEEP_LINK_SCHEME = countryflags
-INFOPLIST_KEY_CFAppEnvironment = $(CF_APP_ENVIRONMENT)
-INFOPLIST_KEY_CFAPIBaseURL = $(CF_API_BASE_URL)
-INFOPLIST_KEY_CFDeepLinkScheme = $(CF_DEEP_LINK_SCHEME)

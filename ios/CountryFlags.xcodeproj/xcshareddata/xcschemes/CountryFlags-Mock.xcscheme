@@ -32,36 +32,6 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CountryFlagsDomainTests"
-               BuildableName = "CountryFlagsDomainTests"
-               BlueprintName = "CountryFlagsDomainTests"
-               ReferencedContainer = "container:CountryFlagsKit">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CountryFlagsInfrastructureTests"
-               BuildableName = "CountryFlagsInfrastructureTests"
-               BlueprintName = "CountryFlagsInfrastructureTests"
-               ReferencedContainer = "container:CountryFlagsKit">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CountryFlagsFeaturesTests"
-               BuildableName = "CountryFlagsFeaturesTests"
-               BlueprintName = "CountryFlagsFeaturesTests"
-               ReferencedContainer = "container:CountryFlagsKit">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "CF0000000000000000000011"
                BuildableName = "CountryFlagsUITests.xctest"
                BlueprintName = "CountryFlagsUITests"

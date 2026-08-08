@@ -51,28 +51,35 @@ The environment travels from an xcconfig into Info.plist and is read by
 `RuntimeConfigurationLoader`. Conditional compilation does not pick it: there
 are three configurations and only two compilation conditions.
 
-Only the Mock scheme runs tests; it covers the package unit tests and the UI
-launch smoke.
+Tests come in two runs, because a package test target cannot join the test
+action of a host project scheme — Xcode only exposes it through the package's
+own scheme:
+
+- `CountryFlagsKit-Package` runs the unit tests of the package;
+- `CountryFlags-Mock` runs the UI launch smoke.
+
+Dev and Prod are built but not tested: they share the code base and differ only
+in the backend endpoint and the optimization level.
 
 ## Build and test
 
 ```bash
 cd ios
+DESTINATION="$(./Scripts/select-simulator.sh)"   # also prints the chosen device
 
-# Prints the destination and the selected simulator.
-./Scripts/select-simulator.sh
+# Unit tests of the package.
+(cd CountryFlagsKit && xcodebuild -scheme CountryFlagsKit-Package \
+  -destination "${DESTINATION}" CODE_SIGNING_ALLOWED=NO test)
+
+# App build and UI launch smoke.
+xcodebuild -project CountryFlags.xcodeproj -scheme CountryFlags-Mock \
+  -destination "${DESTINATION}" CODE_SIGNING_ALLOWED=NO build
 
 xcodebuild -project CountryFlags.xcodeproj -scheme CountryFlags-Mock \
-  -destination "$(./Scripts/select-simulator.sh)" \
-  CODE_SIGNING_ALLOWED=NO build
-
-xcodebuild -project CountryFlags.xcodeproj -scheme CountryFlags-Mock \
-  -destination "$(./Scripts/select-simulator.sh)" \
-  CODE_SIGNING_ALLOWED=NO test
+  -destination "${DESTINATION}" CODE_SIGNING_ALLOWED=NO test
 
 xcodebuild -project CountryFlags.xcodeproj -scheme CountryFlags-Dev \
-  -destination "$(./Scripts/select-simulator.sh)" \
-  CODE_SIGNING_ALLOWED=NO build
+  -destination "${DESTINATION}" CODE_SIGNING_ALLOWED=NO build
 ```
 
 Simulator names change between Xcode versions, so `select-simulator.sh` takes

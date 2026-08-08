@@ -66,6 +66,7 @@ struct RouteView: View {
         VStack(spacing: DesignTokens.Spacing.medium) {
             Text(title)
                 .font(DesignTokens.Typography.sectionTitle)
+                .accessibilityIdentifier(AccessibilityIdentifier.routeTitle)
             Text(L10n.routeNotImplemented)
                 .font(DesignTokens.Typography.body)
                 .multilineTextAlignment(.center)
@@ -74,7 +75,6 @@ struct RouteView: View {
         .padding(DesignTokens.Spacing.large)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .accessibilityIdentifier(AccessibilityIdentifier.routeScreen)
     }
 
     private var title: String {
@@ -89,9 +89,13 @@ struct RouteView: View {
 
 /// Identifiers for UI tests. They are never localized, so a test does not
 /// depend on the language of the simulator.
+///
+/// Every identifier sits on a leaf view. An accessibility identifier applied to
+/// a SwiftUI container propagates to its descendants and overrides the ones
+/// they set themselves, which makes the children indistinguishable in a query.
 public enum AccessibilityIdentifier {
     public static let shellTitle = "root.shell.title"
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
-    public static let routeScreen = "root.route.screen"
+    public static let routeTitle = "root.route.title"
 }

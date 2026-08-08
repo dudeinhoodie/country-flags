@@ -30,6 +30,7 @@
 		CF0000000000000000000032 /* Dev.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Dev.xcconfig; sourceTree = "<group>"; };
 		CF0000000000000000000033 /* Prod.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Prod.xcconfig; sourceTree = "<group>"; };
 		CF0000000000000000000034 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Local.xcconfig.example; sourceTree = "<group>"; };
+		CF0000000000000000000035 /* App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "App-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -93,6 +94,7 @@
 				CF0000000000000000000032 /* Dev.xcconfig */,
 				CF0000000000000000000033 /* Prod.xcconfig */,
 				CF0000000000000000000034 /* Local.xcconfig.example */,
+				CF0000000000000000000035 /* App-Info.plist */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -261,6 +263,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Config/App-Info.plist;
 				MARKETING_VERSION = 0.1.0;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -272,6 +276,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Config/App-Info.plist;
 				MARKETING_VERSION = 0.1.0;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -283,6 +289,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Config/App-Info.plist;
 				MARKETING_VERSION = 0.1.0;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};

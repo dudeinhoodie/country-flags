@@ -59,6 +59,19 @@ jobs:
       - name: Resolve packages
         run: xcodebuild -project "${PROJECT}" -resolvePackageDependencies
 
+      # A package test target cannot join the test action of a host project
+      # scheme, so the unit tests run through the scheme of the package itself.
+      - name: Test CountryFlagsKit
+        working-directory: ios/CountryFlagsKit
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -scheme CountryFlagsKit-Package \
+            -destination '${{ steps.simulator.outputs.destination }}' \
+            -resultBundlePath ../build/CountryFlagsKit.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
       - name: Build and test Mock
         run: |
           set -o pipefail

@@ -28,36 +28,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CountryFlagsDomainTests"
-               BuildableName = "CountryFlagsDomainTests"
-               BlueprintName = "CountryFlagsDomainTests"
-               ReferencedContainer = "container:CountryFlagsKit">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CountryFlagsInfrastructureTests"
-               BuildableName = "CountryFlagsInfrastructureTests"
-               BlueprintName = "CountryFlagsInfrastructureTests"
-               ReferencedContainer = "container:CountryFlagsKit">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CountryFlagsFeaturesTests"
-               BuildableName = "CountryFlagsFeaturesTests"
-               BlueprintName = "CountryFlagsFeaturesTests"
-               ReferencedContainer = "container:CountryFlagsKit">
-            </BuildableReference>
-         </TestableReference>
+
       </Testables>
    </TestAction>
    <LaunchAction
