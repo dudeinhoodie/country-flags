@@ -98,4 +98,10 @@ public enum AccessibilityIdentifier {
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
     public static let routeTitle = "root.route.title"
+
+    /// Present only when a placement really draws something, so a UI test can
+    /// assert that a build without a provider shows no ad surface at all.
+    public static func adSlot(_ placement: AdPlacement) -> String {
+        "ads.slot.\(placement.rawValue)"
+    }
 }

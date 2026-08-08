@@ -76,17 +76,19 @@ public struct APIClientFactory: Sendable {
     ///
     /// The context middleware runs first so one logical request carries one
     /// request identifier: every attempt of it correlates with the same server
-    /// log entry, and the identifier is available to the logger below it.
-    /// Logging then records the outcome once. Error mapping sits above retry
-    /// and refresh so both still work with real status codes, and the
-    /// authentication middleware is innermost because the token it attaches
-    /// changes between attempts.
+    /// log entry, and the identifier is available to the logger below it. The
+    /// entity tag is repaired next, above retry, so it is decoded once rather
+    /// than once per attempt. Logging then records the outcome once. Error
+    /// mapping sits above retry and refresh so both still work with real status
+    /// codes, and the authentication middleware is innermost because the token
+    /// it attaches changes between attempts.
     var middlewares: [any ClientMiddleware] {
         [
             ClientContextMiddleware(
                 configuration: configuration,
                 identifiers: identifiers
             ),
+            ConditionalRequestMiddleware(),
             LoggingMiddleware(logger: logger),
             ErrorMappingMiddleware(),
             RetryMiddleware(policy: retryPolicy, scheduler: scheduler, jitter: jitter),
