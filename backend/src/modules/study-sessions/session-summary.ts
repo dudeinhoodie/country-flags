@@ -43,6 +43,22 @@ export function effectiveCompletedAt(input: {
   return new Date(Math.max(effective, input.startedAt.getTime()));
 }
 
+/**
+ * Bounds the start instant an offline client reports at import. The client
+ * value is canonical because the session really did start on the device, but a
+ * clock running further ahead than the tolerated skew must not place a session
+ * in the future, where completion and duration would stop making sense.
+ */
+export function effectiveStartedAt(input: {
+  clientStartedAt: Date;
+  receivedAt: Date;
+}): Date {
+  return input.clientStartedAt.getTime() >
+    input.receivedAt.getTime() + MAX_FUTURE_SKEW_MS
+    ? input.receivedAt
+    : input.clientStartedAt;
+}
+
 export function buildSessionSummary(input: {
   events: readonly SummaryReviewEvent[];
   startedAt: Date;

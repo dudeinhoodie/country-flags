@@ -1,6 +1,10 @@
 import { ReviewRating } from "@prisma/client";
 
-import { buildSessionSummary, effectiveCompletedAt } from "./session-summary";
+import {
+  buildSessionSummary,
+  effectiveCompletedAt,
+  effectiveStartedAt,
+} from "./session-summary";
 
 const startedAt = new Date("2026-07-29T10:00:00.000Z");
 
@@ -58,6 +62,33 @@ describe("buildSessionSummary", () => {
       durationSeconds: 0,
       ratings: { again: 0, hard: 0, good: 0, easy: 0 },
     });
+  });
+});
+
+describe("effectiveStartedAt", () => {
+  const receivedAt = new Date("2026-07-29T10:05:00.000Z");
+
+  it("keeps the instant an offline session really started", () => {
+    const clientStartedAt = new Date("2026-07-29T08:00:00.000Z");
+    expect(effectiveStartedAt({ clientStartedAt, receivedAt })).toEqual(
+      clientStartedAt,
+    );
+  });
+
+  it("tolerates the same small forward skew as review ingestion", () => {
+    const slightlyAhead = new Date(receivedAt.getTime() + 60_000);
+    expect(
+      effectiveStartedAt({ clientStartedAt: slightlyAhead, receivedAt }),
+    ).toEqual(slightlyAhead);
+  });
+
+  it("bounds a device clock running far ahead of the server", () => {
+    expect(
+      effectiveStartedAt({
+        clientStartedAt: new Date("2027-07-29T10:00:00.000Z"),
+        receivedAt,
+      }),
+    ).toEqual(receivedAt);
   });
 });
 

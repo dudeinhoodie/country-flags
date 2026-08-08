@@ -140,12 +140,16 @@ Swift 6 и доступ в сеть для двух пакетов Apple.
 
 ## 6. Открытые вопросы для последующих задач
 
-1. **Offline study session import.** Контракт описывает
-   `CreateOfflineStudySessionRequest` (`selectionOrigin=CLIENT_OFFLINE`), но
-   runtime принимает только `SERVER` и отвечает `400` на офлайн-вариант. Без
-   этого сценарий §8.1 «сначала идемпотентно создаётся session на backend, затем
-   отправляются зависящие от неё review» невыполним. Требуется отдельная
-   backend-задача до IOS-008; iOS не должен обходить это handwritten DTO.
+1. ~~**Offline study session import.**~~ Закрыто в #64: `POST /v1/study-sessions`
+   принимает `selectionOrigin=CLIENT_OFFLINE`, поэтому сценарий §8.1 выполним.
+   Ограничения зафиксированы в
+   [ADR-010](./adr/ADR-010-offline-study-session-import.md): импортируется
+   только `SELF_RATED` (объективная офлайн-сессия отклоняется
+   `422 OFFLINE_MODE_UNSUPPORTED`); устаревший, но опубликованный
+   `contentVersion` принимается, неизвестный — `422 CONTENT_VERSION_UNKNOWN`;
+   карточка, ставшая `RETIRED` после офлайн-выбора, отклоняет весь импорт
+   `422 OFFLINE_SESSION_COMPOSITION_INVALID` — это неустранимая ошибка, и
+   outbox обязан показать её как permanent failure, а не повторять запрос.
 2. ~~**`additionalProperties: false` в response-схемах.**~~ Закрыто в IOS-002:
    ограничение снято с 44 response-схем и сохранено в 19 request-схемах,
    версионированных JSON Schema документах и registries. Поведение проверяется
