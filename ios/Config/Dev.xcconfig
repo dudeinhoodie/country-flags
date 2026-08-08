@@ -1,9 +1,9 @@
-// Сборка против dev-окружения backend.
+// The build that talks to the dev backend environment.
 #include "Base.xcconfig"
 
 CF_APP_ENVIRONMENT = dev
-// Публичный адрес dev-развёртывания; секретов не содержит и переопределяется
-// в Local.xcconfig при работе против локального backend.
+// The public address of the dev deployment. It holds no secret and is
+// overridden in Local.xcconfig when working against a local backend.
 CF_API_BASE_URL = https:/$()/dev.api.country-flags.app
 CF_BUNDLE_ID_SUFFIX = .dev
 PRODUCT_NAME = CountryFlags Dev

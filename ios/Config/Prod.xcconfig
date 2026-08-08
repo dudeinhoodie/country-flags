@@ -1,4 +1,4 @@
-// Релизная конфигурация: без mock-транспорта и отладочных аффордансов.
+// The release configuration: no mock transport and no debug affordances.
 #include "Base.xcconfig"
 
 CF_APP_ENVIRONMENT = prod

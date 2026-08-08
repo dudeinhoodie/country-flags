@@ -3,11 +3,11 @@ import Observation
 
 import CountryFlagsDomain
 
-/// Состояние навигации приложения.
+/// The navigation state of the app.
 ///
-/// Единственный владелец пути — этот объект, создаваемый composition root:
-/// глобального mutable singleton нет, поэтому тест или preview получает свой
-/// изолированный экземпляр.
+/// This object, created by the composition root, is the only owner of the path:
+/// there is no global mutable singleton, so a test or a preview gets its own
+/// isolated instance.
 @MainActor
 @Observable
 public final class AppRouter {
@@ -36,8 +36,8 @@ public final class AppRouter {
         path.removeAll()
     }
 
-    /// Открывает deep link. Неизвестная ссылка не меняет навигацию и сообщает
-    /// об этом вызывающему коду, чтобы тот мог показать корректную ошибку.
+    /// Opens a deep link. An unknown link leaves navigation untouched and
+    /// reports that to the caller so it can show a correct error.
     @discardableResult
     public func open(_ url: URL, using parser: DeepLinkParser) -> Bool {
         guard let route = parser.route(for: url) else {
@@ -47,7 +47,7 @@ public final class AppRouter {
         return true
     }
 
-    /// Двусторонняя привязка для `NavigationStack`.
+    /// The two-way binding for `NavigationStack`.
     public var navigationPath: [AppRoute] {
         get { path }
         set { path = newValue }

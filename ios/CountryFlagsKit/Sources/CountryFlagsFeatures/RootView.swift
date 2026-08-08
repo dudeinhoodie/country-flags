@@ -2,10 +2,10 @@ import SwiftUI
 
 import CountryFlagsDomain
 
-/// Корневая оболочка приложения.
+/// The root shell of the app.
 ///
-/// Экранов ещё нет: задача фиксирует навигационную топологию и то, что View
-/// получает состояние снаружи, а не создаёт его сам.
+/// There are no screens yet: this work package fixes the navigation topology
+/// and the rule that a view receives its state instead of creating it.
 public struct RootView: View {
     @State private var router: AppRouter
     private let configuration: RuntimeConfiguration
@@ -57,8 +57,8 @@ public struct RootView: View {
     }
 }
 
-/// Заглушка назначения маршрута: реальные экраны приходят со своими задачами,
-/// но маршрут уже типизирован и проверяется UI-тестом.
+/// A placeholder destination: real screens arrive with their own work
+/// packages, while the route is already typed and covered by a UI test.
 struct RouteView: View {
     let route: AppRoute
 
@@ -87,8 +87,8 @@ struct RouteView: View {
     }
 }
 
-/// Идентификаторы для UI-тестов. Они не локализуются, поэтому тест не зависит
-/// от языка симулятора.
+/// Identifiers for UI tests. They are never localized, so a test does not
+/// depend on the language of the simulator.
 public enum AccessibilityIdentifier {
     public static let shellTitle = "root.shell.title"
     public static let openSettingsButton = "root.shell.openSettings"

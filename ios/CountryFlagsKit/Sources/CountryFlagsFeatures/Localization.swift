@@ -1,10 +1,10 @@
 import Foundation
 
-/// Доступ к строкам каталога пакета.
+/// Access to the string catalog of the package.
 ///
-/// Ключи перечислены здесь, а не разбросаны по View: так пропущенный перевод
-/// виден в одном месте, а `Bundle.module` не приходится повторять в каждом
-/// вызове.
+/// Keys are listed here instead of being spread across views: a missing
+/// translation shows up in one place and `Bundle.module` is not repeated at
+/// every call site.
 public enum L10n {
     public static var shellTitle: String {
         localized("shell.title")
@@ -42,8 +42,8 @@ public enum L10n {
         localized("route.not_implemented")
     }
 
-    /// Ресурсный бандл пакета. Тесты используют его, чтобы проверить, что
-    /// каталог строк действительно собран, а не подставляет ключи.
+    /// The resource bundle of the package. Tests use it to verify that the
+    /// string catalog is actually compiled instead of falling back to keys.
     static var bundle: Bundle { .module }
 
     static func localized(_ key: String) -> String {

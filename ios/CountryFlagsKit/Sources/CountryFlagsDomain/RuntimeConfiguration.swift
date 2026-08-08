@@ -1,21 +1,22 @@
 import Foundation
 
-/// Сборочное окружение приложения.
+/// The build environment of the app.
 ///
-/// Значение приходит из xcconfig через Info.plist, а не из `#if DEBUG`:
-/// конфигураций три, а условий компиляции две.
+/// The value arrives from an xcconfig through Info.plist rather than from
+/// `#if DEBUG`: there are three configurations and only two compilation
+/// conditions.
 public enum AppEnvironment: String, Hashable, Sendable, CaseIterable {
     case mock
     case dev
     case prod
 
-    /// Отладочные аффордансы допустимы только вне production.
+    /// Debug affordances are allowed everywhere except production.
     public var allowsDebugAffordances: Bool {
         self != .prod
     }
 }
 
-/// Разрешённая конфигурация текущего запуска.
+/// The resolved configuration of the current run.
 public struct RuntimeConfiguration: Hashable, Sendable {
     public let environment: AppEnvironment
     public let apiBaseURL: URL?

@@ -1,65 +1,65 @@
 # iOS client
 
-Swift 6 / SwiftUI / iOS 17+ клиент Country Flags.
+The Swift 6 / SwiftUI / iOS 17+ client of Country Flags.
 
-Здесь описан только запуск проекта. Требования к продукту — в
-[docs/02-ios-spec.md](../docs/02-ios-spec.md), порядок задач — в
-[docs/ios/README.md](../docs/ios/README.md), форма API-контракта — в
+This file covers only how to run the project. Product requirements live in
+[docs/02-ios-spec.md](../docs/02-ios-spec.md), the order of work packages in
+[docs/ios/README.md](../docs/ios/README.md), and the shape of the API contract in
 [docs/15-ios-client-readiness.md](../docs/15-ios-client-readiness.md).
 
-## Структура
+## Layout
 
 ```text
 ios/
-├── CountryFlags.xcodeproj      # composition root, три конфигурации
-├── CountryFlagsApp/            # @main, сборка зависимостей, ассеты
-├── CountryFlagsKit/            # локальный Swift Package со всей логикой
+├── CountryFlags.xcodeproj      # composition root, three configurations
+├── CountryFlagsApp/            # @main, dependency wiring, assets
+├── CountryFlagsKit/            # local Swift package holding the logic
 │   └── Sources/
-│       ├── CountryFlagsDomain          # типы и правила; без UI и SDK
-│       ├── CountryFlagsInfrastructure  # границы внешнего мира
-│       └── CountryFlagsFeatures        # SwiftUI, навигация, design tokens
+│       ├── CountryFlagsDomain          # types and rules; no UI, no SDKs
+│       ├── CountryFlagsInfrastructure  # boundaries to the outside world
+│       └── CountryFlagsFeatures        # SwiftUI, navigation, design tokens
 ├── CountryFlagsUITests/        # launch smoke
-├── Config/                     # xcconfig на каждую конфигурацию
-└── Scripts/select-simulator.sh # выбор destination для xcodebuild
+├── Config/                     # one xcconfig per configuration
+└── Scripts/select-simulator.sh # picks an xcodebuild destination
 ```
 
-Логика живёт в пакете, а не в app target: пакет собирается и тестируется
-отдельно, а Xcode-проект остаётся тонким. Новый target добавляется только при
-доказанной compile-time или ownership необходимости.
+The logic lives in the package rather than in the app target: the package builds
+and tests on its own and the Xcode project stays thin. A new target is added
+only for a proven compile-time or ownership reason.
 
-`CountryFlagsDomain` не импортирует SwiftUI, SwiftData, OpenFeature и OAuth SDK —
-это проверяется его зависимостями в `Package.swift`.
+`CountryFlagsDomain` imports neither SwiftUI, SwiftData, OpenFeature nor an OAuth
+SDK, which its dependencies in `Package.swift` enforce.
 
-## Требования
+## Requirements
 
-- Xcode 16 или новее (Swift 6 language mode). Локально проект собран на
-  Xcode 26.0.1.
-- Установленный iOS-платформенный компонент и хотя бы один симулятор iOS 17+:
-  `xcodebuild -downloadPlatform iOS`, либо Xcode → Settings → Components.
-- Signing не требуется: сборка и тесты идут на симуляторе с
+- Xcode 16 or newer for the Swift 6 language mode. The project was authored on
+  Xcode 26.0.1 and CI runs it on Xcode 16.4.
+- The iOS platform component and at least one iOS 17+ simulator:
+  `xcodebuild -downloadPlatform iOS`, or Xcode → Settings → Components.
+- No signing: builds and tests run on a simulator with
   `CODE_SIGNING_ALLOWED=NO`.
 
-## Схемы и конфигурации
+## Schemes and configurations
 
-| Схема               | Конфигурация | Окружение | Назначение                                      |
-| ------------------- | ------------ | --------- | ----------------------------------------------- |
-| `CountryFlags-Mock` | `Mock`       | `mock`    | детерминированный запуск и тесты без сети        |
-| `CountryFlags-Dev`  | `Dev`        | `dev`     | сборка против dev-развёртывания backend          |
-| `CountryFlags-Prod` | `Prod`       | `prod`    | релизная сборка без mock-транспорта и отладки    |
+| Scheme              | Configuration | Environment | Purpose                                      |
+| ------------------- | ------------- | ----------- | -------------------------------------------- |
+| `CountryFlags-Mock` | `Mock`        | `mock`      | deterministic run and tests without network   |
+| `CountryFlags-Dev`  | `Dev`         | `dev`       | build against the dev backend deployment      |
+| `CountryFlags-Prod` | `Prod`        | `prod`      | release build, no mock transport, no debug UI |
 
-Окружение приходит из xcconfig в Info.plist и читается
-`RuntimeConfigurationLoader`. Условной компиляции `#if DEBUG` для выбора
-окружения нет: конфигураций три, а условий компиляции две.
+The environment travels from an xcconfig into Info.plist and is read by
+`RuntimeConfigurationLoader`. Conditional compilation does not pick it: there
+are three configurations and only two compilation conditions.
 
-Тесты запускает только схема Mock: она включает unit-тесты пакета и UI launch
-smoke.
+Only the Mock scheme runs tests; it covers the package unit tests and the UI
+launch smoke.
 
-## Сборка и тесты
+## Build and test
 
 ```bash
 cd ios
 
-# Печатает destination и выбранный симулятор.
+# Prints the destination and the selected simulator.
 ./Scripts/select-simulator.sh
 
 xcodebuild -project CountryFlags.xcodeproj -scheme CountryFlags-Mock \
@@ -75,42 +75,43 @@ xcodebuild -project CountryFlags.xcodeproj -scheme CountryFlags-Dev \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-Имя симулятора зависит от версии Xcode, поэтому `select-simulator.sh` берёт
-первое доступное устройство из зафиксированного списка предпочтений
-(iPhone 17 Pro → … → iPhone 15) на runtime iOS 17 или новее и печатает выбор в
-stderr. Тот же скрипт использует CI, поэтому локальный и удалённый прогон
-выбирают устройство одинаково.
+Simulator names change between Xcode versions, so `select-simulator.sh` takes
+the first available device from a fixed preference list (iPhone 17 Pro → … →
+iPhone 15) on an iOS 17 or newer runtime and prints the choice to stderr. CI
+uses the same script, so a local and a remote run pick a device the same way.
 
-## Локальная конфигурация и секреты
+## Local configuration and secrets
 
 ```bash
 cp Config/Local.xcconfig.example Config/Local.xcconfig
 ```
 
-`Config/Local.xcconfig` не коммитится и содержит только идентификаторы
-разработчика: `CF_DEVELOPMENT_TEAM`, персональный суффикс bundle ID и, при
-необходимости, адрес локального backend.
+`Config/Local.xcconfig` is not committed and holds developer identifiers only:
+`CF_DEVELOPMENT_TEAM`, a personal bundle id suffix and, when needed, the address
+of a local backend.
 
-Политика секретов:
+Secret policy:
 
-- в репозиторий не попадают токены, ключи провайдеров, signing identity,
-  provisioning profiles и локальные пути;
-- значения в `Base/Mock/Dev/Prod.xcconfig` публичные: имя окружения, публичный
-  базовый URL и URL-схема;
-- access и refresh токены в последующих задачах хранятся в Keychain и не
-  попадают в UserDefaults, SwiftData, логи и аналитику;
-- в `xcconfig` нельзя писать `//` без экранирования — используйте `https:/$()/`.
+- tokens, provider keys, signing identities, provisioning profiles and local
+  paths never enter the repository;
+- the values in `Base/Mock/Dev/Prod.xcconfig` are public: an environment name, a
+  public base URL and a URL scheme;
+- from later work packages on, access and refresh tokens live in the Keychain
+  and never reach UserDefaults, SwiftData, logs or analytics;
+- an xcconfig cannot contain a bare `//`; write `https:/$()/` instead.
 
-## Зависимости
+## Dependencies
 
-Внешних пакетов пока нет: всё, что нужно этой задаче, покрывают системные
-фреймворки. Поэтому в репозитории нет `Package.resolved` — Xcode создаёт его,
-когда появляется первая удалённая зависимость, и с этого момента файл
-коммитится вместе с изменением. Первые внешние пакеты придут с IOS-002
-(swift-openapi-generator) и IOS-009 (Google Sign-In).
+There are no external packages yet: system frameworks cover everything this work
+package needs. That is why the repository holds no `Package.resolved` — Xcode
+creates it together with the first remote dependency, and from that point the
+file is committed alongside the change that introduces it. The first external
+packages arrive with IOS-002 (swift-openapi-generator) and IOS-009
+(Google Sign-In).
 
 ## CI
 
-[`.github/workflows/ios-ci.yml`](../.github/workflows/ios-ci.yml) запускается на
-изменения в `ios/**`: проверяет версию Xcode, выбирает симулятор, собирает и
-тестирует Mock, собирает Dev. При падении `.xcresult` сохраняется артефактом.
+[`.github/workflows/ios-ci.yml`](../.github/workflows/ios-ci.yml) runs on changes
+under `ios/**`: it checks the Xcode version, selects a simulator, builds and
+tests Mock, then builds Dev. A failing run uploads the `.xcresult` bundle as an
+artifact.

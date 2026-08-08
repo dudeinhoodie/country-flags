@@ -1,10 +1,10 @@
 import Foundation
 
-/// Типизированный маршрут навигации.
+/// A typed navigation route.
 ///
-/// Экраны адресуются значениями, а не строками: deep link разбирается в
-/// `AppRoute` до того, как о нём узнает UI, поэтому опечатка в пути не может
-/// превратиться в несуществующий экран.
+/// Screens are addressed by values, not by strings: a deep link is parsed into
+/// an `AppRoute` before the UI sees it, so a typo in a path cannot turn into a
+/// screen that does not exist.
 public enum AppRoute: Hashable, Sendable {
     case catalog
     case deck(id: UUID)
@@ -12,10 +12,10 @@ public enum AppRoute: Hashable, Sendable {
     case settings
 }
 
-/// Разбирает входящий URL в маршрут. Живёт в Domain, потому что не зависит от
-/// SwiftUI и полностью проверяется unit-тестами.
+/// Parses an incoming URL into a route. It lives in Domain because it depends
+/// on nothing from SwiftUI and is fully covered by unit tests.
 public struct DeepLinkParser: Sendable {
-    /// Схема, зарегистрированная приложением; задаётся конфигурацией сборки.
+    /// The scheme the app registers; it comes from the build configuration.
     public let scheme: String
 
     public init(scheme: String) {
@@ -28,7 +28,7 @@ public struct DeepLinkParser: Sendable {
         }
 
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        // Хост несёт имя раздела, путь — идентификатор ресурса:
+        // The host carries the section and the path carries the resource id:
         // countryflags://deck/<uuid>
         let segments = [components?.host].compactMap { $0 }
             + (components?.path.split(separator: "/").map(String.init) ?? [])

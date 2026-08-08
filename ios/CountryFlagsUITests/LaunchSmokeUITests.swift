@@ -1,8 +1,12 @@
 import XCTest
 
-/// Launch smoke: приложение стартует, показывает локализованную оболочку и
-/// умеет уйти по типизированному маршруту. Тест опирается на accessibility
-/// identifier, поэтому не зависит от языка симулятора.
+/// Launch smoke: the app starts, shows the localized shell and can follow a
+/// typed route. The test addresses elements by accessibility identifier, so it
+/// does not depend on the simulator language.
+///
+/// The class is `@MainActor` because XCUITest API is main-actor isolated under
+/// the Swift 6 language mode.
+@MainActor
 final class LaunchSmokeUITests: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -16,10 +20,10 @@ final class LaunchSmokeUITests: XCTestCase {
         let title = app.staticTexts["root.shell.title"]
         XCTAssertTrue(title.waitForExistence(timeout: 10))
         XCTAssertFalse(title.label.isEmpty)
-        // Ключ каталога строк не должен просочиться в интерфейс.
+        // A string catalog key must never reach the interface.
         XCTAssertNotEqual(title.label, "shell.title")
 
-        // Mock-сборка помечена бейджем окружения; в Prod его быть не должно.
+        // The Mock build carries the environment badge; Prod must not.
         XCTAssertTrue(app.staticTexts["root.shell.environmentBadge"].exists)
     }
 

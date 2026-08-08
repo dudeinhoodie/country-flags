@@ -19,7 +19,7 @@ final class AppRouterTests: XCTestCase {
 
         router.popToRoot()
         XCTAssertTrue(router.path.isEmpty)
-        // Пустой стек не должен ломаться от лишнего pop.
+        // An extra pop on an empty stack must not break anything.
         router.pop()
         XCTAssertTrue(router.path.isEmpty)
     }
@@ -34,7 +34,7 @@ final class AppRouterTests: XCTestCase {
         XCTAssertEqual(router.path, [.deck(id: deckId)])
     }
 
-    /// Неизвестная ссылка не должна тихо менять навигацию.
+    /// An unknown link must not silently change navigation.
     func testUnknownDeepLinkKeepsCurrentStack() throws {
         let router = AppRouter(path: [.catalog])
         let parser = DeepLinkParser(scheme: "countryflags")
@@ -46,8 +46,8 @@ final class AppRouterTests: XCTestCase {
 }
 
 final class LocalizationTests: XCTestCase {
-    /// Каталог строк должен быть собран в ресурсы пакета: иначе
-    /// `String(localized:)` вернул бы сам ключ.
+    /// The string catalog has to be compiled into the package resources;
+    /// otherwise `String(localized:)` would return the key itself.
     func testStringCatalogIsCompiledIntoTheBundle() {
         for (key, value) in [
             ("shell.title", L10n.shellTitle),
@@ -61,7 +61,7 @@ final class LocalizationTests: XCTestCase {
         }
     }
 
-    /// Первый релиз обязан содержать русский и английский.
+    /// The first release ships Russian and English.
     func testBothReleaseLanguagesAreShipped() {
         let localizations = Set(L10n.bundle.localizations)
         XCTAssertTrue(

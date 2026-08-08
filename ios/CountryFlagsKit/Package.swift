@@ -1,9 +1,8 @@
 // swift-tools-version: 6.0
 import PackageDescription
 
-// Логика приложения живёт здесь; app target остаётся composition root.
-// Дополнительный target добавляется только при доказанной compile-time или
-// ownership необходимости.
+// Application logic lives here; the app target stays a composition root.
+// Another target is added only for a proven compile-time or ownership reason.
 let package = Package(
     name: "CountryFlagsKit",
     defaultLocalization: "en",
@@ -14,7 +13,7 @@ let package = Package(
         .library(name: "CountryFlagsFeatures", targets: ["CountryFlagsFeatures"]),
     ],
     targets: [
-        // Не импортирует SwiftUI, SwiftData, OpenFeature и OAuth SDK.
+        // Imports neither SwiftUI, SwiftData, OpenFeature nor an OAuth SDK.
         .target(name: "CountryFlagsDomain"),
         .target(
             name: "CountryFlagsInfrastructure",

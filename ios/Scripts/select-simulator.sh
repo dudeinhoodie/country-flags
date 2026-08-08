@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
-# Печатает destination для xcodebuild, выбирая первый доступный симулятор из
-# зафиксированного списка предпочтений.
+# Prints an xcodebuild destination, picking the first available simulator from a
+# fixed preference list.
 #
-# Имя устройства зависит от версии Xcode на машине и на CI-раннере, поэтому
-# жёстко зашитое `name=iPhone 17` ломается при смене образа. Список ниже задаёт
-# порядок предпочтений, а выбранное устройство печатается в лог, чтобы прогон
-# оставался воспроизводимым.
+# The device name depends on the Xcode version of the machine and of the CI
+# runner, so a hard-coded `name=iPhone 17` breaks whenever the image changes.
+# The list below fixes the preference order and the chosen device is printed to
+# the log, which keeps a run reproducible.
 set -euo pipefail
 
-# Порядок: сначала свежие модели, затем те, что покрывают минимальный
-# поддерживаемый iOS 17.
+# Newest models first, then the ones that cover the minimum supported iOS 17.
 PREFERRED_DEVICES=(
   "iPhone 17 Pro"
   "iPhone 17"

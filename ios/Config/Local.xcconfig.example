@@ -1,19 +1,19 @@
-// Скопируйте в ios/Config/Local.xcconfig и заполните под своё окружение.
-// Файл не коммитится: он содержит идентификаторы разработчика и локальные пути.
+// Copy to ios/Config/Local.xcconfig and fill in for your machine.
+// The file is not committed: it holds developer identifiers and local paths.
 //
 //   cp ios/Config/Local.xcconfig.example ios/Config/Local.xcconfig
 //
-// Ни один ключ здесь не является секретом приложения. Токены, ключи провайдеров
-// и signing identity в репозиторий не попадают ни в каком виде.
+// No key here is an application secret. Tokens, provider keys and signing
+// identities never enter the repository in any form.
 
-// Apple Developer Team ID для локального запуска на устройстве.
-// Сборка на симуляторе и в CI идёт без подписи и этот ключ не требует.
+// The Apple Developer Team ID for running on a device locally.
+// Simulator and CI builds are unsigned and do not need it.
 CF_DEVELOPMENT_TEAM =
 
-// Уникальный суффикс bundle ID, чтобы несколько разработчиков не конфликтовали
-// за один идентификатор при установке на устройство.
+// A unique bundle id suffix so several developers do not fight over one
+// identifier when installing on a device.
 // CF_BUNDLE_ID_SUFFIX = .dev.yourname
 
-// Локальный backend вместо dev-развёртывания.
-// Экранирование `/$()/` обязательно: иначе `//` считается комментарием xcconfig.
+// A local backend instead of the dev deployment.
+// The `/$()/` escape is required: a bare `//` starts an xcconfig comment.
 // CF_API_BASE_URL = http:/$()/localhost:3000

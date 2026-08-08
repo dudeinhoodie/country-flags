@@ -1,11 +1,10 @@
 import SwiftUI
 
-/// Минимальный набор design tokens.
+/// The minimal set of design tokens.
 ///
-/// Экраны не задают отступы и радиусы числами: значения приходят отсюда, чтобы
-/// последующие задачи меняли шкалу в одном месте. Типографика опирается на
-/// системные текстовые стили и поэтому поддерживает Dynamic Type без
-/// дополнительной работы.
+/// Screens never spell out spacing or radii as numbers; the values come from
+/// here so later work packages change the scale in one place. Typography builds
+/// on system text styles, which supports Dynamic Type without extra work.
 public enum DesignTokens {
     public enum Spacing {
         public static let extraSmall: CGFloat = 4
@@ -21,8 +20,8 @@ public enum DesignTokens {
     }
 
     public enum Layout {
-        /// Минимальная сторона интерактивного элемента по рекомендациям
-        /// платформы.
+        /// The smallest side of an interactive element the platform
+        /// guidelines allow.
         public static let minimumTouchTarget: CGFloat = 44
         public static let maximumContentWidth: CGFloat = 520
     }

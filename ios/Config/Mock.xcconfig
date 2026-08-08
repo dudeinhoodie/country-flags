@@ -1,5 +1,5 @@
-// Детерминированная конфигурация: приложение и тесты работают без сети и без
-// backend. Используется схемой CountryFlags-Mock и CI.
+// The deterministic configuration: the app and the tests run without network
+// and without a backend. Used by the CountryFlags-Mock scheme and by CI.
 #include "Base.xcconfig"
 
 CF_APP_ENVIRONMENT = mock

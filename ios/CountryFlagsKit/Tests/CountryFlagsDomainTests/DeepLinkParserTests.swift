@@ -40,7 +40,7 @@ final class DeepLinkParserTests: XCTestCase {
 }
 
 final class SystemDependenciesTests: XCTestCase {
-    /// Тест обязан уметь подменить часы и генератор идентификаторов.
+    /// A test has to be able to substitute the clock and the id generator.
     func testDependenciesAreSubstitutable() {
         let instant = Date(timeIntervalSince1970: 1_760_000_000)
         let identifier = UUID()

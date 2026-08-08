@@ -1,8 +1,8 @@
 import Foundation
 
-/// Границы сетевого слоя. Реализация поверх `URLSession` и сгенерированный
-/// OpenAPI-клиент появляются в IOS-002; здесь фиксируется только точка
-/// подмены, чтобы feature-код с самого начала зависел от протокола.
+/// The network boundary. The `URLSession` implementation and the generated
+/// OpenAPI client arrive with IOS-002; this only fixes the substitution point
+/// so feature code depends on a protocol from the start.
 public protocol APITransport: Sendable {
     func send(_ request: APIRequest) async throws -> APIResponse
 }
@@ -28,16 +28,16 @@ public struct APIResponse: Hashable, Sendable {
 }
 
 public enum APITransportError: Error, Equatable, Sendable {
-    /// Транспорт ещё не собран для этой конфигурации.
+    /// The transport is not assembled for this configuration yet.
     case notConfigured
-    /// Mock-транспорт не знает такого запроса.
+    /// The mock transport has no answer registered for this request.
     case unhandled(APIRequest)
 }
 
-/// Транспорт по умолчанию для Dev и Prod до IOS-002.
+/// The default transport for Dev and Prod until IOS-002.
 ///
-/// Осознанно бросает ошибку вместо возврата пустого успеха: молчаливый
-/// placeholder-успех скрыл бы незавершённую работу от вызывающего кода.
+/// It deliberately throws instead of returning an empty success: a silent
+/// placeholder success would hide unfinished work from the caller.
 public struct UnconfiguredAPITransport: APITransport {
     public init() {}
 
@@ -47,8 +47,8 @@ public struct UnconfiguredAPITransport: APITransport {
     }
 }
 
-/// Детерминированный транспорт для схемы Mock и тестов: отвечает только
-/// заранее заданными payload и никогда не обращается к сети.
+/// A deterministic transport for the Mock scheme and for tests: it answers
+/// only with registered payloads and never reaches the network.
 public struct MockAPITransport: APITransport {
     private let responses: [APIRequest: APIResponse]
 

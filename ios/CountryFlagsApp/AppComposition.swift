@@ -5,11 +5,11 @@ import CountryFlagsDomain
 import CountryFlagsFeatures
 import CountryFlagsInfrastructure
 
-/// Набор зависимостей приложения.
+/// The dependency set of the app.
 ///
-/// Протокол задаёт то, что последующие задачи будут расширять (API, storage,
-/// feature flags), а конкретный экземпляр остаётся заменяемым: тест собирает
-/// свой контейнер, не трогая глобальное состояние.
+/// The protocol names what later work packages extend (API, storage, feature
+/// flags) while the concrete instance stays substitutable: a test assembles its
+/// own container without touching global state.
 @MainActor
 protocol AppDependencies {
     var configuration: RuntimeConfiguration { get }
@@ -34,8 +34,9 @@ struct AppComposition: AppDependencies {
         do {
             configuration = try RuntimeConfigurationLoader.configuration(from: bundle)
         } catch {
-            // Сборка без корректного xcconfig неработоспособна: падение здесь
-            // дешевле, чем приложение, молча ушедшее в неизвестное окружение.
+            // A build without a valid xcconfig cannot work: failing here is
+            // cheaper than an app that silently runs against an unknown
+            // environment.
             fatalError("Invalid build configuration: \(error)")
         }
 
@@ -43,8 +44,9 @@ struct AppComposition: AppDependencies {
             configuration: configuration,
             router: AppRouter(),
             deepLinkParser: DeepLinkParser(scheme: configuration.deepLinkScheme),
-            // Сеть появится в IOS-002; Mock отвечает только заданными payload,
-            // остальные конфигурации честно сообщают, что транспорт не собран.
+            // Networking arrives with IOS-002. Mock answers registered
+            // payloads only; other configurations report honestly that the
+            // transport is not assembled.
             apiTransport: configuration.environment == .mock
                 ? MockAPITransport()
                 : UnconfiguredAPITransport(),

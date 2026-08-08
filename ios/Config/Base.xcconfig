@@ -1,8 +1,8 @@
-// Общие настройки всех конфигураций. Значения, различающиеся между
-// окружениями, задаются в Mock/Dev/Prod.xcconfig.
+// Settings shared by every configuration. Values that differ per environment
+// live in Mock/Dev/Prod.xcconfig.
 
-// Локальные переопределения разработчика (DEVELOPMENT_TEAM, суффикс bundle ID)
-// живут в незакоммиченном Local.xcconfig — см. Local.xcconfig.example.
+// Developer specific overrides (DEVELOPMENT_TEAM, bundle id suffix) live in an
+// uncommitted Local.xcconfig; see Local.xcconfig.example.
 #include? "Local.xcconfig"
 
 PRODUCT_NAME = CountryFlags
@@ -21,7 +21,7 @@ CLANG_ENABLE_MODULES = YES
 ENABLE_MODULE_VERIFIER = NO
 GENERATE_INFOPLIST_FILE = YES
 
-// Проверка сборки в CI выполняется без учётных записей разработчика.
+// CI verifies the build without any developer account.
 CODE_SIGN_STYLE = Automatic
 CODE_SIGNING_REQUIRED = NO
 CODE_SIGNING_ALLOWED = NO
@@ -31,7 +31,7 @@ INFOPLIST_KEY_UILaunchScreen_Generation = YES
 INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES
 INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
 
-// Значения читает RuntimeConfigurationLoader; они не содержат секретов.
+// RuntimeConfigurationLoader reads these values; none of them is a secret.
 CF_DEEP_LINK_SCHEME = countryflags
 INFOPLIST_KEY_CFAppEnvironment = $(CF_APP_ENVIRONMENT)
 INFOPLIST_KEY_CFAPIBaseURL = $(CF_API_BASE_URL)

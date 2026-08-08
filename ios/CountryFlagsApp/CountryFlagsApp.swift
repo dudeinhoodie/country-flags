@@ -5,9 +5,9 @@ import CountryFlagsFeatures
 
 @main
 struct CountryFlagsApp: App {
-    /// Composition root: единственное место, где инфраструктура связывается с
-    /// feature-кодом. Контейнер создаётся один раз и передаётся вниз явно, а не
-    /// живёт в глобальном singleton.
+    /// Composition root: the only place where infrastructure is wired to
+    /// feature code. The container is built once and passed down explicitly
+    /// instead of living in a global singleton.
     @State private var composition: AppComposition
 
     init() {

@@ -27,7 +27,7 @@ final class RuntimeConfigurationLoaderTests: XCTestCase {
         XCTAssertNil(configuration.apiBaseURL)
     }
 
-    /// Неизвестное значение не должно молча превратиться в production.
+    /// An unknown value must never silently become production.
     func testRejectsUnknownEnvironment() {
         XCTAssertThrowsError(
             try RuntimeConfigurationLoader.configuration(from: [
@@ -53,7 +53,8 @@ final class RuntimeConfigurationLoaderTests: XCTestCase {
             )
         }
 
-        // Dev и Prod без base URL — ошибка конфигурации, а не пустой клиент.
+        // Dev and Prod without a base URL are a configuration error, not a
+        // client that quietly does nothing.
         XCTAssertThrowsError(
             try RuntimeConfigurationLoader.configuration(from: [
                 RuntimeConfigurationLoader.environmentKey: "prod",
@@ -83,7 +84,7 @@ final class RuntimeConfigurationLoaderTests: XCTestCase {
 }
 
 final class APITransportTests: XCTestCase {
-    /// До IOS-002 транспорт обязан честно сообщать, что не собран.
+    /// Until IOS-002 the transport has to say honestly that it is not built.
     func testUnconfiguredTransportFailsInsteadOfFakingSuccess() async {
         let transport: APITransport = UnconfiguredAPITransport()
 

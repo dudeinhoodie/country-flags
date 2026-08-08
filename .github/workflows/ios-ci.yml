@@ -32,14 +32,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Swift 6 language mode требует Xcode 16 или новее. Точная версия
-      # печатается в лог, чтобы расхождение с локальной машиной было видно.
+      # The Swift 6 language mode needs Xcode 16 or newer. The exact version is
+      # printed so a mismatch with a local machine is visible.
       - name: Select Xcode
         run: |
           set -euo pipefail
           minimum=16
-          # Вывод xcodebuild читается целиком: обрыв пайпа (`| head`) роняет его
-          # по SIGPIPE с кодом 134.
+          # The xcodebuild output is read in full: closing the pipe early
+          # (`| head`) kills it with SIGPIPE and exit code 134.
           version_output="$(xcodebuild -version)"
           selected="$(printf '%s\n' "${version_output}" | sed -n '1p')"
           major="$(printf '%s\n' "${selected}" | sed -E 's/Xcode ([0-9]+).*/\1/')"
@@ -50,8 +50,8 @@ jobs:
           echo "${selected}"
           swift --version
 
-      # Устройство зависит от образа раннера, поэтому выбирается из списка
-      # предпочтений и печатается в лог.
+      # The device depends on the runner image, so it is picked from a
+      # preference list and printed to the log.
       - name: Select simulator
         id: simulator
         run: echo "destination=$(./Scripts/select-simulator.sh)" >> "$GITHUB_OUTPUT"
@@ -70,8 +70,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test
 
-      # Dev собирается, но не тестируется: у него та же кодовая база и другой
-      # только backend endpoint, который в этой задаче ещё не используется.
+      # Dev is built but not tested: it shares the code base and differs only
+      # in the backend endpoint, which this work package does not use yet.
       - name: Build Dev
         run: |
           set -o pipefail

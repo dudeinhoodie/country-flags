@@ -2,10 +2,11 @@ import Foundation
 
 import CountryFlagsDomain
 
-/// Читает конфигурацию из Info.plist, куда её кладёт выбранный xcconfig.
+/// Reads the configuration from Info.plist, where the selected xcconfig puts
+/// it.
 ///
-/// Ключи и их отсутствие обрабатываются явно: неизвестное значение окружения не
-/// должно молча превращаться в production.
+/// Missing and unknown values are handled explicitly: an unrecognized
+/// environment must never silently become production.
 public enum RuntimeConfigurationLoader {
     public enum LoadError: Error, Equatable, Sendable {
         case missingKey(String)
@@ -30,7 +31,7 @@ public enum RuntimeConfigurationLoader {
             throw LoadError.missingKey(deepLinkSchemeKey)
         }
 
-        // Mock работает без backend, поэтому пустой base URL для него допустим.
+        // Mock runs without a backend, so an empty base URL is valid there.
         let rawURL = (values[apiBaseURLKey] as? String) ?? ""
         let apiBaseURL: URL?
         if rawURL.isEmpty {
