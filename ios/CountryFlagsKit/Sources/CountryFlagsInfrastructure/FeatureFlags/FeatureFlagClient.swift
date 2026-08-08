@@ -14,10 +14,10 @@ import CountryFlagsDomain
 /// The chain behind every read is remote snapshot, then the cached snapshot of
 /// the same account, then the bundled registry default. The default is
 /// available synchronously, so the first screen is never waiting for a network
-/// call. Registering the provider with the SDK is asynchronous, so between
-/// construction and the first `refresh(context:)` reads answer from the bundled
-/// registry; the composition root awaits that refresh in the app's first task,
-/// and it performs no request when the build has no backend.
+/// call. Registering the provider with the SDK is asynchronous and happens once,
+/// in the first `refresh(context:)`, so until it returns reads answer from the
+/// bundled registry; the composition root awaits that refresh in the app's first
+/// task, and it performs no request when the build has no backend.
 ///
 /// `@unchecked Sendable` covers the SDK types this holds: `OpenFeatureAPI` and
 /// its client are internally synchronized but predate strict concurrency. The
@@ -41,6 +41,13 @@ public final class FeatureFlagClient: FeatureFlagProviding, @unchecked Sendable 
     /// registry in the meantime, which is what makes the first screen
     /// independent of both the keychain and the network.
     private var context: FeatureFlagContext?
+    /// The provider is handed to the SDK once and only once.
+    ///
+    /// Registering it a second time takes the API back through `notReady`
+    /// while it re-runs `initialize`, and an evaluation landing in that window
+    /// is answered with the caller's bundled default rather than the snapshot.
+    /// Every later refresh therefore updates the evaluation context instead.
+    private var hasRegisteredProvider = false
 
     public init(
         context: FeatureFlagContext? = nil,
@@ -64,10 +71,10 @@ public final class FeatureFlagClient: FeatureFlagProviding, @unchecked Sendable 
         provider = SnapshotOpenFeatureProvider(launchSnapshot: cached, dates: dates)
         api = OpenFeatureAPI()
         evaluation = api.getClient()
-        api.setProvider(
-            provider: provider,
-            initialContext: context.map(Self.evaluationContext(for:))
-        )
+        // The provider is registered by the first `refresh(context:)`, which
+        // awaits it. Starting a second, unawaited registration here would race
+        // with that one and leave evaluations answering from the bundled
+        // defaults for as long as it took to land.
     }
 
     // MARK: Reading
@@ -127,13 +134,16 @@ public final class FeatureFlagClient: FeatureFlagProviding, @unchecked Sendable 
     /// failed refresh cannot leave the new account reading the old one's
     /// configuration.
     public func refresh(context newContext: FeatureFlagContext) async {
-        let previousContextKey = withLock { () -> String? in
+        let (previousContextKey, isFirstRegistration) = withLock { () -> (String?, Bool) in
             let previous = context?.cacheKey
             context = newContext
-            return previous
+            let isFirst = !hasRegisteredProvider
+            hasRegisteredProvider = true
+            return (previous, isFirst)
         }
+        let contextChanged = previousContextKey != newContext.cacheKey
 
-        if previousContextKey != newContext.cacheKey {
+        if contextChanged {
             provider.resetContext(to: cache.snapshot(forContextKey: newContext.cacheKey))
             // Only a real switch invalidates a policy; the first resolution has
             // nothing to invalidate.
@@ -142,10 +152,14 @@ public final class FeatureFlagClient: FeatureFlagProviding, @unchecked Sendable 
             }
         }
 
-        await api.setProviderAndWait(
-            provider: provider,
-            initialContext: Self.evaluationContext(for: newContext)
-        )
+        let evaluationContext = Self.evaluationContext(for: newContext)
+        if isFirstRegistration {
+            await api.setProviderAndWait(provider: provider, initialContext: evaluationContext)
+        } else if contextChanged {
+            // The provider stays registered; only who it is evaluating for
+            // changed.
+            await api.setEvaluationContextAndWait(evaluationContext: evaluationContext)
+        }
 
         guard let remote else { return }
         do {
