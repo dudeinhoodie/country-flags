@@ -29,6 +29,19 @@ decode, not just one field. The contract therefore splits string enums in two:
   `StudySessionCard.selectionReason` and `UserSettings.extraFactTypes`. New
   values may ship with a content release without an API version bump.
 
+## Unknown response fields
+
+Response schemas do not set `additionalProperties: false`. A generated client
+rejects the whole payload when it meets a field it has never heard of, so one
+added field would cost a released app an entire screen rather than one value.
+Ignoring unknown fields is also what `docs/02-ios-spec.md` requires of the
+client.
+
+Request schemas keep `additionalProperties: false`, and so do the versioned JSON
+Schema documents under `schemas/` and the registries: a client must not send a
+value it does not understand, and those documents are extended by publishing a
+new versioned `$id` rather than by growing in place.
+
 `x-extensible-enum` is documentation and lint input only; it never narrows the
 wire format. Clients MUST map an unlisted value onto their own `unknown(String)`
 case, keep the surrounding payload, and degrade the affected UI element rather
