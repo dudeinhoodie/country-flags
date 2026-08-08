@@ -51,6 +51,9 @@ final class GeneratedClientTests: XCTestCase {
         let completed = try decode(
             Components.Schemas.StudySession.self, "study-session-completed")
         XCTAssertEqual(completed.summary?.durationSeconds, 90)
+        let imported = try decode(
+            Components.Schemas.StudySession.self, "study-session-client-offline")
+        XCTAssertEqual(imported.selectionOrigin, .CLIENT_OFFLINE)
 
         let batch = try decode(
             Components.Schemas.ReviewBatchResult.self, "review-batch-partial")

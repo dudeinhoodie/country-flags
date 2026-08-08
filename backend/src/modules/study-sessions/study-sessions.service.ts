@@ -11,10 +11,12 @@ import {
 import {
   AnswerMode,
   CardStatus,
+  ContentReleaseStatus,
   DeckStatus,
   GeoEntityStatus,
   type Prisma,
   SchedulerDefinitionStatus,
+  SelectionOrigin,
   StudySessionStatus,
   UserStatus,
 } from "@prisma/client";
@@ -26,16 +28,25 @@ import {
   type SessionCandidate,
   type SelectedCandidate,
   selectSessionCandidates,
+  selectionReasonFor,
 } from "./session-selection";
-import { buildSessionSummary, effectiveCompletedAt } from "./session-summary";
+import {
+  buildSessionSummary,
+  effectiveCompletedAt,
+  effectiveStartedAt,
+} from "./session-summary";
 import {
   type CompleteStudySessionRequest,
+  type CreateOfflineStudySessionRequest,
   type CreateServerStudySessionRequest,
+  type CreateStudySessionRequest,
   requestHash,
 } from "./study-session.request";
 import {
+  CARD_SNAPSHOT_ALL_REVISIONS_INCLUDE,
   CARD_SNAPSHOT_INCLUDE,
   buildLearningCardSnapshot,
+  pinRevision,
 } from "./study-session-snapshot";
 
 const SESSION_INCLUDE = {
@@ -88,6 +99,17 @@ function manifestDefaultLocale(metadata: Prisma.JsonValue): string {
   throw new Error("Active content release has no default locale");
 }
 
+type OfflineCardRejectionReason =
+  | "NOT_IN_DECK"
+  | "RETIRED"
+  | "REVISION_UNKNOWN"
+  | "ASSET_MISMATCH";
+
+interface OfflineCardRejection {
+  learningCardId: string;
+  reason: OfflineCardRejectionReason;
+}
+
 function optionDisplayName(snapshot: Prisma.JsonValue): string {
   if (
     typeof snapshot === "object" &&
@@ -105,7 +127,16 @@ function optionDisplayName(snapshot: Prisma.JsonValue): string {
 export class StudySessionsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
+  create(
+    userId: string,
+    request: CreateStudySessionRequest,
+  ): Promise<{ created: boolean; session: Record<string, unknown> }> {
+    return request.selectionOrigin === SelectionOrigin.SERVER
+      ? this.createServerSession(userId, request)
+      : this.importOfflineSession(userId, request);
+  }
+
+  private async createServerSession(
     userId: string,
     request: CreateServerStudySessionRequest,
   ): Promise<{ created: boolean; session: Record<string, unknown> }> {
@@ -252,6 +283,212 @@ export class StudySessionsService {
             schedulerVersion: scheduler.version,
             requestHash: hash,
             startedAt: now,
+            cards: {
+              create: cards,
+            },
+          },
+        });
+        const created = await transaction.studySession.findUniqueOrThrow({
+          where: { id: request.id },
+          include: SESSION_INCLUDE,
+        });
+
+        return { created: true, session: created };
+      },
+      {
+        isolationLevel: "Serializable",
+        maxWait: 10_000,
+        timeout: 30_000,
+      },
+    );
+
+    return {
+      created: result.created,
+      session: this.mapSession(result.session),
+    };
+  }
+
+  /**
+   * Imports a session a client assembled without network access. The client
+   * composition is authoritative for identity, order and timing; everything a
+   * client must not be trusted with — the card snapshot, the selection reason
+   * and the scheduler version — is rebuilt from canonical content inside the
+   * same serializable transaction, so a rejected composition can never leave a
+   * partial session behind.
+   */
+  private async importOfflineSession(
+    userId: string,
+    request: CreateOfflineStudySessionRequest,
+  ): Promise<{ created: boolean; session: Record<string, unknown> }> {
+    const hash = requestHash(request);
+    const result = await this.prisma.$transaction(
+      async (transaction) => {
+        const existing = await transaction.studySession.findUnique({
+          where: { id: request.id },
+          include: SESSION_INCLUDE,
+        });
+        if (existing !== null) {
+          if (existing.userId !== userId || existing.requestHash !== hash) {
+            throw new ConflictException(
+              "Session ID was already used with another request",
+            );
+          }
+          return { created: false, session: existing };
+        }
+
+        const [user, deck, scheduler, release] = await Promise.all([
+          transaction.user.findFirst({
+            where: { id: userId, status: UserStatus.ACTIVE },
+            select: { id: true },
+          }),
+          transaction.deck.findFirst({
+            where: { id: request.deckId, status: DeckStatus.PUBLISHED },
+            select: { id: true },
+          }),
+          transaction.schedulerDefinition.findFirst({
+            where: { status: SchedulerDefinitionStatus.ACTIVE },
+            orderBy: [{ activeFrom: "desc" }, { version: "asc" }],
+          }),
+          transaction.contentRelease.findFirst({
+            where: {
+              version: request.contentVersion,
+              status: { not: ContentReleaseStatus.DRAFT },
+            },
+          }),
+        ]);
+        if (user === null) {
+          throw new UnauthorizedException("Test user is not active");
+        }
+        if (deck === null) {
+          throw new NotFoundException("Deck was not found");
+        }
+        if (scheduler === null) {
+          throw new ServiceUnavailableException(
+            "No active scheduler definition is available",
+          );
+        }
+        // A superseded release stays importable: the session records what the
+        // learner actually studied. Only a version the catalog never published
+        // is refused, because nothing could reproduce its snapshots.
+        if (release === null) {
+          throw new ApiException(
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            "CONTENT_VERSION_UNKNOWN",
+            "The declared content version is not a published release",
+            { contentVersion: request.contentVersion },
+          );
+        }
+
+        const memberships = await transaction.deckCard.findMany({
+          where: {
+            deckId: deck.id,
+            learningCardId: {
+              in: request.cards.map((card) => card.learningCardId),
+            },
+          },
+          include: {
+            learningCard: {
+              include: {
+                ...CARD_SNAPSHOT_ALL_REVISIONS_INCLUDE,
+                userStates: {
+                  where: { userId },
+                  take: 1,
+                },
+              },
+            },
+          },
+        });
+        const byLearningCardId = new Map(
+          memberships.map((membership) => [
+            membership.learningCardId,
+            membership.learningCard,
+          ]),
+        );
+        const defaultLocale = manifestDefaultLocale(release.metadata);
+        const startedAt = effectiveStartedAt({
+          clientStartedAt: request.startedAt,
+          receivedAt: new Date(),
+        });
+        const rejections: OfflineCardRejection[] = [];
+        const cards: Prisma.StudySessionCardCreateWithoutSessionInput[] = [];
+
+        for (const [index, declared] of request.cards.entries()) {
+          const card = byLearningCardId.get(declared.learningCardId);
+          if (card === undefined) {
+            rejections.push({
+              learningCardId: declared.learningCardId,
+              reason: "NOT_IN_DECK",
+            });
+            continue;
+          }
+          if (card.status !== CardStatus.ACTIVE) {
+            rejections.push({
+              learningCardId: declared.learningCardId,
+              reason: "RETIRED",
+            });
+            continue;
+          }
+          const revision = card.revisions.find(
+            (candidate) => candidate.revision === declared.learningCardRevision,
+          );
+          if (revision === undefined) {
+            rejections.push({
+              learningCardId: declared.learningCardId,
+              reason: "REVISION_UNKNOWN",
+            });
+            continue;
+          }
+          if (revision.promptAsset?.sha256 !== declared.assetSha256) {
+            rejections.push({
+              learningCardId: declared.learningCardId,
+              reason: "ASSET_MISMATCH",
+            });
+            continue;
+          }
+
+          const state = card.userStates[0] ?? null;
+          cards.push({
+            id: deterministicUuid(`${request.id}:${declared.learningCardId}`),
+            learningCard: { connect: { id: declared.learningCardId } },
+            learningCardRevision: { connect: { id: revision.id } },
+            initialOrder: index,
+            selectionReason: selectionReasonFor(
+              { learningCardId: declared.learningCardId, state },
+              startedAt,
+            ),
+            stateVersionAtSelection: state?.stateVersion ?? null,
+            distractorPolicyVersion: null,
+            randomSeed: declared.randomSeed,
+            snapshot: buildLearningCardSnapshot(
+              pinRevision(card, revision),
+              request.locale,
+              defaultLocale,
+              AnswerMode.SELF_RATED,
+            ) as Prisma.InputJsonObject,
+          });
+        }
+        if (rejections.length > 0) {
+          throw new ApiException(
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            "OFFLINE_SESSION_COMPOSITION_INVALID",
+            "The declared offline session composition is not importable",
+            { cards: rejections },
+          );
+        }
+
+        await transaction.studySession.create({
+          data: {
+            id: request.id,
+            userId,
+            deckId: deck.id,
+            mode: request.mode,
+            selectionOrigin: request.selectionOrigin,
+            requestedUniqueCount: request.requestedUniqueCount,
+            selectedUniqueCount: cards.length,
+            contentVersion: release.version,
+            schedulerVersion: scheduler.version,
+            requestHash: hash,
+            startedAt,
             cards: {
               create: cards,
             },

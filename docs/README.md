@@ -30,6 +30,7 @@
 - [ADR-007](./adr/ADR-007-account-data-export-storage.md) — хранение и migration path приватных account data exports.
 - [ADR-008](./adr/ADR-008-deployment-topology-and-promotion.md) — Koyeb/Neon/R2 и immutable promotion dev → production.
 - [ADR-009](./adr/ADR-009-generated-client-contract-shape.md) — extensible enum и nullable-структуры для генерируемых клиентов.
+- [ADR-010](./adr/ADR-010-offline-study-session-import.md) — импорт офлайн-сессии: доверенные и перестраиваемые поля, отказ для объективного режима, поведение при устаревшем контенте.
 
 ## Подтверждённые продуктовые решения
 

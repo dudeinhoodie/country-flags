@@ -24,7 +24,15 @@ function deterministicRank(sessionId: string, learningCardId: string): string {
     .digest("hex");
 }
 
-function reasonFor(candidate: SessionCandidate, now: Date): SelectionReason {
+/**
+ * The reason a card belongs in a session, derived from the canonical card
+ * state. An imported offline session reuses it so a client-assembled
+ * composition is classified by the same rule as a server-selected one.
+ */
+export function selectionReasonFor(
+  candidate: SessionCandidate,
+  now: Date,
+): SelectionReason {
   if (
     candidate.state === null ||
     candidate.state.state === CardLearningState.NEW
@@ -68,7 +76,7 @@ export function selectSessionCandidates<T extends SessionCandidate>(
   return candidates
     .map((candidate) => ({
       candidate,
-      reason: reasonFor(candidate, now),
+      reason: selectionReasonFor(candidate, now),
       randomRank: deterministicRank(sessionId, candidate.learningCardId),
     }))
     .sort((left, right) => {

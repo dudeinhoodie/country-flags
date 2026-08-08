@@ -738,10 +738,36 @@ paths:
     post:
       tags: [Study]
       summary: Create or idempotently import a study session
-      description: >-
+      description: |
         SERVER selection supports SELF_RATED and MULTIPLE_CHOICE. Objective
         sessions persist four versioned option snapshots and never expose the
         correct option before grading.
+
+        CLIENT_OFFLINE imports a session a client already assembled without
+        network access, so its reviews can be sent afterwards. The server
+        preserves the client `id`, `startedAt`, `contentVersion` and card order,
+        and rebuilds every card snapshot from the declared immutable learning
+        card revision instead of trusting the submitted one.
+
+        Both origins are idempotent on the session `id`: an identical request
+        returns `200` with the stored snapshot, a different composition for the
+        same `id` returns `409`. Idempotency is keyed on the normalized session
+        composition, not on the byte-identical body.
+
+        CLIENT_OFFLINE accepts SELF_RATED only. An offline `MULTIPLE_CHOICE`
+        session (or any card carrying `options`/`distractorPolicyVersion`) is
+        rejected with `422 OFFLINE_MODE_UNSUPPORTED`, because `StudyOption`
+        carries no answer entity identity and correctness may never be derived
+        from a localized display string.
+
+        A `contentVersion` that is no longer active is accepted as long as the
+        release exists; the session records the content the learner actually
+        studied. An unknown or unpublished release is rejected with
+        `422 CONTENT_VERSION_UNKNOWN`. A declared card that is not a member of
+        the deck, has been retired, declares an unknown revision or a prompt
+        asset checksum that no longer matches is rejected with
+        `422 OFFLINE_SESSION_COMPOSITION_INVALID`; the import is atomic, so a
+        rejected composition never leaves a partial session behind.
       operationId: createStudySession
       x-implementation-status: implemented
       requestBody:
@@ -766,7 +792,13 @@ paths:
         "409":
           $ref: ./openapi/components.yaml#/responses/ConflictResponse
         "422":
-          description: No card has three unique localized distractors
+          description: >-
+            Request validation failed (`VALIDATION_FAILED`), no card has three
+            unique localized distractors (`DISTRACTOR_POOL_INSUFFICIENT`), the
+            offline answer mode is not importable (`OFFLINE_MODE_UNSUPPORTED`),
+            the declared content release does not exist
+            (`CONTENT_VERSION_UNKNOWN`) or the declared offline composition is
+            invalid (`OFFLINE_SESSION_COMPOSITION_INVALID`).
           content:
             application/json:
               schema:

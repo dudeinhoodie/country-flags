@@ -782,6 +782,8 @@ Manifest содержит content version, checksum, поддерживаемы�
 
 Для offline `MULTIPLE_CHOICE` backend не доверяет переданному `isCorrect`: он проверяет subject/correct answer по заявленной immutable content version, валидирует отсутствие duplicate option entities и сохраняет canonical grading. Невалидный option snapshot отклоняется per-card, не подменяя progress остальных валидных review.
 
+> Реализация (issue #64) импортирует только `SELF_RATED`. Объективная офлайн-сессия отклоняется `422 OFFLINE_MODE_UNSUPPORTED`: committed `StudyOption` не содержит identity сущности-ответа, поэтому canonical grading по заявленным вариантам невозможен без вычисления правильности по локализованной подписи. Причина, альтернативы и revisit triggers — в [ADR-010](./adr/ADR-010-offline-study-session-import.md); абзац выше описывает целевую семантику, когда контракт начнёт нести option identity.
+
 Пример batch review:
 
 ```json

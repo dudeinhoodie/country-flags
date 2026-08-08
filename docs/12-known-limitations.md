@@ -21,6 +21,7 @@
 
 - **Production-каталог отсутствует.** Backend работает на минимальном детерминированном `TEST_ONLY` fixture (см. `backend/prisma/README.md`, раздел "Test-only fixtures") до передачи полного каталога владельцем продукта — см. [01-backend-spec.md](./01-backend-spec.md) §12.
 - **Нет web/Android клиентов.** iOS — первый клиент; API спроектирован platform-agnostic, но web/Android реализации не входят в этот backend MVP — см. [docs/README.md](./README.md) п.1 решений по умолчанию.
+- **Офлайн-сессия импортируется только в режиме `SELF_RATED`.** Объективная офлайн-сессия отклоняется `422 OFFLINE_MODE_UNSUPPORTED`, потому что `StudyOption` в контракте не несёт identity сущности-ответа, а серверная перегенерация вариантов сделала бы недействительными уже записанные клиентом `selectedOptionId`. Карточка, ставшая `RETIRED` после офлайн-выбора, отклоняет весь импорт и делает связанные review неимпортируемыми — см. [ADR-010](./adr/ADR-010-offline-study-session-import.md).
 
 ## Что не входит в scope MVP вообще
 

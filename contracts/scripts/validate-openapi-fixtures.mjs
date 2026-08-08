@@ -26,6 +26,7 @@ const fixtures = [
   ["openapi/content-changes.json", "ContentChangePage"],
   ["openapi/study-session-self-rated.json", "StudySession"],
   ["openapi/study-session-multiple-choice.json", "StudySession"],
+  ["openapi/study-session-client-offline.json", "StudySession"],
   ["openapi/study-session-completed.json", "StudySession"],
   ["openapi/review-batch-partial.json", "ReviewBatchResult"],
   ["openapi/user-changes.json", "UserChangePage"],

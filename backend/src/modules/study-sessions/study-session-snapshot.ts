@@ -32,6 +32,31 @@ export type SnapshotLearningCard = Prisma.LearningCardGetPayload<{
   include: typeof CARD_SNAPSHOT_INCLUDE;
 }>;
 
+/**
+ * Server selection always snapshots the current revision, so it loads only
+ * that one. An offline import instead pins the revision the client actually
+ * studied, which requires every live revision to be available for lookup.
+ */
+export const CARD_SNAPSHOT_ALL_REVISIONS_INCLUDE = {
+  ...CARD_SNAPSHOT_INCLUDE,
+  revisions: {
+    where: { retiredAt: null },
+    orderBy: { revision: "desc" },
+    include: { promptAsset: true },
+  },
+} satisfies Prisma.LearningCardInclude;
+
+export type LiveRevisionsLearningCard = Prisma.LearningCardGetPayload<{
+  include: typeof CARD_SNAPSHOT_ALL_REVISIONS_INCLUDE;
+}>;
+
+export function pinRevision(
+  card: LiveRevisionsLearningCard,
+  revision: LiveRevisionsLearningCard["revisions"][number],
+): SnapshotLearningCard {
+  return { ...card, revisions: [revision] };
+}
+
 function factDisplayValue(value: Prisma.JsonValue): string {
   if (
     typeof value === "object" &&
