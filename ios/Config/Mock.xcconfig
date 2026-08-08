@@ -1,0 +1,14 @@
+// The deterministic configuration: the app and the tests run without network
+// and without a backend. Used by the CountryFlags-Mock scheme and by CI.
+#include "Base.xcconfig"
+
+CF_APP_ENVIRONMENT = mock
+CF_API_BASE_URL =
+CF_BUNDLE_ID_SUFFIX = .mock
+PRODUCT_NAME = CountryFlags Mock
+
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) DEBUG MOCK
+SWIFT_OPTIMIZATION_LEVEL = -Onone
+GCC_OPTIMIZATION_LEVEL = 0
+ONLY_ACTIVE_ARCH = YES
+ENABLE_TESTABILITY = YES

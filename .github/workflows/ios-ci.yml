@@ -1,0 +1,106 @@
+name: iOS CI
+
+on:
+  pull_request:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-ci.yml"
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-ci.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ios
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    env:
+      PROJECT: CountryFlags.xcodeproj
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The Swift 6 language mode needs Xcode 16 or newer. The exact version is
+      # printed so a mismatch with a local machine is visible.
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          minimum=16
+          # The xcodebuild output is read in full: closing the pipe early
+          # (`| head`) kills it with SIGPIPE and exit code 134.
+          version_output="$(xcodebuild -version)"
+          selected="$(printf '%s\n' "${version_output}" | sed -n '1p')"
+          major="$(printf '%s\n' "${selected}" | sed -E 's/Xcode ([0-9]+).*/\1/')"
+          if [[ "${major}" -lt "${minimum}" ]]; then
+            echo "::error::${selected} is older than the required Xcode ${minimum}"
+            exit 1
+          fi
+          echo "${selected}"
+          swift --version
+
+      # The device depends on the runner image, so it is picked from a
+      # preference list and printed to the log.
+      - name: Select simulator
+        id: simulator
+        run: echo "destination=$(./Scripts/select-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve packages
+        run: xcodebuild -project "${PROJECT}" -resolvePackageDependencies
+
+      # A package test target cannot join the test action of a host project
+      # scheme, so the unit tests run through the scheme of the package itself.
+      - name: Test CountryFlagsKit
+        working-directory: ios/CountryFlagsKit
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -scheme CountryFlagsKit-Package \
+            -destination '${{ steps.simulator.outputs.destination }}' \
+            -resultBundlePath ../build/CountryFlagsKit.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      - name: Build and test Mock
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme CountryFlags-Mock \
+            -destination '${{ steps.simulator.outputs.destination }}' \
+            -resultBundlePath build/CountryFlags-Mock.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      # Dev is built but not tested: it shares the code base and differs only
+      # in the backend endpoint, which this work package does not use yet.
+      - name: Build Dev
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme CountryFlags-Dev \
+            -destination '${{ steps.simulator.outputs.destination }}' \
+            -resultBundlePath build/CountryFlags-Dev.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload xcresult
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcresult-${{ github.run_id }}
+          path: ios/build/*.xcresult
+          retention-days: 7
+          if-no-files-found: warn

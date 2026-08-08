@@ -22,3 +22,13 @@ backend/.env.*
 contracts/swift-client-check/.build/
 contracts/swift-client-check/Sources/CountryFlagsAPI/openapi.yaml
 contracts/swift-client-check/Package.resolved
+
+# iOS
+ios/Config/Local.xcconfig
+ios/build/
+ios/**/*.xcresult
+ios/CountryFlagsKit/.build/
+ios/CountryFlags.xcodeproj/project.xcworkspace/xcuserdata/
+ios/CountryFlags.xcodeproj/xcuserdata/
+xcuserdata/
+DerivedData/

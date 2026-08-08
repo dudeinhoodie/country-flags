@@ -1,0 +1,19 @@
+// Copy to ios/Config/Local.xcconfig and fill in for your machine.
+// The file is not committed: it holds developer identifiers and local paths.
+//
+//   cp ios/Config/Local.xcconfig.example ios/Config/Local.xcconfig
+//
+// No key here is an application secret. Tokens, provider keys and signing
+// identities never enter the repository in any form.
+
+// The Apple Developer Team ID for running on a device locally.
+// Simulator and CI builds are unsigned and do not need it.
+CF_DEVELOPMENT_TEAM =
+
+// A unique bundle id suffix so several developers do not fight over one
+// identifier when installing on a device.
+// CF_BUNDLE_ID_SUFFIX = .dev.yourname
+
+// A local backend instead of the dev deployment.
+// The `/$()/` escape is required: a bare `//` starts an xcconfig comment.
+// CF_API_BASE_URL = http:/$()/localhost:3000
