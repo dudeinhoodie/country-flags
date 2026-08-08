@@ -38,8 +38,11 @@ jobs:
         run: |
           set -euo pipefail
           minimum=16
-          selected="$(xcodebuild -version | head -1)"
-          major="$(echo "${selected}" | sed -E 's/Xcode ([0-9]+).*/\1/')"
+          # Вывод xcodebuild читается целиком: обрыв пайпа (`| head`) роняет его
+          # по SIGPIPE с кодом 134.
+          version_output="$(xcodebuild -version)"
+          selected="$(printf '%s\n' "${version_output}" | sed -n '1p')"
+          major="$(printf '%s\n' "${selected}" | sed -E 's/Xcode ([0-9]+).*/\1/')"
           if [[ "${major}" -lt "${minimum}" ]]; then
             echo "::error::${selected} is older than the required Xcode ${minimum}"
             exit 1
