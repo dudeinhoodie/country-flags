@@ -1,5 +1,5 @@
 {
-  "originHash" : "8b34f23243f59e68055fdd9ccedbe50a1465a8f1d653b2d85724ff95c940b79a",
+  "originHash" : "7aa4e6a2fd3e0f4563626baa19b0541c6dca3b463091a698b223154852a36d59",
   "pins" : [
     {
       "identity" : "openapikit",
@@ -80,6 +80,15 @@
       "state" : {
         "revision" : "08796d36c99ad2318929bfa1d1e40f82194b65cc",
         "version" : "1.3.1"
+      }
+    },
+    {
+      "identity" : "swift-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/open-feature/swift-sdk",
+      "state" : {
+        "revision" : "d71686219a65ab78f77923ceb0e2ea549e1e50ef",
+        "version" : "0.5.0"
       }
     },
     {

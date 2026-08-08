@@ -98,4 +98,5 @@ public enum AccessibilityIdentifier {
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
     public static let routeTitle = "root.route.title"
+    public static let adSlot = "ads.slot"
 }

@@ -23,6 +23,10 @@ struct CountryFlagsApp: App {
             .onOpenURL { url in
                 composition.router.open(url, using: composition.deepLinkParser)
             }
+            // After the first frame: resolving the account scope and fetching
+            // the configuration snapshot improves on the bundled defaults and
+            // is never a precondition for showing a screen.
+            .task { await composition.start() }
         }
     }
 }

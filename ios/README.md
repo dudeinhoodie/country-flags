@@ -22,8 +22,10 @@ ios/
 ├── CountryFlagsUITests/        # launch smoke
 ├── Config/                     # one xcconfig per configuration
 └── Scripts/
-    ├── select-simulator.sh     # picks an xcodebuild destination
-    └── sync-openapi.sh         # refreshes and verifies the contract mirror
+    ├── select-simulator.sh          # picks an xcodebuild destination
+    ├── sync-openapi.sh              # refreshes and verifies the contract mirror
+    ├── sync-registries.sh           # refreshes and verifies the registry mirrors
+    └── check-advertising-policy.sh  # fails when an ad or tracking SDK appears
 ```
 
 The logic lives in the package rather than in the app target: the package builds
@@ -32,6 +34,68 @@ only for a proven compile-time or ownership reason.
 
 `CountryFlagsDomain` imports neither SwiftUI, SwiftData, OpenFeature nor an OAuth
 SDK, which its dependencies in `Package.swift` enforce.
+
+## Feature flags
+
+Evaluation goes through the OpenFeature Swift SDK and `SnapshotOpenFeatureProvider`,
+which resolves values the backend already evaluated. There is no control plane
+SDK and no management credential in the app: `GET /v1/app-config` returns a
+snapshot, and the provider only decides which one answers.
+
+Feature code depends on `FeatureFlagProviding` and names a case of
+`BooleanFeatureFlag`, `StringFeatureFlag` or `NumberFeatureFlag`. The keys mirror
+`contracts/registries/feature-flags.json`; `Scripts/sync-registries.sh` copies
+that file into the test resources and a unit test compares the two, so the client
+and the backend cannot drift on a key, a type or a default.
+
+The chain behind a read is the fresh snapshot, then the cached snapshot of the
+same account, then the bundled default. A value that is absent, expired, of the
+wrong type, outside the registry bounds or an unknown variant leaves the caller
+with the default, so a read always answers and never waits for the network.
+
+Activation policy decides which snapshot a key reads:
+
+| Policy        | Applies                                    |
+| ------------- | ------------------------------------------ |
+| `immediate`   | at once, so a kill switch is one           |
+| `nextSession` | frozen in `sessionSnapshot()` when a study session starts |
+| `nextLaunch`  | on the next launch, so navigation is not rebuilt mid-use |
+
+The snapshot cache lives in `UserDefaults` under an opaque per-account key. It
+holds evaluated values and timestamps only; secrets stay in the keychain and
+progress stays in SwiftData. Switching accounts drops the previous snapshot
+before anything is fetched, so a failed refresh cannot leave one account reading
+another's configuration.
+
+Debug and UI-test builds may override a flag:
+
+```bash
+-feature-flag study.multiple_choice.enabled=true
+```
+
+Parsing lives in the package, but the call site is in the app target inside
+`#if DEBUG` and behind the environment check, because Xcode builds a local
+package in release for every configuration not named "Debug". A release build has
+no path from a launch argument to a flag value.
+
+## Advertising and observability
+
+Advertising is off. The app ships `NoOpAdvertisingProvider`: no ad network is
+linked, no advertising identifier is read and no App Tracking Transparency
+prompt exists. `AdEligibilityService` is the single place that decides whether a
+placement may appear, and every condition has to hold at once — entitlement,
+audience policy, consent, interface state, review approval, surface, both flags,
+the server policy, a ready provider and the frequency caps. Anything unknown
+denies. `AdSlotView` renders nothing when a placement is not eligible, so a
+switched-off unit takes no room in the layout. `Scripts/check-advertising-policy.sh`
+fails the build if a tracking key or an ad SDK is ever declared.
+
+`AnalyticsTracking`, `ErrorReporting`, `DiagnosticsReporting` and `AppLogging`
+all default to no-op implementations: telemetry must never be the reason a study
+session fails or stalls. `LogEvent` redacts its fields on construction, so no
+adapter can be handed a token, an email address or an authorization header, and
+`APIError.presentation` gives a screen a safe kind plus the request identifier
+for support rather than a server message.
 
 ## Requirements
 
@@ -183,18 +247,22 @@ the app's Debug flag. Mock and Dev define it, Prod does not.
 tooling: the package pins its own resolution and the Xcode project pins the one
 used by the app.
 
-| Package                  | Why                                   |
-| ------------------------ | ------------------------------------- |
-| swift-openapi-generator  | build tool plugin generating the client |
-| swift-openapi-runtime    | transport and middleware protocols      |
-| swift-openapi-urlsession | the URLSession transport                |
+| Package                  | Why                                       |
+| ------------------------ | ----------------------------------------- |
+| swift-openapi-generator  | build tool plugin generating the client   |
+| swift-openapi-runtime    | transport and middleware protocols        |
+| swift-openapi-urlsession | the URLSession transport                  |
+| open-feature/swift-sdk   | the flag evaluation API our provider backs |
 
-Google Sign-In arrives with IOS-009.
+Google Sign-In arrives with IOS-009. No advertising, analytics or crash
+reporting SDK is a dependency, and adding one needs its own ADR and privacy
+review.
 
 ## CI
 
 [`.github/workflows/ios-ci.yml`](../.github/workflows/ios-ci.yml) runs on changes
-under `ios/**`: it checks the Xcode version, verifies that the contract mirror
-matches the canonical bundle, selects a simulator, runs the package unit tests,
+under `ios/**`: it checks the Xcode version, verifies that the contract and
+registry mirrors match the canonical files, checks that no advertising or
+tracking framework is declared, selects a simulator, runs the package unit tests,
 builds and tests Mock, then builds Dev. A failing run uploads the `.xcresult`
 bundles as artifacts.
