@@ -12,6 +12,17 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<!--
+	  The strings live in the package bundle, so the app bundle itself carries
+	  no .lproj directory. Without this list iOS treats the app as English only:
+	  Russian never wins language negotiation and the app does not appear in the
+	  per-app language picker.
+	-->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ru</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundleExecutable</key>
