@@ -82,34 +82,3 @@ final class RuntimeConfigurationLoaderTests: XCTestCase {
         }
     }
 }
-
-final class APITransportTests: XCTestCase {
-    /// Until IOS-002 the transport has to say honestly that it is not built.
-    func testUnconfiguredTransportFailsInsteadOfFakingSuccess() async {
-        let transport: APITransport = UnconfiguredAPITransport()
-
-        do {
-            _ = try await transport.send(APIRequest(path: "/v1/app-config"))
-            XCTFail("Unconfigured transport must not return a response")
-        } catch {
-            XCTAssertEqual(error as? APITransportError, .notConfigured)
-        }
-    }
-
-    func testMockTransportAnswersOnlyRegisteredRequests() async throws {
-        let request = APIRequest(path: "/v1/app-config")
-        let expected = APIResponse(statusCode: 200, body: Data("{}".utf8))
-        let transport: APITransport = MockAPITransport(responses: [request: expected])
-
-        let response = try await transport.send(request)
-        XCTAssertEqual(response, expected)
-
-        let unknown = APIRequest(path: "/v1/decks")
-        do {
-            _ = try await transport.send(unknown)
-            XCTFail("Mock transport must not invent a response")
-        } catch {
-            XCTAssertEqual(error as? APITransportError, .unhandled(unknown))
-        }
-    }
-}

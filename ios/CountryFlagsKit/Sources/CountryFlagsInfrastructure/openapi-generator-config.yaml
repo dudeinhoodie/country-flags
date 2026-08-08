@@ -1,0 +1,5 @@
+# Only types and the client are generated; the app never serves this contract.
+generate:
+  - types
+  - client
+accessModifier: internal

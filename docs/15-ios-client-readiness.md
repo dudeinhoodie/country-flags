@@ -146,13 +146,10 @@ Swift 6 и доступ в сеть для двух пакетов Apple.
    этого сценарий §8.1 «сначала идемпотентно создаётся session на backend, затем
    отправляются зависящие от неё review» невыполним. Требуется отдельная
    backend-задача до IOS-008; iOS не должен обходить это handwritten DTO.
-2. **`additionalProperties: false` в response-схемах.** Сгенерированный клиент
-   отвергает весь ответ при появлении нового поля, что противоречит требованию
-   §6.2 «неизвестные поля JSON игнорируются». Поведение зафиксировано тестом
-   `testUnknownResponseFieldIsRejectedToday`. Решение — снять
-   `additionalProperties: false` с response-схем, сохранив его в request-схемах
-   и registries — требует отдельного решения владельца и затрагивает около 90
-   схем.
+2. ~~**`additionalProperties: false` в response-схемах.**~~ Закрыто в IOS-002:
+   ограничение снято с 44 response-схем и сохранено в 19 request-схемах,
+   версионированных JSON Schema документах и registries. Поведение проверяется
+   тестом `testUnknownFieldsAreIgnored` сгенерированного клиента.
 3. **`dueCount` и `currentMasteryTier` в каталоге.** `listDecks`/`getDeck`
    объявляют поля опциональными и сейчас их не заполняют; Catalog (§9.3)
    получает эти значения из `getProgress`/`getDeckProgress`. Заполнение полей в

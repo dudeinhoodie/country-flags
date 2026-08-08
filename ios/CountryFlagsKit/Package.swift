@@ -12,12 +12,26 @@ let package = Package(
         .library(name: "CountryFlagsInfrastructure", targets: ["CountryFlagsInfrastructure"]),
         .library(name: "CountryFlagsFeatures", targets: ["CountryFlagsFeatures"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.9.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.8.0"),
+        .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.1.0"),
+    ],
     targets: [
         // Imports neither SwiftUI, SwiftData, OpenFeature nor an OAuth SDK.
         .target(name: "CountryFlagsDomain"),
+        // The generated client and its DTOs stay internal to this target;
+        // feature code receives domain models and typed domain errors.
         .target(
             name: "CountryFlagsInfrastructure",
-            dependencies: ["CountryFlagsDomain"]
+            dependencies: [
+                "CountryFlagsDomain",
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
+            ],
+            plugins: [
+                .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")
+            ]
         ),
         .target(
             name: "CountryFlagsFeatures",

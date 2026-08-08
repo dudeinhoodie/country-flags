@@ -50,6 +50,23 @@ jobs:
           echo "${selected}"
           swift --version
 
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install repository dependencies
+        working-directory: ${{ github.workspace }}
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      # The generated client is built from the committed mirror, so a mirror
+      # that drifted from contracts/openapi.yaml would silently ship an old
+      # contract to the app.
+      - name: Check the contract mirror
+        run: ./Scripts/sync-openapi.sh --check
+
       # The device depends on the runner image, so it is picked from a
       # preference list and printed to the log.
       - name: Select simulator
@@ -68,6 +85,7 @@ jobs:
           xcodebuild \
             -scheme CountryFlagsKit-Package \
             -destination '${{ steps.simulator.outputs.destination }}' \
+            -skipPackagePluginValidation \
             -resultBundlePath ../build/CountryFlagsKit.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test
@@ -79,6 +97,7 @@ jobs:
             -project "${PROJECT}" \
             -scheme CountryFlags-Mock \
             -destination '${{ steps.simulator.outputs.destination }}' \
+            -skipPackagePluginValidation \
             -resultBundlePath build/CountryFlags-Mock.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test
@@ -92,6 +111,7 @@ jobs:
             -project "${PROJECT}" \
             -scheme CountryFlags-Dev \
             -destination '${{ steps.simulator.outputs.destination }}' \
+            -skipPackagePluginValidation \
             -resultBundlePath build/CountryFlags-Dev.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             build

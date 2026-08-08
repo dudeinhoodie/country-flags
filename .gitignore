@@ -29,6 +29,7 @@ ios/build/
 ios/**/*.xcresult
 ios/CountryFlagsKit/.build/
 ios/CountryFlags.xcodeproj/project.xcworkspace/xcuserdata/
+# Package.resolved pins the dependency versions and is committed.
 ios/CountryFlags.xcodeproj/xcuserdata/
 xcuserdata/
 DerivedData/

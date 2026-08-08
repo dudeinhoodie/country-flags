@@ -7,15 +7,15 @@ import CountryFlagsInfrastructure
 
 /// The dependency set of the app.
 ///
-/// The protocol names what later work packages extend (API, storage, feature
-/// flags) while the concrete instance stays substitutable: a test assembles its
-/// own container without touching global state.
+/// The protocol names what later work packages extend (storage, feature flags)
+/// while the concrete instance stays substitutable: a test assembles its own
+/// container without touching global state.
 @MainActor
 protocol AppDependencies {
     var configuration: RuntimeConfiguration { get }
     var router: AppRouter { get }
     var deepLinkParser: DeepLinkParser { get }
-    var apiTransport: APITransport { get }
+    var apiClientFactory: APIClientFactory { get }
     var dates: DateProviding { get }
     var identifiers: IdentifierProviding { get }
 }
@@ -25,7 +25,7 @@ struct AppComposition: AppDependencies {
     let configuration: RuntimeConfiguration
     let router: AppRouter
     let deepLinkParser: DeepLinkParser
-    let apiTransport: APITransport
+    let apiClientFactory: APIClientFactory
     let dates: DateProviding
     let identifiers: IdentifierProviding
 
@@ -40,18 +40,34 @@ struct AppComposition: AppDependencies {
             fatalError("Invalid build configuration: \(error)")
         }
 
+        let identifiers = SystemIdentifierProvider()
         return AppComposition(
             configuration: configuration,
             router: AppRouter(),
             deepLinkParser: DeepLinkParser(scheme: configuration.deepLinkScheme),
-            // Networking arrives with IOS-002. Mock answers registered
-            // payloads only; other configurations report honestly that the
-            // transport is not assembled.
-            apiTransport: configuration.environment == .mock
-                ? MockAPITransport()
-                : UnconfiguredAPITransport(),
+            apiClientFactory: APIClientFactory(
+                configuration: APIClientConfiguration(
+                    baseURL: configuration.apiBaseURL ?? Self.mockBaseURL,
+                    appVersion: Self.appVersion(from: bundle),
+                    locale: Locale.current.identifier
+                ),
+                // Mock answers registered payloads only and never opens a
+                // socket, so that configuration is reproducible offline.
+                transport: configuration.environment == .mock
+                    ? MockClientTransport()
+                    : nil,
+                identifiers: identifiers
+            ),
             dates: SystemDateProvider(),
-            identifiers: SystemIdentifierProvider()
+            identifiers: identifiers
         )
+    }
+
+    /// The Mock configuration has no backend. The URL is never dialed; it only
+    /// satisfies the client, which requires a server URL.
+    private static let mockBaseURL = URL(string: "https://mock.invalid")!
+
+    private static func appVersion(from bundle: Bundle) -> String {
+        bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
     }
 }

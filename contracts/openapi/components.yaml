@@ -232,12 +232,10 @@ schemas:
     enum: [AGAIN, HARD, GOOD, EASY]
   ErrorEnvelope:
     type: object
-    additionalProperties: false
     required: [error]
     properties:
       error:
         type: object
-        additionalProperties: false
         required: [code, message, requestId, details]
         properties:
           code:
@@ -255,7 +253,6 @@ schemas:
             additionalProperties: true
   HealthLive:
     type: object
-    additionalProperties: false
     required: [status]
     properties:
       status:
@@ -263,7 +260,6 @@ schemas:
         const: ok
   HealthReady:
     type: object
-    additionalProperties: false
     required: [status, checks]
     properties:
       status:
@@ -271,12 +267,10 @@ schemas:
         enum: [ok, error]
       checks:
         type: object
-        additionalProperties: false
         required: [database]
         properties:
           database:
             type: object
-            additionalProperties: false
             required: [status]
             properties:
               status:
@@ -391,7 +385,6 @@ schemas:
         writeOnly: true
   TokenPair:
     type: object
-    additionalProperties: false
     required: [accessToken, refreshToken, accessTokenExpiresAt]
     properties:
       accessToken:
@@ -406,7 +399,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   ReauthenticationProof:
     type: object
-    additionalProperties: false
     required: [reauthenticationToken, expiresAt]
     properties:
       reauthenticationToken:
@@ -418,7 +410,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   AuthSession:
     type: object
-    additionalProperties: false
     required: [tokens, user, settings, serverTime]
     properties:
       tokens:
@@ -431,7 +422,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   User:
     type: object
-    additionalProperties: false
     required: [id, preferredLocale, status, createdAt, updatedAt]
     properties:
       id:
@@ -462,7 +452,6 @@ schemas:
         $ref: "#/schemas/Locale"
   AuthIdentity:
     type: object
-    additionalProperties: false
     required: [id, provider, createdAt, lastLoginAt]
     properties:
       id:
@@ -475,7 +464,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   IdentityList:
     type: object
-    additionalProperties: false
     required: [items]
     properties:
       items:
@@ -484,7 +472,6 @@ schemas:
           $ref: "#/schemas/AuthIdentity"
   Device:
     type: object
-    additionalProperties: false
     required: [id, platform, appVersion, locale, timezone, lastSeenAt, current]
     properties:
       id:
@@ -504,7 +491,6 @@ schemas:
         type: boolean
   DeviceList:
     type: object
-    additionalProperties: false
     required: [items]
     properties:
       items:
@@ -513,7 +499,6 @@ schemas:
           $ref: "#/schemas/Device"
   UserSettings:
     type: object
-    additionalProperties: false
     required:
       - sessionSize
       - contentLocale
@@ -614,7 +599,6 @@ schemas:
         maxLength: 64
   AccountDeletionResult:
     type: object
-    additionalProperties: false
     required: [status, requestedAt, expectedCompletionAt]
     properties:
       status:
@@ -634,7 +618,6 @@ schemas:
         const: DELETE_PROGRESS
   ProgressDeletionResult:
     type: object
-    additionalProperties: false
     required: [operationId, status, requestedAt]
     properties:
       operationId:
@@ -646,7 +629,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   GuestImportResult:
     type: object
-    additionalProperties: false
     required:
       - migrationId
       - status
@@ -676,7 +658,6 @@ schemas:
         format: date-time
   DataExport:
     type: object
-    additionalProperties: false
     required: [id, status, createdAt]
     properties:
       id:
@@ -700,7 +681,6 @@ schemas:
         format: date-time
   CursorPage:
     type: object
-    additionalProperties: false
     required: [nextCursor, hasMore]
     properties:
       nextCursor:
@@ -711,7 +691,6 @@ schemas:
         type: boolean
   LocalizedName:
     type: object
-    additionalProperties: false
     required: [short, aliases]
     properties:
       short:
@@ -728,7 +707,6 @@ schemas:
           minLength: 1
   Asset:
     type: object
-    additionalProperties: false
     required: [id, type, url, mimeType, sha256, licenseName]
     properties:
       id:
@@ -762,7 +740,6 @@ schemas:
         type: [string, "null"]
   Fact:
     type: object
-    additionalProperties: false
     required: [type, displayValue, source]
     properties:
       type:
@@ -778,7 +755,6 @@ schemas:
         format: date
       source:
         type: object
-        additionalProperties: false
         required: [name, url]
         properties:
           name:
@@ -788,7 +764,6 @@ schemas:
             format: uri
   GeoEntity:
     type: object
-    additionalProperties: false
     required:
       - id
       - kind
@@ -842,7 +817,6 @@ schemas:
         type: string
   Deck:
     type: object
-    additionalProperties: false
     required:
       - id
       - code
@@ -878,7 +852,6 @@ schemas:
         type: string
   DeckPage:
     type: object
-    additionalProperties: false
     required: [items, page]
     properties:
       items:
@@ -889,7 +862,6 @@ schemas:
         $ref: "#/schemas/CursorPage"
   LearningCard:
     type: object
-    additionalProperties: false
     required:
       - id
       - templateCode
@@ -919,14 +891,12 @@ schemas:
         $ref: "#/schemas/AnswerMode"
       prompt:
         type: object
-        additionalProperties: false
         required: [asset]
         properties:
           asset:
             $ref: "#/schemas/Asset"
       answer:
         type: object
-        additionalProperties: false
         required: [entityId, displayName, aliases]
         properties:
           entityId:
@@ -946,7 +916,6 @@ schemas:
         type: string
   LearningCardPage:
     type: object
-    additionalProperties: false
     required: [items, page]
     properties:
       items:
@@ -957,7 +926,6 @@ schemas:
         $ref: "#/schemas/CursorPage"
   ContentChangePage:
     type: object
-    additionalProperties: false
     required: [items, nextCursor, hasMore, contentVersion]
     properties:
       items:
@@ -972,7 +940,6 @@ schemas:
         type: string
   ContentChange:
     type: object
-    additionalProperties: false
     required: [operation, resourceType, resourceId, contentVersion]
     properties:
       operation:
@@ -988,7 +955,6 @@ schemas:
         type: string
   UserChangePage:
     type: object
-    additionalProperties: false
     required: [items, nextCursor, hasMore]
     properties:
       items:
@@ -1001,7 +967,6 @@ schemas:
         type: boolean
   UserChange:
     type: object
-    additionalProperties: false
     required: [operation, resourceType, resourceId, occurredAt]
     properties:
       operation:
@@ -1121,7 +1086,6 @@ schemas:
           $ref: "#/schemas/StudyOption"
   StudySession:
     type: object
-    additionalProperties: false
     required:
       - id
       - deckId
@@ -1174,7 +1138,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   StudySessionCard:
     type: object
-    additionalProperties: false
     required:
       - id
       - learningCard
@@ -1205,7 +1168,6 @@ schemas:
           $ref: "#/schemas/StudyOption"
   StudyOption:
     type: object
-    additionalProperties: false
     required: [id, position, displayName]
     properties:
       id:
@@ -1226,7 +1188,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   StudySessionSummary:
     type: object
-    additionalProperties: false
     required:
       - uniqueCardCount
       - reviewCount
@@ -1251,7 +1212,6 @@ schemas:
         minimum: 0
       ratings:
         type: object
-        additionalProperties: false
         required: [again, hard, good, easy]
         properties:
           again:
@@ -1373,7 +1333,6 @@ schemas:
         minimum: 0
   CardState:
     type: object
-    additionalProperties: false
     required:
       - learningCardId
       - state
@@ -1415,7 +1374,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   ReviewBatchResult:
     type: object
-    additionalProperties: false
     required: [results, achievements, deckSummaries, serverTime, nextSyncCursor]
     properties:
       results:
@@ -1436,7 +1394,6 @@ schemas:
         $ref: "#/schemas/OpaqueCursor"
   ReviewResult:
     type: object
-    additionalProperties: false
     required: [eventId, status]
     properties:
       eventId:
@@ -1457,7 +1414,6 @@ schemas:
         $ref: "#/schemas/CardState"
   DueSummary:
     type: object
-    additionalProperties: false
     required: [overdue, learning, relearning, newCards, totalDue, serverTime]
     properties:
       overdue:
@@ -1485,7 +1441,6 @@ schemas:
     enum: [NONE, BRONZE, SILVER, GOLD, PLATINUM]
   ProgressSummary:
     type: object
-    additionalProperties: false
     required:
       [
         totalCards,
@@ -1554,7 +1509,6 @@ schemas:
         $ref: "#/schemas/DateTime"
   DeckProgress:
     type: object
-    additionalProperties: false
     required:
       - deckId
       - totalCards
@@ -1617,7 +1571,6 @@ schemas:
         minimum: 1
   RegionProgress:
     type: object
-    additionalProperties: false
     required:
       - regionId
       - totalCards
@@ -1680,7 +1633,6 @@ schemas:
         minimum: 1
   Achievement:
     type: object
-    additionalProperties: false
     required:
       - id
       - code
@@ -1718,7 +1670,6 @@ schemas:
         type: object
   AchievementPage:
     type: object
-    additionalProperties: false
     required: [items, page]
     properties:
       items:
@@ -1729,14 +1680,12 @@ schemas:
         $ref: "#/schemas/CursorPage"
   BatchIngestionResult:
     type: object
-    additionalProperties: false
     required: [results, serverTime]
     properties:
       results:
         type: array
         items:
           type: object
-          additionalProperties: false
           required: [eventId, status]
           properties:
             eventId:
@@ -1793,7 +1742,6 @@ schemas:
     enum: [UNKNOWN, GRANTED, DENIED, NOT_REQUIRED]
   PrivacySettings:
     type: object
-    additionalProperties: false
     required:
       [
         productAnalyticsStatus,
