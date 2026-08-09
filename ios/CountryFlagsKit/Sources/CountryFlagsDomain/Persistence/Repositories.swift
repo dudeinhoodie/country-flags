@@ -14,9 +14,9 @@ public enum PersistenceError: Error, Equatable, Sendable {
 /// signed-in user, and duplicating it per account would multiply the download.
 public protocol ContentRepository: Sendable {
     func currentManifest() async throws -> ContentManifestRecord?
-    /// Applies a content release. The manifest is written together with the
-    /// records it describes, so a half-applied release cannot become the
-    /// current one.
+    /// Applies a content release in one call. The manifest is written together
+    /// with the records it describes, so a half-applied release cannot become
+    /// the current one.
     func applyContent(
         manifest: ContentManifestRecord,
         entities: [GeoEntityRecord],
@@ -25,9 +25,34 @@ public protocol ContentRepository: Sendable {
         deckCards: [DeckCardRecord]
     ) async throws
 
+    /// Applies one page of a release that is not current yet, together with the
+    /// point a resume would restart from, in a single transaction.
+    ///
+    /// Records are upserted on their identifier, so replaying a page whose
+    /// commit was lost to a crash converges on the same store rather than
+    /// duplicating every row.
+    func applyStagedPage(_ page: ContentPage, staging: ContentStagingState) async throws
+
+    /// Where an interrupted download of a version should resume, or nil when
+    /// this device has never started that version.
+    func stagingState(forVersion contentVersion: String) async throws -> ContentStagingState?
+
+    /// Makes a fully staged release the one every read answers from.
+    ///
+    /// Until this lands, reads keep answering from the previous release: a
+    /// catalog that is half of one version and half of another is never
+    /// visible, however far the download got.
+    func commitRelease(manifest: ContentManifestRecord) async throws
+
     func decks() async throws -> [DeckRecord]
     func cards(inDeck deckID: UUID) async throws -> [LearningCardRecord]
     func entity(id: UUID) async throws -> GeoEntityRecord?
+    /// Resolves the asset a card names as its prompt.
+    ///
+    /// Assets are addressed by identifier rather than reached through their
+    /// entity: a card snapshot in a running session refers to one directly, and
+    /// it has to keep resolving even after the entity behind it was retired.
+    func asset(id: UUID) async throws -> AssetRecord?
     /// Marks content the feed reported as retired. The record stays readable
     /// for a session that is already using it and is never selected again.
     func retire(cardIDs: [UUID], entityIDs: [UUID]) async throws

@@ -17,6 +17,7 @@ enum LocalSchemaV1: VersionedSchema {
     static var models: [any PersistentModel.Type] {
         [
             StoredContentManifest.self,
+            StoredContentStagingState.self,
             StoredGeoEntity.self,
             StoredGeoName.self,
             StoredAsset.self,
@@ -76,6 +77,36 @@ final class StoredContentManifest {
         self.checksum = checksum
         self.appliedAt = appliedAt
         self.isCurrent = isCurrent
+    }
+}
+
+/// Where an interrupted content download resumes.
+///
+/// It is a row rather than a defaults key because it is written in the same
+/// transaction as the page it describes: a cursor that moved without its page
+/// would skip content, and a page applied without its cursor would be
+/// downloaded again. One row per version, so a release abandoned halfway does
+/// not confuse the next one.
+@Model
+final class StoredContentStagingState {
+    var contentVersion: String = ""
+    var stage: String = ""
+    var cursor: String?
+    var pendingDeckIDs: [UUID] = []
+    var updatedAt: Date = Date.distantPast
+
+    init(
+        contentVersion: String,
+        stage: String,
+        cursor: String?,
+        pendingDeckIDs: [UUID],
+        updatedAt: Date
+    ) {
+        self.contentVersion = contentVersion
+        self.stage = stage
+        self.cursor = cursor
+        self.pendingDeckIDs = pendingDeckIDs
+        self.updatedAt = updatedAt
     }
 }
 
