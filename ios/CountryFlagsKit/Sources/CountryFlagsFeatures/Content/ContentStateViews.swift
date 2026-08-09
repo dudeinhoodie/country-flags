@@ -33,6 +33,36 @@ struct ContentStatusBanner: View {
     }
 }
 
+/// What synchronisation is doing, when it is worth saying at all.
+///
+/// A healthy device that is up to date shows nothing. A guest is told their
+/// work is saved rather than that something failed, because nothing has.
+struct SyncStatusLine: View {
+    let status: SyncStatus
+
+    var body: some View {
+        if let message {
+            Text(message)
+                .font(DesignTokens.Typography.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier(AccessibilityIdentifier.syncStatus)
+        }
+    }
+
+    private var message: String? {
+        if status.isHeldForGuest, status.pendingCount > 0 {
+            return L10n.syncSavedOnDevice(status.pendingCount)
+        }
+        switch status.lastFailure {
+        case .offline: return L10n.syncOffline
+        case .unauthorized: return L10n.syncSignInRequired
+        case .throttled, .recoverable: return L10n.syncRetryLater
+        case nil: return status.pendingCount > 0 ? L10n.syncPending(status.pendingCount) : nil
+        }
+    }
+}
+
 /// What a screen shows when there is nothing stored to show.
 struct ContentUnavailableStateView: View {
     let failure: ContentSyncFailure?

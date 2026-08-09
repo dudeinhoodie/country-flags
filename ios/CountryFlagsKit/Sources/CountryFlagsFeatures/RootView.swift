@@ -16,6 +16,9 @@ public struct RootView: View {
     private let makeStudyRunner: () -> StudySessionRunner
     private let makeObjectiveRunner: () -> ObjectiveSessionRunner
     private let featureFlags: FeatureFlagCenter
+    private let sync: SyncCenter
+
+    @Environment(\.scenePhase) private var scenePhase
 
     public init(
         router: AppRouter,
@@ -24,7 +27,8 @@ public struct RootView: View {
         assets: any AssetLoading,
         makeStudyRunner: @escaping () -> StudySessionRunner,
         makeObjectiveRunner: @escaping () -> ObjectiveSessionRunner,
-        featureFlags: FeatureFlagCenter
+        featureFlags: FeatureFlagCenter,
+        sync: SyncCenter
     ) {
         _router = State(wrappedValue: router)
         self.configuration = configuration
@@ -33,12 +37,14 @@ public struct RootView: View {
         self.makeStudyRunner = makeStudyRunner
         self.makeObjectiveRunner = makeObjectiveRunner
         self.featureFlags = featureFlags
+        self.sync = sync
     }
 
     public var body: some View {
         NavigationStack(path: $router.navigationPath) {
             HomeView(
                 store: content,
+                sync: sync,
                 onOpenCatalog: { router.push(.catalog) },
                 onOpenDeck: { router.push(.deck(id: $0)) }
             )
@@ -60,6 +66,15 @@ public struct RootView: View {
             .navigationDestination(for: AppRoute.self) { route in
                 destination(for: route)
             }
+        }
+        // Recovery and the first sync happen once, after the first frame:
+        // everything on screen already answers from the store.
+        .task { await sync.start() }
+        .onChange(of: scenePhase) { _, phase in
+            // Returning to the foreground is a trigger like any other, and the
+            // coordinator coalesces it with whatever is already running.
+            guard phase == .active else { return }
+            Task { await sync.synchronize(trigger: .foreground) }
         }
     }
 
@@ -86,7 +101,10 @@ public struct RootView: View {
                     runner: makeStudyRunner(),
                     store: content,
                     assets: assets,
-                    onFinish: { router.pop() }
+                    onFinish: {
+                        router.pop()
+                        Task { await sync.synchronize(trigger: .sessionCompleted) }
+                    }
                 )
             case .multipleChoice:
                 ObjectiveSessionView(
@@ -95,7 +113,10 @@ public struct RootView: View {
                     runner: makeObjectiveRunner(),
                     store: content,
                     assets: assets,
-                    onFinish: { router.pop() }
+                    onFinish: {
+                        router.pop()
+                        Task { await sync.synchronize(trigger: .sessionCompleted) }
+                    }
                 )
             }
         case .progress, .settings:
@@ -192,6 +213,7 @@ public enum AccessibilityIdentifier {
         "study.result.rating.\(rating.rawValue)"
     }
 
+    public static let syncStatus = "sync.status"
     public static let studyNext = "study.next"
     public static let studyModeObjective = "study.mode.objective"
     public static let studyModeSelfRated = "study.mode.selfRated"

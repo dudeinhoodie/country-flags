@@ -24,6 +24,7 @@ protocol AppDependencies {
     var content: ContentStore { get }
     var assets: any AssetLoading { get }
     var scopes: any AccountScopeResolving { get }
+    var sync: SyncCenter { get }
     var advertising: any AdvertisingProviding { get }
     var analytics: any AnalyticsTracking { get }
     var errorReporter: any ErrorReporting { get }
@@ -45,6 +46,7 @@ struct AppComposition: AppDependencies {
     let content: ContentStore
     let assets: any AssetLoading
     let scopes: any AccountScopeResolving
+    let sync: SyncCenter
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
     let errorReporter: any ErrorReporting
@@ -134,6 +136,22 @@ struct AppComposition: AppDependencies {
             appVersion: Self.appVersion(from: bundle)
         )
 
+        let accountScopes = accountScopes(tokens: tokens, identifiers: identifiers, logger: logger)
+        // The queue is durable from the first launch. Nothing is sent until a
+        // device is registered, which the auth work package owns, so a guest's
+        // answers accumulate safely instead of being attributed to nobody.
+        let syncCoordinator = SyncCoordinator(
+            outbox: store.makeOutboxRepository(),
+            learning: store.makeLearningRepository(),
+            uploader: ReviewUploader(
+                clientFactory: apiClientFactory,
+                devices: UnregisteredDeviceIdentity(),
+                logger: logger
+            ),
+            dates: dates,
+            logger: logger
+        )
+
         return AppComposition(
             configuration: configuration,
             router: AppRouter(),
@@ -150,7 +168,8 @@ struct AppComposition: AppDependencies {
                 dates: dates
             ),
             assets: assetCache,
-            scopes: accountScopes(tokens: tokens, identifiers: identifiers, logger: logger),
+            scopes: accountScopes,
+            sync: SyncCenter(coordinator: syncCoordinator, scopes: accountScopes),
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
             // composition change rather than a change to every screen.
