@@ -92,6 +92,31 @@ public enum L10n {
         localized("content.client_too_old.message")
     }
 
+    // MARK: - Study
+
+    public static var studyTitle: String { localized("study.title") }
+    public static var studyReveal: String { localized("study.reveal") }
+    public static var studyFlagPrompt: String { localized("study.flag_prompt") }
+    public static var studyNotSaved: String { localized("study.not_saved") }
+    public static var studyNoCards: String { localized("study.no_cards") }
+    public static var studyStoreUnavailable: String { localized("study.store_unavailable") }
+    public static var studyResultTitle: String { localized("study.result.title") }
+    public static var studyResultDone: String { localized("study.result.done") }
+    public static var studyStart: String { localized("study.start") }
+    public static var studySessionSize: String { localized("study.session_size") }
+
+    public static func studyProgress(_ position: Int, _ total: Int) -> String {
+        String(format: localized("study.progress"), position, total)
+    }
+
+    public static func studyResultAnswered(_ answered: Int, _ planned: Int) -> String {
+        String(format: localized("study.result.answered"), answered, planned)
+    }
+
+    public static func studyRating(_ rating: StudyRating) -> String {
+        localized("study.rating.\(rating.rawValue.lowercased())")
+    }
+
     /// The copy a failure is allowed to show.
     ///
     /// It is chosen from the kind, never taken from the response: an error
