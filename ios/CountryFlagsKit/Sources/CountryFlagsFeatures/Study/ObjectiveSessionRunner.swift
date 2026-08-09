@@ -282,7 +282,8 @@ public final class ObjectiveSessionRunner {
             answerMode: StudyAnswerMode.multipleChoice.rawValue,
             clientOccurredAt: now,
             clientSequence: review.clientSequence,
-            baseStateVersion: base?.stateVersion
+            baseStateVersion: base?.stateVersion,
+            selectedOptionID: optionID
         )
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
