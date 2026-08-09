@@ -15,6 +15,9 @@ public enum MockContent {
     public static let contentVersion = "mock-content-1"
     public static let changeCursor = "mock-cursor-0"
     public static let entityTag = "\"mock-content-manifest-1\""
+    /// The mock release must never gate the build it ships with: a Mock scheme
+    /// that told itself to update would exercise nothing but the update screen.
+    public static let minimumClientVersion = "0.0.0"
 
     public struct Flag: Sendable {
         public let deckCode: String
@@ -93,7 +96,8 @@ public enum MockContent {
             {"schemaVersion":1,"contentVersion":"\(contentVersion)",\
             "createdAt":"\(formatter.string(from: now))",\
             "defaultLocale":"en","supportedLocales":["en","ru"],\
-            "minimumClientVersion":"1.0.0","supportedTemplateSchemaVersions":[1],\
+            "minimumClientVersion":"\(minimumClientVersion)",\
+            "supportedTemplateSchemaVersions":[1],\
             "assetBaseUrl":"\(assetBaseURL)","changeCursor":"\(changeCursor)",\
             "files":[{"path":"catalog.json","bytes":1024,\
             "sha256":"0000000000000000000000000000000000000000000000000000000000000000",\

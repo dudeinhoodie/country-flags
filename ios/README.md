@@ -180,6 +180,46 @@ repositories rather than by `#Unique`, which needs iOS 18.
 Session secrets live in the keychain through `SecureTokenStoring` and nowhere
 else; no model in the schema has a field that could hold one.
 
+## Content, catalog and decks
+
+`ContentBootstrapCoordinator` brings the device up to the release the backend
+publishes: the manifest first, then the cursor-paged decks, then the cards of
+each deck. It is one actor, so a launch and a pull-to-refresh landing together
+join the same run instead of paging the same feed twice.
+
+A release is applied a page at a time, and each page is written together with
+the point a resume would restart from — one transaction, so a cursor that moved
+without its page is not representable. Records are upserted on their identifier,
+which is what makes replaying the page after an interrupted download converge on
+the same store instead of duplicating it.
+
+Catalog listings answer from the release the current manifest names, so a
+version still downloading is stored but invisible and the previous catalog stays
+usable until the new one commits. Resolving a single entity deliberately is not
+filtered that way: a session that started on the previous release holds
+identifiers from it and still has to render them, so a superseded record stays
+readable and only a tombstone takes it out of selection.
+
+The backend localizes per request. `ContentLocaleResolver` picks what to ask
+for — an exact match, then a locale sharing the language subtag ("ru-RU" is
+served by "ru"), then the default the manifest names — and the catalog says
+which language it is showing only when the user is not reading one they asked
+for. A card built on a template schema version the release does not list is
+skipped and counted, so one unknown template costs its cards rather than the
+deck around them.
+
+Assets are downloaded lazily and verified against the `sha256` the release
+published. Bytes that do not match are refused rather than drawn, and the screen
+shows a placeholder with the failure in the log. `FileAssetCache` stores files
+under their checksum and evicts only what the caller has not pinned, so the
+flags of an unfinished session survive.
+
+Every content screen reads the store and never a network response, which is why
+a relaunch with no connection is the same code path as one with it. The Mock
+scheme serves the whole chain from memory, including flags whose checksums are
+computed from the bytes it returns, and `-offline-content` refuses every content
+request so a UI test can prove that a downloaded catalog stays browsable.
+
 ## Feature flags, advertising and observability
 
 The backend evaluates the targeting rules and returns results, so the client

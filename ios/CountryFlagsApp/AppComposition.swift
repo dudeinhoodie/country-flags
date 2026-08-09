@@ -201,10 +201,22 @@ struct AppComposition: AppDependencies {
         dates: any DateProviding
     ) -> MockClientTransport? {
         guard configuration.environment == .mock else { return nil }
-        var fallbacks = MockContent.responses(now: dates.now())
-        fallbacks["getAppConfig"] = MockAppConfig.response(now: dates.now())
+        var fallbacks: [String: MockClientTransport.Response] = [
+            "getAppConfig": MockAppConfig.response(now: dates.now())
+        ]
+        // A UI test needs a launch where content requests fail while the store
+        // is intact, which is the only way to prove that a relaunch without a
+        // network still shows what was downloaded. An unregistered operation
+        // fails loudly, so this is a refusal rather than an empty success.
+        if !ProcessInfo.processInfo.arguments.contains(offlineContentArgument) {
+            fallbacks.merge(MockContent.responses(now: dates.now())) { current, _ in current }
+        }
         return MockClientTransport(fallbacks: fallbacks)
     }
+
+    /// Simulates a launch with no reachable backend. Mock only: every other
+    /// configuration talks to a real one.
+    static let offlineContentArgument = "-offline-content"
 
     /// Mock serves its flags from memory so the configuration stays reproducible
     /// with no network at all; every other environment downloads them.

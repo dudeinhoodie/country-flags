@@ -371,6 +371,11 @@ public struct ContentService: Sendable {
                 query: .init(locale: locale)
             )
         } catch {
+            // The error mapping middleware turns a 404 into an `APIError`
+            // before the generated client ever parses the response, so this is
+            // where a hidden entity actually arrives — not the `.notFound`
+            // case below.
+            if case .notFound = APIError.from(error) { return nil }
             throw APIError.from(error)
         }
 
