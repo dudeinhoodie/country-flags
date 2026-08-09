@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import UIKit
 
 /// The content the Mock build answers with.
 ///
@@ -28,24 +29,38 @@ public enum MockContent {
         public let aliases: [String]
         public let colors: [String]
 
-        var svg: String {
-            let stripes = colors.enumerated().map { index, color in
-                let y = index * (60 / max(colors.count, 1))
-                let height = 60 / max(colors.count, 1)
-                return "<rect y=\"\(y)\" width=\"90\" height=\"\(height)\" fill=\"\(color)\"/>"
+        /// The flag as PNG bytes.
+        ///
+        /// Raster rather than SVG on purpose: `UIImage(data:)` cannot decode
+        /// SVG, so a mock that served vectors would exercise only the
+        /// placeholder branch and never prove that an asset becomes an image.
+        /// See #82 — the published content is still SVG, which is what that
+        /// issue is about.
+        var data: Data {
+            let size = CGSize(width: 90, height: 60)
+            let renderer = UIGraphicsImageRenderer(size: size)
+            return renderer.pngData { context in
+                let bandHeight = size.height / CGFloat(max(colors.count, 1))
+                for (index, color) in colors.enumerated() {
+                    UIColor(hex: color).setFill()
+                    context.fill(
+                        CGRect(
+                            x: 0,
+                            y: CGFloat(index) * bandHeight,
+                            width: size.width,
+                            height: bandHeight
+                        )
+                    )
+                }
             }
-            .joined()
-            return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 90 60\">\(stripes)</svg>"
         }
-
-        var data: Data { Data(svg.utf8) }
 
         var sha256: String {
             SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
         }
 
         var url: URL {
-            URL(string: "\(MockContent.assetBaseURL)flags/\(deckCode.lowercased())-\(name.lowercased()).svg")!
+            URL(string: "\(MockContent.assetBaseURL)flags/\(deckCode.lowercased())-\(name.lowercased()).png")!
         }
     }
 
@@ -159,7 +174,7 @@ public enum MockContent {
             "templateSchemaVersion":1,"semanticVersion":1,"revision":1,\
             "answerMode":"SELF_RATED",\
             "prompt":{"asset":{"id":"\(flag.assetID)","type":"FLAG",\
-            "url":"\(flag.url.absoluteString)","mimeType":"image/svg+xml",\
+            "url":"\(flag.url.absoluteString)","mimeType":"image/png",\
             "sha256":"\(flag.sha256)","width":90,"height":60,"aspectRatio":1.5,\
             "licenseName":"CC0-1.0","attribution":null}},\
             "answer":{"entityId":"\(flag.entityID)","displayName":"\(flag.name)",\
@@ -208,5 +223,25 @@ public struct MockAssetFetcher: AssetDataFetching {
             throw APIError.transport("No mock asset is registered for this URL")
         }
         return data
+    }
+}
+
+extension UIColor {
+    /// Parses the `#RRGGBB` form the mock flags are written in. It is only ever
+    /// given literals from this file, so a malformed value is a programming
+    /// error rather than input to defend against — it falls back to grey and
+    /// the flag still renders.
+    fileprivate convenience init(hex: String) {
+        let digits = hex.dropFirst()
+        guard digits.count == 6, let value = UInt32(digits, radix: 16) else {
+            self.init(white: 0.5, alpha: 1)
+            return
+        }
+        self.init(
+            red: CGFloat((value >> 16) & 0xFF) / 255,
+            green: CGFloat((value >> 8) & 0xFF) / 255,
+            blue: CGFloat(value & 0xFF) / 255,
+            alpha: 1
+        )
     }
 }
