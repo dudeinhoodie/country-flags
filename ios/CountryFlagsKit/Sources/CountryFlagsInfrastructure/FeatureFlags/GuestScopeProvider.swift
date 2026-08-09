@@ -8,7 +8,7 @@ import CountryFlagsDomain
 /// `UserDefaults`: it is the only thing tying a guest to the progress they made,
 /// and the keychain is what survives an app reinstall. Sign-in replaces the
 /// scope with an authenticated one; that work package owns the migration.
-public struct GuestScopeProvider: Sendable {
+public struct GuestScopeProvider: AccountScopeResolving {
     private let tokens: any SecureTokenStoring
     private let identifiers: any IdentifierProviding
     private let logger: any AppLogging

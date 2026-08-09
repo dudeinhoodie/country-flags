@@ -23,6 +23,7 @@ protocol AppDependencies {
     var featureFlags: FeatureFlagCenter { get }
     var content: ContentStore { get }
     var assets: any AssetLoading { get }
+    var scopes: any AccountScopeResolving { get }
     var advertising: any AdvertisingProviding { get }
     var analytics: any AnalyticsTracking { get }
     var errorReporter: any ErrorReporting { get }
@@ -43,6 +44,7 @@ struct AppComposition: AppDependencies {
     let featureFlags: FeatureFlagCenter
     let content: ContentStore
     let assets: any AssetLoading
+    let scopes: any AccountScopeResolving
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
     let errorReporter: any ErrorReporting
@@ -53,7 +55,6 @@ struct AppComposition: AppDependencies {
     /// drive them. Nothing else reaches for them.
     private let flagClient: OpenFeatureFlagClient
     private let activatedFlags: ActivatedFeatureFlags
-    private let scopes: GuestScopeProvider
 
     static func live(bundle: Bundle = .main) -> AppComposition {
         let configuration: RuntimeConfiguration
@@ -149,6 +150,7 @@ struct AppComposition: AppDependencies {
                 dates: dates
             ),
             assets: assetCache,
+            scopes: accountScopes(tokens: tokens, identifiers: identifiers, logger: logger),
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
             // composition change rather than a change to every screen.
@@ -158,12 +160,7 @@ struct AppComposition: AppDependencies {
             diagnostics: NoOpDiagnosticsReporter(),
             logger: logger,
             flagClient: flagClient,
-            activatedFlags: activatedFlags,
-            scopes: GuestScopeProvider(
-                tokens: tokens,
-                identifiers: identifiers,
-                logger: logger
-            )
+            activatedFlags: activatedFlags
         )
     }
 
@@ -188,6 +185,21 @@ struct AppComposition: AppDependencies {
         // moment later.
         activatedFlags.freezeLaunchValues()
         await featureFlags.refresh(context: context)
+    }
+
+    /// A study session owns its own state, so each one gets a fresh runner
+    /// rather than sharing a long-lived object with whatever session ran last.
+    ///
+    /// The scope is resolved once here: a session belongs to the account that
+    /// started it, and it must not change identity halfway through.
+    func makeStudySessionRunner() -> StudySessionRunner {
+        StudySessionRunner(
+            scopes: scopes,
+            content: store.makeContentRepository(),
+            learning: store.makeLearningRepository(),
+            dates: dates,
+            identifiers: identifiers
+        )
     }
 
     /// Each configuration keeps its own file, so running the Mock build does
@@ -217,6 +229,41 @@ struct AppComposition: AppDependencies {
     /// Simulates a launch with no reachable backend. Mock only: every other
     /// configuration talks to a real one.
     static let offlineContentArgument = "-offline-content"
+
+    /// The account this device acts as.
+    ///
+    /// A guest is identified by an installation identifier in the keychain. A
+    /// UI test cannot rely on that surviving a relaunch — an unsigned build has
+    /// no keychain entitlement — so a debug build accepts a pinned identifier
+    /// and exercises the real resume path with a stable identity. A release
+    /// binary does not contain this branch at all.
+    private static func accountScopes(
+        tokens: any SecureTokenStoring,
+        identifiers: any IdentifierProviding,
+        logger: any AppLogging
+    ) -> any AccountScopeResolving {
+        #if DEBUG
+            if let pinned = pinnedInstallationID() {
+                return FixedAccountScopeResolver(scope: .guest(installationID: pinned))
+            }
+        #endif
+        return GuestScopeProvider(tokens: tokens, identifiers: identifiers, logger: logger)
+    }
+
+    #if DEBUG
+        static let installationIDArgument = "-installation-id"
+
+        static func pinnedInstallationID(
+            arguments: [String] = ProcessInfo.processInfo.arguments
+        ) -> UUID? {
+            guard let index = arguments.firstIndex(of: installationIDArgument),
+                index + 1 < arguments.count
+            else {
+                return nil
+            }
+            return UUID(uuidString: arguments[index + 1])
+        }
+    #endif
 
     /// Mock serves its flags from memory so the configuration stays reproducible
     /// with no network at all; every other environment downloads them.
@@ -261,3 +308,12 @@ struct AppComposition: AppDependencies {
         Locale.current.identifier(.bcp47)
     }
 }
+
+#if DEBUG
+    /// A guest identity a UI test can keep across relaunches.
+    struct FixedAccountScopeResolver: AccountScopeResolving {
+        let scope: AccountScope
+
+        func currentScope() async -> AccountScope { scope }
+    }
+#endif

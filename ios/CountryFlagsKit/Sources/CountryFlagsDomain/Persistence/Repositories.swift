@@ -124,6 +124,14 @@ public protocol TelemetryRepository: Sendable {
     func pendingDiagnosticReports(for scope: AccountScope) async throws -> [PendingDiagnosticReportRecord]
 }
 
+/// Answers which account the device is acting as.
+///
+/// It is declared here so a feature can address the current account without
+/// importing the layer that owns the keychain and the installation identifier.
+public protocol AccountScopeResolving: Sendable {
+    func currentScope() async -> AccountScope
+}
+
 /// Removes one account's data and nothing else.
 public protocol AccountScopeCleaner: Sendable {
     /// Deletes every record owned by the scope, leaving shared content and any
