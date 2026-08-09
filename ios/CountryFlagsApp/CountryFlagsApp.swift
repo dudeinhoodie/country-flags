@@ -21,7 +21,9 @@ struct CountryFlagsApp: App {
                 configuration: composition.configuration,
                 content: composition.content,
                 assets: composition.assets,
-                makeStudyRunner: { composition.makeStudySessionRunner() }
+                makeStudyRunner: { composition.makeStudySessionRunner() },
+                makeObjectiveRunner: { composition.makeObjectiveSessionRunner() },
+                featureFlags: composition.featureFlags
             )
             .onOpenURL { url in
                 composition.router.open(url, using: composition.deepLinkParser)

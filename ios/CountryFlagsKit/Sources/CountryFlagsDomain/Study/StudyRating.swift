@@ -45,3 +45,14 @@ public enum StudySessionStatus: String, Hashable, Sendable, CaseIterable {
     case completed = "COMPLETED"
     case abandoned = "ABANDONED"
 }
+
+/// How a card is answered.
+///
+/// The raw values are the contract's, and they are typed for the same reason as
+/// `StudySessionStatus`: they are written by a session and read back by a
+/// resume, so a string spelled differently on the two sides is a session that
+/// is stored and never picked up.
+public enum StudyAnswerMode: String, Hashable, Sendable, CaseIterable {
+    case selfRated = "SELF_RATED"
+    case multipleChoice = "MULTIPLE_CHOICE"
+}

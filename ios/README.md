@@ -246,6 +246,28 @@ because they are written by the session and read by the store — a hand-written
 status on one side and a differently spelled query on the other is a session
 that is stored and never resumed.
 
+The quiz mode adds four options to the same shape. Answer secrecy is a property
+of the types rather than a rule the screen is asked to follow:
+`StudyOptionRecord` has no correctness field, exactly as the contract models it;
+`ObjectiveQuestionPresentation` carries no correct option at all before an
+answer; and `correctOptionID` is module-internal, so the feature layer asks
+`question.isCorrect(optionID)` instead of reading which one is right. Nothing
+outside the domain can name the answer, including the accessibility labels.
+
+`LocalDistractorSelection` composes the four options on the device from the
+session's seed, so a relaunch rebuilds the same question with the same option
+identities. Two countries whose localized names match are never offered
+together, and a deck that cannot fill four distinct answers is refused the way
+the contract names it — `DISTRACTOR_POOL_INSUFFICIENT` — with a message that
+points at the other mode rather than a retry that cannot help. Correctness is
+decided by option identity, never by comparing display text.
+
+The mode is behind `study.multiple_choice.enabled`, which is server-enforced and
+off by default, so it is absent rather than refused until it is turned on.
+Server-selected sessions and their grading arrive with the sync work package;
+until then a quiz is composed locally, which is also why the client can show the
+outcome immediately.
+
 A guest is identified by an installation identifier in the keychain. An unsigned
 build has no keychain entitlement, so a UI test that relaunches the app would
 otherwise study as a different guest each time; `-installation-id <uuid>` pins
