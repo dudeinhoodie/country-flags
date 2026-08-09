@@ -141,6 +141,20 @@ public enum L10n {
         String(format: localized("study.option.incorrect"), name)
     }
 
+    public static var syncOffline: String { localized("sync.offline") }
+    public static var syncRetryLater: String { localized("sync.retry_later") }
+    public static var syncSignInRequired: String { localized("sync.sign_in_required") }
+
+    public static func syncPending(_ count: Int) -> String {
+        String(format: localized("sync.pending"), count)
+    }
+
+    /// A guest's work is saved and simply not sent yet. Saying it failed would
+    /// be false and would invite them to retry something that is not broken.
+    public static func syncSavedOnDevice(_ count: Int) -> String {
+        String(format: localized("sync.saved_on_device"), count)
+    }
+
     /// The copy a failure is allowed to show.
     ///
     /// It is chosen from the kind, never taken from the response: an error

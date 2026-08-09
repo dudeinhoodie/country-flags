@@ -273,6 +273,40 @@ build has no keychain entitlement, so a UI test that relaunches the app would
 otherwise study as a different guest each time; `-installation-id <uuid>` pins
 it in debug builds so the relaunch test exercises the real resume path.
 
+## Synchronising
+
+`SyncCoordinator` runs at most one synchronisation per account scope. A launch,
+a returning network path and a pull-to-refresh routinely land together, so a
+second caller joins the run in flight rather than racing it into submitting the
+same review twice. Scopes never sync together: a guest and a signed-in account
+are different accounts.
+
+Each decision the backend returns means something different to the queue.
+Accepted and duplicate both clear an item — a duplicate is the queue having
+already succeeded. A rejection is parked with its code rather than retried,
+because a refusal that came back once comes back every time. Reconciliation
+pending stays queued, and an item the answer never mentioned goes back to
+pending rather than being assumed either stored or lost.
+
+Work is claimed as in-flight before the request, which is what makes a crash
+recoverable rather than silent; `SyncCenter.start()` requeues it on the next
+launch before anything else. A refused request acknowledges nothing, so the
+whole batch returns to the queue with its identifiers and the retry is a replay.
+
+Canonical state replaces the local projection but never rolls it back: a
+response arriving after the learner answered again loses to the newer local
+version, while a canonical state beats a projection of the same version because
+the projection was only ever a guess at it.
+
+A guest keeps a durable queue that is never sent — there is no account to
+attribute it to until sign-in, and the status says "saved on this device"
+rather than reporting a failure that has not happened. Every review event also
+needs a registered `deviceId`, which the auth work package owns; until then
+`UnregisteredDeviceIdentity` answers honestly and nothing is uploaded.
+
+The network monitor is a trigger, never proof: a satisfied path means a request
+is worth trying, and the request itself decides whether the API is reachable.
+
 ## Feature flags, advertising and observability
 
 The backend evaluates the targeting rules and returns results, so the client

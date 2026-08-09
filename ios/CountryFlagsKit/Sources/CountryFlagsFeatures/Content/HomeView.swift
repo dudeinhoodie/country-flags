@@ -10,15 +10,18 @@ import CountryFlagsDomain
 /// device has already stored.
 public struct HomeView: View {
     private let store: ContentStore
+    private let sync: SyncCenter
     private let onOpenCatalog: () -> Void
     private let onOpenDeck: (UUID) -> Void
 
     public init(
         store: ContentStore,
+        sync: SyncCenter,
         onOpenCatalog: @escaping () -> Void,
         onOpenDeck: @escaping (UUID) -> Void
     ) {
         self.store = store
+        self.sync = sync
         self.onOpenCatalog = onOpenCatalog
         self.onOpenDeck = onOpenDeck
     }
@@ -26,7 +29,12 @@ public struct HomeView: View {
     public var body: some View {
         content
             .navigationTitle(L10n.homeTitle)
-            .refreshable { await store.refresh() }
+            .refreshable {
+                await store.refresh()
+                // Pull-to-refresh goes through the same boundary as every other
+                // trigger, so two of them cannot race into a double submission.
+                await sync.synchronize(trigger: .pullToRefresh)
+            }
             .task { await store.start() }
     }
 
@@ -56,7 +64,15 @@ public struct HomeView: View {
                     .accessibilityIdentifier(AccessibilityIdentifier.homeGreeting)
             }
 
-            // The sync state is shown only when there is something to say, so
+            // Synchronisation explains itself only when it has something to
+            // say; a healthy device up to date shows nothing.
+            if sync.status.isWorthReporting {
+                Section {
+                    SyncStatusLine(status: sync.status)
+                }
+            }
+
+            // The content state is shown only when there is something to say, so
             // a healthy launch has no status line at all.
             if isStale || failure != nil {
                 Section {
