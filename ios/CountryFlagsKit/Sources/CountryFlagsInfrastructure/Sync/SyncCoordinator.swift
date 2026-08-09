@@ -45,8 +45,22 @@ public actor SyncCoordinator: SyncCoordinating {
         self.batchLimit = batchLimit
     }
 
+    /// The phase, the last result and how much work is waiting.
+    ///
+    /// The count is read from the store rather than from the last run's
+    /// snapshot: answering a card enqueues work without any sync happening, so
+    /// a cached number would under-report the queue for as long as nothing
+    /// triggered a run.
     public func status(for scope: AccountScope) async -> SyncStatus {
-        statuses[scope.key] ?? SyncStatus(isHeldForGuest: scope.isGuest)
+        let cached = statuses[scope.key]
+        let pending = ((try? await outbox.pendingOperations(for: scope)) ?? []).count
+        return SyncStatus(
+            phase: cached?.phase ?? .idle,
+            lastSuccessAt: cached?.lastSuccessAt,
+            lastFailure: cached?.lastFailure,
+            pendingCount: pending,
+            isHeldForGuest: scope.isGuest
+        )
     }
 
     /// A crash leaves work claimed but not sent. It belongs back in the queue on
