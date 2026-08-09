@@ -36,6 +36,12 @@ public struct HomeView: View {
                 await sync.synchronize(trigger: .pullToRefresh)
             }
             .task { await store.start() }
+            // The queue grows with every answer, and answering happens on
+            // another screen. Re-reading on appearance is what keeps the count
+            // honest without asking the network for anything.
+            .onAppear {
+                Task { await sync.refreshStatus() }
+            }
     }
 
     @ViewBuilder
