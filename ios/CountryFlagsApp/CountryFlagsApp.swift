@@ -18,7 +18,9 @@ struct CountryFlagsApp: App {
         WindowGroup {
             RootView(
                 router: composition.router,
-                configuration: composition.configuration
+                configuration: composition.configuration,
+                content: composition.content,
+                assets: composition.assets
             )
             .onOpenURL { url in
                 composition.router.open(url, using: composition.deepLinkParser)

@@ -48,6 +48,50 @@ public enum L10n {
         localized("ads.slot.label")
     }
 
+    // MARK: - Content
+
+    public static var homeTitle: String { localized("home.title") }
+    public static var homeGreeting: String { localized("home.greeting") }
+    public static var homeRecommended: String { localized("home.recommended") }
+    public static var homeOpenCatalog: String { localized("home.open_catalog") }
+
+    public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
+    public static var catalogNoMatches: String { localized("catalog.no_matches") }
+    public static var catalogSectionCurated: String { localized("catalog.section.curated") }
+    public static var catalogSectionRegions: String { localized("catalog.section.regions") }
+    public static var catalogSectionPersonal: String { localized("catalog.section.personal") }
+
+    /// Names the language the catalog is actually in, for the case where the
+    /// device asked for one the release does not publish.
+    public static func catalogLocaleFallback(_ locale: String) -> String {
+        String(format: localized("catalog.locale_fallback"), locale)
+    }
+
+    public static var deckCountriesSection: String { localized("deck.countries") }
+    public static var deckSearchPrompt: String { localized("deck.search_prompt") }
+    public static var deckNoMatches: String { localized("deck.no_matches") }
+
+    public static func deckCardCount(_ count: Int) -> String {
+        String(format: localized("deck.card_count"), count)
+    }
+
+    public static var contentLoading: String { localized("content.loading") }
+    public static var contentRetry: String { localized("content.retry") }
+    public static var contentStale: String { localized("content.stale") }
+    public static var contentOffline: String { localized("content.offline") }
+    public static var contentRefreshFailed: String { localized("content.refresh_failed") }
+    public static var contentClientTooOld: String { localized("content.client_too_old") }
+    public static var contentEmptyTitle: String { localized("content.empty.title") }
+    public static var contentEmptyMessage: String { localized("content.empty.message") }
+    public static var contentOfflineTitle: String { localized("content.offline.title") }
+    public static var contentOfflineMessage: String { localized("content.offline.message") }
+    public static var contentFailedTitle: String { localized("content.failed.title") }
+    public static var contentFailedMessage: String { localized("content.failed.message") }
+    public static var contentClientTooOldTitle: String { localized("content.client_too_old.title") }
+    public static var contentClientTooOldMessage: String {
+        localized("content.client_too_old.message")
+    }
+
     /// The copy a failure is allowed to show.
     ///
     /// It is chosen from the kind, never taken from the response: an error

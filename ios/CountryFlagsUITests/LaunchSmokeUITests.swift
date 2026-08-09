@@ -1,7 +1,7 @@
 import XCTest
 
-/// Launch smoke: the app starts, shows the localized shell and can follow a
-/// typed route. The test addresses elements by accessibility identifier, so it
+/// Launch smoke: the app starts, shows the localized home screen and can follow
+/// a typed route. The test addresses elements by accessibility identifier, so it
 /// does not depend on the simulator language.
 ///
 /// The class is `@MainActor` because XCUITest API is main-actor isolated under
@@ -17,11 +17,12 @@ final class LaunchSmokeUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        let title = app.staticTexts["root.shell.title"]
-        XCTAssertTrue(title.waitForExistence(timeout: 10))
-        XCTAssertFalse(title.label.isEmpty)
+        // Home is the root screen; the greeting is its localized headline.
+        let greeting = app.staticTexts["home.greeting"]
+        XCTAssertTrue(greeting.waitForExistence(timeout: 10))
+        XCTAssertFalse(greeting.label.isEmpty)
         // A string catalog key must never reach the interface.
-        XCTAssertNotEqual(title.label, "shell.title")
+        XCTAssertNotEqual(greeting.label, "home.greeting")
 
         // The Mock build carries the environment badge; Prod must not.
         XCTAssertTrue(app.staticTexts["root.shell.environmentBadge"].exists)
@@ -45,6 +46,6 @@ final class LaunchSmokeUITests: XCTestCase {
         XCTAssertNotEqual(routeTitle.label, "settings.title")
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(app.staticTexts["root.shell.title"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["home.greeting"].waitForExistence(timeout: 5))
     }
 }
