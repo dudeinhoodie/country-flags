@@ -16,6 +16,10 @@ struct PendingReviewPayload: Codable, Hashable, Sendable {
     let clientOccurredAt: Date
     let clientSequence: Int64
     let baseStateVersion: Int?
+    /// Objective answers only. The uploader needs it to build the event the
+    /// contract expects, and it is stored rather than rebuilt so a later build
+    /// cannot change what an earlier one promised to send.
+    let selectedOptionID: UUID?
 }
 
 public enum StudySessionStartFailure: Hashable, Sendable {
@@ -265,7 +269,8 @@ public final class StudySessionRunner {
             answerMode: StudyAnswerMode.selfRated.rawValue,
             clientOccurredAt: now,
             clientSequence: review.clientSequence,
-            baseStateVersion: base?.stateVersion
+            baseStateVersion: base?.stateVersion,
+            selectedOptionID: nil
         )
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601

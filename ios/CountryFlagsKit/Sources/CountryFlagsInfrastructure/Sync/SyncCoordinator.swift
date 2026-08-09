@@ -286,6 +286,9 @@ public actor SyncCoordinator: SyncCoordinating {
     }
 
     private static func failure(from error: any Error) -> SyncFailure {
+        // Nothing can be attributed until a device is registered, and asking
+        // again without registering cannot change that.
+        if error as? ReviewUploadFailure == .deviceNotRegistered { return .unauthorized }
         guard let apiError = error as? APIError else { return .recoverable(code: "UNKNOWN") }
         switch apiError {
         case .transport, .cancelled:
