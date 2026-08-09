@@ -13,17 +13,20 @@ public struct RootView: View {
     private let configuration: RuntimeConfiguration
     private let content: ContentStore
     private let assets: any AssetLoading
+    private let makeStudyRunner: () -> StudySessionRunner
 
     public init(
         router: AppRouter,
         configuration: RuntimeConfiguration,
         content: ContentStore,
-        assets: any AssetLoading
+        assets: any AssetLoading,
+        makeStudyRunner: @escaping () -> StudySessionRunner
     ) {
         _router = State(wrappedValue: router)
         self.configuration = configuration
         self.content = content
         self.assets = assets
+        self.makeStudyRunner = makeStudyRunner
     }
 
     public var body: some View {
@@ -60,7 +63,18 @@ public struct RootView: View {
         case .catalog:
             CatalogView(store: content) { router.push(.deck(id: $0)) }
         case .deck(let id):
-            DeckDetailsView(deckID: id, store: content, assets: assets)
+            DeckDetailsView(deckID: id, store: content, assets: assets) { deckID, size in
+                router.push(.study(deckID: deckID, size: size))
+            }
+        case .study(let deckID, let size):
+            StudySessionView(
+                deckID: deckID,
+                size: size,
+                runner: makeStudyRunner(),
+                store: content,
+                assets: assets,
+                onFinish: { router.pop() }
+            )
         case .progress, .settings:
             RouteView(route: route)
         }
@@ -91,6 +105,7 @@ struct RouteView: View {
         switch route {
         case .catalog: L10n.catalogTitle
         case .deck: L10n.deckTitle
+        case .study: L10n.studyTitle
         case .progress: L10n.progressTitle
         case .settings: L10n.settingsTitle
         }
@@ -134,6 +149,28 @@ public enum AccessibilityIdentifier {
 
     public static func deckCountryRow(_ cardID: UUID) -> String {
         "deck.country.\(cardID.uuidString)"
+    }
+
+    public static let studyStart = "study.start"
+    public static let studyProgress = "study.progress"
+    public static let studyReveal = "study.reveal"
+    public static let studyAnswer = "study.answer"
+    public static let studyNotSaved = "study.notSaved"
+    public static let studyUnavailable = "study.unavailable"
+    public static let studyResultTitle = "study.result.title"
+    public static let studyResultAnswered = "study.result.answered"
+    public static let studyResultDone = "study.result.done"
+
+    public static func studyRating(_ rating: StudyRating) -> String {
+        "study.rating.\(rating.rawValue)"
+    }
+
+    public static func studyResultRating(_ rating: StudyRating) -> String {
+        "study.result.rating.\(rating.rawValue)"
+    }
+
+    public static func studySizeOption(_ size: StudySessionSize) -> String {
+        "study.size.\(size.rawValue)"
     }
 
     /// Present only when a placement really draws something, so a UI test can

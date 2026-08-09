@@ -9,13 +9,25 @@ import CountryFlagsDomain
 /// and browsed with no network at all.
 public struct DeckDetailsView: View {
     @State private var model: DeckDetailsModel
+    @State private var sessionSize: StudySessionSize
+    private let deckID: UUID
     private let store: ContentStore
     private let assets: any AssetLoading
+    private let onStartStudy: ((UUID, StudySessionSize) -> Void)?
 
-    public init(deckID: UUID, store: ContentStore, assets: any AssetLoading) {
+    public init(
+        deckID: UUID,
+        store: ContentStore,
+        assets: any AssetLoading,
+        defaultSessionSize: StudySessionSize = .ten,
+        onStartStudy: ((UUID, StudySessionSize) -> Void)? = nil
+    ) {
         _model = State(wrappedValue: DeckDetailsModel(deckID: deckID, store: store))
+        _sessionSize = State(wrappedValue: defaultSessionSize)
+        self.deckID = deckID
         self.store = store
         self.assets = assets
+        self.onStartStudy = onStartStudy
     }
 
     public var body: some View {
@@ -73,6 +85,30 @@ public struct DeckDetailsView: View {
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier(AccessibilityIdentifier.deckCardCount)
+            }
+
+            if let onStartStudy {
+                Section(L10n.studySessionSize) {
+                    Picker(L10n.studySessionSize, selection: $sessionSize) {
+                        ForEach(StudySessionSize.allCases) { size in
+                            Text(verbatim: "\(size.rawValue)")
+                                .tag(size)
+                                .accessibilityIdentifier(
+                                    AccessibilityIdentifier.studySizeOption(size)
+                                )
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    // A session can start with no network at all: the cards and
+                    // their flags are already on the device.
+                    Button(L10n.studyStart) {
+                        onStartStudy(deckID, sessionSize)
+                    }
+                    .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                    .disabled(details.deck.cardCount == 0)
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+                }
             }
 
             Section(L10n.deckCountriesSection) {

@@ -20,7 +20,8 @@ struct CountryFlagsApp: App {
                 router: composition.router,
                 configuration: composition.configuration,
                 content: composition.content,
-                assets: composition.assets
+                assets: composition.assets,
+                makeStudyRunner: { composition.makeStudySessionRunner() }
             )
             .onOpenURL { url in
                 composition.router.open(url, using: composition.deepLinkParser)

@@ -8,6 +8,10 @@ import Foundation
 public enum AppRoute: Hashable, Sendable {
     case catalog
     case deck(id: UUID)
+    /// A study session for a deck. It carries the size because the session's
+    /// composition is fixed when it starts, and the screen must not have to ask
+    /// the settings again halfway through.
+    case study(deckID: UUID, size: StudySessionSize)
     case progress
     case settings
 }

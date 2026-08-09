@@ -220,6 +220,37 @@ scheme serves the whole chain from memory, including flags whose checksums are
 computed from the bytes it returns, and `-offline-content` refuses every content
 request so a UI test can prove that a downloaded catalog stays browsable.
 
+## Studying
+
+`StudySessionReducer` is a plain value function: a state, an event, the next
+state and at most one effect. It has no clock, no store and no SwiftUI, which is
+where the rules that matter are asserted — an answer cannot be rated before it
+is revealed, and a second tap arriving while the first is being written is
+dropped rather than queued, so one gesture is one review.
+
+`StudySessionRunner` owns what the reducer refuses to: the clock, the
+identifiers and the store. It selects the cards through `LocalCardSelection`
+(due first, then unseen; unique cards only, never a retired one and never a
+template this build cannot draw), writes the session snapshot at the start, and
+records each answer with `recordReview` — the review, its projected card state
+and its outbox entry in one transaction. The session may not advance until that
+commits, which is what makes a kill before the commit reshow the same card and a
+kill after it move on. The resume position is read back from the reviews in the
+store rather than remembered in memory.
+
+`LocalSchedulerProjection` is the optimistic half. The backend is the source of
+truth for `dueAt`; everything computed on the device is short, conservative and
+marked `isLocalProjection`, and the backend's state replaces it wholesale after
+a sync. `StudySessionStatus` types the lifecycle values the contract defines,
+because they are written by the session and read by the store — a hand-written
+status on one side and a differently spelled query on the other is a session
+that is stored and never resumed.
+
+A guest is identified by an installation identifier in the keychain. An unsigned
+build has no keychain entitlement, so a UI test that relaunches the app would
+otherwise study as a different guest each time; `-installation-id <uuid>` pins
+it in debug builds so the relaunch test exercises the real resume path.
+
 ## Feature flags, advertising and observability
 
 The backend evaluates the targeting rules and returns results, so the client
