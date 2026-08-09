@@ -21,6 +21,8 @@ protocol AppDependencies {
     var dates: DateProviding { get }
     var identifiers: IdentifierProviding { get }
     var featureFlags: FeatureFlagCenter { get }
+    var content: ContentStore { get }
+    var assets: any AssetLoading { get }
     var advertising: any AdvertisingProviding { get }
     var analytics: any AnalyticsTracking { get }
     var errorReporter: any ErrorReporting { get }
@@ -39,6 +41,8 @@ struct AppComposition: AppDependencies {
     let dates: DateProviding
     let identifiers: IdentifierProviding
     let featureFlags: FeatureFlagCenter
+    let content: ContentStore
+    let assets: any AssetLoading
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
     let errorReporter: any ErrorReporting
@@ -112,6 +116,23 @@ struct AppComposition: AppDependencies {
         let activatedFlags = ActivatedFeatureFlags(live: flagClient, dates: dates)
         let tokens = KeychainTokenStore()
 
+        // Content is shared by every account, so it is wired once here rather
+        // than rebuilt whenever the signed-in account changes.
+        let assetCache = FileAssetCache(
+            directory: FileAssetCache.defaultDirectory(),
+            fetcher: assetFetcher(for: configuration),
+            logger: logger
+        )
+        let contentRepository = store.makeContentRepository()
+        let coordinator = ContentBootstrapCoordinator(
+            service: ContentService(clientFactory: apiClientFactory, dates: dates),
+            repository: contentRepository,
+            tags: UserDefaultsContentManifestTagStore(),
+            dates: dates,
+            logger: logger,
+            appVersion: Self.appVersion(from: bundle)
+        )
+
         return AppComposition(
             configuration: configuration,
             router: AppRouter(),
@@ -122,6 +143,12 @@ struct AppComposition: AppDependencies {
             dates: dates,
             identifiers: identifiers,
             featureFlags: FeatureFlagCenter(flags: activatedFlags),
+            content: ContentStore(
+                repository: contentRepository,
+                coordinator: coordinator,
+                dates: dates
+            ),
+            assets: assetCache,
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
             // composition change rather than a change to every screen.
@@ -174,9 +201,17 @@ struct AppComposition: AppDependencies {
         dates: any DateProviding
     ) -> MockClientTransport? {
         guard configuration.environment == .mock else { return nil }
-        return MockClientTransport(
-            fallbacks: ["getAppConfig": MockAppConfig.response(now: dates.now())]
-        )
+        var fallbacks = MockContent.responses(now: dates.now())
+        fallbacks["getAppConfig"] = MockAppConfig.response(now: dates.now())
+        return MockClientTransport(fallbacks: fallbacks)
+    }
+
+    /// Mock serves its flags from memory so the configuration stays reproducible
+    /// with no network at all; every other environment downloads them.
+    private static func assetFetcher(
+        for configuration: RuntimeConfiguration
+    ) -> any AssetDataFetching {
+        configuration.environment == .mock ? MockAssetFetcher() : URLSessionAssetFetcher()
     }
 
     #if DEBUG

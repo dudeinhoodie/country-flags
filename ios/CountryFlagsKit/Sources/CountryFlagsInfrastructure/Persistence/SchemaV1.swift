@@ -93,6 +93,7 @@ final class StoredContentStagingState {
     var stage: String = ""
     var cursor: String?
     var pendingDeckIDs: [UUID] = []
+    var appliedInStage: Int = 0
     var updatedAt: Date = Date.distantPast
 
     init(
@@ -100,12 +101,14 @@ final class StoredContentStagingState {
         stage: String,
         cursor: String?,
         pendingDeckIDs: [UUID],
+        appliedInStage: Int,
         updatedAt: Date
     ) {
         self.contentVersion = contentVersion
         self.stage = stage
         self.cursor = cursor
         self.pendingDeckIDs = pendingDeckIDs
+        self.appliedInStage = appliedInStage
         self.updatedAt = updatedAt
     }
 }

@@ -22,6 +22,19 @@ public enum ContentSyncFailure: Hashable, Sendable {
     }
 }
 
+/// What a screen may ask of the content sync.
+///
+/// The protocol lives here so the feature layer can drive a sync without
+/// importing the layer that owns the HTTP client: a view model that could see
+/// a generated DTO is a view model that will eventually render one.
+public protocol ContentSynchronizing: Sendable {
+    func currentStatus() async -> ContentSyncStatus
+    /// Publishes what the stored release already implies, before any request.
+    func restoreStatus() async
+    @discardableResult
+    func synchronize(locale: String) async -> ContentSyncStatus
+}
+
 public enum ContentSyncPhase: Hashable, Sendable {
     case idle
     /// The first release is being downloaded; there is nothing to show yet

@@ -61,6 +61,13 @@ public struct ContentStagingState: Hashable, Sendable {
     /// Decks whose cards have not been downloaded yet, in the order they will
     /// be. The head is the deck `cursor` belongs to while the stage is `cards`.
     public let pendingDeckIDs: [UUID]
+    /// How many records have been applied for the thing being paged right now:
+    /// the deck list, or the cards of `pendingDeckIDs.first`.
+    ///
+    /// It is the sort offset of the next page. It cannot be counted from the
+    /// store instead, because a listing answers from the release that is
+    /// current and the release being downloaded is by definition not.
+    public let appliedInStage: Int
     public let updatedAt: Date
 
     public init(
@@ -68,12 +75,14 @@ public struct ContentStagingState: Hashable, Sendable {
         stage: Stage,
         cursor: String?,
         pendingDeckIDs: [UUID],
+        appliedInStage: Int = 0,
         updatedAt: Date
     ) {
         self.contentVersion = contentVersion
         self.stage = stage
         self.cursor = cursor
         self.pendingDeckIDs = pendingDeckIDs
+        self.appliedInStage = appliedInStage
         self.updatedAt = updatedAt
     }
 
@@ -84,6 +93,7 @@ public struct ContentStagingState: Hashable, Sendable {
             stage: .decks,
             cursor: nil,
             pendingDeckIDs: [],
+            appliedInStage: 0,
             updatedAt: date
         )
     }

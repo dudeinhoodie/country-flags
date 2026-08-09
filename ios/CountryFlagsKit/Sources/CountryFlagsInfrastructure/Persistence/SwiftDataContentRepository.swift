@@ -255,6 +255,7 @@ actor SwiftDataContentRepository: ContentRepository {
                     stage: staging.stage.rawValue,
                     cursor: staging.cursor,
                     pendingDeckIDs: staging.pendingDeckIDs,
+                    appliedInStage: staging.appliedInStage,
                     updatedAt: staging.updatedAt
                 )
                 modelContext.insert(created)
@@ -263,6 +264,7 @@ actor SwiftDataContentRepository: ContentRepository {
         stored.stage = staging.stage.rawValue
         stored.cursor = staging.cursor
         stored.pendingDeckIDs = staging.pendingDeckIDs
+        stored.appliedInStage = staging.appliedInStage
         stored.updatedAt = staging.updatedAt
     }
 
@@ -413,6 +415,7 @@ actor SwiftDataContentRepository: ContentRepository {
             stage: ContentStagingState.Stage(rawValue: stored.stage) ?? .decks,
             cursor: stored.cursor,
             pendingDeckIDs: stored.pendingDeckIDs,
+            appliedInStage: stored.appliedInStage,
             updatedAt: stored.updatedAt
         )
     }
