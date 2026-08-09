@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 import CountryFlagsDomain
@@ -143,5 +144,48 @@ final class AssetCacheTests: XCTestCase {
             sha256: sha256,
             contentVersion: "v1"
         )
+    }
+}
+
+/// The assertion #82 showed was missing everywhere: bytes that download and
+/// match their checksum still have to become a picture.
+///
+/// `AssetCacheTests` proved the transfer; nothing proved the result was
+/// renderable, which is how a release of SVG-only assets reached the screen as
+/// a placeholder on every card.
+final class AssetRenderabilityTests: XCTestCase {
+    func testEveryMockAssetDecodesIntoAnImage() async throws {
+        let directory = URL(filePath: NSTemporaryDirectory())
+            .appending(path: "asset-renderability-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let cache = FileAssetCache(directory: directory, fetcher: MockAssetFetcher())
+
+        for flag in MockContent.flags {
+            let record = AssetRecord(
+                id: UUID(uuidString: flag.assetID)!,
+                type: "FLAG",
+                url: flag.url,
+                mimeType: "image/png",
+                sha256: flag.sha256,
+                contentVersion: MockContent.contentVersion
+            )
+
+            let data = try await cache.data(for: record)
+            XCTAssertNotNil(
+                UIImage(data: data),
+                "\(flag.name) downloaded and verified but could not be rendered"
+            )
+        }
+    }
+
+    /// The failure this guards against, stated directly: SVG is a valid asset
+    /// the platform simply cannot turn into a `UIImage`.
+    func testSVGBytesAreNotRenderable() {
+        let svg = """
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 60">\
+            <rect width="90" height="60" fill="#0055A4"/></svg>
+            """
+
+        XCTAssertNil(UIImage(data: Data(svg.utf8)))
     }
 }
