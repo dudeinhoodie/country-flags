@@ -117,6 +117,30 @@ public enum L10n {
         localized("study.rating.\(rating.rawValue.lowercased())")
     }
 
+    public static var studyObjectiveTitle: String { localized("study.objective.title") }
+    public static var studyNext: String { localized("study.next") }
+    public static var studyModeSection: String { localized("study.mode") }
+    public static var studyModeSelfRated: String { localized("study.mode.self_rated") }
+    public static var studyModeObjective: String { localized("study.mode.objective") }
+    public static var studyNoDistractorsTitle: String { localized("study.no_distractors.title") }
+    public static var studyNoDistractorsMessage: String {
+        localized("study.no_distractors.message")
+    }
+
+    public static func studyObjectiveScore(_ correct: Int, _ answered: Int) -> String {
+        String(format: localized("study.objective.score"), correct, answered)
+    }
+
+    /// Spoken after an answer. The outcome is in the words, not only in the
+    /// colour behind them.
+    public static func studyOptionCorrect(_ name: String) -> String {
+        String(format: localized("study.option.correct"), name)
+    }
+
+    public static func studyOptionIncorrect(_ name: String) -> String {
+        String(format: localized("study.option.incorrect"), name)
+    }
+
     /// The copy a failure is allowed to show.
     ///
     /// It is chosen from the kind, never taken from the response: an error

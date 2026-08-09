@@ -868,6 +868,74 @@
         }
       }
     },
+    "study.mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Режим"
+          }
+        }
+      }
+    },
+    "study.mode.objective": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quiz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Викторина"
+          }
+        }
+      }
+    },
+    "study.mode.self_rated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-rated"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Самооценка"
+          }
+        }
+      }
+    },
+    "study.next": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дальше"
+          }
+        }
+      }
+    },
     "study.no_cards": {
       "extractionState": "manual",
       "localizations": {
@@ -885,6 +953,40 @@
         }
       }
     },
+    "study.no_distractors.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This deck cannot offer four different answers. Try the self-rated mode instead."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В этой колоде не набирается четыре разных ответа. Попробуйте режим самооценки."
+          }
+        }
+      }
+    },
+    "study.no_distractors.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quiz needs a bigger deck"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для викторины нужна колода побольше"
+          }
+        }
+      }
+    },
     "study.not_saved": {
       "extractionState": "manual",
       "localizations": {
@@ -898,6 +1000,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ответ не сохранён. Оцените карточку ещё раз."
+          }
+        }
+      }
+    },
+    "study.objective.score": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld correct"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Верно: %1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "study.objective.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quiz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Викторина"
+          }
+        }
+      }
+    },
+    "study.option.correct": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, correct answer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, правильный ответ"
+          }
+        }
+      }
+    },
+    "study.option.incorrect": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, your answer, incorrect"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, ваш ответ, неверно"
           }
         }
       }

@@ -14,19 +14,25 @@ public struct RootView: View {
     private let content: ContentStore
     private let assets: any AssetLoading
     private let makeStudyRunner: () -> StudySessionRunner
+    private let makeObjectiveRunner: () -> ObjectiveSessionRunner
+    private let featureFlags: FeatureFlagCenter
 
     public init(
         router: AppRouter,
         configuration: RuntimeConfiguration,
         content: ContentStore,
         assets: any AssetLoading,
-        makeStudyRunner: @escaping () -> StudySessionRunner
+        makeStudyRunner: @escaping () -> StudySessionRunner,
+        makeObjectiveRunner: @escaping () -> ObjectiveSessionRunner,
+        featureFlags: FeatureFlagCenter
     ) {
         _router = State(wrappedValue: router)
         self.configuration = configuration
         self.content = content
         self.assets = assets
         self.makeStudyRunner = makeStudyRunner
+        self.makeObjectiveRunner = makeObjectiveRunner
+        self.featureFlags = featureFlags
     }
 
     public var body: some View {
@@ -63,18 +69,35 @@ public struct RootView: View {
         case .catalog:
             CatalogView(store: content) { router.push(.deck(id: $0)) }
         case .deck(let id):
-            DeckDetailsView(deckID: id, store: content, assets: assets) { deckID, size in
-                router.push(.study(deckID: deckID, size: size))
-            }
-        case .study(let deckID, let size):
-            StudySessionView(
-                deckID: deckID,
-                size: size,
-                runner: makeStudyRunner(),
+            DeckDetailsView(
+                deckID: id,
                 store: content,
                 assets: assets,
-                onFinish: { router.pop() }
-            )
+                isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
+            ) { deckID, size, mode in
+                router.push(.study(deckID: deckID, size: size, mode: mode))
+            }
+        case .study(let deckID, let size, let mode):
+            switch mode {
+            case .selfRated:
+                StudySessionView(
+                    deckID: deckID,
+                    size: size,
+                    runner: makeStudyRunner(),
+                    store: content,
+                    assets: assets,
+                    onFinish: { router.pop() }
+                )
+            case .multipleChoice:
+                ObjectiveSessionView(
+                    deckID: deckID,
+                    size: size,
+                    runner: makeObjectiveRunner(),
+                    store: content,
+                    assets: assets,
+                    onFinish: { router.pop() }
+                )
+            }
         case .progress, .settings:
             RouteView(route: route)
         }
@@ -167,6 +190,16 @@ public enum AccessibilityIdentifier {
 
     public static func studyResultRating(_ rating: StudyRating) -> String {
         "study.result.rating.\(rating.rawValue)"
+    }
+
+    public static let studyNext = "study.next"
+    public static let studyModeObjective = "study.mode.objective"
+    public static let studyModeSelfRated = "study.mode.selfRated"
+
+    /// Options are addressed by their fixed position, which is what a test can
+    /// tap without knowing which country the seed put there.
+    public static func studyOption(_ position: Int) -> String {
+        "study.option.\(position)"
     }
 
     public static func studySizeOption(_ size: StudySessionSize) -> String {

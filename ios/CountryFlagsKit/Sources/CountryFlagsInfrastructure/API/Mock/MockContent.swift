@@ -51,8 +51,10 @@ public enum MockContent {
 
     static let assetBaseURL = "https://cdn.country-flags.mock/mock-content-1/"
 
-    /// Two decks so the catalog has more than one section, and enough cards to
-    /// need a second page at the limit the tests use.
+    /// Two decks so the catalog has more than one section, and at least six
+    /// distinctly named countries: the quiz mode needs four different answers
+    /// per question, so a smaller mock would only ever exercise its refusal
+    /// path.
     public static let flags: [Flag] = [
         Flag(
             deckCode: "EUROPE",
@@ -80,6 +82,33 @@ public enum MockContent {
             name: "Italy",
             aliases: ["Италия"],
             colors: ["#008C45", "#F4F5F0", "#CD212A"]
+        ),
+        Flag(
+            deckCode: "EUROPE",
+            cardID: "50000000-0000-4000-8000-0000000000a4",
+            assetID: "40000000-0000-4000-8000-0000000000a4",
+            entityID: "30000000-0000-4000-8000-0000000000a4",
+            name: "Belgium",
+            aliases: ["Бельгия"],
+            colors: ["#000000", "#FDDA24", "#EF3340"]
+        ),
+        Flag(
+            deckCode: "EUROPE",
+            cardID: "50000000-0000-4000-8000-0000000000a5",
+            assetID: "40000000-0000-4000-8000-0000000000a5",
+            entityID: "30000000-0000-4000-8000-0000000000a5",
+            name: "Ireland",
+            aliases: ["Ирландия"],
+            colors: ["#169B62", "#FFFFFF", "#FF883E"]
+        ),
+        Flag(
+            deckCode: "EUROPE",
+            cardID: "50000000-0000-4000-8000-0000000000a6",
+            assetID: "40000000-0000-4000-8000-0000000000a6",
+            entityID: "30000000-0000-4000-8000-0000000000a6",
+            name: "Austria",
+            aliases: ["Австрия"],
+            colors: ["#ED2939", "#FFFFFF", "#ED2939"]
         ),
     ]
 

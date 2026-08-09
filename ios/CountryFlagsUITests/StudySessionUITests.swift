@@ -17,9 +17,12 @@ final class StudySessionUITests: XCTestCase {
         XCTAssertTrue(start.waitForExistence(timeout: 10), app.debugDescription)
         start.tap()
 
-        // The Mock release publishes three cards, so the session ends after
-        // three answers whatever size was chosen.
-        for _ in 0..<3 {
+        // Answer until the session ends. The count is not hard-coded: the mock
+        // release decides how many cards a deck has, and a test that pinned it
+        // would break every time the mock gains a country.
+        let result = app.staticTexts["study.result.title"]
+        var answered = 0
+        while !result.exists && answered < 30 {
             let reveal = app.buttons["study.reveal"]
             XCTAssertTrue(reveal.waitForExistence(timeout: 10), app.debugDescription)
             // The answer must not be on screen before the flip.
@@ -31,15 +34,16 @@ final class StudySessionUITests: XCTestCase {
                 app.debugDescription
             )
             app.buttons["study.rating.GOOD"].tap()
+            answered += 1
         }
 
-        let result = app.staticTexts["study.result.title"]
+        XCTAssertGreaterThan(answered, 0)
         XCTAssertTrue(result.waitForExistence(timeout: 10), app.debugDescription)
-        let answered = app.staticTexts["study.result.answered"]
-        XCTAssertTrue(answered.exists)
-        XCTAssertFalse(answered.label.isEmpty)
+        let score = app.staticTexts["study.result.answered"]
+        XCTAssertTrue(score.exists)
+        XCTAssertFalse(score.label.isEmpty)
         // A string catalog key must never reach the interface.
-        XCTAssertFalse(answered.label.contains("study.result"))
+        XCTAssertFalse(score.label.contains("study.result"))
     }
 
     /// The durability requirement: an answer that was saved survives a

@@ -36,6 +36,20 @@ public struct ObjectiveQuestion: Hashable, Sendable {
     /// is graded by the backend and carries nothing here.
     let correctOptionID: UUID?
 
+    /// Grades one choice without handing out the answer.
+    ///
+    /// Callers outside this module ask whether a chosen option is right; they
+    /// cannot ask which one is. That is what keeps the correct option out of
+    /// every layer that does not need it, including the one that draws the
+    /// screen.
+    public func isCorrect(_ optionID: UUID) -> Bool {
+        optionID == correctOptionID
+    }
+
+    /// Whether this device composed the question and can therefore grade it. A
+    /// server-selected question is graded by the backend.
+    public var isLocallyGraded: Bool { correctOptionID != nil }
+
     public init(
         sessionCardID: UUID,
         learningCardID: UUID,

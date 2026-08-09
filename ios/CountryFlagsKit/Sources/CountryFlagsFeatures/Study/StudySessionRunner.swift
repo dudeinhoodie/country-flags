@@ -160,7 +160,7 @@ public final class StudySessionRunner {
         let session = StudySessionRecord(
             id: sessionID,
             deckID: deckID,
-            mode: "SELF_RATED",
+            mode: StudyAnswerMode.selfRated.rawValue,
             // The composition was assembled on the device, which is what the
             // backend needs to know when the session is imported later.
             selectionOrigin: "CLIENT_OFFLINE",
@@ -242,7 +242,7 @@ public final class StudySessionRunner {
             sessionID: session.sessionID,
             learningCardID: card.learningCardID,
             rating: rating.rawValue,
-            answerMode: "SELF_RATED",
+            answerMode: StudyAnswerMode.selfRated.rawValue,
             selectedOptionID: nil,
             responseTimeMilliseconds: nil,
             clientOccurredAt: now,
@@ -262,7 +262,7 @@ public final class StudySessionRunner {
             sessionID: session.sessionID,
             learningCardID: card.learningCardID,
             rating: rating.rawValue,
-            answerMode: "SELF_RATED",
+            answerMode: StudyAnswerMode.selfRated.rawValue,
             clientOccurredAt: now,
             clientSequence: review.clientSequence,
             baseStateVersion: base?.stateVersion

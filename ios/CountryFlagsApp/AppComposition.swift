@@ -187,6 +187,16 @@ struct AppComposition: AppDependencies {
         await featureFlags.refresh(context: context)
     }
 
+    func makeObjectiveSessionRunner() -> ObjectiveSessionRunner {
+        ObjectiveSessionRunner(
+            scopes: scopes,
+            content: store.makeContentRepository(),
+            learning: store.makeLearningRepository(),
+            dates: dates,
+            identifiers: identifiers
+        )
+    }
+
     /// A study session owns its own state, so each one gets a fresh runner
     /// rather than sharing a long-lived object with whatever session ran last.
     ///
