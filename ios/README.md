@@ -22,6 +22,7 @@ ios/
 ├── CountryFlagsUITests/        # launch smoke
 ├── Config/                     # one xcconfig per configuration
 └── Scripts/
+    ├── check-advertising-policy.sh  # fails when ad or tracking machinery appears
     ├── select-simulator.sh     # picks an xcodebuild destination
     └── sync-openapi.sh         # refreshes and verifies the contract mirror
 ```
@@ -220,6 +221,16 @@ the one place that decides whether a placement may appear, and anything unknown
 blocks. `AdSlotView` renders nothing when a slot is hidden, so a build without a
 provider leaves no blank frame behind.
 
+Those are decisions the package can prove about itself, but not about the app
+target, so `check-advertising-policy.sh` checks the declarations instead: it
+fails when a tracking usage description, a SKAdNetwork entry or an ad SDK
+appears in the Info.plist, the Xcode project or the package manifest. Adding any
+of them needs its own ADR and privacy review, and then an entry in that script.
+`AdPlacementRegistryParityTests` holds the typed `AdPlacement` cases to
+`contracts/registries/ad-placements.json` the way `FeatureFlagRegistryParityTests`
+holds the flag registry, so a placement whose format or gating flag drifted from
+the registry the backend serves fails before an ad is wired to it.
+
 Analytics, error reporting and diagnostics are protocols with NoOp
 implementations. `LogEntry` carries values a caller has classified as safe or
 sensitive, and `LogRedaction` scrubs the message as well, so a token, an address
@@ -257,6 +268,6 @@ Google Sign-In arrives with IOS-009.
 
 [`.github/workflows/ios-ci.yml`](../.github/workflows/ios-ci.yml) runs on changes
 under `ios/**`: it checks the Xcode version, verifies that the contract mirror
-matches the canonical bundle, selects a simulator, runs the package unit tests,
-builds and tests Mock, then builds Dev. A failing run uploads the `.xcresult`
-bundles as artifacts.
+matches the canonical bundle, checks the advertising policy, selects a simulator,
+runs the package unit tests, builds and tests Mock, then builds Dev. A failing
+run uploads the `.xcresult` bundles as artifacts.

@@ -67,6 +67,13 @@ jobs:
       - name: Check the contract mirror
         run: ./Scripts/sync-openapi.sh --check
 
+      # Advertising is off in the MVP: no ad SDK, no advertising identifier and
+      # no tracking prompt may enter the app target. The unit tests can only
+      # prove the package stays clean, not the app target, so it is checked
+      # here.
+      - name: Check the advertising policy
+        run: ./Scripts/check-advertising-policy.sh
+
       # The device depends on the runner image, so it is picked from a
       # preference list and printed to the log.
       - name: Select simulator
