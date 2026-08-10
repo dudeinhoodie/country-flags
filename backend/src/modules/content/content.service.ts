@@ -17,6 +17,11 @@ import {
 
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
+  ASSET_REPRESENTATIONS_INCLUDE,
+  mapAssetRepresentations,
+  type AssetWithRepresentations,
+} from "./asset-representations";
+import {
   decodeCardCursor,
   decodeContentChangeCursor,
   decodeDeckCursor,
@@ -184,6 +189,7 @@ export class ContentService {
           assets: {
             where: { status: AssetStatus.PUBLISHED },
             orderBy: [{ assetType: "asc" }, { id: "asc" }],
+            include: ASSET_REPRESENTATIONS_INCLUDE,
           },
           facts: {
             where: { status: PublicationStatus.PUBLISHED },
@@ -373,7 +379,9 @@ export class ContentService {
               where: { retiredAt: null },
               orderBy: { revision: "desc" },
               take: 1,
-              include: { promptAsset: true },
+              include: {
+                promptAsset: { include: ASSET_REPRESENTATIONS_INCLUDE },
+              },
             },
             subject: {
               include: {
@@ -534,19 +542,7 @@ export class ContentService {
     throw new Error("Published entity has no fallback localized name");
   }
 
-  private mapAsset(asset: {
-    id: string;
-    assetType: string;
-    publicUrl: string;
-    mimeType: string;
-    sha256: string;
-    width: number | null;
-    height: number | null;
-    aspectRatio: Prisma.Decimal | null;
-    licenseName: string;
-    attribution: string | null;
-    status: AssetStatus;
-  }): Record<string, unknown> {
+  private mapAsset(asset: AssetWithRepresentations): Record<string, unknown> {
     if (asset.status !== AssetStatus.PUBLISHED) {
       throw new Error(`Asset ${asset.id} is not published`);
     }
@@ -557,6 +553,7 @@ export class ContentService {
       url: asset.publicUrl,
       mimeType: asset.mimeType,
       sha256: asset.sha256,
+      representations: mapAssetRepresentations(asset),
       width: asset.width,
       height: asset.height,
       aspectRatio:

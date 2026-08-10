@@ -663,36 +663,65 @@ model GeoEntityCurrency {
 }
 
 model Asset {
-  id             String                 @id @default(uuid()) @db.Uuid
-  geoEntityId    String?                @map("geo_entity_id") @db.Uuid
-  assetType      AssetType              @map("asset_type")
-  variant        String
-  objectKey      String                 @unique @map("object_key")
-  publicUrl      String                 @map("public_url")
-  mimeType       String                 @map("mime_type")
-  sha256         String                 @db.Char(64)
-  width          Int?
-  height         Int?
-  aspectRatio    Decimal?               @map("aspect_ratio") @db.Decimal(12, 6)
-  sourceId       String                 @map("source_id") @db.Uuid
-  licenseName    String                 @map("license_name")
-  licenseUrl     String?                @map("license_url")
-  attribution    String?
-  validFrom      DateTime?              @map("valid_from") @db.Date
-  validTo        DateTime?              @map("valid_to") @db.Date
-  status         AssetStatus            @default(DRAFT)
-  contentVersion String                 @map("content_version")
-  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt      DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
-  entity         GeoEntity?             @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
-  source         Source                 @relation(fields: [sourceId], references: [id], onDelete: Restrict)
-  release        ContentRelease         @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
-  cardRevisions  LearningCardRevision[]
+  id              String                 @id @default(uuid()) @db.Uuid
+  geoEntityId     String?                @map("geo_entity_id") @db.Uuid
+  assetType       AssetType              @map("asset_type")
+  variant         String
+  objectKey       String                 @unique @map("object_key")
+  publicUrl       String                 @map("public_url")
+  mimeType        String                 @map("mime_type")
+  sha256          String                 @db.Char(64)
+  width           Int?
+  height          Int?
+  aspectRatio     Decimal?               @map("aspect_ratio") @db.Decimal(12, 6)
+  sourceId        String                 @map("source_id") @db.Uuid
+  licenseName     String                 @map("license_name")
+  licenseUrl      String?                @map("license_url")
+  attribution     String?
+  validFrom       DateTime?              @map("valid_from") @db.Date
+  validTo         DateTime?              @map("valid_to") @db.Date
+  status          AssetStatus            @default(DRAFT)
+  contentVersion  String                 @map("content_version")
+  createdAt       DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+  entity          GeoEntity?             @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+  source          Source                 @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  release         ContentRelease         @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+  cardRevisions   LearningCardRevision[]
+  representations AssetRepresentation[]
 
   @@index([geoEntityId, assetType, status])
   @@index([sha256])
   @@index([contentVersion])
   @@map("assets")
+}
+
+/// One published encoding of an asset. A client picks the first it can decode,
+/// so an encoding it does not understand is inert rather than fatal.
+///
+/// The checksum lives here rather than only on the asset because a client
+/// verifies the bytes it actually downloaded, and the checksum of the vector
+/// cannot vouch for a raster.
+model AssetRepresentation {
+  id        String   @id @default(uuid()) @db.Uuid
+  assetId   String   @map("asset_id") @db.Uuid
+  sortOrder Int      @map("sort_order")
+  publicUrl String   @map("public_url")
+  mimeType  String   @map("mime_type")
+  sha256    String   @db.Char(64)
+  /// Screen scale the raster was rendered for; null for the vector original,
+  /// which has no fixed scale.
+  scale     Int?
+  widthPx   Int?     @map("width_px")
+  heightPx  Int?     @map("height_px")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  asset     Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, sortOrder], map: "asset_representations_order_unique")
+  @@unique([assetId, publicUrl], map: "asset_representations_url_unique")
+  @@index([assetId])
+  @@map("asset_representations")
 }
 
 model CardTemplate {

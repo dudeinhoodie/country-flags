@@ -188,6 +188,18 @@ async function importTransaction(
       create: { id: asset.id, ...data },
       update: data,
     });
+    // Replaced rather than upserted so a fixture that drops a representation
+    // leaves nothing of it behind.
+    await transaction.assetRepresentation.deleteMany({
+      where: { assetId: asset.id },
+    });
+    await transaction.assetRepresentation.createMany({
+      data: asset.representations.map((representation, index) => ({
+        assetId: asset.id,
+        sortOrder: index,
+        ...representation,
+      })),
+    });
   }
 
   const template = fixture.template;

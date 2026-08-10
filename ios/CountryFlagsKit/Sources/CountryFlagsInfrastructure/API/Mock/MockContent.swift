@@ -29,13 +29,10 @@ public enum MockContent {
         public let aliases: [String]
         public let colors: [String]
 
-        /// The flag as PNG bytes.
-        ///
-        /// Raster rather than SVG on purpose: `UIImage(data:)` cannot decode
-        /// SVG, so a mock that served vectors would exercise only the
-        /// placeholder branch and never prove that an asset becomes an image.
-        /// See #82 — the published content is still SVG, which is what that
-        /// issue is about.
+        /// The flag as PNG bytes, which is the representation a client on this
+        /// platform picks: `UIImage(data:)` cannot decode SVG, so a mock that
+        /// offered vectors alone would exercise only the placeholder branch and
+        /// never prove that an asset becomes an image.
         var data: Data {
             let size = CGSize(width: 90, height: 60)
             let renderer = UIGraphicsImageRenderer(size: size)
@@ -55,12 +52,43 @@ public enum MockContent {
             }
         }
 
-        var sha256: String {
-            SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        /// The same flag as the vector original a release leads with. The mock
+        /// serves it because the release does; a client that can draw it is
+        /// welcome to, and this one skips it.
+        var vectorData: Data {
+            let bandHeight = 60 / max(colors.count, 1)
+            let bands = colors.enumerated()
+                .map { index, color in
+                    """
+                    <rect x="0" y="\(index * bandHeight)" width="90" \
+                    height="\(bandHeight)" fill="\(color)"/>
+                    """
+                }
+                .joined()
+            return Data(
+                """
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 60">\(bands)</svg>
+                """.utf8
+            )
         }
 
-        var url: URL {
-            URL(string: "\(MockContent.assetBaseURL)flags/\(deckCode.lowercased())-\(name.lowercased()).png")!
+        var sha256: String { Self.digest(of: data) }
+
+        var vectorSHA256: String { Self.digest(of: vectorData) }
+
+        var url: URL { assetURL(extension: "png") }
+
+        var vectorURL: URL { assetURL(extension: "svg") }
+
+        private func assetURL(extension pathExtension: String) -> URL {
+            URL(
+                string:
+                    "\(MockContent.assetBaseURL)flags/\(deckCode.lowercased())-\(name.lowercased()).\(pathExtension)"
+            )!
+        }
+
+        private static func digest(of data: Data) -> String {
+            SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
         }
     }
 
@@ -167,6 +195,18 @@ public enum MockContent {
         )
     }
 
+    /// A release leads with the vector original and follows it with the raster,
+    /// and the mock says the same thing so the build actually exercises the
+    /// choice the client makes rather than being handed the answer.
+    private static func representations(of flag: Flag) -> String {
+        """
+        [{"url":"\(flag.vectorURL.absoluteString)","mimeType":"image/svg+xml",\
+        "sha256":"\(flag.vectorSHA256)","scale":null,"widthPx":null,"heightPx":null},\
+        {"url":"\(flag.url.absoluteString)","mimeType":"image/png",\
+        "sha256":"\(flag.sha256)","scale":2,"widthPx":90,"heightPx":60}]
+        """
+    }
+
     public static func deckCardsResponse() -> MockClientTransport.Response {
         let items = flags.map { flag in
             """
@@ -174,8 +214,10 @@ public enum MockContent {
             "templateSchemaVersion":1,"semanticVersion":1,"revision":1,\
             "answerMode":"SELF_RATED",\
             "prompt":{"asset":{"id":"\(flag.assetID)","type":"FLAG",\
-            "url":"\(flag.url.absoluteString)","mimeType":"image/png",\
-            "sha256":"\(flag.sha256)","width":90,"height":60,"aspectRatio":1.5,\
+            "url":"\(flag.vectorURL.absoluteString)","mimeType":"image/svg+xml",\
+            "sha256":"\(flag.vectorSHA256)",\
+            "representations":\(representations(of: flag)),\
+            "width":90,"height":60,"aspectRatio":1.5,\
             "licenseName":"CC0-1.0","attribution":null}},\
             "answer":{"entityId":"\(flag.entityID)","displayName":"\(flag.name)",\
             "aliases":[\(flag.aliases.map { "\"\($0)\"" }.joined(separator: ","))]},\
@@ -215,7 +257,12 @@ public struct MockAssetFetcher: AssetDataFetching {
     private let bytes: [URL: Data]
 
     public init(flags: [MockContent.Flag] = MockContent.flags) {
-        bytes = Dictionary(flags.map { ($0.url, $0.data) }, uniquingKeysWith: { first, _ in first })
+        // Both encodings are served because the release serves both. Only the
+        // raster is ever asked for, and that is the client's choice to make.
+        bytes = Dictionary(
+            flags.flatMap { [($0.url, $0.data), ($0.vectorURL, $0.vectorData)] },
+            uniquingKeysWith: { first, _ in first }
+        )
     }
 
     public func data(from url: URL) async throws -> Data {

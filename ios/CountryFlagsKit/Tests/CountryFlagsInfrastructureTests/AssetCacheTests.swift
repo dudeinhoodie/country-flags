@@ -178,6 +178,35 @@ final class AssetRenderabilityTests: XCTestCase {
         }
     }
 
+    /// The whole chain the release depends on: a payload that leads with a
+    /// vector, the representation this build picks out of it, the download, the
+    /// checksum of the bytes that actually arrived, and a picture at the end.
+    ///
+    /// The steps are each covered on their own; only together do they answer
+    /// the question issue #82 asked, which is whether a flag reaches the screen.
+    func testTheChosenRepresentationOfEveryPublishedAssetDecodes() async throws {
+        let transport = MockClientTransport()
+        await transport.always(MockContent.deckCardsResponse(), for: "listDeckCards")
+        let directory = URL(filePath: NSTemporaryDirectory())
+            .appending(path: "asset-renderability-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let cache = FileAssetCache(directory: directory, fetcher: MockAssetFetcher())
+
+        let page = try await ContentTestClient.makeService(transport: transport)
+            .cards(inDeck: UUID(), locale: "ru", supportedTemplateSchemaVersions: [1])
+
+        XCTAssertEqual(page.assets.count, MockContent.flags.count)
+        XCTAssertTrue(page.unsupportedCardIDs.isEmpty)
+        for asset in page.assets {
+            XCTAssertEqual(asset.mimeType, "image/png", "the vector was chosen over the raster")
+            let data = try await cache.data(for: asset)
+            XCTAssertNotNil(
+                UIImage(data: data),
+                "\(asset.url.lastPathComponent) downloaded and verified but could not be rendered"
+            )
+        }
+    }
+
     /// The failure this guards against, stated directly: SVG is a valid asset
     /// the platform simply cannot turn into a `UIImage`.
     func testSVGBytesAreNotRenderable() {

@@ -6,6 +6,10 @@ import {
   type Prisma,
 } from "@prisma/client";
 
+import {
+  ASSET_REPRESENTATIONS_INCLUDE,
+  mapAssetRepresentations,
+} from "../content/asset-representations";
 import { localeCandidates } from "../content/content-query";
 
 export const CARD_SNAPSHOT_INCLUDE = {
@@ -14,7 +18,7 @@ export const CARD_SNAPSHOT_INCLUDE = {
     where: { retiredAt: null },
     orderBy: { revision: "desc" },
     take: 1,
-    include: { promptAsset: true },
+    include: { promptAsset: { include: ASSET_REPRESENTATIONS_INCLUDE } },
   },
   subject: {
     include: {
@@ -42,7 +46,7 @@ export const CARD_SNAPSHOT_ALL_REVISIONS_INCLUDE = {
   revisions: {
     where: { retiredAt: null },
     orderBy: { revision: "desc" },
-    include: { promptAsset: true },
+    include: { promptAsset: { include: ASSET_REPRESENTATIONS_INCLUDE } },
   },
 } satisfies Prisma.LearningCardInclude;
 
@@ -131,6 +135,7 @@ export function buildLearningCardSnapshot(
         url: asset.publicUrl,
         mimeType: asset.mimeType,
         sha256: asset.sha256,
+        representations: mapAssetRepresentations(asset),
         width: asset.width,
         height: asset.height,
         aspectRatio:

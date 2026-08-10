@@ -91,11 +91,54 @@ final class ContentServiceTests: XCTestCase {
         XCTAssertEqual(page.deckCards.map(\.deckID), [deckID])
         XCTAssertEqual(page.assets.count, 1)
         XCTAssertEqual(page.assets.first?.id, page.cards.first?.promptAssetID)
-        XCTAssertEqual(page.assets.first?.mimeType, "image/svg+xml")
+        // The release leads with the vector, which this platform cannot decode
+        // from downloaded bytes. The record has to describe the raster instead,
+        // including its own checksum: the cache verifies what it downloaded,
+        // and the vector's checksum cannot vouch for a PNG.
+        XCTAssertEqual(page.assets.first?.mimeType, "image/png")
+        XCTAssertEqual(page.assets.first?.url.lastPathComponent, "kosovo@2x.png")
         XCTAssertEqual(page.assets.first?.sha256.count, 64)
+        XCTAssertNotEqual(
+            page.assets.first?.sha256,
+            "3f786850e387550fdab836ed7e6dc881de23001b8b9f4e0bd6c1b0aa5c0ba9b1"
+        )
         XCTAssertTrue(page.hasMore)
         XCTAssertNotNil(page.nextCursor)
         XCTAssertTrue(page.unsupportedCardIDs.isEmpty)
+    }
+
+    /// A release that offers nothing this platform can draw still fills the
+    /// catalogue. The card stays, and the placeholder is what it shows —
+    /// dropping it would empty the deck over a content problem.
+    func testAnAssetWithNoRenderableRepresentationFallsBackToTheVector() async throws {
+        let transport = MockClientTransport()
+        let vectorOnly = try ContractFixture.json("deck-cards.json")
+            .replacingOccurrences(of: "image/png", with: "image/svg+xml")
+        await transport.always(.json(vectorOnly), for: "listDeckCards")
+
+        let page = try await ContentTestClient.makeService(transport: transport)
+            .cards(inDeck: UUID(), locale: locale, supportedTemplateSchemaVersions: [1])
+
+        XCTAssertEqual(page.assets.first?.mimeType, "image/svg+xml")
+        XCTAssertEqual(page.assets.first?.url.lastPathComponent, "kosovo.svg")
+        XCTAssertTrue(page.unsupportedCardIDs.isEmpty)
+    }
+
+    /// A release published before the field existed carries the vector on the
+    /// asset itself, and must keep working for the one release it takes every
+    /// client to move.
+    func testAnAssetWithoutRepresentationsUsesItsOwnUrl() async throws {
+        let transport = MockClientTransport()
+        await transport.always(
+            .json(try ContractFixture.withoutRepresentations("deck-cards.json")),
+            for: "listDeckCards"
+        )
+
+        let page = try await ContentTestClient.makeService(transport: transport)
+            .cards(inDeck: UUID(), locale: locale, supportedTemplateSchemaVersions: [1])
+
+        XCTAssertEqual(page.assets.first?.mimeType, "image/svg+xml")
+        XCTAssertEqual(page.assets.first?.url.lastPathComponent, "kosovo.svg")
     }
 
     /// One card built on a template this build cannot draw must not empty the

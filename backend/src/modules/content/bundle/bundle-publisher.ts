@@ -19,7 +19,7 @@ import type { ObjectStorage } from "../../../infrastructure/object-storage/objec
 import type { LoadedBundle } from "./bundle-reader";
 import { validateBundle } from "./bundle-validator";
 import { diffBundleAgainstActive, type BundleDiff } from "./bundle-diff";
-import type { BundleDomain } from "./bundle-domain";
+import type { BundleDomain, DomainAsset } from "./bundle-domain";
 import * as mapper from "./bundle-mapper";
 
 export interface PublishSummary {
@@ -275,9 +275,36 @@ async function upsertAssets(
         contentVersion: version,
       },
     });
+    await replaceRepresentations(tx, row.id, asset, assetBaseUrl);
     assetIdByKey.set(asset.key, row.id);
   }
   return assetIdByKey;
+}
+
+/**
+ * The representation list is the release's, not an accumulation across
+ * releases: a republish that drops a scale must drop it here too, or a client
+ * would keep preferring a file the release no longer serves.
+ */
+async function replaceRepresentations(
+  tx: Prisma.TransactionClient,
+  assetId: string,
+  asset: DomainAsset,
+  assetBaseUrl: string,
+): Promise<void> {
+  await tx.assetRepresentation.deleteMany({ where: { assetId } });
+  await tx.assetRepresentation.createMany({
+    data: asset.representations.map((representation, index) => ({
+      assetId,
+      sortOrder: index,
+      publicUrl: `${assetBaseUrl}${representation.path}`,
+      mimeType: representation.mimeType,
+      sha256: representation.sha256,
+      scale: representation.scale ?? null,
+      widthPx: representation.widthPx ?? null,
+      heightPx: representation.heightPx ?? null,
+    })),
+  });
 }
 
 async function upsertCardTemplates(

@@ -48,12 +48,27 @@ export interface DomainCatalog {
   decks: DomainDeck[];
 }
 
+export interface DomainAssetRepresentation {
+  path: string;
+  mimeType: string;
+  /** Of the bytes this representation serves, not of the asset. */
+  sha256: string;
+  scale?: number;
+  widthPx?: number;
+  heightPx?: number;
+}
+
 export interface DomainAsset {
   key: string;
   entityKey: string;
   path: string;
   sha256: string;
   mimeType: string;
+  /**
+   * Every published encoding, in the order a client should prefer them: the
+   * vector original first, then raster by ascending scale.
+   */
+  representations: DomainAssetRepresentation[];
   aspectRatio?: number;
   license: string;
   attribution?: string;

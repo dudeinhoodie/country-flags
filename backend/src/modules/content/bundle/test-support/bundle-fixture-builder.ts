@@ -38,6 +38,21 @@ export function assetRecord(entity: FixtureEntity): Record<string, unknown> {
     path: `assets/svg/${entity.slug}.svg`,
     sha256: sha256(svgContent),
     mimeType: "image/svg+xml",
+    representations: [
+      {
+        path: `assets/svg/${entity.slug}.svg`,
+        mimeType: "image/svg+xml",
+        sha256: sha256(svgContent),
+      },
+      ...[2, 3].map((scale) => ({
+        path: `assets/png/${entity.slug}@${String(scale)}x.png`,
+        mimeType: "image/png",
+        sha256: sha256(`${svgContent}@${String(scale)}x`),
+        scale,
+        widthPx: 180 * scale,
+        heightPx: 120 * scale,
+      })),
+    ],
     aspectRatio: 1.5,
     sourcePath: `flags/4x3/${entity.slug}.svg`,
     license: "MIT",

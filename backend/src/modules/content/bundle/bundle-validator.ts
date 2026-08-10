@@ -1,7 +1,11 @@
 import { loadBundle, type LoadedBundle } from "./bundle-reader";
 import { validateBundleSchemas } from "./bundle-schema-validator";
 import { verifyManifestSignature } from "./bundle-signer";
-import { parseBundleDomain, type BundleDomain } from "./bundle-domain";
+import {
+  parseBundleDomain,
+  type BundleDomain,
+  type DomainAsset,
+} from "./bundle-domain";
 import { slugFromEntityKey } from "./bundle-mapper";
 
 export class BundleValidationError extends Error {
@@ -24,6 +28,66 @@ function cardKey(
   semanticVersion: number,
 ): string {
   return `${entityKey}:${templateCode}:${String(semanticVersion)}`;
+}
+
+/**
+ * A release must not publish a flag no client can draw. The catalogue shipped
+ * SVG only until issue #82, which downloaded and verified perfectly and never
+ * rendered on iOS, so the raster is checked here rather than discovered on a
+ * device.
+ */
+function representationIssues(asset: DomainAsset): string[] {
+  const issues: string[] = [];
+  const [vector, ...rest] = asset.representations;
+
+  if (vector === undefined) {
+    issues.push(`asset ${asset.key} publishes no representation`);
+    return issues;
+  }
+  if (
+    vector.path !== asset.path ||
+    vector.mimeType !== asset.mimeType ||
+    vector.sha256 !== asset.sha256
+  ) {
+    // The asset still carries the vector for one release. A list that
+    // disagrees with it would serve two different pictures under one identity.
+    issues.push(
+      `asset ${asset.key} does not lead with the representation its own url describes`,
+    );
+  }
+  if (vector.scale !== undefined) {
+    issues.push(`asset ${asset.key} gives its vector original a screen scale`);
+  }
+
+  const raster = rest.filter(({ mimeType }) => mimeType !== "image/svg+xml");
+  if (raster.length === 0) {
+    issues.push(
+      `asset ${asset.key} publishes no raster representation, so a client that cannot render vectors has nothing to draw`,
+    );
+  }
+
+  let previousScale = 0;
+  for (const representation of rest) {
+    if (representation.scale === undefined) {
+      issues.push(
+        `asset ${asset.key} publishes a second representation without a screen scale`,
+      );
+      continue;
+    }
+    if (representation.scale <= previousScale) {
+      issues.push(
+        `asset ${asset.key} does not order its raster representations by ascending scale`,
+      );
+    }
+    previousScale = representation.scale;
+  }
+
+  const paths = new Set(asset.representations.map(({ path }) => path));
+  if (paths.size !== asset.representations.length) {
+    issues.push(`asset ${asset.key} publishes the same file twice`);
+  }
+
+  return issues;
 }
 
 function collectReferenceIssues(domain: BundleDomain): string[] {
@@ -87,6 +151,7 @@ function collectReferenceIssues(domain: BundleDomain): string[] {
     if (asset.license.trim().length === 0) {
       issues.push(`asset ${asset.key} has an empty license`);
     }
+    issues.push(...representationIssues(asset));
   }
 
   for (const collection of domain.facts) {
