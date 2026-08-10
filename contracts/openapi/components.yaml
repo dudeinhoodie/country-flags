@@ -716,14 +716,33 @@ schemas:
         minLength: 1
         x-extensible-enum: [FLAG, COAT_OF_ARMS, MAP, OTHER]
       url:
+        description: >-
+          The vector original. Superseded by `representations` and kept for one
+          release so a client that predates the field keeps working; it is
+          removed once the minimum client version has moved.
         type: string
         format: uri
       mimeType:
+        description: >-
+          Media type of `url`. Superseded by `representations` on the same
+          schedule.
         type: string
         enum: [image/svg+xml, image/png, image/webp]
       sha256:
+        description: Checksum of the bytes served from `url`.
         type: string
         pattern: ^[a-f0-9]{64}$
+      representations:
+        description: >-
+          Every published encoding of this asset, in the order a client should
+          prefer them: the vector original first, then raster by ascending
+          scale. A client picks the first entry it can decode, so an encoding
+          it cannot render is inert rather than fatal. Absent only from a
+          release published before the field existed.
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/schemas/AssetRepresentation"
       width:
         type: [integer, "null"]
         minimum: 1
@@ -738,6 +757,37 @@ schemas:
         minLength: 1
       attribution:
         type: [string, "null"]
+  AssetRepresentation:
+    type: object
+    required: [url, mimeType, sha256]
+    properties:
+      url:
+        type: string
+        format: uri
+      mimeType:
+        type: string
+        enum: [image/svg+xml, image/png, image/webp]
+      sha256:
+        description: >-
+          Checksum of the bytes this representation serves. It belongs to the
+          representation rather than to the asset because a client verifies
+          what it actually downloaded, and a checksum of the vector cannot
+          vouch for a raster.
+        type: string
+        pattern: ^[a-f0-9]{64}$
+      scale:
+        description: >-
+          Screen scale the raster was rendered for. Null for the vector
+          original, which has no fixed scale.
+        type: [integer, "null"]
+        minimum: 1
+        maximum: 3
+      widthPx:
+        type: [integer, "null"]
+        minimum: 1
+      heightPx:
+        type: [integer, "null"]
+        minimum: 1
   Fact:
     type: object
     required: [type, displayValue, source]
