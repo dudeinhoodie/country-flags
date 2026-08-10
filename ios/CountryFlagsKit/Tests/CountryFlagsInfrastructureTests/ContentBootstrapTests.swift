@@ -16,15 +16,15 @@ final class ContentBootstrapTests: XCTestCase {
         let status = await coordinator.synchronize(locale: "en")
 
         XCTAssertNil(status.lastFailure)
-        XCTAssertEqual(status.contentVersion, MockContent.contentVersion)
+        XCTAssertEqual(status.contentVersion, SyntheticContent.contentVersion)
         let decks = try await repository.decks()
         XCTAssertEqual(decks.map(\.code), ["ALL_COUNTRIES", "EUROPE"])
-        let cards = try await repository.cards(inDeck: UUID(uuidString: MockContent.allDeckID)!)
-        XCTAssertEqual(cards.count, MockContent.flags.count)
+        let cards = try await repository.cards(inDeck: UUID(uuidString: SyntheticContent.allDeckID)!)
+        XCTAssertEqual(cards.count, SyntheticContent.flags.count)
         // The manifest is what makes a release readable, and it only lands once
         // every page has.
         let manifest = try await repository.currentManifest()
-        XCTAssertEqual(manifest?.contentVersion, MockContent.contentVersion)
+        XCTAssertEqual(manifest?.contentVersion, SyntheticContent.contentVersion)
     }
 
     /// The acceptance criterion for a repeated bootstrap: the second run must
@@ -35,7 +35,7 @@ final class ContentBootstrapTests: XCTestCase {
         await coordinator.synchronize(locale: "en")
         let afterFirst = try await repository.decks().count
         let cardsAfterFirst = try await repository.cards(
-            inDeck: UUID(uuidString: MockContent.allDeckID)!
+            inDeck: UUID(uuidString: SyntheticContent.allDeckID)!
         ).count
 
         // A fresh coordinator, as a relaunch would build, against the same
@@ -45,7 +45,7 @@ final class ContentBootstrapTests: XCTestCase {
 
         let afterSecond = try await repository.decks().count
         let cardsAfterSecond = try await repository.cards(
-            inDeck: UUID(uuidString: MockContent.allDeckID)!
+            inDeck: UUID(uuidString: SyntheticContent.allDeckID)!
         ).count
         XCTAssertEqual(afterSecond, afterFirst)
         XCTAssertEqual(cardsAfterSecond, cardsAfterFirst)
@@ -56,27 +56,27 @@ final class ContentBootstrapTests: XCTestCase {
     func testASecondPageIsFetchedAndOrderedAfterTheFirst() async throws {
         let transport = MockClientTransport()
         await transport.always(
-            MockContent.manifestResponse(now: ContentTestClient.now),
+            SyntheticContent.manifestResponse(now: ContentTestClient.now),
             for: "getContentManifest"
         )
-        await transport.always(MockContent.changesResponse(), for: "getContentChanges")
+        await transport.always(SyntheticContent.changesResponse(), for: "getContentChanges")
         // One deck delivered over two pages.
         await transport.enqueue(
             .json("""
-                {"items":[{"id":"\(MockContent.allDeckID)","code":"ALL_COUNTRIES",\
+                {"items":[{"id":"\(SyntheticContent.allDeckID)","code":"ALL_COUNTRIES",\
                 "kind":"CURATED","name":"All","description":"","cardCount":2,\
-                "dueCount":null,"contentVersion":"\(MockContent.contentVersion)"}],\
+                "dueCount":null,"contentVersion":"\(SyntheticContent.contentVersion)"}],\
                 "page":{"nextCursor":"deck-page-2","hasMore":true}}
                 """),
             .json("""
-                {"items":[{"id":"\(MockContent.europeDeckID)","code":"EUROPE",\
+                {"items":[{"id":"\(SyntheticContent.europeDeckID)","code":"EUROPE",\
                 "kind":"TAXONOMY","name":"Europe","description":"","cardCount":1,\
-                "dueCount":null,"contentVersion":"\(MockContent.contentVersion)"}],\
+                "dueCount":null,"contentVersion":"\(SyntheticContent.contentVersion)"}],\
                 "page":{"nextCursor":null,"hasMore":false}}
                 """),
             for: "listDecks"
         )
-        await transport.always(MockContent.deckCardsResponse(), for: "listDeckCards")
+        await transport.always(SyntheticContent.deckCardsResponse(), for: "listDeckCards")
 
         let store = try LocalStore(location: .inMemory)
         let repository = store.makeContentRepository()
@@ -99,15 +99,15 @@ final class ContentBootstrapTests: XCTestCase {
     func testAnInterruptedBootstrapResumesAndStaysIdempotent() async throws {
         let transport = MockClientTransport()
         await transport.always(
-            MockContent.manifestResponse(now: ContentTestClient.now),
+            SyntheticContent.manifestResponse(now: ContentTestClient.now),
             for: "getContentManifest"
         )
-        await transport.always(MockContent.changesResponse(), for: "getContentChanges")
-        await transport.always(MockContent.decksResponse(), for: "listDecks")
+        await transport.always(SyntheticContent.changesResponse(), for: "getContentChanges")
+        await transport.always(SyntheticContent.decksResponse(), for: "listDecks")
         // The first deck's cards land; the next request fails, which is where
         // the interruption happens.
         await transport.enqueue(
-            MockContent.deckCardsResponse(),
+            SyntheticContent.deckCardsResponse(),
             .errorEnvelope(statusCode: 503, code: "SERVICE_UNAVAILABLE"),
             for: "listDeckCards"
         )
@@ -121,24 +121,24 @@ final class ContentBootstrapTests: XCTestCase {
         // Nothing is readable yet: the release was never committed.
         let uncommitted = try await repository.currentManifest()
         XCTAssertNil(uncommitted)
-        let staging = try await repository.stagingState(forVersion: MockContent.contentVersion)
+        let staging = try await repository.stagingState(forVersion: SyntheticContent.contentVersion)
         XCTAssertEqual(staging?.stage, .cards)
 
         // The retry replays the deck whose page was lost and finishes.
-        await transport.always(MockContent.deckCardsResponse(), for: "listDeckCards")
+        await transport.always(SyntheticContent.deckCardsResponse(), for: "listDeckCards")
         let resumed = makeCoordinator(transport: transport, repository: repository)
         let succeeded = await resumed.synchronize(locale: "en")
 
         XCTAssertNil(succeeded.lastFailure)
-        let allCards = try await repository.cards(inDeck: UUID(uuidString: MockContent.allDeckID)!)
+        let allCards = try await repository.cards(inDeck: UUID(uuidString: SyntheticContent.allDeckID)!)
         let europeCards = try await repository.cards(
-            inDeck: UUID(uuidString: MockContent.europeDeckID)!
+            inDeck: UUID(uuidString: SyntheticContent.europeDeckID)!
         )
-        XCTAssertEqual(allCards.count, MockContent.flags.count)
-        XCTAssertEqual(europeCards.count, MockContent.flags.count)
+        XCTAssertEqual(allCards.count, SyntheticContent.flags.count)
+        XCTAssertEqual(europeCards.count, SyntheticContent.flags.count)
         // The staging row is cleared once the release is current, so the next
         // launch does not think a download is still open.
-        let clearedStaging = try await repository.stagingState(forVersion: MockContent.contentVersion)
+        let clearedStaging = try await repository.stagingState(forVersion: SyntheticContent.contentVersion)
         XCTAssertNil(clearedStaging)
     }
 
@@ -150,19 +150,19 @@ final class ContentBootstrapTests: XCTestCase {
         let (coordinator, repository, transport) = try makeSubject()
         await coordinator.synchronize(locale: "en")
 
-        let deckID = UUID(uuidString: MockContent.allDeckID)!
-        let retiredID = UUID(uuidString: MockContent.flags[0].cardID)!
+        let deckID = UUID(uuidString: SyntheticContent.allDeckID)!
+        let retiredID = UUID(uuidString: SyntheticContent.flags[0].cardID)!
         let beforeRetire = try await repository.cards(inDeck: deckID).count
-        XCTAssertEqual(beforeRetire, MockContent.flags.count)
+        XCTAssertEqual(beforeRetire, SyntheticContent.flags.count)
 
         // The release is unchanged, so the refresh runs the change feed.
         await transport.always(
             .json("""
                 {"items":[{"operation":"RETIRE","resourceType":"LEARNING_CARD",\
-                "resourceId":"\(MockContent.flags[0].cardID)",\
-                "contentVersion":"\(MockContent.contentVersion)"}],\
+                "resourceId":"\(SyntheticContent.flags[0].cardID)",\
+                "contentVersion":"\(SyntheticContent.contentVersion)"}],\
                 "nextCursor":"mock-cursor-1","hasMore":false,\
-                "contentVersion":"\(MockContent.contentVersion)"}
+                "contentVersion":"\(SyntheticContent.contentVersion)"}
                 """),
             for: "getContentChanges"
         )
@@ -170,7 +170,7 @@ final class ContentBootstrapTests: XCTestCase {
         await refreshed.synchronize(locale: "en")
 
         let cards = try await repository.cards(inDeck: deckID)
-        XCTAssertEqual(cards.count, MockContent.flags.count - 1)
+        XCTAssertEqual(cards.count, SyntheticContent.flags.count - 1)
         XCTAssertFalse(cards.contains { $0.id == retiredID })
     }
 
@@ -183,7 +183,7 @@ final class ContentBootstrapTests: XCTestCase {
         await transport.always(
             .json("""
                 {"items":[],"nextCursor":"mock-cursor-9","hasMore":false,\
-                "contentVersion":"\(MockContent.contentVersion)"}
+                "contentVersion":"\(SyntheticContent.contentVersion)"}
                 """),
             for: "getContentChanges"
         )
@@ -212,17 +212,17 @@ final class ContentBootstrapTests: XCTestCase {
         let survivingDecks = try await repository.decks().count
         let survivingVersion = try await repository.currentManifest()?.contentVersion
         XCTAssertEqual(survivingDecks, 2)
-        XCTAssertEqual(survivingVersion, MockContent.contentVersion)
+        XCTAssertEqual(survivingVersion, SyntheticContent.contentVersion)
     }
 
     func testAnOutdatedBuildIsToldToUpdateRatherThanRetried() async throws {
         let transport = MockClientTransport()
         await transport.always(
             .json(
-                MockContent.manifestResponse(now: ContentTestClient.now).body
+                SyntheticContent.manifestResponse(now: ContentTestClient.now).body
                     .flatMap { String(data: $0, encoding: .utf8) }?
                     .replacingOccurrences(
-                        of: "\"minimumClientVersion\":\"\(MockContent.minimumClientVersion)\"",
+                        of: "\"minimumClientVersion\":\"\(SyntheticContent.minimumClientVersion)\"",
                         with: "\"minimumClientVersion\":\"9.0.0\""
                     ) ?? ""
             ),
@@ -253,7 +253,7 @@ final class ContentBootstrapTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSubject() throws -> (ContentBootstrapCoordinator, any ContentRepository, MockClientTransport) {
-        let transport = MockClientTransport(fallbacks: MockContent.responses(now: ContentTestClient.now))
+        let transport = MockClientTransport(fallbacks: SyntheticContent.responses(now: ContentTestClient.now))
         let store = try LocalStore(location: .inMemory)
         let repository = store.makeContentRepository()
         return (makeCoordinator(transport: transport, repository: repository), repository, transport)

@@ -11,7 +11,7 @@ final class ContentServiceTests: XCTestCase {
     func testTheManifestIsMappedOntoAStoredRecord() async throws {
         let transport = MockClientTransport()
         await transport.always(
-            MockContent.manifestResponse(now: ContentTestClient.now),
+            SyntheticContent.manifestResponse(now: ContentTestClient.now),
             for: "getContentManifest"
         )
 
@@ -21,13 +21,13 @@ final class ContentServiceTests: XCTestCase {
         guard case .updated(let fetch) = result else {
             return XCTFail("Expected an updated manifest, got \(result)")
         }
-        XCTAssertEqual(fetch.manifest.contentVersion, MockContent.contentVersion)
+        XCTAssertEqual(fetch.manifest.contentVersion, SyntheticContent.contentVersion)
         XCTAssertEqual(fetch.manifest.defaultLocale, "en")
         XCTAssertEqual(fetch.manifest.supportedLocales, ["en", "ru"])
         XCTAssertEqual(fetch.manifest.supportedTemplateSchemaVersions, [1])
-        XCTAssertEqual(fetch.manifest.changeCursor, MockContent.changeCursor)
-        XCTAssertEqual(fetch.minimumClientVersion, MockContent.minimumClientVersion)
-        XCTAssertEqual(fetch.entityTag, MockContent.entityTag)
+        XCTAssertEqual(fetch.manifest.changeCursor, SyntheticContent.changeCursor)
+        XCTAssertEqual(fetch.minimumClientVersion, SyntheticContent.minimumClientVersion)
+        XCTAssertEqual(fetch.entityTag, SyntheticContent.entityTag)
         // The manifest is applied now, not when the release was published.
         XCTAssertEqual(fetch.manifest.appliedAt, ContentTestClient.now)
     }
@@ -38,13 +38,13 @@ final class ContentServiceTests: XCTestCase {
         await transport.always(.init(statusCode: 304), for: "getContentManifest")
 
         let result = try await ContentTestClient.makeService(transport: transport)
-            .manifest(locale: locale, entityTag: MockContent.entityTag)
+            .manifest(locale: locale, entityTag: SyntheticContent.entityTag)
 
         guard case .notModified = result else {
             return XCTFail("Expected notModified, got \(result)")
         }
         let requests = await transport.requests(for: "getContentManifest")
-        XCTAssertEqual(requests.first?.header("if-none-match"), MockContent.entityTag)
+        XCTAssertEqual(requests.first?.header("if-none-match"), SyntheticContent.entityTag)
     }
 
     // MARK: - Decks

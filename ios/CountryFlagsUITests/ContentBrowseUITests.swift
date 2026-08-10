@@ -17,7 +17,7 @@ final class ContentBrowseUITests: XCTestCase {
         let app = launch(arguments: ["-reset-store"])
 
         // Home draws the recommended decks once the bootstrap has applied.
-        let homeDeck = app.buttons["home.deck.ALL_COUNTRIES"]
+        let homeDeck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(homeDeck.waitForExistence(timeout: 30), app.debugDescription)
 
         app.buttons["home.openCatalog"].tap()
@@ -41,7 +41,7 @@ final class ContentBrowseUITests: XCTestCase {
     func testARelaunchWithNoBackendStillBrowsesTheStoredCatalog() {
         let first = launch(arguments: ["-reset-store"])
         XCTAssertTrue(
-            first.buttons["home.deck.ALL_COUNTRIES"].waitForExistence(timeout: 30),
+            first.buttons["home.deck.ALL"].waitForExistence(timeout: 30),
             first.debugDescription
         )
         first.terminate()
@@ -49,7 +49,7 @@ final class ContentBrowseUITests: XCTestCase {
         // The same store, no reset, and every content request refused.
         let relaunched = launch(arguments: ["-offline-content"])
 
-        let deck = relaunched.buttons["home.deck.ALL_COUNTRIES"]
+        let deck = relaunched.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), relaunched.debugDescription)
         XCTAssertTrue(
             relaunched.staticTexts["content.statusBanner"].waitForExistence(timeout: 10),

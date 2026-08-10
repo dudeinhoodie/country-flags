@@ -33,6 +33,9 @@ let package = Package(
                 .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
                 .product(name: "OpenFeature", package: "swift-sdk"),
             ],
+            // Copied rather than processed: the mock reads the documents by
+            // name out of their directory, and processing would flatten it.
+            resources: [.copy("Resources/MockContent")],
             plugins: [
                 .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")
             ]

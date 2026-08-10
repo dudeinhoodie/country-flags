@@ -119,16 +119,16 @@ final class AssetCacheTests: XCTestCase {
     /// The Mock build must serve flags whose checksums it actually honours,
     /// otherwise the mock only proves that verification is skipped.
     func testTheMockFlagsMatchTheChecksumsTheMockPayloadDeclares() async throws {
-        let cache = FileAssetCache(directory: directory, fetcher: MockAssetFetcher())
+        let cache = FileAssetCache(directory: directory, fetcher: SyntheticAssetFetcher())
 
-        for flag in MockContent.flags {
+        for flag in SyntheticContent.flags {
             let record = AssetRecord(
                 id: UUID(uuidString: flag.assetID)!,
                 type: "FLAG",
                 url: flag.url,
                 mimeType: "image/svg+xml",
                 sha256: flag.sha256,
-                contentVersion: MockContent.contentVersion
+                contentVersion: SyntheticContent.contentVersion
             )
             let data = try await cache.data(for: record)
             XCTAssertFalse(data.isEmpty, flag.name)
@@ -158,16 +158,16 @@ final class AssetRenderabilityTests: XCTestCase {
         let directory = URL(filePath: NSTemporaryDirectory())
             .appending(path: "asset-renderability-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
-        let cache = FileAssetCache(directory: directory, fetcher: MockAssetFetcher())
+        let cache = FileAssetCache(directory: directory, fetcher: SyntheticAssetFetcher())
 
-        for flag in MockContent.flags {
+        for flag in SyntheticContent.flags {
             let record = AssetRecord(
                 id: UUID(uuidString: flag.assetID)!,
                 type: "FLAG",
                 url: flag.url,
                 mimeType: "image/png",
                 sha256: flag.sha256,
-                contentVersion: MockContent.contentVersion
+                contentVersion: SyntheticContent.contentVersion
             )
 
             let data = try await cache.data(for: record)
@@ -186,16 +186,16 @@ final class AssetRenderabilityTests: XCTestCase {
     /// the question issue #82 asked, which is whether a flag reaches the screen.
     func testTheChosenRepresentationOfEveryPublishedAssetDecodes() async throws {
         let transport = MockClientTransport()
-        await transport.always(MockContent.deckCardsResponse(), for: "listDeckCards")
+        await transport.always(SyntheticContent.deckCardsResponse(), for: "listDeckCards")
         let directory = URL(filePath: NSTemporaryDirectory())
             .appending(path: "asset-renderability-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
-        let cache = FileAssetCache(directory: directory, fetcher: MockAssetFetcher())
+        let cache = FileAssetCache(directory: directory, fetcher: SyntheticAssetFetcher())
 
         let page = try await ContentTestClient.makeService(transport: transport)
             .cards(inDeck: UUID(), locale: "ru", supportedTemplateSchemaVersions: [1])
 
-        XCTAssertEqual(page.assets.count, MockContent.flags.count)
+        XCTAssertEqual(page.assets.count, SyntheticContent.flags.count)
         XCTAssertTrue(page.unsupportedCardIDs.isEmpty)
         for asset in page.assets {
             XCTAssertEqual(asset.mimeType, "image/png", "the vector was chosen over the raster")

@@ -245,14 +245,16 @@ struct AppComposition: AppDependencies {
         var fallbacks: [String: MockClientTransport.Response] = [
             "getAppConfig": MockAppConfig.response(now: dates.now())
         ]
+        var handlers: [String: MockClientTransport.Handler] = [:]
         // A UI test needs a launch where content requests fail while the store
         // is intact, which is the only way to prove that a relaunch without a
         // network still shows what was downloaded. An unregistered operation
         // fails loudly, so this is a refusal rather than an empty success.
         if !ProcessInfo.processInfo.arguments.contains(offlineContentArgument) {
-            fallbacks.merge(MockContent.responses(now: dates.now())) { current, _ in current }
+            fallbacks.merge(MockContent.responses()) { current, _ in current }
+            handlers = MockContent.handlers()
         }
-        return MockClientTransport(fallbacks: fallbacks)
+        return MockClientTransport(fallbacks: fallbacks, handlers: handlers)
     }
 
     /// Simulates a launch with no reachable backend. Mock only: every other
@@ -294,8 +296,9 @@ struct AppComposition: AppDependencies {
         }
     #endif
 
-    /// Mock serves its flags from memory so the configuration stays reproducible
-    /// with no network at all; every other environment downloads them.
+    /// Mock ships the release it serves, so it hosts no assets at all and a
+    /// download would mean the bundled baseline missed; every other environment
+    /// downloads them.
     private static func assetFetcher(
         for configuration: RuntimeConfiguration
     ) -> any AssetDataFetching {

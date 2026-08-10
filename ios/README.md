@@ -218,8 +218,12 @@ flags of an unfinished session survive.
 
 Every content screen reads the store and never a network response, which is why
 a relaunch with no connection is the same code path as one with it. The Mock
-scheme serves the whole chain from memory, including flags whose checksums are
-computed from the bytes it returns, and `-offline-content` refuses every content
+scheme serves a published release — `content/generated/fixture-v1`, projected
+into API documents by `Scripts/sync-mock-content.mjs` and committed under
+`CountryFlagsInfrastructure/Resources/MockContent` — so a run without a backend
+shows the real catalogue. It hosts no assets at all: the same release is the one
+the app bundles, so every flag is drawn from the asset catalog and a download
+would mean the bundled baseline missed. `-offline-content` refuses every content
 request so a UI test can prove that a downloaded catalog stays browsable.
 
 ## Studying

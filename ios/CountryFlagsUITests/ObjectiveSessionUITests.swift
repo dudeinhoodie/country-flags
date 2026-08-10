@@ -36,7 +36,10 @@ final class ObjectiveSessionUITests: XCTestCase {
         var answered = 0
         while !result.exists && answered < 30 {
             let firstOption = app.buttons["study.option.0"]
-            XCTAssertTrue(firstOption.waitForExistence(timeout: 10), app.debugDescription)
+            // Composing a question draws its distractors from the whole deck,
+            // and the deck is the published release rather than a handful of
+            // cards, so this waits as long as a bootstrap does.
+            XCTAssertTrue(firstOption.waitForExistence(timeout: 30), app.debugDescription)
             // Four options, every one of them tappable before a choice.
             for position in 0..<4 {
                 XCTAssertTrue(app.buttons["study.option.\(position)"].exists, app.debugDescription)
@@ -64,7 +67,7 @@ final class ObjectiveSessionUITests: XCTestCase {
     }
 
     private func openDeck(in app: XCUIApplication) {
-        let deck = app.buttons["home.deck.ALL_COUNTRIES"]
+        let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
         deck.tap()
     }

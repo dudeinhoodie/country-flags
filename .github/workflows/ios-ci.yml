@@ -77,6 +77,12 @@ jobs:
       - name: Check the bundled flag set
         run: node Scripts/sync-flag-assets.mjs --check
 
+      # The Mock build serves a projection of the same release rather than a
+      # second, hand-written catalogue, and a projection that drifted from it
+      # would be exactly the hand-written catalogue again.
+      - name: Check the mock content
+        run: node Scripts/sync-mock-content.mjs --check
+
       # Advertising is off in the MVP: no ad SDK, no advertising identifier and
       # no tracking prompt may enter the app target. The unit tests can only
       # prove the package stays clean, not the app target, so it is checked
