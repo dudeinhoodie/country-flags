@@ -61,7 +61,20 @@ interface EntityBody {
   status: string;
   recognitionStatus: string;
   name: { short: string; official: string | null; aliases: string[] };
-  assets: Array<{ type: string; mimeType: string }>;
+  assets: Array<{
+    type: string;
+    url: string;
+    mimeType: string;
+    sha256: string;
+    representations: Array<{
+      url: string;
+      mimeType: string;
+      sha256: string;
+      scale: number | null;
+      widthPx: number | null;
+      heightPx: number | null;
+    }>;
+  }>;
   facts: Array<{ type: string; source: { name: string; url: string } }>;
   contentVersion: string;
 }
@@ -449,10 +462,30 @@ describe("content fixture and read API (integration)", () => {
       "Косово",
     ]);
     expect(body.assets.length).toBeGreaterThan(0);
-    expect(body.assets[0]).toMatchObject({
-      type: "FLAG",
-      mimeType: "image/svg+xml",
+    const asset = body.assets[0]!;
+    expect(asset).toMatchObject({ type: "FLAG", mimeType: "image/svg+xml" });
+    // The vector alone is what issue #82 shipped, and no iOS build could draw
+    // it. Every asset must offer an encoding a client can decode, and each
+    // representation must carry the checksum of its own bytes so the client
+    // verifies what it actually downloaded.
+    expect(asset.representations[0]).toEqual({
+      url: asset.url,
+      mimeType: asset.mimeType,
+      sha256: asset.sha256,
+      scale: null,
+      widthPx: null,
+      heightPx: null,
     });
+    const raster = asset.representations.filter(
+      ({ mimeType }) => mimeType === "image/png",
+    );
+    expect(raster.map(({ scale }) => scale)).toEqual([2, 3]);
+    for (const representation of raster) {
+      expect(representation.sha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(representation.sha256).not.toBe(asset.sha256);
+      expect(representation.widthPx).toBeGreaterThan(0);
+      expect(representation.heightPx).toBeGreaterThan(0);
+    }
     // The TEST_ONLY fixture publishes no facts; the field must still be an
     // empty array so the generated client never decodes a missing member.
     expect(body.facts).toEqual([]);

@@ -224,16 +224,62 @@ const manifest = {
   },
 };
 
+/**
+ * The vector original followed by the raster a client that cannot render
+ * vectors draws instead, in client preference order.
+ */
+function flagRepresentations(
+  vectorUrl: string,
+  vectorSha256: string,
+  aspectRatio: number,
+): {
+  publicUrl: string;
+  mimeType: string;
+  sha256: string;
+  scale: number | null;
+  widthPx: number | null;
+  heightPx: number | null;
+}[] {
+  return [
+    {
+      publicUrl: vectorUrl,
+      mimeType: "image/svg+xml",
+      sha256: vectorSha256,
+      scale: null,
+      widthPx: null,
+      heightPx: null,
+    },
+    ...[2, 3].map((scale) => {
+      const heightPx = 120 * scale;
+      return {
+        publicUrl: `${vectorUrl.replace(/\.svg$/u, "")}@${String(scale)}x.png`,
+        mimeType: "image/png",
+        sha256: sha256(`${vectorSha256}@${String(scale)}x`),
+        scale,
+        widthPx: Math.round(heightPx * aspectRatio),
+        heightPx,
+      };
+    }),
+  ];
+}
+
 const assets = countries.flatMap((country) => {
+  const currentSha256 = sha256(`fixture-flag:${country.key}:1`);
+  const currentUrl = `${manifest.assetBaseUrl}flags/${country.slug}.svg`;
   const current = {
     id: assetId(country),
     geoEntityId: country.id,
     assetType: AssetType.FLAG,
     variant: "current",
     objectKey: `${CONTENT_VERSION}/flags/${country.slug}.svg`,
-    publicUrl: `${manifest.assetBaseUrl}flags/${country.slug}.svg`,
+    publicUrl: currentUrl,
     mimeType: "image/svg+xml",
-    sha256: sha256(`fixture-flag:${country.key}:1`),
+    sha256: currentSha256,
+    representations: flagRepresentations(
+      currentUrl,
+      currentSha256,
+      country.aspectRatio,
+    ),
     width: Math.round(country.aspectRatio * 1_000),
     height: 1_000,
     aspectRatio: country.aspectRatio,
@@ -255,6 +301,8 @@ const assets = countries.flatMap((country) => {
 
   const replacementVariant =
     country.key === "country.switzerland" ? "optimized" : "material-v2";
+  const replacementUrl = `${manifest.assetBaseUrl}flags/${country.slug}.${replacementVariant}.svg`;
+  const replacementSha256 = sha256(`fixture-flag:${country.key}:2`);
   return [
     current,
     {
@@ -262,8 +310,13 @@ const assets = countries.flatMap((country) => {
       id: assetId(country, 2),
       variant: replacementVariant,
       objectKey: `${CONTENT_VERSION}/flags/${country.slug}.${replacementVariant}.svg`,
-      publicUrl: `${manifest.assetBaseUrl}flags/${country.slug}.${replacementVariant}.svg`,
-      sha256: sha256(`fixture-flag:${country.key}:2`),
+      publicUrl: replacementUrl,
+      sha256: replacementSha256,
+      representations: flagRepresentations(
+        replacementUrl,
+        replacementSha256,
+        country.aspectRatio,
+      ),
     },
   ];
 });

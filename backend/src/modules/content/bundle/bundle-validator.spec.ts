@@ -63,8 +63,29 @@ function catalogFixture(
   };
 }
 
+function representationsFixture(): Record<string, unknown>[] {
+  return [
+    {
+      path: "assets/svg/testland.svg",
+      mimeType: "image/svg+xml",
+      sha256: sha256("<svg>flag</svg>"),
+    },
+    {
+      path: "assets/png/testland@2x.png",
+      mimeType: "image/png",
+      sha256: sha256("<svg>flag</svg>@2x"),
+      scale: 2,
+      widthPx: 360,
+      heightPx: 240,
+    },
+  ];
+}
+
 function assetsFixture(
-  overrides: { license?: string } = {},
+  overrides: {
+    license?: string;
+    representations?: Record<string, unknown>[];
+  } = {},
 ): Record<string, unknown> {
   return {
     schemaVersion: 1,
@@ -75,6 +96,7 @@ function assetsFixture(
         path: "assets/svg/testland.svg",
         sha256: sha256("<svg>flag</svg>"),
         mimeType: "image/svg+xml",
+        representations: overrides.representations ?? representationsFixture(),
         aspectRatio: 1.5,
         sourcePath: "flags/4x3/tl.svg",
         license: overrides.license ?? "MIT",
@@ -335,5 +357,44 @@ describe("validateBundle", () => {
     await expect(
       validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
     ).rejects.toThrow(/license/i);
+  });
+
+  // The release that shipped issue #82 passed every check it had: the vector
+  // downloaded and matched its checksum, and no client could draw it.
+  it("rejects an asset that publishes only a vector", async () => {
+    buildBundle(dir, {
+      assets: assetsFixture({
+        representations: [representationsFixture()[0]!],
+      }),
+    });
+    await expect(
+      validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+    ).rejects.toThrow(/no raster representation/);
+  });
+
+  it("rejects an asset whose first representation is not the one its url describes", async () => {
+    const [vector, raster] = representationsFixture();
+    buildBundle(dir, {
+      assets: assetsFixture({ representations: [raster!, vector!] }),
+    });
+    await expect(
+      validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+    ).rejects.toThrow(/does not lead with the representation/);
+  });
+
+  it("rejects raster representations that are not ordered by ascending scale", async () => {
+    const [vector, raster] = representationsFixture();
+    buildBundle(dir, {
+      assets: assetsFixture({
+        representations: [
+          vector!,
+          { ...raster!, path: "assets/png/testland@3x.png", scale: 3 },
+          raster!,
+        ],
+      }),
+    });
+    await expect(
+      validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+    ).rejects.toThrow(/ascending scale/);
   });
 });
