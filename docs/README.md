@@ -32,6 +32,7 @@
 - [ADR-008](./adr/ADR-008-deployment-topology-and-promotion.md) — Koyeb/Neon/R2 и immutable promotion dev → production.
 - [ADR-009](./adr/ADR-009-generated-client-contract-shape.md) — extensible enum и nullable-структуры для генерируемых клиентов.
 - [ADR-010](./adr/ADR-010-offline-study-session-import.md) — импорт офлайн-сессии: доверенные и перестраиваемые поля, отказ для объективного режима, поведение при устаревшем контенте.
+- [ADR-011](./adr/ADR-011-bundled-flag-baseline.md) — флаги релиза зашиты в приложение как базовый слой, а исправления по-прежнему приезжают через content release.
 
 ## Подтверждённые продуктовые решения
 
