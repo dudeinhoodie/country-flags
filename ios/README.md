@@ -4,8 +4,10 @@ The Swift 6 / SwiftUI / iOS 17+ client of Country Flags.
 
 This file covers only how to run the project. Product requirements live in
 [docs/02-ios-spec.md](../docs/02-ios-spec.md), the order of work packages in
-[docs/ios/README.md](../docs/ios/README.md), and the shape of the API contract in
-[docs/15-ios-client-readiness.md](../docs/15-ios-client-readiness.md).
+[docs/ios/README.md](../docs/ios/README.md), the shape of the API contract in
+[docs/15-ios-client-readiness.md](../docs/15-ios-client-readiness.md), and the
+visual language every screen follows in
+[docs/16-ios-design-language.md](../docs/16-ios-design-language.md).
 
 ## Layout
 

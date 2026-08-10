@@ -23,7 +23,10 @@ localization проверены, release build воспроизводим и н�
 - длинные RU/EN строки;
 - keyboard/safe-area/rotation, где применимо;
 - network degradation и backend unavailable;
-- animation consistency.
+- animation consistency;
+- сверка экранов с `docs/16-ios-design-language.md`: анти-паттерны отсутствуют,
+  открытые решения раздела 12 закрыты или явно перенесены;
+- визуальная проверка на release toolchain, а не только на CI-версии Xcode.
 
 ### Accessibility
 

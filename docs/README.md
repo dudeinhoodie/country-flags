@@ -23,6 +23,7 @@
 - [13-deployment-environments.md](./13-deployment-environments.md) — local/CI/dev/prod, инфраструктура, CI/CD, миграции, backup и rollback.
 - [14-deployment-agent-handoff.md](./14-deployment-agent-handoff.md) — последовательность и критерии deployment work packages.
 - [15-ios-client-readiness.md](./15-ios-client-readiness.md) — сопоставление iOS-сценариев с операциями контракта, решения по planned-операциям и client fixtures.
+- [16-ios-design-language.md](./16-ios-design-language.md) — визуальный язык iOS-клиента: референсы, принципы, tokens, motion, haptics и словарь нативных компонентов.
 - [ios/README.md](./ios/README.md) — порядок iOS-разработки и отдельные agent-ready спецификации IOS-000…IOS-013.
 - [ADR-002](./adr/ADR-002-auth-and-refresh-token-rotation.md) — provider identities и refresh-token rotation.
 - [ADR-003](./adr/ADR-003-review-ordering-and-idempotency.md) — canonical ordering, clock normalization и idempotency review.
