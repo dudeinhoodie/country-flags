@@ -228,8 +228,7 @@ public struct ContentService: Sendable {
             for (index, card) in payload.items.enumerated() {
                 guard
                     let cardID = UUID(uuidString: card.id),
-                    let entityID = UUID(uuidString: card.answer.entityId),
-                    let assetID = UUID(uuidString: card.prompt.asset.id)
+                    let entityID = UUID(uuidString: card.answer.entityId)
                 else {
                     continue
                 }
@@ -237,23 +236,19 @@ public struct ContentService: Sendable {
                     unsupported.append(cardID)
                     continue
                 }
-                guard let assetURL = URL(string: card.prompt.asset.url) else {
+                guard
+                    let asset = Self.assetRecord(
+                        card.prompt.asset,
+                        contentVersion: card.contentVersion
+                    )
+                else {
                     // A prompt with no usable URL is a card that would draw an
                     // empty frame, which is worse than one fewer country.
                     unsupported.append(cardID)
                     continue
                 }
 
-                assets.append(
-                    AssetRecord(
-                        id: assetID,
-                        type: card.prompt.asset._type,
-                        url: assetURL,
-                        mimeType: card.prompt.asset.mimeType.rawValue,
-                        sha256: card.prompt.asset.sha256,
-                        contentVersion: card.contentVersion
-                    )
-                )
+                assets.append(asset)
                 cards.append(
                     LearningCardRecord(
                         id: cardID,
@@ -263,7 +258,7 @@ public struct ContentService: Sendable {
                         semanticVersion: card.semanticVersion,
                         revision: card.revision,
                         answerMode: card.answerMode.rawValue,
-                        promptAssetID: assetID,
+                        promptAssetID: asset.id,
                         displayName: card.answer.displayName,
                         aliases: card.answer.aliases,
                         contentVersion: card.contentVersion
@@ -399,18 +394,8 @@ public struct ContentService: Sendable {
                 recognitionStatus: payload.recognitionStatus,
                 contentVersion: payload.contentVersion,
                 names: names,
-                assets: payload.assets.compactMap { asset -> AssetRecord? in
-                    guard let id = UUID(uuidString: asset.id), let url = URL(string: asset.url) else {
-                        return nil
-                    }
-                    return AssetRecord(
-                        id: id,
-                        type: asset._type,
-                        url: url,
-                        mimeType: asset.mimeType.rawValue,
-                        sha256: asset.sha256,
-                        contentVersion: payload.contentVersion
-                    )
+                assets: payload.assets.compactMap {
+                    Self.assetRecord($0, contentVersion: payload.contentVersion)
                 },
                 facts: payload.facts.map {
                     FactRecord(
@@ -428,6 +413,41 @@ public struct ContentService: Sendable {
     }
 
     // MARK: - Helpers
+
+    /// The asset as this build will draw it: the first representation it can
+    /// decode, carrying the checksum of those bytes rather than of the vector.
+    ///
+    /// The cache verifies and stores what it downloaded, so the record has to
+    /// describe one encoding end to end — a vector URL paired with a raster
+    /// checksum would fail every verification.
+    ///
+    /// - Returns: nil when the identifier or the URL is unusable. A release
+    ///   that offers nothing renderable still yields a record, built from the
+    ///   asset's own vector, and the placeholder is what it draws.
+    private static func assetRecord(
+        _ asset: Components.Schemas.Asset,
+        contentVersion: String
+    ) -> AssetRecord? {
+        let chosen = asset.representations?.first {
+            RenderableRepresentation.canRender($0.mimeType.rawValue)
+        }
+        // A release published before representations existed describes only the
+        // vector, on the asset itself.
+        guard
+            let id = UUID(uuidString: asset.id),
+            let url = URL(string: chosen?.url ?? asset.url)
+        else {
+            return nil
+        }
+        return AssetRecord(
+            id: id,
+            type: asset._type,
+            url: url,
+            mimeType: chosen?.mimeType.rawValue ?? asset.mimeType.rawValue,
+            sha256: chosen?.sha256 ?? asset.sha256,
+            contentVersion: contentVersion
+        )
+    }
 
     private static func unmapped(_ statusCode: Int) -> APIError {
         // Unreachable in practice: the error mapping middleware turns every
