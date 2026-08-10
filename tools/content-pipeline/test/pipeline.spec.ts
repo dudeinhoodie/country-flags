@@ -10,8 +10,9 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { test } from "node:test";
+import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { inflateSync } from "node:zlib";
 
 import { normalizeSource, sourceAdapter } from "../src/adapters.js";
 import { sanitizeSvg } from "../src/assets.js";
@@ -47,6 +48,106 @@ async function hashDirectory(directory: string): Promise<string> {
   await visit(directory);
   return hash.digest("hex");
 }
+
+const PNG_SIGNATURE = Buffer.from([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+]);
+
+const PNG_CHANNELS_BY_COLOR_TYPE = new Map([
+  [0, 1],
+  [2, 3],
+  [3, 1],
+  [4, 2],
+  [6, 4],
+]);
+
+/// Decodes a published PNG the way an image decoder does: it walks the chunks
+/// and inflates the pixel stream rather than trusting the header.
+///
+/// Issue #82 shipped 250 assets that downloaded and matched their checksums and
+/// still never became a picture, so a check that stops at the bytes proves
+/// nothing about whether the app can draw them.
+function decodePng(
+  bytes: Buffer,
+  path: string,
+): { width: number; height: number } {
+  assert.ok(bytes.subarray(0, 8).equals(PNG_SIGNATURE), `${path} is not a PNG`);
+  assert.equal(
+    bytes.subarray(12, 16).toString("ascii"),
+    "IHDR",
+    `${path} does not start with a header chunk`,
+  );
+  const width = bytes.readUInt32BE(16);
+  const height = bytes.readUInt32BE(20);
+  const bitDepth = bytes.readUInt8(24);
+  const channels = PNG_CHANNELS_BY_COLOR_TYPE.get(bytes.readUInt8(25));
+  assert.ok(channels !== undefined, `${path} declares an unknown colour type`);
+  assert.equal(
+    bytes.readUInt8(28),
+    0,
+    `${path} is interlaced, which the published set is not`,
+  );
+
+  const pixelStream: Buffer[] = [];
+  let sawEnd = false;
+  for (let offset = 8; offset + 12 <= bytes.length; ) {
+    const length = bytes.readUInt32BE(offset);
+    const type = bytes.subarray(offset + 4, offset + 8).toString("ascii");
+    if (type === "IDAT") {
+      pixelStream.push(bytes.subarray(offset + 8, offset + 8 + length));
+    }
+    sawEnd ||= type === "IEND";
+    offset += length + 12;
+  }
+  assert.ok(sawEnd, `${path} is truncated before its end chunk`);
+  assert.ok(pixelStream.length > 0, `${path} carries no pixel data`);
+
+  // A PNG row is one filter byte followed by its packed samples, so a stream
+  // that inflates to anything else is not the picture the header describes.
+  const rowBytes = Math.ceil((width * channels * bitDepth) / 8);
+  assert.equal(
+    inflateSync(Buffer.concat(pixelStream)).length,
+    height * (rowBytes + 1),
+    `${path} does not inflate to a complete image`,
+  );
+  return { width, height };
+}
+
+/// Rasterizing every flag makes a build expensive, so the two builds the
+/// determinism check needs are shared with the tests that read their output
+/// instead of being repeated per test.
+type OfflineBundle = Awaited<ReturnType<typeof buildBundle>>;
+
+const temporaryRoots: string[] = [];
+let offlineBuilds: Promise<OfflineBundle[]> | undefined;
+
+function buildOfflineBundleTwice(): Promise<OfflineBundle[]> {
+  offlineBuilds ??= (async () => {
+    const builds: OfflineBundle[] = [];
+    for (const suffix of ["a", "b"]) {
+      const outputRoot = await mkdtemp(
+        join(tmpdir(), `country-flags-content-${suffix}-`),
+      );
+      temporaryRoots.push(outputRoot);
+      builds.push(
+        await buildBundle({
+          root: pipelineRoot,
+          catalogVersion: "deterministic-test-v1",
+          publishReady: true,
+          outputRoot,
+        }),
+      );
+    }
+    return builds;
+  })();
+  return offlineBuilds;
+}
+
+after(async () => {
+  for (const root of temporaryRoots) {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 
 void test("stable JSON ignores object insertion order", () => {
   assert.equal(
@@ -192,108 +293,153 @@ void test("SVG sanitizer rejects scripts, handlers, and external resources", () 
 });
 
 void test("offline builds are byte-identical and preserve editorial overrides", async () => {
-  const firstRoot = await mkdtemp(join(tmpdir(), "country-flags-content-a-"));
-  const secondRoot = await mkdtemp(join(tmpdir(), "country-flags-content-b-"));
-  try {
-    const options = {
-      root: pipelineRoot,
-      catalogVersion: "deterministic-test-v1",
-      publishReady: true,
-    };
-    const first = await buildBundle({ ...options, outputRoot: firstRoot });
-    const second = await buildBundle({ ...options, outputRoot: secondRoot });
+  const [first, second] = await buildOfflineBundleTwice();
+  assert.ok(first);
+  assert.ok(second);
 
-    assert.equal(
-      await hashDirectory(first.outputDirectory),
-      await hashDirectory(second.outputDirectory),
-    );
-    assert.equal(first.reports.unresolvedEntities.length, 0);
-    assert.equal(first.reports.missingTranslations.length, 0);
-    assert.equal(first.reports.missingAssets.length, 0);
-    assert.ok(first.reports.fieldConflicts.every(({ blocking }) => !blocking));
-    assert.equal(
-      first.reports.fieldConflicts.find(
-        ({ entityKey, path }) =>
-          entityKey === "country.united_states" && path === "names.ru.short",
-      )?.resolution,
-      "editorial_override",
-    );
-    assert.equal(
-      first.reports.fieldConflicts.find(
-        ({ entityKey, path }) =>
-          entityKey === "country.france" && path === "facts.currencies",
-      )?.resolution,
-      "source_priority",
-    );
+  assert.equal(
+    await hashDirectory(first.outputDirectory),
+    await hashDirectory(second.outputDirectory),
+  );
+  assert.equal(first.reports.unresolvedEntities.length, 0);
+  assert.equal(first.reports.missingTranslations.length, 0);
+  assert.equal(first.reports.missingAssets.length, 0);
+  assert.ok(first.reports.fieldConflicts.every(({ blocking }) => !blocking));
+  assert.equal(
+    first.reports.fieldConflicts.find(
+      ({ entityKey, path }) =>
+        entityKey === "country.united_states" && path === "names.ru.short",
+    )?.resolution,
+    "editorial_override",
+  );
+  assert.equal(
+    first.reports.fieldConflicts.find(
+      ({ entityKey, path }) =>
+        entityKey === "country.france" && path === "facts.currencies",
+    )?.resolution,
+    "source_priority",
+  );
 
-    const catalog = JSON.parse(
-      await readFile(join(first.outputDirectory, "catalog.json"), "utf8"),
-    ) as {
-      entities: {
-        key: string;
-        names?: Record<string, { short: string }>;
+  const catalog = JSON.parse(
+    await readFile(join(first.outputDirectory, "catalog.json"), "utf8"),
+  ) as {
+    entities: {
+      key: string;
+      names?: Record<string, { short: string }>;
+    }[];
+  };
+  const unitedStates = catalog.entities.find(
+    ({ key }) => key === "country.united_states",
+  );
+  assert.equal(unitedStates?.names?.ru?.short, "США");
+  assert.ok(
+    catalog.entities.some(({ key }) => key === "subregion.western-europe"),
+  );
+
+  const population = JSON.parse(
+    await readFile(
+      join(first.outputDirectory, "facts/population.json"),
+      "utf8",
+    ),
+  ) as {
+    records: {
+      entityKey: string;
+      gap: boolean;
+      value?: { year: number };
+    }[];
+  };
+  assert.deepEqual(
+    population.records.find(({ entityKey }) => entityKey === "country.kosovo"),
+    {
+      entityKey: "country.kosovo",
+      gap: true,
+      reason: "source_value_unavailable",
+    },
+  );
+  assert.equal(
+    population.records.find(({ entityKey }) => entityKey === "country.france")
+      ?.value?.year,
+    2024,
+  );
+
+  const currencies = JSON.parse(
+    await readFile(
+      join(first.outputDirectory, "facts/currencies.json"),
+      "utf8",
+    ),
+  ) as {
+    records: {
+      entityKey: string;
+      value?: { code: string; role: string; names?: unknown }[];
+    }[];
+  };
+  assert.deepEqual(
+    currencies.records
+      .find(({ entityKey }) => entityKey === "country.france")
+      ?.value?.at(0),
+    {
+      code: "EUR",
+      names: { en: "Euro", ru: "евро" },
+      role: "legal_tender",
+    },
+  );
+});
+
+void test("every published asset offers a representation that decodes into an image", async () => {
+  const [bundle] = await buildOfflineBundleTwice();
+  assert.ok(bundle);
+  const registry = JSON.parse(
+    await readFile(join(bundle.outputDirectory, "assets/assets.json"), "utf8"),
+  ) as {
+    assets: {
+      key: string;
+      representations: {
+        path: string;
+        mimeType: string;
+        sha256: string;
+        scale?: number;
+        widthPx?: number;
+        heightPx?: number;
       }[];
-    };
-    const unitedStates = catalog.entities.find(
-      ({ key }) => key === "country.united_states",
-    );
-    assert.equal(unitedStates?.names?.ru?.short, "США");
-    assert.ok(
-      catalog.entities.some(({ key }) => key === "subregion.western-europe"),
-    );
+    }[];
+  };
 
-    const population = JSON.parse(
-      await readFile(
-        join(first.outputDirectory, "facts/population.json"),
-        "utf8",
-      ),
-    ) as {
-      records: {
-        entityKey: string;
-        gap: boolean;
-        value?: { year: number };
-      }[];
-    };
+  assert.equal(registry.assets.length, 250);
+  for (const asset of registry.assets) {
+    // The vector stays first so a client that can draw it keeps the sharper
+    // file; the raster exists for the ones that cannot, which is every iOS
+    // version the app supports.
+    assert.equal(
+      asset.representations.at(0)?.mimeType,
+      "image/svg+xml",
+      `${asset.key} does not lead with its vector original`,
+    );
+    const raster = asset.representations.filter(
+      ({ mimeType }) => mimeType === "image/png",
+    );
     assert.deepEqual(
-      population.records.find(
-        ({ entityKey }) => entityKey === "country.kosovo",
-      ),
-      {
-        entityKey: "country.kosovo",
-        gap: true,
-        reason: "source_value_unavailable",
-      },
-    );
-    assert.equal(
-      population.records.find(({ entityKey }) => entityKey === "country.france")
-        ?.value?.year,
-      2024,
+      raster.map(({ scale }) => scale),
+      [2, 3],
+      `${asset.key} does not publish both raster scales in ascending order`,
     );
 
-    const currencies = JSON.parse(
-      await readFile(
-        join(first.outputDirectory, "facts/currencies.json"),
-        "utf8",
-      ),
-    ) as {
-      records: {
-        entityKey: string;
-        value?: { code: string; role: string; names?: unknown }[];
-      }[];
-    };
-    assert.deepEqual(
-      currencies.records
-        .find(({ entityKey }) => entityKey === "country.france")
-        ?.value?.at(0),
-      {
-        code: "EUR",
-        names: { en: "Euro", ru: "евро" },
-        role: "legal_tender",
-      },
-    );
-  } finally {
-    await rm(firstRoot, { recursive: true, force: true });
-    await rm(secondRoot, { recursive: true, force: true });
+    for (const representation of asset.representations) {
+      const bytes: Buffer = await readFile(
+        join(bundle.outputDirectory, representation.path),
+      );
+      assert.equal(
+        sha256(bytes),
+        representation.sha256,
+        `${representation.path} does not match the checksum a client verifies`,
+      );
+      if (representation.mimeType !== "image/png") {
+        continue;
+      }
+      assert.deepEqual(decodePng(bytes, representation.path), {
+        width: representation.widthPx,
+        height: representation.heightPx,
+      });
+    }
   }
 });
 

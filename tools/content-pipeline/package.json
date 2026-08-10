@@ -23,6 +23,7 @@
     "typescript-eslint": "8.38.0"
   },
   "dependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1"
   }
