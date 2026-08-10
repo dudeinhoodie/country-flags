@@ -173,17 +173,13 @@ struct FlagImageView: View {
     }
 
     private func load() async {
-        guard let record = await store.asset(id: assetID) else {
-            didFail = true
-            return
-        }
-        guard let data = try? await assets.data(for: record),
-            let platformImage = UIImage(data: data)
+        guard let record = await store.asset(id: assetID),
+            let resolved = await FlagImageResolver(assets: assets).image(for: record)
         else {
             didFail = true
             return
         }
         didFail = false
-        image = Image(uiImage: platformImage)
+        image = resolved
     }
 }
