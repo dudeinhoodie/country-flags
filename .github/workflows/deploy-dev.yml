@@ -1,0 +1,194 @@
+name: Deploy dev
+
+# A successful master build is what produces the image, so the deploy hangs off
+# that run rather than off the push: chaining on the push would race the
+# publish and deploy a tag that does not exist yet.
+on:
+  workflow_run:
+    workflows: ["Backend CI"]
+    branches: [master]
+    types: [completed]
+  # Redeploying the same image is how a bad revision is recovered from without
+  # rebuilding anything.
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Commit SHA already published to GHCR
+        required: true
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+  packages: read
+  deployments: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  REGION: europe-west3
+  SERVICE: api-dev
+  REPOSITORY: country-flags
+  SOURCE_IMAGE: ghcr.io/dudeinhoodie/country-flags-backend
+
+concurrency:
+  # A second deploy waits rather than cancels: cancelling one mid-migration
+  # would leave the database ahead of every running revision.
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # A failed build has nothing worth deploying, and a manual run has no
+    # upstream conclusion to read.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Resolve the commit
+        id: commit
+        run: |
+          set -euo pipefail
+          sha="${{ github.event.inputs.sha || github.event.workflow_run.head_sha }}"
+          echo "sha=${sha}" >> "$GITHUB_OUTPUT"
+          echo "Deploying ${sha}"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.commit.outputs.sha }}
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # Cloud Run serves images from Artifact Registry rather than from an
+      # arbitrary registry, so the published image is copied rather than
+      # rebuilt: rebuilding would deploy bytes CI never tested.
+      - name: Copy the release image into Artifact Registry
+        id: image
+        run: |
+          set -euo pipefail
+          target="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/api"
+          tag="sha-${{ steps.commit.outputs.sha }}"
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker pull "${SOURCE_IMAGE}:${tag}"
+          docker tag "${SOURCE_IMAGE}:${tag}" "${target}:${tag}"
+          docker push "${target}:${tag}"
+          # The digest is what the revision pins: a tag can be moved, a digest
+          # cannot, and "redeploy the same image" has to mean the same bytes.
+          digest="$(gcloud artifacts docker images describe "${target}:${tag}" --format='value(image_summary.digest)')"
+          echo "reference=${target}@${digest}" >> "$GITHUB_OUTPUT"
+
+      - name: Read the database credentials
+        id: database
+        run: |
+          set -euo pipefail
+          # Read at deploy time rather than duplicated into GitHub: the
+          # credential has one home, and rotating it there is the whole change.
+          url="$(gcloud secrets versions access latest --secret=dev-database-url)"
+          direct="$(gcloud secrets versions access latest --secret=dev-direct-database-url)"
+          echo "::add-mask::${url}"
+          echo "::add-mask::${direct}"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+          echo "direct=${direct}" >> "$GITHUB_OUTPUT"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      # Before the deploy, and on its own: a revision that starts against a
+      # database it is ahead of fails in ways a health check cannot describe.
+      # A failure here leaves the running revision untouched.
+      - name: Migrate the dev database
+        env:
+          DATABASE_URL: ${{ steps.database.outputs.url }}
+          DIRECT_DATABASE_URL: ${{ steps.database.outputs.direct }}
+        run: corepack yarn workspace @country-flags/backend prisma migrate deploy
+
+      - name: Deploy the revision
+        id: deploy
+        run: |
+          set -euo pipefail
+          gcloud run deploy "${SERVICE}" \
+            --region "${REGION}" \
+            --image "${{ steps.image.outputs.reference }}" \
+            --service-account "api-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
+            --quiet
+          url="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.url)')"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      # Deployed is not the same as working. The revision has to answer before
+      # the run is called a success, or a broken image would be reported green.
+      - name: Wait for readiness
+        run: |
+          set -euo pipefail
+          url="${{ steps.deploy.outputs.url }}/v1/health/ready"
+          for attempt in $(seq 1 30); do
+            code="$(curl -sS -o /tmp/ready.json -w '%{http_code}' "${url}" || true)"
+            if [ "${code}" = "200" ]; then
+              echo "Ready after ${attempt} attempt(s)"
+              cat /tmp/ready.json
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::${url} did not become ready"
+          cat /tmp/ready.json || true
+          exit 1
+
+      - name: Smoke test the public surface
+        run: |
+          set -euo pipefail
+          base="${{ steps.deploy.outputs.url }}"
+          # The manifest is the one read every client makes before anything
+          # else, so it is the cheapest proof that content is actually served.
+          code="$(curl -sS -o /tmp/manifest.json -w '%{http_code}' "${base}/v1/content/manifest?locale=en" || true)"
+          case "${code}" in
+            200|404)
+              # 404 is a deployment with no published release yet, which is a
+              # working API rather than a broken one.
+              echo "Manifest responded ${code}" ;;
+            *)
+              echo "::error::Manifest responded ${code}"
+              cat /tmp/manifest.json || true
+              exit 1 ;;
+          esac
+
+      - name: Record the deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ steps.commit.outputs.sha }}',
+              environment: 'dev',
+              auto_merge: false,
+              required_contexts: [],
+              description: 'Cloud Run api-dev',
+            });
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: 'success',
+              environment_url: '${{ steps.deploy.outputs.url }}',
+              description: 'Ready and smoke tested',
+            });
