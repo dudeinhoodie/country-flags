@@ -11,11 +11,14 @@ import CountryFlagsDomain
 /// because an unsynchronized outbox lives in it.
 enum LocalStoreMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [LocalSchemaV1.self]
+        [LocalSchemaV1.self, LocalSchemaV2.self]
     }
 
     static var stages: [MigrationStage] {
-        []
+        // Adding the facts a card prints on its back: a property with a
+        // default, which SwiftData can apply without a device losing what it
+        // has not uploaded yet.
+        [.lightweight(fromVersion: LocalSchemaV1.self, toVersion: LocalSchemaV2.self)]
     }
 }
 
@@ -33,7 +36,7 @@ public struct LocalStore: Sendable {
     public let container: ModelContainer
 
     public init(location: Location = .onDisk(name: "CountryFlags")) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV1.self)
+        let schema = Schema(versionedSchema: LocalSchemaV2.self)
         let configuration: ModelConfiguration
         switch location {
         case .inMemory:
@@ -65,7 +68,7 @@ public struct LocalStore: Sendable {
     /// Builds a store at an explicit file URL, which is what a migration or a
     /// relaunch test needs.
     public init(fileURL: URL) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV1.self)
+        let schema = Schema(versionedSchema: LocalSchemaV2.self)
         do {
             container = try ModelContainer(
                 for: schema,
@@ -105,7 +108,7 @@ public struct LocalStore: Sendable {
     /// which only needs to know which files to remove before the store is
     /// opened.
     public static func fileURLs(forName name: String) -> [URL] {
-        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV1.self))
+        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV2.self))
             .url
         // SQLite keeps its write-ahead log and shared memory next to the store.
         return [base]

@@ -46,6 +46,10 @@ public protocol ContentRepository: Sendable {
 
     func decks() async throws -> [DeckRecord]
     func cards(inDeck deckID: UUID) async throws -> [LearningCardRecord]
+    /// One card by identifier, retired or not: a running session holds cards
+    /// the current release may already have retired, and their backs still
+    /// have to render.
+    func card(id: UUID) async throws -> LearningCardRecord?
     func entity(id: UUID) async throws -> GeoEntityRecord?
     /// Resolves the asset a card names as its prompt.
     ///

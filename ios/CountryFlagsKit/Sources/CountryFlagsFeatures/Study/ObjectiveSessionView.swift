@@ -88,6 +88,8 @@ public struct ObjectiveSessionView: View {
             }
 
             if presentation.isAnswered {
+                CardBackFactsView(learningCardID: question.learningCardID, store: store)
+
                 Button(L10n.studyNext) {
                     Task { await runner.advance() }
                 }

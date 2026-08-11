@@ -170,6 +170,10 @@ public struct LearningCardRecord: Hashable, Sendable {
     /// A retired card stays readable for an unfinished session but is never
     /// selected again.
     public let isRetired: Bool
+    /// What the release prints on the back of the card, in the order it
+    /// published them. Empty for a release that publishes none, which is a
+    /// card with nothing more to say rather than an error.
+    public let backSideFacts: [FactRecord]
 
     public init(
         id: UUID,
@@ -183,7 +187,8 @@ public struct LearningCardRecord: Hashable, Sendable {
         displayName: String,
         aliases: [String],
         contentVersion: String,
-        isRetired: Bool = false
+        isRetired: Bool = false,
+        backSideFacts: [FactRecord] = []
     ) {
         self.id = id
         self.subjectEntityID = subjectEntityID
@@ -197,6 +202,7 @@ public struct LearningCardRecord: Hashable, Sendable {
         self.aliases = aliases
         self.contentVersion = contentVersion
         self.isRetired = isRetired
+        self.backSideFacts = backSideFacts
     }
 }
 

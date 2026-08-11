@@ -86,6 +86,12 @@ actor SwiftDataContentRepository: ContentRepository {
             .map(Self.record)
     }
 
+    func card(id: UUID) async throws -> LearningCardRecord? {
+        var descriptor = FetchDescriptor<StoredLearningCard>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first.map(Self.record)
+    }
+
     /// Resolving one entity is deliberately not filtered by the current
     /// release, unlike the two listings above.
     ///
@@ -187,6 +193,13 @@ actor SwiftDataContentRepository: ContentRepository {
             stored.aliases = card.aliases
             stored.contentVersion = card.contentVersion
             stored.isRetired = card.isRetired
+            stored.backSideFacts = card.backSideFacts.map {
+                StoredCardFact(
+                    type: $0.type,
+                    displayValue: $0.displayValue,
+                    sourceName: $0.sourceName
+                )
+            }
         }
 
         for membership in page.deckCards {
@@ -457,7 +470,14 @@ actor SwiftDataContentRepository: ContentRepository {
             displayName: stored.displayName,
             aliases: stored.aliases,
             contentVersion: stored.contentVersion,
-            isRetired: stored.isRetired
+            isRetired: stored.isRetired,
+            backSideFacts: stored.backSideFacts.map {
+                FactRecord(
+                    type: $0.type,
+                    displayValue: $0.displayValue,
+                    sourceName: $0.sourceName
+                )
+            }
         )
     }
 

@@ -76,9 +76,14 @@ enum PersistenceFixtures {
         )
     }
 
+    static func deckCard() -> DeckCardRecord {
+        DeckCardRecord(deckID: deckID, learningCardID: cardID, sortOrder: 0)
+    }
+
     static func card(
         id: UUID = cardID,
-        version: String = "test-only-fixture-v1"
+        version: String = "test-only-fixture-v1",
+        facts: [FactRecord] = []
     ) -> LearningCardRecord {
         LearningCardRecord(
             id: id,
@@ -91,7 +96,8 @@ enum PersistenceFixtures {
             promptAssetID: assetID,
             displayName: "Бельгия",
             aliases: [],
-            contentVersion: version
+            contentVersion: version,
+            backSideFacts: facts
         )
     }
 

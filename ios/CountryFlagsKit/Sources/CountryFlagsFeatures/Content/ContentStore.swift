@@ -87,6 +87,10 @@ public final class ContentStore {
         (try? await repository.cards(inDeck: deckID)) ?? []
     }
 
+    public func card(id: UUID) async -> LearningCardRecord? {
+        try? await repository.card(id: id)
+    }
+
     public func asset(id: UUID) async -> AssetRecord? {
         (try? await repository.asset(id: id)) ?? nil
     }

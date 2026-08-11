@@ -211,7 +211,17 @@ enum SyntheticContent {
         """
     }
 
-    public static func deckCardsResponse() -> MockClientTransport.Response {
+    /// - Parameter facts: whether the payload carries a back side fact, which
+    ///   only the mapping test needs; every other caller wants the shape a card
+    ///   has when the release publishes nothing about the country.
+    public static func deckCardsResponse(facts: Bool = false) -> MockClientTransport.Response {
+        let backSideFacts =
+            facts
+            ? """
+            {"type":"CAPITAL","displayValue":"Paris","observedAt":null,\
+            "source":{"name":"annexare/Countries","url":"https://example.invalid"}}
+            """
+            : ""
         let items = flags.map { flag in
             """
             {"id":"\(flag.cardID)","templateCode":"FLAG_TO_COUNTRY",\
@@ -225,7 +235,7 @@ enum SyntheticContent {
             "licenseName":"CC0-1.0","attribution":null}},\
             "answer":{"entityId":"\(flag.entityID)","displayName":"\(flag.name)",\
             "aliases":[\(flag.aliases.map { "\"\($0)\"" }.joined(separator: ","))]},\
-            "backSideFacts":[],"contentVersion":"\(contentVersion)"}
+            "backSideFacts":[\(backSideFacts)],"contentVersion":"\(contentVersion)"}
             """
         }
         .joined(separator: ",")

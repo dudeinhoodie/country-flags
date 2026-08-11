@@ -246,6 +246,10 @@ final class StoredLearningCard {
     var aliases: [String] = []
     var contentVersion: String = ""
     var isRetired: Bool = false
+    /// What the release prints on the back of this card, in the order it
+    /// published them. Added in `LocalSchemaV2`; a store written by an earlier
+    /// build has none until the next release is applied.
+    var backSideFacts: [StoredCardFact] = []
 
     init(
         id: UUID,
@@ -259,7 +263,8 @@ final class StoredLearningCard {
         displayName: String,
         aliases: [String],
         contentVersion: String,
-        isRetired: Bool
+        isRetired: Bool,
+        backSideFacts: [StoredCardFact] = []
     ) {
         self.id = id
         self.subjectEntityID = subjectEntityID
@@ -273,7 +278,19 @@ final class StoredLearningCard {
         self.aliases = aliases
         self.contentVersion = contentVersion
         self.isRetired = isRetired
+        self.backSideFacts = backSideFacts
     }
+}
+
+/// One line on the back of a card.
+///
+/// Stored as a value rather than as its own model: the facts of a card are read
+/// with it, never queried on their own, and a relationship would buy an index
+/// nothing looks anything up by.
+struct StoredCardFact: Codable, Hashable {
+    var type: String
+    var displayValue: String
+    var sourceName: String
 }
 
 @Model
