@@ -70,13 +70,32 @@ public final class ProgressStore {
         // The progress belongs to the account that did the work, so the scope
         // is resolved here rather than captured when the screen was built.
         let scope = await scopes.currentScope()
-        guard let decks = try? await content.decks() else {
+        let states = (try? await learning.cardStates(for: scope)) ?? []
+        achievements = ((try? await learning.achievements(for: scope)) ?? [])
+            .filter { $0.earnedAt != nil }
+            .sorted { ($0.earnedAt ?? .distantPast) > ($1.earnedAt ?? .distantPast) }
+            .map {
+                AchievementRow(
+                    id: $0.id,
+                    code: $0.code,
+                    tier: $0.tier.map(MasteryTier.init(rawValue:)),
+                    earnedAt: $0.earnedAt
+                )
+            }
+        let decks = (try? await content.decks()) ?? []
+
+        // A learner who has answered nothing has no progress, whatever the
+        // decks hold. Saying so needs no reading of the catalogue at all, and
+        // reading it is the expensive part: on a fresh install this screen
+        // would otherwise walk every card of the release to reach a row of
+        // zeroes.
+        guard !states.isEmpty || !achievements.isEmpty else {
+            self.decks = decks.map { Self.row(deck: $0, counts: nil, tier: nil) }
             isLoaded = true
             return
         }
-        let cardsByDeck = (try? await content.cardIdentifiersByDeck()) ?? [:]
 
-        let states = (try? await learning.cardStates(for: scope)) ?? []
+        let cardsByDeck = (try? await content.cardIdentifiersByDeck()) ?? [:]
         let counted = LocalProgressProjection.progress(
             cardsByDeck: cardsByDeck,
             states: states,
@@ -95,29 +114,29 @@ public final class ProgressStore {
         )
 
         self.decks = decks.map { deck in
-            let counts = countsByDeck[deck.id]
-            return DeckProgressRow(
-                id: deck.id,
-                code: deck.code,
-                name: deck.name,
-                totalCards: counts?.totalCards ?? deck.cardCount,
-                startedCards: counts?.startedCards ?? 0,
-                dueCards: counts?.dueCards ?? 0,
-                masteryTier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
+            Self.row(
+                deck: deck,
+                counts: countsByDeck[deck.id],
+                tier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
             )
         }
-        achievements = ((try? await learning.achievements(for: scope)) ?? [])
-            .filter { $0.earnedAt != nil }
-            .sorted { ($0.earnedAt ?? .distantPast) > ($1.earnedAt ?? .distantPast) }
-            .map {
-                AchievementRow(
-                    id: $0.id,
-                    code: $0.code,
-                    tier: $0.tier.map(MasteryTier.init(rawValue:)),
-                    earnedAt: $0.earnedAt
-                )
-            }
         isLoaded = true
+    }
+
+    private static func row(
+        deck: DeckRecord,
+        counts: LocalDeckProgress?,
+        tier: MasteryTier?
+    ) -> DeckProgressRow {
+        DeckProgressRow(
+            id: deck.id,
+            code: deck.code,
+            name: deck.name,
+            totalCards: counts?.totalCards ?? deck.cardCount,
+            startedCards: counts?.startedCards ?? 0,
+            dueCards: counts?.dueCards ?? 0,
+            masteryTier: tier
+        )
     }
 
     /// Nothing has been studied yet, which is a different screen from a screen
