@@ -20,7 +20,11 @@ final class CardBackFactsUITests: XCTestCase {
         let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
         deck.tap()
-        app.buttons["study.start"].tap()
+        // The deck screen has to draw before its button can be pressed, and
+        // drawing it means reading the release.
+        let start = app.buttons["study.start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 30), app.debugDescription)
+        start.tap()
 
         let reveal = app.buttons["study.reveal"]
         XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)

@@ -74,11 +74,7 @@ public final class ProgressStore {
             isLoaded = true
             return
         }
-        var cardsByDeck: [UUID: [UUID]] = [:]
-        for deck in decks {
-            let cards = (try? await content.cards(inDeck: deck.id)) ?? []
-            cardsByDeck[deck.id] = cards.map(\.id)
-        }
+        let cardsByDeck = (try? await content.cardIdentifiersByDeck()) ?? [:]
 
         let states = (try? await learning.cardStates(for: scope)) ?? []
         let counted = LocalProgressProjection.progress(
