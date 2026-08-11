@@ -54,7 +54,9 @@ final class LocalizationTests: XCTestCase {
             ("shell.subtitle", L10n.shellSubtitle),
             ("shell.open_settings", L10n.shellOpenSettings),
             ("settings.title", L10n.settingsTitle),
-            ("route.not_implemented", L10n.routeNotImplemented),
+            ("progress.empty.title", L10n.progressEmptyTitle),
+            ("settings.reminders", L10n.settingsReminders),
+            ("mastery.gold", L10n.masteryGold),
         ] {
             XCTAssertNotEqual(value, key, "\(key) has no localization")
             XCTAssertFalse(value.isEmpty)

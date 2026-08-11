@@ -46,6 +46,7 @@ struct AppComposition: AppDependencies {
     let content: ContentStore
     let assets: any AssetLoading
     let scopes: any AccountScopeResolving
+    let settingsSync: any SettingsSyncing
     let sync: SyncCenter
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
@@ -137,6 +138,10 @@ struct AppComposition: AppDependencies {
         )
 
         let accountScopes = accountScopes(tokens: tokens, identifiers: identifiers, logger: logger)
+        // Settings are offered to the server under the version they were read
+        // at. A guest never reaches it — the store checks the scope — but the
+        // seam is wired now so signing in does not need a composition change.
+        let progressService = ProgressService(clientFactory: apiClientFactory, logger: logger)
         // The queue is durable from the first launch. Nothing is sent until a
         // device is registered, which the auth work package owns, so a guest's
         // answers accumulate safely instead of being attributed to nobody.
@@ -169,6 +174,7 @@ struct AppComposition: AppDependencies {
             ),
             assets: assetCache,
             scopes: accountScopes,
+            settingsSync: progressService,
             sync: SyncCenter(coordinator: syncCoordinator, scopes: accountScopes),
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
@@ -204,6 +210,26 @@ struct AppComposition: AppDependencies {
         // moment later.
         activatedFlags.freezeLaunchValues()
         await featureFlags.refresh(context: context)
+    }
+
+    /// The progress screen owns no state between visits: it reads the store on
+    /// appearance, so a session finished a moment ago is already counted.
+    func makeProgressStore() -> ProgressStore {
+        ProgressStore(
+            content: store.makeContentRepository(),
+            learning: store.makeLearningRepository(),
+            scopes: scopes,
+            dates: dates
+        )
+    }
+
+    func makeSettingsStore() -> SettingsStore {
+        SettingsStore(
+            learning: store.makeLearningRepository(),
+            scopes: scopes,
+            sync: settingsSync,
+            dates: dates
+        )
     }
 
     func makeObjectiveSessionRunner() -> ObjectiveSessionRunner {
