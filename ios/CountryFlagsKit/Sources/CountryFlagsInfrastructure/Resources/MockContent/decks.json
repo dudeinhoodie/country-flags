@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "1a7136a1-77d9-57f3-9d96-c9dff6e9dd16",
+      "code": "ALL",
+      "kind": "CURATED",
+      "name": "All countries",
+      "description": "Approved development catalog",
+      "cardCount": 250,
+      "dueCount": null,
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "24443c6e-25c1-5f90-b086-2da42d65af08",
+      "code": "EUROPE",
+      "kind": "TAXONOMY",
+      "name": "Europe",
+      "description": "European collection",
+      "cardCount": 4,
+      "dueCount": null,
+      "contentVersion": "fixture-v1"
+    }
+  ],
+  "page": {
+    "nextCursor": null,
+    "hasMore": false
+  }
+}

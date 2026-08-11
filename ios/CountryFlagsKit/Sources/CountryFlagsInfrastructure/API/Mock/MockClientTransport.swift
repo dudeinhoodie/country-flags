@@ -25,10 +25,19 @@ public actor MockClientTransport: ClientTransport {
             statusCode: Int = 200,
             headerFields: [String: String] = [:]
         ) -> Response {
+            self.json(Data(json.utf8), statusCode: statusCode, headerFields: headerFields)
+        }
+
+        /// A document that is already encoded, such as one read from a file.
+        public static func json(
+            _ body: Data,
+            statusCode: Int = 200,
+            headerFields: [String: String] = [:]
+        ) -> Response {
             Response(
                 statusCode: statusCode,
                 headerFields: headerFields.merging(["content-type": "application/json"]) { current, _ in current },
-                body: Data(json.utf8)
+                body: body
             )
         }
 
@@ -64,19 +73,28 @@ public actor MockClientTransport: ClientTransport {
         }
     }
 
+    /// Answers an operation from the request itself, for the cases where one
+    /// prepared response cannot be right for every call — a collection endpoint
+    /// whose contents depend on the identifier in the path.
+    public typealias Handler = @Sendable (RecordedRequest) -> Response
+
     public enum Failure: Error, Equatable {
         case noResponseRegistered(operationID: String)
     }
 
     private var queues: [String: [Response]] = [:]
     private var fallbacks: [String: Response] = [:]
+    private var handlers: [String: Handler] = [:]
     public private(set) var recordedRequests: [RecordedRequest] = []
 
-    /// - Parameter fallbacks: answers registered before the transport is
-    ///   reachable. A caller that has to `await` its way in cannot be sure the
-    ///   registration wins the race against the first request.
-    public init(fallbacks: [String: Response] = [:]) {
+    /// - Parameters:
+    ///   - fallbacks: answers registered before the transport is reachable. A
+    ///     caller that has to `await` its way in cannot be sure the
+    ///     registration wins the race against the first request.
+    ///   - handlers: the same, for operations answered from the request.
+    public init(fallbacks: [String: Response] = [:], handlers: [String: Handler] = [:]) {
         self.fallbacks = fallbacks
+        self.handlers = handlers
     }
 
     /// Queues answers consumed in order. Used when the same operation must
@@ -88,6 +106,11 @@ public actor MockClientTransport: ClientTransport {
     /// Answers every call to an operation the same way.
     public func always(_ response: Response, for operationID: String) {
         fallbacks[operationID] = response
+    }
+
+    /// Answers every call to an operation from the request that made it.
+    public func always(_ handler: @escaping Handler, for operationID: String) {
+        handlers[operationID] = handler
     }
 
     public func requests(for operationID: String) -> [RecordedRequest] {
@@ -104,24 +127,27 @@ public actor MockClientTransport: ClientTransport {
         if let body {
             collected = try await Data(collecting: body, upTo: 4 * 1024 * 1024)
         }
-        recordedRequests.append(
-            RecordedRequest(
-                operationID: operationID,
-                method: request.method.rawValue,
-                path: request.path ?? "",
-                headerFields: Dictionary(
-                    request.headerFields.map { ($0.name.canonicalName.lowercased(), $0.value) },
-                    uniquingKeysWith: { first, _ in first }
-                ),
-                body: collected
-            )
+        let recorded = RecordedRequest(
+            operationID: operationID,
+            method: request.method.rawValue,
+            path: request.path ?? "",
+            headerFields: Dictionary(
+                request.headerFields.map { ($0.name.canonicalName.lowercased(), $0.value) },
+                uniquingKeysWith: { first, _ in first }
+            ),
+            body: collected
         )
+        recordedRequests.append(recorded)
 
+        // A queued answer is consumed first because it is the one registered to
+        // make this particular call behave differently.
         let response: Response
         if !(queues[operationID]?.isEmpty ?? true) {
             response = queues[operationID]!.removeFirst()
         } else if let fallback = fallbacks[operationID] {
             response = fallback
+        } else if let handler = handlers[operationID] {
+            response = handler(recorded)
         } else {
             throw Failure.noResponseRegistered(operationID: operationID)
         }

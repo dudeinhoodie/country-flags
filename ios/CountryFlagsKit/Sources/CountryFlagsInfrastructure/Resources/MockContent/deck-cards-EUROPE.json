@@ -1,0 +1,236 @@
+{
+  "items": [
+    {
+      "id": "b4b20768-b74e-5d81-8032-deef6ae9639c",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "2821d3e8-61d9-58c2-9c39-1a77cdb13b32",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/france.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "f68d0c6b56e5b499023f0c1d0a4fd06cfcd9f4f8b16fa631dcfc5bded8daffad",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/france.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "f68d0c6b56e5b499023f0c1d0a4fd06cfcd9f4f8b16fa631dcfc5bded8daffad",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/france@2x.png",
+              "mimeType": "image/png",
+              "sha256": "43d859465c8a70ad6821dfbec338cdf7e4358f606c309d8128368718b94e9c33",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/france@3x.png",
+              "mimeType": "image/png",
+              "sha256": "81ef993461898c41e31c526f97993693248e110612a4d109053813150e65378c",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "02914416-bb86-5ba1-b54e-b499bfa90cf1",
+        "displayName": "France",
+        "aliases": [
+          "Франция"
+        ]
+      },
+      "backSideFacts": [],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "2e9b13fc-d2e4-50fc-9a2d-2a08d0bd896c",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "5fac849e-ef1a-5752-a097-417338479582",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/germany.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "c116462ed848fc9faf708d01e30fb74c809779969288efc6593c77ead7d65ec3",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/germany.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "c116462ed848fc9faf708d01e30fb74c809779969288efc6593c77ead7d65ec3",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/germany@2x.png",
+              "mimeType": "image/png",
+              "sha256": "9529558af54a8bcb38aa42f46c9967a03d9a5e1bdbebe299882c3d8a14d1878a",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/germany@3x.png",
+              "mimeType": "image/png",
+              "sha256": "7ca5eb0ba90649bd96f1bf3cecc8187b1ac50388f7490095399ddc692eb2a7e9",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "e9e88475-ae0d-54d5-b98d-c50d34413647",
+        "displayName": "Germany",
+        "aliases": [
+          "Германия"
+        ]
+      },
+      "backSideFacts": [],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "ecfe54b1-a068-510b-9770-bbbdbc42fb67",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "60b8922f-0836-59c8-a132-494bb42c524e",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kosovo.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "8edbe12599236bf3b950f3bc98da33ac5ddc26756c31857780ddedd95941bb98",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kosovo.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "8edbe12599236bf3b950f3bc98da33ac5ddc26756c31857780ddedd95941bb98",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/kosovo@2x.png",
+              "mimeType": "image/png",
+              "sha256": "460224b5365d3113f17560c3f05cf38b1b26fded2c1484bd2c3b7ce85f2986d7",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/kosovo@3x.png",
+              "mimeType": "image/png",
+              "sha256": "d4016ac258dbce5d51cc4f05ebb09b16c72945dce0645d23073195c3f55d7857",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "1d2a8019-779a-5a26-bec4-14cf93084fda",
+        "displayName": "Kosovo",
+        "aliases": [
+          "Косово"
+        ]
+      },
+      "backSideFacts": [],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "3cd6f0e8-1c0f-523c-9fdf-192275ee0d71",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "ce4b739d-5d5f-550d-b812-7c10742aafbb",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/russia.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "614699589fd86f07197520c0f156762babc4f864fb2dab66f2cf9a8dce649336",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/russia.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "614699589fd86f07197520c0f156762babc4f864fb2dab66f2cf9a8dce649336",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/russia@2x.png",
+              "mimeType": "image/png",
+              "sha256": "3ccc479706292e6ce85d5fe26b0f97588b53ce19aa12d704818e6c32acec0c47",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/russia@3x.png",
+              "mimeType": "image/png",
+              "sha256": "d074ffc586a685a865749ae3399cd61a2ca7a0d20f06c63dea915511a772d958",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "bd3d4090-6f84-5c04-90cf-f62a78b1f19b",
+        "displayName": "Russia",
+        "aliases": [
+          "Россия"
+        ]
+      },
+      "backSideFacts": [],
+      "contentVersion": "fixture-v1"
+    }
+  ],
+  "page": {
+    "nextCursor": null,
+    "hasMore": false
+  }
+}

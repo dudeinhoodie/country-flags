@@ -24,7 +24,9 @@ final class StudySessionUITests: XCTestCase {
         var answered = 0
         while !result.exists && answered < 30 {
             let reveal = app.buttons["study.reveal"]
-            XCTAssertTrue(reveal.waitForExistence(timeout: 10), app.debugDescription)
+            // The deck is the published release, so selecting a session is real
+            // work; this waits as long as a bootstrap does.
+            XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)
             // The answer must not be on screen before the flip.
             XCTAssertFalse(app.staticTexts["study.answer"].exists)
             reveal.tap()
@@ -84,7 +86,7 @@ final class StudySessionUITests: XCTestCase {
     }
 
     private func openDeck(in app: XCUIApplication) {
-        let deck = app.buttons["home.deck.ALL_COUNTRIES"]
+        let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
         deck.tap()
     }

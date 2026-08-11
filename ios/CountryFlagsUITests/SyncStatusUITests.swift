@@ -13,7 +13,7 @@ final class SyncStatusUITests: XCTestCase {
         // Nothing queued yet, so a healthy device says nothing at all.
         XCTAssertFalse(app.staticTexts["sync.status"].exists)
 
-        app.buttons["home.deck.ALL_COUNTRIES"].tap()
+        app.buttons["home.deck.ALL"].tap()
         XCTAssertTrue(app.buttons["study.start"].waitForExistence(timeout: 15))
         app.buttons["study.start"].tap()
 
