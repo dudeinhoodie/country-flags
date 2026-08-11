@@ -11,6 +11,7 @@ import {
   mapAssetRepresentations,
 } from "../content/asset-representations";
 import { localeCandidates } from "../content/content-query";
+import { mapBackSideFacts } from "../content/fact-display";
 
 export const CARD_SNAPSHOT_INCLUDE = {
   template: true,
@@ -61,19 +62,6 @@ export function pinRevision(
   return { ...card, revisions: [revision] };
 }
 
-function factDisplayValue(value: Prisma.JsonValue): string {
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value) &&
-    "displayValue" in value &&
-    typeof value.displayValue === "string"
-  ) {
-    return value.displayValue;
-  }
-
-  return typeof value === "string" ? value : JSON.stringify(value);
-}
 
 function selectEntityName(
   card: SnapshotLearningCard,
@@ -149,18 +137,7 @@ export function buildLearningCardSnapshot(
       displayName: entityName.value,
       aliases,
     },
-    backSideFacts: card.subject.facts.map((fact) => ({
-      type: fact.factType,
-      displayValue: factDisplayValue(fact.value),
-      observedAt:
-        fact.observedAt === null
-          ? null
-          : fact.observedAt.toISOString().slice(0, 10),
-      source: {
-        name: fact.source.name,
-        url: fact.source.url,
-      },
-    })),
+    backSideFacts: mapBackSideFacts(card.subject.facts, requestedLocale),
     contentVersion: card.contentVersion,
   };
 }

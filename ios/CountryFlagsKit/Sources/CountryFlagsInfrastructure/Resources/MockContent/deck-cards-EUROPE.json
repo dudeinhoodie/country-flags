@@ -54,7 +54,44 @@
           "Франция"
         ]
       },
-      "backSideFacts": [],
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Paris",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Euro (EUR)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "French",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "68,551,653 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
       "contentVersion": "fixture-v1"
     },
     {
@@ -111,7 +148,44 @@
           "Германия"
         ]
       },
-      "backSideFacts": [],
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Berlin",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Euro (EUR)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "German",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "83,516,593 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
       "contentVersion": "fixture-v1"
     },
     {
@@ -168,7 +242,35 @@
           "Косово"
         ]
       },
-      "backSideFacts": [],
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Pristina",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Euro (EUR)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "Albanian, Serbian",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
       "contentVersion": "fixture-v1"
     },
     {
@@ -225,7 +327,44 @@
           "Россия"
         ]
       },
-      "backSideFacts": [],
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Moscow",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Russian Ruble (RUB)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "Russian",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "143,669,648 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
       "contentVersion": "fixture-v1"
     }
   ],

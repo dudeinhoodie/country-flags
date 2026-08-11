@@ -30,6 +30,7 @@ import {
   encodeDeckCursor,
 } from "./content-cursor";
 import { localeCandidates } from "./content-query";
+import { mapBackSideFacts } from "./fact-display";
 
 interface StoredManifest {
   defaultLocale: string;
@@ -234,18 +235,7 @@ export class ContentService {
         aliases,
       },
       assets: entity.assets.map((asset) => this.mapAsset(asset)),
-      facts: entity.facts.map((fact) => ({
-        type: fact.factType,
-        displayValue: this.factDisplayValue(fact.value),
-        observedAt:
-          fact.observedAt === null
-            ? null
-            : fact.observedAt.toISOString().slice(0, 10),
-        source: {
-          name: fact.source.name,
-          url: fact.source.url,
-        },
-      })),
+      facts: mapBackSideFacts(entity.facts, locale),
       contentVersion: entity.contentVersion,
     };
   }
@@ -434,18 +424,7 @@ export class ContentService {
           displayName: entityName.value,
           aliases,
         },
-        backSideFacts: learningCard.subject.facts.map((fact) => ({
-          type: fact.factType,
-          displayValue: this.factDisplayValue(fact.value),
-          observedAt:
-            fact.observedAt === null
-              ? null
-              : fact.observedAt.toISOString().slice(0, 10),
-          source: {
-            name: fact.source.name,
-            url: fact.source.url,
-          },
-        })),
+        backSideFacts: mapBackSideFacts(learningCard.subject.facts, locale),
         contentVersion: learningCard.contentVersion,
       };
     });
@@ -561,19 +540,5 @@ export class ContentService {
       licenseName: asset.licenseName,
       attribution: asset.attribution,
     };
-  }
-
-  private factDisplayValue(value: Prisma.JsonValue): string {
-    if (
-      typeof value === "object" &&
-      value !== null &&
-      !Array.isArray(value) &&
-      "displayValue" in value &&
-      typeof value.displayValue === "string"
-    ) {
-      return value.displayValue;
-    }
-
-    return typeof value === "string" ? value : JSON.stringify(value);
   }
 }
