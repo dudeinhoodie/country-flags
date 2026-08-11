@@ -86,6 +86,26 @@ actor SwiftDataContentRepository: ContentRepository {
             .map(Self.record)
     }
 
+    func cardIdentifiersByDeck() async throws -> [UUID: [UUID]] {
+        guard let version = try currentStoredManifest()?.contentVersion else { return [:] }
+        // One pass over the memberships and one over the cards, whatever the
+        // number of decks: the per-deck query would read the whole catalogue
+        // again for each of them.
+        let live = Set(
+            try modelContext.fetch(
+                FetchDescriptor<StoredLearningCard>(
+                    predicate: #Predicate { !$0.isRetired && $0.contentVersion == version }
+                )
+            ).map(\.id)
+        )
+        var identifiers: [UUID: [UUID]] = [:]
+        for membership in try modelContext.fetch(FetchDescriptor<StoredDeckCard>())
+        where live.contains(membership.learningCardID) {
+            identifiers[membership.deckID, default: []].append(membership.learningCardID)
+        }
+        return identifiers
+    }
+
     func card(id: UUID) async throws -> LearningCardRecord? {
         var descriptor = FetchDescriptor<StoredLearningCard>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1

@@ -50,6 +50,13 @@ public protocol ContentRepository: Sendable {
     /// the current release may already have retired, and their backs still
     /// have to render.
     func card(id: UUID) async throws -> LearningCardRecord?
+    /// Which cards each deck holds, as identifiers.
+    ///
+    /// Counting progress needs to know what is in a deck, not what is on the
+    /// cards. Materialising the records instead — every name, every alias,
+    /// every fact printed on a back — costs the whole catalogue twice over for
+    /// an answer that is a set of identifiers.
+    func cardIdentifiersByDeck() async throws -> [UUID: [UUID]]
     func entity(id: UUID) async throws -> GeoEntityRecord?
     /// Resolves the asset a card names as its prompt.
     ///

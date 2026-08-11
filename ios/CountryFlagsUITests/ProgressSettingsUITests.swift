@@ -30,7 +30,11 @@ final class ProgressSettingsUITests: XCTestCase {
         let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
         deck.tap()
-        app.buttons["study.start"].tap()
+        // The deck screen has to draw before its button can be pressed, and
+        // drawing it means reading the release.
+        let start = app.buttons["study.start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 30), app.debugDescription)
+        start.tap()
 
         let reveal = app.buttons["study.reveal"]
         XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)
@@ -63,7 +67,7 @@ final class ProgressSettingsUITests: XCTestCase {
         let identity = ["-installation-id", "22222222-3333-4444-8555-666666666666"]
         let app = launch(arguments: ["-reset-store"] + identity)
 
-        app.buttons["root.shell.openSettings"].tap()
+        openSettings(in: app)
         let size = app.buttons["settings.sessionSize.20"]
         XCTAssertTrue(size.waitForExistence(timeout: 15), app.debugDescription)
         size.tap()
@@ -71,10 +75,19 @@ final class ProgressSettingsUITests: XCTestCase {
         app.terminate()
 
         let relaunched = launch(arguments: identity)
-        relaunched.buttons["root.shell.openSettings"].tap()
+        openSettings(in: relaunched)
         let restored = relaunched.buttons["settings.sessionSize.20"]
         XCTAssertTrue(restored.waitForExistence(timeout: 15), relaunched.debugDescription)
         XCTAssertTrue(restored.isSelected, relaunched.debugDescription)
+    }
+
+    /// The toolbar is drawn with the first screen rather than before it, so a
+    /// launch on a loaded machine has to be waited for rather than tapped
+    /// through.
+    private func openSettings(in app: XCUIApplication) {
+        let settings = app.buttons["root.shell.openSettings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 30), app.debugDescription)
+        settings.tap()
     }
 
     private func openProgress(in app: XCUIApplication) {

@@ -53,6 +53,10 @@ final class FakeContentRepository: ContentRepository, @unchecked Sendable {
         cardsByDeck[deckID] ?? []
     }
 
+    func cardIdentifiersByDeck() async throws -> [UUID: [UUID]] {
+        cardsByDeck.mapValues { $0.map(\.id) }
+    }
+
     func card(id: UUID) async throws -> LearningCardRecord? {
         cardsByDeck.values.flatMap { $0 }.first { $0.id == id }
     }
