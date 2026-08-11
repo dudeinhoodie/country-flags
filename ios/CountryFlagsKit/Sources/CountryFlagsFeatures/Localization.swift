@@ -24,10 +24,6 @@ public enum L10n {
         localized("settings.title")
     }
 
-    public static var settingsPlaceholder: String {
-        localized("settings.placeholder")
-    }
-
     public static var catalogTitle: String {
         localized("catalog.title")
     }
@@ -38,10 +34,6 @@ public enum L10n {
 
     public static var deckTitle: String {
         localized("deck.title")
-    }
-
-    public static var routeNotImplemented: String {
-        localized("route.not_implemented")
     }
 
     public static var advertisementLabel: String {
@@ -74,6 +66,36 @@ public enum L10n {
     public static func deckCardCount(_ count: Int) -> String {
         String(format: localized("deck.card_count"), count)
     }
+
+    public static var homeOpenProgress: String { localized("home.open_progress") }
+
+    public static var progressDecksSection: String { localized("progress.decks") }
+    public static var progressAchievementsSection: String { localized("progress.achievements") }
+    public static var progressEmptyTitle: String { localized("progress.empty.title") }
+    public static var progressEmptyBody: String { localized("progress.empty.body") }
+
+    public static func progressDeckCounts(_ started: Int, _ total: Int) -> String {
+        String(format: localized("progress.deck_counts"), started, total)
+    }
+
+    public static func progressDeckDue(_ due: Int) -> String {
+        String(format: localized("progress.deck_due"), due)
+    }
+
+    public static var masteryNone: String { localized("mastery.none") }
+    public static var masteryBronze: String { localized("mastery.bronze") }
+    public static var masterySilver: String { localized("mastery.silver") }
+    public static var masteryGold: String { localized("mastery.gold") }
+    public static var masteryPlatinum: String { localized("mastery.platinum") }
+
+    public static var settingsSessionSection: String { localized("settings.session") }
+    public static var settingsFeedbackSection: String { localized("settings.feedback") }
+    public static var settingsSound: String { localized("settings.sound") }
+    public static var settingsHaptics: String { localized("settings.haptics") }
+    public static var settingsRemindersSection: String { localized("settings.reminders_section") }
+    public static var settingsReminders: String { localized("settings.reminders") }
+    public static var settingsRemindersFooter: String { localized("settings.reminders_footer") }
+    public static var settingsConflictReloaded: String { localized("settings.conflict_reloaded") }
 
     public static var contentLoading: String { localized("content.loading") }
     public static var contentRetry: String { localized("content.retry") }

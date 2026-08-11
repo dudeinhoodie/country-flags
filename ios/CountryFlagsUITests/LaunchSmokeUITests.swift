@@ -36,14 +36,14 @@ final class LaunchSmokeUITests: XCTestCase {
         XCTAssertTrue(openSettings.waitForExistence(timeout: 10))
         openSettings.tap()
 
-        // The assertion targets a text element: a SwiftUI container does not
-        // reliably surface as a queryable element just because it carries an
-        // identifier.
-        let routeTitle = app.staticTexts["root.route.title"]
+        // Settings is a real screen, so the route is proved by a control the
+        // screen owns rather than by a placeholder title.
         // The hierarchy is attached to the failure: this suite is verified
         // on CI as well, where the xcresult bundle is the only artifact.
-        XCTAssertTrue(routeTitle.waitForExistence(timeout: 5), app.debugDescription)
-        XCTAssertNotEqual(routeTitle.label, "settings.title")
+        let reminders = app.switches["settings.reminders"]
+        XCTAssertTrue(reminders.waitForExistence(timeout: 10), app.debugDescription)
+        // A string catalog key must never reach the interface.
+        XCTAssertFalse(reminders.label.contains("settings."), app.debugDescription)
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.staticTexts["home.greeting"].waitForExistence(timeout: 5))

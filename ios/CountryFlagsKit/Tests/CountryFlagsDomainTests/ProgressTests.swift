@@ -1,0 +1,112 @@
+import XCTest
+
+@testable import CountryFlagsDomain
+
+/// The tiers are the server's product decision and this client only displays
+/// them, so the rule under test is that an unfamiliar one survives.
+final class MasteryTierTests: XCTestCase {
+    func testTheKnownLadderRoundTrips() {
+        for tier in MasteryTier.ladder {
+            XCTAssertEqual(MasteryTier(rawValue: tier.rawValue), tier)
+            XCTAssertTrue(tier.isKnown)
+            XCTAssertTrue(tier.isEarned)
+        }
+    }
+
+    /// A release that adds a tier must not blank the screen of a build that
+    /// predates it, which is why this is a value rather than a decoding error.
+    func testAnUnknownTierIsCarriedRatherThanRejected() {
+        let tier = MasteryTier(rawValue: "DIAMOND")
+
+        XCTAssertEqual(tier, .unknown("DIAMOND"))
+        XCTAssertFalse(tier.isKnown)
+        // It is shown: the server only reports a tier the learner reached, and
+        // hiding it would take an achievement away for being too new.
+        XCTAssertTrue(tier.isEarned)
+        XCTAssertEqual(tier.rawValue, "DIAMOND")
+        XCTAssertFalse(MasteryTier.ladder.contains(tier))
+    }
+
+    func testNoTierIsNotAnAchievement() {
+        XCTAssertFalse(MasteryTier(rawValue: "NONE").isEarned)
+        XCTAssertTrue(MasteryTier(rawValue: "NONE").isKnown)
+    }
+
+    func testTheTierNameIsReadCaseInsensitively() {
+        XCTAssertEqual(MasteryTier(rawValue: "gold"), .gold)
+    }
+}
+
+final class LocalProgressProjectionTests: XCTestCase {
+    private let now = Date(timeIntervalSince1970: 1_800_000_000)
+    private let deck = UUID()
+
+    /// A guest is never synchronised, so the counts a learner sees have to come
+    /// from what the device itself recorded.
+    func testStartedAndDueCardsAreCountedFromTheDeviceRecords() {
+        let cards = [UUID(), UUID(), UUID(), UUID()]
+        let states = [
+            state(cards[0], state: "REVIEW", dueAt: now.addingTimeInterval(-60)),
+            state(cards[1], state: "LEARNING", dueAt: now.addingTimeInterval(3600)),
+            state(cards[2], state: "NEW", dueAt: now.addingTimeInterval(-3600)),
+        ]
+
+        let progress = LocalProgressProjection.progress(
+            cardsByDeck: [deck: cards],
+            states: states,
+            now: now
+        )
+
+        XCTAssertEqual(progress.count, 1)
+        XCTAssertEqual(progress[0].totalCards, 4)
+        // The fourth card has no state at all and the third was never answered.
+        XCTAssertEqual(progress[0].startedCards, 2)
+        // Only the one whose schedule has come round.
+        XCTAssertEqual(progress[0].dueCards, 1)
+    }
+
+    func testADeckNobodyHasStartedReportsItself() {
+        let progress = LocalProgressProjection.progress(
+            cardsByDeck: [deck: [UUID(), UUID()]],
+            states: [],
+            now: now
+        )
+
+        XCTAssertEqual(progress[0].totalCards, 2)
+        XCTAssertEqual(progress[0].startedCards, 0)
+        XCTAssertTrue(progress[0].isUntouched)
+    }
+
+    /// A card the learner answered in another deck still counts here: the state
+    /// belongs to the card, and decks overlap by design.
+    func testACardSharedByTwoDecksCountsInBoth() {
+        let shared = UUID()
+        let other = UUID()
+        let states = [state(shared, state: "REVIEW", dueAt: now)]
+
+        let progress = LocalProgressProjection.progress(
+            cardsByDeck: [deck: [shared, other], UUID(): [shared]],
+            states: states,
+            now: now
+        )
+
+        XCTAssertEqual(progress.count, 2)
+        XCTAssertEqual(progress.map(\.startedCards).reduce(0, +), 2)
+    }
+
+    private func state(_ card: UUID, state: String, dueAt: Date) -> CardStateRecord {
+        CardStateRecord(
+            learningCardID: card,
+            state: state,
+            difficulty: 5,
+            stability: 1,
+            dueAt: dueAt,
+            repetitions: 1,
+            lapses: 0,
+            schedulerVersion: "test",
+            stateVersion: 1,
+            updatedAt: dueAt,
+            isLocalProjection: true
+        )
+    }
+}

@@ -2754,8 +2754,10 @@ components:
         contentVersion:
           type: string
     MasteryTier:
+      description: 'Extensible because the tiers are a product decision the server owns: a release that adds one must not stop an older client from reading the progress it appears in. A client displays a tier it does not know rather than failing on it.'
       type: string
-      enum:
+      minLength: 1
+      x-extensible-enum:
         - NONE
         - BRONZE
         - SILVER
