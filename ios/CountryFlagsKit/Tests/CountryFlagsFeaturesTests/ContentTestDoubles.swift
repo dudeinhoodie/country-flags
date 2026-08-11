@@ -53,6 +53,10 @@ final class FakeContentRepository: ContentRepository, @unchecked Sendable {
         cardsByDeck[deckID] ?? []
     }
 
+    func card(id: UUID) async throws -> LearningCardRecord? {
+        cardsByDeck.values.flatMap { $0 }.first { $0.id == id }
+    }
+
     func entity(id: UUID) async throws -> GeoEntityRecord? { nil }
 
     func asset(id: UUID) async throws -> AssetRecord? { assetsByID[id] }

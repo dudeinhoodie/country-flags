@@ -194,6 +194,11 @@ public enum AccessibilityIdentifier {
     public static let studyStart = "study.start"
     public static let studyProgress = "study.progress"
     public static let studyReveal = "study.reveal"
+    /// Facts are addressed by the type they carry rather than by position: a
+    /// release decides how many a country has.
+    public static func studyFact(_ type: String) -> String {
+        "study.fact.\(type.uppercased())"
+    }
     public static let studyAnswer = "study.answer"
     public static let studyNotSaved = "study.notSaved"
     public static let studyUnavailable = "study.unavailable"

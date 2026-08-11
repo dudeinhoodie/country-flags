@@ -261,7 +261,14 @@ public struct ContentService: Sendable {
                         promptAssetID: asset.id,
                         displayName: card.answer.displayName,
                         aliases: card.answer.aliases,
-                        contentVersion: card.contentVersion
+                        contentVersion: card.contentVersion,
+                        backSideFacts: (card.backSideFacts ?? []).map {
+                            FactRecord(
+                                type: $0._type,
+                                displayValue: $0.displayValue,
+                                sourceName: $0.source.name
+                            )
+                        }
                     )
                 )
                 deckCards.append(

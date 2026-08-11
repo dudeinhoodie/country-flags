@@ -139,6 +139,20 @@ public enum L10n {
         localized("study.rating.\(rating.rawValue.lowercased())")
     }
 
+    /// The name of a fact type, or nil for one this build has no name for.
+    /// The release decides which types it publishes, and an unnamed type is
+    /// shown as its value alone rather than dropped or labelled with its code.
+    public static func factType(_ type: String) -> String? {
+        switch type.uppercased() {
+        case "CAPITAL": localized("fact.capital")
+        case "POPULATION": localized("fact.population")
+        case "CURRENCY": localized("fact.currency")
+        case "LANGUAGE": localized("fact.language")
+        case "AREA": localized("fact.area")
+        default: nil
+        }
+    }
+
     public static var studyObjectiveTitle: String { localized("study.objective.title") }
     public static var studyNext: String { localized("study.next") }
     public static var studyModeSection: String { localized("study.mode") }

@@ -75,6 +75,8 @@ public struct StudySessionView: View {
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier(AccessibilityIdentifier.studyAnswer)
                     .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale))
+
+                CardBackFactsView(learningCardID: card.learningCardID, store: store)
             }
 
             Spacer()
