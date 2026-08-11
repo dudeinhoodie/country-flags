@@ -76,7 +76,9 @@ function population(value: Prisma.JsonValue, locale: string): string | null {
   }
   const formatted = new Intl.NumberFormat(locale).format(count);
   const year = value["year"];
-  return typeof year === "number" ? `${formatted} (${String(year)})` : formatted;
+  return typeof year === "number"
+    ? `${formatted} (${String(year)})`
+    : formatted;
 }
 
 /**
@@ -119,7 +121,10 @@ function language(value: Prisma.JsonValue, locale: string): string | null {
   return join(languages);
 }
 
-function safeDisplayName(names: Intl.DisplayNames, code: string): string | null {
+function safeDisplayName(
+  names: Intl.DisplayNames,
+  code: string,
+): string | null {
   try {
     return names.of(code) ?? null;
   } catch {
@@ -128,7 +133,10 @@ function safeDisplayName(names: Intl.DisplayNames, code: string): string | null 
   }
 }
 
-function localizedName(names: Prisma.JsonValue | undefined, locale: string): string | null {
+function localizedName(
+  names: Prisma.JsonValue | undefined,
+  locale: string,
+): string | null {
   if (!isRecord(names)) {
     return null;
   }
