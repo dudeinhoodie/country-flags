@@ -12,17 +12,20 @@ public struct HomeView: View {
     private let store: ContentStore
     private let sync: SyncCenter
     private let onOpenCatalog: () -> Void
+    private let onOpenProgress: () -> Void
     private let onOpenDeck: (UUID) -> Void
 
     public init(
         store: ContentStore,
         sync: SyncCenter,
         onOpenCatalog: @escaping () -> Void,
+        onOpenProgress: @escaping () -> Void,
         onOpenDeck: @escaping (UUID) -> Void
     ) {
         self.store = store
         self.sync = sync
         self.onOpenCatalog = onOpenCatalog
+        self.onOpenProgress = onOpenProgress
         self.onOpenDeck = onOpenDeck
     }
 
@@ -104,6 +107,9 @@ public struct HomeView: View {
                 Button(L10n.homeOpenCatalog, action: onOpenCatalog)
                     .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
                     .accessibilityIdentifier(AccessibilityIdentifier.homeOpenCatalog)
+                Button(L10n.homeOpenProgress, action: onOpenProgress)
+                    .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                    .accessibilityIdentifier(AccessibilityIdentifier.homeOpenProgress)
             }
         }
     }

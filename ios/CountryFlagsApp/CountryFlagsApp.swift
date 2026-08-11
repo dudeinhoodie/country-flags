@@ -23,6 +23,8 @@ struct CountryFlagsApp: App {
                 assets: composition.assets,
                 makeStudyRunner: { composition.makeStudySessionRunner() },
                 makeObjectiveRunner: { composition.makeObjectiveSessionRunner() },
+                makeProgressStore: { composition.makeProgressStore() },
+                makeSettingsStore: { composition.makeSettingsStore() },
                 featureFlags: composition.featureFlags,
                 sync: composition.sync
             )

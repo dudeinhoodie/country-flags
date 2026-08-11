@@ -1,0 +1,61 @@
+import Foundation
+
+/// What a deck looks like from the device's own records.
+public struct LocalDeckProgress: Hashable, Sendable {
+    public let deckID: UUID
+    public let totalCards: Int
+    /// Cards the learner has answered at least once. A card nobody has seen is
+    /// not progress, however it was scheduled.
+    public let startedCards: Int
+    /// Cards that have been started and are scheduled at or before now.
+    public let dueCards: Int
+
+    public init(deckID: UUID, totalCards: Int, startedCards: Int, dueCards: Int) {
+        self.deckID = deckID
+        self.totalCards = totalCards
+        self.startedCards = startedCards
+        self.dueCards = dueCards
+    }
+
+    public var isUntouched: Bool { startedCards == 0 }
+}
+
+/// Counts a learner's progress from what the device already knows.
+///
+/// The counts are facts the device can see for itself — which cards exist in a
+/// deck, which have been answered, which are scheduled — so they are computed
+/// here rather than waited for. Mastery is deliberately absent: the tiers and
+/// their thresholds are the server's decision, this client only displays the
+/// one it is told, and a locally invented tier would contradict the server the
+/// moment one arrived.
+///
+/// This is what makes the progress screen work for a guest, whose work is
+/// durable on the device but is never uploaded until there is an account to
+/// attribute it to.
+public enum LocalProgressProjection {
+    /// - Parameters:
+    ///   - cardsByDeck: the cards each deck contains.
+    ///   - states: the scheduler state of every card the learner has answered.
+    ///   - now: the instant "due" is measured against.
+    public static func progress(
+        cardsByDeck: [UUID: [UUID]],
+        states: [CardStateRecord],
+        now: Date
+    ) -> [LocalDeckProgress] {
+        let statesByCard = Dictionary(
+            states.map { ($0.learningCardID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        return cardsByDeck
+            .map { deckID, cardIDs in
+                let known = cardIDs.compactMap { statesByCard[$0] }
+                return LocalDeckProgress(
+                    deckID: deckID,
+                    totalCards: cardIDs.count,
+                    startedCards: known.count { $0.state != "NEW" },
+                    dueCards: known.count { $0.state != "NEW" && $0.dueAt <= now }
+                )
+            }
+            .sorted { $0.deckID.uuidString < $1.deckID.uuidString }
+    }
+}

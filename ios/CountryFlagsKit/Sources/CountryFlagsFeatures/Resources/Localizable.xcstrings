@@ -698,6 +698,23 @@
         }
       }
     },
+    "home.open_progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your progress"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваш прогресс"
+          }
+        }
+      }
+    },
     "home.recommended": {
       "extractionState": "manual",
       "localizations": {
@@ -732,6 +749,193 @@
         }
       }
     },
+    "mastery.bronze": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bronze"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бронза"
+          }
+        }
+      }
+    },
+    "mastery.gold": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gold"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Золото"
+          }
+        }
+      }
+    },
+    "mastery.none": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No tier yet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока без уровня"
+          }
+        }
+      }
+    },
+    "mastery.platinum": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Platinum"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Платина"
+          }
+        }
+      }
+    },
+    "mastery.silver": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silver"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Серебро"
+          }
+        }
+      }
+    },
+    "progress.achievements": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achievements"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Достижения"
+          }
+        }
+      }
+    },
+    "progress.deck_counts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld studied"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изучено: %1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "progress.deck_due": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld due now"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "К повторению: %lld"
+          }
+        }
+      }
+    },
+    "progress.decks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decks"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колоды"
+          }
+        }
+      }
+    },
+    "progress.empty.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open a deck and start a session. What you answer shows up here."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Откройте колоду и начните сессию. Здесь появится то, что вы ответили."
+          }
+        }
+      }
+    },
+    "progress.empty.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing studied yet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы ещё не занимались"
+          }
+        }
+      }
+    },
     "progress.title": {
       "extractionState": "manual",
       "localizations": {
@@ -749,36 +953,138 @@
         }
       }
     },
-    "route.not_implemented": {
+    "settings.conflict_reloaded": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This screen arrives in a later work package."
+            "value": "Your settings were changed on another device, so the ones shown here came from the server."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Этот экран появится в следующих задачах."
+            "value": "Настройки изменились на другом устройстве, поэтому здесь показаны серверные."
           }
         }
       }
     },
-    "settings.placeholder": {
+    "settings.feedback": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Account, study and privacy settings arrive with their work packages."
+            "value": "Feedback"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Настройки аккаунта, учёбы и приватности появятся в своих задачах."
+            "value": "Отклик"
+          }
+        }
+      }
+    },
+    "settings.haptics": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haptics"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вибрация"
+          }
+        }
+      }
+    },
+    "settings.reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remind me to study"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напоминать о занятиях"
+          }
+        }
+      }
+    },
+    "settings.reminders_footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system decides when a reminder is delivered, so it may not arrive at an exact time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Система сама решает, когда доставить напоминание, поэтому точное время не гарантируется."
+          }
+        }
+      }
+    },
+    "settings.reminders_section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напоминания"
+          }
+        }
+      }
+    },
+    "settings.session": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сессия"
+          }
+        }
+      }
+    },
+    "settings.sound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sound"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Звук"
           }
         }
       }
