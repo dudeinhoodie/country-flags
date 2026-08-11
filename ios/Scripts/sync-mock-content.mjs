@@ -117,7 +117,7 @@ function buildAsset(asset, assetBaseUrl) {
   };
 }
 
-function buildCard({ card, entity, asset, assetBaseUrl, template }) {
+function buildCard({ card, entity, asset, assetBaseUrl, template, facts }) {
   // The revision a client is served is the live one; a retired revision is
   // history the change feed carries rather than something to study.
   const revision = card.revisions
@@ -141,12 +141,120 @@ function buildCard({ card, entity, asset, assetBaseUrl, template }) {
       // entity as an alias, which is what lets a quiz accept either language.
       aliases: alias.short === primary.short ? [] : [alias.short],
     },
-    // The release publishes facts, but their values carry no display form, so
-    // a real response would put JSON on the back of a card. Left empty until
-    // the backend formats them.
-    backSideFacts: [],
+    backSideFacts: facts,
     contentVersion: CONTENT_VERSION,
   };
+}
+
+/// The sources the pipeline names, as the publisher records them
+/// (backend/src/modules/content/bundle/bundle-mapper.ts). A key with no entry
+/// falls back the same way the publisher's does.
+const SOURCES = {
+  annexare: { name: "annexare/Countries", url: "https://github.com/annexare/Countries" },
+  cldr: { name: "Unicode CLDR", url: "https://github.com/unicode-org/cldr-json" },
+  "world-bank": { name: "World Bank Open Data", url: "https://data.worldbank.org/" },
+  wikidata: { name: "Wikidata", url: "https://www.wikidata.org/" },
+  "flag-icons": { name: "lipis/flag-icons", url: "https://github.com/lipis/flag-icons" },
+  editorial: {
+    name: "Country Flags editorial overrides",
+    url: "https://country-flags.app/content/editorial",
+  },
+};
+
+const FACT_TYPES = {
+  capitals: "CAPITAL",
+  currencies: "CURRENCY",
+  languages: "LANGUAGE",
+  population: "POPULATION",
+};
+
+const languageNames = new Intl.DisplayNames([PRIMARY_LOCALE], {
+  type: "language",
+  fallback: "none",
+});
+
+/// The same rendering the API performs on read
+/// (backend/src/modules/content/fact-display.ts). A value whose shape is not
+/// recognised yields null and the fact is left out, because a card that
+/// reported its own JSON is the defect this exists to end.
+function factDisplayValue(factType, value) {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    if (typeof value.displayValue === "string" && value.displayValue.length > 0) {
+      return value.displayValue;
+    }
+  }
+  const entries = Array.isArray(value) ? value : [];
+  const join = (values) => (values.length > 0 ? values.join(", ") : null);
+
+  switch (factType) {
+    case "CAPITAL":
+      return join(
+        entries
+          .filter((seat) => seat.role === undefined || seat.role === "official")
+          .map((seat) => seat.name)
+          .filter((name) => typeof name === "string"),
+      );
+    case "POPULATION": {
+      if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
+      if (typeof value.value !== "number" || !Number.isFinite(value.value)) return null;
+      const formatted = new Intl.NumberFormat(PRIMARY_LOCALE).format(value.value);
+      return typeof value.year === "number" ? `${formatted} (${String(value.year)})` : formatted;
+    }
+    case "CURRENCY":
+      return join(
+        entries
+          .filter((entry) => entry.role === undefined || entry.role === "legal_tender")
+          .map((entry) => {
+            if (typeof entry.code !== "string") return null;
+            const name = entry.names?.[PRIMARY_LOCALE];
+            return typeof name === "string" && name.length > 0
+              ? `${name} (${entry.code})`
+              : entry.code;
+          })
+          .filter((entry) => entry !== null),
+      );
+    case "LANGUAGE":
+      return join(
+        entries
+          .map((entry) => entry.code)
+          .filter((code) => typeof code === "string")
+          .map((code) => {
+            try {
+              return languageNames.of(code) ?? null;
+            } catch {
+              return null;
+            }
+          })
+          .filter((name) => name !== null),
+      );
+    default:
+      return null;
+  }
+}
+
+/// The facts of one entity, ordered by type as the API orders them.
+function backSideFacts(factsByEntity, entityKey) {
+  return (factsByEntity.get(entityKey) ?? [])
+    .map(({ factType, record }) => {
+      const displayValue = factDisplayValue(factType, record.value);
+      if (displayValue === null) return null;
+      const source = SOURCES[record.provenance?.sourceKey] ?? {
+        name: record.provenance?.sourceKey ?? "unknown",
+        url: `https://country-flags.app/content-sources/${record.provenance?.sourceKey ?? "unknown"}`,
+      };
+      return {
+        _type: factType,
+        displayValue,
+        // The publisher never records an observation day, only when the value
+        // was retrieved, so the card reports none. For a population the year
+        // is part of the sentence instead.
+        observedAt: null,
+        source,
+      };
+    })
+    .filter((fact) => fact !== null)
+    .sort((left, right) => left._type.localeCompare(right._type, "en"))
+    .map(({ _type, ...fact }) => ({ type: _type, ...fact }));
 }
 
 function page(items) {
@@ -162,6 +270,19 @@ async function buildDocuments() {
       readDocument("card-templates.json"),
       readDocument("assets/assets.json"),
     ]);
+
+  // The facts the release publishes about each entity, which is what the back
+  // of a card is made of. A record marked as a gap has no value to show.
+  const factsByEntity = new Map();
+  for (const [file, factType] of Object.entries(FACT_TYPES)) {
+    const collection = await readDocument(`facts/${file}.json`);
+    for (const record of collection.records) {
+      if (record.gap === true) continue;
+      const existing = factsByEntity.get(record.entityKey) ?? [];
+      existing.push({ factType, record });
+      factsByEntity.set(record.entityKey, existing);
+    }
+  }
 
   const assetBaseUrl = manifest.assetBaseUrl;
   const entities = new Map(catalog.entities.map((entity) => [entity.key, entity]));
@@ -207,6 +328,7 @@ async function buildDocuments() {
           asset,
           assetBaseUrl,
           template: templates.get(card.templateCode),
+          facts: backSideFacts(factsByEntity, card.entityKey),
         });
       });
 
