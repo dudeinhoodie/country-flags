@@ -62,7 +62,6 @@ export function pinRevision(
   return { ...card, revisions: [revision] };
 }
 
-
 function selectEntityName(
   card: SnapshotLearningCard,
   candidates: string[],
