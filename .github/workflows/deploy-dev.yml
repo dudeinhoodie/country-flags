@@ -130,6 +130,7 @@ jobs:
             --region "${REGION}" \
             --image "${{ steps.image.outputs.reference }}" \
             --service-account "api-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
+            --update-env-vars "SERVICE_RELEASE=${{ steps.commit.outputs.sha }}" \
             --quiet
           url="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.url)')"
           echo "url=${url}" >> "$GITHUB_OUTPUT"
