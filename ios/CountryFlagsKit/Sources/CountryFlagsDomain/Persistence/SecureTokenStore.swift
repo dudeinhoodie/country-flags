@@ -7,6 +7,10 @@ public enum SecureTokenKind: String, Hashable, Sendable, CaseIterable {
     /// Identifies the installation for a guest scope. It is not a credential,
     /// but it outlives an app reinstall only if it is kept next to them.
     case installationID
+    /// The account the stored refresh token belongs to. Also not a credential:
+    /// it is kept so a relaunch knows whose data to read before it has spoken
+    /// to the backend, rather than asking the network who it is.
+    case accountUserID
 }
 
 /// Where session secrets live.
