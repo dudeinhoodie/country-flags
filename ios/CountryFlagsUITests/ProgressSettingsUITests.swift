@@ -72,6 +72,14 @@ final class ProgressSettingsUITests: XCTestCase {
         XCTAssertTrue(size.waitForExistence(timeout: 15), app.debugDescription)
         size.tap()
         XCTAssertTrue(size.isSelected, app.debugDescription)
+        // The choice is stored by a task the tap starts, and terminating the
+        // app the instant it is made would race that write. Leaving the screen
+        // the way a person would is what gives it time.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(
+            app.staticTexts["home.greeting"].waitForExistence(timeout: 30),
+            app.debugDescription
+        )
         app.terminate()
 
         let relaunched = launch(arguments: identity)
