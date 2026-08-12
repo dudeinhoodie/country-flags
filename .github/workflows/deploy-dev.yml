@@ -90,6 +90,17 @@ jobs:
           digest="$(gcloud artifacts docker images describe "${target}:${tag}" --format='value(image_summary.digest)')"
           echo "reference=${target}@${digest}" >> "$GITHUB_OUTPUT"
 
+      - name: TEMPORARY probe of the current service configuration
+        run: |
+          set -euo pipefail
+          echo "env keys:"
+          gcloud run services describe "${SERVICE}" --region "${REGION}" \
+            --format='value(spec.template.spec.containers[0].env[].name)' || true
+          echo "secret mounts:"
+          gcloud run services describe "${SERVICE}" --region "${REGION}" \
+            --format='yaml(spec.template.spec.containers[0].env)' \
+            | grep -A 3 secretKeyRef || true
+
       # A missing secret is otherwise reported as a revision that "failed to
       # start and listen on the port", which describes the symptom of a
       # configuration the runtime rejected rather than what is absent.
