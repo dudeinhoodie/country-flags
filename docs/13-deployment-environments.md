@@ -29,7 +29,7 @@ Baseline должен:
 - local, CI, dev и production environments;
 - GitHub Actions как CI/CD orchestrator;
 - GHCR как registry release images;
-- Koyeb как начальный runtime target;
+- Google Cloud Run как runtime target;
 - Neon PostgreSQL;
 - Cloudflare R2 через существующий S3 adapter;
 - health checks, smoke tests, deployment records и rollback;
@@ -55,13 +55,13 @@ flowchart LR
     MAIN["Merge to master"] --> BUILD["Build release image"]
     BUILD --> GHCR["GHCR sha-commit + digest"]
     GHCR --> MIGDEV["Dev migration"]
-    MIGDEV --> DEV["Koyeb dev"]
+    MIGDEV --> DEV["Cloud Run dev"]
     DEV --> DEVDB["Neon dev"]
     DEV --> DEVR2["R2 dev"]
     GHCR --> PROMOTE["Manual production promotion"]
     PROMOTE --> BACKUP["Pre-deploy backup"]
     BACKUP --> MIGPROD["Production migration"]
-    MIGPROD --> PROD["Koyeb production"]
+    MIGPROD --> PROD["Cloud Run production"]
     PROD --> PRODDB["Neon production"]
     PROD --> PRODR2["R2 production"]
 ~~~
@@ -90,14 +90,22 @@ dev использует отдельные реальные Apple/Google dev cl
 
 ### Runtime
 
-- Dev: одна Koyeb Free Instance во Frankfurt.
-- Production: Koyeb eco-micro, минимум 512 MB RAM.
+- Dev: один Cloud Run service в europe-west3, минимум ноль instances.
+- Production: Cloud Run service в europe-west3, минимум 512 MB RAM и минимум один always-on instance.
 - Runtime и PostgreSQL выбираются в ближайших доступных регионах.
 - Dev может засыпать; cold start допустим и документируется.
 - Production MUST быть always-on до подключения внешних пользователей.
 
-Koyeb Free ограничен одной instance на organization, не поддерживает Worker
-Services/volumes и засыпает без трафика. Он не является production target.
+Dev масштабируется до нуля и потому засыпает: первый запрос после простоя
+платит за холодный старт. Для production это недопустимо, поэтому там минимум
+один instance держится всегда.
+
+Изначально этим target был Koyeb. Он заменён после того, как платформу
+приобрёл Mistral: консоль перестала выдавать API-ключи, а продукт развернулся в
+сторону AI-нагрузок. Cloud Run выбран за то, что разворачивает образ по
+дайджесту — ровно то, чего требует immutable release — и не зависит от судьбы
+одного стартапа. Цена: он не тянет образы из GHCR, поэтому deploy копирует
+образ в Artifact Registry.
 
 ### PostgreSQL
 
@@ -123,8 +131,9 @@ Free plan допустим для dev и закрытой альфы. До зн�
 
 ~~~text
 GHCR image: ghcr.io/dudeinhoodie/country-flags-backend
-Koyeb app: country-flags
-Koyeb services: api-dev, api-prod
+GCP project: speedy-web-235610
+Artifact Registry: europe-west3-docker.pkg.dev/speedy-web-235610/country-flags
+Cloud Run services: api-dev, api-prod
 Neon projects: country-flags-dev, country-flags-prod
 R2 buckets: country-flags-dev, country-flags-prod, country-flags-prod-backups
 GitHub environments: dev, production
@@ -207,7 +216,7 @@ Release image из master автоматически запускает:
 
 1. Проверку dev configuration.
 2. Migration job через DIRECT_DATABASE_URL.
-3. Явное обновление Koyeb api-dev на immutable image.
+3. Явное обновление Cloud Run api-dev на immutable image по дайджесту.
 4. Ожидание provider deployment status.
 5. Smoke tests.
 6. GitHub deployment record с URL и SHA.
@@ -232,7 +241,7 @@ Production workflow запускается только через workflow_disp
 
 1. Создать и проверить pre-deploy backup.
 2. Выполнить production migration отдельным job.
-3. Обновить Koyeb api-prod.
+3. Обновить Cloud Run api-prod.
 4. Дождаться readiness.
 5. Выполнить smoke tests.
 6. Записать SHA, digest, migration version и operator.
@@ -346,9 +355,9 @@ provider logs.
 
 ## 19. Стоимость и этапы
 
-До production: Koyeb dev Free, Neon/R2 free limits, prod service выключен.
+До production: Cloud Run dev в пределах free tier, Neon/R2 free limits, prod service выключен.
 
-Закрытая альфа: Koyeb dev Free, prod eco-micro около 2.68 USD/month, Neon Free
+Закрытая альфа: Cloud Run dev в пределах free tier, prod always-on несколько USD/month, Neon Free
 только вместе с собственной backup policy, R2 free limits.
 
 Public launch: always-on compute, PostgreSQL plan с подходящим PITR/monitoring,
@@ -368,9 +377,9 @@ budget alerts и resize по p95 latency, memory, connections и worker lag.
 
 ## 21. Официальные источники
 
-- [Koyeb instances](https://www.koyeb.com/docs/reference/instances)
-- [Koyeb Docker images](https://www.koyeb.com/docs/build-and-deploy/prebuilt-docker-images)
-- [Koyeb health checks](https://www.koyeb.com/docs/run-and-scale/health-checks)
+- [Cloud Run service configuration](https://cloud.google.com/run/docs/configuring/services)
+- [Cloud Run deploying images](https://cloud.google.com/run/docs/deploying)
+- [Cloud Run health checks](https://cloud.google.com/run/docs/configuring/healthchecks)
 - [Neon pricing](https://neon.com/pricing)
 - [Cloudflare R2 pricing](https://developers.cloudflare.com/r2/pricing/)
 - [Cloudflare R2 S3](https://developers.cloudflare.com/r2/get-started/s3/)

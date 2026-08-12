@@ -4,7 +4,9 @@
 CF_APP_ENVIRONMENT = dev
 // The public address of the dev deployment. It holds no secret and is
 // overridden in Local.xcconfig when working against a local backend.
-CF_API_BASE_URL = https:/$()/dev.api.country-flags.app
+# The Cloud Run service, until a domain is pointed at it. The `$()` breaks the
+# `//` so xcconfig does not read the rest of the line as a comment.
+CF_API_BASE_URL = https:/$()/api-dev-337239833704.europe-west3.run.app
 CF_BUNDLE_ID_SUFFIX = .dev
 PRODUCT_NAME = CountryFlags Dev
 
