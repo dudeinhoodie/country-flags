@@ -1,3 +1,4 @@
+import SwiftData
 import XCTest
 
 import CountryFlagsDomain
@@ -200,6 +201,76 @@ final class StoreRelaunchTests: XCTestCase {
         let reopened = try temporary.open()
         let pending = try await reopened.makeOutboxRepository().pendingOperations(for: scope)
         XCTAssertEqual(pending.count, 3)
+    }
+
+    /// Two versions have to describe two different stores.
+    ///
+    /// This is the condition the crash came from rather than a symptom of it.
+    /// Core Data identifies a version by a checksum over what it describes, and
+    /// refuses a migration between two that hash the same — so a version whose
+    /// models are the other's cannot be migrated from, however different its
+    /// number. It is asserted directly because the failure only appears on a
+    /// device that has the older store, which no test writes by accident.
+    func testTheTwoSchemaVersionsDescribeDifferentStores() {
+        func cardProperties(_ schema: Schema) -> Set<String> {
+            let card = schema.entities.first { $0.name == "StoredLearningCard" }
+            return Set((card?.properties ?? []).map(\.name))
+        }
+
+        let version1 = cardProperties(Schema(versionedSchema: LocalSchemaV1.self))
+        let version2 = cardProperties(Schema(versionedSchema: LocalSchemaV2.self))
+
+        XCTAssertFalse(version1.contains("backSideFacts"))
+        XCTAssertTrue(version2.contains("backSideFacts"))
+        XCTAssertEqual(version2.subtracting(version1), ["backSideFacts"])
+    }
+
+    /// The upgrade the plan exists for, exercised against a store that really
+    /// was written by version 1.
+    ///
+    /// The test above reopens a store the current schema wrote, so it never
+    /// migrates anything. This one writes through `LocalSchemaV1` and opens the
+    /// result the way a launch does — which is how an app update meets a device
+    /// that has not been updated yet, and where `Duplicate version checksums`
+    /// was thrown.
+    func testAStoreWrittenByVersionOneOpensAndKeepsWhatItHeld() async throws {
+        let temporary = TemporaryStore()
+        defer { temporary.remove() }
+        let cardID = UUID()
+
+        do {
+            let schema = Schema(versionedSchema: LocalSchemaV1.self)
+            let container = try ModelContainer(
+                for: schema,
+                configurations: ModelConfiguration(schema: schema, url: temporary.fileURL)
+            )
+            let context = ModelContext(container)
+            context.insert(
+                LocalSchemaV1.StoredLearningCard(
+                    id: cardID,
+                    subjectEntityID: UUID(),
+                    templateCode: "FLAG_TO_COUNTRY",
+                    templateSchemaVersion: 1,
+                    semanticVersion: 1,
+                    revision: 1,
+                    answerMode: "SELF_RATED",
+                    promptAssetID: UUID(),
+                    displayName: "France",
+                    aliases: [],
+                    contentVersion: "v1",
+                    isRetired: false
+                )
+            )
+            try context.save()
+        }
+
+        let migrated = try temporary.open()
+        let card = try await migrated.makeContentRepository().card(id: cardID)
+
+        XCTAssertEqual(card?.displayName, "France")
+        // The property version 2 added: a card written before it has none
+        // rather than the row being dropped and rewritten.
+        XCTAssertEqual(card?.backSideFacts.count, 0)
     }
 
     /// A crash leaves operations claimed. They belong back in the queue rather

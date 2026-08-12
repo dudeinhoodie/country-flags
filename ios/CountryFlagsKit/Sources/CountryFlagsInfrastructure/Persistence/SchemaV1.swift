@@ -14,6 +14,59 @@ import SwiftData
 enum LocalSchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
 
+    /// The card as version 1 stored it: without the facts a release prints on
+    /// its back.
+    ///
+    /// Frozen on purpose, and the reason it exists at all. A version describes
+    /// the store as it was, so a type the app keeps editing cannot stand for
+    /// one: listing the current `StoredLearningCard` here left both versions
+    /// describing the same store, and Core Data refuses a migration between two
+    /// versions it cannot tell apart — `Duplicate version checksums detected`,
+    /// thrown on the launch that has an older store to open.
+    @Model
+    final class StoredLearningCard {
+        var id: UUID = UUID()
+        var subjectEntityID: UUID = UUID()
+        var templateCode: String = ""
+        var templateSchemaVersion: Int = 1
+        var semanticVersion: Int = 1
+        var revision: Int = 1
+        var answerMode: String = ""
+        var promptAssetID: UUID = UUID()
+        var displayName: String = ""
+        var aliases: [String] = []
+        var contentVersion: String = ""
+        var isRetired: Bool = false
+
+        init(
+            id: UUID,
+            subjectEntityID: UUID,
+            templateCode: String,
+            templateSchemaVersion: Int,
+            semanticVersion: Int,
+            revision: Int,
+            answerMode: String,
+            promptAssetID: UUID,
+            displayName: String,
+            aliases: [String],
+            contentVersion: String,
+            isRetired: Bool
+        ) {
+            self.id = id
+            self.subjectEntityID = subjectEntityID
+            self.templateCode = templateCode
+            self.templateSchemaVersion = templateSchemaVersion
+            self.semanticVersion = semanticVersion
+            self.revision = revision
+            self.answerMode = answerMode
+            self.promptAssetID = promptAssetID
+            self.displayName = displayName
+            self.aliases = aliases
+            self.contentVersion = contentVersion
+            self.isRetired = isRetired
+        }
+    }
+
     static var models: [any PersistentModel.Type] {
         [
             StoredContentManifest.self,
@@ -23,7 +76,7 @@ enum LocalSchemaV1: VersionedSchema {
             StoredAsset.self,
             StoredFact.self,
             StoredDeck.self,
-            StoredLearningCard.self,
+            LocalSchemaV1.StoredLearningCard.self,
             StoredDeckCard.self,
             StoredUserSettings.self,
             StoredCardState.self,
