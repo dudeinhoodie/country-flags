@@ -179,8 +179,10 @@ describe("content bundle publish/rollback pipeline (integration)", () => {
     });
     expect(release.status).toBe(ContentReleaseStatus.PUBLISHED);
 
+    // The bundle names the deck `deck.all`; it is served under the code that
+    // key derives, which is the only form the contract accepts.
     const deck = await database.deck.findUniqueOrThrow({
-      where: { code: "deck.all" },
+      where: { code: "ALL" },
       include: { cards: true },
     });
     expect(deck.cards).toHaveLength(2);

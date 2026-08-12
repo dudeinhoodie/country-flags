@@ -6,7 +6,11 @@ import {
   type BundleDomain,
   type DomainAsset,
 } from "./bundle-domain";
-import { slugFromEntityKey } from "./bundle-mapper";
+import {
+  DECK_CODE_PATTERN,
+  deckCodeFromKey,
+  slugFromEntityKey,
+} from "./bundle-mapper";
 
 export class BundleValidationError extends Error {
   constructor(public readonly issues: string[]) {
@@ -134,7 +138,26 @@ function collectReferenceIssues(domain: BundleDomain): string[] {
     }
   }
 
+  // A deck is served under a code derived from its key, and decks.code is a
+  // unique column: two keys deriving one code would publish as a single deck
+  // holding both memberships rather than as the two the catalogue describes.
+  const deckKeyByCode = new Map<string, string>();
   for (const deck of domain.catalog.decks) {
+    const code = deckCodeFromKey(deck.key);
+    if (!DECK_CODE_PATTERN.test(code)) {
+      issues.push(
+        `deck ${deck.key} derives the code "${code}", which the contract does not allow; rename it editorially`,
+      );
+    }
+    const owner = deckKeyByCode.get(code);
+    if (owner === undefined) {
+      deckKeyByCode.set(code, deck.key);
+    } else {
+      issues.push(
+        `decks ${owner} and ${deck.key} both derive the code "${code}"; rename one editorially`,
+      );
+    }
+
     for (const memberKey of deck.memberEntityKeys) {
       if (!entityByKey.has(memberKey)) {
         issues.push(`deck ${deck.key} references unknown entity ${memberKey}`);
