@@ -93,37 +93,12 @@ jobs:
       - name: TEMPORARY probe of the current service configuration
         run: |
           set -euo pipefail
-          echo "env keys:"
-          gcloud run services describe "${SERVICE}" --region "${REGION}" \
-            --format='value(spec.template.spec.containers[0].env[].name)' || true
-          echo "secret mounts:"
+          # Names only. A value would print a credential into the run log.
           gcloud run services describe "${SERVICE}" --region "${REGION}" \
             --format='yaml(spec.template.spec.containers[0].env)' \
-            | grep -A 3 secretKeyRef || true
-
-      # A missing secret is otherwise reported as a revision that "failed to
-      # start and listen on the port", which describes the symptom of a
-      # configuration the runtime rejected rather than what is absent.
-      - name: Check the runtime configuration is provisioned
-        run: |
-          set -euo pipefail
-          missing=()
-          for secret in \
-            dev-database-url \
-            dev-direct-database-url \
-            dev-auth-access-token-secret \
-            dev-auth-rate-limit-secret \
-            dev-account-data-hash-secret
-          do
-            if ! gcloud secrets describe "${secret}" --project "${PROJECT_ID}" >/dev/null 2>&1; then
-              missing+=("${secret}")
-            fi
-          done
-          if [ "${#missing[@]}" -gt 0 ]; then
-            echo "::error::Secret Manager has no ${missing[*]}"
-            echo "See docs/13-deployment-environments.md, section 6.1, for how each one is created."
-            exit 1
-          fi
+            | grep -E '^\s+(- name|name):' || true
+          echo "::error::probe only"
+          exit 1
 
       - name: Read the database credentials
         id: database
