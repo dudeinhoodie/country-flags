@@ -4,10 +4,11 @@ import CountryFlagsDomain
 
 /// The preferences a learner can change.
 public struct SettingsScreen: View {
-    private let store: SettingsStore
+    /// Owned for the same reason the progress screen owns its own.
+    @State private var store: SettingsStore
 
     public init(store: SettingsStore) {
-        self.store = store
+        _store = State(wrappedValue: store)
     }
 
     public var body: some View {

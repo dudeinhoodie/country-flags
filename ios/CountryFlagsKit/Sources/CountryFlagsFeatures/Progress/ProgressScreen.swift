@@ -9,10 +9,16 @@ import CountryFlagsDomain
 /// user this build has. Mastery is the server's to award and is shown only
 /// when it has been.
 public struct ProgressScreen: View {
-    private let store: ProgressStore
+    // The screen owns the store it reads through, like every other screen with
+    // one. A destination builds its store as it is presented, and the parent
+    // re-renders while a launch is still importing content and synchronising —
+    // held in a plain property, each of those would hand the screen a second
+    // store that has read nothing yet, and the reading would start over for as
+    // long as the launch stayed busy.
+    @State private var store: ProgressStore
 
     public init(store: ProgressStore) {
-        self.store = store
+        _store = State(wrappedValue: store)
     }
 
     public var body: some View {
