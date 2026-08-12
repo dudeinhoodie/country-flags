@@ -90,6 +90,30 @@ jobs:
           digest="$(gcloud artifacts docker images describe "${target}:${tag}" --format='value(image_summary.digest)')"
           echo "reference=${target}@${digest}" >> "$GITHUB_OUTPUT"
 
+      # A missing secret is otherwise reported as a revision that "failed to
+      # start and listen on the port", which describes the symptom of a
+      # configuration the runtime rejected rather than what is absent.
+      - name: Check the runtime configuration is provisioned
+        run: |
+          set -euo pipefail
+          missing=()
+          for secret in \
+            dev-database-url \
+            dev-direct-database-url \
+            dev-auth-access-token-secret \
+            dev-auth-rate-limit-secret \
+            dev-account-data-hash-secret
+          do
+            if ! gcloud secrets describe "${secret}" --project "${PROJECT_ID}" >/dev/null 2>&1; then
+              missing+=("${secret}")
+            fi
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Secret Manager has no ${missing[*]}"
+            echo "See docs/13-deployment-environments.md, section 6.1, for how each one is created."
+            exit 1
+          fi
+
       - name: Read the database credentials
         id: database
         run: |
@@ -102,6 +126,20 @@ jobs:
           echo "::add-mask::${direct}"
           echo "url=${url}" >> "$GITHUB_OUTPUT"
           echo "direct=${direct}" >> "$GITHUB_OUTPUT"
+
+      # The service publishes its own address, and the runtime has to be told
+      # what that address is: the API signs download URLs with it.
+      - name: Resolve the service address
+        id: service
+        run: |
+          set -euo pipefail
+          url="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.url)' 2>/dev/null || true)"
+          if [ -z "${url}" ]; then
+            echo "::error::Cloud Run service ${SERVICE} does not exist in ${REGION}"
+            echo "See docs/13-deployment-environments.md, section 6.1, for the one-time provisioning."
+            exit 1
+          fi
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -122,6 +160,14 @@ jobs:
           DIRECT_DATABASE_URL: ${{ steps.database.outputs.direct }}
         run: corepack yarn workspace @country-flags/backend prisma migrate deploy
 
+      # The whole configuration is set on every deploy rather than updated in
+      # place. A hosted start refuses test defaults and requires each of these,
+      # so what the service runs with has to be readable here rather than being
+      # whatever a console session last left on it — and a value edited by hand
+      # is deliberately overwritten by the next deploy.
+      #
+      # `^;^` makes the separator a semicolon: a client-id list is itself
+      # comma-separated, so a comma cannot also separate the variables.
       - name: Deploy the revision
         id: deploy
         run: |
@@ -130,17 +176,25 @@ jobs:
             --region "${REGION}" \
             --image "${{ steps.image.outputs.reference }}" \
             --service-account "api-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
-            --update-env-vars "SERVICE_RELEASE=${{ steps.commit.outputs.sha }}" \
+            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS}" \
+            --set-secrets "DATABASE_URL=dev-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,AUTH_ACCESS_TOKEN_SECRET=dev-auth-access-token-secret:latest,AUTH_RATE_LIMIT_SECRET=dev-auth-rate-limit-secret:latest,ACCOUNT_DATA_HASH_SECRET=dev-account-data-hash-secret:latest" \
             --quiet
-          url="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.url)')"
-          echo "url=${url}" >> "$GITHUB_OUTPUT"
+        env:
+          # Apple's client id for a native app is its bundle id, and the Dev
+          # scheme builds this one.
+          APPLE_CLIENT_IDS: app.countryflags.mobile.dev
+          # No Google OAuth client exists for dev yet (#58 provisions it). The
+          # value is deliberately one no token can carry, so a provider sign-in
+          # is refused rather than accepted against the wrong client.
+          GOOGLE_CLIENT_IDS: unprovisioned.apps.googleusercontent.com
 
       # Deployed is not the same as working. The revision has to answer before
       # the run is called a success, or a broken image would be reported green.
       - name: Wait for readiness
+        id: ready
         run: |
           set -euo pipefail
-          url="${{ steps.deploy.outputs.url }}/v1/health/ready"
+          url="${{ steps.service.outputs.url }}/v1/health/ready"
           for attempt in $(seq 1 30); do
             code="$(curl -sS -o /tmp/ready.json -w '%{http_code}' "${url}" || true)"
             if [ "${code}" = "200" ]; then
@@ -155,9 +209,10 @@ jobs:
           exit 1
 
       - name: Smoke test the public surface
+        id: smoke
         run: |
           set -euo pipefail
-          base="${{ steps.deploy.outputs.url }}"
+          base="${{ steps.service.outputs.url }}"
           # The manifest is the one read every client makes before anything
           # else, so it is the cheapest proof that content is actually served.
           code="$(curl -sS -o /tmp/manifest.json -w '%{http_code}' "${base}/v1/content/manifest?locale=en" || true)"
@@ -171,6 +226,24 @@ jobs:
               cat /tmp/manifest.json || true
               exit 1 ;;
           esac
+
+      # A revision that never listens says only that it did not listen, and a
+      # readiness that never arrives says even less. The reason is in the
+      # revision's own log, and printing it here is what makes the next failure
+      # diagnosable without a console.
+      - name: Report what the revision logged
+        if: >-
+          failure() && (steps.deploy.outcome == 'failure' ||
+          steps.ready.outcome == 'failure' || steps.smoke.outcome == 'failure')
+        run: |
+          set -euo pipefail
+          gcloud logging read \
+            "resource.type=cloud_run_revision AND resource.labels.service_name=${SERVICE}" \
+            --project "${PROJECT_ID}" \
+            --freshness 15m \
+            --limit 50 \
+            --order desc \
+            --format 'value(textPayload,jsonPayload.message)' || true
 
       - name: Record the deployment
         uses: actions/github-script@v7
@@ -190,6 +263,6 @@ jobs:
               repo: context.repo.repo,
               deployment_id: deployment.data.id,
               state: 'success',
-              environment_url: '${{ steps.deploy.outputs.url }}',
+              environment_url: '${{ steps.service.outputs.url }}',
               description: 'Ready and smoke tested',
             });
