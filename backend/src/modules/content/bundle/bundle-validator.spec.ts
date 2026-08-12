@@ -298,6 +298,53 @@ describe("validateBundle", () => {
     ).rejects.toThrow(/references unknown entity/);
   });
 
+  it("rejects decks whose keys derive the same code", async () => {
+    buildBundle(dir, {
+      catalog: catalogFixture({
+        decks: [
+          {
+            key: "deck.south-america",
+            kind: "curated",
+            names: {
+              en: { name: "South America" },
+              ru: { name: "Южная Америка" },
+            },
+            memberEntityKeys: ["country.testland"],
+          },
+          {
+            key: "deck.south_america",
+            kind: "curated",
+            names: { en: { name: "The Americas" }, ru: { name: "Америки" } },
+            memberEntityKeys: ["country.testland"],
+          },
+        ],
+      }),
+    });
+    await expect(
+      validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+    ).rejects.toThrow(/both derive the code "SOUTH_AMERICA"/);
+  });
+
+  it("rejects a deck whose key derives a code the contract refuses", async () => {
+    buildBundle(dir, {
+      catalog: catalogFixture({
+        decks: [
+          {
+            key: "deck.1990s",
+            kind: "curated",
+            names: { en: { name: "The nineties" }, ru: { name: "Девяностые" } },
+            memberEntityKeys: ["country.testland"],
+          },
+        ],
+      }),
+    });
+    await expect(
+      validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+    ).rejects.toThrow(
+      /derives the code "1990S", which the contract does not allow/,
+    );
+  });
+
   it("rejects an entity missing a name in a supported locale", async () => {
     buildBundle(dir, {
       catalog: catalogFixture({
