@@ -14,6 +14,9 @@ final class ProgressSettingsUITests: XCTestCase {
     func testAFreshInstallExplainsThatNothingHasBeenStudied() {
         let app = launch(arguments: ["-reset-store"])
 
+        // Opened while the launch is still importing content and running its
+        // first sync, deliberately: that is when a screen that does not own
+        // its store keeps starting its reading over.
         openProgress(in: app)
 
         XCTAssertTrue(

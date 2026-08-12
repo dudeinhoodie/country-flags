@@ -82,19 +82,18 @@ public final class ProgressStore {
                     earnedAt: $0.earnedAt
                 )
             }
-        let decks = (try? await content.decks()) ?? []
-
         // A learner who has answered nothing has no progress, whatever the
-        // decks hold. Saying so needs no reading of the catalogue at all, and
-        // reading it is the expensive part: on a fresh install this screen
-        // would otherwise walk every card of the release to reach a row of
-        // zeroes.
+        // decks hold, and the screen that says so shows no deck rows at all.
+        // Reading the catalogue to build rows nobody sees is what made this
+        // screen slow on a fresh install: the release is still being written
+        // to the content store then, and a read of it waits for that import.
         guard !states.isEmpty || !achievements.isEmpty else {
-            self.decks = decks.map { Self.row(deck: $0, counts: nil, tier: nil) }
+            decks = []
             isLoaded = true
             return
         }
 
+        let decks = (try? await content.decks()) ?? []
         let cardsByDeck = (try? await content.cardIdentifiersByDeck()) ?? [:]
         let counted = LocalProgressProjection.progress(
             cardsByDeck: cardsByDeck,
@@ -114,29 +113,18 @@ public final class ProgressStore {
         )
 
         self.decks = decks.map { deck in
-            Self.row(
-                deck: deck,
-                counts: countsByDeck[deck.id],
-                tier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
+            let counts = countsByDeck[deck.id]
+            return DeckProgressRow(
+                id: deck.id,
+                code: deck.code,
+                name: deck.name,
+                totalCards: counts?.totalCards ?? deck.cardCount,
+                startedCards: counts?.startedCards ?? 0,
+                dueCards: counts?.dueCards ?? 0,
+                masteryTier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
             )
         }
         isLoaded = true
-    }
-
-    private static func row(
-        deck: DeckRecord,
-        counts: LocalDeckProgress?,
-        tier: MasteryTier?
-    ) -> DeckProgressRow {
-        DeckProgressRow(
-            id: deck.id,
-            code: deck.code,
-            name: deck.name,
-            totalCards: counts?.totalCards ?? deck.cardCount,
-            startedCards: counts?.startedCards ?? 0,
-            dueCards: counts?.dueCards ?? 0,
-            masteryTier: tier
-        )
     }
 
     /// Nothing has been studied yet, which is a different screen from a screen
