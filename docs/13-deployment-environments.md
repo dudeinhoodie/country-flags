@@ -141,6 +141,49 @@ GitHub environments: dev, production
 
 Provider IDs не попадают в domain code.
 
+### 6.1. One-time provisioning для dev
+
+Deploy workflow ничего не создаёт: он разворачивает образ в уже существующий
+service и читает уже существующие secrets. Перечисленное ниже создаётся один
+раз владельцем проекта.
+
+Cloud Run service и service accounts:
+
+~~~bash
+gcloud run deploy api-dev --region europe-west3 --image <любой стартующий образ>
+gcloud iam service-accounts create api-dev-runtime   # runtime identity ревизии
+gcloud iam service-accounts create github-deployer   # identity workflow
+~~~
+
+Secrets (имена фиксированы, deploy ссылается именно на них):
+
+~~~text
+dev-database-url              pooled Neon URL, runtime
+dev-direct-database-url       direct Neon URL, migrations
+dev-auth-access-token-secret  ≥32 символов, только для dev
+dev-auth-rate-limit-secret    ≥32 символов, только для dev
+dev-account-data-hash-secret  ≥32 символов, только для dev
+~~~
+
+Database URLs берутся из Neon project country-flags-dev. Три auth secret не
+имеют внешнего источника и генерируются:
+
+~~~bash
+printf %s "$(openssl rand -hex 32)" \
+  | gcloud secrets create dev-auth-access-token-secret --data-file=-
+gcloud secrets add-iam-policy-binding dev-auth-access-token-secret \
+  --member=serviceAccount:api-dev-runtime@speedy-web-235610.iam.gserviceaccount.com \
+  --role=roles/secretmanager.secretAccessor
+~~~
+
+Значение auth secret нигде не хранится вне Secret Manager: ротация — это новая
+версия секрета и следующий deploy.
+
+Остальная конфигурация ревизии не хранится в консоли. Deploy задаёт её целиком
+на каждом запуске (`--set-env-vars` и `--set-secrets`), поэтому конфигурация dev
+читается в `.github/workflows/deploy-dev.yml`, а правка через консоль
+перезаписывается следующим deploy.
+
 ## 7. Configuration contract
 
 Hosted environments требуют:
@@ -174,6 +217,9 @@ OTEL_EXPORTER_OTLP_ENDPOINT
 Требования:
 
 - hosted startup не принимает test defaults;
+- `OBJECT_STORAGE_*` читает только content bundle CLI, running API — нет,
+  поэтому ревизия api-dev их не получает; доступность published assets из dev
+  разбирается отдельно (#92);
 - dev/prod secrets не совпадают;
 - SERVICE_RELEASE равен git SHA/image version;
 - logs/traces/metrics содержат deployment.environment.name;
