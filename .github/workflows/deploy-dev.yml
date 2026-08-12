@@ -93,10 +93,10 @@ jobs:
       - name: TEMPORARY probe of the current service configuration
         run: |
           set -euo pipefail
-          # Names only. A value would print a credential into the run log.
+          # The spec holds credentials as references rather than values, so the
+          # only values printed here are the public ones.
           gcloud run services describe "${SERVICE}" --region "${REGION}" \
-            --format='yaml(spec.template.spec.containers[0].env)' \
-            | grep -E '^\s+(- name|name):' || true
+            --format='yaml(spec.template.spec.containers[0].env)' || true
           echo "::error::probe only"
           exit 1
 
