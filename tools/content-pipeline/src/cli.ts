@@ -81,11 +81,14 @@ async function main(args: string[]): Promise<void> {
     if (version === undefined) {
       throw new Error("build requires --catalog-version <version>");
     }
+    const assetBase = option(rest, "--asset-base-url");
     const result = await buildBundle({
       root,
       outputRoot,
       catalogVersion: version,
       publishReady: rest.includes("--publish-ready"),
+      // Omitted, the manifest records the production CDN as it always has.
+      ...(assetBase === undefined ? {} : { assetBaseUrl: assetBase }),
     });
     process.stdout.write(
       `Built ${result.outputDirectory} (${String(Object.keys(result.fileHashes).length)} JSON files)\n`,

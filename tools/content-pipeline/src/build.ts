@@ -34,6 +34,25 @@ function assertVersion(version: string): void {
   }
 }
 
+/**
+ * Where the manifest says the assets of this release are served from.
+ *
+ * The default is the production CDN, unchanged: a release built without an
+ * opinion records what it always recorded. An environment that serves the
+ * release from its own bucket passes its own address, and the contract
+ * requires it to be HTTPS and to end where a file path can be appended.
+ */
+function assetBaseUrl(options: BuildOptions): string {
+  const configured = options.assetBaseUrl;
+  if (configured === undefined) {
+    return `https://cdn.country-flags.app/content/${options.catalogVersion}/`;
+  }
+  if (!configured.startsWith("https://")) {
+    throw new Error(`assetBaseUrl must be https:// (received ${configured})`);
+  }
+  return configured.endsWith("/") ? configured : `${configured}/`;
+}
+
 function blockingReportCount(reports: PipelineReports): number {
   return (
     reports.unresolvedEntities.length +
@@ -165,7 +184,7 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     supportedLocales: [...editorial.supportedLocales].sort(),
     minimumClientVersion: "1.0.0",
     supportedTemplateSchemaVersions: [1],
-    assetBaseUrl: `https://cdn.country-flags.app/content/${options.catalogVersion}/`,
+    assetBaseUrl: assetBaseUrl(options),
     changeCursor: `content:${options.catalogVersion}:0`,
     files: manifestFiles,
     signature: {

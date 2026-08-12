@@ -110,11 +110,19 @@ export function buildBundle(
   options: BundleBuildOptions,
 ): void {
   mkdirSync(join(dir, "assets", "svg"), { recursive: true });
+  mkdirSync(join(dir, "assets", "png"), { recursive: true });
   for (const entity of options.entities) {
-    writeFileSync(
-      join(dir, "assets", "svg", `${entity.slug}.svg`),
-      `<svg>${entity.slug}</svg>`,
-    );
+    const svg = `<svg>${entity.slug}</svg>`;
+    writeFileSync(join(dir, "assets", "svg", `${entity.slug}.svg`), svg);
+    // The registry declares a raster for every scale, so the bundle has to
+    // carry one: a publish uploads the files its assets name, and a fixture
+    // that named files it did not ship would only prove that nothing looked.
+    for (const scale of [2, 3]) {
+      writeFileSync(
+        join(dir, "assets", "png", `${entity.slug}@${String(scale)}x.png`),
+        `${svg}@${String(scale)}x`,
+      );
+    }
   }
 
   const catalog = {
