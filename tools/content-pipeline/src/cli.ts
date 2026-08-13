@@ -82,6 +82,7 @@ async function main(args: string[]): Promise<void> {
       throw new Error("build requires --catalog-version <version>");
     }
     const assetBase = option(rest, "--asset-base-url");
+    const minimumClient = option(rest, "--minimum-client-version");
     const result = await buildBundle({
       root,
       outputRoot,
@@ -89,6 +90,9 @@ async function main(args: string[]): Promise<void> {
       publishReady: rest.includes("--publish-ready"),
       // Omitted, the manifest records the production CDN as it always has.
       ...(assetBase === undefined ? {} : { assetBaseUrl: assetBase }),
+      ...(minimumClient === undefined
+        ? {}
+        : { minimumClientVersion: minimumClient }),
     });
     process.stdout.write(
       `Built ${result.outputDirectory} (${String(Object.keys(result.fileHashes).length)} JSON files)\n`,

@@ -30,6 +30,12 @@ as it always has. It is the bundle's own statement: a publish records the addres
 it actually uploaded the files to, so a release published into an environment
 serves that environment's addresses whichever way the bundle was built.
 
+`build --minimum-client-version 0.1.0` records the oldest client the release lets
+read it, defaulting to `1.0.0`. A client below it is answered with an update
+screen instead of a catalogue, which is right in production and wrong in an
+environment meant to be read by the app on a developer's machine — a build at
+`0.1.0` reading a release that demands `1.0.0` sees nothing at all.
+
 `build`, `validate`, `diff`, and `report` use committed local inputs only.
 Normal CI therefore has no upstream network dependency. `pull` is the only
 network stage. It requires the requested revision to match the registry pin,
