@@ -237,8 +237,8 @@ production двумя входами, и workflow делает ровно эти
 corepack yarn content build --catalog-version fixture-v1 --publish-ready \
   --asset-base-url "$OBJECT_STORAGE_PUBLIC_BASE_URL/content/fixture-v1/" \
   --minimum-client-version 0.1.0
-corepack yarn content:bundle:sign --bundle-dir content/generated/fixture-v1
-corepack yarn content:bundle:publish --bundle-dir content/generated/fixture-v1
+corepack yarn content:bundle:sign --bundle-dir "$PWD/content/generated/fixture-v1"
+corepack yarn content:bundle:publish --bundle-dir "$PWD/content/generated/fixture-v1"
 ~~~
 
 `--minimum-client-version` здесь не косметика: релиз отказывает клиенту ниже
