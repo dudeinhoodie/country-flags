@@ -66,6 +66,11 @@ jobs:
           corepack enable
           corepack yarn install --immutable
 
+      # The publish CLI is TypeScript run through ts-node, and it is typed
+      # against the generated Prisma client rather than against the schema.
+      - name: Generate the Prisma client
+        run: corepack yarn prisma:generate
+
       # Read where they live rather than duplicated into GitHub: each credential
       # has one home, and rotating it there is the whole change.
       - name: Read the credentials
