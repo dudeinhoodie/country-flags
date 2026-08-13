@@ -92,7 +92,13 @@ public struct StudySessionView: View {
                 // them, and they are the only way in for VoiceOver.
                 ratingButtons(disabled: state.isCommitting)
             } else {
-                Button(L10n.studyReveal) { runner.revealAnswer() }
+                // The button says it will show the answer, so it turns the
+                // card over. Unlocking the ratings without turning it left the
+                // learner looking at the same flag and no answer anywhere.
+                Button(L10n.studyReveal) {
+                    runner.revealAnswer()
+                    isShowingBack = true
+                }
                     .font(DesignTokens.Typography.body.weight(.semibold))
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)

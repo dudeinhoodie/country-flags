@@ -96,7 +96,12 @@ final class StudySessionUITests: XCTestCase {
         XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 30), app.debugDescription)
         let firstPosition = app.staticTexts["study.progress"].label
 
-        let card = app.otherElements["study.card"]
+        // Matched by identifier across every element type: how SwiftUI
+        // classifies an accessibility container is its business, not a promise
+        // the product makes.
+        let card = app.descendants(matching: .any)
+            .matching(identifier: "study.card")
+            .firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 10), app.debugDescription)
         // Answering without turning the card over is the case the deck exists
         // for: a flag recognised on sight is thrown away, not read.

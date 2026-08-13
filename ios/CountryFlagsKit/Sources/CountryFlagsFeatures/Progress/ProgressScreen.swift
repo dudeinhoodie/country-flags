@@ -91,11 +91,14 @@ public struct ProgressScreen: View {
                 SectionLabel(L10n.progressDecksSection)
                 ForEach(store.decks) { deck in
                     GlassCard(padding: DesignTokens.Spacing.medium) {
+                        // The identifier goes on the row, not on the card
+                        // around it: an identifier on a plain SwiftUI container
+                        // is handed to every descendant and overwrites theirs.
                         DeckProgressRowView(deck: deck)
+                            .accessibilityIdentifier(
+                                AccessibilityIdentifier.progressDeckRow(deck.code)
+                            )
                     }
-                    .accessibilityIdentifier(
-                        AccessibilityIdentifier.progressDeckRow(deck.code)
-                    )
                 }
             }
 

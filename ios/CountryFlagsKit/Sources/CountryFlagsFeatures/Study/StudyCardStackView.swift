@@ -70,6 +70,11 @@ struct StudyCardStackView: View {
         ZStack {
             front(entry.card, isTurned: isTurned)
                 .opacity(isTurned ? 0 : 1)
+                // The side facing away is not on the screen, and must not be in
+                // the accessibility tree either: VoiceOver reading the country
+                // off the back of a card that is still flag up would answer the
+                // question before it was asked.
+                .accessibilityHidden(isTurned)
 
             if isTop {
                 StudyCardBack(
@@ -78,6 +83,7 @@ struct StudyCardStackView: View {
                     onDetails: onDetails
                 )
                 .opacity(isTurned ? 1 : 0)
+                .accessibilityHidden(!isTurned)
                 // The back is drawn mirrored inside a view the flip has already
                 // turned, so it reads the right way round when it arrives.
                 .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
@@ -115,6 +121,13 @@ struct StudyCardStackView: View {
         // Only the card being answered is reachable; the ones behind it are
         // depth, not content.
         .accessibilityHidden(!isTop)
+        // A container rather than one element. An identifier put on a plain
+        // SwiftUI container is handed down to every descendant and overwrites
+        // the ones they set for themselves — the flag, the answer and the
+        // button on the back all became "study.card" and stopped being
+        // addressable at all. Declaring the container keeps the identifier on
+        // the card and leaves its contents their own.
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier(
             isTop ? AccessibilityIdentifier.studyCard : AccessibilityIdentifier.studyCardBehind
         )
@@ -235,6 +248,11 @@ private struct StudyCardBack: View {
                         .fontWeight(.medium)
                 }
                 .font(DesignTokens.Typography.caption)
+                // One fact is one thing to hear, not a label and a value in
+                // sequence — and combining them is also what lets the row carry
+                // an identifier without handing it to both.
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier(AccessibilityIdentifier.studyFact(fact.type))
             }
 
             Spacer(minLength: 0)
