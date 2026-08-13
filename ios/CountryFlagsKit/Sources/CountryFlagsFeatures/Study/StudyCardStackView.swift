@@ -76,8 +76,15 @@ struct StudyCardStackView: View {
         let isTurned = isTop && isShowingBack
 
         ZStack {
-            front(entry.card, isTurned: isTurned)
-                .opacity(isTurned ? 0 : 1)
+            // Only the top card shows its flag. The cards behind peek out as
+            // edges, and an edge of another country's artwork read as a
+            // rendering glitch — a strip of unexplained colour under the card
+            // — as well as quietly spoiling the next question. A blank edge
+            // reads as what it is: another card, waiting.
+            if isTop {
+                front(entry.card, isTurned: isTurned)
+                    .opacity(isTurned ? 0 : 1)
+            }
 
             // Created when the card turns rather than kept hidden behind the
             // front: the back carries the answer, and a hidden view is still in
