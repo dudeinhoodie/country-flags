@@ -73,7 +73,7 @@ public struct ObjectiveSessionView: View {
         VStack(spacing: DesignTokens.Spacing.medium) {
             hud(state: state)
 
-            FlagImageView(
+            FlagCardFace(
                 assetID: question.promptAssetID,
                 // The prompt never names the country, and VoiceOver must not
                 // either: reading the answer out would settle the question

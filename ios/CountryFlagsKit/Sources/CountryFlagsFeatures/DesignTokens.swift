@@ -45,6 +45,12 @@ public enum DesignTokens {
         /// does not: enough blur that no edge of it reads as part of the flag.
         public static let groundBlur: CGFloat = 22
         public static let groundOpacity: Double = 0.85
+        /// How much larger than the card the copy is drawn. A blur fades to
+        /// nothing at the edges of the image it is given, and wherever that
+        /// edge coincided with the card's, the fade showed as a pale stripe
+        /// along the border. Oversized, the soft edge falls outside the clip
+        /// and the card is covered wall to wall.
+        public static let groundOverscan: CGFloat = 1.3
         /// Far enough that a thrown card is gone whatever the screen width.
         public static let leavingDistance: CGFloat = 900
         /// The card is the lit object on a dark scene, so it casts rather than

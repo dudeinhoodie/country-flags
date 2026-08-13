@@ -149,34 +149,13 @@ struct StudyCardStackView: View {
     }
 
     private func front(_ card: StudySessionCardRecord, isTurned: Bool) -> some View {
-        ZStack {
-            // Flags are not all 3:2 — Switzerland is square, Sweden and Brazil
-            // are neither — so a card of one shape leaves bars beside them. The
-            // bars are filled with the flag itself, out of focus: the card
-            // reads as full and the flag on top is still whole. Cropping the
-            // flag to fit would make it a different flag, which the spec
-            // forbids in as many words.
-            FlagImageView(
-                assetID: card.promptAssetID,
-                accessibilityLabel: "",
-                store: store,
-                assets: assets,
-                contentMode: .fill
-            )
-            .blur(radius: DesignTokens.Card.groundBlur)
-            .opacity(DesignTokens.Card.groundOpacity)
-            .accessibilityHidden(true)
-
-            FlagImageView(
-                assetID: card.promptAssetID,
-                // Before the answer is out the label must not name the country,
-                // or VoiceOver would answer the question for the learner.
-                accessibilityLabel: isTurned ? card.displayName : L10n.studyFlagPrompt,
-                store: store,
-                assets: assets
-            )
-            .accessibilityHint(isTurned ? "" : L10n.studyCardHint)
-        }
+        FlagCardFace(
+            assetID: card.promptAssetID,
+            accessibilityLabel: isTurned ? card.displayName : L10n.studyFlagPrompt,
+            accessibilityHint: isTurned ? "" : L10n.studyCardHint,
+            store: store,
+            assets: assets
+        )
     }
 
     /// Turning the card is also what first reveals the answer: the session
