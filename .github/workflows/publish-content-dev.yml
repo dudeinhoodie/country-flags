@@ -109,8 +109,10 @@ jobs:
           CONTENT_SIGNING_PRIVATE_KEY: ${{ steps.credentials.outputs.dev_content_signing_private_key }}
         run: |
           set -euo pipefail
+          # The root script forwards into the backend workspace, so the CLI
+          # resolves a relative path against backend/ rather than the checkout.
           corepack yarn content:bundle:sign \
-            --bundle-dir "content/generated/${{ inputs.content_version }}"
+            --bundle-dir "${GITHUB_WORKSPACE}/content/generated/${{ inputs.content_version }}"
 
       # Publish uploads the bundle and its assets, then applies the release in
       # one transaction. It runs against the direct connection: the pooled one
@@ -132,7 +134,7 @@ jobs:
         run: |
           set -euo pipefail
           corepack yarn content:bundle:publish \
-            --bundle-dir "content/generated/${{ inputs.content_version }}"
+            --bundle-dir "${GITHUB_WORKSPACE}/content/generated/${{ inputs.content_version }}"
 
       # Published is not the same as served. The manifest is the first read
       # every client makes, so it is the cheapest proof the release arrived.
