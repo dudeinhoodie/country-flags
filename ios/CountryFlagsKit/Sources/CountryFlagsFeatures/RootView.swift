@@ -196,6 +196,8 @@ public enum AccessibilityIdentifier {
     /// The card being answered, and the ones behind it in the stack.
     public static let studyCard = "study.card"
     public static let studyCardBehind = "study.card.behind"
+    public static let studyDetails = "study.details"
+    public static let studyClose = "study.close"
     public static let studyReveal = "study.reveal"
     /// Facts are addressed by the type they carry rather than by position: a
     /// release decides how many a country has.

@@ -98,17 +98,8 @@ final class StudySessionUITests: XCTestCase {
 
         let card = app.otherElements["study.card"]
         XCTAssertTrue(card.waitForExistence(timeout: 10), app.debugDescription)
-        // Before the answer is up, the gesture may only turn the card over —
-        // a rating given without seeing the answer would be a rating of
-        // nothing.
-        card.swipeRight()
-        XCTAssertTrue(
-            app.staticTexts["study.answer"].waitForExistence(timeout: 10),
-            app.debugDescription
-        )
-        XCTAssertEqual(app.staticTexts["study.progress"].label, firstPosition)
-
-        // Now the same gesture answers it.
+        // Answering without turning the card over is the case the deck exists
+        // for: a flag recognised on sight is thrown away, not read.
         card.swipeRight()
 
         XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 10), app.debugDescription)

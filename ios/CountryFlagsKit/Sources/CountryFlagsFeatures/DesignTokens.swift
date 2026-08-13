@@ -41,17 +41,44 @@ public enum DesignTokens {
         public static let swipeRotation: Double = 1.0 / 22.0
         /// The hairline that keeps a white flag from dissolving into the page.
         public static let borderOpacity: Double = 0.12
+        /// The out-of-focus copy of the flag that fills a card its own shape
+        /// does not: enough blur that no edge of it reads as part of the flag.
+        public static let groundBlur: CGFloat = 22
+        public static let groundOpacity: Double = 0.85
+        /// Far enough that a thrown card is gone whatever the screen width.
+        public static let leavingDistance: CGFloat = 900
+        /// The card is the lit object on a dark scene, so it casts rather than
+        /// floats: soft, low, never a hard edge.
+        public static let shadowOpacity: Double = 0.35
+        public static let shadowRadius: CGFloat = 24
+        public static let shadowOffset: CGFloat = 12
     }
 
     public enum Layout {
         /// The smallest side of an interactive element the platform
         /// guidelines allow.
         public static let minimumTouchTarget: CGFloat = 44
+        /// The height of a primary action. Larger than the minimum on purpose:
+        /// the rating row is pressed hundreds of times in a session, and a miss
+        /// there costs a wrong interval rather than a wrong screen.
+        public static let actionHeight: CGFloat = 56
+        /// A flag beside a title rather than as the subject of the screen.
+        public static let thumbFlagWidth: CGFloat = 64
+        /// The rating names in the result, aligned so the bars start together.
+        public static let ratingLabelWidth: CGFloat = 72
+        /// The placeholder standing in for the counter while a session loads.
+        public static let progressPlaceholderWidth: CGFloat = 88
         public static let maximumContentWidth: CGFloat = 520
     }
 
     public enum Typography {
         public static let screenTitle: Font = .largeTitle.weight(.bold)
+        /// The country on the back of a card: content rather than a label, so
+        /// it takes the largest role there is room for.
+        public static let cardAnswer: Font = .title2.weight(.bold)
+        /// The score a session ends on: the largest thing the app ever draws,
+        /// because it is the one number anybody repeats out loud.
+        public static let resultScore: Font = .system(.largeTitle, design: .rounded, weight: .heavy)
         public static let sectionTitle: Font = .headline
         public static let body: Font = .body
         public static let caption: Font = .footnote

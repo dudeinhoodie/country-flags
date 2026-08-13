@@ -119,6 +119,10 @@ public enum L10n {
     public static var studyTitle: String { localized("study.title") }
     public static var studyReveal: String { localized("study.reveal") }
     public static var studyFlagPrompt: String { localized("study.flag_prompt") }
+    public static var studyDetails: String { localized("study.details") }
+    public static var studyDetailsTitle: String { localized("study.details.title") }
+    public static var studyClose: String { localized("study.close") }
+    public static var studyCardHint: String { localized("study.card.hint") }
     public static var studyNotSaved: String { localized("study.not_saved") }
     public static var studyNoCards: String { localized("study.no_cards") }
     public static var studyStoreUnavailable: String { localized("study.store_unavailable") }

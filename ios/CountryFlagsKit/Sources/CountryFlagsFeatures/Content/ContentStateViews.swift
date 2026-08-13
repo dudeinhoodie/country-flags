@@ -138,6 +138,11 @@ struct FlagImageView: View {
     let accessibilityLabel: String
     let store: ContentStore
     let assets: any AssetLoading
+    /// `.fit` everywhere the flag is the subject — nothing crops or stretches
+    /// it. `.fill` exists for one job: painting a ground out of the flag's own
+    /// colours behind the flag itself, where the crop is the point and the
+    /// result is never read as the flag.
+    var contentMode: ContentMode = .fit
 
     @State private var image: Image?
     @State private var didFail = false
@@ -149,7 +154,7 @@ struct FlagImageView: View {
                     .resizable()
                     // A flag is a rectangle with a meaning; stretching it is a
                     // different flag.
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: contentMode)
             } else {
                 placeholder
             }

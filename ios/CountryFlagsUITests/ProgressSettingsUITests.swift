@@ -48,8 +48,10 @@ final class ProgressSettingsUITests: XCTestCase {
         )
         app.buttons["study.rating.GOOD"].tap()
 
-        // Back to home, then into progress.
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        // Back to home, then into progress. The session screen has no
+        // navigation bar any more — the flag is the screen — so leaving it is
+        // the close control rather than a back button.
+        app.buttons["study.close"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         openProgress(in: app)
 
