@@ -34,20 +34,85 @@
     {
       "key": "deck.europe",
       "kind": "taxonomy",
-      "members": [
-        "country.france",
-        "country.germany",
-        "country.kosovo",
-        "country.russia"
-      ],
+      "members": {
+        "taxonomy": "region.europe"
+      },
       "names": {
         "en": {
-          "description": "European collection",
+          "description": "Flags of Europe",
           "name": "Europe"
         },
         "ru": {
-          "description": "Европейская подборка",
+          "description": "Флаги Европы",
           "name": "Европа"
+        }
+      }
+    },
+    {
+      "key": "deck.africa",
+      "kind": "taxonomy",
+      "members": {
+        "taxonomy": "region.africa"
+      },
+      "names": {
+        "en": {
+          "description": "Flags of Africa",
+          "name": "Africa"
+        },
+        "ru": {
+          "description": "Флаги Африки",
+          "name": "Африка"
+        }
+      }
+    },
+    {
+      "key": "deck.americas",
+      "kind": "taxonomy",
+      "members": {
+        "taxonomy": "region.americas"
+      },
+      "names": {
+        "en": {
+          "description": "Flags of the Americas",
+          "name": "Americas"
+        },
+        "ru": {
+          "description": "Флаги Америки",
+          "name": "Америка"
+        }
+      }
+    },
+    {
+      "key": "deck.asia",
+      "kind": "taxonomy",
+      "members": {
+        "taxonomy": "region.asia"
+      },
+      "names": {
+        "en": {
+          "description": "Flags of Asia",
+          "name": "Asia"
+        },
+        "ru": {
+          "description": "Флаги Азии",
+          "name": "Азия"
+        }
+      }
+    },
+    {
+      "key": "deck.oceania",
+      "kind": "taxonomy",
+      "members": {
+        "taxonomy": "region.oceania"
+      },
+      "names": {
+        "en": {
+          "description": "Flags of Oceania",
+          "name": "Oceania"
+        },
+        "ru": {
+          "description": "Флаги Океании",
+          "name": "Океания"
         }
       }
     }
@@ -2878,10 +2943,10 @@
   "sourceAliases": {
     "annexare:XK": "country.kosovo",
     "cldr:XK": "country.kosovo",
-    "flag-icons:country.kosovo": "country.kosovo",
     "flag-icons:XK": "country.kosovo",
-    "wikidata:country.kosovo": "country.kosovo",
-    "wikidata:XK": "country.kosovo"
+    "flag-icons:country.kosovo": "country.kosovo",
+    "wikidata:XK": "country.kosovo",
+    "wikidata:country.kosovo": "country.kosovo"
   },
   "supportedLocales": ["ru", "en"]
 }
