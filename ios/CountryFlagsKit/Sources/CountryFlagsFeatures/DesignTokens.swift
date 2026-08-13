@@ -27,10 +27,18 @@ public enum DesignTokens {
     /// how far a card travels before it counts as an answer, and how much it
     /// leans on the way.
     public enum Card {
-        /// A flag is a rectangle with a meaning, and the card keeps its shape.
-        public static let aspectRatio: CGFloat = 3.0 / 2.0
+        /// The shape of the release's artwork, not a choice of ours: every
+        /// bundled flag is drawn on a 640×480 canvas, edge to edge. A card of
+        /// any other proportion leaves bars beside every flag — bars the
+        /// blurred ground then has to paper over, visibly on a light flag.
+        /// Matching the artwork means the flag simply is the card.
+        public static let aspectRatio: CGFloat = 4.0 / 3.0
         /// How far each card behind the top one sits, and how much smaller.
-        public static let stackOffset: CGFloat = 10
+        /// The offset is large enough that what shows below the top card is
+        /// recognisably the edge of another card — border, corners and all.
+        /// Smaller values left a two-point sliver of the next flag's colours,
+        /// which read as a rendering artifact rather than as a deck.
+        public static let stackOffset: CGFloat = 14
         public static let stackScaleStep: CGFloat = 0.04
         /// Cards drawn behind the top one. A thicker stack reads as depth
         /// rather than as more information.
