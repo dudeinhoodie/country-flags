@@ -58,9 +58,18 @@ public struct HomeView: View {
             // count that lost that race stayed wrong for the whole visit and
             // only corrected itself once the learner left and came back.
             .task(id: store.status) { await sync.refreshStatus() }
-            // Same reasoning for the hero: cards fall due while the learner is
-            // elsewhere, so the number is re-read on every return.
-            .task { await progress?.load() }
+            // Coming back is the other moment both numbers change: a session
+            // queues work and answers cards while this screen is covered, and
+            // nothing above re-reads on a pop. The root of a navigation stack
+            // reappears when the pushed screen leaves, so this is the return
+            // path — and the first appearance, which is harmless: both reads
+            // are cheap and idempotent.
+            .onAppear {
+                Task {
+                    await sync.refreshStatus()
+                    await progress?.load()
+                }
+            }
     }
 
     @ViewBuilder

@@ -70,20 +70,17 @@ struct StudyCardStackView: View {
         ZStack {
             front(entry.card, isTurned: isTurned)
                 .opacity(isTurned ? 0 : 1)
-                // The side facing away is not on the screen, and must not be in
-                // the accessibility tree either: VoiceOver reading the country
-                // off the back of a card that is still flag up would answer the
-                // question before it was asked.
-                .accessibilityHidden(isTurned)
 
-            if isTop {
+            // Created when the card turns rather than kept hidden behind the
+            // front: the back carries the answer, and a hidden view is still in
+            // the accessibility tree — a screen reader or a UI test could read
+            // the country off a card that is face up.
+            if isTurned {
                 StudyCardBack(
                     card: entry.card,
                     store: store,
                     onDetails: onDetails
                 )
-                .opacity(isTurned ? 1 : 0)
-                .accessibilityHidden(!isTurned)
                 // The back is drawn mirrored inside a view the flip has already
                 // turned, so it reads the right way round when it arrives.
                 .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))

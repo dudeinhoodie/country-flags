@@ -44,6 +44,13 @@ enum FlagPaletteReader {
     /// to find the fields of a flag and cheap enough to do while a card is
     /// being turned over. Pale pixels are counted but weighted down: almost
     /// every flag has white in it, and a scene lit by white is no scene at all.
+    ///
+    /// On the main actor because the sampling goes through UIKit, and UIKit's
+    /// drawing machinery is not safe anywhere else: sampled on a background
+    /// executor it corrupted an autorelease pool and took the whole app down,
+    /// a few cards into a session. The work is a twelve-by-twelve draw —
+    /// keeping it on the main thread costs less than a frame.
+    @MainActor
     static func palette(
         for record: AssetRecord,
         assets: any AssetLoading,
@@ -57,6 +64,7 @@ enum FlagPaletteReader {
         return palette(from: pixels)
     }
 
+    @MainActor
     private static func platformImage(
         for record: AssetRecord,
         assets: any AssetLoading,
@@ -72,6 +80,7 @@ enum FlagPaletteReader {
 
     private static let grid = 12
 
+    @MainActor
     private static func sample(_ image: UIImage) -> [(r: CGFloat, g: CGFloat, b: CGFloat)]? {
         let side = grid
         var raw = [UInt8](repeating: 0, count: side * side * 4)
