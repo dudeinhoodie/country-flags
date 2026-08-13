@@ -4,9 +4,9 @@ import CountryFlagsDomain
 
 /// One deck: what it is, how big it is, and what is in it.
 ///
-/// Session size and the two study modes arrive with the study work packages.
-/// What this screen owns is the content half: the deck can be read, searched
-/// and browsed with no network at all.
+/// Built around starting a session. The size, the mode and the button are one
+/// card at the top; the countries are underneath, for the learner who wants to
+/// know what they are about to be asked before they are asked it.
 public struct DeckDetailsView: View {
     @State private var model: DeckDetailsModel
     @State private var sessionSize: StudySessionSize
@@ -38,6 +38,7 @@ public struct DeckDetailsView: View {
         content
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: searchBinding, prompt: L10n.deckSearchPrompt)
             .refreshable {
                 await store.refresh()
                 await model.load()
@@ -62,41 +63,62 @@ public struct DeckDetailsView: View {
         case .failed(let failure):
             ContentUnavailableStateView(failure: failure) { await store.refresh() }
         case .ready(let details, let isStale, let failure):
-            list(details, isStale: isStale, failure: failure)
+            loaded(details, isStale: isStale, failure: failure)
         }
     }
 
-    private func list(
+    private func loaded(
         _ details: DeckDetails,
         isStale: Bool,
         failure: ContentSyncFailure?
     ) -> some View {
-        List {
+        SceneScrollView {
             if isStale || failure != nil {
-                Section {
-                    ContentStatusBanner(isStale: isStale, failure: failure)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                }
+                ContentStatusBanner(isStale: isStale, failure: failure)
             }
 
-            Section {
-                if !details.deck.deckDescription.isEmpty {
-                    Text(details.deck.deckDescription)
-                        .font(DesignTokens.Typography.body)
-                }
-                Text(L10n.deckCardCount(details.deck.cardCount))
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier(AccessibilityIdentifier.deckCardCount)
-            }
+            header(details)
 
             if let onStartStudy {
+                startCard(details, onStartStudy: onStartStudy)
+            }
+
+            countries(details)
+        }
+    }
+
+    private func header(_ details: DeckDetails) -> some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+            Text(details.deck.name)
+                .font(DesignTokens.Typography.screenTitle)
+                .foregroundStyle(.white)
+
+            if !details.deck.deckDescription.isEmpty {
+                Text(details.deck.deckDescription)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+
+            Text(L10n.deckCardCount(details.deck.cardCount))
+                .font(DesignTokens.Typography.caption)
+                .foregroundStyle(.white.opacity(0.55))
+                .accessibilityIdentifier(AccessibilityIdentifier.deckCardCount)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func startCard(
+        _ details: DeckDetails,
+        onStartStudy: @escaping (UUID, StudySessionSize, StudyAnswerMode) -> Void
+    ) -> some View {
+        GlassCard(padding: DesignTokens.Spacing.medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 // The quiz is a released feature rather than a permanent one:
                 // the flag is server-enforced and defaults to off, so the mode
                 // is simply absent until it is turned on.
                 if isObjectiveModeEnabled {
-                    Section(L10n.studyModeSection) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                        SectionLabel(L10n.studyModeSection)
                         Picker(L10n.studyModeSection, selection: $mode) {
                             Text(L10n.studyModeSelfRated)
                                 .tag(StudyAnswerMode.selfRated)
@@ -106,10 +128,12 @@ public struct DeckDetailsView: View {
                                 .accessibilityIdentifier(AccessibilityIdentifier.studyModeObjective)
                         }
                         .pickerStyle(.segmented)
+                        .labelsHidden()
                     }
                 }
 
-                Section(L10n.studySessionSize) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                    SectionLabel(L10n.studySessionSize)
                     Picker(L10n.studySessionSize, selection: $sessionSize) {
                         ForEach(StudySessionSize.allCases) { size in
                             Text(verbatim: "\(size.rawValue)")
@@ -120,33 +144,52 @@ public struct DeckDetailsView: View {
                         }
                     }
                     .pickerStyle(.segmented)
-
-                    // A session can start with no network at all: the cards and
-                    // their flags are already on the device.
-                    Button(L10n.studyStart) {
-                        onStartStudy(deckID, sessionSize, mode)
-                    }
-                    .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-                    .disabled(details.deck.cardCount == 0)
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+                    .labelsHidden()
                 }
+
+                // A session can start with no network at all: the cards and
+                // their flags are already on the device.
+                Button(L10n.studyStart) {
+                    onStartStudy(deckID, sessionSize, mode)
+                }
+                .buttonStyle(PrimaryActionStyle())
+                .disabled(details.deck.cardCount == 0)
+                .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
             }
+        }
+    }
 
-            Section(L10n.deckCountriesSection) {
-                if details.cards.isEmpty {
-                    Text(L10n.deckNoMatches)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier(AccessibilityIdentifier.deckNoMatches)
-                }
-                ForEach(details.cards, id: \.id) { card in
-                    CountryRow(card: card, store: store, assets: assets)
-                        .accessibilityIdentifier(
-                            AccessibilityIdentifier.deckCountryRow(card.id)
-                        )
+    private func countries(_ details: DeckDetails) -> some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+            SectionLabel(L10n.deckCountriesSection)
+
+            if details.cards.isEmpty {
+                Text(L10n.deckNoMatches)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .accessibilityIdentifier(AccessibilityIdentifier.deckNoMatches)
+            } else {
+                // A deck can hold every country there is, so the rows are built
+                // as they come into view rather than all at once.
+                GlassCard(padding: DesignTokens.Spacing.small) {
+                    LazyVStack(spacing: 0) {
+                        ForEach(Array(details.cards.enumerated()), id: \.element.id) { index, card in
+                            if index > 0 {
+                                Divider()
+                                    .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
+                                    .padding(.leading, DesignTokens.Layout.rowFlagWidth)
+                            }
+                            CountryRow(card: card, store: store, assets: assets)
+                                .padding(.horizontal, DesignTokens.Spacing.small)
+                                .accessibilityIdentifier(
+                                    AccessibilityIdentifier.deckCountryRow(card.id)
+                                )
+                        }
+                    }
                 }
             }
         }
-        .searchable(text: searchBinding, prompt: L10n.deckSearchPrompt)
     }
 
     private var searchBinding: Binding<String> {
@@ -159,6 +202,8 @@ struct CountryRow: View {
     let store: ContentStore
     let assets: any AssetLoading
 
+    @Environment(\.displayScale) private var displayScale
+
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.medium) {
             FlagImageView(
@@ -167,11 +212,27 @@ struct CountryRow: View {
                 store: store,
                 assets: assets
             )
-            .frame(width: 48, height: 32)
+            .frame(width: DesignTokens.Layout.rowFlagWidth)
+            .clipShape(
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
+            )
+            // The same hairline the cards get, for the same reason: a mostly
+            // white flag has no edge of its own.
+            .overlay {
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
+                    .strokeBorder(
+                        .white.opacity(DesignTokens.Card.borderOpacity),
+                        lineWidth: 1 / displayScale
+                    )
+            }
 
             Text(card.displayName)
                 .font(DesignTokens.Typography.body)
+                .foregroundStyle(.white)
+
+            Spacer(minLength: 0)
         }
         .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+        .padding(.vertical, DesignTokens.Spacing.extraSmall)
     }
 }

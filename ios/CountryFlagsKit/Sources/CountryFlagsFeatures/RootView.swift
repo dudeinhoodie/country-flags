@@ -46,33 +46,49 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $router.navigationPath) {
-            HomeView(
-                store: content,
-                sync: sync,
-                onOpenCatalog: { router.push(.catalog) },
-                onOpenProgress: { router.push(.progress) },
-                onOpenDeck: { router.push(.deck(id: $0)) }
-            )
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.shellOpenSettings) {
-                        router.push(.settings)
+        ZStack {
+            // The ground belongs to the app, not to a screen. Held here, it
+            // stays put while screens are pushed and popped over it, so a
+            // navigation reads as moving on one surface rather than as a stack
+            // of pages each arriving with its own background.
+            AppScene()
+
+            NavigationStack(path: $router.navigationPath) {
+                HomeView(
+                    store: content,
+                    sync: sync,
+                    progress: makeProgressStore(),
+                    onOpenCatalog: { router.push(.catalog) },
+                    onOpenProgress: { router.push(.progress) },
+                    onOpenDeck: { router.push(.deck(id: $0)) }
+                )
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            router.push(.settings)
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
+                        .accessibilityLabel(L10n.shellOpenSettings)
+                        .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
                     }
-                    .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
-                }
-                if configuration.environment.allowsDebugAffordances {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Text(verbatim: configuration.environment.rawValue.uppercased())
-                            .font(DesignTokens.Typography.caption)
-                            .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
+                    if configuration.environment.allowsDebugAffordances {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Text(verbatim: configuration.environment.rawValue.uppercased())
+                                .font(DesignTokens.Typography.caption)
+                                .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
+                        }
                     }
                 }
-            }
-            .navigationDestination(for: AppRoute.self) { route in
-                destination(for: route)
+                .navigationDestination(for: AppRoute.self) { route in
+                    destination(for: route)
+                }
             }
         }
+        // The scene is dark, so the app is: system controls, sheets and the
+        // navigation bar all take their colours from here rather than each
+        // screen fighting the light appearance on its own.
+        .preferredColorScheme(.dark)
         // Recovery and the first sync happen once, after the first frame:
         // everything on screen already answers from the store.
         .task { await sync.start() }
@@ -210,6 +226,8 @@ public enum AccessibilityIdentifier {
     public static let studyResultTitle = "study.result.title"
     public static let studyResultAnswered = "study.result.answered"
     public static let studyResultDone = "study.result.done"
+    /// The one action the first screen recommends.
+    public static let homeContinue = "home.continue"
 
     public static func studyRating(_ rating: StudyRating) -> String {
         "study.rating.\(rating.rawValue)"

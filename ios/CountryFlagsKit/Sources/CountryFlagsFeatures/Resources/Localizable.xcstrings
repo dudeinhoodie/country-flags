@@ -749,6 +749,57 @@
         }
       }
     },
+    "home.continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжить"
+          }
+        }
+      }
+    },
+    "home.deck_size": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In this deck"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В этой колоде"
+          }
+        }
+      }
+    },
+    "home.due": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Due now"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "К повторению"
+          }
+        }
+      }
+    },
     "home.greeting": {
       "extractionState": "manual",
       "localizations": {
@@ -1017,6 +1068,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Вы ещё не занимались"
+          }
+        }
+      }
+    },
+    "progress.studied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Studied"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изучено"
           }
         }
       }

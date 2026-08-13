@@ -54,6 +54,17 @@ public enum DesignTokens {
         public static let shadowOffset: CGFloat = 12
     }
 
+    /// The ground every screen sits on.
+    public enum Scene {
+        /// Not quite black: a pure black ground makes the glass above it read
+        /// as grey rather than as glass.
+        public static let baseOpacity: Double = 0.94
+        /// How far a light reaches. Larger than any phone is wide on purpose —
+        /// the edge of a light must never be visible as an edge.
+        public static let lightRadius: CGFloat = 420
+        public static let groundLightRadius: CGFloat = 380
+    }
+
     public enum Layout {
         /// The smallest side of an interactive element the platform
         /// guidelines allow.
@@ -68,6 +79,11 @@ public enum DesignTokens {
         public static let ratingLabelWidth: CGFloat = 72
         /// The placeholder standing in for the counter while a session loads.
         public static let progressPlaceholderWidth: CGFloat = 88
+        /// A flag in a list row: large enough to be recognised, small enough
+        /// that the name beside it is still the thing being read.
+        public static let rowFlagWidth: CGFloat = 44
+        /// The bar under a deck on the progress screen.
+        public static let progressBarHeight: CGFloat = 6
         public static let maximumContentWidth: CGFloat = 520
     }
 
@@ -79,8 +95,14 @@ public enum DesignTokens {
         /// The score a session ends on: the largest thing the app ever draws,
         /// because it is the one number anybody repeats out loud.
         public static let resultScore: Font = .system(.largeTitle, design: .rounded, weight: .heavy)
+        /// The one number a screen is built around, wherever a screen has one.
+        /// The same face as the session result, one step down.
+        public static let heroNumber: Font = .system(.largeTitle, design: .rounded, weight: .heavy)
         public static let sectionTitle: Font = .headline
         public static let body: Font = .body
         public static let caption: Font = .footnote
+        /// Section labels are set apart by tracking rather than by a rule or a
+        /// colour, which is the quietest way to mark a boundary on glass.
+        public static let labelKerning: CGFloat = 1.2
     }
 }

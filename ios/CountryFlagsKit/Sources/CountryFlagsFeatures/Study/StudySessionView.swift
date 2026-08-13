@@ -5,7 +5,7 @@ import CountryFlagsDomain
 /// One self-rated card at a time: the flag, then the country, then a rating.
 public struct StudySessionView: View {
     @State private var runner: StudySessionRunner
-    @State private var palette: FlagPalette = .neutral
+    @State private var palette: ScenePalette = .neutral
     @State private var isShowingDetails = false
     @State private var isShowingBack = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -37,7 +37,7 @@ public struct StudySessionView: View {
             // The ground belongs to the session rather than to one of its
             // states: it stays put while the session loads, is answered and
             // ends, so nothing flashes white between them.
-            StudyScene(palette: palette)
+            AppScene(palette: palette)
 
             content
                 .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)

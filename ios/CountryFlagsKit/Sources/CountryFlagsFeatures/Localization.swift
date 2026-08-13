@@ -46,6 +46,11 @@ public enum L10n {
     public static var homeGreeting: String { localized("home.greeting") }
     public static var homeRecommended: String { localized("home.recommended") }
     public static var homeOpenCatalog: String { localized("home.open_catalog") }
+    /// The label over the number the first screen is built around, in each of
+    /// its two cases, and the action underneath it.
+    public static var homeDue: String { localized("home.due") }
+    public static var homeDeckSize: String { localized("home.deck_size") }
+    public static var homeContinue: String { localized("home.continue") }
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
     public static var catalogNoMatches: String { localized("catalog.no_matches") }
@@ -70,6 +75,7 @@ public enum L10n {
     public static var homeOpenProgress: String { localized("home.open_progress") }
 
     public static var progressDecksSection: String { localized("progress.decks") }
+    public static var progressStudiedLabel: String { localized("progress.studied") }
     public static var progressAchievementsSection: String { localized("progress.achievements") }
     public static var progressEmptyTitle: String { localized("progress.empty.title") }
     public static var progressEmptyBody: String { localized("progress.empty.body") }

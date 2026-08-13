@@ -3,18 +3,35 @@ import UIKit
 
 import CountryFlagsDomain
 
-/// Two colours taken from a flag, used to light the scene behind it.
+/// The two colours that light the scene.
 ///
-/// The scene is not decoration: it is how a card change reads from the corner
-/// of the eye, before the flag itself is looked at. Taking the colours from the
-/// artwork rather than from a hand-written table means a corrected flag brings
-/// its own scene with it, and a country nobody thought about still gets one.
-struct FlagPalette: Equatable, Sendable {
+/// During a session they are taken from the flag on the card. The scene is not
+/// decoration there: it is how a card change reads from the corner of the eye,
+/// before the flag itself is looked at. Taking the colours from the artwork
+/// rather than from a hand-written table means a corrected flag brings its own
+/// scene with it, and a country nobody thought about still gets one.
+struct ScenePalette: Equatable, Sendable {
     let primary: Color
     let secondary: Color
+    /// How brightly the scene is lit.
+    ///
+    /// A session is lit at full strength because the card on top of it is the
+    /// brightest, densest thing on the screen and holds its own against it.
+    /// A browsing screen has no such object — its content is glass and text —
+    /// so the same lighting would leave the ground shouting over it.
+    var intensity: Double = 1
+
+    /// The ground for every screen that is not showing a flag. Named colours
+    /// rather than literals, so the app has one place where its own two hues
+    /// are written down.
+    static let brand = ScenePalette(
+        primary: Color("SceneAccent", bundle: .module),
+        secondary: Color("SceneEmber", bundle: .module),
+        intensity: 0.38
+    )
 
     /// What a card without artwork gets: the app's own accent, quietly.
-    static let neutral = FlagPalette(
+    static let neutral = ScenePalette(
         primary: Color.accentColor,
         secondary: Color.accentColor.opacity(0.6)
     )
@@ -31,7 +48,7 @@ enum FlagPaletteReader {
         for record: AssetRecord,
         assets: any AssetLoading,
         bundled: BundledFlags = .shipped
-    ) async -> FlagPalette? {
+    ) async -> ScenePalette? {
         guard let image = await platformImage(for: record, assets: assets, bundled: bundled),
             let pixels = sample(image)
         else {
@@ -88,7 +105,7 @@ enum FlagPaletteReader {
 
     private static func palette(
         from pixels: [(r: CGFloat, g: CGFloat, b: CGFloat)]
-    ) -> FlagPalette? {
+    ) -> ScenePalette? {
         guard !pixels.isEmpty else { return nil }
 
         // Buckets by hue, wide enough that the two reds of a tricolour do not
@@ -114,7 +131,7 @@ enum FlagPaletteReader {
         guard let first = ranked.first else { return nil }
         let second = ranked.dropFirst().first ?? first
 
-        return FlagPalette(
+        return ScenePalette(
             primary: average(bucket: first, sums: sumByBucket, counts: countByBucket),
             secondary: average(bucket: second, sums: sumByBucket, counts: countByBucket)
         )
@@ -144,7 +161,7 @@ enum FlagPaletteReader {
         counts: [Int: CGFloat]
     ) -> Color {
         guard let sum = sums[bucket], let count = counts[bucket], count > 0 else {
-            return FlagPalette.neutral.primary
+            return ScenePalette.neutral.primary
         }
         return Color(
             red: Double(sum.r / count),

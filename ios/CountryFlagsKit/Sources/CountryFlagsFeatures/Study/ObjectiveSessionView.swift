@@ -5,12 +5,15 @@ import CountryFlagsDomain
 /// A flag and four countries, one of which is right.
 public struct ObjectiveSessionView: View {
     @State private var runner: ObjectiveSessionRunner
+    @State private var palette: ScenePalette = .neutral
 
     private let deckID: UUID
     private let size: StudySessionSize
     private let store: ContentStore
     private let assets: any AssetLoading
     private let onFinish: () -> Void
+
+    @Environment(\.displayScale) private var displayScale
 
     public init(
         deckID: UUID,
@@ -29,10 +32,17 @@ public struct ObjectiveSessionView: View {
     }
 
     public var body: some View {
-        content
-            .navigationTitle(L10n.studyObjectiveTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .task { await runner.startOrResume(deckID: deckID, size: size) }
+        ZStack {
+            // The quiz is played on the same ground as the deck, lit by the
+            // flag being asked about.
+            AppScene(palette: palette)
+
+            content
+                .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+                .padding(DesignTokens.Spacing.large)
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .task { await runner.startOrResume(deckID: deckID, size: size) }
     }
 
     @ViewBuilder
@@ -47,7 +57,7 @@ public struct ObjectiveSessionView: View {
         {
             questionView(state: state, question: question, presentation: presentation)
         } else {
-            ContentLoadingStateView()
+            StudyLoadingView(onClose: onFinish)
         }
     }
 
@@ -56,11 +66,8 @@ public struct ObjectiveSessionView: View {
         question: ObjectiveQuestion,
         presentation: ObjectiveQuestionPresentation
     ) -> some View {
-        VStack(spacing: DesignTokens.Spacing.large) {
-            Text(L10n.studyProgress(state.position, state.questions.count))
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
+        VStack(spacing: DesignTokens.Spacing.medium) {
+            hud(state: state)
 
             FlagImageView(
                 assetID: question.promptAssetID,
@@ -71,42 +78,98 @@ public struct ObjectiveSessionView: View {
                 store: store,
                 assets: assets
             )
+            .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
             .frame(maxWidth: .infinity)
-            .frame(height: 160)
+            .background(.background, in: cardShape)
+            .clipShape(cardShape)
+            .overlay {
+                cardShape.strokeBorder(
+                    .white.opacity(DesignTokens.Card.borderOpacity),
+                    lineWidth: 1 / displayScale
+                )
+            }
+            .shadow(
+                color: .black.opacity(DesignTokens.Card.shadowOpacity),
+                radius: DesignTokens.Card.shadowRadius,
+                y: DesignTokens.Card.shadowOffset
+            )
 
-            VStack(spacing: DesignTokens.Spacing.small) {
-                ForEach(presentation.options) { option in
-                    OptionButton(
-                        option: option,
-                        outcome: presentation.outcome(for: option),
-                        isAnswered: presentation.isAnswered,
-                        isBusy: state.isCommitting
-                    ) {
-                        Task { await runner.choose(optionID: option.id) }
+            ScrollView {
+                VStack(spacing: DesignTokens.Spacing.small) {
+                    ForEach(presentation.options) { option in
+                        OptionButton(
+                            option: option,
+                            outcome: presentation.outcome(for: option),
+                            isAnswered: presentation.isAnswered,
+                            isBusy: state.isCommitting
+                        ) {
+                            Task { await runner.choose(optionID: option.id) }
+                        }
+                    }
+
+                    if presentation.isAnswered {
+                        CardBackFactsView(learningCardID: question.learningCardID, store: store)
+                            .foregroundStyle(.white)
                     }
                 }
             }
-
-            if presentation.isAnswered {
-                CardBackFactsView(learningCardID: question.learningCardID, store: store)
-
-                Button(L10n.studyNext) {
-                    Task { await runner.advance() }
-                }
-                .buttonStyle(.borderedProminent)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyNext)
-            }
+            .scrollIndicators(.hidden)
 
             if runner.lastCommitFailed {
                 Text(L10n.studyNotSaved)
                     .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.75))
                     .accessibilityIdentifier(AccessibilityIdentifier.studyNotSaved)
             }
+
+            if presentation.isAnswered {
+                Button(L10n.studyNext) {
+                    Task { await runner.advance() }
+                }
+                .buttonStyle(PrimaryActionStyle())
+                .accessibilityIdentifier(AccessibilityIdentifier.studyNext)
+            }
         }
-        .padding(DesignTokens.Spacing.large)
-        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+        .task(id: question.promptAssetID) { await loadPalette(for: question) }
+    }
+
+    private var cardShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+    }
+
+    /// The counter and the way out, the same pair the deck carries.
+    private func hud(state: ObjectiveSessionState) -> some View {
+        HStack {
+            Text(L10n.studyProgress(state.position, state.questions.count))
+                .font(DesignTokens.Typography.caption.weight(.medium))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
+                .background(.ultraThinMaterial, in: Capsule())
+                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
+
+            Spacer()
+
+            Button(action: onFinish) {
+                Image(systemName: "xmark")
+                    .font(DesignTokens.Typography.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(
+                        width: DesignTokens.Layout.minimumTouchTarget,
+                        height: DesignTokens.Layout.minimumTouchTarget
+                    )
+                    .background(.ultraThinMaterial, in: Circle())
+            }
+            .accessibilityLabel(L10n.studyClose)
+            .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
+        }
+    }
+
+    private func loadPalette(for question: ObjectiveQuestion) async {
+        guard let record = await store.asset(id: question.promptAssetID) else { return }
+        palette = await FlagPaletteReader.palette(for: record, assets: assets) ?? .neutral
     }
 }
 
@@ -122,32 +185,45 @@ struct OptionButton: View {
     let isBusy: Bool
     let action: () -> Void
 
+    @Environment(\.displayScale) private var displayScale
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: DesignTokens.Spacing.small) {
                 Text(option.displayName)
                     // A long country name wraps rather than truncating, and the
                     // row grows with it.
-                    .font(DesignTokens.Typography.body)
+                    .font(DesignTokens.Typography.body.weight(.medium))
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 if let symbol {
                     Image(systemName: symbol)
+                        .symbolRenderingMode(.hierarchical)
                 }
             }
-            .padding(DesignTokens.Spacing.small)
-            .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+            .foregroundStyle(.white)
+            .padding(.horizontal, DesignTokens.Spacing.medium)
+            .frame(minHeight: DesignTokens.Layout.actionHeight)
             .frame(maxWidth: .infinity)
-            .background(background, in: .rect(cornerRadius: DesignTokens.Radius.small))
-            .contentShape(.rect)
+            .background(.ultraThinMaterial, in: shape)
+            // The verdict is painted as an edge rather than a fill: a tinted
+            // fill under a material turns into a wash the whole row wears, and
+            // two of them side by side stop reading as two answers.
+            .overlay {
+                shape.strokeBorder(border, lineWidth: outcome == .undecided ? 1 / displayScale : 2)
+            }
+            .contentShape(shape)
         }
         .buttonStyle(.plain)
         // Every option locks once one is chosen: the answer is immutable.
         .disabled(isAnswered || isBusy)
+        .opacity(isAnswered && outcome == .undecided ? 0.5 : 1)
         .accessibilityIdentifier(AccessibilityIdentifier.studyOption(option.position))
         .accessibilityLabel(accessibilityLabel)
     }
+
+    private var shape: Capsule { Capsule(style: .continuous) }
 
     private var symbol: String? {
         switch outcome {
@@ -157,11 +233,11 @@ struct OptionButton: View {
         }
     }
 
-    private var background: some ShapeStyle {
+    private var border: some ShapeStyle {
         switch outcome {
-        case .correct: AnyShapeStyle(.green.opacity(0.2))
-        case .incorrect: AnyShapeStyle(.red.opacity(0.2))
-        case .undecided: AnyShapeStyle(.quaternary)
+        case .correct: AnyShapeStyle(.green)
+        case .incorrect: AnyShapeStyle(.red)
+        case .undecided: AnyShapeStyle(.white.opacity(DesignTokens.Card.borderOpacity))
         }
     }
 
@@ -180,23 +256,47 @@ struct ObjectiveResultView: View {
     let summary: ObjectiveSessionSummary
     let onDone: () -> Void
 
-    var body: some View {
-        VStack(spacing: DesignTokens.Spacing.medium) {
-            Text(L10n.studyResultTitle)
-                .font(DesignTokens.Typography.screenTitle)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyResultTitle)
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var hasArrived = false
 
-            Text(L10n.studyObjectiveScore(summary.correctAnswers, summary.answeredQuestions))
-                .font(DesignTokens.Typography.body)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.large) {
+            Spacer(minLength: 0)
+
+            VStack(spacing: DesignTokens.Spacing.small) {
+                Text(L10n.studyResultTitle)
+                    .font(DesignTokens.Typography.caption)
+                    .textCase(.uppercase)
+                    .kerning(DesignTokens.Typography.labelKerning)
+                    .foregroundStyle(.white.opacity(0.7))
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyResultTitle)
+
+                HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
+                    Text("\(summary.correctAnswers)")
+                        .font(DesignTokens.Typography.resultScore)
+                        .monospacedDigit()
+                    Text("/ \(summary.answeredQuestions)")
+                        .font(DesignTokens.Typography.sectionTitle)
+                        .foregroundStyle(.white.opacity(0.55))
+                }
+                .foregroundStyle(.white)
+                .scaleEffect(hasArrived || reduceMotion ? 1 : 0.86)
+
+                Text(L10n.studyObjectiveScore(summary.correctAnswers, summary.answeredQuestions))
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.7))
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
+            }
+
+            Spacer(minLength: 0)
 
             Button(L10n.studyResultDone, action: onDone)
-                .buttonStyle(.borderedProminent)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                .buttonStyle(PrimaryActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
         }
-        .padding(DesignTokens.Spacing.large)
-        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+        .onAppear { hasArrived = true }
+        .animation(reduceMotion ? nil : .bouncy(duration: 0.5), value: hasArrived)
+        .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
     }
 }
 
@@ -206,20 +306,40 @@ struct ObjectiveUnavailableView: View {
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
+            Spacer(minLength: 0)
+
+            Image(systemName: symbol)
+                .font(DesignTokens.Typography.screenTitle)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white.opacity(0.8))
+
             Text(title)
                 .font(DesignTokens.Typography.sectionTitle)
+                .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyUnavailable)
-            Text(message)
-                .font(DesignTokens.Typography.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+
+            if !message.isEmpty {
+                Text(message)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundStyle(.white.opacity(0.65))
+                    .multilineTextAlignment(.center)
+            }
+
+            Spacer(minLength: 0)
+
             Button(L10n.studyResultDone, action: onDone)
-                .buttonStyle(.bordered)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                .buttonStyle(PrimaryActionStyle())
         }
-        .padding(DesignTokens.Spacing.large)
-        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+    }
+
+    /// Three different problems, three different shapes.
+    private var symbol: String {
+        switch failure {
+        case .distractorPoolInsufficient: "square.stack.3d.up.slash"
+        case .noUsableCards: "checkmark.circle"
+        case .storeUnavailable: "exclamationmark.triangle"
+        }
     }
 
     private var title: String {
