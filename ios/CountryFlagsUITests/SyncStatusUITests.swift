@@ -32,8 +32,13 @@ final class SyncStatusUITests: XCTestCase {
             app.debugDescription
         )
 
+        // The count is re-read once, when Home appears, and that read goes to
+        // the same store the first content import is still filling. Thirty
+        // seconds is what the rest of this suite gives a cold launch; the line
+        // is late here rather than absent, and what makes it late is the size
+        // of the release rather than anything about the queue.
         let line = app.staticTexts["sync.status"]
-        XCTAssertTrue(line.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(line.waitForExistence(timeout: 30), app.debugDescription)
         XCTAssertFalse(line.label.isEmpty)
         // A guest is told their work is saved, not that something failed.
         XCTAssertFalse(line.label.contains("sync."))
