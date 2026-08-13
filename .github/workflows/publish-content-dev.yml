@@ -1,0 +1,160 @@
+name: Publish content to dev
+
+# Publishing is a deliberate act rather than a consequence of a merge: a
+# release replaces what dev serves, and the version it publishes is a decision
+# somebody makes. Run it from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      content_version:
+        description: Catalog version to build and publish
+        required: true
+        default: fixture-v1
+      minimum_client_version:
+        description: >-
+          Oldest client the release lets read it. A client below this is
+          answered with an update screen instead of a catalogue, so it tracks
+          the app's MARKETING_VERSION rather than the store's next release.
+        required: true
+        default: 0.1.0
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  BUCKET: country-flags-dev
+  REGION: europe-west3
+  SERVICE_URL: https://api-dev-337239833704.europe-west3.run.app
+  # Not a secret: it names which key signed a release, and the public half it
+  # is verified against is published beside it.
+  SIGNING_KEY_ID: dev-2026-08
+
+concurrency:
+  # Two publishes at once would race for the active pointer.
+  group: publish-content-dev
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      # Read where they live rather than duplicated into GitHub: each credential
+      # has one home, and rotating it there is the whole change.
+      - name: Read the credentials
+        id: credentials
+        run: |
+          set -euo pipefail
+          for name in \
+            dev-direct-database-url \
+            dev-object-storage-access-key-id \
+            dev-object-storage-secret-access-key \
+            dev-content-signing-private-key \
+            dev-content-signing-public-keys
+          do
+            value="$(gcloud secrets versions access latest --secret="${name}")"
+            # A base64 key stored with line breaks is masked line by line;
+            # masking the whole string would leave each line printable.
+            while IFS= read -r line; do
+              [ -n "${line}" ] && echo "::add-mask::${line}"
+            done <<< "${value}"
+            echo "${name//-/_}<<SECRET_EOF" >> "$GITHUB_OUTPUT"
+            echo "${value}" >> "$GITHUB_OUTPUT"
+            echo "SECRET_EOF" >> "$GITHUB_OUTPUT"
+          done
+
+      # The committed bundle records the production CDN and demands a client
+      # version the app does not carry, so dev gets its own build rather than
+      # the file in the repository. The asset bytes are identical either way,
+      # which is what lets the app keep drawing the flags it ships (ADR-011).
+      - name: Build the bundle for dev
+        run: |
+          set -euo pipefail
+          corepack yarn content build \
+            --catalog-version "${{ inputs.content_version }}" \
+            --publish-ready \
+            --asset-base-url "https://storage.googleapis.com/${BUCKET}/content/${{ inputs.content_version }}/" \
+            --minimum-client-version "${{ inputs.minimum_client_version }}"
+
+      - name: Sign the bundle
+        env:
+          CONTENT_SIGNING_KEY_ID: ${{ env.SIGNING_KEY_ID }}
+          CONTENT_SIGNING_PRIVATE_KEY: ${{ steps.credentials.outputs.dev_content_signing_private_key }}
+        run: |
+          set -euo pipefail
+          corepack yarn content:bundle:sign \
+            --bundle-dir "content/generated/${{ inputs.content_version }}"
+
+      # Publish uploads the bundle and its assets, then applies the release in
+      # one transaction. It runs against the direct connection: the pooled one
+      # cannot hold a transaction this long.
+      - name: Publish the release
+        env:
+          DATABASE_URL: ${{ steps.credentials.outputs.dev_direct_database_url }}
+          DIRECT_DATABASE_URL: ${{ steps.credentials.outputs.dev_direct_database_url }}
+          CONTENT_SIGNING_PUBLIC_KEYS: ${{ steps.credentials.outputs.dev_content_signing_public_keys }}
+          OBJECT_STORAGE_PROVIDER: s3
+          OBJECT_STORAGE_BUCKET: ${{ env.BUCKET }}
+          OBJECT_STORAGE_REGION: ${{ env.REGION }}
+          OBJECT_STORAGE_ENDPOINT: https://storage.googleapis.com
+          # Cloud Storage serves the S3 API under one host for every bucket.
+          OBJECT_STORAGE_FORCE_PATH_STYLE: "true"
+          OBJECT_STORAGE_ACCESS_KEY_ID: ${{ steps.credentials.outputs.dev_object_storage_access_key_id }}
+          OBJECT_STORAGE_SECRET_ACCESS_KEY: ${{ steps.credentials.outputs.dev_object_storage_secret_access_key }}
+          OBJECT_STORAGE_PUBLIC_BASE_URL: https://storage.googleapis.com/${{ env.BUCKET }}
+        run: |
+          set -euo pipefail
+          corepack yarn content:bundle:publish \
+            --bundle-dir "content/generated/${{ inputs.content_version }}"
+
+      # Published is not the same as served. The manifest is the first read
+      # every client makes, so it is the cheapest proof the release arrived.
+      - name: Check dev serves the release
+        run: |
+          set -euo pipefail
+          # Dev scales to zero, so the first read after a quiet spell pays for
+          # a cold start rather than being a failure.
+          code=""
+          for _ in 1 2 3 4 5; do
+            code="$(curl -sS -m 30 -o /tmp/manifest.json -w '%{http_code}' "${SERVICE_URL}/v1/content/manifest?locale=en" || true)"
+            [ "${code}" = "200" ] && break
+            sleep 5
+          done
+          if [ "${code}" != "200" ]; then
+            echo "::error::Manifest responded ${code}"
+            cat /tmp/manifest.json || true
+            exit 1
+          fi
+          served="$(python3 -c 'import json;print(json.load(open("/tmp/manifest.json"))["contentVersion"])')"
+          if [ "${served}" != "${{ inputs.content_version }}" ]; then
+            echo "::error::dev serves ${served}, not ${{ inputs.content_version }}"
+            exit 1
+          fi
+          echo "dev serves ${served}"

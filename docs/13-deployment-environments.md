@@ -155,15 +155,21 @@ gcloud iam service-accounts create api-dev-runtime   # runtime identity реви
 gcloud iam service-accounts create github-deployer   # identity workflow
 ~~~
 
-Secrets (имена фиксированы, deploy ссылается именно на них):
+Secrets (имена фиксированы, workflows ссылаются именно на них):
 
 ~~~text
-dev-database-url              pooled Neon URL, runtime
-dev-direct-database-url       direct Neon URL, migrations
-dev-auth-access-token-secret  ≥32 символов, только для dev
-dev-auth-rate-limit-secret    ≥32 символов, только для dev
-dev-account-data-hash-secret  ≥32 символов, только для dev
+dev-database-url                       pooled Neon URL, runtime
+dev-direct-database-url                direct Neon URL, migrations и publish
+dev-auth-access-token-secret           ≥32 символов, только для dev
+dev-auth-rate-limit-secret             ≥32 символов, только для dev
+dev-account-data-hash-secret           ≥32 символов, только для dev
+dev-object-storage-access-key-id       HMAC access key content-publisher
+dev-object-storage-secret-access-key   HMAC secret content-publisher
+dev-content-signing-private-key        base64 PKCS8 PEM, Ed25519
+dev-content-signing-public-keys        base64 JSON keyId → SPKI PEM
 ~~~
+
+Первые пять читает deploy, последние четыре — publish.
 
 Database URLs берутся из Neon project country-flags-dev. Три auth secret не
 имеют внешнего источника и генерируются:
@@ -179,14 +185,42 @@ gcloud secrets add-iam-policy-binding dev-auth-access-token-secret \
 Значение auth secret нигде не хранится вне Secret Manager: ротация — это новая
 версия секрета и следующий deploy.
 
-R2 bucket для контента (нужен не ревизии, а publish CLI — см. раздел 7):
+Bucket для контента (нужен не ревизии, а publish — см. раздел 7). Dev использует
+Cloud Storage в том же GCP-проекте, а не R2: аккаунт, IAM и Secret Manager там
+уже есть, а S3-совместимый API GCS работает с существующим адаптером через
+HMAC-ключ. Раздел 5 всё ещё называет R2 — это расхождение закрывается вместе с
+prod, где цена исходящего трафика уже имеет значение.
 
 ~~~text
-bucket: country-flags-dev, private
-API token: scoped на этот bucket, права Object Read & Write
-публичный доступ: r2.dev subdomain либо custom domain — этот адрес и есть
-                  OBJECT_STORAGE_PUBLIC_BASE_URL
+bucket: country-flags-dev, uniform access, europe-west3
+service account: content-publisher, роль Storage Object Admin на bucket
+ключ: HMAC для этого service account (Settings → Interoperability)
+endpoint: https://storage.googleapis.com, path-style
+публичный адрес: https://storage.googleapis.com/country-flags-dev
 ~~~
+
+Публичное чтение включается привязкой `allUsers` → `Storage Object Viewer` с
+условием `resource.name.startsWith(".../objects/content/")`: наружу смотрят
+только файлы релиза, а `content-bundles/` — архив, из которого восстанавливает
+rollback, — остаётся приватным. Пока флаги зашиты в приложение (ADR-011),
+публичное чтение не требуется вовсе.
+
+Ключ подписи контента пары не имеет и создаётся один раз:
+
+~~~bash
+openssl genpkey -algorithm ed25519 -out signing.pem
+openssl pkey -in signing.pem -pubout -out signing.pub.pem
+base64 < signing.pem | tr -d '\n' \
+  | gcloud secrets create dev-content-signing-private-key --data-file=-
+python3 -c 'import json;print(json.dumps({"dev-2026-08": open("signing.pub.pem").read()}))' \
+  | base64 | tr -d '\n' \
+  | gcloud secrets create dev-content-signing-public-keys --data-file=-
+rm signing.pem signing.pub.pem
+~~~
+
+`dev-2026-08` — это `SIGNING_KEY_ID` из workflow: не секрет, а имя ключа, которым
+подписан релиз. Приватная половина после этого существует только в Secret
+Manager; ротация — новая пара и новый keyId в обеих переменных.
 
 Publish кладёт файлы релиза под ключ `content/<contentVersion>/<path>`, а клиенту
 отдаёт этот же ключ за публичным адресом бакета. Поэтому
@@ -194,7 +228,10 @@ Publish кладёт файлы релиза под ключ `content/<contentVe
 адрес с префиксом внутри; в production перед бакетом стоит CDN, и его домен даёт
 ровно те URL, что публикуются сейчас.
 
-Сборка релиза для dev отличается от production двумя входами:
+Публикация в dev выполняется workflow `publish-content-dev.yml` через
+`workflow_dispatch`, а не с чьей-то машины: credentials остаются в Secret
+Manager и не расходятся по ноутбукам. Сборка релиза для dev отличается от
+production двумя входами, и workflow делает ровно эти три шага:
 
 ~~~bash
 corepack yarn content build --catalog-version fixture-v1 --publish-ready \
