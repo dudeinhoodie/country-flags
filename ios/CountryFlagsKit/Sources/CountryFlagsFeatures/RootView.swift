@@ -46,43 +46,35 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        ZStack {
-            // The ground belongs to the app, not to a screen. Held here, it
-            // stays put while screens are pushed and popped over it, so a
-            // navigation reads as moving on one surface rather than as a stack
-            // of pages each arriving with its own background.
-            AppScene()
-
-            NavigationStack(path: $router.navigationPath) {
-                HomeView(
-                    store: content,
-                    sync: sync,
-                    progress: makeProgressStore(),
-                    onOpenCatalog: { router.push(.catalog) },
-                    onOpenProgress: { router.push(.progress) },
-                    onOpenDeck: { router.push(.deck(id: $0)) }
-                )
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            router.push(.settings)
-                        } label: {
-                            Image(systemName: "gearshape")
-                        }
-                        .accessibilityLabel(L10n.shellOpenSettings)
-                        .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
+        NavigationStack(path: $router.navigationPath) {
+            HomeView(
+                store: content,
+                sync: sync,
+                makeProgress: makeProgressStore,
+                onOpenCatalog: { router.push(.catalog) },
+                onOpenProgress: { router.push(.progress) },
+                onOpenDeck: { router.push(.deck(id: $0)) }
+            )
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        router.push(.settings)
+                    } label: {
+                        Image(systemName: "gearshape")
                     }
-                    if configuration.environment.allowsDebugAffordances {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Text(verbatim: configuration.environment.rawValue.uppercased())
-                                .font(DesignTokens.Typography.caption)
-                                .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
-                        }
+                    .accessibilityLabel(L10n.shellOpenSettings)
+                    .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
+                }
+                if configuration.environment.allowsDebugAffordances {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Text(verbatim: configuration.environment.rawValue.uppercased())
+                            .font(DesignTokens.Typography.caption)
+                            .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
                     }
                 }
-                .navigationDestination(for: AppRoute.self) { route in
-                    destination(for: route)
-                }
+            }
+            .navigationDestination(for: AppRoute.self) { route in
+                destination(for: route)
             }
         }
         // The scene is dark, so the app is: system controls, sheets and the
@@ -110,6 +102,7 @@ public struct RootView: View {
                 deckID: id,
                 store: content,
                 assets: assets,
+                makeSettings: makeSettingsStore,
                 isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
             ) { deckID, size, mode in
                 router.push(.study(deckID: deckID, size: size, mode: mode))

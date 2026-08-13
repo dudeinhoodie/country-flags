@@ -56,8 +56,12 @@ public struct ObjectiveSessionView: View {
             let presentation = state.presentation
         {
             questionView(state: state, question: question, presentation: presentation)
-        } else {
+        } else if runner.state == nil {
             StudyLoadingView(onClose: onFinish)
+        } else {
+            // The beat between the last answer and the summary, held quiet for
+            // the same reason as in the self-rated session.
+            Color.clear
         }
     }
 

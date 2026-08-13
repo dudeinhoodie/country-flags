@@ -16,23 +16,23 @@ public struct HomeView: View {
     private let onOpenProgress: () -> Void
     private let onOpenDeck: (UUID) -> Void
 
-    /// The counts behind the hero. Owned rather than held, for the reason the
-    /// progress screen owns its own: this view is rebuilt whenever the launch
-    /// makes progress, and a store rebuilt with it would start reading over
-    /// again every time.
+    /// The counts behind the hero. Built here, once, from the factory: this
+    /// view is re-initialised whenever the launch makes progress, and a store
+    /// built in the initialiser would be built — and thrown away — every time.
     @State private var progress: ProgressStore?
+    private let makeProgress: (() -> ProgressStore)?
 
     public init(
         store: ContentStore,
         sync: SyncCenter,
-        progress: ProgressStore? = nil,
+        makeProgress: (() -> ProgressStore)? = nil,
         onOpenCatalog: @escaping () -> Void,
         onOpenProgress: @escaping () -> Void,
         onOpenDeck: @escaping (UUID) -> Void
     ) {
         self.store = store
         self.sync = sync
-        _progress = State(wrappedValue: progress)
+        self.makeProgress = makeProgress
         self.onOpenCatalog = onOpenCatalog
         self.onOpenProgress = onOpenProgress
         self.onOpenDeck = onOpenDeck
@@ -65,6 +65,7 @@ public struct HomeView: View {
             // path — and the first appearance, which is harmless: both reads
             // are cheap and idempotent.
             .onAppear {
+                if progress == nil { progress = makeProgress?() }
                 Task {
                     await sync.refreshStatus()
                     await progress?.load()

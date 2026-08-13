@@ -45,6 +45,14 @@ struct StudyCardStackView: View {
             drag = .zero
             isShowingBack = false
         }
+        // A commit that fails hands the same card back, and the same card
+        // means the reset above never fires — the card had already been thrown
+        // off the screen and stayed there, out of reach. When the write ends
+        // without advancing, the card returns to the hand.
+        .onChange(of: state.isCommitting) { _, isCommitting in
+            guard !isCommitting else { return }
+            drag = .zero
+        }
     }
 
     /// The top card and the ones still to come, nearest first.

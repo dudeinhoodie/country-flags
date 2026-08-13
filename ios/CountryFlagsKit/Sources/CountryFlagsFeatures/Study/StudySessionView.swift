@@ -57,8 +57,14 @@ public struct StudySessionView: View {
             StudyUnavailableView(failure: failure, onDone: onFinish)
         } else if let state = runner.state, let card = state.currentCard {
             cardView(state: state, card: card)
-        } else {
+        } else if runner.state == nil {
             StudyLoadingView(onClose: onFinish)
+        } else {
+            // The beat between the last answer and the summary: the session is
+            // finished and the store is being read. The scene simply holds —
+            // flashing the loading skeleton here read as a fourth state that
+            // does not exist.
+            Color.clear
         }
     }
 

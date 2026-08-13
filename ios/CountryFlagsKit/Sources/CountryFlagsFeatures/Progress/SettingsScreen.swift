@@ -77,9 +77,12 @@ public struct SettingsScreen: View {
 
     /// Glass rather than the system's grouped background, which on this scene
     /// would be a flat grey slab with no relationship to anything under it.
+    ///
+    /// A plain fill, not a rounded shape: the grouped list rounds each
+    /// section's outer corners itself, and a shape rounded on every row drew
+    /// a seam between the rows of one section.
     private var rowBackground: some View {
-        RoundedRectangle(cornerRadius: DesignTokens.Radius.medium, style: .continuous)
-            .fill(.ultraThinMaterial)
+        Rectangle().fill(.ultraThinMaterial)
     }
 
     private var sessionSize: Binding<Int> {

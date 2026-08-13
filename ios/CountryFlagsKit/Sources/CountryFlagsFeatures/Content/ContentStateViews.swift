@@ -231,6 +231,11 @@ struct FlagImageView: View {
         guard let record = await store.asset(id: assetID),
             let resolved = await FlagImageResolver(assets: assets).image(for: record)
         else {
+            // The previous flag is cleared rather than left behind: this view
+            // keeps its identity across cards in the quiz, and a failure that
+            // kept the old image would put one country's flag over another
+            // country's question.
+            image = nil
             didFail = true
             return
         }

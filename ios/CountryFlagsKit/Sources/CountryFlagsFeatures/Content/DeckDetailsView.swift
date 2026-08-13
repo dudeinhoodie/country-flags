@@ -11,9 +11,14 @@ public struct DeckDetailsView: View {
     @State private var model: DeckDetailsModel
     @State private var sessionSize: StudySessionSize
     @State private var mode: StudyAnswerMode = .selfRated
+    /// Whether the stored preferences were read. Once, before the pickers are
+    /// worth touching; never again, so a choice made on this screen wins over
+    /// a setting that arrives late.
+    @State private var didApplyStoredPreferences = false
     private let deckID: UUID
     private let store: ContentStore
     private let assets: any AssetLoading
+    private let makeSettings: (() -> SettingsStore)?
     private let isObjectiveModeEnabled: Bool
     private let onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)?
 
@@ -22,6 +27,7 @@ public struct DeckDetailsView: View {
         store: ContentStore,
         assets: any AssetLoading,
         defaultSessionSize: StudySessionSize = .ten,
+        makeSettings: (() -> SettingsStore)? = nil,
         isObjectiveModeEnabled: Bool = false,
         onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)? = nil
     ) {
@@ -30,6 +36,7 @@ public struct DeckDetailsView: View {
         self.deckID = deckID
         self.store = store
         self.assets = assets
+        self.makeSettings = makeSettings
         self.isObjectiveModeEnabled = isObjectiveModeEnabled
         self.onStartStudy = onStartStudy
     }
@@ -44,6 +51,24 @@ public struct DeckDetailsView: View {
                 await model.load()
             }
             .task { await model.load() }
+            // The learner chose a session size once, in the settings; a deck
+            // that ignored it and always offered ten would make that setting
+            // a lie. Read once per visit, before anything is tapped.
+            .task {
+                guard let makeSettings, !didApplyStoredPreferences else { return }
+                let settings = makeSettings()
+                await settings.load()
+                guard !didApplyStoredPreferences else { return }
+                didApplyStoredPreferences = true
+                sessionSize = StudySessionSize(storedValue: settings.settings.sessionSize)
+                // The stored mode is applied only where the mode can be seen
+                // and changed: with the flag off there is no picker, and a
+                // quiz nobody asked for on this screen must not start.
+                if isObjectiveModeEnabled,
+                    let stored = StudyAnswerMode(rawValue: settings.settings.defaultAnswerMode) {
+                    mode = stored
+                }
+            }
     }
 
     private var title: String {
@@ -234,5 +259,9 @@ struct CountryRow: View {
         }
         .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
         .padding(.vertical, DesignTokens.Spacing.extraSmall)
+        // One row is one thing to hear — and combining is also what lets the
+        // call site put an identifier on the row without SwiftUI handing that
+        // identifier down to the flag and the name inside.
+        .accessibilityElement(children: .combine)
     }
 }
