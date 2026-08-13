@@ -194,6 +194,26 @@ Publish кладёт файлы релиза под ключ `content/<contentVe
 адрес с префиксом внутри; в production перед бакетом стоит CDN, и его домен даёт
 ровно те URL, что публикуются сейчас.
 
+Сборка релиза для dev отличается от production двумя входами:
+
+~~~bash
+corepack yarn content build --catalog-version fixture-v1 --publish-ready \
+  --asset-base-url "$OBJECT_STORAGE_PUBLIC_BASE_URL/content/fixture-v1/" \
+  --minimum-client-version 0.1.0
+corepack yarn content:bundle:sign --bundle-dir content/generated/fixture-v1
+corepack yarn content:bundle:publish --bundle-dir content/generated/fixture-v1
+~~~
+
+`--minimum-client-version` здесь не косметика: релиз отказывает клиенту ниже
+указанной версии, и отказ — это экран обновления вместо каталога. Приложение
+сейчас собирается как `0.1.0`, а значение по умолчанию — `1.0.0`, так что dev,
+опубликованный без этого флага, не покажет ни одной колоды.
+
+Флаги при этом не скачиваются: приложение несёт векторы релиза `fixture-v1`
+внутри себя (ADR-011) и рисует их, пока checksum совпадает. Bucket нужен под
+14 JSON-документов бандла — это архив, из которого восстанавливает rollback, —
+и под исправленный флаг, байты которого разойдутся с зашитыми.
+
 Остальная конфигурация ревизии не хранится в консоли. Deploy задаёт её целиком
 на каждом запуске (`--set-env-vars` и `--set-secrets`), поэтому конфигурация dev
 читается в `.github/workflows/deploy-dev.yml`, а правка через консоль

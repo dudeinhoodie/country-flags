@@ -53,6 +53,28 @@ function assetBaseUrl(options: BuildOptions): string {
   return configured.endsWith("/") ? configured : `${configured}/`;
 }
 
+/**
+ * The oldest client this release lets read it.
+ *
+ * The default is what it has always been. A dev environment publishes for the
+ * build that exists rather than for the one the store will eventually carry:
+ * a release above the running app's version is answered with an update screen,
+ * so an app at 0.1.0 reading a release that demands 1.0.0 sees no catalogue at
+ * all — the mock has been overriding exactly this for the same reason.
+ */
+function minimumClientVersion(options: BuildOptions): string {
+  const configured = options.minimumClientVersion;
+  if (configured === undefined) {
+    return "1.0.0";
+  }
+  if (!/^\d+\.\d+\.\d+$/u.test(configured)) {
+    throw new Error(
+      `minimumClientVersion must be major.minor.patch (received ${configured})`,
+    );
+  }
+  return configured;
+}
+
 function blockingReportCount(reports: PipelineReports): number {
   return (
     reports.unresolvedEntities.length +
@@ -182,7 +204,7 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     createdAt,
     defaultLocale: editorial.defaultLocale,
     supportedLocales: [...editorial.supportedLocales].sort(),
-    minimumClientVersion: "1.0.0",
+    minimumClientVersion: minimumClientVersion(options),
     supportedTemplateSchemaVersions: [1],
     assetBaseUrl: assetBaseUrl(options),
     changeCursor: `content:${options.catalogVersion}:0`,

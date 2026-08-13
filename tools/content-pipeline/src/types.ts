@@ -164,6 +164,16 @@ export interface BuildOptions {
    * bundle's own statement rather than the last word on it.
    */
   assetBaseUrl?: string;
+  /**
+   * The oldest client this release is willing to be read by. Defaults to
+   * `1.0.0`, the version the first shipped app is expected to carry.
+   *
+   * A release refuses a client below it, and the refusal is an update screen
+   * rather than a catalogue — which is the right answer in production and the
+   * wrong one in an environment whose whole purpose is to be read by the build
+   * on this machine.
+   */
+  minimumClientVersion?: string;
 }
 
 export interface BuildResult {
