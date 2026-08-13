@@ -1,6 +1,7 @@
 import { ContentReleaseStatus, type PrismaClient } from "@prisma/client";
 
 import type { ObjectStorage } from "../../../infrastructure/object-storage/object-storage";
+import { assetBaseUrl } from "./bundle-assets";
 import { sha256Hex, type LoadedBundle } from "./bundle-reader";
 import { parseBundleDomain } from "./bundle-domain";
 import { applyBundleToDatabase } from "./bundle-publisher";
@@ -102,7 +103,16 @@ export async function rollbackContentVersion(
         });
       }
 
-      const application = await applyBundleToDatabase(tx, bundle, domain);
+      // The assets of the restored release are still in this environment's
+      // bucket, where its publish put them. Re-applying the bundle's own
+      // address instead would point a recovered release back at somebody
+      // else's CDN.
+      const application = await applyBundleToDatabase(
+        tx,
+        bundle,
+        domain,
+        assetBaseUrl(objectStorage, targetVersion),
+      );
 
       if (previousActiveVersion !== null) {
         await tx.contentRelease.update({

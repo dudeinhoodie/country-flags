@@ -179,6 +179,21 @@ gcloud secrets add-iam-policy-binding dev-auth-access-token-secret \
 Значение auth secret нигде не хранится вне Secret Manager: ротация — это новая
 версия секрета и следующий deploy.
 
+R2 bucket для контента (нужен не ревизии, а publish CLI — см. раздел 7):
+
+~~~text
+bucket: country-flags-dev, private
+API token: scoped на этот bucket, права Object Read & Write
+публичный доступ: r2.dev subdomain либо custom domain — этот адрес и есть
+                  OBJECT_STORAGE_PUBLIC_BASE_URL
+~~~
+
+Publish кладёт файлы релиза под ключ `content/<contentVersion>/<path>`, а клиенту
+отдаёт этот же ключ за публичным адресом бакета. Поэтому
+`OBJECT_STORAGE_PUBLIC_BASE_URL` — это корень бакета без завершающего слэша, а не
+адрес с префиксом внутри; в production перед бакетом стоит CDN, и его домен даёт
+ровно те URL, что публикуются сейчас.
+
 Остальная конфигурация ревизии не хранится в консоли. Deploy задаёт её целиком
 на каждом запуске (`--set-env-vars` и `--set-secrets`), поэтому конфигурация dev
 читается в `.github/workflows/deploy-dev.yml`, а правка через консоль
@@ -218,8 +233,12 @@ OTEL_EXPORTER_OTLP_ENDPOINT
 
 - hosted startup не принимает test defaults;
 - `OBJECT_STORAGE_*` читает только content bundle CLI, running API — нет,
-  поэтому ревизия api-dev их не получает; доступность published assets из dev
-  разбирается отдельно (#92);
+  поэтому ревизия api-dev их не получает: они нужны там, откуда запускается
+  publish, вместе с credentials на bucket этой среды (раздел 6.1);
+- URL ассетов записывает publish по факту загрузки, а не по тому, что записано в
+  манифесте бандла: релиз, опубликованный в dev, отдаёт адреса dev-бакета. Бандл
+  собирается с адресом среды через `content build --asset-base-url`, по умолчанию
+  — production CDN;
 - dev/prod secrets не совпадают;
 - SERVICE_RELEASE равен git SHA/image version;
 - logs/traces/metrics содержат deployment.environment.name;

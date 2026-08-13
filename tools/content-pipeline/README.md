@@ -24,6 +24,12 @@ corepack yarn content diff --version fixture-v1 --against previous-version
 corepack yarn content report --version fixture-v1
 ```
 
+`build --asset-base-url https://…/` records where the manifest says the release's
+assets are served from; without it the manifest keeps naming the production CDN,
+as it always has. It is the bundle's own statement: a publish records the address
+it actually uploaded the files to, so a release published into an environment
+serves that environment's addresses whichever way the bundle was built.
+
 `build`, `validate`, `diff`, and `report` use committed local inputs only.
 Normal CI therefore has no upstream network dependency. `pull` is the only
 network stage. It requires the requested revision to match the registry pin,

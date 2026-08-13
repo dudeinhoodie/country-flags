@@ -16,6 +16,7 @@ import {
 } from "@prisma/client";
 
 import type { ObjectStorage } from "../../../infrastructure/object-storage/object-storage";
+import { assetBaseUrl, uploadBundleAssets } from "./bundle-assets";
 import type { LoadedBundle } from "./bundle-reader";
 import { validateBundle } from "./bundle-validator";
 import { diffBundleAgainstActive, type BundleDiff } from "./bundle-diff";
@@ -746,6 +747,15 @@ export async function applyBundleToDatabase(
   tx: Prisma.TransactionClient,
   bundle: LoadedBundle,
   domain: BundleDomain,
+  /**
+   * Where this environment serves the release's assets from, rather than where
+   * the bundle was built expecting to be served: a release published into dev
+   * records dev's addresses and one published into production records the
+   * CDN's, because that is where each just put the files. Defaults to the
+   * bundle's own statement, which is what a caller with no storage to speak
+   * for has to fall back on.
+   */
+  servedAssetBaseUrl: string = bundle.manifest.assetBaseUrl,
 ): Promise<BundleApplication> {
   const version = bundle.manifest.contentVersion;
   const diff = await diffBundleAgainstActive(tx, domain);
@@ -769,7 +779,7 @@ export async function applyBundleToDatabase(
     version,
     entityIdByKey,
     sourceIdByKey,
-    bundle.manifest.assetBaseUrl,
+    servedAssetBaseUrl,
   );
   const templateIdByKey = await upsertCardTemplates(tx, domain);
   const { learningCardIdByKey, activeCardIdByEntityKey } =
@@ -850,6 +860,9 @@ export async function publishBundle(
   }
 
   await uploadBundleFiles(bundle, objectStorage);
+  // Before the transaction, like the documents above: rows that named files
+  // this environment does not hold are the whole of the problem.
+  await uploadBundleAssets(bundle, domain, objectStorage);
 
   const manifestChecksum = createHash("sha256")
     .update(JSON.stringify(bundle.manifest))
@@ -881,7 +894,12 @@ export async function publishBundle(
         },
       });
 
-      const application = await applyBundleToDatabase(tx, bundle, domain);
+      const application = await applyBundleToDatabase(
+        tx,
+        bundle,
+        domain,
+        assetBaseUrl(objectStorage, version),
+      );
 
       await tx.contentRelease.update({
         where: { version },

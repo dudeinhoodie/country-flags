@@ -155,6 +155,15 @@ export interface BuildOptions {
   outputRoot: string;
   catalogVersion: string;
   publishReady: boolean;
+  /**
+   * Where the manifest says this release's assets are served from, ending in a
+   * slash. Defaults to the production CDN, which is what a release built
+   * without an opinion has always recorded.
+   *
+   * A publish writes the address it actually uploaded to, so this is the
+   * bundle's own statement rather than the last word on it.
+   */
+  assetBaseUrl?: string;
 }
 
 export interface BuildResult {
