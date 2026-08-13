@@ -40,11 +40,15 @@ public struct HomeView: View {
             }
             .task { await store.start() }
             // The queue grows with every answer, and answering happens on
-            // another screen. Re-reading on appearance is what keeps the count
-            // honest without asking the network for anything.
-            .onAppear {
-                Task { await sync.refreshStatus() }
-            }
+            // another screen, so the count is re-read when this one appears —
+            // without asking the network for anything.
+            //
+            // Read again whenever content synchronisation moves, because that
+            // read goes to the store the first import is still filling and can
+            // arrive after the screen already has. Tied to appearance alone, a
+            // count that lost that race stayed wrong for the whole visit and
+            // only corrected itself once the learner left and came back.
+            .task(id: store.status) { await sync.refreshStatus() }
     }
 
     @ViewBuilder
