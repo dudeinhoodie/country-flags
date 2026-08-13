@@ -166,6 +166,31 @@ export function slugFromEntityKey(entityKey: string): string {
   return rest.join("-");
 }
 
+/** What `Deck.code` is allowed to be, from `contracts/openapi/components.yaml`. */
+export const DECK_CODE_PATTERN = /^[A-Z][A-Z0-9_]*$/u;
+
+/**
+ * The code a deck is served under, derived from its content key.
+ *
+ * A content key is lower case and namespaced (`deck.europe`) while the contract
+ * serves a deck under `^[A-Z][A-Z0-9_]*$`, so the key is the code in a
+ * different alphabet: `deck.europe` is served as `EUROPE`. Deriving it is what
+ * keeps the two identifiers from drifting apart — the editorial catalogue names
+ * a deck once — and it is the same derivation the iOS mock applies to the same
+ * bundle, so the mock and a real publish agree on what a deck is called.
+ *
+ * Not every key can be expressed: one that starts with a digit derives a code
+ * the contract refuses, and two keys can derive the same one. The validator
+ * rejects both before a publish begins.
+ */
+export function deckCodeFromKey(deckKey: string): string {
+  const [, ...rest] = deckKey.split(".");
+  return rest
+    .join(".")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/gu, "_");
+}
+
 interface KnownSource {
   name: string;
   url: string;

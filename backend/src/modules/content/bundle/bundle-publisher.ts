@@ -467,10 +467,13 @@ async function upsertDecks(
 ): Promise<Map<string, string>> {
   const deckIdByKey = new Map<string, string>();
   for (const deck of domain.catalog.decks) {
+    // The catalogue names a deck once, in its own alphabet; the contract serves
+    // it in another. Validation has already refused a key this cannot express.
+    const code = mapper.deckCodeFromKey(deck.key);
     const row = await tx.deck.upsert({
-      where: { code: deck.key },
+      where: { code },
       create: {
-        code: deck.key,
+        code,
         kind: deck.kind === "curated" ? DeckKind.CURATED : DeckKind.TAXONOMY,
         status: DeckStatus.PUBLISHED,
         contentVersion: version,
@@ -593,8 +596,13 @@ async function resolveRetiredResourceId(
     )?.id;
   }
   if (resourceType === ContentResourceType.DECK) {
+    // A change set names a deck by its content key; the row is found by the
+    // code that key derives.
     return (
-      await tx.deck.findUnique({ where: { code: key }, select: { id: true } })
+      await tx.deck.findUnique({
+        where: { code: mapper.deckCodeFromKey(key) },
+        select: { id: true },
+      })
     )?.id;
   }
   if (resourceType === ContentResourceType.LEARNING_CARD) {
@@ -696,7 +704,7 @@ async function retireDroppedResources(
       });
     } else if (change.resourceType === ContentResourceType.DECK) {
       await tx.deck.updateMany({
-        where: { code: { in: change.retiredKeys } },
+        where: { code: { in: change.retiredKeys.map(mapper.deckCodeFromKey) } },
         data: { status: DeckStatus.RETIRED },
       });
     } else if (change.resourceType === ContentResourceType.LEARNING_CARD) {

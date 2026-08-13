@@ -70,6 +70,63 @@ private actor StoringLearningRepository: LearningRepository {
     }
 }
 
+/// A catalogue that counts having been read.
+///
+/// On a fresh install the release is still being written to the content store,
+/// and a read of it waits for that import — which is the wait the empty
+/// progress screen used to sit through.
+private actor CountingContentRepository: ContentRepository {
+    private(set) var readCount = 0
+
+    func currentManifest() async throws -> ContentManifestRecord? { nil }
+
+    func applyContent(
+        manifest: ContentManifestRecord,
+        entities: [GeoEntityRecord],
+        decks: [DeckRecord],
+        cards: [LearningCardRecord],
+        deckCards: [DeckCardRecord]
+    ) async throws {}
+
+    func applyStagedPage(_ page: ContentPage, staging: ContentStagingState) async throws {}
+
+    func stagingState(forVersion contentVersion: String) async throws -> ContentStagingState? { nil }
+
+    func commitRelease(manifest: ContentManifestRecord) async throws {}
+
+    func decks() async throws -> [DeckRecord] {
+        readCount += 1
+        return []
+    }
+
+    func cards(inDeck deckID: UUID) async throws -> [LearningCardRecord] {
+        readCount += 1
+        return []
+    }
+
+    func card(id: UUID) async throws -> LearningCardRecord? {
+        readCount += 1
+        return nil
+    }
+
+    func cardIdentifiersByDeck() async throws -> [UUID: [UUID]] {
+        readCount += 1
+        return [:]
+    }
+
+    func entity(id: UUID) async throws -> GeoEntityRecord? {
+        readCount += 1
+        return nil
+    }
+
+    func asset(id: UUID) async throws -> AssetRecord? {
+        readCount += 1
+        return nil
+    }
+
+    func retire(cardIDs: [UUID], entityIDs: [UUID]) async throws {}
+}
+
 private struct StubSettingsSync: SettingsSyncing {
     let outcome: SettingsUpdateOutcome
     let recorder: Recorder
@@ -227,6 +284,27 @@ final class ProgressStoreTests: XCTestCase {
 
         XCTAssertTrue(store.hasNoProgress)
         XCTAssertTrue(store.isLoaded)
+    }
+
+    /// And says so without reading the catalogue: the screen shows no deck rows
+    /// at all, while the read would wait for the import a fresh install is
+    /// still running. That wait is what left the screen loading for longer than
+    /// a person — or a UI test — is willing to look at it.
+    func testTheEmptyScreenReadsNoCatalogue() async {
+        let content = CountingContentRepository()
+        let store = ProgressStore(
+            content: content,
+            learning: StoringLearningRepository(),
+            scopes: FixedScopeResolver(),
+            dates: FixedDateProvider(instant: fixedNow)
+        )
+
+        await store.load()
+
+        XCTAssertTrue(store.isLoaded)
+        XCTAssertTrue(store.hasNoProgress)
+        let reads = await content.readCount
+        XCTAssertEqual(reads, 0)
     }
 
     func testOnlyEarnedAchievementsAreListed() async {
