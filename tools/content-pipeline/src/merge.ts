@@ -5,6 +5,7 @@ import { editorialPatches, type EntityMatcher } from "./matching.js";
 import type {
   Conflict,
   EditorialCatalog,
+  EditorialDeck,
   FieldPatch,
   NormalizedSource,
   PipelineReports,
@@ -12,6 +13,80 @@ import type {
 } from "./types.js";
 
 type MutableRecord = Record<string, unknown>;
+
+interface CatalogRelation {
+  parentKey: string;
+  childKey: string;
+  taxonomyKey: string;
+  relationType: string;
+  primary: boolean;
+}
+
+/**
+ * Who a deck holds.
+ *
+ * A taxonomy deck names a node rather than its members: everything the
+ * classification places under it, at any depth, and only what the approved
+ * catalogue still carries. Regions hold subregions and subregions hold
+ * countries, so the walk is what turns "Europe" into the fifty-odd entities it
+ * actually means — and it stays that as the catalogue changes, which a list
+ * written by hand does not.
+ *
+ * Only `contains` is followed. The other relation an entity can carry says it
+ * is associated with a region rather than part of it, and a deck built from
+ * both would teach Russia twice.
+ */
+function deckMembers(
+  deck: EditorialDeck,
+  currentKeys: string[],
+  relations: CatalogRelation[],
+): string[] {
+  if (deck.members === "all-current") {
+    return currentKeys;
+  }
+  if (Array.isArray(deck.members)) {
+    return [...deck.members].sort();
+  }
+
+  const root = deck.members.taxonomy;
+  const childrenByParent = new Map<string, string[]>();
+  for (const relation of relations) {
+    if (relation.relationType !== "contains") {
+      continue;
+    }
+    const siblings = childrenByParent.get(relation.parentKey) ?? [];
+    siblings.push(relation.childKey);
+    childrenByParent.set(relation.parentKey, siblings);
+  }
+  if (!childrenByParent.has(root)) {
+    throw new Error(
+      `deck ${deck.key} is built from ${root}, which contains nothing in this catalog`,
+    );
+  }
+
+  const included = new Set(currentKeys);
+  const members = new Set<string>();
+  const seen = new Set<string>();
+  const queue = [root];
+  while (queue.length > 0) {
+    const key = queue.shift();
+    if (key === undefined || seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    if (key !== root && included.has(key)) {
+      members.add(key);
+    }
+    queue.push(...(childrenByParent.get(key) ?? []));
+  }
+
+  if (members.size === 0) {
+    throw new Error(
+      `deck ${deck.key} is built from ${root} and would hold no entity the catalog publishes`,
+    );
+  }
+  return [...members].sort();
+}
 
 export interface MergedContent {
   catalog: MutableRecord;
@@ -293,8 +368,7 @@ export async function mergeContent(
     key: deck.key,
     kind: deck.kind,
     names: deck.names,
-    memberEntityKeys:
-      deck.members === "all-current" ? currentKeys : [...deck.members].sort(),
+    memberEntityKeys: deckMembers(deck, currentKeys, uniqueRelations),
   }));
   for (const deck of editorial.decks) {
     provenanceMap[`deck/${deck.key}`] = editorialProvenance;

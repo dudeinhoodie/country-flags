@@ -18,10 +18,10 @@
       "sha256": "8b0494f8370cc10ad5079a7adc498c205f177dda65b1ed1a19b2effa4ae35acc"
     },
     {
-      "bytes": 256522,
+      "bytes": 265661,
       "path": "catalog.json",
       "schemaId": "https://country-flags.example/schemas/catalog.schema.json",
-      "sha256": "2b5850f804ed843015306c24f34fa8dc03761916488ea8e555651dfb9b224bae"
+      "sha256": "9b84b1b436007e2e29d9361f7d412d5593f92b2d0a71dfb4fb96705ce4d3b46c"
     },
     {
       "bytes": 89092,
@@ -54,16 +54,16 @@
       "sha256": "ceba3a555a769f6c960e474f09b3ffec57b9ba984cc9b4ffc9596d16dc4a9e69"
     },
     {
-      "bytes": 817127,
+      "bytes": 817716,
       "path": "provenance/provenance.json",
       "schemaId": "https://country-flags.app/content/v1/provenance.schema.json",
-      "sha256": "22fa12b6227d19c5827894115fd51ca5440f3229c5a4591b23398b75d015b22c"
+      "sha256": "9b4a381ea1fc46b53f5bfae16f1b58fd17d82718ccf0d73c5db523c7c0d116c3"
     },
     {
       "bytes": 326465,
       "path": "reports/field-conflicts.json",
       "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
-      "sha256": "87901afc42817a327945f4a1d99112598107380711ed1233d5377b7f0ad98627"
+      "sha256": "4327e6c21a26c037112215a9dd25bbd822ba584bf4ec6497bae84c8ed51b5609"
     },
     {
       "bytes": 75,

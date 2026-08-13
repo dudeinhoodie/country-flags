@@ -1,0 +1,2683 @@
+{
+  "items": [
+    {
+      "id": "062c6ffa-c04c-5c2d-8493-fa7151db74be",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "de4b7cbc-be66-53bd-b3da-f80a178588d0",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/antarctica.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "0d7cff1e7b7bbb452b27623ee3dfa075c3ce375fea7a3dc6c916bea53fc8b593",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/antarctica.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "0d7cff1e7b7bbb452b27623ee3dfa075c3ce375fea7a3dc6c916bea53fc8b593",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/antarctica@2x.png",
+              "mimeType": "image/png",
+              "sha256": "cc078aa039f7e0796a2f491a5735c8164fe375ce9db88559927137dcea81c463",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/antarctica@3x.png",
+              "mimeType": "image/png",
+              "sha256": "e6d87c1d1a803741697c5bf7a9acad3b9460ed7a41608a4112d4c17a5b3efce9",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "d39978ad-2a21-5b71-9c27-5fe1d66347a7",
+        "displayName": "Antarctica",
+        "aliases": [
+          "Антарктида"
+        ]
+      },
+      "backSideFacts": [],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "47720b58-ef34-5e43-9b6f-ae280bbb32ac",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "0d0484ca-1b11-51b9-a5b0-8e1400782df4",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cook-islands.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "8d82afddc900a4c9d674166bfd2d59c69e9550afbe65c270fb49d7b9c03bee25",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cook-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "8d82afddc900a4c9d674166bfd2d59c69e9550afbe65c270fb49d7b9c03bee25",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cook-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "ecc0c813c664086a84728b846d9ca7a10bf4bb18c0f182ab3125ca6742008776",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cook-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "c1cd2dc485921666c5d0ebf47c9369dee3efd1b73c5a71ae722fc2357b362275",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "a3a67bcf-4a42-50d7-a670-20858d3fceaf",
+        "displayName": "Cook Islands",
+        "aliases": [
+          "о-ва Кука"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Avarua",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "New Zealand Dollar (NZD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "db55a231-3c3a-5699-9a59-9879338c2d36",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "ef06b18b-bdfc-5f37-aef7-6c62059adaa5",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/heard-island-and-mcdonald-islands.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "c7d105c00ee6ffb7f3c9e90eb793d92a57e47a33c5a27e193439cb0460c90346",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/heard-island-and-mcdonald-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "c7d105c00ee6ffb7f3c9e90eb793d92a57e47a33c5a27e193439cb0460c90346",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/heard-island-and-mcdonald-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "0c3b9cb644849239eee6d1b6ad9b3f0be01d9386efd69a863df05be62366b90b",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/heard-island-and-mcdonald-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "872ba2603e68c88bbb53296be1d862ab157e89cb26b9517ecdd1114bd556afa0",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "4bce72ff-8461-5ef2-bd8b-8efaf60be298",
+        "displayName": "Heard & McDonald Islands",
+        "aliases": [
+          "о-ва Херд и Макдональд"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "0444cb3c-abf3-5c30-afda-1aec6e1d1985",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "d09cf382-40b5-5f51-8133-e580048df817",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/niue.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "66b61de5bc61955b9c898f16685c1af8f27c662fed8cb1eb3fa66137315723fa",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/niue.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "66b61de5bc61955b9c898f16685c1af8f27c662fed8cb1eb3fa66137315723fa",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/niue@2x.png",
+              "mimeType": "image/png",
+              "sha256": "f1c56bab6bd8322595cf82255c9cb38028de3f83a6f37ab5608c2e01877534ee",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/niue@3x.png",
+              "mimeType": "image/png",
+              "sha256": "8cd29b103e66196d6d9c4d40ed207e88cf632b5db7e3d7f3216b35d209571a55",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "851f5aa4-1bc4-5842-a4eb-6e29a8109315",
+        "displayName": "Niue",
+        "aliases": [
+          "Ниуэ"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Alofi",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "New Zealand Dollar (NZD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "caa3ed10-c5fb-5fb4-be43-3d1478566aca",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "514f0ffa-db2a-5542-9af5-65c2b8884d20",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/united-states-minor-outlying-islands.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "79e3117ccead6c73827494e6e1bef521835b1ba41cf8728bef098681d75b857c",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/united-states-minor-outlying-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "79e3117ccead6c73827494e6e1bef521835b1ba41cf8728bef098681d75b857c",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/united-states-minor-outlying-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "1eafa77d025d53d7a8657815882a6190bce2a6f71660d9149967fb8c9d29c8f2",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/united-states-minor-outlying-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "42ac140ec8134377c493101820ece3fd81536901183e4b0856540e5ed88e3b53",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "373b5c82-1f9a-5bd9-ad92-3233d3b07448",
+        "displayName": "U.S. Outlying Islands",
+        "aliases": [
+          "Внешние малые о-ва (США)"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CURRENCY",
+          "displayValue": "US Dollar (USD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "65b19e8a-bf0b-58b8-8f88-99587e0c6262",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "cb8f76fc-d02a-5068-bad9-0775a7c86ee3",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/australia.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "2d13b12134be7965b7d04e69260d9822cfb8d45bc50295dd8baede88147be05c",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/australia.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "2d13b12134be7965b7d04e69260d9822cfb8d45bc50295dd8baede88147be05c",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/australia@2x.png",
+              "mimeType": "image/png",
+              "sha256": "0c3b9cb644849239eee6d1b6ad9b3f0be01d9386efd69a863df05be62366b90b",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/australia@3x.png",
+              "mimeType": "image/png",
+              "sha256": "872ba2603e68c88bbb53296be1d862ab157e89cb26b9517ecdd1114bd556afa0",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "7aea467e-9cc9-5827-b323-e01b7656e81f",
+        "displayName": "Australia",
+        "aliases": [
+          "Австралия"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Canberra",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "27,194,286 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "56b058a7-0bc3-5cbc-b8a7-258dec72c3a5",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "f8950b35-ce23-53ae-ba5e-70c789b544de",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/fiji.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "017a682233e8c4c1c374978594142b34a616c30882dfb08641e069abb33ee062",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/fiji.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "017a682233e8c4c1c374978594142b34a616c30882dfb08641e069abb33ee062",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/fiji@2x.png",
+              "mimeType": "image/png",
+              "sha256": "327f9208873f01362d718a9c847e84f26a9f4c6787659f9760501f94f562ca24",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/fiji@3x.png",
+              "mimeType": "image/png",
+              "sha256": "01c59866791849ed83981c35df19a12abacb05776a057d91986c6da1f00c812e",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "67690630-1065-5a80-90b8-1ac9076686fe",
+        "displayName": "Fiji",
+        "aliases": [
+          "Фиджи"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Suva",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Fijian Dollar (FJD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English, Fijian, Hindi, Urdu",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "928,784 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "157f6fbe-06ec-524f-a90b-9c8eb59e7d89",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "739193ee-0558-5e3c-bb69-2ba7166be132",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kiribati.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "9fe839a7850e2dc19a9847acd38dac9d5be02e351c7a9502c23b7c2b2631f56f",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kiribati.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "9fe839a7850e2dc19a9847acd38dac9d5be02e351c7a9502c23b7c2b2631f56f",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/kiribati@2x.png",
+              "mimeType": "image/png",
+              "sha256": "e0ba5b217780ae276d249868c40c590aab6ca626c33e7c2e69e094ca60a39b21",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/kiribati@3x.png",
+              "mimeType": "image/png",
+              "sha256": "19169aa6d1f360d83a78f646634e5a9a6201d863dbdbfcc39a65f9364852757c",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "046c3538-5d78-51b4-8d62-f8a1336a3e71",
+        "displayName": "Kiribati",
+        "aliases": [
+          "Кирибати"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "South Tarawa",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "134,518 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "db9e01df-c83a-5a4a-aa77-8025d2f69eb8",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "79c8548d-d669-5bc1-b48a-3dfb9b3b31cd",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/marshall-islands.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "4e03018586b8e21299e3773e3636802a767bf050eb3434551c1b5b65eff3b7f0",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/marshall-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "4e03018586b8e21299e3773e3636802a767bf050eb3434551c1b5b65eff3b7f0",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/marshall-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "8b4eaec43a35b6075ce3f2e40cf723fe09a1c0443386b25cf2c733b0f2827b84",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/marshall-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "f416a40caa12ec0286616562bea49eb079d1bf7a48e9e9331b60a741e3a78ee5",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "aae1de8a-9beb-5ebf-b342-15ea2fe262bf",
+        "displayName": "Marshall Islands",
+        "aliases": [
+          "Маршалловы о-ва"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Majuro",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "US Dollar (USD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English, Marshallese",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "37,548 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "43829d61-ac7b-5c06-8899-de91cbe41f8c",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "53985ce9-1f99-502c-8205-cc1241de27ee",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/micronesia-federated-states-of.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "913cb2103531657becd14a23f7e2f73c6634a80c945ee592a08003c2aad47063",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/micronesia-federated-states-of.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "913cb2103531657becd14a23f7e2f73c6634a80c945ee592a08003c2aad47063",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/micronesia-federated-states-of@2x.png",
+              "mimeType": "image/png",
+              "sha256": "dc764b601fc2086b413855b7e40151423583593727b5b64cc37ebc596bddbc7c",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/micronesia-federated-states-of@3x.png",
+              "mimeType": "image/png",
+              "sha256": "0e925e87d856b2c4906303daa6f971021f17165e9218da942c11069dd271ee8c",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "daae90cd-b6a3-5a2e-84d7-47177e222049",
+        "displayName": "Micronesia",
+        "aliases": [
+          "Федеративные Штаты Микронезии"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Palikir",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "US Dollar (USD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "113,160 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "ae2ed17b-dea3-5339-b39b-49ed1f2862b9",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "53a39c71-0bee-51d8-a793-62ff8a6574e9",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/nauru.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "e6371c2dfba20e4af405e3c0260110274e86bd49b9ddb766703ecf85a697f9c2",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/nauru.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "e6371c2dfba20e4af405e3c0260110274e86bd49b9ddb766703ecf85a697f9c2",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/nauru@2x.png",
+              "mimeType": "image/png",
+              "sha256": "84eab71ecaa3cf13cd511dd28a0a9d4309199baaecfefda427b55d8cdd78c8a8",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/nauru@3x.png",
+              "mimeType": "image/png",
+              "sha256": "c9999a4a20fe5e7443e823f1d32a21a167ce80ba5a26dc167a7fd5149a235d08",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "69bffd52-484d-597f-80f7-a6e1ae6531c3",
+        "displayName": "Nauru",
+        "aliases": [
+          "Науру"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Yaren",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English, Nauru",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "11,947 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "579b61f3-81b4-5df6-8086-2d631863bb93",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "175f38c2-376c-5e7b-be67-109ff1cf40a2",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/new-zealand.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "f24acc28814420868b213ae206fa2bdf442fa3736692eada0b969b8a5c8759a6",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/new-zealand.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "f24acc28814420868b213ae206fa2bdf442fa3736692eada0b969b8a5c8759a6",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/new-zealand@2x.png",
+              "mimeType": "image/png",
+              "sha256": "a2579e4c51221da50f6ba5d158f5e0ef25ae2e5885bf90bbf85b136546e2d950",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/new-zealand@3x.png",
+              "mimeType": "image/png",
+              "sha256": "983d51065a3327193339e7041026d78623e862681fccfe5f9f0f63eef29f36e7",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "1a7b601e-48d3-5bcc-b28a-62a84038b89e",
+        "displayName": "New Zealand",
+        "aliases": [
+          "Новая Зеландия"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Wellington",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "New Zealand Dollar (NZD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English, Māori",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "5,290,000 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "67334682-88a3-5f92-8b39-4a65a1126ef8",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "e0cd70f8-c267-508f-a72c-8368480791bb",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/palau.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "70bffe3dd3c9f420641389393d76b9cbd1cd293151d1135fbec55eeea5bcf5f0",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/palau.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "70bffe3dd3c9f420641389393d76b9cbd1cd293151d1135fbec55eeea5bcf5f0",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/palau@2x.png",
+              "mimeType": "image/png",
+              "sha256": "7ecb1fcdd2d7754bb4290c9b31fdaa8b2d93f515211b1784bfef95eba43e6be6",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/palau@3x.png",
+              "mimeType": "image/png",
+              "sha256": "cc554b6154dc10f47ce4484107ac5f1b7af961786812426296554d750f712a55",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "856d91e8-f70c-5cb8-ba74-bc95d0cdf4d9",
+        "displayName": "Palau",
+        "aliases": [
+          "Палау"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Ngerulmud",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "US Dollar (USD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "17,695 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "9e37a6ba-9ac6-5726-98f0-943547808140",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "0bb89b3f-8c5a-5cef-8a4e-fd74e10d4650",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/papua-new-guinea.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "64542afb5a8c5a9e5b6909b8e3665465d264ae6e62f3e953fbc8fa7f3eea2083",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/papua-new-guinea.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "64542afb5a8c5a9e5b6909b8e3665465d264ae6e62f3e953fbc8fa7f3eea2083",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/papua-new-guinea@2x.png",
+              "mimeType": "image/png",
+              "sha256": "49e24ad48d5065a27a4fef4d1db33d3d2fedf61e9ac4193020f9c5d29cc67efb",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/papua-new-guinea@3x.png",
+              "mimeType": "image/png",
+              "sha256": "2eff2292a95af4beffd23c71109520d5b6d3d605aa51063866e5f3e5021de303",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "8f5d6980-9c91-5350-93d6-a5a89588ad35",
+        "displayName": "Papua New Guinea",
+        "aliases": [
+          "Папуа — Новая Гвинея"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Port Moresby",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Papua New Guinean Kina (PGK)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "10,576,502 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "62cf059d-cdc4-513f-9d07-af0128a22b53",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "72863f96-1cf2-540d-9986-3c113dc09714",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/samoa.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "586676e950d7374d1036a401ca75cc215d525c5a84c2002f0e588f29770ff00c",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/samoa.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "586676e950d7374d1036a401ca75cc215d525c5a84c2002f0e588f29770ff00c",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/samoa@2x.png",
+              "mimeType": "image/png",
+              "sha256": "3746f51004192e284e46cebc9a2bb2556dca30765153af1f41246144399c9d04",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/samoa@3x.png",
+              "mimeType": "image/png",
+              "sha256": "c905e7cce83f8ca2ee1dac0ce187bb9a05964c78416bc75be6f250417ba39946",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "e346d209-9638-5d0b-ba3b-c50efda986ce",
+        "displayName": "Samoa",
+        "aliases": [
+          "Самоа"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Apia",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Samoan Tala (WST)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "Samoan, English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "218,019 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "7951d2d3-2efb-5923-bbd7-02fbca665613",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "67a590b8-401f-5194-aea9-d901f0411468",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/solomon-islands.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "62f940f1e9e4066ccdbf9c4150b17ba2d103fa9726b56b056b85fca03f8d06d8",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/solomon-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "62f940f1e9e4066ccdbf9c4150b17ba2d103fa9726b56b056b85fca03f8d06d8",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/solomon-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "ff6bd42ea4b1ba5be886b1b40cbe0e28a6023679c110d7900205fdd6bd54932e",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/solomon-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "2c8fcc45bd8944d64d97cc5b20f8a3a279edde4a3dd8e6f0c44dcb26a9186317",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "16fb5715-d0eb-59c6-90c6-55bd37f9572e",
+        "displayName": "Solomon Islands",
+        "aliases": [
+          "Соломоновы о-ва"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Honiara",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Solomon Islands Dollar (SBD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "819,198 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "530335ee-e656-5e47-a85e-110443721a96",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "d61798ac-b78f-5d67-b3a4-20d9e1793f56",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tonga.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "ab77bf04d3a1f273a789699f2cdd13285fe31af203ec56ec835626fe5654d23e",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tonga.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "ab77bf04d3a1f273a789699f2cdd13285fe31af203ec56ec835626fe5654d23e",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/tonga@2x.png",
+              "mimeType": "image/png",
+              "sha256": "94d09a17f1c2aeaf1b31b3d1092bf3f016d7ea463efb21b7d52dcb4d6d15cc1a",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/tonga@3x.png",
+              "mimeType": "image/png",
+              "sha256": "e85086a1f4c2b4fdc1af3799928bf3e96dac61d721db6546ecda251423bb80e1",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "47001f0b-6831-5733-936f-4272766e51f6",
+        "displayName": "Tonga",
+        "aliases": [
+          "Тонга"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Nuku'alofa",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Tongan Paʻanga (TOP)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English, Tongan",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "104,175 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "839fe67e-9b53-5844-8bed-948ee6e507c0",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "62d49f32-62ac-51a2-9225-25b277de51b6",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tuvalu.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "84b8f280bdf697b8a8570e8f1cb689343b2dceff5be81a9e8cb39f50c12774e6",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tuvalu.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "84b8f280bdf697b8a8570e8f1cb689343b2dceff5be81a9e8cb39f50c12774e6",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/tuvalu@2x.png",
+              "mimeType": "image/png",
+              "sha256": "095a1681e73738240fdba3b0454396f835effc95629b32b24e998a3909cc4def",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/tuvalu@3x.png",
+              "mimeType": "image/png",
+              "sha256": "0a673eaac91836c0762cd6f16d47dbc2c354c16cbe296f1df6b2a9500b42a239",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "641bb4e0-7525-56ff-b417-cf083445e63a",
+        "displayName": "Tuvalu",
+        "aliases": [
+          "Тувалу"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Funafuti",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "9,646 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "675daf14-8010-59ad-b51f-320365b31cb3",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "c94223d0-1ce1-52e1-87e9-a76251b6a362",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/vanuatu.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "84761f4d565acc0ec7abd305134b0b905c4fabc8f6fb3ff41ff7e7d3f54e5f00",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/vanuatu.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "84761f4d565acc0ec7abd305134b0b905c4fabc8f6fb3ff41ff7e7d3f54e5f00",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/vanuatu@2x.png",
+              "mimeType": "image/png",
+              "sha256": "0359e1449a862ea4f5a3a7a7c9334d7bde047354c71a69289634d5fc53020b45",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/vanuatu@3x.png",
+              "mimeType": "image/png",
+              "sha256": "ce8f34616d2fc96aac61922b01d54f32e632acd95c5f5d75283500ef9a951a07",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "b012fc71-784b-57ec-9fb8-209b1dbacad0",
+        "displayName": "Vanuatu",
+        "aliases": [
+          "Вануату"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Port Vila",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Vanuatu Vatu (VUV)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "Bislama, English, French",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "327,777 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "7f17e6ee-9795-5125-b112-2a8ce111a094",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "62dcea77-23f4-5f1a-93e1-2f2fd5c025cf",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/american-samoa.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "d36b591d5749883a50a626c3035232849f96f9cf0c94c598a5034bbd91df1250",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/american-samoa.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "d36b591d5749883a50a626c3035232849f96f9cf0c94c598a5034bbd91df1250",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/american-samoa@2x.png",
+              "mimeType": "image/png",
+              "sha256": "19158dd3bb8012e4d689399be7d97e131ca49c062cb86dccfdeb86f30c69e3b0",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/american-samoa@3x.png",
+              "mimeType": "image/png",
+              "sha256": "e12eb6f3ddf1d2c10dd3afb48d3dcecdbef8c10220b9a36c6428dde36e556e0c",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "fefdd2c2-3d78-5fd4-96b5-ab58fccd73d7",
+        "displayName": "American Samoa",
+        "aliases": [
+          "Американское Самоа"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Pago Pago",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "US Dollar (USD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English, Samoan",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "46,765 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "bb051800-f673-543a-82a2-4c42331acdf4",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "bb6e9192-07f3-5634-9226-16b19455ed78",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/christmas-island.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "1bc62de37c00f3ea141e8bbd75ba33cc09ef57573849915aacf5a858b5e192d2",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/christmas-island.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "1bc62de37c00f3ea141e8bbd75ba33cc09ef57573849915aacf5a858b5e192d2",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/christmas-island@2x.png",
+              "mimeType": "image/png",
+              "sha256": "6a5489f526a9014e50ab0f54f4e1a93d9179fc671766257f5e2357353b7cfbd6",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/christmas-island@3x.png",
+              "mimeType": "image/png",
+              "sha256": "87fcb4efdd5a6e243e6e5a3cae3f1bafad8730b10d2f458acbcee79025594007",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "17e5860d-93ee-5306-9bbf-3e52526af12c",
+        "displayName": "Christmas Island",
+        "aliases": [
+          "о-в Рождества"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Flying Fish Cove",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "071c7290-30e2-53f2-bed3-5a9871b3d3de",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "4f9c06f1-5b62-5721-b544-f48e621f35fd",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cocos-keeling-islands.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "dfda62571aa3de05047bb2006fe2e27261b6507e59feab0767b373b8c6a0291a",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cocos-keeling-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "dfda62571aa3de05047bb2006fe2e27261b6507e59feab0767b373b8c6a0291a",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cocos-keeling-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "21126602154b38efc8e8a32a393d87159ce5c2b1b7f4fae1d1355a1eb01d3c16",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cocos-keeling-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "6da30c87b574470218088d6f1b2ccdab8700b4868b5d7de76bd5ff5013a56ef6",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "2bc04ab7-7f62-50b8-b809-66fe2ae9175a",
+        "displayName": "Cocos (Keeling) Islands",
+        "aliases": [
+          "Кокосовые о-ва"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "West Island",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "7fd35001-fb38-55df-ae48-1af6497227ed",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "46ca34a1-a6f7-5912-aa11-6584e2e6aa2a",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/french-polynesia.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "6a3618d2e014666c1c7f583b47689fbec5b573c534be99769ab693207fe7c21f",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/french-polynesia.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "6a3618d2e014666c1c7f583b47689fbec5b573c534be99769ab693207fe7c21f",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/french-polynesia@2x.png",
+              "mimeType": "image/png",
+              "sha256": "8bf4b00a6b41a656a422eba87874b05e2dec7b69fe57b1615f14f9f23c3a45e4",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/french-polynesia@3x.png",
+              "mimeType": "image/png",
+              "sha256": "01ed084eb00573aa200e97642e405d88781065ff9c10042bb09c5546f4421538",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "3552fa92-5836-5f45-8a81-0856f75d8ca5",
+        "displayName": "French Polynesia",
+        "aliases": [
+          "Французская Полинезия"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Papeetē",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "CFP Franc (XPF)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "French",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "281,807 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "d4892819-d475-55a4-9b55-44d99a67108d",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "f95b6e2f-a9cd-5dac-bad9-04cd426fc2a7",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/guam.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "6191170b1c67ad8558519e75d526a90512dde2740faaec4c4feccb8acd63e4cc",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/guam.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "6191170b1c67ad8558519e75d526a90512dde2740faaec4c4feccb8acd63e4cc",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/guam@2x.png",
+              "mimeType": "image/png",
+              "sha256": "d16894a194dbe2288773fec8228d6bce74d6e8632b6e63530c59eab4113d5a1e",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/guam@3x.png",
+              "mimeType": "image/png",
+              "sha256": "dbcb32a16384b058aea61698b028105ab5ddc8a2980f797e7b0ebd61b877293a",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "91921d0c-0862-537e-9292-714e1cd1a5eb",
+        "displayName": "Guam",
+        "aliases": [
+          "Гуам"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Hagåtña",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "US Dollar (USD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English, Chamorro, Spanish",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "167,777 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "f9c136e5-83d5-565e-94de-27fcc23721bb",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "43255c8c-680e-55c5-8529-a79395f2a17a",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/new-caledonia.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "62498a0d089abf3a45035092db0d3c3c1b7e20bf8ae19dd822a10f008ac1cdbf",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/new-caledonia.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "62498a0d089abf3a45035092db0d3c3c1b7e20bf8ae19dd822a10f008ac1cdbf",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/new-caledonia@2x.png",
+              "mimeType": "image/png",
+              "sha256": "379e60ed7592507ffbf53a628d52166469611a24c7928f2e18cc520816f95eee",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/new-caledonia@3x.png",
+              "mimeType": "image/png",
+              "sha256": "50cccbee1a9374ddb9eed7543bedc96d1d5f2457d80099ae2d8b171aaebe67d1",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "1a191693-d85d-5a07-b2a0-08283507e78e",
+        "displayName": "New Caledonia",
+        "aliases": [
+          "Новая Каледония"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Nouméa",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "CFP Franc (XPF)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "French",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "292,639 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "817586d7-04e0-5fe7-8b8a-fb47c6ea5e91",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "c55be4b4-69f5-5e2e-b670-d8a12a64712d",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/norfolk-island.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "46333f47acdeaf98f684393b51a3fef9e7436c4b45a2fdf488c54075c25ce1bc",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/norfolk-island.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "46333f47acdeaf98f684393b51a3fef9e7436c4b45a2fdf488c54075c25ce1bc",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/norfolk-island@2x.png",
+              "mimeType": "image/png",
+              "sha256": "86f14215131ab9d3fedbb6db7727efa2cd19054daf66afef55c9537c48da7f8a",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/norfolk-island@3x.png",
+              "mimeType": "image/png",
+              "sha256": "f2cdbb1cbafe1d27ce60a9749d6b2faa3796bdb1110dd60a2338658b34957301",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "88b7f001-8f90-5a5a-9b96-15101d891e87",
+        "displayName": "Norfolk Island",
+        "aliases": [
+          "о-в Норфолк"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Kingston",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "2bf6b303-fb9f-5bd8-b058-3842d8bbc089",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "996c3b7c-28a7-5a14-bb5c-edc3ed44b3d8",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/northern-mariana-islands.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "106f6fc5068f10b8f0ae82831d49d97c011e3f11f1b39be11ea0a5ba4ebc511d",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/northern-mariana-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "106f6fc5068f10b8f0ae82831d49d97c011e3f11f1b39be11ea0a5ba4ebc511d",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/northern-mariana-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "99dd15d5de459b418cb78bb46452454e28b61223d5f4c4415dc97d0b41483163",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/northern-mariana-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "4170a7d6bbf09dd5193eca32b7c165194cc30cd8a8c3c4b784d7b862aa906712",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "55de5f49-b962-5630-9c2d-4b91d93e2eef",
+        "displayName": "Northern Mariana Islands",
+        "aliases": [
+          "Северные Марианские о-ва"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Saipan",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "US Dollar (USD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English, Chamorro",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "44,278 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "b7a83cd4-715f-525e-abee-c3f088223fe4",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "4c625370-09f3-5d36-9dd0-c0385452c6ab",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/pitcairn.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "74e7a3b2995e392bd33685149ae9ef2db8759b985ad4fcb914475ba7e0a1e51f",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/pitcairn.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "74e7a3b2995e392bd33685149ae9ef2db8759b985ad4fcb914475ba7e0a1e51f",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/pitcairn@2x.png",
+              "mimeType": "image/png",
+              "sha256": "740a556b80a8bed44f6c5b0d8c128f88b8d6c82156130480c0e44430875bf134",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/pitcairn@3x.png",
+              "mimeType": "image/png",
+              "sha256": "70682bc940e2923f0a8de7dea7b67655326bc58ba84e5b1d4ec2fc6788758961",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "a4343f61-5c07-5c86-8331-a044e3594d48",
+        "displayName": "Pitcairn Islands",
+        "aliases": [
+          "о-ва Питкэрн"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Adamstown",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "New Zealand Dollar (NZD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "460aa0c0-c731-57b4-b601-26835f1f026e",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "0b3a6465-23fb-5b33-845a-7d58051db615",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tokelau.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "ad3ed1e46f9dcbc425d37057ba3bd446f0d716fd50e6a12f4c815e47c51bdb62",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tokelau.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "ad3ed1e46f9dcbc425d37057ba3bd446f0d716fd50e6a12f4c815e47c51bdb62",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/tokelau@2x.png",
+              "mimeType": "image/png",
+              "sha256": "495ff9fbfe239257ca9b9848522fd1c67ca9cf7bf95c973b70722b5f92866cc3",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/tokelau@3x.png",
+              "mimeType": "image/png",
+              "sha256": "a475a29f61e49c33ef0e6e4f4f5b8f4d8e42a93236c9631ec6a54a4ffdf18d28",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "4fbc7b25-19a4-54b5-bff6-da433a589a93",
+        "displayName": "Tokelau",
+        "aliases": [
+          "Токелау"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Fakaofo",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "New Zealand Dollar (NZD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "d8dbf590-884d-59fc-b07f-0ca84621a264",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "5fd8d70e-7dd0-5331-a156-65cfd5a0f350",
+          "type": "FLAG",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/wallis-and-futuna-islands.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "bedc232d2e636a0225fb6db9333e2304d56b78045ca02d911daf760199ee7b88",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/wallis-and-futuna-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "bedc232d2e636a0225fb6db9333e2304d56b78045ca02d911daf760199ee7b88",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/wallis-and-futuna-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "43d859465c8a70ad6821dfbec338cdf7e4358f606c309d8128368718b94e9c33",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/wallis-and-futuna-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "81ef993461898c41e31c526f97993693248e110612a4d109053813150e65378c",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "d876034a-58bc-5635-b6f0-af15cf8140d8",
+        "displayName": "Wallis & Futuna",
+        "aliases": [
+          "Уоллис и Футуна"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Mata-Utu",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "CFP Franc (XPF)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "French",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    }
+  ],
+  "page": {
+    "nextCursor": null,
+    "hasMore": false
+  }
+}

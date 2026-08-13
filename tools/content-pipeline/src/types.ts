@@ -99,11 +99,25 @@ export interface EditorialEntity {
   overrides?: Record<string, unknown>;
 }
 
+/**
+ * How a deck says who belongs to it.
+ *
+ * `all-current` is the whole approved catalogue. A list is an editorial
+ * selection, named entity by entity. `{ taxonomy }` is a node of the
+ * classification the catalogue already carries — everything under it, however
+ * deep, which is what keeps a regional deck true as the catalogue changes
+ * instead of rotting into a list somebody wrote once.
+ */
+export type EditorialDeckMembers =
+  | "all-current"
+  | string[]
+  | { taxonomy: string };
+
 export interface EditorialDeck {
   key: string;
   kind: "curated" | "taxonomy";
   names: Record<string, { name: string; description: string }>;
-  members: "all-current" | string[];
+  members: EditorialDeckMembers;
 }
 
 export interface EditorialCatalog {
