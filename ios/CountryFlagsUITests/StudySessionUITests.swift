@@ -85,6 +85,40 @@ final class StudySessionUITests: XCTestCase {
         )
     }
 
+    /// The gesture the deck exists for: a card that has been turned over is
+    /// answered by throwing it, and the session moves on. The buttons are
+    /// tested above; this is the path a hand actually takes.
+    func testARevealedCardIsAnsweredBySwipingIt() {
+        let app = launch(arguments: ["-reset-store"])
+        openDeck(in: app)
+        app.buttons["study.start"].tap()
+
+        XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 30), app.debugDescription)
+        let firstPosition = app.staticTexts["study.progress"].label
+
+        let card = app.otherElements["study.card"]
+        XCTAssertTrue(card.waitForExistence(timeout: 10), app.debugDescription)
+        // Before the answer is up, the gesture may only turn the card over —
+        // a rating given without seeing the answer would be a rating of
+        // nothing.
+        card.swipeRight()
+        XCTAssertTrue(
+            app.staticTexts["study.answer"].waitForExistence(timeout: 10),
+            app.debugDescription
+        )
+        XCTAssertEqual(app.staticTexts["study.progress"].label, firstPosition)
+
+        // Now the same gesture answers it.
+        card.swipeRight()
+
+        XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertNotEqual(
+            app.staticTexts["study.progress"].label,
+            firstPosition,
+            app.debugDescription
+        )
+    }
+
     private func openDeck(in app: XCUIApplication) {
         let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)

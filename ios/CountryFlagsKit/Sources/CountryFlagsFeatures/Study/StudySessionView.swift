@@ -56,18 +56,13 @@ public struct StudySessionView: View {
                 .foregroundStyle(.secondary)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
 
-            FlagImageView(
-                assetID: card.promptAssetID,
-                // Before the flip the label must not name the country, or
-                // VoiceOver would answer the question for the learner.
-                accessibilityLabel: state.isAnswerRevealed
-                    ? card.displayName
-                    : L10n.studyFlagPrompt,
+            StudyCardStackView(
+                state: state,
                 store: store,
-                assets: assets
+                assets: assets,
+                onReveal: { runner.revealAnswer() },
+                onRate: { rating in Task { await runner.rate(rating) } }
             )
-            .frame(maxWidth: .infinity)
-            .frame(height: 180)
 
             if state.isAnswerRevealed {
                 Text(card.displayName)
@@ -82,6 +77,8 @@ public struct StudySessionView: View {
             Spacer()
 
             if state.isAnswerRevealed {
+                // The swipe reaches two of the four ratings; these reach all of
+                // them, and they are the only way in for VoiceOver.
                 ratingButtons(disabled: state.isCommitting)
             } else {
                 Button(L10n.studyReveal) {
@@ -104,6 +101,10 @@ public struct StudySessionView: View {
         // Reduce Motion replaces the flip with a plain change rather than
         // animating a smaller version of it.
         .animation(reduceMotion ? nil : .default, value: state.isAnswerRevealed)
+        // The one this moment is given in docs/16, §6.
+        .sensoryFeedback(.impact(flexibility: .soft), trigger: state.isAnswerRevealed) { _, revealed in
+            revealed
+        }
     }
 
     private func ratingButtons(disabled: Bool) -> some View {
