@@ -104,6 +104,9 @@ public enum DesignTokens {
         public static let rowFlagWidth: CGFloat = 44
         /// The bar under a deck on the progress screen.
         public static let progressBarHeight: CGFloat = 6
+        /// The map on the country sheet: tall enough that a shape reads,
+        /// short enough that the facts stay on the first screenful.
+        public static let detailMapHeight: CGFloat = 240
         public static let maximumContentWidth: CGFloat = 520
     }
 

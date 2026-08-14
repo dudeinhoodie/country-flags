@@ -21,6 +21,7 @@ struct StudyDetailsSheet: View {
     let assets: any AssetLoading
 
     @State private var facts: [FactRecord] = []
+    @State private var outline: CountryBoundaries.Outline?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.displayScale) private var displayScale
 
@@ -32,10 +33,14 @@ struct StudyDetailsSheet: View {
                 flag
 
                 if facts.count >= 2 {
-                    HStack(spacing: DesignTokens.Spacing.small) {
+                    // Fixed vertically so both tiles take the taller one's
+                    // height: left to themselves they each sized to their own
+                    // text, and a wrapped population left the pair ragged.
+                    HStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
                         FactTile(fact: facts[0])
                         FactTile(fact: facts[1])
                     }
+                    .fixedSize(horizontal: false, vertical: true)
                 } else if let only = facts.first {
                     FactTile(fact: only)
                 }
@@ -43,6 +48,29 @@ struct StudyDetailsSheet: View {
                 let rest = Array(facts.dropFirst(2))
                 if !rest.isEmpty {
                     factRows(rest)
+                }
+
+                // Where the country is. Missing for the flags whose landmass
+                // the 1:110m source does not carry — a microstate's sheet
+                // simply ends at the facts.
+                if let outline {
+                    CountryMapView(outline: outline)
+                        .frame(height: DesignTokens.Layout.detailMapHeight)
+                        .clipShape(
+                            RoundedRectangle(
+                                cornerRadius: DesignTokens.Radius.large, style: .continuous
+                            )
+                        )
+                        .overlay {
+                            RoundedRectangle(
+                                cornerRadius: DesignTokens.Radius.large, style: .continuous
+                            )
+                            .strokeBorder(
+                                .white.opacity(DesignTokens.Card.borderOpacity),
+                                lineWidth: 1 / displayScale
+                            )
+                        }
+                        .accessibilityLabel(card.displayName)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -54,6 +82,14 @@ struct StudyDetailsSheet: View {
         .presentationBackground(.regularMaterial)
         .task(id: card.learningCardID) {
             facts = await store.card(id: card.learningCardID)?.backSideFacts ?? []
+            // The outline is found the way the flag itself is: by the asset's
+            // checksum, through the bundled index, to the slug — which is what
+            // makes it survive a display name in any language.
+            if let record = await store.asset(id: card.promptAssetID),
+                let assetName = BundledFlags.shipped.assetName(forChecksum: record.sha256) {
+                let slug = String(assetName.dropFirst("flag-".count))
+                outline = CountryBoundaries.shipped.outline(forSlug: slug)
+            }
         }
     }
 
@@ -163,23 +199,38 @@ private struct FactBadge: View {
 private struct FactTile: View {
     let fact: FactRecord
 
-    var body: some View {
-        GlassCard(padding: DesignTokens.Spacing.medium) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                FactBadge(fact: fact)
+    @Environment(\.displayScale) private var displayScale
 
-                VStack(alignment: .leading, spacing: 0) {
-                    if let name = L10n.factType(fact.type) {
-                        Text(name)
-                            .font(DesignTokens.Typography.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Text(fact.displayValue)
-                        .font(DesignTokens.Typography.sectionTitle)
-                        .minimumScaleFactor(0.7)
-                        .lineLimit(2)
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+            FactBadge(fact: fact)
+
+            VStack(alignment: .leading, spacing: 0) {
+                if let name = L10n.factType(fact.type) {
+                    Text(name)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.secondary)
                 }
+                Text(fact.displayValue)
+                    .font(DesignTokens.Typography.sectionTitle)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(2)
             }
+        }
+        // Filled to the slot rather than hugging the text, so the pair of
+        // tiles reads as a pair and not as two notes of different lengths.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(DesignTokens.Spacing.medium)
+        .background(
+            .ultraThinMaterial,
+            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+                .strokeBorder(
+                    .white.opacity(DesignTokens.Card.borderOpacity),
+                    lineWidth: 1 / displayScale
+                )
         }
         // One fact is one thing to hear, not a label and a value in sequence.
         .accessibilityElement(children: .combine)
