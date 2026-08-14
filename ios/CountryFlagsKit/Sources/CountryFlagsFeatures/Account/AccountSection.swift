@@ -107,15 +107,33 @@ struct AccountSection: View {
             }
         }
         .signInWithAppleButtonStyle(.white)
-        .frame(height: DesignTokens.Layout.minimumTouchTarget)
+        .frame(height: DesignTokens.Layout.providerButtonHeight)
         .accessibilityIdentifier(AccessibilityIdentifier.accountSignInApple)
 
         if store.google != nil {
+            // The same slab as Apple's, deliberately: white, the same height,
+            // the same radius, the provider's own mark on the left. Two ways
+            // in must not look like a first choice and an afterthought.
             Button {
                 Task { await store.signInWithGoogle() }
             } label: {
-                Label(L10n.accountSignInGoogle, systemImage: "g.circle.fill")
+                HStack(spacing: DesignTokens.Spacing.small) {
+                    GoogleLogoMark()
+                        .frame(width: 18, height: 18)
+                    Text(L10n.accountSignInGoogle)
+                        .font(DesignTokens.Typography.body.weight(.medium))
+                }
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .frame(height: DesignTokens.Layout.providerButtonHeight)
+                .background(
+                    .white,
+                    in: RoundedRectangle(
+                        cornerRadius: DesignTokens.Radius.small, style: .continuous
+                    )
+                )
             }
+            .buttonStyle(.plain)
             .accessibilityIdentifier(AccessibilityIdentifier.accountSignInGoogle)
         }
 
@@ -241,5 +259,44 @@ private struct AccountAvatarView: View {
             return nil
         }
         return String(first).uppercased()
+    }
+}
+
+/// Google's four-colour "G", drawn rather than shipped.
+///
+/// Four arcs and the bar, in the brand's own colours — a trademark keeps its
+/// palette the way a flag does, so the hex values here are the logo's, not
+/// ours. Drawing it keeps the mark crisp at any size with no asset to age.
+private struct GoogleLogoMark: View {
+    var body: some View {
+        GeometryReader { proxy in
+            let side = min(proxy.size.width, proxy.size.height)
+            let line = side * 0.21
+            let inset = line / 2
+
+            ZStack {
+                segment(0.00, 0.17, Color(red: 0.259, green: 0.522, blue: 0.957), line: line)
+                segment(0.17, 0.38, Color(red: 0.204, green: 0.659, blue: 0.325), line: line)
+                segment(0.38, 0.62, Color(red: 0.984, green: 0.737, blue: 0.020), line: line)
+                segment(0.62, 0.87, Color(red: 0.918, green: 0.263, blue: 0.208), line: line)
+
+                // The bar that turns the ring into a G.
+                Rectangle()
+                    .fill(Color(red: 0.259, green: 0.522, blue: 0.957))
+                    .frame(width: side / 2 - inset + line / 2, height: line)
+                    .offset(x: side / 4 - inset / 2 + line / 4)
+            }
+            .padding(inset)
+            .frame(width: side, height: side)
+        }
+    }
+
+    /// One arc of the ring. Trim runs from 3 o'clock, clockwise on screen.
+    private func segment(
+        _ from: CGFloat, _ to: CGFloat, _ color: Color, line: CGFloat
+    ) -> some View {
+        Circle()
+            .trim(from: from, to: to)
+            .stroke(color, lineWidth: line)
     }
 }
