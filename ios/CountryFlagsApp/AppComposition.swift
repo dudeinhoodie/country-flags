@@ -283,6 +283,14 @@ struct AppComposition: AppDependencies {
             outbox: store.makeOutboxRepository(),
             scopes: scopes,
             nonces: SystemNonceGenerator(),
+            // No credentials, no button: an offer that cannot finish is worse
+            // than no offer.
+            google: configuration.googleClientID.map { clientID in
+                GoogleSignInAdapter(
+                    clientID: clientID,
+                    serverClientID: configuration.googleServerClientID
+                )
+            },
             // Debug environments only, and only when the launch asked for it:
             // a fixture credential must never be one tap away in production.
             allowsFakeSignIn: configuration.environment.allowsDebugAffordances

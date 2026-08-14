@@ -30,6 +30,9 @@ struct CountryFlagsApp: App {
                 sync: composition.sync
             )
             .onOpenURL { url in
+                // Google's browser round trip comes home through here too;
+                // whoever recognises the URL takes it.
+                if GoogleSignInAdapter.handle(url) { return }
                 composition.router.open(url, using: composition.deepLinkParser)
             }
             // After the first frame: every flag already answers from the

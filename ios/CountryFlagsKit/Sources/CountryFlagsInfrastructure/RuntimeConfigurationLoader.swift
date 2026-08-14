@@ -17,6 +17,8 @@ public enum RuntimeConfigurationLoader {
     public static let environmentKey = "CFAppEnvironment"
     public static let apiBaseURLKey = "CFAPIBaseURL"
     public static let deepLinkSchemeKey = "CFDeepLinkScheme"
+    public static let googleClientIDKey = "CFGoogleClientID"
+    public static let googleServerClientIDKey = "CFGoogleServerClientID"
 
     public static func configuration(
         from values: [String: Any]
@@ -49,8 +51,17 @@ public enum RuntimeConfigurationLoader {
         return RuntimeConfiguration(
             environment: environment,
             apiBaseURL: apiBaseURL,
-            deepLinkScheme: scheme
+            deepLinkScheme: scheme,
+            // Optional on purpose: a build without console credentials is a
+            // build without a Google button, not a broken one.
+            googleClientID: nonEmpty(values[googleClientIDKey]),
+            googleServerClientID: nonEmpty(values[googleServerClientIDKey])
         )
+    }
+
+    private static func nonEmpty(_ value: Any?) -> String? {
+        guard let string = value as? String, !string.isEmpty else { return nil }
+        return string
     }
 
     public static func configuration(from bundle: Bundle) throws -> RuntimeConfiguration {

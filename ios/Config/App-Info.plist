@@ -57,6 +57,10 @@
 	<string>$(CF_API_BASE_URL)</string>
 	<key>CFDeepLinkScheme</key>
 	<string>$(CF_DEEP_LINK_SCHEME)</string>
+	<key>CFGoogleClientID</key>
+	<string>$(CF_GOOGLE_IOS_CLIENT_ID)</string>
+	<key>CFGoogleServerClientID</key>
+	<string>$(CF_GOOGLE_SERVER_CLIENT_ID)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -67,6 +71,18 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>$(CF_DEEP_LINK_SCHEME)</string>
+			</array>
+		</dict>
+		<!-- Google's redirect back into the app. Registers nothing while the
+		     scheme is empty. -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER).google</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$(CF_GOOGLE_URL_SCHEME)</string>
 			</array>
 		</dict>
 	</array>

@@ -118,6 +118,7 @@ public enum L10n {
     public static var accountSignInFailed: String { localized("account.sign_in_failed") }
     public static var accountSignInOffline: String { localized("account.sign_in_offline") }
     public static var accountGuestNote: String { localized("account.guest_note") }
+    public static var accountSignInGoogle: String { localized("account.sign_in_google") }
 
     public static func accountSignOutWarning(_ count: Int) -> String {
         String(format: localized("account.sign_out_warning"), count)

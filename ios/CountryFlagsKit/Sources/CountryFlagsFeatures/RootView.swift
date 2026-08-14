@@ -219,6 +219,7 @@ public enum AccessibilityIdentifier {
 
     public static let accountSignInApple = "settings.account.signInApple"
     public static let accountFakeSignIn = "settings.account.fakeSignIn"
+    public static let accountSignInGoogle = "settings.account.signInGoogle"
     public static let accountSignedIn = "settings.account.signedIn"
     public static let accountSigningIn = "settings.account.signingIn"
     public static let accountSignOut = "settings.account.signOut"

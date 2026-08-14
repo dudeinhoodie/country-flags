@@ -96,6 +96,15 @@ struct AccountSection: View {
         .frame(height: DesignTokens.Layout.minimumTouchTarget)
         .accessibilityIdentifier(AccessibilityIdentifier.accountSignInApple)
 
+        if store.google != nil {
+            Button {
+                Task { await store.signInWithGoogle() }
+            } label: {
+                Label(L10n.accountSignInGoogle, systemImage: "g.circle.fill")
+            }
+            .accessibilityIdentifier(AccessibilityIdentifier.accountSignInGoogle)
+        }
+
         // Debug environments only, and only when the launch asked: the whole
         // flow — exchange, migration, state — without a provider sheet a test
         // cannot drive.

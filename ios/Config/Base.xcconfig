@@ -7,6 +7,15 @@
 
 PRODUCT_NAME = CountryFlags
 CF_BUNDLE_ID_BASE = app.countryflags.mobile
+
+// Google OAuth clients. Empty until the console credentials exist for the
+// configuration; an empty value hides the Google button. The scheme is the
+// iOS client identifier with its dot-order reversed, which is how Google's
+// browser round trip finds its way back into the app. None of these is a
+// secret.
+CF_GOOGLE_IOS_CLIENT_ID =
+CF_GOOGLE_SERVER_CLIENT_ID =
+CF_GOOGLE_URL_SCHEME = 
 PRODUCT_BUNDLE_IDENTIFIER = $(CF_BUNDLE_ID_BASE)$(CF_BUNDLE_ID_SUFFIX)
 
 IPHONEOS_DEPLOYMENT_TARGET = 17.0

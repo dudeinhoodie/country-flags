@@ -25,6 +25,9 @@ public final class AccountStore {
     /// debug environments only, and only when the launch asked for it.
     public let allowsFakeSignIn: Bool
 
+    /// Present when the build carries Google credentials; the button follows.
+    public let google: (any GoogleSignInPresenting)?
+
     private let session: any SessionControlling
     private let migrations: any GuestMigrationRunning
     private let outbox: any OutboxRepository
@@ -38,6 +41,7 @@ public final class AccountStore {
         outbox: any OutboxRepository,
         scopes: any AccountScopeResolving,
         nonces: any NonceGenerating,
+        google: (any GoogleSignInPresenting)? = nil,
         allowsFakeSignIn: Bool = false
     ) {
         self.session = session
@@ -45,7 +49,21 @@ public final class AccountStore {
         self.outbox = outbox
         self.scopes = scopes
         self.nonces = nonces
+        self.google = google
         self.allowsFakeSignIn = allowsFakeSignIn
+    }
+
+    /// Runs the whole Google round trip: the sheet, the exchange, the import.
+    public func signInWithGoogle() async {
+        guard let google else { return }
+        switch await google.signIn() {
+        case .credential(let credential):
+            await signIn(with: credential)
+        case .cancelled:
+            noteCancelledSignIn()
+        case .failed(let failure):
+            noteProviderFailure(failure)
+        }
     }
 
     public func start() async {

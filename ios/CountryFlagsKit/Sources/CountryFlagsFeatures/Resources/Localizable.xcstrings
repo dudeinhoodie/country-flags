@@ -137,6 +137,23 @@
         }
       }
     },
+    "account.sign_in_google": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with Google"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжить с Google"
+          }
+        }
+      }
+    },
     "account.sign_in_offline": {
       "extractionState": "manual",
       "localizations": {

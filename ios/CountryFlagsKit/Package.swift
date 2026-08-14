@@ -14,6 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.9.0"),
+        .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "8.0.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.8.0"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.1.0"),
         // The evaluation API only. The provider is ours: the backend evaluates
@@ -42,7 +43,10 @@ let package = Package(
         ),
         .target(
             name: "CountryFlagsFeatures",
-            dependencies: ["CountryFlagsDomain"],
+            dependencies: [
+                "CountryFlagsDomain",
+                .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
+            ],
             resources: [.process("Resources")]
         ),
         .testTarget(
