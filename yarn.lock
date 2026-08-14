@@ -98,9 +98,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:3.1104.0":
-  version: 3.1104.0
-  resolution: "@aws-sdk/client-s3@npm:3.1104.0"
+"@aws-sdk/client-s3@npm:3.1107.0":
+  version: 3.1107.0
+  resolution: "@aws-sdk/client-s3@npm:3.1107.0"
   dependencies:
     "@aws-sdk/checksums": "npm:^3.1000.26"
     "@aws-sdk/core": "npm:^3.977.6"
@@ -113,7 +113,7 @@ __metadata:
     "@smithy/node-http-handler": "npm:^4.9.13"
     "@smithy/types": "npm:^4.16.1"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/9bd438a0c66e4b43e6f8197c401fb4733728bbcda71b0c7b940f8fda2353b9891f044cd532a788c2abeefe4a300b26941d40841220130510a07bb0c8f2acf0e3
+  checksum: 10c0/eae0c02ea098952fa637be6979522b14cdc6224d75a117444e78ce99e7ea7d2fbc63114b6a99f19a1eca9a425350234cefc62604e088381a23c5ef05c62ebfb9
   languageName: node
   linkType: hard
 
@@ -741,7 +741,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@country-flags/backend@workspace:backend"
   dependencies:
-    "@aws-sdk/client-s3": "npm:3.1104.0"
+    "@aws-sdk/client-s3": "npm:3.1107.0"
     "@eslint/js": "npm:9.32.0"
     "@nestjs/cli": "npm:11.0.10"
     "@nestjs/common": "npm:11.1.6"
