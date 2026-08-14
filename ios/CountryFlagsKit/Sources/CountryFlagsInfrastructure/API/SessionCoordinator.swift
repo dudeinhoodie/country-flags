@@ -40,12 +40,29 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
 
     public func currentState() async -> AuthenticationState { state }
 
-    public func currentDisplayName() async -> String? {
+    public func currentProfile() async -> AccountProfile? {
         guard state.isAuthenticated else { return nil }
-        guard let name = try? await tokens.value(for: .accountDisplayName), !name.isEmpty else {
-            return nil
+        let name = try? await tokens.value(for: .accountDisplayName)
+        let avatar = try? await tokens.value(for: .accountAvatarURL)
+        return AccountProfile(
+            displayName: name.flatMap { $0.isEmpty ? nil : $0 },
+            avatarURL: avatar.flatMap { $0.isEmpty ? nil : URL(string: $0) }
+        )
+    }
+
+    public func adoptProviderProfile(name: String?, avatarURL: URL?) async {
+        guard state.isAuthenticated else { return }
+        // The backend's own name wins: what the provider shared fills the gap
+        // only where the account has none.
+        if let name, !name.isEmpty {
+            let stored = try? await tokens.value(for: .accountDisplayName)
+            if stored == nil || stored?.isEmpty == true {
+                try? await tokens.setValue(name, for: .accountDisplayName)
+            }
         }
-        return name
+        if let avatarURL {
+            try? await tokens.setValue(avatarURL.absoluteString, for: .accountAvatarURL)
+        }
     }
 
     /// Restores what a previous launch left behind.
@@ -101,6 +118,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         try? await tokens.setValue(nil, for: .refreshToken)
         try? await tokens.setValue(nil, for: .accountUserID)
         try? await tokens.setValue(nil, for: .accountDisplayName)
+        try? await tokens.setValue(nil, for: .accountAvatarURL)
         accessToken = nil
         state = .guest
     }

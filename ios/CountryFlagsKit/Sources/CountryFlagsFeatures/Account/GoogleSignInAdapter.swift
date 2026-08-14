@@ -6,7 +6,7 @@ import CountryFlagsDomain
 
 /// How a Google sign-in attempt ended, in the app's own terms.
 public enum GoogleSignInOutcome: Sendable {
-    case credential(ProviderCredential)
+    case credential(ProviderCredential, profile: AccountProfile?)
     case cancelled
     case failed(SignInFailure)
 }
@@ -48,7 +48,15 @@ public struct GoogleSignInAdapter: GoogleSignInPresenting {
             guard let idToken = result.user.idToken?.tokenString else {
                 return .failed(.provider(code: "GOOGLE_TOKEN_MISSING"))
             }
-            return .credential(.google(idToken: idToken))
+            // The profile is the screen's half of the sign-in: the name and
+            // the picture Google shows for this person. Never sent anywhere.
+            let profile = result.user.profile.map { data in
+                AccountProfile(
+                    displayName: data.name,
+                    avatarURL: data.hasImage ? data.imageURL(withDimension: 200) : nil
+                )
+            }
+            return .credential(.google(idToken: idToken), profile: profile)
         } catch let error as GIDSignInError where error.code == .canceled {
             // A closed sheet is a change of mind, not a failure.
             return .cancelled

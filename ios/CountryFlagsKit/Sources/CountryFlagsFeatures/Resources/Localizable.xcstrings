@@ -35,6 +35,23 @@
         }
       }
     },
+    "account.fallback_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your account"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваша учётная запись"
+          }
+        }
+      }
+    },
     "account.guest_note": {
       "extractionState": "manual",
       "localizations": {
@@ -245,13 +262,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You are signed in"
+            "value": "Progress is saved to this account"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вы вошли"
+            "value": "Прогресс сохраняется в этой учётной записи"
           }
         }
       }

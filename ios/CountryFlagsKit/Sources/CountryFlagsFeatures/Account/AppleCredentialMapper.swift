@@ -12,7 +12,7 @@ import CountryFlagsDomain
 /// would put an apology on the screen where nothing went wrong.
 enum AppleCredentialMapper {
     enum Outcome {
-        case credential(ProviderCredential)
+        case credential(ProviderCredential, profile: AccountProfile?)
         case cancelled
         case failed(SignInFailure)
     }
@@ -32,7 +32,15 @@ enum AppleCredentialMapper {
             else {
                 return .failed(.provider(code: "APPLE_CREDENTIAL_UNREADABLE"))
             }
-            return .credential(credential)
+            // Apple shares the name exactly once, on the first authorization;
+            // it is captured here or never. There is no picture to capture.
+            let profile = appleID.fullName.flatMap { components -> AccountProfile? in
+                let name = PersonNameComponentsFormatter.localizedString(
+                    from: components, style: .default
+                )
+                return name.isEmpty ? nil : AccountProfile(displayName: name, avatarURL: nil)
+            }
+            return .credential(credential, profile: profile)
         case .failure(let error):
             if let authorizationError = error as? ASAuthorizationError,
                 authorizationError.code == .canceled {

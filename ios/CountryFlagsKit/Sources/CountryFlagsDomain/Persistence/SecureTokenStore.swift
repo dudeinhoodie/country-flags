@@ -15,6 +15,9 @@ public enum SecureTokenKind: String, Hashable, Sendable, CaseIterable {
     /// tokens do and must leave with them.
     case accountUserID
     case accountDisplayName
+    /// Where the account's picture lives, when a provider shared one. A URL,
+    /// not an image; fetched fresh so a changed picture changes here too.
+    case accountAvatarURL
 }
 
 /// Where session secrets live.

@@ -57,23 +57,18 @@ struct AccountSection: View {
             }
             .accessibilityIdentifier(AccessibilityIdentifier.accountSigningIn)
         case .authenticated:
-            // The person, not a status line: an avatar and the name the
-            // account goes by, with the state as the caption under it.
+            // The person, not a status line: their picture and their name,
+            // with what the account buys them as the caption underneath.
             HStack(spacing: DesignTokens.Spacing.medium) {
-                Image(systemName: "person.crop.circle.fill")
-                    .font(DesignTokens.Typography.screenTitle)
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(.white)
+                AccountAvatarView(profile: store.profile)
 
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(store.displayName ?? L10n.accountSignedIn)
+                    Text(store.profile?.displayName ?? L10n.accountFallbackName)
                         .font(DesignTokens.Typography.body.weight(.semibold))
                         .foregroundStyle(.white)
-                    if store.displayName != nil {
-                        Text(L10n.accountSignedIn)
-                            .font(DesignTokens.Typography.caption)
-                            .foregroundStyle(.white.opacity(0.6))
-                    }
+                    Text(L10n.accountSignedIn)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
                 }
             }
             .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
@@ -103,8 +98,8 @@ struct AccountSection: View {
         } onCompletion: { result in
             let rawNonce = store.preparedNonce?.raw ?? ""
             switch AppleCredentialMapper.outcome(of: result, rawNonce: rawNonce) {
-            case .credential(let credential):
-                Task { await store.signIn(with: credential) }
+            case .credential(let credential, let profile):
+                Task { await store.signIn(with: credential, providerProfile: profile) }
             case .cancelled:
                 store.noteCancelledSignIn()
             case .failed(let failure):
@@ -190,5 +185,61 @@ struct AccountSection: View {
                 if !isPresented { store.cancelSignOut() }
             }
         )
+    }
+}
+
+/// The account's picture, or the person's initial while there is none.
+///
+/// The picture is fetched from the provider's URL each time: an avatar
+/// changed on the account changes here without any store of ours holding a
+/// stale copy. The monogram fallback keeps the circle a person rather than
+/// a generic glyph.
+private struct AccountAvatarView: View {
+    let profile: AccountProfile?
+
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        ZStack {
+            Circle().fill(.ultraThinMaterial)
+
+            if let initial {
+                Text(initial)
+                    .font(DesignTokens.Typography.body.weight(.semibold))
+                    .foregroundStyle(.white)
+            } else {
+                Image(systemName: "person.fill")
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+
+            if let url = profile?.avatarURL {
+                AsyncImage(url: url) { image in
+                    image.resizable().scaledToFill()
+                } placeholder: {
+                    Color.clear
+                }
+            }
+        }
+        .frame(
+            width: DesignTokens.Layout.minimumTouchTarget,
+            height: DesignTokens.Layout.minimumTouchTarget
+        )
+        .clipShape(Circle())
+        .overlay {
+            Circle().strokeBorder(
+                .white.opacity(DesignTokens.Card.borderOpacity),
+                lineWidth: 1 / displayScale
+            )
+        }
+        .accessibilityHidden(true)
+    }
+
+    private var initial: String? {
+        guard let name = profile?.displayName?.trimmingCharacters(in: .whitespaces),
+            let first = name.first
+        else {
+            return nil
+        }
+        return String(first).uppercased()
     }
 }
