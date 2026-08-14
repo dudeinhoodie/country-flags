@@ -33,6 +33,7 @@ public final class AccountStore {
     private let outbox: any OutboxRepository
     private let scopes: any AccountScopeResolving
     private let nonces: any NonceGenerating
+    private let logger: any AppLogging
     private var pendingNonce: SignInNonce?
 
     public init(
@@ -42,8 +43,10 @@ public final class AccountStore {
         scopes: any AccountScopeResolving,
         nonces: any NonceGenerating,
         google: (any GoogleSignInPresenting)? = nil,
-        allowsFakeSignIn: Bool = false
+        allowsFakeSignIn: Bool = false,
+        logger: any AppLogging = NoOpLogger()
     ) {
+        self.logger = logger
         self.session = session
         self.migrations = migrations
         self.outbox = outbox
@@ -113,6 +116,14 @@ public final class AccountStore {
     public func noteProviderFailure(_ failure: SignInFailure) {
         pendingNonce = nil
         lastFailure = failure
+        // The kind alone: a sign-in failure must be visible in a log without
+        // a credential ever being.
+        logger.log(
+            .error,
+            .sync,
+            "A provider sign-in failed before the exchange",
+            ["failure": .safe(String(describing: failure))]
+        )
     }
 
     // MARK: - Signing out

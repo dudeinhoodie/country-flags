@@ -294,7 +294,8 @@ struct AppComposition: AppDependencies {
             // Debug environments only, and only when the launch asked for it:
             // a fixture credential must never be one tap away in production.
             allowsFakeSignIn: configuration.environment.allowsDebugAffordances
-                && ProcessInfo.processInfo.arguments.contains("-fake-signin")
+                && ProcessInfo.processInfo.arguments.contains("-fake-signin"),
+            logger: logger
         )
     }
 

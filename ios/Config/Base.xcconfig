@@ -39,6 +39,12 @@ GENERATE_INFOPLIST_FILE = YES
 CODE_SIGN_STYLE = Automatic
 CODE_SIGNING_REQUIRED = NO
 CODE_SIGNING_ALLOWED = NO
+// The simulator is ad-hoc signed: with signing disabled outright the binary
+// carries no entitlements, the keychain answers -34018 to every call, the
+// guest identity is reborn on each launch and Google's SDK dies saving its
+// session. Ad-hoc needs no certificate, so CI is unaffected.
+CODE_SIGNING_ALLOWED[sdk=iphonesimulator*] = YES
+CODE_SIGN_IDENTITY[sdk=iphonesimulator*] = -
 DEVELOPMENT_TEAM = $(CF_DEVELOPMENT_TEAM)
 
 // Config/App-Info.plist substitutes these into the app bundle, where
