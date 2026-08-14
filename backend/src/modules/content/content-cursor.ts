@@ -110,11 +110,10 @@ export function decodeContentChangeCursor(value: string): ContentChangeCursor {
   const legacy = /^content:(?<version>.+):(?<sequence>0|[1-9][0-9]*)$/u.exec(
     value,
   );
-  if (legacy?.groups) {
-    return {
-      version: legacy.groups.version,
-      sequence: BigInt(legacy.groups.sequence),
-    };
+  const version = legacy?.groups?.version;
+  const sequence = legacy?.groups?.sequence;
+  if (version !== undefined && sequence !== undefined) {
+    return { version, sequence: BigInt(sequence) };
   }
 
   const cursor = decode(value);
