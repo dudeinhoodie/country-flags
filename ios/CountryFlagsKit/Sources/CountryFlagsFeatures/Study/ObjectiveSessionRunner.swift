@@ -189,11 +189,20 @@ public final class ObjectiveSessionRunner {
             cards: snapshot
         )
 
+        // Same rule as the self-rated runner: what was active and is not
+        // being resumed is closed, not orphaned. Read before the save, after
+        // which the active session is the new one.
+        let stale = try? await learning.activeSession(for: resolvedScope)
+
         do {
             try await learning.saveSession(session, for: resolvedScope)
         } catch {
             startFailure = .storeUnavailable
             return
+        }
+
+        if let stale, stale.id != sessionID {
+            await abandon(stale)
         }
 
         startFailure = nil
@@ -202,6 +211,25 @@ public final class ObjectiveSessionRunner {
             deckID: deckID,
             questions: questions,
             phase: .asking(index: 0)
+        )
+    }
+
+    /// The answers already committed stay committed; only the lifecycle moves.
+    private func abandon(_ session: StudySessionRecord) async {
+        try? await learning.saveSession(
+            StudySessionRecord(
+                id: session.id,
+                deckID: session.deckID,
+                mode: session.mode,
+                selectionOrigin: session.selectionOrigin,
+                requestedUniqueCount: session.requestedUniqueCount,
+                status: StudySessionStatus.abandoned.rawValue,
+                contentVersion: session.contentVersion,
+                startedAt: session.startedAt,
+                completedAt: dates.now(),
+                cards: session.cards
+            ),
+            for: resolvedScope
         )
     }
 

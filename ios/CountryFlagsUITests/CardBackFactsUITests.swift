@@ -27,16 +27,34 @@ final class CardBackFactsUITests: XCTestCase {
         start.tap()
 
         let reveal = app.buttons["study.reveal"]
-        XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)
-        // Nothing about the country before the flip: a capital would answer the
-        // question the card is asking.
-        XCTAssertFalse(app.staticTexts["study.fact.CAPITAL"].exists, app.debugDescription)
-        reveal.tap()
-
-        // Every card of this release names a capital, so the flip has to
-        // produce one whichever card the session chose.
         let capital = app.staticTexts["study.fact.CAPITAL"]
-        XCTAssertTrue(capital.waitForExistence(timeout: 10), app.debugDescription)
+
+        // Almost every card of this release names a capital — a handful of
+        // territories legitimately do not, and the session is free to lead
+        // with one of them. The test walks the deck until a capital appears
+        // instead of demanding one from whichever card came first, which was
+        // a coin this test should not be flipping.
+        var isCapitalShown = false
+        for _ in 0..<5 where !isCapitalShown {
+            XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)
+            // Nothing about the country before the flip: a capital would
+            // answer the question the card is asking.
+            XCTAssertFalse(capital.exists, app.debugDescription)
+            reveal.tap()
+
+            XCTAssertTrue(
+                app.staticTexts["study.answer"].waitForExistence(timeout: 10),
+                app.debugDescription
+            )
+            // The facts are read from the store once the card is over; a beat
+            // of latency is theirs to take.
+            isCapitalShown = capital.waitForExistence(timeout: 3)
+            if !isCapitalShown {
+                app.buttons["study.rating.GOOD"].tap()
+            }
+        }
+
+        XCTAssertTrue(isCapitalShown, app.debugDescription)
         XCTAssertFalse(capital.label.isEmpty)
         // A string catalog key must never reach the interface.
         XCTAssertFalse(capital.label.contains("fact.capital"), app.debugDescription)

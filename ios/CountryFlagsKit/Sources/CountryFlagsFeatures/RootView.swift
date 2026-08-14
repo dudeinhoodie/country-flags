@@ -46,33 +46,64 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $router.navigationPath) {
-            HomeView(
-                store: content,
-                sync: sync,
-                onOpenCatalog: { router.push(.catalog) },
-                onOpenProgress: { router.push(.progress) },
-                onOpenDeck: { router.push(.deck(id: $0)) }
-            )
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.shellOpenSettings) {
-                        router.push(.settings)
+        // A tab bar rather than buttons on Home: the catalog and the progress
+        // are places, and iOS puts places on the bottom bar. The bar's glass
+        // is the system's own.
+        TabView(selection: $router.tab) {
+            NavigationStack(path: $router.homeNavigationPath) {
+                HomeView(
+                    store: content,
+                    sync: sync,
+                    makeProgress: makeProgressStore,
+                    onOpenDeck: { router.push(.deck(id: $0)) }
+                )
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            router.push(.settings)
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
+                        .accessibilityLabel(L10n.shellOpenSettings)
+                        .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
                     }
-                    .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
+                    if configuration.environment.allowsDebugAffordances {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Text(verbatim: configuration.environment.rawValue.uppercased())
+                                .font(DesignTokens.Typography.caption)
+                                .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
+                        }
+                    }
                 }
-                if configuration.environment.allowsDebugAffordances {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Text(verbatim: configuration.environment.rawValue.uppercased())
-                            .font(DesignTokens.Typography.caption)
-                            .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
-                    }
+                .navigationDestination(for: AppRoute.self) { route in
+                    destination(for: route)
                 }
             }
-            .navigationDestination(for: AppRoute.self) { route in
-                destination(for: route)
+            .tabItem { Label(L10n.homeTitle, systemImage: "house") }
+            .tag(AppTab.home)
+
+            NavigationStack(path: $router.catalogNavigationPath) {
+                CatalogView(store: content) { router.push(.deck(id: $0)) }
+                    .navigationDestination(for: AppRoute.self) { route in
+                        destination(for: route)
+                    }
             }
+            .tabItem { Label(L10n.catalogTitle, systemImage: "square.grid.2x2") }
+            .tag(AppTab.catalog)
+
+            NavigationStack(path: $router.progressNavigationPath) {
+                ProgressScreen(store: makeProgressStore())
+                    .navigationDestination(for: AppRoute.self) { route in
+                        destination(for: route)
+                    }
+            }
+            .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
+            .tag(AppTab.progress)
         }
+        // The scene is dark, so the app is: system controls, sheets and the
+        // bars all take their colours from here rather than each screen
+        // fighting the light appearance on its own.
+        .preferredColorScheme(.dark)
         // Recovery and the first sync happen once, after the first frame:
         // everything on screen already answers from the store.
         .task { await sync.start() }
@@ -94,6 +125,7 @@ public struct RootView: View {
                 deckID: id,
                 store: content,
                 assets: assets,
+                makeSettings: makeSettingsStore,
                 isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
             ) { deckID, size, mode in
                 router.push(.study(deckID: deckID, size: size, mode: mode))
@@ -193,6 +225,13 @@ public enum AccessibilityIdentifier {
 
     public static let studyStart = "study.start"
     public static let studyProgress = "study.progress"
+    /// The card being answered, and the ones behind it in the stack.
+    public static let studyCard = "study.card"
+    public static let studyCardBehind = "study.card.behind"
+    public static let studyDetails = "study.details"
+    /// The small map on the country sheet, which opens the full one.
+    public static let studyMap = "study.details.map"
+    public static let studyClose = "study.close"
     public static let studyReveal = "study.reveal"
     /// Facts are addressed by the type they carry rather than by position: a
     /// release decides how many a country has.
@@ -205,6 +244,8 @@ public enum AccessibilityIdentifier {
     public static let studyResultTitle = "study.result.title"
     public static let studyResultAnswered = "study.result.answered"
     public static let studyResultDone = "study.result.done"
+    /// The one action the first screen recommends.
+    public static let homeContinue = "home.continue"
 
     public static func studyRating(_ rating: StudyRating) -> String {
         "study.rating.\(rating.rawValue)"

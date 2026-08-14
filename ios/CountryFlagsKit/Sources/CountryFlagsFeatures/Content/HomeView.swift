@@ -4,28 +4,31 @@ import CountryFlagsDomain
 
 /// The first screen.
 ///
-/// The parts that need a session or progress arrive with their own work
-/// packages. What is here now is the content half: a greeting that needs no
-/// name, a way into the catalog, and recommended decks drawn from what the
-/// device has already stored.
+/// It is built around one number and one action. Which number depends on what
+/// the learner has done: cards waiting to be repeated if there are any, and the
+/// size of a deck worth opening if there are not. Everything else on the screen
+/// — the decks, the catalogue, the progress — is a way to get somewhere else
+/// and is drawn quieter than the thing above it.
 public struct HomeView: View {
     private let store: ContentStore
     private let sync: SyncCenter
-    private let onOpenCatalog: () -> Void
-    private let onOpenProgress: () -> Void
     private let onOpenDeck: (UUID) -> Void
+
+    /// The counts behind the hero. Built here, once, from the factory: this
+    /// view is re-initialised whenever the launch makes progress, and a store
+    /// built in the initialiser would be built — and thrown away — every time.
+    @State private var progress: ProgressStore?
+    private let makeProgress: (() -> ProgressStore)?
 
     public init(
         store: ContentStore,
         sync: SyncCenter,
-        onOpenCatalog: @escaping () -> Void,
-        onOpenProgress: @escaping () -> Void,
+        makeProgress: (() -> ProgressStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void
     ) {
         self.store = store
         self.sync = sync
-        self.onOpenCatalog = onOpenCatalog
-        self.onOpenProgress = onOpenProgress
+        self.makeProgress = makeProgress
         self.onOpenDeck = onOpenDeck
     }
 
@@ -49,6 +52,19 @@ public struct HomeView: View {
             // count that lost that race stayed wrong for the whole visit and
             // only corrected itself once the learner left and came back.
             .task(id: store.status) { await sync.refreshStatus() }
+            // Coming back is the other moment both numbers change: a session
+            // queues work and answers cards while this screen is covered, and
+            // nothing above re-reads on a pop. The root of a navigation stack
+            // reappears when the pushed screen leaves, so this is the return
+            // path — and the first appearance, which is harmless: both reads
+            // are cheap and idempotent.
+            .onAppear {
+                if progress == nil { progress = makeProgress?() }
+                Task {
+                    await sync.refreshStatus()
+                    await progress?.load()
+                }
+            }
     }
 
     @ViewBuilder
@@ -61,59 +77,124 @@ public struct HomeView: View {
         case .failed(let failure):
             ContentUnavailableStateView(failure: failure) { await store.refresh() }
         case .ready(let sections, let isStale, let failure):
-            list(sections: sections, isStale: isStale, failure: failure)
+            loaded(sections: sections, isStale: isStale, failure: failure)
         }
     }
 
-    private func list(
+    private func loaded(
         sections: [CatalogSection],
         isStale: Bool,
         failure: ContentSyncFailure?
     ) -> some View {
-        List {
-            Section {
-                Text(L10n.homeGreeting)
-                    .font(DesignTokens.Typography.screenTitle)
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeGreeting)
-            }
+        SceneScrollView {
+            // A subtitle rather than a second heading: the navigation bar
+            // already says which screen this is, and two large titles stacked
+            // read as a mistake.
+            Text(L10n.homeGreeting)
+                .font(DesignTokens.Typography.body)
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier(AccessibilityIdentifier.homeGreeting)
 
-            // Synchronisation explains itself only when it has something to
-            // say; a healthy device up to date shows nothing.
+            // Both explain themselves only when they have something to say; a
+            // healthy device up to date shows neither.
             if sync.status.isWorthReporting {
-                Section {
-                    SyncStatusLine(status: sync.status)
-                }
+                SyncStatusLine(status: sync.status)
             }
-
-            // The content state is shown only when there is something to say, so
-            // a healthy launch has no status line at all.
             if isStale || failure != nil {
-                Section {
-                    ContentStatusBanner(isStale: isStale, failure: failure)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                }
+                ContentStatusBanner(isStale: isStale, failure: failure)
             }
 
-            Section(L10n.homeRecommended) {
-                ForEach(recommended(sections), id: \.id) { deck in
-                    Button {
-                        onOpenDeck(deck.id)
-                    } label: {
-                        DeckRow(deck: deck)
+            if let hero = hero(sections) {
+                heroCard(hero)
+            }
+
+            let decks = recommended(sections)
+            if !decks.isEmpty {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                    SectionLabel(L10n.homeRecommended)
+                    ForEach(decks, id: \.id) { deck in
+                        Button {
+                            onOpenDeck(deck.id)
+                        } label: {
+                            GlassCard(padding: DesignTokens.Spacing.medium) {
+                                GlassRow {
+                                    EmptyView()
+                                } content: {
+                                    Text(deck.name)
+                                        .font(DesignTokens.Typography.sectionTitle)
+                                        .foregroundStyle(.white)
+                                    Text(L10n.deckCardCount(deck.cardCount))
+                                        .font(DesignTokens.Typography.caption)
+                                        .foregroundStyle(.white.opacity(0.6))
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
                 }
             }
+        }
+    }
 
-            Section {
-                Button(L10n.homeOpenCatalog, action: onOpenCatalog)
-                    .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeOpenCatalog)
-                Button(L10n.homeOpenProgress, action: onOpenProgress)
-                    .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeOpenProgress)
+    /// The number and the deck it belongs to.
+    ///
+    /// Cards waiting to be repeated are what the app is for, so they win. With
+    /// none waiting — a new install, or a day already finished — the screen
+    /// offers a deck to open instead of a zero, which says nothing and looks
+    /// like a screen that failed to load.
+    private func hero(_ sections: [CatalogSection]) -> Hero? {
+        if let due = progress?.decks.filter({ $0.dueCards > 0 })
+            .max(by: { $0.dueCards < $1.dueCards }) {
+            return Hero(
+                deckID: due.id,
+                label: L10n.homeDue,
+                count: due.dueCards,
+                name: due.name,
+                action: L10n.homeContinue
+            )
+        }
+        guard let deck = recommended(sections).first else { return nil }
+        return Hero(
+            deckID: deck.id,
+            label: L10n.homeDeckSize,
+            count: deck.cardCount,
+            name: deck.name,
+            action: L10n.studyStart
+        )
+    }
+
+    private struct Hero {
+        let deckID: UUID
+        let label: String
+        let count: Int
+        let name: String
+        let action: String
+    }
+
+    private func heroCard(_ hero: Hero) -> some View {
+        GlassCard(padding: DesignTokens.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                    SectionLabel(hero.label)
+
+                    Text("\(hero.count)")
+                        .font(DesignTokens.Typography.heroNumber)
+                        .monospacedDigit()
+                        // The number moves rather than being replaced when a
+                        // session changes it.
+                        .contentTransition(.numericText())
+                        .foregroundStyle(.white)
+
+                    Text(hero.name)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                .accessibilityElement(children: .combine)
+
+                Button(hero.action) { onOpenDeck(hero.deckID) }
+                    .buttonStyle(PrimaryActionStyle())
+                    .accessibilityIdentifier(AccessibilityIdentifier.homeContinue)
             }
         }
     }

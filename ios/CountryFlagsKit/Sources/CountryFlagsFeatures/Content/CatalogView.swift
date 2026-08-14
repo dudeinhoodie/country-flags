@@ -4,8 +4,9 @@ import CountryFlagsDomain
 
 /// The deck catalog.
 ///
-/// Sections come from the domain grouping rather than from the view, so what
-/// the user sees and what the tests assert are the same rule.
+/// The one screen with no hero, deliberately: it is a list, and the job is to
+/// choose from it. Sections come from the domain grouping rather than from the
+/// view, so what the user sees and what the tests assert are the same rule.
 public struct CatalogView: View {
     private let store: ContentStore
     private let onOpenDeck: (UUID) -> Void
@@ -35,50 +36,65 @@ public struct CatalogView: View {
         case .failed(let failure):
             ContentUnavailableStateView(failure: failure) { await store.refresh() }
         case .ready(let sections, let isStale, let failure):
-            list(sections: sections, isStale: isStale, failure: failure)
+            loaded(sections: sections, isStale: isStale, failure: failure)
         }
     }
 
-    private func list(
+    private func loaded(
         sections: [CatalogSection],
         isStale: Bool,
         failure: ContentSyncFailure?
     ) -> some View {
-        List {
+        SceneScrollView {
             if isStale || failure != nil {
-                Section {
-                    ContentStatusBanner(isStale: isStale, failure: failure)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                }
+                ContentStatusBanner(isStale: isStale, failure: failure)
             }
 
             if let resolution = store.localeResolution, resolution.isFallback {
-                Section {
-                    Text(L10n.catalogLocaleFallback(resolution.locale))
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier(AccessibilityIdentifier.catalogLocaleFallback)
-                }
+                Text(L10n.catalogLocaleFallback(resolution.locale))
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .accessibilityIdentifier(AccessibilityIdentifier.catalogLocaleFallback)
             }
 
-            ForEach(filtered(sections)) { section in
-                Section(sectionTitle(section.kind)) {
-                    ForEach(section.decks, id: \.id) { deck in
-                        Button {
-                            onOpenDeck(deck.id)
-                        } label: {
-                            DeckRow(deck: deck)
+            let matches = filtered(sections)
+
+            ForEach(matches) { section in
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                    SectionLabel(sectionTitle(section.kind))
+
+                    // One pane per section rather than one per deck: a region
+                    // is a group, and drawing its decks as separate cards would
+                    // say they are unrelated.
+                    GlassCard(padding: DesignTokens.Spacing.small) {
+                        VStack(spacing: 0) {
+                            ForEach(Array(section.decks.enumerated()), id: \.element.id) {
+                                index, deck in
+                                if index > 0 {
+                                    Divider()
+                                        .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
+                                }
+                                Button {
+                                    onOpenDeck(deck.id)
+                                } label: {
+                                    DeckRow(deck: deck)
+                                        .padding(.horizontal, DesignTokens.Spacing.small)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier(
+                                    AccessibilityIdentifier.catalogDeckRow(deck.code)
+                                )
+                            }
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier(AccessibilityIdentifier.catalogDeckRow(deck.code))
                     }
                 }
             }
 
-            if filtered(sections).isEmpty {
+            if matches.isEmpty {
                 Text(L10n.catalogNoMatches)
-                    .foregroundStyle(.secondary)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .accessibilityIdentifier(AccessibilityIdentifier.catalogNoMatches)
             }
         }
@@ -109,20 +125,20 @@ struct DeckRow: View {
     let deck: DeckRecord
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+        GlassRow {
+            EmptyView()
+        } content: {
             Text(deck.name)
                 .font(DesignTokens.Typography.sectionTitle)
+                .foregroundStyle(.white)
             if !deck.deckDescription.isEmpty {
                 Text(deck.deckDescription)
                     .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.6))
             }
             Text(L10n.deckCardCount(deck.cardCount))
                 .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.45))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-        .contentShape(.rect)
     }
 }

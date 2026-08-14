@@ -49,6 +49,37 @@ async function readRegistry() {
   return registry.assets.sort((left, right) => left.key.localeCompare(right.key, "en"));
 }
 
+/// Removes the letterbox clip most flag-icons files carry.
+///
+/// Xcode's SVG renderer applies a clipPath in the file's root coordinate
+/// space, ignoring the transform of the group that references it. The
+/// letterbox clip is written in pre-transform units, so on part of the set
+/// Xcode cut a strip off the flag — seven percent of Israel, a tenth of
+/// Benin, a quarter of Libya — and the card showed the ground where the
+/// flag should have been. The clip is redundant for this use anyway: the
+/// viewBox already crops the canvas.
+///
+/// A letterbox is recognised by its shape: a clipPath holding a plain
+/// rectangle, drawn as a path of straight lines or as a rect element. A
+/// clip of any other shape is content — Belarus masks its ornament with
+/// one, Nicaragua its emblem — and is kept.
+function stripLetterboxClip(svg) {
+  const asPath = svg.match(
+    /<clipPath id="([a-z0-9-]+)"><path [^>]*?d="([^"]+)"[^>]*\/><\/clipPath>/u,
+  );
+  const asRect = svg.match(/<clipPath id="([a-z0-9-]+)"><rect [^>]*\/><\/clipPath>/u);
+  const rectangle = /^[Mm]-?[\d.]+[, ]?-?[\d.]+(?:[HhVv]-?[\d.]+)+[zZ]$/u;
+  const definition =
+    asPath !== null && rectangle.test(asPath[2]) ? asPath : asRect;
+  if (definition === null) {
+    return svg;
+  }
+  return svg
+    .replace(definition[0], "")
+    .replace("<defs></defs>", "")
+    .replaceAll(` clip-path="url(#${definition[1]})"`, "");
+}
+
 /// The catalog holds the vector original: an asset catalog preserves its vector
 /// data, so one file stays sharp at every size and costs less than the raster
 /// set it replaces.
@@ -72,7 +103,7 @@ async function buildCatalog(assets, directory) {
     await mkdir(imageset, { recursive: true });
     await writeFile(
       join(imageset, fileName),
-      await readFile(join(bundleDirectory, vector.path)),
+      stripLetterboxClip(await readFile(join(bundleDirectory, vector.path), "utf8")),
     );
     await writeFile(
       join(imageset, "Contents.json"),

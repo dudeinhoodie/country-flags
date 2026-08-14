@@ -5,6 +5,10 @@ import CountryFlagsDomain
 /// One self-rated card at a time: the flag, then the country, then a rating.
 public struct StudySessionView: View {
     @State private var runner: StudySessionRunner
+    @State private var palette: ScenePalette = .neutral
+    @State private var isShowingDetails = false
+    @State private var isShowingBack = false
+    @State private var swipeProgress: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let deckID: UUID
@@ -30,10 +34,22 @@ public struct StudySessionView: View {
     }
 
     public var body: some View {
-        content
-            .navigationTitle(L10n.studyTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .task { await runner.startOrResume(deckID: deckID, size: size) }
+        ZStack {
+            // The ground belongs to the session rather than to one of its
+            // states: it stays put while the session loads, is answered and
+            // ends, so nothing flashes white between them.
+            AppScene(palette: palette)
+
+            content
+                .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+                .padding(DesignTokens.Spacing.large)
+        }
+        // The flag is the screen: the chrome shrinks to the counter and a way
+        // out, both of which live on the scene rather than above it.
+        .toolbar(.hidden, for: .navigationBar)
+        // The flag is the screen: while a session runs, the tab bar leaves too.
+        .toolbar(.hidden, for: .tabBar)
+        .task { await runner.startOrResume(deckID: deckID, size: size) }
     }
 
     @ViewBuilder
@@ -44,82 +60,237 @@ public struct StudySessionView: View {
             StudyUnavailableView(failure: failure, onDone: onFinish)
         } else if let state = runner.state, let card = state.currentCard {
             cardView(state: state, card: card)
+        } else if runner.state == nil {
+            StudyLoadingView(onClose: onFinish)
         } else {
-            ContentLoadingStateView()
+            // The beat between the last answer and the summary: the session is
+            // finished and the store is being read. The scene simply holds —
+            // flashing the loading skeleton here read as a fourth state that
+            // does not exist.
+            Color.clear
         }
     }
 
     private func cardView(state: StudySessionState, card: StudySessionCardRecord) -> some View {
         VStack(spacing: DesignTokens.Spacing.large) {
-            Text(L10n.studyProgress(state.position, state.cards.count))
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
+            hud(state: state)
 
-            FlagImageView(
-                assetID: card.promptAssetID,
-                // Before the flip the label must not name the country, or
-                // VoiceOver would answer the question for the learner.
-                accessibilityLabel: state.isAnswerRevealed
-                    ? card.displayName
-                    : L10n.studyFlagPrompt,
+            Spacer(minLength: 0)
+
+            StudyCardStackView(
+                state: state,
                 store: store,
-                assets: assets
+                assets: assets,
+                onReveal: { runner.revealAnswer() },
+                onRate: { rating in Task { await runner.rate(rating) } },
+                onDetails: { isShowingDetails = true },
+                isShowingBack: $isShowingBack,
+                swipeProgress: $swipeProgress
             )
-            .frame(maxWidth: .infinity)
-            .frame(height: 180)
 
-            if state.isAnswerRevealed {
-                Text(card.displayName)
-                    .font(DesignTokens.Typography.screenTitle)
-                    .multilineTextAlignment(.center)
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyAnswer)
-                    .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale))
+            // Where each throw leads, said before the first one is made. The
+            // side the throw is heading for lights up as it goes.
+            swipeHints
 
-                CardBackFactsView(learningCardID: card.learningCardID, store: store)
-            }
-
-            Spacer()
-
-            if state.isAnswerRevealed {
-                ratingButtons(disabled: state.isCommitting)
-            } else {
-                Button(L10n.studyReveal) {
-                    runner.revealAnswer()
-                }
-                .buttonStyle(.borderedProminent)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
-            }
+            Spacer(minLength: 0)
 
             if runner.lastCommitFailed {
                 Text(L10n.studyNotSaved)
                     .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.75))
                     .accessibilityIdentifier(AccessibilityIdentifier.studyNotSaved)
             }
+
+            if state.isAnswerRevealed {
+                // The swipe reaches two of the four ratings; these reach all of
+                // them, and they are the only way in for VoiceOver.
+                ratingButtons(disabled: state.isCommitting)
+            } else {
+                // The button says it will show the answer, so it turns the
+                // card over. Unlocking the ratings without turning it left the
+                // learner looking at the same flag and no answer anywhere.
+                Button(L10n.studyReveal) {
+                    runner.revealAnswer()
+                    isShowingBack = true
+                }
+                    .font(DesignTokens.Typography.body.weight(.semibold))
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: DesignTokens.Layout.actionHeight)
+                    .background(.white, in: Capsule())
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
+            }
         }
-        .padding(DesignTokens.Spacing.large)
-        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
-        // Reduce Motion replaces the flip with a plain change rather than
-        // animating a smaller version of it.
         .animation(reduceMotion ? nil : .default, value: state.isAnswerRevealed)
+        // The one this moment is given in docs/16, §6.
+        .sensoryFeedback(.impact(flexibility: .soft), trigger: state.isAnswerRevealed) { _, revealed in
+            revealed
+        }
+        .task(id: card.promptAssetID) { await loadPalette(for: card) }
+        .sheet(isPresented: $isShowingDetails) {
+            // The sheet was opened from the back of the card; leaving it face
+            // down would strand the reader on a side with nothing left to do.
+            isShowingBack = false
+        } content: {
+            StudyDetailsSheet(card: card, store: store, assets: assets)
+        }
     }
 
+    /// The standing answer to "what does a swipe do": again to the left,
+    /// good to the right, each hint brightening as a throw heads its way.
+    private var swipeHints: some View {
+        HStack {
+            SwipeHintChip(
+                symbol: "arrow.counterclockwise",
+                text: L10n.studyRating(.again),
+                tint: .red,
+                isLeading: true,
+                emphasis: max(-swipeProgress, 0)
+            )
+
+            Spacer()
+
+            SwipeHintChip(
+                symbol: "checkmark",
+                text: L10n.studyRating(.good),
+                tint: .green,
+                isLeading: false,
+                emphasis: max(swipeProgress, 0)
+            )
+        }
+        .padding(.top, DesignTokens.Spacing.small)
+        .accessibilityHidden(true)
+    }
+
+    /// The counter and the way out, as capsules over the scene.
+    private func hud(state: StudySessionState) -> some View {
+        HStack {
+            Text(L10n.studyProgress(state.position, state.cards.count))
+                .font(DesignTokens.Typography.caption.weight(.medium))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
+                .background(.ultraThinMaterial, in: Capsule())
+                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
+
+            Spacer()
+
+            Button {
+                onFinish()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(DesignTokens.Typography.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(
+                        width: DesignTokens.Layout.minimumTouchTarget,
+                        height: DesignTokens.Layout.minimumTouchTarget
+                    )
+                    .background(.ultraThinMaterial, in: Circle())
+            }
+            .accessibilityLabel(L10n.studyClose)
+            .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
+        }
+    }
+
+    private func loadPalette(for card: StudySessionCardRecord) async {
+        guard let record = await store.asset(id: card.promptAssetID) else { return }
+        palette = await FlagPaletteReader.palette(for: record, assets: assets) ?? .neutral
+    }
+
+    /// One pane of glass holding four targets rather than four floating
+    /// buttons: the row is a single object the thumb learns the position of,
+    /// and the material behind it belongs to the scene rather than to each
+    /// button separately.
     private func ratingButtons(disabled: Bool) -> some View {
-        HStack(spacing: DesignTokens.Spacing.small) {
+        HStack(spacing: DesignTokens.Spacing.extraSmall) {
             ForEach(StudyRating.allCases, id: \.self) { rating in
-                Button(L10n.studyRating(rating)) {
+                Button {
                     Task { await runner.rate(rating) }
+                } label: {
+                    VStack(spacing: DesignTokens.Spacing.extraSmall) {
+                        Image(systemName: symbol(for: rating))
+                            .font(DesignTokens.Typography.body)
+                            .symbolRenderingMode(.hierarchical)
+                        Text(L10n.studyRating(rating))
+                            .font(DesignTokens.Typography.caption)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: DesignTokens.Layout.actionHeight)
+                    // "Good" is the answer most cards get, so it is the one the
+                    // thumb finds without aiming.
+                    .foregroundStyle(rating == .good ? .black : .white)
+                    .background {
+                        if rating == .good {
+                            Capsule(style: .continuous).fill(.white)
+                        }
+                    }
+                    .contentShape(Capsule(style: .continuous))
                 }
-                .buttonStyle(.bordered)
-                .frame(maxWidth: .infinity, minHeight: DesignTokens.Layout.minimumTouchTarget)
                 // The buttons are disabled rather than hidden while a rating is
                 // written, so a second tap lands on nothing and the layout does
                 // not jump under the learner's finger.
                 .disabled(disabled)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyRating(rating))
             }
+        }
+        .padding(DesignTokens.Spacing.extraSmall)
+        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+        .overlay {
+            Capsule(style: .continuous)
+                .strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
+        }
+    }
+
+    /// Shape as well as word: the spec forbids colour as the only carrier, and
+    /// a symbol is what a hand reaches for before it reads.
+    private func symbol(for rating: StudyRating) -> String {
+        switch rating {
+        case .again: "arrow.counterclockwise"
+        case .hard: "tortoise"
+        case .good: "checkmark"
+        case .easy: "hare"
+        }
+    }
+}
+
+/// One side of the deck's promise: the rating a throw that way commits.
+///
+/// Quiet until the throw starts — the chips are furniture, not buttons — and
+/// never the only carrier: the arrow, the word and the side say the same
+/// thing the colour does.
+private struct SwipeHintChip: View {
+    let symbol: String
+    let text: String
+    let tint: Color
+    let isLeading: Bool
+    /// 0...1, how far the current throw has gone this way.
+    let emphasis: CGFloat
+
+    var body: some View {
+        HStack(spacing: DesignTokens.Spacing.extraSmall) {
+            if isLeading {
+                Image(systemName: "chevron.left")
+                Image(systemName: symbol)
+                Text(text)
+            } else {
+                Text(text)
+                Image(systemName: symbol)
+                Image(systemName: "chevron.right")
+            }
+        }
+        .font(DesignTokens.Typography.caption.weight(.medium))
+        .foregroundStyle(.white.opacity(0.4 + 0.6 * emphasis))
+        .padding(.horizontal, DesignTokens.Spacing.medium)
+        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.7)
+        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+        .overlay {
+            Capsule(style: .continuous)
+                .fill(tint.opacity(DesignTokens.Card.swipeWashOpacity * 0.7 * emphasis))
+                .allowsHitTesting(false)
         }
     }
 }
@@ -128,36 +299,100 @@ struct StudySessionResultView: View {
     let summary: StudySessionSummary
     let onDone: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var hasArrived = false
+
     var body: some View {
-        VStack(spacing: DesignTokens.Spacing.medium) {
-            Text(L10n.studyResultTitle)
-                .font(DesignTokens.Typography.screenTitle)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyResultTitle)
+        VStack(spacing: DesignTokens.Spacing.large) {
+            Spacer(minLength: 0)
 
-            // Counted from the reviews that were stored, so a session left
-            // unfinished reports what really happened.
-            Text(L10n.studyResultAnswered(summary.answeredCards, summary.plannedCards))
-                .font(DesignTokens.Typography.body)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
+            VStack(spacing: DesignTokens.Spacing.small) {
+                Text(L10n.studyResultTitle)
+                    .font(DesignTokens.Typography.caption)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.white.opacity(0.7))
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyResultTitle)
 
-            ForEach(StudyRating.allCases, id: \.self) { rating in
-                HStack {
-                    Text(L10n.studyRating(rating))
-                    Spacer()
-                    Text("\(summary.ratings[rating] ?? 0)")
+                // The number is the screen. Everything else on it explains the
+                // number.
+                HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
+                    Text("\(summary.answeredCards)")
+                        .font(DesignTokens.Typography.resultScore)
+                        .monospacedDigit()
+                    Text("/ \(summary.plannedCards)")
+                        .font(DesignTokens.Typography.sectionTitle)
+                        .foregroundStyle(.white.opacity(0.55))
                 }
-                .font(DesignTokens.Typography.body)
+                .foregroundStyle(.white)
+                .scaleEffect(hasArrived || reduceMotion ? 1 : 0.86)
+
+                // The sentence stays for anyone reading rather than glancing,
+                // and for the test that reads it.
+                Text(L10n.studyResultAnswered(summary.answeredCards, summary.plannedCards))
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.7))
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
+            }
+
+            distribution
+
+            Spacer(minLength: 0)
+
+            Button(L10n.studyResultDone, action: onDone)
+                .font(DesignTokens.Typography.body.weight(.semibold))
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: DesignTokens.Layout.actionHeight)
+                .background(.white, in: Capsule(style: .continuous))
+                .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
+        }
+        .onAppear { hasArrived = true }
+        .animation(reduceMotion ? nil : .bouncy(duration: 0.5), value: hasArrived)
+        // Finishing is one of the two moments docs/16 gives a success
+        // notification to.
+        .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
+    }
+
+    /// How the session went, rating by rating.
+    ///
+    /// Bars rather than a list of numbers: which way a session leaned is a
+    /// shape, and reading four numbers to find it is work the screen can do.
+    private var distribution: some View {
+        VStack(spacing: DesignTokens.Spacing.small) {
+            ForEach(StudyRating.allCases, id: \.self) { rating in
+                let count = summary.ratings[rating] ?? 0
+                HStack(spacing: DesignTokens.Spacing.small) {
+                    Text(L10n.studyRating(rating))
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.8))
+                        .frame(width: DesignTokens.Layout.ratingLabelWidth, alignment: .leading)
+
+                    GeometryReader { proxy in
+                        Capsule()
+                            .fill(.white.opacity(rating == .good ? 0.9 : 0.45))
+                            .frame(width: proxy.size.width * fraction(count))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(height: DesignTokens.Spacing.small)
+
+                    Text("\(count)")
+                        .font(DesignTokens.Typography.caption)
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .frame(width: DesignTokens.Spacing.large, alignment: .trailing)
+                }
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyResultRating(rating))
             }
-
-            Button(L10n.studyResultDone, action: onDone)
-                .buttonStyle(.borderedProminent)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
         }
-        .padding(DesignTokens.Spacing.large)
-        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+        .padding(DesignTokens.Spacing.medium)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous))
+    }
+
+    private func fraction(_ count: Int) -> CGFloat {
+        let highest = summary.ratings.values.max() ?? 0
+        guard highest > 0 else { return 0 }
+        return CGFloat(count) / CGFloat(highest)
     }
 }
 
@@ -167,21 +402,91 @@ struct StudyUnavailableView: View {
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
+            Spacer(minLength: 0)
+
+            Image(systemName: symbol)
+                .font(DesignTokens.Typography.screenTitle)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white.opacity(0.8))
+
             Text(title)
                 .font(DesignTokens.Typography.sectionTitle)
+                .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyUnavailable)
+
+            Spacer(minLength: 0)
+
             Button(L10n.studyResultDone, action: onDone)
-                .buttonStyle(.bordered)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                .font(DesignTokens.Typography.body.weight(.semibold))
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: DesignTokens.Layout.actionHeight)
+                .background(.white, in: Capsule(style: .continuous))
         }
-        .padding(DesignTokens.Spacing.large)
     }
 
     private var title: String {
         switch failure {
         case .noUsableCards: L10n.studyNoCards
         case .storeUnavailable: L10n.studyStoreUnavailable
+        }
+    }
+
+    /// Shape as well as words: an empty deck and a store that will not open are
+    /// different problems and should not look like the same one.
+    private var symbol: String {
+        switch failure {
+        case .noUsableCards: "checkmark.circle"
+        case .storeUnavailable: "exclamationmark.triangle"
+        }
+    }
+}
+
+/// What the session looks like while it is being put together.
+///
+/// A card-shaped placeholder rather than a spinner: the screen already knows
+/// the shape it will take, so it takes it, and the cards arrive into it instead
+/// of replacing it. The table in docs/16 §7 asks for exactly this and names the
+/// spinner over content as the thing not to build.
+struct StudyLoadingView: View {
+    let onClose: () -> Void
+
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.large) {
+            HStack {
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .frame(width: DesignTokens.Layout.progressPlaceholderWidth, height: DesignTokens.Layout.minimumTouchTarget * 0.75)
+                Spacer()
+                Button(action: onClose) {
+                    Image(systemName: "xmark")
+                        .font(DesignTokens.Typography.caption.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(
+                            width: DesignTokens.Layout.minimumTouchTarget,
+                            height: DesignTokens.Layout.minimumTouchTarget
+                        )
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+                .accessibilityLabel(L10n.studyClose)
+                .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
+            }
+
+            Spacer(minLength: 0)
+
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .accessibilityLabel(L10n.contentLoading)
+                .accessibilityIdentifier(AccessibilityIdentifier.contentLoadingLabel)
+
+            Spacer(minLength: 0)
+
+            Capsule()
+                .fill(.ultraThinMaterial)
+                .frame(height: DesignTokens.Layout.actionHeight)
         }
     }
 }

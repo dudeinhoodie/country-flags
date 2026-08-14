@@ -94,6 +94,12 @@ public final class StudySessionRunner {
     private func resume(deckID: UUID) async -> Bool {
         guard let session = try? await learning.activeSession(for: resolvedScope),
             session.deckID == deckID,
+            // A session belongs to the mode that started it. Without this
+            // check an unfinished quiz was picked up as a deck of cards, and
+            // its reviews were recorded as self-rated answers inside a
+            // multiple-choice session — a contract violation waiting for the
+            // first upload.
+            session.mode == StudyAnswerMode.selfRated.rawValue,
             !session.cards.isEmpty
         else {
             return false
@@ -176,11 +182,22 @@ public final class StudySessionRunner {
             cards: snapshot
         )
 
+        // Whatever was active is not being resumed — a different deck, or a
+        // different mode — so it is closed rather than left active forever:
+        // an orphaned active session would be the one `activeSession` answers
+        // with on some later launch. Read before the new session is saved,
+        // because afterwards the active session is the new one.
+        let stale = try? await learning.activeSession(for: resolvedScope)
+
         do {
             try await learning.saveSession(session, for: resolvedScope)
         } catch {
             startFailure = .storeUnavailable
             return
+        }
+
+        if let stale, stale.id != sessionID {
+            await abandon(stale)
         }
 
         startFailure = nil
@@ -189,6 +206,25 @@ public final class StudySessionRunner {
             deckID: deckID,
             cards: snapshot,
             phase: .front(index: 0)
+        )
+    }
+
+    /// The answers already committed stay committed; only the lifecycle moves.
+    private func abandon(_ session: StudySessionRecord) async {
+        try? await learning.saveSession(
+            StudySessionRecord(
+                id: session.id,
+                deckID: session.deckID,
+                mode: session.mode,
+                selectionOrigin: session.selectionOrigin,
+                requestedUniqueCount: session.requestedUniqueCount,
+                status: StudySessionStatus.abandoned.rawValue,
+                contentVersion: session.contentVersion,
+                startedAt: session.startedAt,
+                completedAt: dates.now(),
+                cards: session.cards
+            ),
+            for: resolvedScope
         )
     }
 

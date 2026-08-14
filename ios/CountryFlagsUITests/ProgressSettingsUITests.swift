@@ -48,8 +48,10 @@ final class ProgressSettingsUITests: XCTestCase {
         )
         app.buttons["study.rating.GOOD"].tap()
 
-        // Back to home, then into progress.
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        // Back to home, then into progress. The session screen has no
+        // navigation bar any more — the flag is the screen — so leaving it is
+        // the close control rather than a back button.
+        app.buttons["study.close"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         openProgress(in: app)
 
@@ -102,7 +104,8 @@ final class ProgressSettingsUITests: XCTestCase {
     }
 
     private func openProgress(in app: XCUIApplication) {
-        let progress = app.buttons["home.openProgress"]
+        // Progress lives on the tab bar now.
+        let progress = app.tabBars.buttons["Progress"]
         XCTAssertTrue(progress.waitForExistence(timeout: 30), app.debugDescription)
         progress.tap()
     }

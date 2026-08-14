@@ -12,14 +12,22 @@ struct ContentStatusBanner: View {
 
     var body: some View {
         if let message {
-            Text(message)
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, DesignTokens.Spacing.medium)
-                .padding(.vertical, DesignTokens.Spacing.small)
-                .background(.quaternary, in: .rect(cornerRadius: DesignTokens.Radius.small))
-                .accessibilityIdentifier(AccessibilityIdentifier.contentStatusBanner)
+            Label {
+                Text(message)
+                    .font(DesignTokens.Typography.caption)
+                    .accessibilityIdentifier(AccessibilityIdentifier.contentStatusBanner)
+            } icon: {
+                Image(systemName: "exclamationmark.circle")
+                    .symbolRenderingMode(.hierarchical)
+            }
+            .foregroundStyle(.white.opacity(0.75))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, DesignTokens.Spacing.medium)
+            .padding(.vertical, DesignTokens.Spacing.small)
+            .background(
+                .ultraThinMaterial,
+                in: .rect(cornerRadius: DesignTokens.Radius.medium, style: .continuous)
+            )
         }
     }
 
@@ -44,7 +52,7 @@ struct SyncStatusLine: View {
         if let message {
             Text(message)
                 .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.6))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityIdentifier(AccessibilityIdentifier.syncStatus)
         }
@@ -64,21 +72,35 @@ struct SyncStatusLine: View {
 }
 
 /// What a screen shows when there is nothing stored to show.
+///
+/// The same shape as the one a session shows when it cannot start: a symbol,
+/// what happened, what to do about it, and at most one button. A learner who
+/// meets both in the same week should recognise the second from the first.
 struct ContentUnavailableStateView: View {
     let failure: ContentSyncFailure?
     let retry: () async -> Void
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
+            Spacer(minLength: 0)
+
+            Image(systemName: symbol)
+                .font(DesignTokens.Typography.screenTitle)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white.opacity(0.8))
+
             Text(title)
                 .font(DesignTokens.Typography.sectionTitle)
+                .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier(AccessibilityIdentifier.contentPlaceholderTitle)
 
             Text(message)
                 .font(DesignTokens.Typography.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.65))
                 .multilineTextAlignment(.center)
+
+            Spacer(minLength: 0)
 
             // A retry that cannot help is not offered: an outdated build is
             // fixed in the App Store, not by asking again.
@@ -86,13 +108,25 @@ struct ContentUnavailableStateView: View {
                 Button(L10n.contentRetry) {
                     Task { await retry() }
                 }
-                .buttonStyle(.borderedProminent)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                .buttonStyle(PrimaryActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.contentRetryButton)
             }
         }
-        .padding(DesignTokens.Spacing.large)
         .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+        .frame(maxWidth: .infinity)
+        .padding(DesignTokens.Spacing.large)
+        .sceneChrome()
+    }
+
+    /// Shape as well as words: being offline and being out of date are
+    /// different problems and must not look like the same one.
+    private var symbol: String {
+        switch failure {
+        case .offline: "wifi.slash"
+        case .clientTooOld: "arrow.down.circle"
+        case .recoverable: "exclamationmark.triangle"
+        case nil: "tray"
+        }
     }
 
     private var title: String {
@@ -114,16 +148,31 @@ struct ContentUnavailableStateView: View {
     }
 }
 
+/// What a browsing screen looks like while it is being filled.
+///
+/// Blocks in the proportions the screen will have rather than a spinner: the
+/// layout is already known, so it is drawn, and the content arrives into it.
+/// The label is kept for the reader who is being spoken to rather than shown.
 struct ContentLoadingStateView: View {
     var body: some View {
-        VStack(spacing: DesignTokens.Spacing.medium) {
-            ProgressView()
-            Text(L10n.contentLoading)
-                .font(DesignTokens.Typography.body)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier(AccessibilityIdentifier.contentLoadingLabel)
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.large) {
+            SkeletonBlock(height: DesignTokens.Layout.actionHeight * 2.5)
+
+            VStack(spacing: DesignTokens.Spacing.small) {
+                ForEach(0..<3, id: \.self) { _ in
+                    SkeletonBlock(height: DesignTokens.Layout.actionHeight * 1.4)
+                }
+            }
+
+            Spacer(minLength: 0)
         }
+        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+        .frame(maxWidth: .infinity)
         .padding(DesignTokens.Spacing.large)
+        .accessibilityElement()
+        .accessibilityLabel(L10n.contentLoading)
+        .accessibilityIdentifier(AccessibilityIdentifier.contentLoadingLabel)
+        .sceneChrome()
     }
 }
 
@@ -138,6 +187,11 @@ struct FlagImageView: View {
     let accessibilityLabel: String
     let store: ContentStore
     let assets: any AssetLoading
+    /// `.fit` everywhere the flag is the subject — nothing crops or stretches
+    /// it. `.fill` exists for one job: painting a ground out of the flag's own
+    /// colours behind the flag itself, where the crop is the point and the
+    /// result is never read as the flag.
+    var contentMode: ContentMode = .fit
 
     @State private var image: Image?
     @State private var didFail = false
@@ -149,7 +203,7 @@ struct FlagImageView: View {
                     .resizable()
                     // A flag is a rectangle with a meaning; stretching it is a
                     // different flag.
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: contentMode)
             } else {
                 placeholder
             }
@@ -164,11 +218,12 @@ struct FlagImageView: View {
     }
 
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: DesignTokens.Radius.small)
-            .fill(.quaternary)
+        RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
+            .fill(.ultraThinMaterial)
             .overlay {
                 Image(systemName: didFail ? "flag.slash" : "flag")
-                    .foregroundStyle(.secondary)
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.white.opacity(0.5))
             }
     }
 
@@ -176,6 +231,11 @@ struct FlagImageView: View {
         guard let record = await store.asset(id: assetID),
             let resolved = await FlagImageResolver(assets: assets).image(for: record)
         else {
+            // The previous flag is cleared rather than left behind: this view
+            // keeps its identity across cards in the quiz, and a failure that
+            // kept the old image would put one country's flag over another
+            // country's question.
+            image = nil
             didFail = true
             return
         }

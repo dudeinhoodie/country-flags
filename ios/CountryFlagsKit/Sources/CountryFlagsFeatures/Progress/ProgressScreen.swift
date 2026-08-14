@@ -25,6 +25,9 @@ public struct ProgressScreen: View {
         content
             .navigationTitle(L10n.progressTitle)
             .task { await store.load() }
+            // The screen lives on a tab now and survives between visits, so
+            // what changed while it was covered is re-read on the way back in.
+            .onAppear { Task { await store.load() } }
     }
 
     @ViewBuilder
@@ -34,7 +37,7 @@ public struct ProgressScreen: View {
         } else if store.hasNoProgress {
             empty
         } else {
-            list
+            loaded
         }
     }
 
@@ -42,39 +45,87 @@ public struct ProgressScreen: View {
     /// looks like a screen that failed to load.
     private var empty: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
+            Spacer(minLength: 0)
+
             Image(systemName: "chart.bar")
-                .font(.largeTitle)
-                .foregroundStyle(.secondary)
+                .font(DesignTokens.Typography.screenTitle)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white.opacity(0.8))
+
             Text(L10n.progressEmptyTitle)
                 .font(DesignTokens.Typography.sectionTitle)
+                .foregroundStyle(.white)
                 .accessibilityIdentifier(AccessibilityIdentifier.progressEmpty)
+
             Text(L10n.progressEmptyBody)
                 .font(DesignTokens.Typography.body)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.65))
+
+            Spacer(minLength: 0)
         }
+        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+        .frame(maxWidth: .infinity)
         .padding(DesignTokens.Spacing.large)
+        .sceneChrome()
     }
 
-    private var list: some View {
-        List {
-            Section(L10n.progressDecksSection) {
+    private var loaded: some View {
+        SceneScrollView {
+            // The hero is what has actually been learned across every deck: the
+            // per-deck rows underneath answer "where", and this answers "how
+            // much", which is the question the screen is opened with.
+            GlassCard(padding: DesignTokens.Spacing.large) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                    SectionLabel(L10n.progressStudiedLabel)
+                    Text("\(studiedCards)")
+                        .font(DesignTokens.Typography.heroNumber)
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                        .foregroundStyle(.white)
+                    Text(L10n.progressDeckCounts(studiedCards, totalCards))
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                .accessibilityElement(children: .combine)
+            }
+
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                SectionLabel(L10n.progressDecksSection)
                 ForEach(store.decks) { deck in
-                    DeckProgressRowView(deck: deck)
-                        .accessibilityIdentifier(
-                            AccessibilityIdentifier.progressDeckRow(deck.code)
-                        )
+                    GlassCard(padding: DesignTokens.Spacing.medium) {
+                        // The identifier goes on the row, not on the card
+                        // around it: an identifier on a plain SwiftUI container
+                        // is handed to every descendant and overwrites theirs.
+                        DeckProgressRowView(deck: deck)
+                            .accessibilityIdentifier(
+                                AccessibilityIdentifier.progressDeckRow(deck.code)
+                            )
+                    }
                 }
             }
 
             if !store.achievements.isEmpty {
-                Section(L10n.progressAchievementsSection) {
-                    ForEach(store.achievements) { achievement in
-                        AchievementRowView(achievement: achievement)
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                    SectionLabel(L10n.progressAchievementsSection)
+                    GlassCard(padding: DesignTokens.Spacing.medium) {
+                        VStack(spacing: DesignTokens.Spacing.medium) {
+                            ForEach(store.achievements) { achievement in
+                                AchievementRowView(achievement: achievement)
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    private var studiedCards: Int {
+        store.decks.reduce(0) { $0 + $1.startedCards }
+    }
+
+    private var totalCards: Int {
+        store.decks.reduce(0) { $0 + $1.totalCards }
     }
 }
 
@@ -85,30 +136,45 @@ struct DeckProgressRowView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
             HStack {
                 Text(deck.name)
-                    .font(DesignTokens.Typography.body)
+                    .font(DesignTokens.Typography.sectionTitle)
+                    .foregroundStyle(.white)
                 Spacer()
                 if let tier = deck.masteryTier {
                     MasteryTierLabel(tier: tier)
                 }
             }
 
-            ProgressView(value: deck.fraction)
-                .tint(.accentColor)
+            // A bar drawn rather than a system indicator: on glass the platform
+            // one brings its own tinted track, which reads as a second material
+            // sitting on the first.
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(.white.opacity(0.15))
+                    Capsule()
+                        .fill(.white)
+                        .frame(width: proxy.size.width * deck.fraction)
+                }
+            }
+            .frame(height: DesignTokens.Layout.progressBarHeight)
 
-            Text(L10n.progressDeckCounts(deck.startedCards, deck.totalCards))
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier(
-                    AccessibilityIdentifier.progressDeckCounts(deck.code)
-                )
-
-            if deck.dueCards > 0 {
-                Text(L10n.progressDeckDue(deck.dueCards))
+            HStack(spacing: DesignTokens.Spacing.small) {
+                Text(L10n.progressDeckCounts(deck.startedCards, deck.totalCards))
                     .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .accessibilityIdentifier(
+                        AccessibilityIdentifier.progressDeckCounts(deck.code)
+                    )
+
+                if deck.dueCards > 0 {
+                    Text(L10n.progressDeckDue(deck.dueCards))
+                        .font(DesignTokens.Typography.caption.weight(.medium))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, DesignTokens.Spacing.small)
+                        .padding(.vertical, DesignTokens.Spacing.extraSmall)
+                        .background(.white.opacity(0.15), in: Capsule())
+                }
             }
         }
-        .padding(.vertical, DesignTokens.Spacing.small)
         // The bar is decoration for a number that is already spoken; reading
         // both would say the same thing twice.
         .accessibilityElement(children: .combine)
@@ -126,12 +192,15 @@ struct MasteryTierLabel: View {
     var body: some View {
         Label {
             Text(name)
-                .font(DesignTokens.Typography.caption)
+                .font(DesignTokens.Typography.caption.weight(.medium))
         } icon: {
             Image(systemName: tier.isKnown ? "rosette" : "questionmark.circle")
         }
         .labelStyle(.titleAndIcon)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.white.opacity(0.85))
+        .padding(.horizontal, DesignTokens.Spacing.small)
+        .padding(.vertical, DesignTokens.Spacing.extraSmall)
+        .background(.white.opacity(0.12), in: Capsule())
     }
 
     private var name: String {
@@ -150,17 +219,26 @@ struct AchievementRowView: View {
     let achievement: AchievementRow
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+        HStack(spacing: DesignTokens.Spacing.medium) {
+            Image(systemName: "rosette")
+                .font(DesignTokens.Typography.sectionTitle)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white)
+                .frame(width: DesignTokens.Spacing.large)
+
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
                 Text(achievement.code)
                     .font(DesignTokens.Typography.body)
+                    .foregroundStyle(.white)
                 if let earnedAt = achievement.earnedAt {
                     Text(earnedAt.formatted(date: .abbreviated, time: .omitted))
                         .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.6))
                 }
             }
-            Spacer()
+
+            Spacer(minLength: 0)
+
             if let tier = achievement.tier {
                 MasteryTierLabel(tier: tier)
             }

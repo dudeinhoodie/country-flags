@@ -20,7 +20,8 @@ final class ContentBrowseUITests: XCTestCase {
         let homeDeck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(homeDeck.waitForExistence(timeout: 30), app.debugDescription)
 
-        app.buttons["home.openCatalog"].tap()
+        // The catalog lives on the tab bar now.
+        app.tabBars.buttons["Catalog"].tap()
 
         let catalogDeck = app.buttons["catalog.deck.EUROPE"]
         XCTAssertTrue(catalogDeck.waitForExistence(timeout: 10), app.debugDescription)

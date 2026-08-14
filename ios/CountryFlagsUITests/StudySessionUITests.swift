@@ -85,6 +85,36 @@ final class StudySessionUITests: XCTestCase {
         )
     }
 
+    /// The gesture the deck exists for: a card that has been turned over is
+    /// answered by throwing it, and the session moves on. The buttons are
+    /// tested above; this is the path a hand actually takes.
+    func testARevealedCardIsAnsweredBySwipingIt() {
+        let app = launch(arguments: ["-reset-store"])
+        openDeck(in: app)
+        app.buttons["study.start"].tap()
+
+        XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 30), app.debugDescription)
+        let firstPosition = app.staticTexts["study.progress"].label
+
+        // Matched by identifier across every element type: how SwiftUI
+        // classifies an accessibility container is its business, not a promise
+        // the product makes.
+        let card = app.descendants(matching: .any)
+            .matching(identifier: "study.card")
+            .firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 10), app.debugDescription)
+        // Answering without turning the card over is the case the deck exists
+        // for: a flag recognised on sight is thrown away, not read.
+        card.swipeRight()
+
+        XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertNotEqual(
+            app.staticTexts["study.progress"].label,
+            firstPosition,
+            app.debugDescription
+        )
+    }
+
     private func openDeck(in app: XCUIApplication) {
         let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
