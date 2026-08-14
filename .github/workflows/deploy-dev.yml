@@ -162,7 +162,9 @@ jobs:
           # No Google OAuth client exists for dev yet (#58 provisions it). The
           # value is deliberately one no token can carry, so a provider sign-in
           # is refused rather than accepted against the wrong client.
-          GOOGLE_CLIENT_IDS: placeholder.apps.googleusercontent.com
+          # The backend's own OAuth client: the audience Google mints the
+          # app's identity tokens for. A public identifier, not a secret.
+          GOOGLE_CLIENT_IDS: 337239833704-r2eed1a28ggnmri1md2hqp2hgm11236h.apps.googleusercontent.com
 
       # Deployed is not the same as working. The revision has to answer before
       # the run is called a success, or a broken image would be reported green.
