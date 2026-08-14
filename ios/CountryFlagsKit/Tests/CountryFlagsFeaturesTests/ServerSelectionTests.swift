@@ -1,0 +1,201 @@
+import XCTest
+
+import CountryFlagsDomain
+@testable import CountryFlagsFeatures
+
+/// The backend composes when it can; the device composes when it must. These
+/// pin the boundary: who is asked, what happens to the answer, and that every
+/// failure lands on the local path rather than on the learner.
+@MainActor
+final class ServerSelectionTests: XCTestCase {
+    private let deckID = UUID(uuidString: "40000000-0000-4000-8000-000000000001")!
+    private let userID = UUID(uuidString: "20000000-0000-4000-8000-000000000001")!
+
+    func testAnAuthenticatedRunnerStudiesTheServersComposition() async {
+        let learning = RecordingLearningRepository()
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID))
+        )
+        let runner = makeRunner(learning: learning, selection: selection, authenticated: true)
+
+        await runner.startOrResume(deckID: deckID, size: .ten)
+
+        XCTAssertEqual(runner.state?.sessionID, Fixtures.serverSessionID)
+        XCTAssertEqual(runner.state?.cards.count, 2)
+        // The composition is stored the way a local one is, which is what
+        // makes a relaunch resume it without knowing who composed it.
+        let saved = await learning.sessions
+        XCTAssertEqual(saved.first?.selectionOrigin, "SERVER")
+    }
+
+    /// Offline, a refusal, anything: the device composes, the way it always
+    /// could. The learner sees a session either way.
+    func testAServerFailureFallsBackToTheLocalComposition() async {
+        let learning = RecordingLearningRepository()
+        let selection = ScriptedSelection(result: .failure(Fixtures.Offline()))
+        let runner = makeRunner(learning: learning, selection: selection, authenticated: true)
+
+        await runner.startOrResume(deckID: deckID, size: .five)
+
+        XCTAssertNotNil(runner.state)
+        let saved = await learning.sessions
+        XCTAssertEqual(saved.first?.selectionOrigin, "CLIENT_OFFLINE")
+    }
+
+    /// A guest has nothing on the server to select from, and asking would put
+    /// an unauthenticated request on the wire for nothing.
+    func testAGuestNeverAsksTheServer() async {
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID))
+        )
+        let runner = makeRunner(
+            learning: RecordingLearningRepository(),
+            selection: selection,
+            authenticated: false
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .five)
+
+        let calls = await selection.serverSessionCalls
+        XCTAssertEqual(calls, 0)
+        XCTAssertNotNil(runner.state)
+    }
+
+    /// An empty server answer is not a session; the local half decides
+    /// whether there is anything to study.
+    func testAnEmptyServerSessionFallsBackLocally() async {
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
+        )
+        let runner = makeRunner(
+            learning: RecordingLearningRepository(),
+            selection: selection,
+            authenticated: true
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .five)
+
+        XCTAssertNotNil(runner.state)
+        XCTAssertEqual(runner.state?.cards.isEmpty, false)
+    }
+
+    // MARK: - Harness
+
+    private func makeRunner(
+        learning: RecordingLearningRepository,
+        selection: ScriptedSelection,
+        authenticated: Bool
+    ) -> StudySessionRunner {
+        StudySessionRunner(
+            scopes: SelectableScopeResolver(
+                scope: authenticated
+                    ? .authenticated(userID: userID)
+                    : .guest(installationID: UUID())
+            ),
+            content: FakeContentRepository(
+                decks: [Fixtures.deck(id: deckID)],
+                cards: [deckID: (0..<5).map { Fixtures.card(index: $0) }]
+            ),
+            learning: learning,
+            selection: selection,
+            dates: FixedDates(instant: Date(timeIntervalSince1970: 1_800_000_000)),
+            identifiers: SequentialUUIDProvider()
+        )
+    }
+}
+
+// MARK: - Doubles
+
+private struct SelectableScopeResolver: AccountScopeResolving {
+    let scope: AccountScope
+    func currentScope() async -> AccountScope { scope }
+}
+
+private actor ScriptedSelection: StudySessionSelecting {
+    private let result: Result<StudySessionRecord, any Error>
+    private(set) var serverSessionCalls = 0
+    private(set) var completedSessions: [UUID] = []
+
+    init(result: Result<StudySessionRecord, any Error>) {
+        self.result = result
+    }
+
+    func serverSession(
+        id: UUID,
+        deckID: UUID,
+        size: StudySessionSize,
+        mode: StudyAnswerMode
+    ) async throws -> StudySessionRecord {
+        serverSessionCalls += 1
+        return try result.get()
+    }
+
+    func completeSession(id: UUID) async {
+        completedSessions.append(id)
+    }
+}
+
+private enum Fixtures {
+    struct Offline: Error {}
+
+    static let serverSessionID = UUID(uuidString: "80000000-0000-4000-8000-000000000001")!
+
+    static func deck(id: UUID) -> DeckRecord {
+        DeckRecord(
+            id: id,
+            code: "ALL",
+            kind: "CURATED",
+            name: "All countries",
+            deckDescription: "",
+            cardCount: 5,
+            contentVersion: "fixture-v2",
+            sortOrder: 0
+        )
+    }
+
+    static func card(index: Int) -> LearningCardRecord {
+        LearningCardRecord(
+            id: UUID(uuidString: String(format: "50000000-0000-4000-8000-%012d", index))!,
+            subjectEntityID: UUID(),
+            templateCode: "FLAG_TO_COUNTRY",
+            templateSchemaVersion: 1,
+            semanticVersion: 1,
+            revision: 1,
+            answerMode: "SELF_RATED",
+            promptAssetID: UUID(),
+            displayName: "Country \(index)",
+            aliases: [],
+            contentVersion: "fixture-v2",
+            isRetired: false
+        )
+    }
+
+    static func serverSession(deckID: UUID, cardCount: Int = 2) -> StudySessionRecord {
+        StudySessionRecord(
+            id: serverSessionID,
+            deckID: deckID,
+            mode: "SELF_RATED",
+            selectionOrigin: "SERVER",
+            requestedUniqueCount: 10,
+            status: "ACTIVE",
+            contentVersion: "fixture-v2",
+            startedAt: Date(timeIntervalSince1970: 1_800_000_000),
+            completedAt: nil,
+            cards: (0..<cardCount).map { index in
+                StudySessionCardRecord(
+                    id: UUID(uuidString: String(format: "81000000-0000-4000-8000-%012d", index))!,
+                    learningCardID: UUID(
+                        uuidString: String(format: "82000000-0000-4000-8000-%012d", index)
+                    )!,
+                    initialOrder: index,
+                    selectionReason: "NEW",
+                    displayName: "Country \(index)",
+                    promptAssetID: UUID(),
+                    revision: 1,
+                    optionIDs: [],
+                    optionNames: []
+                )
+            }
+        )
+    }
+}
