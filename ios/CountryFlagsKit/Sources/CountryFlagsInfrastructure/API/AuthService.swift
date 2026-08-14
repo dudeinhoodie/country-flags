@@ -120,6 +120,7 @@ public struct AuthService: AuthenticationService {
         }
         return AuthSessionRecord(
             userID: userID,
+            displayName: payload.user.displayName,
             accessToken: payload.tokens.accessToken,
             accessTokenExpiresAt: payload.tokens.accessTokenExpiresAt,
             refreshToken: payload.tokens.refreshToken

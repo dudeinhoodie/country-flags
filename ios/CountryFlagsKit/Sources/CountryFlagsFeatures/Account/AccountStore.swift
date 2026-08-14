@@ -14,6 +14,8 @@ import CountryFlagsDomain
 @Observable
 public final class AccountStore {
     public private(set) var state: AuthenticationState = .guest
+    /// What the account calls itself, shown beside the avatar.
+    public private(set) var displayName: String?
     /// How the last import attempt ended, for the line under the account.
     public private(set) var migration: GuestMigrationOutcome?
     /// The last sign-in failure worth wording. Cancellation never lands here.
@@ -71,6 +73,7 @@ public final class AccountStore {
 
     public func start() async {
         state = await session.currentState()
+        displayName = await session.currentDisplayName()
         // A migration a previous launch left unsettled is finished here, not
         // on the next sign-in: the user already signed in once.
         if case .authenticated(let userID) = state {
@@ -96,6 +99,7 @@ public final class AccountStore {
         state = .authenticating(credential.provider)
         let outcome = await session.signIn(with: credential)
         state = await session.currentState()
+        displayName = await session.currentDisplayName()
         switch outcome {
         case .succeeded(let userID):
             migration = await migrations.importGuestWork(into: userID)
@@ -144,6 +148,7 @@ public final class AccountStore {
         signOutAssessment = nil
         await session.signOut(everywhere: everywhere)
         state = await session.currentState()
+        displayName = nil
         migration = nil
     }
 }

@@ -111,6 +111,10 @@ private actor ScriptedSession: SessionControlling {
 
     func currentState() async -> AuthenticationState { state }
 
+    func currentDisplayName() async -> String? {
+        state.isAuthenticated ? "Scripted Learner" : nil
+    }
+
     func signIn(with credential: ProviderCredential) async -> SignInOutcome {
         if case .succeeded(let userID) = outcome {
             state = .authenticated(userID: userID)

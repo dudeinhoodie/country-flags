@@ -40,6 +40,14 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
 
     public func currentState() async -> AuthenticationState { state }
 
+    public func currentDisplayName() async -> String? {
+        guard state.isAuthenticated else { return nil }
+        guard let name = try? await tokens.value(for: .accountDisplayName), !name.isEmpty else {
+            return nil
+        }
+        return name
+    }
+
     /// Restores what a previous launch left behind.
     ///
     /// A stored refresh token means an account, so the app reports itself as
@@ -92,6 +100,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         // holding a session it believes it no longer has.
         try? await tokens.setValue(nil, for: .refreshToken)
         try? await tokens.setValue(nil, for: .accountUserID)
+        try? await tokens.setValue(nil, for: .accountDisplayName)
         accessToken = nil
         state = .guest
     }
@@ -160,6 +169,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         state = .authenticated(userID: session.userID)
         try? await tokens.setValue(session.refreshToken, for: .refreshToken)
         try? await tokens.setValue(session.userID.uuidString, for: .accountUserID)
+        try? await tokens.setValue(session.displayName, for: .accountDisplayName)
     }
 
     private static func failure(from error: any Error) -> SignInFailure {

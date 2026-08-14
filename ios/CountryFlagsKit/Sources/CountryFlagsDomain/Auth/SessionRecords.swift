@@ -23,17 +23,21 @@ public enum ProviderCredential: Sendable {
 /// The session a successful exchange produced.
 public struct AuthSessionRecord: Hashable, Sendable {
     public let userID: UUID
+    /// What the account calls itself, when the backend knows.
+    public let displayName: String?
     public let accessToken: String
     public let accessTokenExpiresAt: Date
     public let refreshToken: String
 
     public init(
         userID: UUID,
+        displayName: String? = nil,
         accessToken: String,
         accessTokenExpiresAt: Date,
         refreshToken: String
     ) {
         self.userID = userID
+        self.displayName = displayName
         self.accessToken = accessToken
         self.accessTokenExpiresAt = accessTokenExpiresAt
         self.refreshToken = refreshToken
@@ -95,6 +99,9 @@ public protocol AuthenticationService: Sendable {
 /// can say who is signed in, not to gate what a learner may do.
 public protocol SessionControlling: Sendable {
     func currentState() async -> AuthenticationState
+    /// What the signed-in account calls itself, or nil as a guest — for the
+    /// screen alone, never for authorisation.
+    func currentDisplayName() async -> String?
     func signIn(with credential: ProviderCredential) async -> SignInOutcome
     /// - Parameter everywhere: also ends the sessions of the account's other
     ///   devices, which is the answer to a lost phone rather than to a normal

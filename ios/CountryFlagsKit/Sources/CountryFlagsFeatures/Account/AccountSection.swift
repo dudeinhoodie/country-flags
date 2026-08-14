@@ -57,9 +57,28 @@ struct AccountSection: View {
             }
             .accessibilityIdentifier(AccessibilityIdentifier.accountSigningIn)
         case .authenticated:
-            Label(L10n.accountSignedIn, systemImage: "person.crop.circle.badge.checkmark")
-                .foregroundStyle(.white)
-                .accessibilityIdentifier(AccessibilityIdentifier.accountSignedIn)
+            // The person, not a status line: an avatar and the name the
+            // account goes by, with the state as the caption under it.
+            HStack(spacing: DesignTokens.Spacing.medium) {
+                Image(systemName: "person.crop.circle.fill")
+                    .font(DesignTokens.Typography.screenTitle)
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.white)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(store.displayName ?? L10n.accountSignedIn)
+                        .font(DesignTokens.Typography.body.weight(.semibold))
+                        .foregroundStyle(.white)
+                    if store.displayName != nil {
+                        Text(L10n.accountSignedIn)
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
+                }
+            }
+            .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier(AccessibilityIdentifier.accountSignedIn)
 
             Button(L10n.accountSignOut, role: .destructive) {
                 Task { await store.requestSignOut() }
