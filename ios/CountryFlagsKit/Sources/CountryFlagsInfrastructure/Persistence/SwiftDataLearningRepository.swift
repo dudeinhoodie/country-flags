@@ -147,6 +147,24 @@ actor SwiftDataLearningRepository: LearningRepository {
         return try modelContext.fetch(descriptor).map(Self.record)
     }
 
+    func sessions(for scope: AccountScope) async throws -> [StudySessionRecord] {
+        let key = scope.key
+        let descriptor = FetchDescriptor<StoredStudySession>(
+            predicate: #Predicate { $0.scopeKey == key },
+            sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor).map(Self.record)
+    }
+
+    func reviews(for scope: AccountScope) async throws -> [ReviewEventRecord] {
+        let key = scope.key
+        let descriptor = FetchDescriptor<StoredReviewEvent>(
+            predicate: #Predicate { $0.scopeKey == key },
+            sortBy: [SortDescriptor(\.clientOccurredAt), SortDescriptor(\.clientSequence)]
+        )
+        return try modelContext.fetch(descriptor).map(Self.record)
+    }
+
     func recordReview(
         _ review: ReviewEventRecord,
         projectedState: CardStateRecord,

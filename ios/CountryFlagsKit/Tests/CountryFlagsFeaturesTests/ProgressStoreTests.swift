@@ -39,6 +39,8 @@ private actor StoringLearningRepository: LearningRepository {
 
     func activeSession(for scope: AccountScope) async throws -> StudySessionRecord? { nil }
     func saveSession(_ session: StudySessionRecord, for scope: AccountScope) async throws {}
+    func sessions(for scope: AccountScope) async throws -> [StudySessionRecord] { [] }
+    func reviews(for scope: AccountScope) async throws -> [ReviewEventRecord] { [] }
     func reviews(
         inSession sessionID: UUID,
         for scope: AccountScope

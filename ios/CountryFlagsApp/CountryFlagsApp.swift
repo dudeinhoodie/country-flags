@@ -25,6 +25,7 @@ struct CountryFlagsApp: App {
                 makeObjectiveRunner: { composition.makeObjectiveSessionRunner() },
                 makeProgressStore: { composition.makeProgressStore() },
                 makeSettingsStore: { composition.makeSettingsStore() },
+                makeAccountStore: { composition.makeAccountStore() },
                 featureFlags: composition.featureFlags,
                 sync: composition.sync
             )

@@ -1,7 +1,7 @@
 import Foundation
 
 /// Where a guest's work stands on its way into an account.
-public enum GuestMigrationState: String, Hashable, Sendable, CaseIterable {
+public enum GuestMigrationState: String, Hashable, Sendable, CaseIterable, Codable {
     case notStarted
     /// Submitted; the backend has not finished applying it.
     case inProgress
@@ -15,7 +15,7 @@ public enum GuestMigrationState: String, Hashable, Sendable, CaseIterable {
 /// followed by the same request, and the backend recognises it rather than
 /// importing the same work twice. The reviews keep their original UUIDs for the
 /// same reason — an import is the same work changing owner, not new work.
-public struct GuestMigrationRecord: Hashable, Sendable {
+public struct GuestMigrationRecord: Hashable, Sendable, Codable {
     public let migrationID: UUID
     /// The guest scope being imported. Kept so the device can prove which
     /// archive it is talking about after a relaunch.

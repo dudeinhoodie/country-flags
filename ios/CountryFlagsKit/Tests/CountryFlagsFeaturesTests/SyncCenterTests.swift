@@ -35,9 +35,11 @@ final class SyncCenterTests: XCTestCase {
         )
     }
 
-    /// The scope is resolved once. A session belongs to the account that began
-    /// it, and re-resolving mid-run could attribute work to another.
-    func testTheScopeIsResolvedOnce() async {
+    /// The scope is asked for on every run rather than resolved once: signing
+    /// in changes the answer mid-launch, and a cached guest would keep syncing
+    /// as nobody. The resolve-once rule lives where it belongs — a study
+    /// session's runner — not here.
+    func testTheScopeFollowsTheAccountAcrossRuns() async {
         let scopes = CountingScopeResolver()
         let center = SyncCenter(
             coordinator: RecordingCoordinator(status: SyncStatus()),
@@ -48,7 +50,7 @@ final class SyncCenterTests: XCTestCase {
         await center.synchronize(trigger: .foreground)
 
         let resolutions = await scopes.resolutions()
-        XCTAssertEqual(resolutions, 1)
+        XCTAssertEqual(resolutions, 2)
     }
 
     /// A guest is told their work is saved, not that something failed.

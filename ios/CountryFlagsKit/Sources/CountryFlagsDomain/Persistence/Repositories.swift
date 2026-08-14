@@ -81,6 +81,13 @@ public protocol LearningRepository: Sendable {
     func saveSession(_ session: StudySessionRecord, for scope: AccountScope) async throws
     func reviews(inSession sessionID: UUID, for scope: AccountScope) async throws -> [ReviewEventRecord]
 
+    /// Everything the scope owns, for the one caller that needs all of it:
+    /// the guest import, which hands a signed-in account the work this device
+    /// did before it had one. Sessions come newest first, reviews in the
+    /// order they were made.
+    func sessions(for scope: AccountScope) async throws -> [StudySessionRecord]
+    func reviews(for scope: AccountScope) async throws -> [ReviewEventRecord]
+
     /// Writes the answer, its projected card state and the outbox entry in one
     /// transaction.
     ///

@@ -46,6 +46,10 @@ struct AppComposition: AppDependencies {
     let content: ContentStore
     let assets: any AssetLoading
     let scopes: any AccountScopeResolving
+    /// The session behind `scopes`, for the account surface that signs in
+    /// and out of it.
+    let sessions: SessionCoordinator
+    let guestMigrations: GuestMigrationCoordinator
     let settingsSync: any SettingsSyncing
     let sync: SyncCenter
     let advertising: any AdvertisingProviding
@@ -91,15 +95,45 @@ struct AppComposition: AppDependencies {
             fatalError("The local store is unavailable: \(error)")
         }
 
-        let apiClientFactory = APIClientFactory(
-            configuration: APIClientConfiguration(
-                baseURL: configuration.apiBaseURL ?? Self.mockBaseURL,
-                appVersion: Self.appVersion(from: bundle),
-                locale: Self.locale()
+        let apiConfiguration = APIClientConfiguration(
+            baseURL: configuration.apiBaseURL ?? Self.mockBaseURL,
+            appVersion: Self.appVersion(from: bundle),
+            locale: Self.locale()
+        )
+        // Mock answers registered payloads only and never opens a socket, so
+        // that configuration is reproducible offline. One transport serves
+        // both factories below: the Mock one records requests, and two
+        // recorders would each see half a conversation.
+        let transport = mockTransport(for: configuration, dates: dates)
+
+        let tokens = KeychainTokenStore()
+        let accountScopes = accountScopes(tokens: tokens, identifiers: identifiers, logger: logger)
+        // The auth endpoints authenticate by what is in their bodies -- an
+        // identity token, a refresh token -- not by a bearer, so their client
+        // carries none. That is also what breaks the cycle: the session needs
+        // a client, and every other client needs the session.
+        let authClientFactory = APIClientFactory(
+            configuration: apiConfiguration,
+            transport: transport,
+            identifiers: identifiers
+        )
+        let sessions = SessionCoordinator(
+            service: AuthService(
+                clientFactory: authClientFactory,
+                devices: InstallationDeviceRegistration(
+                    tokens: tokens,
+                    identifiers: identifiers,
+                    appVersion: Self.appVersion(from: bundle)
+                )
             ),
-            // Mock answers registered payloads only and never opens a socket,
-            // so that configuration is reproducible offline.
-            transport: mockTransport(for: configuration, dates: dates),
+            tokens: tokens,
+            guestScopes: accountScopes,
+            logger: logger
+        )
+        let apiClientFactory = APIClientFactory(
+            configuration: apiConfiguration,
+            transport: transport,
+            tokens: sessions,
             identifiers: identifiers
         )
 
@@ -118,7 +152,6 @@ struct AppComposition: AppDependencies {
             logger: logger
         )
         let activatedFlags = ActivatedFeatureFlags(live: flagClient, dates: dates)
-        let tokens = KeychainTokenStore()
 
         // Content is shared by every account, so it is wired once here rather
         // than rebuilt whenever the signed-in account changes.
@@ -137,7 +170,20 @@ struct AppComposition: AppDependencies {
             appVersion: Self.appVersion(from: bundle)
         )
 
-        let accountScopes = accountScopes(tokens: tokens, identifiers: identifiers, logger: logger)
+        // The guest's work follows its owner: the coordinator reads the guest
+        // scope directly -- the session coordinator would already answer with
+        // the account -- and archives it only after the backend acknowledged.
+        let guestMigrations = GuestMigrationCoordinator(
+            guestScopes: accountScopes,
+            learning: store.makeLearningRepository(),
+            importer: GuestImportService(clientFactory: apiClientFactory),
+            records: UserDefaultsGuestMigrationStore(),
+            cleaner: store.makeAccountScopeCleaner(),
+            dates: dates,
+            identifiers: identifiers,
+            logger: logger
+        )
+
         // Settings are offered to the server under the version they were read
         // at. A guest never reaches it — the store checks the scope — but the
         // seam is wired now so signing in does not need a composition change.
@@ -173,9 +219,13 @@ struct AppComposition: AppDependencies {
                 dates: dates
             ),
             assets: assetCache,
-            scopes: accountScopes,
+            // Who the repositories write as: the session when somebody signed
+            // in, the guest otherwise. One answer for the whole app.
+            scopes: sessions,
+            sessions: sessions,
+            guestMigrations: guestMigrations,
             settingsSync: progressService,
-            sync: SyncCenter(coordinator: syncCoordinator, scopes: accountScopes),
+            sync: SyncCenter(coordinator: syncCoordinator, scopes: sessions),
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
             // composition change rather than a change to every screen.
@@ -195,6 +245,9 @@ struct AppComposition: AppDependencies {
     /// and the bundled defaults already answer every read, so nothing on screen
     /// waits for the network.
     func start() async {
+        // Who this launch belongs to is decided first: everything after --
+        // the flag context, the sync scope -- reads the answer.
+        await sessions.restore()
         let scope = await scopes.currentScope()
         let context = FeatureFlagContext(
             scope: scope,
@@ -220,6 +273,20 @@ struct AppComposition: AppDependencies {
             learning: store.makeLearningRepository(),
             scopes: scopes,
             dates: dates
+        )
+    }
+
+    func makeAccountStore() -> AccountStore {
+        AccountStore(
+            session: sessions,
+            migrations: guestMigrations,
+            outbox: store.makeOutboxRepository(),
+            scopes: scopes,
+            nonces: SystemNonceGenerator(),
+            // Debug environments only, and only when the launch asked for it:
+            // a fixture credential must never be one tap away in production.
+            allowsFakeSignIn: configuration.environment.allowsDebugAffordances
+                && ProcessInfo.processInfo.arguments.contains("-fake-signin")
         )
     }
 
@@ -269,7 +336,16 @@ struct AppComposition: AppDependencies {
     ) -> MockClientTransport? {
         guard configuration.environment == .mock else { return nil }
         var fallbacks: [String: MockClientTransport.Response] = [
-            "getAppConfig": MockAppConfig.response(now: dates.now())
+            "getAppConfig": MockAppConfig.response(now: dates.now()),
+            // The account surface, offline: exchange, rotation, sign-out and
+            // the guest import all answer deterministically.
+            "authenticateWithApple": MockAuth.session(now: dates.now()),
+            "authenticateWithGoogle": MockAuth.session(now: dates.now()),
+            "refreshSession": MockAuth.refreshedTokens(now: dates.now()),
+            "logout": MockAuth.loggedOut,
+            "logoutAll": MockAuth.loggedOut,
+            "createGuestImport": MockAuth.importResult(now: dates.now()),
+            "getGuestImport": MockAuth.importResult(now: dates.now(), statusCode: 200),
         ]
         var handlers: [String: MockClientTransport.Handler] = [:]
         // A UI test needs a launch where content requests fail while the store
