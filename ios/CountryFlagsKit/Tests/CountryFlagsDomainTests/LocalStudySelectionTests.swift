@@ -106,21 +106,78 @@ final class LocalCardSelectionTests: XCTestCase {
         XCTAssertEqual(selected.map(\.card.id), [usable.id])
     }
 
-    /// The same deck and the same clock produce the same session, which is what
-    /// makes an offline selection reproducible in a test and in support.
-    func testSelectionIsDeterministic() {
+    /// The same deck, the same clock and the same seed produce the same
+    /// session — whatever order the store returned the cards in — which is
+    /// what makes an offline selection reproducible in a test and in support.
+    func testTheSameSeedReproducesTheSession() {
         let cards = (0..<10).map { Self.card(index: $0) }
 
-        let first = LocalCardSelection.select(
+        var first = SeededRandomNumberGenerator(seed: 7)
+        var second = SeededRandomNumberGenerator(seed: 7)
+        let one = LocalCardSelection.select(
             from: cards, states: [], size: .five,
-            supportedTemplateSchemaVersions: [1], now: now
+            supportedTemplateSchemaVersions: [1], now: now, using: &first
         )
-        let second = LocalCardSelection.select(
+        let other = LocalCardSelection.select(
             from: cards.reversed(), states: [], size: .five,
-            supportedTemplateSchemaVersions: [1], now: now
+            supportedTemplateSchemaVersions: [1], now: now, using: &second
         )
 
-        XCTAssertEqual(first.map(\.card.id), second.map(\.card.id))
+        XCTAssertEqual(one.map(\.card.id), other.map(\.card.id))
+    }
+
+    /// Two sessions over the same deck are not the same fixed sequence: the
+    /// shuffle is why a learner cannot memorise the deal instead of the flags.
+    func testDifferentSeedsDealDifferentSessions() {
+        let cards = (0..<20).map { Self.card(index: $0) }
+
+        var first = SeededRandomNumberGenerator(seed: 1)
+        var second = SeededRandomNumberGenerator(seed: 2)
+        let one = LocalCardSelection.select(
+            from: cards, states: [], size: .ten,
+            supportedTemplateSchemaVersions: [1], now: now, using: &first
+        )
+        let other = LocalCardSelection.select(
+            from: cards, states: [], size: .ten,
+            supportedTemplateSchemaVersions: [1], now: now, using: &second
+        )
+
+        XCTAssertNotEqual(one.map(\.card.id), other.map(\.card.id))
+    }
+
+    /// The shuffle never crosses a band: whatever the seed, everything owed
+    /// comes before everything new, and the fillers stay last.
+    func testTheShuffleStaysInsideItsBand() {
+        let cards = (0..<12).map { Self.card(index: $0) }
+        let states = [
+            Self.state(for: cards[0], dueAt: now.addingTimeInterval(-60)),
+            Self.state(for: cards[1], dueAt: now.addingTimeInterval(-30)),
+            Self.state(for: cards[2], dueAt: now.addingTimeInterval(3600)),
+            Self.state(for: cards[3], dueAt: now.addingTimeInterval(3600)),
+        ]
+
+        for seed in UInt64(0)..<8 {
+            var generator = SeededRandomNumberGenerator(seed: seed)
+            let selected = LocalCardSelection.select(
+                from: cards, states: states, size: .twenty,
+                supportedTemplateSchemaVersions: [1], now: now, using: &generator
+            )
+            let reasons = selected.map(\.reason)
+            XCTAssertEqual(
+                reasons,
+                reasons.sorted { left, right in Self.bandOrder(left) < Self.bandOrder(right) },
+                "seed \(seed)"
+            )
+            XCTAssertEqual(Set(selected.prefix(2).map(\.card.id)), [cards[0].id, cards[1].id])
+        }
+    }
+
+    private static func bandOrder(_ reason: SelectionReason) -> Int {
+        switch reason {
+        case .due: 0
+        case .new: 1
+        case .filler: 2
+        }
     }
 
     func testAnUnknownStoredSizeFallsBackRatherThanFailing() {

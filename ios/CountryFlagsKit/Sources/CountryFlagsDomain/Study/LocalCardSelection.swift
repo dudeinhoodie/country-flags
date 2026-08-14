@@ -17,6 +17,33 @@ public enum LocalCardSelection {
         supportedTemplateSchemaVersions: [Int],
         now: Date
     ) -> [SelectedStudyCard] {
+        var generator = SystemRandomNumberGenerator()
+        return select(
+            from: cards,
+            states: states,
+            size: size,
+            supportedTemplateSchemaVersions: supportedTemplateSchemaVersions,
+            now: now,
+            using: &generator
+        )
+    }
+
+    /// The full form, with the randomness handed in.
+    ///
+    /// The order of the bands — due, then new, then filler — is the product
+    /// rule and is never random. Inside a band the cards are shuffled: ranked
+    /// by identifier, a fresh install dealt the same deck in the same order on
+    /// every device, and the "random" selection was a fixed sequence anybody
+    /// could memorise. A test or a replay passes a seeded generator and gets
+    /// the same session back; the app passes the system one.
+    public static func select(
+        from cards: [LearningCardRecord],
+        states: [CardStateRecord],
+        size: StudySessionSize,
+        supportedTemplateSchemaVersions: [Int],
+        now: Date,
+        using generator: inout some RandomNumberGenerator
+    ) -> [SelectedStudyCard] {
         let supported = Set(supportedTemplateSchemaVersions)
         let stateByCard = Dictionary(
             states.map { ($0.learningCardID, $0) },
@@ -35,14 +62,16 @@ public enum LocalCardSelection {
             return seen.insert(card.id).inserted
         }
 
-        let ranked = usable.sorted { left, right in
-            let leftRank = rank(of: left, state: stateByCard[left.id], now: now)
-            let rightRank = rank(of: right, state: stateByCard[right.id], now: now)
-            if leftRank != rightRank { return leftRank < rightRank }
-            // A stable tiebreak, so the same deck and the same clock produce
-            // the same session and a test can assert on it.
-            return left.id.uuidString < right.id.uuidString
+        // Sorted into bands first — the sort is only by band, and sorting
+        // before shuffling would throw the shuffle away — then shuffled within
+        // each. A stable pre-shuffle order (by identifier) makes the result a
+        // pure function of the deck and the seed, whatever order the store
+        // returned the cards in.
+        var bands: [Int: [LearningCardRecord]] = [:]
+        for card in usable.sorted(by: { $0.id.uuidString < $1.id.uuidString }) {
+            bands[rank(of: card, state: stateByCard[card.id], now: now), default: []].append(card)
         }
+        let ranked = bands.keys.sorted().flatMap { bands[$0]!.shuffled(using: &generator) }
 
         return ranked.prefix(size.rawValue).enumerated().map { index, card in
             SelectedStudyCard(
