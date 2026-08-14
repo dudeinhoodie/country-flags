@@ -73,7 +73,10 @@ public struct InstallationDeviceRegistration: DeviceRegistrationProviding {
         DeviceRegistrationRecord(
             clientGeneratedID: await installationID(),
             appVersion: appVersion,
-            locale: Locale.current.identifier,
+            // BCP 47, which is what the contract validates. The system
+            // identifier uses an underscore ("en_US") and was rejected with
+            // the whole exchange it rode in.
+            locale: Locale.current.identifier(.bcp47),
             timezone: TimeZone.current.identifier
         )
     }
