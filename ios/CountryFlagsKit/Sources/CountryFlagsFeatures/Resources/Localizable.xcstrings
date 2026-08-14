@@ -1395,6 +1395,23 @@
         }
       }
     },
+    "study.map.open": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show on the map"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать на карте"
+          }
+        }
+      }
+    },
     "study.mode": {
       "extractionState": "manual",
       "localizations": {

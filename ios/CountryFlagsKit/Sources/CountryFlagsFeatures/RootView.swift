@@ -206,6 +206,8 @@ public enum AccessibilityIdentifier {
     public static let studyCard = "study.card"
     public static let studyCardBehind = "study.card.behind"
     public static let studyDetails = "study.details"
+    /// The small map on the country sheet, which opens the full one.
+    public static let studyMap = "study.details.map"
     public static let studyClose = "study.close"
     public static let studyReveal = "study.reveal"
     /// Facts are addressed by the type they carry rather than by position: a

@@ -22,6 +22,7 @@ struct StudyDetailsSheet: View {
 
     @State private var facts: [FactRecord] = []
     @State private var outline: CountryBoundaries.Outline?
+    @State private var isShowingFullMap = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.displayScale) private var displayScale
 
@@ -32,22 +33,18 @@ struct StudyDetailsSheet: View {
 
                 flag
 
-                if facts.count >= 2 {
-                    // Fixed vertically so both tiles take the taller one's
-                    // height: left to themselves they each sized to their own
-                    // text, and a wrapped population left the pair ragged.
+                // Every fact is a tile, dealt in pairs. Each pair is fixed
+                // vertically so it takes the taller tile's height: left to
+                // themselves the tiles sized to their own text, and a wrapped
+                // population left the row ragged.
+                ForEach(Array(stride(from: 0, to: facts.count, by: 2)), id: \.self) { start in
                     HStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
-                        FactTile(fact: facts[0])
-                        FactTile(fact: facts[1])
+                        FactTile(fact: facts[start])
+                        if start + 1 < facts.count {
+                            FactTile(fact: facts[start + 1])
+                        }
                     }
                     .fixedSize(horizontal: false, vertical: true)
-                } else if let only = facts.first {
-                    FactTile(fact: only)
-                }
-
-                let rest = Array(facts.dropFirst(2))
-                if !rest.isEmpty {
-                    factRows(rest)
                 }
 
                 // Where the country is. Missing for the flags whose landmass
@@ -70,7 +67,25 @@ struct StudyDetailsSheet: View {
                                 lineWidth: 1 / displayScale
                             )
                         }
-                        .accessibilityLabel(card.displayName)
+                        // The button lies over the map rather than around it:
+                        // MapKit owns its own touch handling underneath, and a
+                        // wrapping button's tap never reliably got through.
+                        .overlay {
+                            Button {
+                                isShowingFullMap = true
+                            } label: {
+                                Color.clear
+                                    .contentShape(
+                                        RoundedRectangle(
+                                            cornerRadius: DesignTokens.Radius.large,
+                                            style: .continuous
+                                        )
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(L10n.studyMapOpen)
+                            .accessibilityIdentifier(AccessibilityIdentifier.studyMap)
+                        }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -80,6 +95,11 @@ struct StudyDetailsSheet: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(.regularMaterial)
+        .fullScreenCover(isPresented: $isShowingFullMap) {
+            if let outline {
+                CountryMapExpandedView(name: card.displayName, outline: outline)
+            }
+        }
         .task(id: card.learningCardID) {
             facts = await store.card(id: card.learningCardID)?.backSideFacts ?? []
             // The outline is found the way the flag itself is: by the asset's
@@ -140,20 +160,6 @@ struct StudyDetailsSheet: View {
         }
     }
 
-    private func factRows(_ rest: [FactRecord]) -> some View {
-        GlassCard(padding: DesignTokens.Spacing.extraSmall) {
-            VStack(spacing: 0) {
-                ForEach(Array(rest.enumerated()), id: \.element) { index, fact in
-                    if index > 0 {
-                        Divider()
-                            .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
-                            .padding(.leading, DesignTokens.Spacing.extraLarge + DesignTokens.Spacing.medium)
-                    }
-                    FactRow(fact: fact)
-                }
-            }
-        }
-    }
 }
 
 /// The badge every fact wears: its symbol on its own colour.
@@ -206,15 +212,15 @@ private struct FactTile: View {
             FactBadge(fact: fact)
 
             VStack(alignment: .leading, spacing: 0) {
-                if let name = L10n.factType(fact.type) {
-                    Text(name)
+                if let label = presentation.label {
+                    Text(label)
                         .font(DesignTokens.Typography.caption)
                         .foregroundStyle(.secondary)
                 }
-                Text(fact.displayValue)
+                Text(presentation.value)
                     .font(DesignTokens.Typography.sectionTitle)
                     .minimumScaleFactor(0.7)
-                    .lineLimit(2)
+                    .lineLimit(3)
             }
         }
         // Filled to the slot rather than hugging the text, so the pair of
@@ -235,31 +241,24 @@ private struct FactTile: View {
         // One fact is one thing to hear, not a label and a value in sequence.
         .accessibilityElement(children: .combine)
     }
-}
 
-private struct FactRow: View {
-    let fact: FactRecord
-
-    var body: some View {
-        HStack(spacing: DesignTokens.Spacing.medium) {
-            FactBadge(fact: fact)
-
-            // A type this build has no name for is shown as its value alone
-            // rather than dropped or labelled with its code.
-            if let name = L10n.factType(fact.type) {
-                Text(name)
-            }
-
-            Spacer(minLength: DesignTokens.Spacing.small)
-
-            Text(fact.displayValue)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.trailing)
+    /// The label and the value, with the vintage moved to where it belongs.
+    ///
+    /// A population arrives as "1,358,282 (2024)": the year is provenance,
+    /// not part of the number, and in brackets after it it read as a code.
+    /// It moves into the label — "Population 2024" — and the number stands
+    /// alone. A value without a trailing year is passed through untouched.
+    private var presentation: (label: String?, value: String) {
+        let label = L10n.factType(fact.type)
+        guard
+            let label,
+            let match = fact.displayValue.range(
+                of: #" \((\d{4})\)$"#, options: .regularExpression
+            )
+        else {
+            return (label, fact.displayValue)
         }
-        .font(DesignTokens.Typography.body)
-        .padding(.horizontal, DesignTokens.Spacing.small)
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget + DesignTokens.Spacing.small)
-        .accessibilityElement(children: .combine)
+        let year = fact.displayValue[match].dropFirst(2).dropLast(1)
+        return ("\(label) \(year)", String(fact.displayValue[..<match.lowerBound]))
     }
 }
