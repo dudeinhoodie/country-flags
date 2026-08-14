@@ -101,6 +101,22 @@ export function encodeContentChangeCursor(
 }
 
 export function decodeContentChangeCursor(value: string): ContentChangeCursor {
+  // The manifests published so far hand out their initial cursor in a plain
+  // legacy form, `content:<version>:<sequence>`, and clients have stored it.
+  // Refusing it would strand every installed client of those releases on a
+  // feed they can never read, so the legacy form stays accepted for as long
+  // as such a release can be current. The canonical form below is what the
+  // feed itself returns.
+  const legacy = /^content:(?<version>.+):(?<sequence>0|[1-9][0-9]*)$/u.exec(
+    value,
+  );
+  if (legacy?.groups) {
+    return {
+      version: legacy.groups.version,
+      sequence: BigInt(legacy.groups.sequence),
+    };
+  }
+
   const cursor = decode(value);
   if (
     typeof cursor !== "object" ||
