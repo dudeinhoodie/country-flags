@@ -46,40 +46,63 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $router.navigationPath) {
-            HomeView(
-                store: content,
-                sync: sync,
-                makeProgress: makeProgressStore,
-                onOpenCatalog: { router.push(.catalog) },
-                onOpenProgress: { router.push(.progress) },
-                onOpenDeck: { router.push(.deck(id: $0)) }
-            )
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        router.push(.settings)
-                    } label: {
-                        Image(systemName: "gearshape")
+        // A tab bar rather than buttons on Home: the catalog and the progress
+        // are places, and iOS puts places on the bottom bar. The bar's glass
+        // is the system's own.
+        TabView(selection: $router.tab) {
+            NavigationStack(path: $router.homeNavigationPath) {
+                HomeView(
+                    store: content,
+                    sync: sync,
+                    makeProgress: makeProgressStore,
+                    onOpenDeck: { router.push(.deck(id: $0)) }
+                )
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            router.push(.settings)
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
+                        .accessibilityLabel(L10n.shellOpenSettings)
+                        .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
                     }
-                    .accessibilityLabel(L10n.shellOpenSettings)
-                    .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
+                    if configuration.environment.allowsDebugAffordances {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Text(verbatim: configuration.environment.rawValue.uppercased())
+                                .font(DesignTokens.Typography.caption)
+                                .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
+                        }
+                    }
                 }
-                if configuration.environment.allowsDebugAffordances {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Text(verbatim: configuration.environment.rawValue.uppercased())
-                            .font(DesignTokens.Typography.caption)
-                            .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
-                    }
+                .navigationDestination(for: AppRoute.self) { route in
+                    destination(for: route)
                 }
             }
-            .navigationDestination(for: AppRoute.self) { route in
-                destination(for: route)
+            .tabItem { Label(L10n.homeTitle, systemImage: "house") }
+            .tag(AppTab.home)
+
+            NavigationStack(path: $router.catalogNavigationPath) {
+                CatalogView(store: content) { router.push(.deck(id: $0)) }
+                    .navigationDestination(for: AppRoute.self) { route in
+                        destination(for: route)
+                    }
             }
+            .tabItem { Label(L10n.catalogTitle, systemImage: "square.grid.2x2") }
+            .tag(AppTab.catalog)
+
+            NavigationStack(path: $router.progressNavigationPath) {
+                ProgressScreen(store: makeProgressStore())
+                    .navigationDestination(for: AppRoute.self) { route in
+                        destination(for: route)
+                    }
+            }
+            .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
+            .tag(AppTab.progress)
         }
         // The scene is dark, so the app is: system controls, sheets and the
-        // navigation bar all take their colours from here rather than each
-        // screen fighting the light appearance on its own.
+        // bars all take their colours from here rather than each screen
+        // fighting the light appearance on its own.
         .preferredColorScheme(.dark)
         // Recovery and the first sync happen once, after the first frame:
         // everything on screen already answers from the store.

@@ -25,6 +25,9 @@ public struct ProgressScreen: View {
         content
             .navigationTitle(L10n.progressTitle)
             .task { await store.load() }
+            // The screen lives on a tab now and survives between visits, so
+            // what changed while it was covered is re-read on the way back in.
+            .onAppear { Task { await store.load() } }
     }
 
     @ViewBuilder

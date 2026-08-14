@@ -8,6 +8,7 @@ public struct StudySessionView: View {
     @State private var palette: ScenePalette = .neutral
     @State private var isShowingDetails = false
     @State private var isShowingBack = false
+    @State private var swipeProgress: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let deckID: UUID
@@ -46,6 +47,8 @@ public struct StudySessionView: View {
         // The flag is the screen: the chrome shrinks to the counter and a way
         // out, both of which live on the scene rather than above it.
         .toolbar(.hidden, for: .navigationBar)
+        // The flag is the screen: while a session runs, the tab bar leaves too.
+        .toolbar(.hidden, for: .tabBar)
         .task { await runner.startOrResume(deckID: deckID, size: size) }
     }
 
@@ -81,8 +84,13 @@ public struct StudySessionView: View {
                 onReveal: { runner.revealAnswer() },
                 onRate: { rating in Task { await runner.rate(rating) } },
                 onDetails: { isShowingDetails = true },
-                isShowingBack: $isShowingBack
+                isShowingBack: $isShowingBack,
+                swipeProgress: $swipeProgress
             )
+
+            // Where each throw leads, said before the first one is made. The
+            // side the throw is heading for lights up as it goes.
+            swipeHints
 
             Spacer(minLength: 0)
 
@@ -126,6 +134,32 @@ public struct StudySessionView: View {
         } content: {
             StudyDetailsSheet(card: card, store: store, assets: assets)
         }
+    }
+
+    /// The standing answer to "what does a swipe do": again to the left,
+    /// good to the right, each hint brightening as a throw heads its way.
+    private var swipeHints: some View {
+        HStack {
+            SwipeHintChip(
+                symbol: "arrow.counterclockwise",
+                text: L10n.studyRating(.again),
+                tint: .red,
+                isLeading: true,
+                emphasis: max(-swipeProgress, 0)
+            )
+
+            Spacer()
+
+            SwipeHintChip(
+                symbol: "checkmark",
+                text: L10n.studyRating(.good),
+                tint: .green,
+                isLeading: false,
+                emphasis: max(swipeProgress, 0)
+            )
+        }
+        .padding(.top, DesignTokens.Spacing.small)
+        .accessibilityHidden(true)
     }
 
     /// The counter and the way out, as capsules over the scene.
@@ -219,6 +253,44 @@ public struct StudySessionView: View {
         case .hard: "tortoise"
         case .good: "checkmark"
         case .easy: "hare"
+        }
+    }
+}
+
+/// One side of the deck's promise: the rating a throw that way commits.
+///
+/// Quiet until the throw starts — the chips are furniture, not buttons — and
+/// never the only carrier: the arrow, the word and the side say the same
+/// thing the colour does.
+private struct SwipeHintChip: View {
+    let symbol: String
+    let text: String
+    let tint: Color
+    let isLeading: Bool
+    /// 0...1, how far the current throw has gone this way.
+    let emphasis: CGFloat
+
+    var body: some View {
+        HStack(spacing: DesignTokens.Spacing.extraSmall) {
+            if isLeading {
+                Image(systemName: "chevron.left")
+                Image(systemName: symbol)
+                Text(text)
+            } else {
+                Text(text)
+                Image(systemName: symbol)
+                Image(systemName: "chevron.right")
+            }
+        }
+        .font(DesignTokens.Typography.caption.weight(.medium))
+        .foregroundStyle(.white.opacity(0.4 + 0.6 * emphasis))
+        .padding(.horizontal, DesignTokens.Spacing.medium)
+        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.7)
+        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+        .overlay {
+            Capsule(style: .continuous)
+                .fill(tint.opacity(DesignTokens.Card.swipeWashOpacity * 0.7 * emphasis))
+                .allowsHitTesting(false)
         }
     }
 }

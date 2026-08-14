@@ -92,7 +92,9 @@ struct StudyDetailsSheet: View {
             .padding(DesignTokens.Spacing.large)
         }
         .scrollIndicators(.hidden)
-        .presentationDetents([.medium, .large])
+        // Full height at once: the sheet holds a flag, four facts and a map,
+        // and a half-open sheet showed the flag the reader had already seen.
+        .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(.regularMaterial)
         .fullScreenCover(isPresented: $isShowingFullMap) {

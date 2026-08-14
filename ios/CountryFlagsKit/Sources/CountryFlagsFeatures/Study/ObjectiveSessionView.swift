@@ -42,6 +42,8 @@ public struct ObjectiveSessionView: View {
                 .padding(DesignTokens.Spacing.large)
         }
         .toolbar(.hidden, for: .navigationBar)
+        // The flag is the screen: while a session runs, the tab bar leaves too.
+        .toolbar(.hidden, for: .tabBar)
         .task { await runner.startOrResume(deckID: deckID, size: size) }
     }
 

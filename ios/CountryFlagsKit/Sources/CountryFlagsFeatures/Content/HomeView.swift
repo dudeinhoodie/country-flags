@@ -12,8 +12,6 @@ import CountryFlagsDomain
 public struct HomeView: View {
     private let store: ContentStore
     private let sync: SyncCenter
-    private let onOpenCatalog: () -> Void
-    private let onOpenProgress: () -> Void
     private let onOpenDeck: (UUID) -> Void
 
     /// The counts behind the hero. Built here, once, from the factory: this
@@ -26,15 +24,11 @@ public struct HomeView: View {
         store: ContentStore,
         sync: SyncCenter,
         makeProgress: (() -> ProgressStore)? = nil,
-        onOpenCatalog: @escaping () -> Void,
-        onOpenProgress: @escaping () -> Void,
         onOpenDeck: @escaping (UUID) -> Void
     ) {
         self.store = store
         self.sync = sync
         self.makeProgress = makeProgress
-        self.onOpenCatalog = onOpenCatalog
-        self.onOpenProgress = onOpenProgress
         self.onOpenDeck = onOpenDeck
     }
 
@@ -139,15 +133,6 @@ public struct HomeView: View {
                         .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
                     }
                 }
-            }
-
-            VStack(spacing: DesignTokens.Spacing.small) {
-                Button(L10n.homeOpenCatalog, action: onOpenCatalog)
-                    .buttonStyle(GlassActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeOpenCatalog)
-                Button(L10n.homeOpenProgress, action: onOpenProgress)
-                    .buttonStyle(GlassActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeOpenProgress)
             }
         }
     }

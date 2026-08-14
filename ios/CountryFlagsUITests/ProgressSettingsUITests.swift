@@ -104,7 +104,8 @@ final class ProgressSettingsUITests: XCTestCase {
     }
 
     private func openProgress(in app: XCUIApplication) {
-        let progress = app.buttons["home.openProgress"]
+        // Progress lives on the tab bar now.
+        let progress = app.tabBars.buttons["Progress"]
         XCTAssertTrue(progress.waitForExistence(timeout: 30), app.debugDescription)
         progress.tap()
     }

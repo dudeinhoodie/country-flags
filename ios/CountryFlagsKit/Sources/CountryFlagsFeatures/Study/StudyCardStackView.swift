@@ -24,12 +24,18 @@ struct StudyCardStackView: View {
     /// closing the details sheet turns the card back over, and the sheet is
     /// the screen's.
     @Binding var isShowingBack: Bool
+    /// How far the throw has gone, -1...1, negative to the left. The screen
+    /// reads it to light the hint the throw is heading for.
+    @Binding var swipeProgress: CGFloat
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     // A hairline is one device pixel, whatever the screen: asking the
     // environment keeps it right on every device and in a preview.
     @Environment(\.displayScale) private var displayScale
     @State private var drag: CGSize = .zero
+    /// Toggled once, under a slow autoreversing animation: every waiting card
+    /// leans between two poses of its own and the pile breathes.
+    @State private var isBreathing = false
 
     var body: some View {
         ZStack {
@@ -43,7 +49,14 @@ struct StudyCardStackView: View {
         // one left.
         .onChange(of: state.currentCard?.id) { _, _ in
             drag = .zero
+            swipeProgress = 0
             isShowingBack = false
+        }
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 2.6).repeatForever(autoreverses: true)) {
+                isBreathing = true
+            }
         }
         // A commit that fails hands the same card back, and the same card
         // means the reset above never fires — the card had already been thrown
@@ -105,6 +118,27 @@ struct StudyCardStackView: View {
                 lineWidth: 1 / displayScale
             )
         }
+        .overlay {
+            // The answer's colour rises from the side the throw is going —
+            // green for "good", red for "again" — soft and translucent, so
+            // the learner knows what the throw will say before letting go.
+            if isTop, drag.width != 0 {
+                let wash = min(abs(drag.width) / DesignTokens.Card.swipeThreshold, 1)
+                shape
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                (drag.width > 0 ? Color.green : .red)
+                                    .opacity(DesignTokens.Card.swipeWashOpacity * wash),
+                                .clear,
+                            ],
+                            startPoint: drag.width > 0 ? .trailing : .leading,
+                            endPoint: drag.width > 0 ? .leading : .trailing
+                        )
+                    )
+                    .allowsHitTesting(false)
+            }
+        }
         .shadow(
             color: .black.opacity(DesignTokens.Card.shadowOpacity),
             radius: DesignTokens.Card.shadowRadius,
@@ -122,14 +156,14 @@ struct StudyCardStackView: View {
         // straightens as it comes to the top — the same move a hand makes
         // picking a card off a pile.
         .offset(
-            x: isTop ? drag.width : scatter(entry.card.id).drift,
+            x: isTop ? drag.width : scatter(entry.card.id).drift + breath(entry.card.id).drift,
             y: DesignTokens.Card.stackOffset * CGFloat(entry.depth)
         )
         .rotationEffect(
             .degrees(
                 isTop
                     ? drag.width * DesignTokens.Card.swipeRotation
-                    : scatter(entry.card.id).lean
+                    : scatter(entry.card.id).lean + breath(entry.card.id).lean
             )
         )
         .zIndex(Double(DesignTokens.Card.stackDepth - entry.depth))
@@ -166,6 +200,15 @@ struct StudyCardStackView: View {
         return (lean, CGFloat(drift))
     }
 
+    /// This card's share of the pile's breathing: its own direction and
+    /// reach, swung to the other side by the autoreversing animation.
+    private func breath(_ id: UUID) -> (lean: Double, drift: CGFloat) {
+        let bytes = id.uuid
+        let lean = (Double(bytes.2) / 255 * 2 - 1) * DesignTokens.Card.breathRotation
+        let drift = (Double(bytes.3) / 255 * 2 - 1) * Double(DesignTokens.Card.breathOffset)
+        return (isBreathing ? lean : -lean, CGFloat(isBreathing ? drift : -drift))
+    }
+
     private var shape: RoundedRectangle {
         RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
     }
@@ -193,6 +236,9 @@ struct StudyCardStackView: View {
             .onChanged { value in
                 guard !state.isCommitting else { return }
                 drag = value.translation
+                swipeProgress = max(
+                    -1, min(1, value.translation.width / DesignTokens.Card.swipeThreshold)
+                )
             }
             .onEnded { value in
                 guard !state.isCommitting else { return finish(nil) }
@@ -207,6 +253,7 @@ struct StudyCardStackView: View {
     private func finish(_ rating: StudyRating?) {
         guard let rating else {
             drag = .zero
+            swipeProgress = 0
             return
         }
         // A card can be answered without being turned over: knowing a flag on
