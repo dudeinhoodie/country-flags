@@ -136,28 +136,31 @@ public struct StudySessionView: View {
         }
     }
 
-    /// The standing answer to "what does a swipe do": again to the left,
-    /// good to the right, each hint brightening as a throw heads its way.
+    /// The standing answer to "what does a swipe do": one arrow pointing both
+    /// ways, again to the left, good to the right. The half a throw is heading
+    /// for takes on its answer's colour — only that half, and gently.
     private var swipeHints: some View {
-        HStack {
-            SwipeHintChip(
-                symbol: "arrow.counterclockwise",
+        HStack(spacing: DesignTokens.Spacing.medium) {
+            SwipeHintHalf(
+                symbol: "arrow.left",
                 text: L10n.studyRating(.again),
                 tint: .red,
                 isLeading: true,
                 emphasis: max(-swipeProgress, 0)
             )
 
-            Spacer()
-
-            SwipeHintChip(
-                symbol: "checkmark",
+            SwipeHintHalf(
+                symbol: "arrow.right",
                 text: L10n.studyRating(.good),
                 tint: .green,
                 isLeading: false,
                 emphasis: max(swipeProgress, 0)
             )
         }
+        .padding(.horizontal, DesignTokens.Spacing.medium)
+        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.7)
+        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+        .frame(maxWidth: .infinity)
         .padding(.top, DesignTokens.Spacing.small)
         .accessibilityHidden(true)
     }
@@ -257,12 +260,16 @@ public struct StudySessionView: View {
     }
 }
 
-/// One side of the deck's promise: the rating a throw that way commits.
+/// One half of the deck's promise: the direction, and the rating a throw
+/// that way commits.
 ///
-/// Quiet until the throw starts — the chips are furniture, not buttons — and
-/// never the only carrier: the arrow, the word and the side say the same
-/// thing the colour does.
-private struct SwipeHintChip: View {
+/// The half is drawn twice — once quiet and white, once in its answer's
+/// colour laid over it — and the coloured layer's opacity follows the throw.
+/// Drawing it as two layers is what makes the colour change a fade rather
+/// than a switch, and it lights exactly this half and nothing beside it.
+/// The colour is never the only carrier: the arrow, the word and the side
+/// say the same thing.
+private struct SwipeHintHalf: View {
     let symbol: String
     let text: String
     let tint: Color
@@ -271,27 +278,29 @@ private struct SwipeHintChip: View {
     let emphasis: CGFloat
 
     var body: some View {
+        content
+            .foregroundStyle(.white.opacity(0.45))
+            .overlay {
+                content
+                    .foregroundStyle(tint)
+                    .opacity(emphasis)
+            }
+            // The follow is continuous while the finger moves; this smooths
+            // the snap back to quiet when the card is released.
+            .animation(.easeOut(duration: 0.25), value: emphasis == 0)
+    }
+
+    private var content: some View {
         HStack(spacing: DesignTokens.Spacing.extraSmall) {
             if isLeading {
-                Image(systemName: "chevron.left")
                 Image(systemName: symbol)
                 Text(text)
             } else {
                 Text(text)
                 Image(systemName: symbol)
-                Image(systemName: "chevron.right")
             }
         }
         .font(DesignTokens.Typography.caption.weight(.medium))
-        .foregroundStyle(.white.opacity(0.4 + 0.6 * emphasis))
-        .padding(.horizontal, DesignTokens.Spacing.medium)
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.7)
-        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
-        .overlay {
-            Capsule(style: .continuous)
-                .fill(tint.opacity(DesignTokens.Card.swipeWashOpacity * 0.7 * emphasis))
-                .allowsHitTesting(false)
-        }
     }
 }
 

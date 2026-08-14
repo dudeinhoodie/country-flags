@@ -244,23 +244,7 @@ private struct FactTile: View {
         .accessibilityElement(children: .combine)
     }
 
-    /// The label and the value, with the vintage moved to where it belongs.
-    ///
-    /// A population arrives as "1,358,282 (2024)": the year is provenance,
-    /// not part of the number, and in brackets after it it read as a code.
-    /// It moves into the label — "Population 2024" — and the number stands
-    /// alone. A value without a trailing year is passed through untouched.
     private var presentation: (label: String?, value: String) {
-        let label = L10n.factType(fact.type)
-        guard
-            let label,
-            let match = fact.displayValue.range(
-                of: #" \((\d{4})\)$"#, options: .regularExpression
-            )
-        else {
-            return (label, fact.displayValue)
-        }
-        let year = fact.displayValue[match].dropFirst(2).dropLast(1)
-        return ("\(label) \(year)", String(fact.displayValue[..<match.lowerBound]))
+        FactDisplay.presentation(for: fact)
     }
 }

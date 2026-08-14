@@ -46,11 +46,11 @@ public enum DesignTokens {
         /// and straightens as it comes to the top.
         public static let scatterRotation: Double = 5
         public static let scatterOffset: CGFloat = 10
-        /// How far the pile sways as it breathes: a fraction of the scatter,
-        /// slow and autoreversing, so the deck reads as lying there rather
-        /// than as animating.
-        public static let breathRotation: Double = 1.1
-        public static let breathOffset: CGFloat = 3
+        /// How far the pile sways as it breathes: slow and autoreversing.
+        /// Roughly half the scatter — enough to catch the corner of an eye,
+        /// which the first, timider values did not.
+        public static let breathRotation: Double = 2.4
+        public static let breathOffset: CGFloat = 7
         /// The wash a card takes on as it is being thrown: the answer's
         /// colour, from the side the throw is going, never opaque enough to
         /// hide the flag.
