@@ -40,6 +40,12 @@ public enum DesignTokens {
         /// which read as a rendering artifact rather than as a deck.
         public static let stackOffset: CGFloat = 14
         public static let stackScaleStep: CGFloat = 0.04
+        /// How far a waiting card may lean and drift sideways. The values are
+        /// derived from the card's own identity, so the pile looks thrown
+        /// rather than fanned and every card holds its pose between renders —
+        /// and straightens as it comes to the top.
+        public static let scatterRotation: Double = 5
+        public static let scatterOffset: CGFloat = 10
         /// Cards drawn behind the top one. A thicker stack reads as depth
         /// rather than as more information.
         public static let stackDepth: Int = 3

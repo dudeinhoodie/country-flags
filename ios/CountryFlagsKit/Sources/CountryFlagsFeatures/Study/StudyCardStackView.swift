@@ -76,15 +76,8 @@ struct StudyCardStackView: View {
         let isTurned = isTop && isShowingBack
 
         ZStack {
-            // Only the top card shows its flag. The cards behind peek out as
-            // edges, and an edge of another country's artwork read as a
-            // rendering glitch — a strip of unexplained colour under the card
-            // — as well as quietly spoiling the next question. A blank edge
-            // reads as what it is: another card, waiting.
-            if isTop {
-                front(entry.card, isTurned: isTurned)
-                    .opacity(isTurned ? 0 : 1)
-            }
+            front(entry.card, isTurned: isTurned)
+                .opacity(isTurned ? 0 : 1)
 
             // Created when the card turns rather than kept hidden behind the
             // front: the back carries the answer, and a hidden view is still in
@@ -124,11 +117,21 @@ struct StudyCardStackView: View {
             axis: (x: 0, y: 1, z: 0)
         )
         .scaleEffect(1 - DesignTokens.Card.stackScaleStep * CGFloat(entry.depth))
+        // The waiting cards lie as if thrown: each leans and drifts its own
+        // way, fixed by its identity so the pile holds still, and a card
+        // straightens as it comes to the top — the same move a hand makes
+        // picking a card off a pile.
         .offset(
-            x: isTop ? drag.width : 0,
+            x: isTop ? drag.width : scatter(entry.card.id).drift,
             y: DesignTokens.Card.stackOffset * CGFloat(entry.depth)
         )
-        .rotationEffect(.degrees(isTop ? drag.width * DesignTokens.Card.swipeRotation : 0))
+        .rotationEffect(
+            .degrees(
+                isTop
+                    ? drag.width * DesignTokens.Card.swipeRotation
+                    : scatter(entry.card.id).lean
+            )
+        )
         .zIndex(Double(DesignTokens.Card.stackDepth - entry.depth))
         // Only the card being answered is reachable; the ones behind it are
         // depth, not content.
@@ -149,6 +152,18 @@ struct StudyCardStackView: View {
         .animation(reduceMotion ? nil : .snappy, value: drag)
         .animation(reduceMotion ? nil : .snappy, value: state.currentIndex)
         .animation(reduceMotion ? nil : .snappy(duration: 0.3), value: isTurned)
+    }
+
+    /// The pose a waiting card holds, from its own identity.
+    ///
+    /// Read out of the identifier's bytes rather than drawn from a generator:
+    /// the pose must survive re-renders, and two devices dealing the same
+    /// session should see the same pile.
+    private func scatter(_ id: UUID) -> (lean: Double, drift: CGFloat) {
+        let bytes = id.uuid
+        let lean = (Double(bytes.0) / 255 * 2 - 1) * DesignTokens.Card.scatterRotation
+        let drift = (Double(bytes.1) / 255 * 2 - 1) * DesignTokens.Card.scatterOffset
+        return (lean, CGFloat(drift))
     }
 
     private var shape: RoundedRectangle {
