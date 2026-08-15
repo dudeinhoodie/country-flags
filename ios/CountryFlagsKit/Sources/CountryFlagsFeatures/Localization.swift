@@ -80,6 +80,10 @@ public enum L10n {
 
     public static var homeOpenProgress: String { localized("home.open_progress") }
 
+    public static var achievementsTitle: String { localized("achievements.title") }
+    public static var achievementsEarned: String { localized("achievements.earned") }
+    public static var achievementsEmpty: String { localized("achievements.empty") }
+
     public static var progressDecksSection: String { localized("progress.decks") }
     public static var progressStudiedLabel: String { localized("progress.studied") }
     public static var progressAchievementsSection: String { localized("progress.achievements") }

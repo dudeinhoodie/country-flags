@@ -104,19 +104,6 @@ public struct ProgressScreen: View {
                     }
                 }
             }
-
-            if !store.achievements.isEmpty {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                    SectionLabel(L10n.progressAchievementsSection)
-                    GlassCard(padding: DesignTokens.Spacing.medium) {
-                        VStack(spacing: DesignTokens.Spacing.medium) {
-                            ForEach(store.achievements) { achievement in
-                                AchievementRowView(achievement: achievement)
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 

@@ -115,6 +115,15 @@ public struct RootView: View {
             }
             .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
             .tag(AppTab.progress)
+
+            NavigationStack(path: $router.achievementsNavigationPath) {
+                AchievementsScreen(store: makeProgressStore())
+                    .navigationDestination(for: AppRoute.self) { route in
+                        destination(for: route)
+                    }
+            }
+            .tabItem { Label(L10n.achievementsTitle, systemImage: "rosette") }
+            .tag(AppTab.achievements)
         }
         // The scene is dark, so the app is: system controls, sheets and the
         // bars all take their colours from here rather than each screen
@@ -221,6 +230,7 @@ public enum AccessibilityIdentifier {
     }
 
     public static let homeDueEmpty = "home.due.empty"
+    public static let achievementsEmpty = "achievements.empty"
 
     public static func deckCountryRow(_ cardID: UUID) -> String {
         "deck.country.\(cardID.uuidString)"

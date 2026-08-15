@@ -55,6 +55,13 @@ public struct HomeView: View {
             // count that lost that race stayed wrong for the whole visit and
             // only corrected itself once the learner left and came back.
             .task(id: store.status) { await sync.refreshStatus() }
+            // A sync run finishing is the moment the canonical numbers land in
+            // the store — pull them onto the screen instead of waiting for the
+            // learner to leave and come back.
+            .task(id: sync.status) {
+                if progress == nil { progress = makeProgress?() }
+                await progress?.load()
+            }
             // Coming back is the other moment both numbers change: a session
             // queues work and answers cards while this screen is covered, and
             // nothing above re-reads on a pop. The root of a navigation stack
