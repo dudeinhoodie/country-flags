@@ -4,10 +4,13 @@ import CountryFlagsDomain
 
 /// One deck's progress, country by country.
 ///
-/// The deck row said how many; this says which. Three groups, strongest
-/// first: countries that graduated to REVIEW, countries still in the
-/// learning steps, countries never answered. Each started country carries
-/// when its schedule comes round — the same clock the repeat queue runs on.
+/// Three shelves, strongest first, each scrolling sideways the way the App
+/// Store lays out what it wants browsed: countries that graduated to REVIEW,
+/// countries still in the learning steps, countries never answered. A flag is
+/// the card — full colour once it is learned or being learned, drained to a
+/// near-silhouette while nobody has touched it — and each started country
+/// carries when its schedule comes round, on the same clock the repeat queue
+/// runs on.
 public struct DeckProgressDetailsView: View {
     @State private var model: DeckDetailsModel
     @State private var states: [UUID: CardStateRecord] = [:]
@@ -15,6 +18,8 @@ public struct DeckProgressDetailsView: View {
     private let assets: any AssetLoading
     private let makeProgress: (() -> ProgressStore)?
     private let dates: any DateProviding
+
+    @Environment(\.displayScale) private var displayScale
 
     public init(
         deckID: UUID,
@@ -36,7 +41,7 @@ public struct DeckProgressDetailsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .task { await model.load() }
             // Re-read on every return: a session answered cards while this
-            // screen was covered, and the groups have to move with it.
+            // screen was covered, and the shelves have to move with it.
             .onAppear {
                 guard let makeProgress else { return }
                 Task { states = await makeProgress().cardStatesByID() }
@@ -67,14 +72,14 @@ public struct DeckProgressDetailsView: View {
     private func loaded(_ details: DeckDetails) -> some View {
         let groups = grouped(details.cards)
         return SceneScrollView {
-            group(L10n.progressLearnedLabel, cards: groups.learned)
-            group(L10n.progressInProgressLabel, cards: groups.inProgress)
-            group(L10n.progressNotStartedLabel, cards: groups.untouched)
+            shelf(L10n.progressLearnedLabel, cards: groups.learned, dimmed: false)
+            shelf(L10n.progressInProgressLabel, cards: groups.inProgress, dimmed: false)
+            shelf(L10n.progressNotStartedLabel, cards: groups.untouched, dimmed: true)
         }
     }
 
     @ViewBuilder
-    private func group(_ label: String, cards: [LearningCardRecord]) -> some View {
+    private func shelf(_ label: String, cards: [LearningCardRecord], dimmed: Bool) -> some View {
         if !cards.isEmpty {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
                 HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
@@ -85,35 +90,67 @@ public struct DeckProgressDetailsView: View {
                         .foregroundStyle(.white.opacity(0.5))
                 }
 
-                GlassCard(padding: DesignTokens.Spacing.small) {
-                    LazyVStack(spacing: 0) {
-                        ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
-                            if index > 0 {
-                                Divider()
-                                    .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
-                                    .padding(.leading, DesignTokens.Layout.rowFlagWidth)
-                            }
-                            row(card)
-                                .padding(.horizontal, DesignTokens.Spacing.small)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
+                        ForEach(cards, id: \.id) { card in
+                            tile(card, dimmed: dimmed)
                         }
                     }
+                    .scrollTargetLayout()
                 }
+                .scrollTargetBehavior(.viewAligned)
+                // The shelf scrolls under the screen's own margins so a card
+                // half-way off is cut by the edge of the display, not by an
+                // invisible wall inside it.
+                .padding(.horizontal, -DesignTokens.Spacing.medium)
+                .contentMargins(.horizontal, DesignTokens.Spacing.medium, for: .scrollContent)
             }
         }
     }
 
-    private func row(_ card: LearningCardRecord) -> some View {
-        HStack(spacing: DesignTokens.Spacing.medium) {
-            CountryRow(card: card, store: store, assets: assets)
+    private func tile(_ card: LearningCardRecord, dimmed: Bool) -> some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+            FlagImageView(
+                assetID: card.promptAssetID,
+                accessibilityLabel: card.displayName,
+                store: store,
+                assets: assets
+            )
+            .frame(width: Self.tileWidth, height: Self.tileWidth * 3 / 4)
+            .clipShape(
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
+            )
+            // The same hairline the deck cards get, for the same reason: a
+            // mostly white flag has no edge of its own.
+            .overlay {
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
+                    .strokeBorder(
+                        .white.opacity(DesignTokens.Card.borderOpacity),
+                        lineWidth: 1 / displayScale
+                    )
+            }
+            // An untouched country is present but not yet in play: colour is
+            // what studying earns it.
+            .saturation(dimmed ? 0.25 : 1)
+            .opacity(dimmed ? 0.55 : 1)
+
+            Text(card.displayName)
+                .font(DesignTokens.Typography.caption)
+                .foregroundStyle(.white.opacity(dimmed ? 0.55 : 1))
+                .lineLimit(1)
 
             if let caption = scheduleCaption(for: card) {
                 Text(caption)
                     .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.55))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .lineLimit(1)
             }
         }
+        .frame(width: Self.tileWidth, alignment: .leading)
         .accessibilityElement(children: .combine)
     }
+
+    private static let tileWidth: CGFloat = 132
 
     /// When this country's schedule comes round, in words. A country never
     /// answered has no schedule and says nothing.
