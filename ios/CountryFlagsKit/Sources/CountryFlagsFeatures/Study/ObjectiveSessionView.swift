@@ -153,7 +153,7 @@ public struct ObjectiveSessionView: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, DesignTokens.Spacing.medium)
                 .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
-                .background(.ultraThinMaterial, in: Capsule())
+                .glassEffect(.regular, in: Capsule())
                 .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
 
             Spacer()
@@ -166,7 +166,7 @@ public struct ObjectiveSessionView: View {
                         width: DesignTokens.Layout.minimumTouchTarget,
                         height: DesignTokens.Layout.minimumTouchTarget
                     )
-                    .background(.ultraThinMaterial, in: Circle())
+                    .glassEffect(.regular, in: Circle())
             }
             .accessibilityLabel(L10n.studyClose)
             .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
@@ -212,7 +212,7 @@ struct OptionButton: View {
             .padding(.horizontal, DesignTokens.Spacing.medium)
             .frame(minHeight: DesignTokens.Layout.actionHeight)
             .frame(maxWidth: .infinity)
-            .background(.ultraThinMaterial, in: shape)
+            .glassEffect(.regular, in: shape)
             // The verdict is painted as an edge rather than a fill: a tinted
             // fill under a material turns into a wash the whole row wears, and
             // two of them side by side stop reading as two answers.

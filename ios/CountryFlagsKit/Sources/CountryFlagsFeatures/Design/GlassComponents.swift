@@ -9,29 +9,22 @@ import SwiftUI
 
 /// A pane of glass holding content.
 ///
-/// The hairline is not decoration: a material over a dark scene has no edge of
-/// its own, and without one two stacked cards read as a single smudge.
+/// The system's own liquid glass — what the iOS 26 floor was raised for. The
+/// hand-drawn hairline is gone with the hand-rolled material: real glass
+/// carries its own edge, and drawing a second one over it read as a smudge
+/// outline rather than a rim.
 struct GlassCard<Content: View>: View {
     var padding: CGFloat = DesignTokens.Spacing.medium
     @ViewBuilder var content: Content
-
-    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         content
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(padding)
-            .background(.ultraThinMaterial, in: shape)
-            .overlay {
-                shape.strokeBorder(
-                    .white.opacity(DesignTokens.Card.borderOpacity),
-                    lineWidth: 1 / displayScale
-                )
-            }
-    }
-
-    private var shape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+            .glassEffect(
+                .regular,
+                in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+            )
     }
 }
 
@@ -81,7 +74,6 @@ struct PrimaryActionStyle: ButtonStyle {
 struct GlassActionStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.displayScale) private var displayScale
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -89,14 +81,7 @@ struct GlassActionStyle: ButtonStyle {
             .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.4))
             .frame(maxWidth: .infinity)
             .frame(minHeight: DesignTokens.Layout.actionHeight)
-            .background(.ultraThinMaterial, in: Capsule(style: .continuous))
-            .overlay {
-                Capsule(style: .continuous)
-                    .strokeBorder(
-                        .white.opacity(DesignTokens.Card.borderOpacity),
-                        lineWidth: 1 / displayScale
-                    )
-            }
+            .glassEffect(.regular.interactive(), in: Capsule(style: .continuous))
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
             .animation(reduceMotion ? nil : .snappy(duration: 0.2), value: configuration.isPressed)
     }

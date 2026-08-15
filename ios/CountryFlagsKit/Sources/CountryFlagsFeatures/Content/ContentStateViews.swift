@@ -24,8 +24,8 @@ struct ContentStatusBanner: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, DesignTokens.Spacing.medium)
             .padding(.vertical, DesignTokens.Spacing.small)
-            .background(
-                .ultraThinMaterial,
+            .glassEffect(
+                .regular,
                 in: .rect(cornerRadius: DesignTokens.Radius.medium, style: .continuous)
             )
         }

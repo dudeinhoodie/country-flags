@@ -262,17 +262,10 @@ private struct FactTile: View {
         // tiles reads as a pair and not as two notes of different lengths.
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(DesignTokens.Spacing.medium)
-        .background(
-            .ultraThinMaterial,
+        .glassEffect(
+            .regular,
             in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
         )
-        .overlay {
-            RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
-                .strokeBorder(
-                    .white.opacity(DesignTokens.Card.borderOpacity),
-                    lineWidth: 1 / displayScale
-                )
-        }
         // One fact is one thing to hear, not a label and a value in sequence.
         .accessibilityElement(children: .combine)
     }

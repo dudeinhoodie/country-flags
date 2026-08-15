@@ -163,7 +163,7 @@ public struct StudySessionView: View {
         }
         .padding(.horizontal, DesignTokens.Spacing.medium)
         .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.7)
-        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+        .glassEffect(.regular, in: Capsule(style: .continuous))
         .frame(maxWidth: .infinity)
         .padding(.top, DesignTokens.Spacing.small)
         .accessibilityHidden(true)
@@ -179,7 +179,7 @@ public struct StudySessionView: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, DesignTokens.Spacing.medium)
                 .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
-                .background(.ultraThinMaterial, in: Capsule())
+                .glassEffect(.regular, in: Capsule())
                 .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
 
             Spacer()
@@ -194,7 +194,7 @@ public struct StudySessionView: View {
                         width: DesignTokens.Layout.minimumTouchTarget,
                         height: DesignTokens.Layout.minimumTouchTarget
                     )
-                    .background(.ultraThinMaterial, in: Circle())
+                    .glassEffect(.regular, in: Circle())
             }
             .accessibilityLabel(L10n.studyClose)
             .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
@@ -245,7 +245,7 @@ public struct StudySessionView: View {
             }
         }
         .padding(DesignTokens.Spacing.extraSmall)
-        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+        .glassEffect(.regular, in: Capsule(style: .continuous))
         .overlay {
             Capsule(style: .continuous)
                 .strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
@@ -399,7 +399,7 @@ struct StudySessionResultView: View {
             }
         }
         .padding(DesignTokens.Spacing.medium)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous))
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous))
     }
 
     private func fraction(_ count: Int) -> CGFloat {
@@ -480,7 +480,7 @@ struct StudyLoadingView: View {
                             width: DesignTokens.Layout.minimumTouchTarget,
                             height: DesignTokens.Layout.minimumTouchTarget
                         )
-                        .background(.ultraThinMaterial, in: Circle())
+                        .glassEffect(.regular, in: Circle())
                 }
                 .accessibilityLabel(L10n.studyClose)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
