@@ -213,6 +213,7 @@ struct AppComposition: AppDependencies {
                 logger: logger
             ),
             sessionImports: studySessions,
+            progressDownload: progressService,
             dates: dates,
             logger: logger
         )

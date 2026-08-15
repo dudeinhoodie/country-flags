@@ -23,6 +23,7 @@ public actor SyncCoordinator: SyncCoordinating {
     private let learning: any LearningRepository
     private let uploader: any ReviewUploading
     private let sessionImports: (any StudySessionImporting)?
+    private let progressDownload: (any ProgressDownloading)?
     private let dates: any DateProviding
     private let logger: any AppLogging
     private let batchLimit: Int
@@ -38,6 +39,7 @@ public actor SyncCoordinator: SyncCoordinating {
         learning: any LearningRepository,
         uploader: any ReviewUploading,
         sessionImports: (any StudySessionImporting)? = nil,
+        progressDownload: (any ProgressDownloading)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         logger: any AppLogging = NoOpLogger(),
         batchLimit: Int = 100
@@ -46,6 +48,7 @@ public actor SyncCoordinator: SyncCoordinating {
         self.learning = learning
         self.uploader = uploader
         self.sessionImports = sessionImports
+        self.progressDownload = progressDownload
         self.dates = dates
         self.logger = logger
         self.batchLimit = batchLimit
@@ -119,6 +122,10 @@ public actor SyncCoordinator: SyncCoordinating {
 
         do {
             try await uploadPendingWork(scope: scope)
+            // The canonical answers ride home on the same run that delivered
+            // the questions: deck mastery, achievements and settings are the
+            // backend's to compute, and the screens only ever read the store.
+            await pullCanonicalProgress(scope: scope)
             return await publish(
                 scope: scope,
                 phase: .idle,
@@ -127,6 +134,34 @@ public actor SyncCoordinator: SyncCoordinating {
             )
         } catch {
             return await publish(scope: scope, phase: .idle, failure: Self.failure(from: error))
+        }
+    }
+
+    /// Best effort by design: a downlink that misses leaves yesterday's
+    /// canon on screen, which the next run replaces. Failing the whole sync
+    /// for it would block the upload path over a read.
+    private func pullCanonicalProgress(scope: AccountScope) async {
+        guard let progressDownload else { return }
+        do {
+            let snapshot = try await progressDownload.download()
+            try await learning.saveDeckProgress(snapshot.decks, for: scope)
+            try await learning.saveAchievements(snapshot.achievements, for: scope)
+            if let serverSettings = snapshot.settings {
+                // The server's settings win only by being newer: the version
+                // moves when the server accepts a change, so an older number
+                // must not roll back what another device just wrote through.
+                let local = try await learning.settings(for: scope)
+                if local == nil || serverSettings.version > (local?.version ?? 0) {
+                    try await learning.saveSettings(serverSettings, for: scope)
+                }
+            }
+        } catch {
+            logger.log(
+                .notice,
+                .sync,
+                "The canonical progress could not be downloaded this run",
+                ["code": .safe(String(describing: Self.failure(from: error)))]
+            )
         }
     }
 
