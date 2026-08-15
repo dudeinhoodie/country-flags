@@ -1089,6 +1089,40 @@
         }
       }
     },
+    "home.due_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld to review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld к повторению"
+          }
+        }
+      }
+    },
+    "home.due_empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to review right now — come back later"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока нечего повторять — загляни позже"
+          }
+        }
+      }
+    },
     "home.greeting": {
       "extractionState": "manual",
       "localizations": {

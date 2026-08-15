@@ -216,6 +216,12 @@ public enum AccessibilityIdentifier {
         "home.deck.\(code)"
     }
 
+    public static func homeDueRow(_ code: String) -> String {
+        "home.due.\(code)"
+    }
+
+    public static let homeDueEmpty = "home.due.empty"
+
     public static func deckCountryRow(_ cardID: UUID) -> String {
         "deck.country.\(cardID.uuidString)"
     }

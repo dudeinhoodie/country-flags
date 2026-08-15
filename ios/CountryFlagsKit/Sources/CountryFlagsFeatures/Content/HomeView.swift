@@ -111,6 +111,8 @@ public struct HomeView: View {
                 heroCard(hero)
             }
 
+            dueSection
+
             let decks = recommended(sections)
             if !decks.isEmpty {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
@@ -134,6 +136,61 @@ public struct HomeView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
+                    }
+                }
+            }
+        }
+    }
+
+    /// The repeat queue, deck by deck — and an honest zero.
+    ///
+    /// The hero names only the biggest debt, and an unfinished session
+    /// displaces it entirely; this is the place the whole queue is always
+    /// visible. With nothing due the section says so instead of vanishing:
+    /// an absent number reads as a screen that lost it, not as a day done.
+    /// Nothing studied yet is different — the queue does not exist, and a
+    /// zero would be noise under a hero that says "start".
+    @ViewBuilder
+    private var dueSection: some View {
+        if let progress, progress.isLoaded, !progress.hasNoProgress {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                SectionLabel(L10n.homeDue)
+
+                let due = progress.decks.filter { $0.dueCards > 0 }
+                    .sorted { $0.dueCards > $1.dueCards }
+                if due.isEmpty {
+                    Text(L10n.homeDueEmpty)
+                        .font(DesignTokens.Typography.body)
+                        .foregroundStyle(.white.opacity(0.6))
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeDueEmpty)
+                } else {
+                    ForEach(due) { deck in
+                        Button {
+                            onOpenDeck(deck.id)
+                        } label: {
+                            GlassCard(padding: DesignTokens.Spacing.medium) {
+                                HStack(
+                                    alignment: .firstTextBaseline,
+                                    spacing: DesignTokens.Spacing.small
+                                ) {
+                                    Text(deck.name)
+                                        .font(DesignTokens.Typography.sectionTitle)
+                                        .foregroundStyle(.white)
+                                    Spacer(minLength: DesignTokens.Spacing.small)
+                                    Text("\(deck.dueCards)")
+                                        .font(DesignTokens.Typography.sectionTitle)
+                                        .monospacedDigit()
+                                        .contentTransition(.numericText())
+                                        .foregroundStyle(.white.opacity(0.7))
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(
+                            "\(deck.name), \(L10n.homeDueCount(deck.dueCards))"
+                        )
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeDueRow(deck.code))
                     }
                 }
             }

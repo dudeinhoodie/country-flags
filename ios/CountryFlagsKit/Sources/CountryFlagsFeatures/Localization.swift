@@ -49,6 +49,11 @@ public enum L10n {
     /// The label over the number the first screen is built around, in each of
     /// its two cases, and the action underneath it.
     public static var homeDue: String { localized("home.due") }
+    public static var homeDueEmpty: String { localized("home.due_empty") }
+
+    public static func homeDueCount(_ count: Int) -> String {
+        String(format: localized("home.due_count"), count)
+    }
     public static var homeDeckSize: String { localized("home.deck_size") }
     public static var homeContinue: String { localized("home.continue") }
     public static var homeSessionInProgress: String { localized("home.session_in_progress") }
