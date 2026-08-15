@@ -103,6 +103,32 @@ public enum L10n {
     public static var settingsRemindersFooter: String { localized("settings.reminders_footer") }
     public static var settingsConflictReloaded: String { localized("settings.conflict_reloaded") }
 
+    // MARK: - Account
+
+    public static var accountSection: String { localized("account.section") }
+    public static var accountSignedIn: String { localized("account.signed_in") }
+    public static var accountExpired: String { localized("account.expired") }
+    public static var accountSignOut: String { localized("account.sign_out") }
+    public static var accountSignOutEverywhere: String { localized("account.sign_out_everywhere") }
+    public static var accountSignOutClean: String { localized("account.sign_out_clean") }
+    public static var accountCancel: String { localized("account.cancel") }
+    public static var accountSigningIn: String { localized("account.signing_in") }
+    public static var accountMigrationPending: String { localized("account.migration_pending") }
+    public static var accountMigrationFailed: String { localized("account.migration_failed") }
+    public static var accountSignInFailed: String { localized("account.sign_in_failed") }
+    public static var accountSignInOffline: String { localized("account.sign_in_offline") }
+    public static var accountGuestNote: String { localized("account.guest_note") }
+    public static var accountSignInGoogle: String { localized("account.sign_in_google") }
+    public static var accountFallbackName: String { localized("account.fallback_name") }
+
+    public static func accountSignOutWarning(_ count: Int) -> String {
+        String(format: localized("account.sign_out_warning"), count)
+    }
+
+    public static func accountMigrationImported(_ count: Int) -> String {
+        String(format: localized("account.migration_imported"), count)
+    }
+
     public static var contentLoading: String { localized("content.loading") }
     public static var contentRetry: String { localized("content.retry") }
     public static var contentStale: String { localized("content.stale") }

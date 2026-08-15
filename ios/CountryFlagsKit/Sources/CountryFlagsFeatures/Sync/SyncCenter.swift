@@ -16,7 +16,6 @@ public final class SyncCenter {
 
     private let coordinator: any SyncCoordinating
     private let scopes: any AccountScopeResolving
-    private var scope: AccountScope?
 
     public init(coordinator: any SyncCoordinating, scopes: any AccountScopeResolving) {
         self.coordinator = coordinator
@@ -46,10 +45,9 @@ public final class SyncCenter {
         status = await coordinator.status(for: await resolvedScope())
     }
 
+    /// Asked every time rather than cached: signing in changes the answer
+    /// mid-launch, and a cached guest would keep syncing as nobody.
     private func resolvedScope() async -> AccountScope {
-        if let scope { return scope }
-        let resolved = await scopes.currentScope()
-        scope = resolved
-        return resolved
+        await scopes.currentScope()
     }
 }

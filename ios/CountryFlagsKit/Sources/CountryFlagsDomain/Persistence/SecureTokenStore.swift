@@ -10,7 +10,14 @@ public enum SecureTokenKind: String, Hashable, Sendable, CaseIterable {
     /// The account the stored refresh token belongs to. Also not a credential:
     /// it is kept so a relaunch knows whose data to read before it has spoken
     /// to the backend, rather than asking the network who it is.
+    /// What the account calls itself, for the screen alone. Not a credential
+    /// either; it lives here because it belongs to the same session the
+    /// tokens do and must leave with them.
     case accountUserID
+    case accountDisplayName
+    /// Where the account's picture lives, when a provider shared one. A URL,
+    /// not an image; fetched fresh so a changed picture changes here too.
+    case accountAvatarURL
 }
 
 /// Where session secrets live.

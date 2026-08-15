@@ -88,6 +88,14 @@ actor RecordingLearningRepository: LearningRepository {
         reviews.filter { $0.sessionID == sessionID }
     }
 
+    func sessions(for scope: AccountScope) async throws -> [StudySessionRecord] {
+        sessions
+    }
+
+    func reviews(for scope: AccountScope) async throws -> [ReviewEventRecord] {
+        reviews
+    }
+
     func recordReview(
         _ review: ReviewEventRecord,
         projectedState: CardStateRecord,

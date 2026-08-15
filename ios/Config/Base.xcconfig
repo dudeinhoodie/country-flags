@@ -7,6 +7,15 @@
 
 PRODUCT_NAME = CountryFlags
 CF_BUNDLE_ID_BASE = app.countryflags.mobile
+
+// Google OAuth clients. Empty until the console credentials exist for the
+// configuration; an empty value hides the Google button. The scheme is the
+// iOS client identifier with its dot-order reversed, which is how Google's
+// browser round trip finds its way back into the app. None of these is a
+// secret.
+CF_GOOGLE_IOS_CLIENT_ID =
+CF_GOOGLE_SERVER_CLIENT_ID =
+CF_GOOGLE_URL_SCHEME = 
 PRODUCT_BUNDLE_IDENTIFIER = $(CF_BUNDLE_ID_BASE)$(CF_BUNDLE_ID_SUFFIX)
 
 IPHONEOS_DEPLOYMENT_TARGET = 17.0
@@ -30,6 +39,12 @@ GENERATE_INFOPLIST_FILE = YES
 CODE_SIGN_STYLE = Automatic
 CODE_SIGNING_REQUIRED = NO
 CODE_SIGNING_ALLOWED = NO
+// The simulator is ad-hoc signed: with signing disabled outright the binary
+// carries no entitlements, the keychain answers -34018 to every call, the
+// guest identity is reborn on each launch and Google's SDK dies saving its
+// session. Ad-hoc needs no certificate, so CI is unaffected.
+CODE_SIGNING_ALLOWED[sdk=iphonesimulator*] = YES
+CODE_SIGN_IDENTITY[sdk=iphonesimulator*] = -
 DEVELOPMENT_TEAM = $(CF_DEVELOPMENT_TEAM)
 
 // Config/App-Info.plist substitutes these into the app bundle, where

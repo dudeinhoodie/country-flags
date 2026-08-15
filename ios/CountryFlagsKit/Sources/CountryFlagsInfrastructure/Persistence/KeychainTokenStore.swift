@@ -64,6 +64,16 @@ public struct KeychainTokenStore: SecureTokenStoring {
             var insert = query
             insert.merge(attributes) { _, new in new }
             let addStatus = SecItemAdd(insert as CFDictionary, nil)
+            if addStatus == errSecDuplicateItem {
+                // Lost the race to a concurrent writer: between our miss and
+                // our add, somebody stored the item. It exists now, so the
+                // write completes as the update it would have been.
+                let retryStatus = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+                guard retryStatus == errSecSuccess else {
+                    throw SecureTokenStoreError.unavailable(status: retryStatus)
+                }
+                return
+            }
             guard addStatus == errSecSuccess else {
                 throw SecureTokenStoreError.unavailable(status: addStatus)
             }

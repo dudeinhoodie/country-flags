@@ -23,17 +23,21 @@ public enum ProviderCredential: Sendable {
 /// The session a successful exchange produced.
 public struct AuthSessionRecord: Hashable, Sendable {
     public let userID: UUID
+    /// What the account calls itself, when the backend knows.
+    public let displayName: String?
     public let accessToken: String
     public let accessTokenExpiresAt: Date
     public let refreshToken: String
 
     public init(
         userID: UUID,
+        displayName: String? = nil,
         accessToken: String,
         accessTokenExpiresAt: Date,
         refreshToken: String
     ) {
         self.userID = userID
+        self.displayName = displayName
         self.accessToken = accessToken
         self.accessTokenExpiresAt = accessTokenExpiresAt
         self.refreshToken = refreshToken
@@ -89,12 +93,32 @@ public protocol AuthenticationService: Sendable {
     func logoutEverywhere() async throws
 }
 
+/// What the screen shows for the signed-in person.
+///
+/// Assembled from two sources that know different halves: the backend knows
+/// the account's name, the provider knows the picture — and, on a first Apple
+/// sign-in, a name the backend may not have yet. Never used for authorisation.
+public struct AccountProfile: Hashable, Sendable {
+    public let displayName: String?
+    public let avatarURL: URL?
+
+    public init(displayName: String?, avatarURL: URL?) {
+        self.displayName = displayName
+        self.avatarURL = avatarURL
+    }
+}
+
 /// Signing in and out, and where the app currently stands.
 ///
 /// Guest study never depends on any of this: the state exists so the interface
 /// can say who is signed in, not to gate what a learner may do.
 public protocol SessionControlling: Sendable {
     func currentState() async -> AuthenticationState
+    /// The signed-in person as the screen shows them, or nil as a guest.
+    func currentProfile() async -> AccountProfile?
+    /// Records what the provider shared at sign-in. The backend's own name
+    /// wins where both know one; the picture only a provider has.
+    func adoptProviderProfile(name: String?, avatarURL: URL?) async
     func signIn(with credential: ProviderCredential) async -> SignInOutcome
     /// - Parameter everywhere: also ends the sessions of the account's other
     ///   devices, which is the answer to a lost phone rather than to a normal

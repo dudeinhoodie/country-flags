@@ -13,13 +13,21 @@ import CountryFlagsDomain
 public struct SettingsScreen: View {
     /// Owned for the same reason the progress screen owns its own.
     @State private var store: SettingsStore
+    private let makeAccount: (() -> AccountStore)?
 
-    public init(store: SettingsStore) {
+    public init(store: SettingsStore, makeAccount: (() -> AccountStore)? = nil) {
         _store = State(wrappedValue: store)
+        self.makeAccount = makeAccount
     }
 
     public var body: some View {
         List {
+            // Who this progress belongs to, above the knobs that shape it.
+            if let makeAccount {
+                AccountSection(store: makeAccount())
+                    .listRowBackground(rowBackground)
+            }
+
             if store.didReloadAfterConflict {
                 Section {
                     Text(L10n.settingsConflictReloaded)

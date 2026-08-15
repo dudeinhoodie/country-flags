@@ -16,6 +16,7 @@ public struct RootView: View {
     private let makeObjectiveRunner: () -> ObjectiveSessionRunner
     private let makeProgressStore: () -> ProgressStore
     private let makeSettingsStore: () -> SettingsStore
+    private let makeAccountStore: (() -> AccountStore)?
     private let featureFlags: FeatureFlagCenter
     private let sync: SyncCenter
 
@@ -30,6 +31,7 @@ public struct RootView: View {
         makeObjectiveRunner: @escaping () -> ObjectiveSessionRunner,
         makeProgressStore: @escaping () -> ProgressStore,
         makeSettingsStore: @escaping () -> SettingsStore,
+        makeAccountStore: (() -> AccountStore)? = nil,
         featureFlags: FeatureFlagCenter,
         sync: SyncCenter
     ) {
@@ -41,6 +43,7 @@ public struct RootView: View {
         self.makeObjectiveRunner = makeObjectiveRunner
         self.makeProgressStore = makeProgressStore
         self.makeSettingsStore = makeSettingsStore
+        self.makeAccountStore = makeAccountStore
         self.featureFlags = featureFlags
         self.sync = sync
     }
@@ -160,7 +163,7 @@ public struct RootView: View {
         case .progress:
             ProgressScreen(store: makeProgressStore())
         case .settings:
-            SettingsScreen(store: makeSettingsStore())
+            SettingsScreen(store: makeSettingsStore(), makeAccount: makeAccountStore)
         }
     }
 }
@@ -213,6 +216,16 @@ public enum AccessibilityIdentifier {
     public static func progressDeckCounts(_ code: String) -> String {
         "progress.deck.\(code).counts"
     }
+
+    public static let accountSignInApple = "settings.account.signInApple"
+    public static let accountFakeSignIn = "settings.account.fakeSignIn"
+    public static let accountSignInGoogle = "settings.account.signInGoogle"
+    public static let accountSignedIn = "settings.account.signedIn"
+    public static let accountSigningIn = "settings.account.signingIn"
+    public static let accountSignOut = "settings.account.signOut"
+    public static let accountExpired = "settings.account.expired"
+    public static let accountFailure = "settings.account.failure"
+    public static let accountMigrationImported = "settings.account.migrationImported"
 
     public static let settingsSound = "settings.sound"
     public static let settingsHaptics = "settings.haptics"
