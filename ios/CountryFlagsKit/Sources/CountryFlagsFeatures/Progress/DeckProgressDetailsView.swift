@@ -14,6 +14,7 @@ import CountryFlagsDomain
 public struct DeckProgressDetailsView: View {
     @State private var model: DeckDetailsModel
     @State private var states: [UUID: CardStateRecord] = [:]
+    @State private var selectedCountry: CountryDetailsSubject?
     private let store: ContentStore
     private let assets: any AssetLoading
     private let makeProgress: (() -> ProgressStore)?
@@ -45,6 +46,11 @@ public struct DeckProgressDetailsView: View {
             .onAppear {
                 guard let makeProgress else { return }
                 Task { states = await makeProgress().cardStatesByID() }
+            }
+            // The same sheet a card opens mid-session: one country, one
+            // surface, whoever asks.
+            .sheet(item: $selectedCountry) { subject in
+                CountryDetailsSheet(subject: subject, store: store, assets: assets)
             }
     }
 
@@ -93,7 +99,12 @@ public struct DeckProgressDetailsView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
                         ForEach(cards, id: \.id) { card in
-                            tile(card, dimmed: dimmed)
+                            Button {
+                                selectedCountry = CountryDetailsSubject(card: card)
+                            } label: {
+                                tile(card, dimmed: dimmed)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .scrollTargetLayout()

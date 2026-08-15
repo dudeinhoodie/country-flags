@@ -132,7 +132,11 @@ public struct StudySessionView: View {
             // down would strand the reader on a side with nothing left to do.
             isShowingBack = false
         } content: {
-            StudyDetailsSheet(card: card, store: store, assets: assets)
+            CountryDetailsSheet(
+                subject: CountryDetailsSubject(card: card),
+                store: store,
+                assets: assets
+            )
         }
     }
 

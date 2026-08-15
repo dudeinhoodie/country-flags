@@ -15,8 +15,33 @@ import CountryFlagsDomain
 /// for first sit as tiles; the rest are rows in one pane. Every fact carries a
 /// symbol on its own colour, because a list where only the words differ is a
 /// list nobody can scan.
-struct StudyDetailsSheet: View {
-    let card: StudySessionCardRecord
+/// The country a details sheet is about: enough to find its name, its flag
+/// and its facts, from either side of the app that opens one — a card mid-
+/// session or a flag on the progress shelves. One subject, one sheet: a
+/// change here changes every place that presents it.
+struct CountryDetailsSubject: Hashable, Identifiable {
+    /// The learning card the release hangs the country's facts on.
+    let cardID: UUID
+    let displayName: String
+    let promptAssetID: UUID
+
+    var id: UUID { cardID }
+
+    init(card: StudySessionCardRecord) {
+        cardID = card.learningCardID
+        displayName = card.displayName
+        promptAssetID = card.promptAssetID
+    }
+
+    init(card: LearningCardRecord) {
+        cardID = card.id
+        displayName = card.displayName
+        promptAssetID = card.promptAssetID
+    }
+}
+
+struct CountryDetailsSheet: View {
+    let subject: CountryDetailsSubject
     let store: ContentStore
     let assets: any AssetLoading
 
@@ -99,15 +124,15 @@ struct StudyDetailsSheet: View {
         .presentationBackground(.regularMaterial)
         .fullScreenCover(isPresented: $isShowingFullMap) {
             if let outline {
-                CountryMapExpandedView(name: card.displayName, outline: outline)
+                CountryMapExpandedView(name: subject.displayName, outline: outline)
             }
         }
-        .task(id: card.learningCardID) {
-            facts = await store.card(id: card.learningCardID)?.backSideFacts ?? []
+        .task(id: subject.cardID) {
+            facts = await store.card(id: subject.cardID)?.backSideFacts ?? []
             // The outline is found the way the flag itself is: by the asset's
             // checksum, through the bundled index, to the slug — which is what
             // makes it survive a display name in any language.
-            if let record = await store.asset(id: card.promptAssetID),
+            if let record = await store.asset(id: subject.promptAssetID),
                 let assetName = BundledFlags.shipped.assetName(forChecksum: record.sha256) {
                 let slug = String(assetName.dropFirst("flag-".count))
                 outline = CountryBoundaries.shipped.outline(forSlug: slug)
@@ -119,7 +144,7 @@ struct StudyDetailsSheet: View {
         HStack(alignment: .top, spacing: DesignTokens.Spacing.medium) {
             // The country is content, so it takes the largest role here as it
             // does everywhere else it appears.
-            Text(card.displayName)
+            Text(subject.displayName)
                 .font(DesignTokens.Typography.screenTitle)
                 .minimumScaleFactor(0.6)
                 .lineLimit(2)
@@ -145,8 +170,8 @@ struct StudyDetailsSheet: View {
 
     private var flag: some View {
         FlagImageView(
-            assetID: card.promptAssetID,
-            accessibilityLabel: card.displayName,
+            assetID: subject.promptAssetID,
+            accessibilityLabel: subject.displayName,
             store: store,
             assets: assets
         )
