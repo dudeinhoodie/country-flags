@@ -24,6 +24,7 @@ public actor SyncCoordinator: SyncCoordinating {
     private let uploader: any ReviewUploading
     private let sessionImports: (any StudySessionImporting)?
     private let progressDownload: (any ProgressDownloading)?
+    private let userChanges: (any UserChangesDownloading)?
     private let dates: any DateProviding
     private let logger: any AppLogging
     private let batchLimit: Int
@@ -40,6 +41,7 @@ public actor SyncCoordinator: SyncCoordinating {
         uploader: any ReviewUploading,
         sessionImports: (any StudySessionImporting)? = nil,
         progressDownload: (any ProgressDownloading)? = nil,
+        userChanges: (any UserChangesDownloading)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         logger: any AppLogging = NoOpLogger(),
         batchLimit: Int = 100
@@ -49,6 +51,7 @@ public actor SyncCoordinator: SyncCoordinating {
         self.uploader = uploader
         self.sessionImports = sessionImports
         self.progressDownload = progressDownload
+        self.userChanges = userChanges
         self.dates = dates
         self.logger = logger
         self.batchLimit = batchLimit
@@ -125,6 +128,7 @@ public actor SyncCoordinator: SyncCoordinating {
             // The canonical answers ride home on the same run that delivered
             // the questions: deck mastery, achievements and settings are the
             // backend's to compute, and the screens only ever read the store.
+            await pullCanonicalStates(scope: scope)
             await pullCanonicalProgress(scope: scope)
             return await publish(
                 scope: scope,
@@ -134,6 +138,78 @@ public actor SyncCoordinator: SyncCoordinating {
             )
         } catch {
             return await publish(scope: scope, phase: .idle, failure: Self.failure(from: error))
+        }
+    }
+
+    /// Walks the account's change stream and applies the canonical card
+    /// states it carries — which is how a fresh device inherits a learner's
+    /// history, and how one device hears what another answered.
+    ///
+    /// Best effort like the aggregate downlink: a page that misses leaves the
+    /// local states standing, and the next run resumes from the same cursor.
+    /// The cursor moves only after its page has been applied, so a crash in
+    /// between replays rather than skips — and replaying is safe because the
+    /// merge keeps whichever state is newer.
+    private func pullCanonicalStates(scope: AccountScope) async {
+        guard let userChanges, case .authenticated = scope else { return }
+        do {
+            var cursor = try await outbox.cursor(.userChanges, for: scope)?.cursor
+            var didRestart = false
+            for _ in 0..<Self.maximumChangePages {
+                let page: UserChangesPage
+                do {
+                    page = try await userChanges.changes(
+                        after: cursor,
+                        limit: Self.changePageLimit
+                    )
+                } catch let error as APIError where Self.isCursorRejection(error) {
+                    // The stream was rotated under this device — progress was
+                    // cleared — so the old cursor no longer resolves and the
+                    // honest answer is to read again from the beginning.
+                    guard cursor != nil, !didRestart else { throw error }
+                    cursor = nil
+                    didRestart = true
+                    continue
+                }
+                let states = page.changes.compactMap { change -> CardStateRecord? in
+                    guard case .upsert = change.operation else { return nil }
+                    return change.state
+                }
+                try await applyCanonical(states: states, scope: scope)
+                try await outbox.saveCursor(
+                    SyncCursorRecord(
+                        feed: .userChanges,
+                        cursor: page.nextCursor,
+                        updatedAt: dates.now()
+                    ),
+                    for: scope
+                )
+                cursor = page.nextCursor
+                if !page.hasMore { return }
+            }
+            logger.log(
+                .notice,
+                .sync,
+                "The change stream is longer than one run walks; the rest follows next run"
+            )
+        } catch {
+            logger.log(
+                .notice,
+                .sync,
+                "The canonical card states could not be downloaded this run",
+                ["code": .safe(String(describing: Self.failure(from: error)))]
+            )
+        }
+    }
+
+    private static let changePageLimit = 100
+    private static let maximumChangePages = 30
+
+    /// Whether the backend refused the cursor itself rather than the request.
+    private static func isCursorRejection(_ error: APIError) -> Bool {
+        switch error {
+        case .validationFailed, .client: true
+        default: false
         }
     }
 
@@ -360,14 +436,10 @@ public actor SyncCoordinator: SyncCoordinating {
 
         try await applyCanonical(states: canonicalStates, scope: scope)
 
-        if let cursor = outcome.cursor {
-            // The cursor moves only after the page it describes has been
-            // applied, so a crash in between replays rather than skips.
-            try await outbox.saveCursor(
-                SyncCursorRecord(feed: .userChanges, cursor: cursor, updatedAt: dates.now()),
-                for: scope
-            )
-        }
+        // The batch answer names the stream's latest cursor, but writing it
+        // would skip every change between the device's last read and now —
+        // on a fresh device, the account's whole history. The changes pull
+        // owns the cursor and moves it only over pages it has applied.
     }
 
     /// Replaces local projections with what the server decided.

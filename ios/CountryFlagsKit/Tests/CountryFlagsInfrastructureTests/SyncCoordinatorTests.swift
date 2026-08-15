@@ -273,8 +273,11 @@ final class SyncCoordinatorTests: XCTestCase {
 
     // MARK: - Cursor
 
-    /// The cursor moves only after the work it describes has been applied.
-    func testTheCursorIsSavedAfterTheBatchIsApplied() async throws {
+    /// The batch answer names the stream's latest cursor, but writing it
+    /// would skip everything between the device's last read and now — on a
+    /// fresh device, the account's whole history. Only the changes pull may
+    /// move the cursor, and only over pages it has applied.
+    func testTheBatchCursorDoesNotMoveTheChangesFeed() async throws {
         let store = try LocalStore(location: .inMemory)
         let outbox = store.makeOutboxRepository()
         let ids = try await enqueue(count: 1, into: outbox, scope: account)
@@ -284,7 +287,7 @@ final class SyncCoordinatorTests: XCTestCase {
         await coordinator.synchronize(scope: account, trigger: .launch)
 
         let cursor = try await outbox.cursor(.userChanges, for: account)
-        XCTAssertEqual(cursor?.cursor, "cursor-7")
+        XCTAssertNil(cursor)
     }
 
     // MARK: - Helpers
