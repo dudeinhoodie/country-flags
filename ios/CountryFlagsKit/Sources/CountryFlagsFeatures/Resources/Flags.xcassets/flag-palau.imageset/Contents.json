@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "palau.svg",
-      "idiom": "universal"
+      "filename": "flag-palau@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-palau@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "iraq.svg",
-      "idiom": "universal"
+      "filename": "flag-iraq@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-iraq@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

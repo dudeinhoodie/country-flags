@@ -14,6 +14,8 @@ import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { Resvg } from "@resvg/resvg-js";
+
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 /// The release this build ships. A binary must never carry images no release
@@ -49,40 +51,33 @@ async function readRegistry() {
   return registry.assets.sort((left, right) => left.key.localeCompare(right.key, "en"));
 }
 
-/// Removes the letterbox clip most flag-icons files carry.
+/// The sizes the catalog carries. The largest surface a flag fills is the
+/// details sheet, about 370 points wide, so 1080 pixels covers a 3x screen
+/// with headroom and 720 a 2x one. There is no 1x slot: no supported device
+/// has a 1x screen.
+const SCALES = [
+  { scale: "2x", width: 720 },
+  { scale: "3x", width: 1080 },
+];
+
+/// Renders the release's own SVG bytes to pixels.
 ///
-/// Xcode's SVG renderer applies a clipPath in the file's root coordinate
-/// space, ignoring the transform of the group that references it. The
-/// letterbox clip is written in pre-transform units, so on part of the set
-/// Xcode cut a strip off the flag — seven percent of Israel, a tenth of
-/// Benin, a quarter of Libya — and the card showed the ground where the
-/// flag should have been. The clip is redundant for this use anyway: the
-/// viewBox already crops the canvas.
-///
-/// A letterbox is recognised by its shape: a clipPath holding a plain
-/// rectangle, drawn as a path of straight lines or as a rect element. A
-/// clip of any other shape is content — Belarus masks its ornament with
-/// one, Nicaragua its emblem — and is kept.
-function stripLetterboxClip(svg) {
-  const asPath = svg.match(
-    /<clipPath id="([a-z0-9-]+)"><path [^>]*?d="([^"]+)"[^>]*\/><\/clipPath>/u,
-  );
-  const asRect = svg.match(/<clipPath id="([a-z0-9-]+)"><rect [^>]*\/><\/clipPath>/u);
-  const rectangle = /^[Mm]-?[\d.]+[, ]?-?[\d.]+(?:[HhVv]-?[\d.]+)+[zZ]$/u;
-  const definition =
-    asPath !== null && rectangle.test(asPath[2]) ? asPath : asRect;
-  if (definition === null) {
-    return svg;
-  }
-  return svg
-    .replace(definition[0], "")
-    .replace("<defs></defs>", "")
-    .replaceAll(` clip-path="url(#${definition[1]})"`, "");
+/// resvg, not Xcode: the asset catalog's SVG support implements a sliver of
+/// the format and drew part of this set wrong — clips applied in the wrong
+/// coordinate space, mishandled masks and patterns on every flag with a
+/// crest. Rasterising with a complete renderer at build time retires that
+/// class of bug for all 250 flags at once, and lets the release bytes ship
+/// untouched instead of being patched around one parser.
+function rasterize(svg, width) {
+  const renderer = new Resvg(svg, {
+    fitTo: { mode: "width", value: width },
+    // Deterministic output: the check mode re-renders and compares bytes,
+    // so nothing machine-local may leak into them. Flags carry no text.
+    font: { loadSystemFonts: false },
+  });
+  return renderer.render().asPng();
 }
 
-/// The catalog holds the vector original: an asset catalog preserves its vector
-/// data, so one file stays sharp at every size and costs less than the raster
-/// set it replaces.
 async function buildCatalog(assets, directory) {
   await mkdir(directory, { recursive: true });
   await writeFile(
@@ -99,18 +94,19 @@ async function buildCatalog(assets, directory) {
     }
     const name = assetName(vector.path);
     const imageset = join(directory, `${name}.imageset`);
-    const fileName = vector.path.split("/").at(-1);
     await mkdir(imageset, { recursive: true });
-    await writeFile(
-      join(imageset, fileName),
-      stripLetterboxClip(await readFile(join(bundleDirectory, vector.path), "utf8")),
-    );
+    const svg = await readFile(join(bundleDirectory, vector.path), "utf8");
+    const images = [];
+    for (const { scale, width } of SCALES) {
+      const fileName = `${name}@${scale}.png`;
+      await writeFile(join(imageset, fileName), rasterize(svg, width));
+      images.push({ filename: fileName, idiom: "universal", scale });
+    }
     await writeFile(
       join(imageset, "Contents.json"),
       stableJson({
-        images: [{ filename: fileName, idiom: "universal" }],
+        images,
         info: { author: "xcode", version: 1 },
-        properties: { "preserves-vector-representation": true },
       }),
     );
   }

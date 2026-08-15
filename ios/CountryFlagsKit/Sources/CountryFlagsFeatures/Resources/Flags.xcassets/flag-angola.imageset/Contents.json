@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "angola.svg",
-      "idiom": "universal"
+      "filename": "flag-angola@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-angola@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }
