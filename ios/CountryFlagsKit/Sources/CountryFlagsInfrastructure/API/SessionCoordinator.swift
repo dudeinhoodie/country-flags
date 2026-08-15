@@ -119,6 +119,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         try? await tokens.setValue(nil, for: .accountUserID)
         try? await tokens.setValue(nil, for: .accountDisplayName)
         try? await tokens.setValue(nil, for: .accountAvatarURL)
+        try? await tokens.setValue(nil, for: .accountDeviceID)
         accessToken = nil
         state = .guest
     }

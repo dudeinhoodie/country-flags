@@ -18,6 +18,10 @@ public enum SecureTokenKind: String, Hashable, Sendable, CaseIterable {
     /// Where the account's picture lives, when a provider shared one. A URL,
     /// not an image; fetched fresh so a changed picture changes here too.
     case accountAvatarURL
+    /// The backend's identifier for this device within the account, which
+    /// every review event is attributed to. Learned from the device list
+    /// after sign-in and discarded with the session.
+    case accountDeviceID
 }
 
 /// Where session secrets live.

@@ -50,6 +50,9 @@ public final class StudySessionRunner {
     private var scope: AccountScope?
     private let content: any ContentRepository
     private let learning: any LearningRepository
+    /// The backend as composer, when the build carries one. The local
+    /// selection below remains the offline half and the fallback.
+    private let selection: (any StudySessionSelecting)?
     private let dates: any DateProviding
     private let identifiers: any IdentifierProviding
 
@@ -57,12 +60,14 @@ public final class StudySessionRunner {
         scopes: any AccountScopeResolving,
         content: any ContentRepository,
         learning: any LearningRepository,
+        selection: (any StudySessionSelecting)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         identifiers: any IdentifierProviding = SystemIdentifierProvider()
     ) {
         self.scopes = scopes
         self.content = content
         self.learning = learning
+        self.selection = selection
         self.dates = dates
         self.identifiers = identifiers
     }
@@ -134,6 +139,34 @@ public final class StudySessionRunner {
     }
 
     private func start(deckID: UUID, size: StudySessionSize) async {
+        // The backend composes when it can: it has seen every device's
+        // answers, so its selection is the canonical one. Every failure —
+        // offline, a refusal, an empty answer — falls through to the local
+        // composition, which is the whole reason the local half exists.
+        if let selection, case .authenticated = resolvedScope {
+            do {
+                let record = try await selection.serverSession(
+                    id: identifiers.next(),
+                    deckID: deckID,
+                    size: size,
+                    mode: .selfRated
+                )
+                if !record.cards.isEmpty {
+                    try await learning.saveSession(record, for: resolvedScope)
+                    startFailure = nil
+                    state = StudySessionState(
+                        sessionID: record.id,
+                        deckID: record.deckID,
+                        cards: record.cards,
+                        phase: .front(index: 0)
+                    )
+                    return
+                }
+            } catch {
+                // Fall through: the device composes, the way it always could.
+            }
+        }
+
         let manifest = try? await content.currentManifest()
         let cards = (try? await content.cards(inDeck: deckID)) ?? []
         let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
@@ -341,7 +374,9 @@ public final class StudySessionRunner {
 
     private func complete() async {
         guard let session = state else { return }
+        var finishedServerSession = false
         if let stored = try? await learning.activeSession(for: resolvedScope), stored.id == session.sessionID {
+            finishedServerSession = stored.selectionOrigin == "SERVER"
             try? await learning.saveSession(
                 StudySessionRecord(
                     id: stored.id,
@@ -357,6 +392,11 @@ public final class StudySessionRunner {
                 ),
                 for: resolvedScope
             )
+        }
+        // A session the backend composed is reported finished to it, best
+        // effort: the reviews already carry the learning either way.
+        if finishedServerSession {
+            await selection?.completeSession(id: session.sessionID)
         }
         await buildSummary()
     }
