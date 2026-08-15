@@ -58,7 +58,24 @@ public struct RootView: View {
                     store: content,
                     sync: sync,
                     makeProgress: makeProgressStore,
-                    onOpenDeck: { router.push(.deck(id: $0)) }
+                    makeSettings: makeSettingsStore,
+                    onOpenDeck: { router.push(.deck(id: $0)) },
+                    // Straight back into the run: the hero already names the
+                    // deck and the position, and a country list in between is
+                    // a detour. The deck screen keeps its own offer for the
+                    // learner who walks in through the catalog.
+                    onContinueSession: { continuable in
+                        router.push(
+                            .study(
+                                deckID: continuable.deckID,
+                                size: continuable.size,
+                                mode: continuable.mode
+                            )
+                        )
+                    },
+                    onStartStudy: { deckID, size, mode in
+                        router.push(.study(deckID: deckID, size: size, mode: mode))
+                    }
                 )
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -95,13 +112,25 @@ public struct RootView: View {
             .tag(AppTab.catalog)
 
             NavigationStack(path: $router.progressNavigationPath) {
-                ProgressScreen(store: makeProgressStore())
+                ProgressScreen(
+                    store: makeProgressStore(),
+                    onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
+                )
+                .navigationDestination(for: AppRoute.self) { route in
+                    destination(for: route)
+                }
+            }
+            .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
+            .tag(AppTab.progress)
+
+            NavigationStack(path: $router.achievementsNavigationPath) {
+                AchievementsScreen(store: makeProgressStore())
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
             }
-            .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
-            .tag(AppTab.progress)
+            .tabItem { Label(L10n.achievementsTitle, systemImage: "rosette") }
+            .tag(AppTab.achievements)
         }
         // The scene is dark, so the app is: system controls, sheets and the
         // bars all take their colours from here rather than each screen
@@ -129,6 +158,7 @@ public struct RootView: View {
                 store: content,
                 assets: assets,
                 makeSettings: makeSettingsStore,
+                makeProgress: makeProgressStore,
                 isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
             ) { deckID, size, mode in
                 router.push(.study(deckID: deckID, size: size, mode: mode))
@@ -161,7 +191,17 @@ public struct RootView: View {
                 )
             }
         case .progress:
-            ProgressScreen(store: makeProgressStore())
+            ProgressScreen(
+                store: makeProgressStore(),
+                onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
+            )
+        case .deckProgress(let deckID):
+            DeckProgressDetailsView(
+                deckID: deckID,
+                store: content,
+                assets: assets,
+                makeProgress: makeProgressStore
+            )
         case .settings:
             SettingsScreen(store: makeSettingsStore(), makeAccount: makeAccountStore)
         }
@@ -201,6 +241,13 @@ public enum AccessibilityIdentifier {
     public static func homeDeckRow(_ code: String) -> String {
         "home.deck.\(code)"
     }
+
+    public static func homeDueRow(_ code: String) -> String {
+        "home.due.\(code)"
+    }
+
+    public static let homeDueEmpty = "home.due.empty"
+    public static let achievementsEmpty = "achievements.empty"
 
     public static func deckCountryRow(_ cardID: UUID) -> String {
         "deck.country.\(cardID.uuidString)"

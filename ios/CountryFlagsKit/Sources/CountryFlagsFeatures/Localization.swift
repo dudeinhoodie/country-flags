@@ -49,8 +49,14 @@ public enum L10n {
     /// The label over the number the first screen is built around, in each of
     /// its two cases, and the action underneath it.
     public static var homeDue: String { localized("home.due") }
+    public static var homeDueEmpty: String { localized("home.due_empty") }
+
+    public static func homeDueCount(_ count: Int) -> String {
+        String(format: localized("home.due_count"), count)
+    }
     public static var homeDeckSize: String { localized("home.deck_size") }
     public static var homeContinue: String { localized("home.continue") }
+    public static var homeSessionInProgress: String { localized("home.session_in_progress") }
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
     public static var catalogNoMatches: String { localized("catalog.no_matches") }
@@ -74,8 +80,23 @@ public enum L10n {
 
     public static var homeOpenProgress: String { localized("home.open_progress") }
 
+    public static var achievementsTitle: String { localized("achievements.title") }
+    public static var achievementsEarned: String { localized("achievements.earned") }
+    public static var achievementsEmpty: String { localized("achievements.empty") }
+
     public static var progressDecksSection: String { localized("progress.decks") }
-    public static var progressStudiedLabel: String { localized("progress.studied") }
+    public static var progressLearnedLabel: String { localized("progress.learned") }
+    public static var progressInProgressLabel: String { localized("progress.state_in_progress") }
+    public static var progressNotStartedLabel: String { localized("progress.state_not_started") }
+    public static var progressReviewDue: String { localized("progress.review_due") }
+
+    public static func progressReviewAt(_ moment: String) -> String {
+        String(format: localized("progress.review_at"), moment)
+    }
+
+    public static func progressDeckLearned(_ count: Int) -> String {
+        String(format: localized("progress.deck_learned"), count)
+    }
     public static var progressAchievementsSection: String { localized("progress.achievements") }
     public static var progressEmptyTitle: String { localized("progress.empty.title") }
     public static var progressEmptyBody: String { localized("progress.empty.body") }

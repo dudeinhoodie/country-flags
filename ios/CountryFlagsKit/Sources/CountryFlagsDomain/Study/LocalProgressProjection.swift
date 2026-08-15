@@ -7,13 +7,24 @@ public struct LocalDeckProgress: Hashable, Sendable {
     /// Cards the learner has answered at least once. A card nobody has seen is
     /// not progress, however it was scheduled.
     public let startedCards: Int
+    /// Cards that graduated to the REVIEW state: the learning steps are behind
+    /// them and their interval is measured in days. This is the honest
+    /// "learned" — started merely means touched.
+    public let learnedCards: Int
     /// Cards that have been started and are scheduled at or before now.
     public let dueCards: Int
 
-    public init(deckID: UUID, totalCards: Int, startedCards: Int, dueCards: Int) {
+    public init(
+        deckID: UUID,
+        totalCards: Int,
+        startedCards: Int,
+        learnedCards: Int,
+        dueCards: Int
+    ) {
         self.deckID = deckID
         self.totalCards = totalCards
         self.startedCards = startedCards
+        self.learnedCards = learnedCards
         self.dueCards = dueCards
     }
 
@@ -53,6 +64,7 @@ public enum LocalProgressProjection {
                     deckID: deckID,
                     totalCards: cardIDs.count,
                     startedCards: known.count { $0.state != "NEW" },
+                    learnedCards: known.count { $0.state == "REVIEW" },
                     dueCards: known.count { $0.state != "NEW" && $0.dueAt <= now }
                 )
             }

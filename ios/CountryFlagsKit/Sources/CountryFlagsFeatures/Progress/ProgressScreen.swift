@@ -16,9 +16,11 @@ public struct ProgressScreen: View {
     // store that has read nothing yet, and the reading would start over for as
     // long as the launch stayed busy.
     @State private var store: ProgressStore
+    private let onOpenDeck: ((UUID) -> Void)?
 
-    public init(store: ProgressStore) {
+    public init(store: ProgressStore, onOpenDeck: ((UUID) -> Void)? = nil) {
         _store = State(wrappedValue: store)
+        self.onOpenDeck = onOpenDeck
     }
 
     public var body: some View {
@@ -77,8 +79,8 @@ public struct ProgressScreen: View {
             // much", which is the question the screen is opened with.
             GlassCard(padding: DesignTokens.Spacing.large) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                    SectionLabel(L10n.progressStudiedLabel)
-                    Text("\(studiedCards)")
+                    SectionLabel(L10n.progressLearnedLabel)
+                    Text("\(learnedCards)")
                         .font(DesignTokens.Typography.heroNumber)
                         .monospacedDigit()
                         .contentTransition(.numericText())
@@ -93,28 +95,27 @@ public struct ProgressScreen: View {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
                 SectionLabel(L10n.progressDecksSection)
                 ForEach(store.decks) { deck in
-                    GlassCard(padding: DesignTokens.Spacing.medium) {
-                        // The identifier goes on the row, not on the card
-                        // around it: an identifier on a plain SwiftUI container
-                        // is handed to every descendant and overwrites theirs.
-                        DeckProgressRowView(deck: deck)
+                    // A row is a door when there is somewhere to go: the
+                    // drill-down says which countries stand where.
+                    Button {
+                        onOpenDeck?(deck.id)
+                    } label: {
+                        GlassCard(padding: DesignTokens.Spacing.medium) {
+                            // The identifier goes on the row, not on the card
+                            // around it: an identifier on a plain SwiftUI
+                            // container is handed to every descendant and
+                            // overwrites theirs.
+                            DeckProgressRowView(
+                                deck: deck,
+                                showsChevron: onOpenDeck != nil
+                            )
                             .accessibilityIdentifier(
                                 AccessibilityIdentifier.progressDeckRow(deck.code)
                             )
-                    }
-                }
-            }
-
-            if !store.achievements.isEmpty {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                    SectionLabel(L10n.progressAchievementsSection)
-                    GlassCard(padding: DesignTokens.Spacing.medium) {
-                        VStack(spacing: DesignTokens.Spacing.medium) {
-                            ForEach(store.achievements) { achievement in
-                                AchievementRowView(achievement: achievement)
-                            }
                         }
                     }
+                    .buttonStyle(.plain)
+                    .disabled(onOpenDeck == nil)
                 }
             }
         }
@@ -124,6 +125,10 @@ public struct ProgressScreen: View {
         store.decks.reduce(0) { $0 + $1.startedCards }
     }
 
+    private var learnedCards: Int {
+        store.decks.reduce(0) { $0 + $1.learnedCards }
+    }
+
     private var totalCards: Int {
         store.decks.reduce(0) { $0 + $1.totalCards }
     }
@@ -131,6 +136,7 @@ public struct ProgressScreen: View {
 
 struct DeckProgressRowView: View {
     let deck: DeckProgressRow
+    var showsChevron = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
@@ -142,23 +148,36 @@ struct DeckProgressRowView: View {
                 if let tier = deck.masteryTier {
                     MasteryTierLabel(tier: tier)
                 }
+                if showsChevron {
+                    Image(systemName: "chevron.right")
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.4))
+                }
             }
 
             // A bar drawn rather than a system indicator: on glass the platform
             // one brings its own tinted track, which reads as a second material
             // sitting on the first.
             GeometryReader { proxy in
+                // Two readings on one track: the dimmer reach is what has
+                // been touched, the solid one what has actually been learned.
                 ZStack(alignment: .leading) {
                     Capsule().fill(.white.opacity(0.15))
                     Capsule()
-                        .fill(.white)
+                        .fill(.white.opacity(0.4))
                         .frame(width: proxy.size.width * deck.fraction)
+                    Capsule()
+                        .fill(.white)
+                        .frame(width: proxy.size.width * deck.learnedFraction)
                 }
             }
             .frame(height: DesignTokens.Layout.progressBarHeight)
 
             HStack(spacing: DesignTokens.Spacing.small) {
-                Text(L10n.progressDeckCounts(deck.startedCards, deck.totalCards))
+                Text(
+                    "\(L10n.progressDeckLearned(deck.learnedCards)) · "
+                        + L10n.progressDeckCounts(deck.startedCards, deck.totalCards)
+                )
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(.white.opacity(0.6))
                     .accessibilityIdentifier(

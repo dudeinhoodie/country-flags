@@ -8,6 +8,7 @@ public enum AppTab: String, Hashable, Sendable {
     case home
     case catalog
     case progress
+    case achievements
 }
 
 /// The navigation state of the app.
@@ -24,6 +25,7 @@ public final class AppRouter {
     public private(set) var homePath: [AppRoute]
     public private(set) var catalogPath: [AppRoute] = []
     public private(set) var progressPath: [AppRoute] = []
+    public private(set) var achievementsPath: [AppRoute] = []
 
     public init(path: [AppRoute] = [], tab: AppTab = .home) {
         homePath = path
@@ -36,6 +38,7 @@ public final class AppRouter {
         case .home: homePath
         case .catalog: catalogPath
         case .progress: progressPath
+        case .achievements: achievementsPath
         }
     }
 
@@ -100,11 +103,17 @@ public final class AppRouter {
         set { progressPath = newValue }
     }
 
+    public var achievementsNavigationPath: [AppRoute] {
+        get { achievementsPath }
+        set { achievementsPath = newValue }
+    }
+
     private func setPath(_ newPath: [AppRoute]) {
         switch tab {
         case .home: homePath = newPath
         case .catalog: catalogPath = newPath
         case .progress: progressPath = newPath
+        case .achievements: achievementsPath = newPath
         }
     }
 }

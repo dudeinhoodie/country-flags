@@ -61,6 +61,8 @@ final class LocalProgressProjectionTests: XCTestCase {
         XCTAssertEqual(progress[0].totalCards, 4)
         // The fourth card has no state at all and the third was never answered.
         XCTAssertEqual(progress[0].startedCards, 2)
+        // Only the graduate: LEARNING is touched, not learned.
+        XCTAssertEqual(progress[0].learnedCards, 1)
         // Only the one whose schedule has come round.
         XCTAssertEqual(progress[0].dueCards, 1)
     }

@@ -290,6 +290,57 @@
         }
       }
     },
+    "achievements.earned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Earned"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Получено"
+          }
+        }
+      }
+    },
+    "achievements.empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No awards yet — they arrive as you study"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока нет наград — они приходят за занятия"
+          }
+        }
+      }
+    },
+    "achievements.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awards"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Награды"
+          }
+        }
+      }
+    },
     "ads.slot.label": {
       "extractionState": "manual",
       "localizations": {
@@ -1089,6 +1140,40 @@
         }
       }
     },
+    "home.due_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld to review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld к повторению"
+          }
+        }
+      }
+    },
+    "home.due_empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to review right now — come back later"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока нечего повторять — загляни позже"
+          }
+        }
+      }
+    },
     "home.greeting": {
       "extractionState": "manual",
       "localizations": {
@@ -1153,6 +1238,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Рекомендуем"
+          }
+        }
+      }
+    },
+    "home.session_in_progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session in progress"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Занятие в процессе"
           }
         }
       }
@@ -1282,13 +1384,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$lld of %2$lld studied"
+            "value": "%1$lld of %2$lld started"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Изучено: %1$lld из %2$lld"
+            "value": "Начато: %1$lld из %2$lld"
           }
         }
       }
@@ -1306,6 +1408,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "К повторению: %lld"
+          }
+        }
+      }
+    },
+    "progress.deck_learned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld learned"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выучено: %lld"
           }
         }
       }
@@ -1361,19 +1480,87 @@
         }
       }
     },
-    "progress.studied": {
+    "progress.learned": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Studied"
+            "value": "Learned"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Изучено"
+            "value": "Выучено"
+          }
+        }
+      }
+    },
+    "progress.review_at": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "review %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "повтор %@"
+          }
+        }
+      }
+    },
+    "progress.review_due": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "waiting for review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ждёт повторения"
+          }
+        }
+      }
+    },
+    "progress.state_in_progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In progress"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В процессе"
+          }
+        }
+      }
+    },
+    "progress.state_not_started": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not started"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не начато"
           }
         }
       }
