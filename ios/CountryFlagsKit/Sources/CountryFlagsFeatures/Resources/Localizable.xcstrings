@@ -1384,13 +1384,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$lld of %2$lld studied"
+            "value": "%1$lld of %2$lld started"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Изучено: %1$lld из %2$lld"
+            "value": "Начато: %1$lld из %2$lld"
           }
         }
       }
@@ -1408,6 +1408,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "К повторению: %lld"
+          }
+        }
+      }
+    },
+    "progress.deck_learned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld learned"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выучено: %lld"
           }
         }
       }
@@ -1463,19 +1480,19 @@
         }
       }
     },
-    "progress.studied": {
+    "progress.learned": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Studied"
+            "value": "Learned"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Изучено"
+            "value": "Выучено"
           }
         }
       }

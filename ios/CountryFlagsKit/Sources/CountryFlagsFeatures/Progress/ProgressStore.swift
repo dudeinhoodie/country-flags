@@ -12,6 +12,9 @@ public struct DeckProgressRow: Identifiable, Hashable, Sendable {
     public let name: String
     public let totalCards: Int
     public let startedCards: Int
+    /// Cards that graduated to REVIEW — the ones honestly learned, as opposed
+    /// to merely touched.
+    public let learnedCards: Int
     public let dueCards: Int
     /// The tier the server awarded, or nil when it has not spoken about this
     /// deck. A guest never has one: their work is durable on the device but is
@@ -23,6 +26,11 @@ public struct DeckProgressRow: Identifiable, Hashable, Sendable {
     /// How far through the deck the learner is, for a bar rather than a number.
     public var fraction: Double {
         totalCards > 0 ? Double(startedCards) / Double(totalCards) : 0
+    }
+
+    /// The learned share of the same bar.
+    public var learnedFraction: Double {
+        totalCards > 0 ? Double(learnedCards) / Double(totalCards) : 0
     }
 }
 
@@ -133,6 +141,7 @@ public final class ProgressStore {
                 name: deck.name,
                 totalCards: counts?.totalCards ?? deck.cardCount,
                 startedCards: counts?.startedCards ?? 0,
+                learnedCards: counts?.learnedCards ?? 0,
                 dueCards: counts?.dueCards ?? 0,
                 masteryTier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
             )

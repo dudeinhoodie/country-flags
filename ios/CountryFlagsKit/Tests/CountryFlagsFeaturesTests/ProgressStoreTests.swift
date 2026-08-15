@@ -223,6 +223,7 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertEqual(store.decks.count, 1)
         XCTAssertEqual(store.decks[0].totalCards, 3)
         XCTAssertEqual(store.decks[0].startedCards, 2)
+        XCTAssertEqual(store.decks[0].learnedCards, 1)
         XCTAssertEqual(store.decks[0].dueCards, 1)
         XCTAssertFalse(store.hasNoProgress)
     }

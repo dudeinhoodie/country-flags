@@ -85,7 +85,11 @@ public enum L10n {
     public static var achievementsEmpty: String { localized("achievements.empty") }
 
     public static var progressDecksSection: String { localized("progress.decks") }
-    public static var progressStudiedLabel: String { localized("progress.studied") }
+    public static var progressLearnedLabel: String { localized("progress.learned") }
+
+    public static func progressDeckLearned(_ count: Int) -> String {
+        String(format: localized("progress.deck_learned"), count)
+    }
     public static var progressAchievementsSection: String { localized("progress.achievements") }
     public static var progressEmptyTitle: String { localized("progress.empty.title") }
     public static var progressEmptyBody: String { localized("progress.empty.body") }

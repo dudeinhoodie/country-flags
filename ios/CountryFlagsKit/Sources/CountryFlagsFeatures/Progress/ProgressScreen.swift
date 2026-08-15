@@ -77,8 +77,8 @@ public struct ProgressScreen: View {
             // much", which is the question the screen is opened with.
             GlassCard(padding: DesignTokens.Spacing.large) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                    SectionLabel(L10n.progressStudiedLabel)
-                    Text("\(studiedCards)")
+                    SectionLabel(L10n.progressLearnedLabel)
+                    Text("\(learnedCards)")
                         .font(DesignTokens.Typography.heroNumber)
                         .monospacedDigit()
                         .contentTransition(.numericText())
@@ -111,6 +111,10 @@ public struct ProgressScreen: View {
         store.decks.reduce(0) { $0 + $1.startedCards }
     }
 
+    private var learnedCards: Int {
+        store.decks.reduce(0) { $0 + $1.learnedCards }
+    }
+
     private var totalCards: Int {
         store.decks.reduce(0) { $0 + $1.totalCards }
     }
@@ -135,17 +139,25 @@ struct DeckProgressRowView: View {
             // one brings its own tinted track, which reads as a second material
             // sitting on the first.
             GeometryReader { proxy in
+                // Two readings on one track: the dimmer reach is what has
+                // been touched, the solid one what has actually been learned.
                 ZStack(alignment: .leading) {
                     Capsule().fill(.white.opacity(0.15))
                     Capsule()
-                        .fill(.white)
+                        .fill(.white.opacity(0.4))
                         .frame(width: proxy.size.width * deck.fraction)
+                    Capsule()
+                        .fill(.white)
+                        .frame(width: proxy.size.width * deck.learnedFraction)
                 }
             }
             .frame(height: DesignTokens.Layout.progressBarHeight)
 
             HStack(spacing: DesignTokens.Spacing.small) {
-                Text(L10n.progressDeckCounts(deck.startedCards, deck.totalCards))
+                Text(
+                    "\(L10n.progressDeckLearned(deck.learnedCards)) · "
+                        + L10n.progressDeckCounts(deck.startedCards, deck.totalCards)
+                )
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(.white.opacity(0.6))
                     .accessibilityIdentifier(
