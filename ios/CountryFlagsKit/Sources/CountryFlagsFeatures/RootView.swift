@@ -59,16 +59,10 @@ public struct RootView: View {
                     sync: sync,
                     makeProgress: makeProgressStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
-                    // Straight back into the session, not to the deck screen
-                    // that leads to it: the runner resumes from the snapshot.
+                    // To the unfinished deck, not straight into the run: the
+                    // deck screen shows the position and offers the way in.
                     onContinueSession: { continuable in
-                        router.push(
-                            .study(
-                                deckID: continuable.deckID,
-                                size: continuable.size,
-                                mode: continuable.mode
-                            )
-                        )
+                        router.push(.deck(id: continuable.deckID))
                     }
                 )
                 .toolbar {
@@ -140,6 +134,7 @@ public struct RootView: View {
                 store: content,
                 assets: assets,
                 makeSettings: makeSettingsStore,
+                makeProgress: makeProgressStore,
                 isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
             ) { deckID, size, mode in
                 router.push(.study(deckID: deckID, size: size, mode: mode))

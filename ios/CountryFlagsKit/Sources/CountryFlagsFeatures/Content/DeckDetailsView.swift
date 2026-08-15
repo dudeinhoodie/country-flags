@@ -15,10 +15,15 @@ public struct DeckDetailsView: View {
     /// worth touching; never again, so a choice made on this screen wins over
     /// a setting that arrives late.
     @State private var didApplyStoredPreferences = false
+    /// The unfinished session in this deck, when there is one. While it
+    /// exists, the pickers would lie — the runner resumes the stored session
+    /// whatever they say — so the card offers the way back instead.
+    @State private var continuable: ContinuableSession?
     private let deckID: UUID
     private let store: ContentStore
     private let assets: any AssetLoading
     private let makeSettings: (() -> SettingsStore)?
+    private let makeProgress: (() -> ProgressStore)?
     private let isObjectiveModeEnabled: Bool
     private let onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)?
 
@@ -28,6 +33,7 @@ public struct DeckDetailsView: View {
         assets: any AssetLoading,
         defaultSessionSize: StudySessionSize = .ten,
         makeSettings: (() -> SettingsStore)? = nil,
+        makeProgress: (() -> ProgressStore)? = nil,
         isObjectiveModeEnabled: Bool = false,
         onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)? = nil
     ) {
@@ -37,6 +43,7 @@ public struct DeckDetailsView: View {
         self.store = store
         self.assets = assets
         self.makeSettings = makeSettings
+        self.makeProgress = makeProgress
         self.isObjectiveModeEnabled = isObjectiveModeEnabled
         self.onStartStudy = onStartStudy
     }
@@ -51,6 +58,17 @@ public struct DeckDetailsView: View {
                 await model.load()
             }
             .task { await model.load() }
+            // On appearance rather than once: finishing the session pops back
+            // here, and the offer to continue has to disappear with it.
+            .onAppear {
+                guard let makeProgress else { return }
+                Task {
+                    let progress = makeProgress()
+                    await progress.load()
+                    continuable =
+                        progress.continuable?.deckID == deckID ? progress.continuable : nil
+                }
+            }
             // The learner chose a session size once, in the settings; a deck
             // that ignored it and always offered ten would make that setting
             // a lie. Read once per visit, before anything is tapped.
@@ -138,50 +156,82 @@ public struct DeckDetailsView: View {
     ) -> some View {
         GlassCard(padding: DesignTokens.Spacing.medium) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-                // The quiz is a released feature rather than a permanent one:
-                // the flag is server-enforced and defaults to off, so the mode
-                // is simply absent until it is turned on.
-                if isObjectiveModeEnabled {
+                if let continuable {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                        SectionLabel(L10n.studyModeSection)
-                        Picker(L10n.studyModeSection, selection: $mode) {
-                            Text(L10n.studyModeSelfRated)
-                                .tag(StudyAnswerMode.selfRated)
-                                .accessibilityIdentifier(AccessibilityIdentifier.studyModeSelfRated)
-                            Text(L10n.studyModeObjective)
-                                .tag(StudyAnswerMode.multipleChoice)
-                                .accessibilityIdentifier(AccessibilityIdentifier.studyModeObjective)
+                        SectionLabel(L10n.homeSessionInProgress)
+                        HStack(
+                            alignment: .firstTextBaseline,
+                            spacing: DesignTokens.Spacing.extraSmall
+                        ) {
+                            Text("\(continuable.answeredCards)")
+                                .font(DesignTokens.Typography.heroNumber)
+                                .monospacedDigit()
+                            Text("/ \(continuable.totalCards)")
+                                .font(DesignTokens.Typography.sectionTitle)
+                                .foregroundStyle(.white.opacity(0.55))
                         }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
+                        .foregroundStyle(.white)
                     }
-                }
 
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                    SectionLabel(L10n.studySessionSize)
-                    Picker(L10n.studySessionSize, selection: $sessionSize) {
-                        ForEach(StudySessionSize.allCases) { size in
-                            Text(verbatim: "\(size.rawValue)")
-                                .tag(size)
-                                .accessibilityIdentifier(
-                                    AccessibilityIdentifier.studySizeOption(size)
-                                )
-                        }
+                    Button(L10n.homeContinue) {
+                        onStartStudy(deckID, continuable.size, continuable.mode)
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
+                    .buttonStyle(PrimaryActionStyle())
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+                } else {
+                    startControls(details, onStartStudy: onStartStudy)
                 }
-
-                // A session can start with no network at all: the cards and
-                // their flags are already on the device.
-                Button(L10n.studyStart) {
-                    onStartStudy(deckID, sessionSize, mode)
-                }
-                .buttonStyle(PrimaryActionStyle())
-                .disabled(details.deck.cardCount == 0)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
             }
         }
+    }
+
+    @ViewBuilder
+    private func startControls(
+        _ details: DeckDetails,
+        onStartStudy: @escaping (UUID, StudySessionSize, StudyAnswerMode) -> Void
+    ) -> some View {
+        // The quiz is a released feature rather than a permanent one:
+        // the flag is server-enforced and defaults to off, so the mode
+        // is simply absent until it is turned on.
+        if isObjectiveModeEnabled {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                SectionLabel(L10n.studyModeSection)
+                Picker(L10n.studyModeSection, selection: $mode) {
+                    Text(L10n.studyModeSelfRated)
+                        .tag(StudyAnswerMode.selfRated)
+                        .accessibilityIdentifier(AccessibilityIdentifier.studyModeSelfRated)
+                    Text(L10n.studyModeObjective)
+                        .tag(StudyAnswerMode.multipleChoice)
+                        .accessibilityIdentifier(AccessibilityIdentifier.studyModeObjective)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+            }
+        }
+
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+            SectionLabel(L10n.studySessionSize)
+            Picker(L10n.studySessionSize, selection: $sessionSize) {
+                ForEach(StudySessionSize.allCases) { size in
+                    Text(verbatim: "\(size.rawValue)")
+                        .tag(size)
+                        .accessibilityIdentifier(
+                            AccessibilityIdentifier.studySizeOption(size)
+                        )
+                }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+        }
+
+        // A session can start with no network at all: the cards and
+        // their flags are already on the device.
+        Button(L10n.studyStart) {
+            onStartStudy(deckID, sessionSize, mode)
+        }
+        .buttonStyle(PrimaryActionStyle())
+        .disabled(details.deck.cardCount == 0)
+        .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
     }
 
     private func countries(_ details: DeckDetails) -> some View {
