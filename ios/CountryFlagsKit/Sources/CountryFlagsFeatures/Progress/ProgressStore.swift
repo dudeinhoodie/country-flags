@@ -149,6 +149,18 @@ public final class ProgressStore {
         isLoaded = true
     }
 
+    /// The scheduler state of every answered card, keyed by card. The
+    /// drill-down reads this to say where each country stands; a card with no
+    /// entry has simply never been answered.
+    public func cardStatesByID() async -> [UUID: CardStateRecord] {
+        let scope = await scopes.currentScope()
+        let states = (try? await learning.cardStates(for: scope)) ?? []
+        return Dictionary(
+            states.map { ($0.learningCardID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+    }
+
     /// The active session with cards still owed, or nil. Read from the store
     /// rather than remembered: whether a session is unfinished is what the
     /// reviews say, not what a screen last saw.

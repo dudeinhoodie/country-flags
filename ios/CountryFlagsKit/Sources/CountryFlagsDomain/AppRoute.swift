@@ -13,6 +13,8 @@ public enum AppRoute: Hashable, Sendable {
     /// the settings again halfway through.
     case study(deckID: UUID, size: StudySessionSize, mode: StudyAnswerMode)
     case progress
+    /// One deck's progress, country by country.
+    case deckProgress(deckID: UUID)
     case settings
 }
 

@@ -16,9 +16,11 @@ public struct ProgressScreen: View {
     // store that has read nothing yet, and the reading would start over for as
     // long as the launch stayed busy.
     @State private var store: ProgressStore
+    private let onOpenDeck: ((UUID) -> Void)?
 
-    public init(store: ProgressStore) {
+    public init(store: ProgressStore, onOpenDeck: ((UUID) -> Void)? = nil) {
         _store = State(wrappedValue: store)
+        self.onOpenDeck = onOpenDeck
     }
 
     public var body: some View {
@@ -93,15 +95,27 @@ public struct ProgressScreen: View {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
                 SectionLabel(L10n.progressDecksSection)
                 ForEach(store.decks) { deck in
-                    GlassCard(padding: DesignTokens.Spacing.medium) {
-                        // The identifier goes on the row, not on the card
-                        // around it: an identifier on a plain SwiftUI container
-                        // is handed to every descendant and overwrites theirs.
-                        DeckProgressRowView(deck: deck)
+                    // A row is a door when there is somewhere to go: the
+                    // drill-down says which countries stand where.
+                    Button {
+                        onOpenDeck?(deck.id)
+                    } label: {
+                        GlassCard(padding: DesignTokens.Spacing.medium) {
+                            // The identifier goes on the row, not on the card
+                            // around it: an identifier on a plain SwiftUI
+                            // container is handed to every descendant and
+                            // overwrites theirs.
+                            DeckProgressRowView(
+                                deck: deck,
+                                showsChevron: onOpenDeck != nil
+                            )
                             .accessibilityIdentifier(
                                 AccessibilityIdentifier.progressDeckRow(deck.code)
                             )
+                        }
                     }
+                    .buttonStyle(.plain)
+                    .disabled(onOpenDeck == nil)
                 }
             }
         }
@@ -122,6 +136,7 @@ public struct ProgressScreen: View {
 
 struct DeckProgressRowView: View {
     let deck: DeckProgressRow
+    var showsChevron = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
@@ -132,6 +147,11 @@ struct DeckProgressRowView: View {
                 Spacer()
                 if let tier = deck.masteryTier {
                     MasteryTierLabel(tier: tier)
+                }
+                if showsChevron {
+                    Image(systemName: "chevron.right")
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.4))
                 }
             }
 

@@ -86,6 +86,13 @@ public enum L10n {
 
     public static var progressDecksSection: String { localized("progress.decks") }
     public static var progressLearnedLabel: String { localized("progress.learned") }
+    public static var progressInProgressLabel: String { localized("progress.state_in_progress") }
+    public static var progressNotStartedLabel: String { localized("progress.state_not_started") }
+    public static var progressReviewDue: String { localized("progress.review_due") }
+
+    public static func progressReviewAt(_ moment: String) -> String {
+        String(format: localized("progress.review_at"), moment)
+    }
 
     public static func progressDeckLearned(_ count: Int) -> String {
         String(format: localized("progress.deck_learned"), count)

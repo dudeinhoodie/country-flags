@@ -112,10 +112,13 @@ public struct RootView: View {
             .tag(AppTab.catalog)
 
             NavigationStack(path: $router.progressNavigationPath) {
-                ProgressScreen(store: makeProgressStore())
-                    .navigationDestination(for: AppRoute.self) { route in
-                        destination(for: route)
-                    }
+                ProgressScreen(
+                    store: makeProgressStore(),
+                    onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
+                )
+                .navigationDestination(for: AppRoute.self) { route in
+                    destination(for: route)
+                }
             }
             .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
             .tag(AppTab.progress)
@@ -188,7 +191,17 @@ public struct RootView: View {
                 )
             }
         case .progress:
-            ProgressScreen(store: makeProgressStore())
+            ProgressScreen(
+                store: makeProgressStore(),
+                onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
+            )
+        case .deckProgress(let deckID):
+            DeckProgressDetailsView(
+                deckID: deckID,
+                store: content,
+                assets: assets,
+                makeProgress: makeProgressStore
+            )
         case .settings:
             SettingsScreen(store: makeSettingsStore(), makeAccount: makeAccountStore)
         }
