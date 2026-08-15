@@ -152,6 +152,10 @@ struct CountryDetailsSheet: View {
 
             Spacer(minLength: 0)
 
+            // The system's own liquid glass, not a material pretending to
+            // be it — this is what the iOS 26 floor was raised for. Primary
+            // over glass rather than the accent tint: the way out is chrome,
+            // not content.
             Button {
                 dismiss()
             } label: {
@@ -162,8 +166,9 @@ struct CountryDetailsSheet: View {
                         width: DesignTokens.Layout.minimumTouchTarget * 0.8,
                         height: DesignTokens.Layout.minimumTouchTarget * 0.8
                     )
-                    .background(.ultraThinMaterial, in: Circle())
             }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
             .accessibilityLabel(L10n.studyClose)
         }
     }
