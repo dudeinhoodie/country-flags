@@ -59,10 +59,18 @@ public struct RootView: View {
                     sync: sync,
                     makeProgress: makeProgressStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
-                    // To the unfinished deck, not straight into the run: the
-                    // deck screen shows the position and offers the way in.
+                    // Straight back into the run: the hero already names the
+                    // deck and the position, and a country list in between is
+                    // a detour. The deck screen keeps its own offer for the
+                    // learner who walks in through the catalog.
                     onContinueSession: { continuable in
-                        router.push(.deck(id: continuable.deckID))
+                        router.push(
+                            .study(
+                                deckID: continuable.deckID,
+                                size: continuable.size,
+                                mode: continuable.mode
+                            )
+                        )
                     }
                 )
                 .toolbar {
