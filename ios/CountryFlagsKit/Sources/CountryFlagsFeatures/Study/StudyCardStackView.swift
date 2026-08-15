@@ -54,7 +54,7 @@ struct StudyCardStackView: View {
         }
         .onAppear {
             guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 2.6).repeatForever(autoreverses: true)) {
+            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
                 isBreathing = true
             }
         }
@@ -292,12 +292,13 @@ private struct StudyCardBack: View {
                 .accessibilityIdentifier(AccessibilityIdentifier.studyAnswer)
 
             ForEach(facts.prefix(2), id: \.self) { fact in
+                let presentation = FactDisplay.presentation(for: fact)
                 HStack(spacing: DesignTokens.Spacing.small) {
-                    if let name = L10n.factType(fact.type) {
-                        Text(name)
+                    if let label = presentation.label {
+                        Text(label)
                             .foregroundStyle(.secondary)
                     }
-                    Text(fact.displayValue)
+                    Text(presentation.value)
                         .fontWeight(.medium)
                 }
                 .font(DesignTokens.Typography.caption)

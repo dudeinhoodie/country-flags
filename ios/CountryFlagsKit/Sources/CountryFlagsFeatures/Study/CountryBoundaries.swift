@@ -70,14 +70,17 @@ struct CountryBoundaries: Sendable {
             let largest = converted.max { $0.count < $1.count } ?? converted[0]
             center.longitude =
                 largest.reduce(0) { $0 + $1.longitude } / Double(largest.count)
-            longitudeDelta = 100
+            longitudeDelta = 35
         }
 
+        // Framed wide on purpose: the question the map answers is not "what
+        // does the country look like" but "where in the world is it", and
+        // that needs the neighbours in the frame.
         return Outline(
             rings: converted,
             center: center,
-            latitudeDelta: max((maximumLatitude - minimumLatitude) * 1.4, 2),
-            longitudeDelta: max(longitudeDelta * 1.4, 2)
+            latitudeDelta: max((maximumLatitude - minimumLatitude) * 3, 8),
+            longitudeDelta: max(longitudeDelta * 3, 8)
         )
     }
 }
