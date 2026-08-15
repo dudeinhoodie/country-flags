@@ -162,9 +162,12 @@ struct CountryDetailsSheet: View {
                 Image(systemName: "xmark")
                     .font(DesignTokens.Typography.caption.weight(.semibold))
                     .foregroundStyle(.primary)
+                    // The glass style pads the label to a comfortable
+                    // target on its own; sizing the symbol's box like a
+                    // standalone button doubled that up into a saucer.
                     .frame(
-                        width: DesignTokens.Layout.minimumTouchTarget * 0.8,
-                        height: DesignTokens.Layout.minimumTouchTarget * 0.8
+                        width: DesignTokens.Layout.minimumTouchTarget * 0.45,
+                        height: DesignTokens.Layout.minimumTouchTarget * 0.45
                     )
             }
             .buttonStyle(.glass)
