@@ -127,6 +127,35 @@ struct SkeletonBlock: View {
         RoundedRectangle(cornerRadius: radius, style: .continuous)
             .fill(.ultraThinMaterial)
             .frame(height: height)
+            .skeletonPulse()
+    }
+}
+
+/// The breath a placeholder takes while its content is on the way.
+///
+/// A still skeleton is indistinguishable from a hang; the slow fade says the
+/// screen is waiting, not stuck. With reduced motion the skeleton holds still,
+/// as everything else does.
+private struct SkeletonPulse: ViewModifier {
+    @State private var isDimmed = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(isDimmed ? 0.45 : 1)
+            .animation(
+                reduceMotion
+                    ? nil
+                    : .easeInOut(duration: 0.9).repeatForever(autoreverses: true),
+                value: isDimmed
+            )
+            .onAppear { isDimmed = true }
+    }
+}
+
+extension View {
+    func skeletonPulse() -> some View {
+        modifier(SkeletonPulse())
     }
 }
 

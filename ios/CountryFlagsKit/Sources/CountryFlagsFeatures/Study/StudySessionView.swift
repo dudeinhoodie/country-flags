@@ -462,6 +462,7 @@ struct StudyLoadingView: View {
                 Capsule()
                     .fill(.ultraThinMaterial)
                     .frame(width: DesignTokens.Layout.progressPlaceholderWidth, height: DesignTokens.Layout.minimumTouchTarget * 0.75)
+                    .skeletonPulse()
                 Spacer()
                 Button(action: onClose) {
                     Image(systemName: "xmark")
@@ -483,6 +484,7 @@ struct StudyLoadingView: View {
                 .fill(.ultraThinMaterial)
                 .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
                 .frame(maxWidth: .infinity)
+                .skeletonPulse()
                 .accessibilityLabel(L10n.contentLoading)
                 .accessibilityIdentifier(AccessibilityIdentifier.contentLoadingLabel)
 
@@ -491,6 +493,7 @@ struct StudyLoadingView: View {
             Capsule()
                 .fill(.ultraThinMaterial)
                 .frame(height: DesignTokens.Layout.actionHeight)
+                .skeletonPulse()
         }
     }
 }

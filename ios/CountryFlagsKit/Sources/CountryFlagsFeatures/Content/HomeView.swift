@@ -120,11 +120,20 @@ public struct HomeView: View {
                 ContentStatusBanner(isStale: isStale, failure: failure)
             }
 
-            if let hero = hero(sections) {
-                heroCard(hero)
-            }
+            // Until the numbers arrive the hero holds its shape rather than
+            // showing the fallback: a screen that says "start the deck" for a
+            // beat and then corrects itself into "continue" reads as a glitch,
+            // and this screen opens the app every single time.
+            if isAwaitingProgress {
+                SkeletonBlock(height: DesignTokens.Layout.heroPlaceholderHeight)
+                SkeletonBlock()
+            } else {
+                if let hero = hero(sections) {
+                    heroCard(hero)
+                }
 
-            dueSection
+                dueSection
+            }
 
             let decks = recommended(sections)
             if !decks.isEmpty {
@@ -153,6 +162,13 @@ public struct HomeView: View {
                 }
             }
         }
+    }
+
+    /// Whether the hero's numbers are still being read. Without a factory
+    /// there will never be numbers, and waiting for them would hold the
+    /// skeleton forever.
+    private var isAwaitingProgress: Bool {
+        makeProgress != nil && !(progress?.isLoaded ?? false)
     }
 
     /// The repeat queue, deck by deck — and an honest zero.
