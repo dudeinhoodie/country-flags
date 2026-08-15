@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "CountryFlagsKit",
     defaultLocalization: "en",
-    platforms: [.iOS(.v17)],
+    platforms: [.iOS("26.0")],
     products: [
         .library(name: "CountryFlagsDomain", targets: ["CountryFlagsDomain"]),
         .library(name: "CountryFlagsInfrastructure", targets: ["CountryFlagsInfrastructure"]),

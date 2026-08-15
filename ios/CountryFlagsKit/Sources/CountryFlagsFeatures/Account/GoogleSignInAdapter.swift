@@ -1,5 +1,9 @@
 import Foundation
-import GoogleSignIn
+// The SDK predates strict concurrency: `GIDSignInResult` is not Sendable, and
+// the CI toolchain rightly refuses to pass it across an isolation boundary.
+// This adapter is the one place the SDK is spoken to, everything is consumed
+// on the main actor, and only Sendable values of our own leave it.
+@preconcurrency import GoogleSignIn
 import SwiftUI
 
 import CountryFlagsDomain
