@@ -13,16 +13,23 @@ private actor StoringLearningRepository: LearningRepository {
     private var storedAchievements: [AchievementRecord]
     private(set) var savedSettings: [UserSettingsRecord] = []
 
+    private let storedActiveSession: StudySessionRecord?
+    private let storedSessionReviews: [ReviewEventRecord]
+
     init(
         settings: UserSettingsRecord? = nil,
         states: [CardStateRecord] = [],
         deckProgress: [DeckProgressRecord] = [],
-        achievements: [AchievementRecord] = []
+        achievements: [AchievementRecord] = [],
+        activeSession: StudySessionRecord? = nil,
+        sessionReviews: [ReviewEventRecord] = []
     ) {
         storedSettings = settings
         storedStates = states
         storedDeckProgress = deckProgress
         storedAchievements = achievements
+        storedActiveSession = activeSession
+        storedSessionReviews = sessionReviews
     }
 
     func settings(for scope: AccountScope) async throws -> UserSettingsRecord? { storedSettings }
@@ -37,7 +44,9 @@ private actor StoringLearningRepository: LearningRepository {
         storedStates = states
     }
 
-    func activeSession(for scope: AccountScope) async throws -> StudySessionRecord? { nil }
+    func activeSession(for scope: AccountScope) async throws -> StudySessionRecord? {
+        storedActiveSession
+    }
     func saveSession(_ session: StudySessionRecord, for scope: AccountScope) async throws {}
     func session(id: UUID, for scope: AccountScope) async throws -> StudySessionRecord? { nil }
     func sessions(for scope: AccountScope) async throws -> [StudySessionRecord] { [] }
@@ -45,7 +54,9 @@ private actor StoringLearningRepository: LearningRepository {
     func reviews(
         inSession sessionID: UUID,
         for scope: AccountScope
-    ) async throws -> [ReviewEventRecord] { [] }
+    ) async throws -> [ReviewEventRecord] {
+        storedSessionReviews.filter { $0.sessionID == sessionID }
+    }
     func recordReview(
         _ review: ReviewEventRecord,
         projectedState: CardStateRecord,
@@ -337,11 +348,50 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertEqual(store.achievements[0].tier, .bronze)
     }
 
+    /// A closed app is not an abandoned session: the screen that greets the
+    /// learner offers the way back, with the position they left at.
+    func testAHalfAnsweredSessionIsOfferedForContinuing() async {
+        let cards = [UUID(), UUID(), UUID()]
+        let sessionID = UUID()
+        let store = makeStore(
+            cards: cards,
+            states: [],
+            activeSession: session(id: sessionID, cards: cards),
+            sessionReviews: [review(sessionID: sessionID, cardID: cards[0])]
+        )
+
+        await store.load()
+
+        XCTAssertEqual(store.continuable?.deckID, deckID)
+        XCTAssertEqual(store.continuable?.answeredCards, 1)
+        XCTAssertEqual(store.continuable?.totalCards, 3)
+        XCTAssertEqual(store.continuable?.mode, .selfRated)
+    }
+
+    /// Every card answered means there is nothing to walk back into, even if
+    /// the completion call never reached the server.
+    func testAFullyAnsweredSessionIsNotOffered() async {
+        let cards = [UUID(), UUID()]
+        let sessionID = UUID()
+        let store = makeStore(
+            cards: cards,
+            states: [],
+            activeSession: session(id: sessionID, cards: cards),
+            sessionReviews: cards.map { review(sessionID: sessionID, cardID: $0) }
+        )
+
+        await store.load()
+
+        XCTAssertNil(store.continuable)
+    }
+
     private func makeStore(
         cards: [UUID],
         states: [CardStateRecord],
         deckProgress: [DeckProgressRecord] = [],
-        achievements: [AchievementRecord] = []
+        achievements: [AchievementRecord] = [],
+        activeSession: StudySessionRecord? = nil,
+        sessionReviews: [ReviewEventRecord] = []
     ) -> ProgressStore {
         ProgressStore(
             content: FakeContentRepository(
@@ -351,10 +401,55 @@ final class ProgressStoreTests: XCTestCase {
             learning: StoringLearningRepository(
                 states: states,
                 deckProgress: deckProgress,
-                achievements: achievements
+                achievements: achievements,
+                activeSession: activeSession,
+                sessionReviews: sessionReviews
             ),
             scopes: FixedScopeResolver(),
             dates: FixedDateProvider(instant: fixedNow)
+        )
+    }
+
+    private func session(id: UUID, cards: [UUID]) -> StudySessionRecord {
+        StudySessionRecord(
+            id: id,
+            deckID: deckID,
+            mode: "SELF_RATED",
+            selectionOrigin: "CLIENT_OFFLINE",
+            requestedUniqueCount: 10,
+            status: "ACTIVE",
+            contentVersion: "fixture-v2",
+            startedAt: fixedNow,
+            completedAt: nil,
+            cards: cards.enumerated().map { index, cardID in
+                StudySessionCardRecord(
+                    id: UUID(),
+                    learningCardID: cardID,
+                    initialOrder: index,
+                    selectionReason: "NEW",
+                    displayName: "Country \(index)",
+                    promptAssetID: UUID(),
+                    revision: 1,
+                    optionIDs: [],
+                    optionNames: []
+                )
+            }
+        )
+    }
+
+    private func review(sessionID: UUID, cardID: UUID) -> ReviewEventRecord {
+        ReviewEventRecord(
+            id: UUID(),
+            sessionID: sessionID,
+            learningCardID: cardID,
+            rating: "GOOD",
+            answerMode: "SELF_RATED",
+            selectedOptionID: nil,
+            responseTimeMilliseconds: nil,
+            clientOccurredAt: fixedNow,
+            estimatedServerOccurredAt: nil,
+            clientSequence: 1,
+            baseStateVersion: nil
         )
     }
 }

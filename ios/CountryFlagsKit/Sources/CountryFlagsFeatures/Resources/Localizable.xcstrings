@@ -1157,6 +1157,23 @@
         }
       }
     },
+    "home.session_in_progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session in progress"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Занятие в процессе"
+          }
+        }
+      }
+    },
     "home.title": {
       "extractionState": "manual",
       "localizations": {

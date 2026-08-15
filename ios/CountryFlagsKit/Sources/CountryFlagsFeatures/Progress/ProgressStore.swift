@@ -26,6 +26,15 @@ public struct DeckProgressRow: Identifiable, Hashable, Sendable {
     }
 }
 
+/// The session someone walked away from, as the offer to walk back.
+public struct ContinuableSession: Hashable, Sendable {
+    public let deckID: UUID
+    public let size: StudySessionSize
+    public let mode: StudyAnswerMode
+    public let answeredCards: Int
+    public let totalCards: Int
+}
+
 /// One earned achievement as the screen shows it.
 public struct AchievementRow: Identifiable, Hashable, Sendable {
     public let id: UUID
@@ -47,6 +56,9 @@ public struct AchievementRow: Identifiable, Hashable, Sendable {
 public final class ProgressStore {
     public private(set) var decks: [DeckProgressRow] = []
     public private(set) var achievements: [AchievementRow] = []
+    /// The unfinished session, when there is one: the screen that knows about
+    /// it can offer to continue instead of silently starting over.
+    public private(set) var continuable: ContinuableSession?
     public private(set) var isLoaded = false
 
     private let content: any ContentRepository
@@ -70,6 +82,7 @@ public final class ProgressStore {
         // The progress belongs to the account that did the work, so the scope
         // is resolved here rather than captured when the screen was built.
         let scope = await scopes.currentScope()
+        continuable = await continuableSession(for: scope)
         let states = (try? await learning.cardStates(for: scope)) ?? []
         achievements = ((try? await learning.achievements(for: scope)) ?? [])
             .filter { $0.earnedAt != nil }
@@ -125,6 +138,30 @@ public final class ProgressStore {
             )
         }
         isLoaded = true
+    }
+
+    /// The active session with cards still owed, or nil. Read from the store
+    /// rather than remembered: whether a session is unfinished is what the
+    /// reviews say, not what a screen last saw.
+    private func continuableSession(for scope: AccountScope) async -> ContinuableSession? {
+        guard let session = try? await learning.activeSession(for: scope),
+            session.status == StudySessionStatus.active.rawValue,
+            let mode = StudyAnswerMode(rawValue: session.mode),
+            !session.cards.isEmpty
+        else {
+            return nil
+        }
+        let reviews = (try? await learning.reviews(inSession: session.id, for: scope)) ?? []
+        let answered = Set(reviews.map(\.learningCardID))
+        let answeredCards = session.cards.filter { answered.contains($0.learningCardID) }.count
+        guard answeredCards < session.cards.count else { return nil }
+        return ContinuableSession(
+            deckID: session.deckID,
+            size: StudySessionSize(storedValue: session.requestedUniqueCount),
+            mode: mode,
+            answeredCards: answeredCards,
+            totalCards: session.cards.count
+        )
     }
 
     /// Nothing has been studied yet, which is a different screen from a screen

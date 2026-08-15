@@ -13,6 +13,7 @@ public struct HomeView: View {
     private let store: ContentStore
     private let sync: SyncCenter
     private let onOpenDeck: (UUID) -> Void
+    private let onContinueSession: ((ContinuableSession) -> Void)?
 
     /// The counts behind the hero. Built here, once, from the factory: this
     /// view is re-initialised whenever the launch makes progress, and a store
@@ -24,12 +25,14 @@ public struct HomeView: View {
         store: ContentStore,
         sync: SyncCenter,
         makeProgress: (() -> ProgressStore)? = nil,
-        onOpenDeck: @escaping (UUID) -> Void
+        onOpenDeck: @escaping (UUID) -> Void,
+        onContinueSession: ((ContinuableSession) -> Void)? = nil
     ) {
         self.store = store
         self.sync = sync
         self.makeProgress = makeProgress
         self.onOpenDeck = onOpenDeck
+        self.onContinueSession = onContinueSession
     }
 
     public var body: some View {
@@ -139,19 +142,33 @@ public struct HomeView: View {
 
     /// The number and the deck it belongs to.
     ///
-    /// Cards waiting to be repeated are what the app is for, so they win. With
-    /// none waiting — a new install, or a day already finished — the screen
-    /// offers a deck to open instead of a zero, which says nothing and looks
-    /// like a screen that failed to load.
+    /// A session somebody walked away from wins over everything: the fastest
+    /// way to lose a learner is to let them forget they were in the middle of
+    /// something. Then cards waiting to be repeated, then — a new install, a
+    /// day already finished — a deck worth opening instead of a zero.
     private func hero(_ sections: [CatalogSection]) -> Hero? {
+        if let continuable = progress?.continuable, let onContinueSession {
+            return Hero(
+                deckID: continuable.deckID,
+                label: L10n.homeSessionInProgress,
+                count: continuable.answeredCards,
+                total: continuable.totalCards,
+                name: sections.flatMap(\.decks)
+                    .first { $0.id == continuable.deckID }?.name ?? "",
+                action: L10n.homeContinue,
+                run: { onContinueSession(continuable) }
+            )
+        }
         if let due = progress?.decks.filter({ $0.dueCards > 0 })
             .max(by: { $0.dueCards < $1.dueCards }) {
             return Hero(
                 deckID: due.id,
                 label: L10n.homeDue,
                 count: due.dueCards,
+                total: nil,
                 name: due.name,
-                action: L10n.homeContinue
+                action: L10n.homeContinue,
+                run: nil
             )
         }
         guard let deck = recommended(sections).first else { return nil }
@@ -159,8 +176,10 @@ public struct HomeView: View {
             deckID: deck.id,
             label: L10n.homeDeckSize,
             count: deck.cardCount,
+            total: nil,
             name: deck.name,
-            action: L10n.studyStart
+            action: L10n.studyStart,
+            run: nil
         )
     }
 
@@ -168,8 +187,14 @@ public struct HomeView: View {
         let deckID: UUID
         let label: String
         let count: Int
+        /// Present when the number is a position in something — "4 / 10" —
+        /// rather than a quantity.
+        let total: Int?
         let name: String
         let action: String
+        /// What the button does instead of opening the deck, when the offer
+        /// is more specific than a deck.
+        let run: (() -> Void)?
     }
 
     private func heroCard(_ hero: Hero) -> some View {
@@ -178,13 +203,20 @@ public struct HomeView: View {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
                     SectionLabel(hero.label)
 
-                    Text("\(hero.count)")
-                        .font(DesignTokens.Typography.heroNumber)
-                        .monospacedDigit()
-                        // The number moves rather than being replaced when a
-                        // session changes it.
-                        .contentTransition(.numericText())
-                        .foregroundStyle(.white)
+                    HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
+                        Text("\(hero.count)")
+                            .font(DesignTokens.Typography.heroNumber)
+                            .monospacedDigit()
+                            // The number moves rather than being replaced when
+                            // a session changes it.
+                            .contentTransition(.numericText())
+                        if let total = hero.total {
+                            Text("/ \(total)")
+                                .font(DesignTokens.Typography.sectionTitle)
+                                .foregroundStyle(.white.opacity(0.55))
+                        }
+                    }
+                    .foregroundStyle(.white)
 
                     Text(hero.name)
                         .font(DesignTokens.Typography.caption)
@@ -192,7 +224,9 @@ public struct HomeView: View {
                 }
                 .accessibilityElement(children: .combine)
 
-                Button(hero.action) { onOpenDeck(hero.deckID) }
+                Button(hero.action) {
+                    if let run = hero.run { run() } else { onOpenDeck(hero.deckID) }
+                }
                     .buttonStyle(PrimaryActionStyle())
                     .accessibilityIdentifier(AccessibilityIdentifier.homeContinue)
             }
