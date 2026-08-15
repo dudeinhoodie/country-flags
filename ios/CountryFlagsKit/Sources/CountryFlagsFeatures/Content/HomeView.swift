@@ -14,6 +14,8 @@ public struct HomeView: View {
     private let sync: SyncCenter
     private let onOpenDeck: (UUID) -> Void
     private let onContinueSession: ((ContinuableSession) -> Void)?
+    private let onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)?
+    private let makeSettings: (() -> SettingsStore)?
 
     /// The counts behind the hero. Built here, once, from the factory: this
     /// view is re-initialised whenever the launch makes progress, and a store
@@ -25,14 +27,18 @@ public struct HomeView: View {
         store: ContentStore,
         sync: SyncCenter,
         makeProgress: (() -> ProgressStore)? = nil,
+        makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
-        onContinueSession: ((ContinuableSession) -> Void)? = nil
+        onContinueSession: ((ContinuableSession) -> Void)? = nil,
+        onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)? = nil
     ) {
         self.store = store
         self.sync = sync
         self.makeProgress = makeProgress
+        self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
+        self.onStartStudy = onStartStudy
     }
 
     public var body: some View {
@@ -173,7 +179,7 @@ public struct HomeView: View {
                 } else {
                     ForEach(due) { deck in
                         Button {
-                            onOpenDeck(deck.id)
+                            startDueSession(deckID: deck.id)
                         } label: {
                             GlassCard(padding: DesignTokens.Spacing.medium) {
                                 HStack(
@@ -232,7 +238,7 @@ public struct HomeView: View {
                 total: nil,
                 name: due.name,
                 action: L10n.homeContinue,
-                run: nil
+                run: { startDueSession(deckID: due.id) }
             )
         }
         guard let deck = recommended(sections).first else { return nil }
@@ -294,6 +300,27 @@ public struct HomeView: View {
                     .buttonStyle(PrimaryActionStyle())
                     .accessibilityIdentifier(AccessibilityIdentifier.homeContinue)
             }
+        }
+    }
+
+    /// Straight into the run: what is due is already decided, and a screen
+    /// asking how many cards to study stands between the learner and cards
+    /// the schedule has picked. The session honours the stored size setting,
+    /// the same one the deck screen reads, and the selection puts the due
+    /// cards first on its own.
+    private func startDueSession(deckID: UUID) {
+        guard let onStartStudy else {
+            onOpenDeck(deckID)
+            return
+        }
+        Task {
+            var size = StudySessionSize.ten
+            if let makeSettings {
+                let settings = makeSettings()
+                await settings.load()
+                size = StudySessionSize(storedValue: settings.settings.sessionSize)
+            }
+            onStartStudy(deckID, size, .selfRated)
         }
     }
 

@@ -58,6 +58,7 @@ public struct RootView: View {
                     store: content,
                     sync: sync,
                     makeProgress: makeProgressStore,
+                    makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
                     // deck and the position, and a country list in between is
@@ -71,6 +72,9 @@ public struct RootView: View {
                                 mode: continuable.mode
                             )
                         )
+                    },
+                    onStartStudy: { deckID, size, mode in
+                        router.push(.study(deckID: deckID, size: size, mode: mode))
                     }
                 )
                 .toolbar {
