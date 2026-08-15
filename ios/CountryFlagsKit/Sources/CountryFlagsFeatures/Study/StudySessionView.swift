@@ -109,15 +109,14 @@ public struct StudySessionView: View {
                 // The button says it will show the answer, so it turns the
                 // card over. Unlocking the ratings without turning it left the
                 // learner looking at the same flag and no answer anywhere.
+                // The style, not loose modifiers: a frame and a capsule
+                // hung outside a Button decorate it without widening its hit
+                // area, and only the word itself answered the tap.
                 Button(L10n.studyReveal) {
                     runner.revealAnswer()
                     isShowingBack = true
                 }
-                    .font(DesignTokens.Typography.body.weight(.semibold))
-                    .foregroundStyle(.black)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: DesignTokens.Layout.actionHeight)
-                    .background(.white, in: Capsule())
+                    .buttonStyle(PrimaryActionStyle())
                     .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
             }
         }
@@ -352,11 +351,7 @@ struct StudySessionResultView: View {
             Spacer(minLength: 0)
 
             Button(L10n.studyResultDone, action: onDone)
-                .font(DesignTokens.Typography.body.weight(.semibold))
-                .foregroundStyle(.black)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: DesignTokens.Layout.actionHeight)
-                .background(.white, in: Capsule(style: .continuous))
+                .buttonStyle(PrimaryActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
         }
         .onAppear { hasArrived = true }
@@ -431,11 +426,7 @@ struct StudyUnavailableView: View {
             Spacer(minLength: 0)
 
             Button(L10n.studyResultDone, action: onDone)
-                .font(DesignTokens.Typography.body.weight(.semibold))
-                .foregroundStyle(.black)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: DesignTokens.Layout.actionHeight)
-                .background(.white, in: Capsule(style: .continuous))
+                .buttonStyle(PrimaryActionStyle())
         }
     }
 
