@@ -199,6 +199,10 @@ private actor SeededLearningRepository: LearningRepository {
         storedReviews = reviews
     }
 
+    func session(id: UUID, for scope: AccountScope) async throws -> StudySessionRecord? {
+        storedSessions.first { $0.id == id }
+    }
+
     func sessions(for scope: AccountScope) async throws -> [StudySessionRecord] {
         storedSessions
     }
