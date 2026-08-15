@@ -147,6 +147,15 @@ actor SwiftDataLearningRepository: LearningRepository {
         return try modelContext.fetch(descriptor).map(Self.record)
     }
 
+    func session(id: UUID, for scope: AccountScope) async throws -> StudySessionRecord? {
+        let key = scope.key
+        var descriptor = FetchDescriptor<StoredStudySession>(
+            predicate: #Predicate { $0.scopeKey == key && $0.id == id }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first.map(Self.record)
+    }
+
     func sessions(for scope: AccountScope) async throws -> [StudySessionRecord] {
         let key = scope.key
         let descriptor = FetchDescriptor<StoredStudySession>(

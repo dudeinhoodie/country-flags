@@ -50,6 +50,7 @@ struct AppComposition: AppDependencies {
     /// and out of it.
     let sessions: SessionCoordinator
     let guestMigrations: GuestMigrationCoordinator
+    let studySessions: StudySessionService
     let settingsSync: any SettingsSyncing
     let sync: SyncCenter
     let advertising: any AdvertisingProviding
@@ -188,17 +189,30 @@ struct AppComposition: AppDependencies {
         // at. A guest never reaches it — the store checks the scope — but the
         // seam is wired now so signing in does not need a composition change.
         let progressService = ProgressService(clientFactory: apiClientFactory, logger: logger)
-        // The queue is durable from the first launch. Nothing is sent until a
-        // device is registered, which the auth work package owns, so a guest's
-        // answers accumulate safely instead of being attributed to nobody.
+        // The backend's half of session composition: server selection for a
+        // signed-in learner, and the import that walks an offline session to
+        // the backend ahead of its reviews.
+        let studySessions = StudySessionService(
+            clientFactory: apiClientFactory,
+            content: contentRepository,
+            dates: dates
+        )
+        // The queue is durable from the first launch. A guest's answers wait
+        // — held by scope, attributed to nobody — and start flowing once the
+        // account exists and the backend has named this device.
         let syncCoordinator = SyncCoordinator(
             outbox: store.makeOutboxRepository(),
             learning: store.makeLearningRepository(),
             uploader: ReviewUploader(
                 clientFactory: apiClientFactory,
-                devices: UnregisteredDeviceIdentity(),
+                devices: RegisteredDeviceProvider(
+                    clientFactory: apiClientFactory,
+                    tokens: tokens,
+                    scopes: sessions
+                ),
                 logger: logger
             ),
+            sessionImports: studySessions,
             dates: dates,
             logger: logger
         )
@@ -224,6 +238,7 @@ struct AppComposition: AppDependencies {
             scopes: sessions,
             sessions: sessions,
             guestMigrations: guestMigrations,
+            studySessions: studySessions,
             settingsSync: progressService,
             sync: SyncCenter(coordinator: syncCoordinator, scopes: sessions),
             // Advertising is off in the MVP: no SDK is linked and nothing is
@@ -328,6 +343,7 @@ struct AppComposition: AppDependencies {
             scopes: scopes,
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
+            selection: studySessions,
             dates: dates,
             identifiers: identifiers
         )

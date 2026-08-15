@@ -22,17 +22,22 @@ public actor SyncCoordinator: SyncCoordinating {
     private let outbox: any OutboxRepository
     private let learning: any LearningRepository
     private let uploader: any ReviewUploading
+    private let sessionImports: (any StudySessionImporting)?
     private let dates: any DateProviding
     private let logger: any AppLogging
     private let batchLimit: Int
 
     private var statuses: [String: SyncStatus] = [:]
     private var running: [String: Task<SyncStatus, Never>] = [:]
+    /// Sessions the backend has been handed during this process. The import
+    /// is idempotent, so this is a saving rather than a correctness device.
+    private var importedSessions: Set<UUID> = []
 
     public init(
         outbox: any OutboxRepository,
         learning: any LearningRepository,
         uploader: any ReviewUploading,
+        sessionImports: (any StudySessionImporting)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         logger: any AppLogging = NoOpLogger(),
         batchLimit: Int = 100
@@ -40,6 +45,7 @@ public actor SyncCoordinator: SyncCoordinating {
         self.outbox = outbox
         self.learning = learning
         self.uploader = uploader
+        self.sessionImports = sessionImports
         self.dates = dates
         self.logger = logger
         self.batchLimit = batchLimit
@@ -131,7 +137,17 @@ public actor SyncCoordinator: SyncCoordinating {
                 .filter { $0.kind == .reviewBatch }
             guard !pending.isEmpty else { return }
 
-            let batch = Array(pending.prefix(batchLimit))
+            var batch = Array(pending.prefix(batchLimit))
+            // A review references a session, and the backend must hold the
+            // session before it will take the review. Sessions the server
+            // itself composed are already there; offline ones are imported
+            // here, and an import the content can never satisfy fails its
+            // reviews permanently rather than blocking the queue forever.
+            batch = try await withSessionsImported(batch, scope: scope)
+            guard !batch.isEmpty else {
+                if pending.count <= batchLimit { return }
+                continue
+            }
             // Claiming first is what makes a crash recoverable: the operations
             // are visibly in flight, and `recoverInterruptedWork` puts them
             // back rather than leaving them lost.
@@ -170,6 +186,74 @@ public actor SyncCoordinator: SyncCoordinating {
             if cleared == 0 { return }
             if batch.count < batchLimit { return }
         }
+    }
+
+    /// Hands the backend every session the batch depends on, and returns the
+    /// operations whose sessions it now holds.
+    private func withSessionsImported(
+        _ batch: [OutboxOperationRecord],
+        scope: AccountScope
+    ) async throws -> [OutboxOperationRecord] {
+        guard let sessionImports else { return batch }
+
+        var usable = batch
+        let sessionIDs = Set(batch.compactMap(\.dependencyID))
+        for sessionID in sessionIDs where !importedSessions.contains(sessionID) {
+            guard let session = try await learning.session(id: sessionID, for: scope) else {
+                // Reviews whose session the device no longer holds cannot be
+                // attributed; they are closed out rather than retried forever.
+                usable = try await failDependents(
+                    of: sessionID, in: usable, scope: scope, code: "SESSION_MISSING"
+                )
+                continue
+            }
+            if session.selectionOrigin == "SERVER" {
+                importedSessions.insert(sessionID)
+                continue
+            }
+            do {
+                try await sessionImports.importOfflineSession(session)
+                importedSessions.insert(sessionID)
+            } catch let error as APIError {
+                switch error {
+                case .conflict(let details), .validationFailed(let details),
+                    .client(let details):
+                    // The composition can never become acceptable by asking
+                    // again — the deck changed underneath the session.
+                    usable = try await failDependents(
+                        of: sessionID, in: usable, scope: scope, code: details.code
+                    )
+                default:
+                    // The network failed; the whole run retries later with
+                    // everything still pending.
+                    throw error
+                }
+            }
+        }
+        return usable
+    }
+
+    private func failDependents(
+        of sessionID: UUID,
+        in batch: [OutboxOperationRecord],
+        scope: AccountScope,
+        code: String
+    ) async throws -> [OutboxOperationRecord] {
+        logger.log(
+            .error,
+            .sync,
+            "A session could not be imported and its reviews were closed out",
+            ["code": .safe(code)]
+        )
+        for operation in batch where operation.dependencyID == sessionID {
+            try await outbox.updateState(
+                of: operation.id,
+                to: .permanentFailure,
+                failureCode: code,
+                for: scope
+            )
+        }
+        return batch.filter { $0.dependencyID != sessionID }
     }
 
     private func apply(

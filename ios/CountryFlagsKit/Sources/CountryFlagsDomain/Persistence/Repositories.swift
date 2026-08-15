@@ -78,6 +78,9 @@ public protocol LearningRepository: Sendable {
     func saveCardStates(_ states: [CardStateRecord], for scope: AccountScope) async throws
 
     func activeSession(for scope: AccountScope) async throws -> StudySessionRecord?
+    /// One session by its identifier, whatever its status: the uploader needs
+    /// the composition of a finished session to import it.
+    func session(id: UUID, for scope: AccountScope) async throws -> StudySessionRecord?
     func saveSession(_ session: StudySessionRecord, for scope: AccountScope) async throws
     func reviews(inSession sessionID: UUID, for scope: AccountScope) async throws -> [ReviewEventRecord]
 
