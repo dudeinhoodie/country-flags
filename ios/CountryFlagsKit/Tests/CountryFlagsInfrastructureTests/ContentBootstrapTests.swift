@@ -51,6 +51,25 @@ final class ContentBootstrapTests: XCTestCase {
         XCTAssertEqual(cardsAfterSecond, cardsAfterFirst)
     }
 
+    /// A language change re-imports the release: the version being current
+    /// says nothing about the words being in the right language, so the same
+    /// version asked for in a new locale is fetched and applied again.
+    func testALanguageChangeReimportsTheRelease() async throws {
+        let (coordinator, repository, transport) = try makeSubject()
+        await coordinator.synchronize(locale: "en")
+        let first = try await repository.currentManifest()
+        XCTAssertEqual(first?.importedLocale, "en")
+
+        let switched = makeCoordinator(transport: transport, repository: repository)
+        await switched.synchronize(locale: "ru")
+
+        let manifest = try await repository.currentManifest()
+        XCTAssertEqual(manifest?.importedLocale, "ru")
+        // The store still holds one coherent release, not a doubled one.
+        let decks = try await repository.decks()
+        XCTAssertEqual(decks.count, 2)
+    }
+
     // MARK: - Paging
 
     func testASecondPageIsFetchedAndOrderedAfterTheFirst() async throws {

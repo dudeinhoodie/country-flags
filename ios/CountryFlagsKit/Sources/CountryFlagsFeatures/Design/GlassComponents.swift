@@ -87,6 +87,59 @@ struct GlassActionStyle: ButtonStyle {
     }
 }
 
+/// A row of choices with one sliding thumb.
+///
+/// The system's segmented control fights the scene — its own material, its
+/// own tint, and on glass the thumb snapped instead of sliding. This one is
+/// built from the scene's parts: a glass capsule track, a white thumb that
+/// slides between choices with matched geometry, and the same reduced-motion
+/// manners as everything else.
+struct GlassSegmentedPicker<Option: Hashable>: View {
+    @Binding var selection: Option
+    let options: [Option]
+    let label: (Option) -> String
+    var identifier: ((Option) -> String)?
+
+    @Namespace private var thumb
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(options, id: \.self) { option in
+                Button {
+                    withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) {
+                        selection = option
+                    }
+                } label: {
+                    Text(label(option))
+                        .font(
+                            DesignTokens.Typography.body
+                                .weight(selection == option ? .semibold : .medium)
+                        )
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.8)
+                        .foregroundStyle(selection == option ? .black : .white.opacity(0.85))
+                        .background {
+                            if selection == option {
+                                Capsule(style: .continuous)
+                                    .fill(.white)
+                                    .matchedGeometryEffect(id: "thumb", in: thumb)
+                            }
+                        }
+                        .contentShape(Capsule(style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selection == option ? [.isSelected] : [])
+                .accessibilityIdentifier(identifier?(option) ?? "")
+            }
+        }
+        .padding(DesignTokens.Spacing.extraSmall)
+        .glassEffect(.regular, in: Capsule(style: .continuous))
+    }
+}
+
 /// A row that opens something.
 ///
 /// The chevron is the whole affordance: rows on glass have no separators and no

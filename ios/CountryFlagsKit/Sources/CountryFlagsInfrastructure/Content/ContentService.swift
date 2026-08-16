@@ -120,6 +120,7 @@ public struct ContentService: Sendable {
                     manifest: ContentManifestRecord(
                         contentVersion: payload.contentVersion,
                         defaultLocale: payload.defaultLocale,
+                        importedLocale: locale,
                         supportedLocales: payload.supportedLocales,
                         supportedTemplateSchemaVersions: payload.supportedTemplateSchemaVersions,
                         assetBaseURL: assetBaseURL,

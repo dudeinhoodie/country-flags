@@ -196,32 +196,33 @@ public struct DeckDetailsView: View {
         if isObjectiveModeEnabled {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
                 SectionLabel(L10n.studyModeSection)
-                Picker(L10n.studyModeSection, selection: $mode) {
-                    Text(L10n.studyModeSelfRated)
-                        .tag(StudyAnswerMode.selfRated)
-                        .accessibilityIdentifier(AccessibilityIdentifier.studyModeSelfRated)
-                    Text(L10n.studyModeObjective)
-                        .tag(StudyAnswerMode.multipleChoice)
-                        .accessibilityIdentifier(AccessibilityIdentifier.studyModeObjective)
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
+                GlassSegmentedPicker(
+                    selection: $mode,
+                    options: [StudyAnswerMode.selfRated, .multipleChoice],
+                    label: { option in
+                        option == .selfRated
+                            ? L10n.studyModeSelfRated : L10n.studyModeObjective
+                    },
+                    identifier: { option in
+                        option == .selfRated
+                            ? AccessibilityIdentifier.studyModeSelfRated
+                            : AccessibilityIdentifier.studyModeObjective
+                    }
+                )
             }
         }
 
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
             SectionLabel(L10n.studySessionSize)
-            Picker(L10n.studySessionSize, selection: $sessionSize) {
-                ForEach(StudySessionSize.allCases) { size in
-                    Text(verbatim: "\(size.rawValue)")
-                        .tag(size)
-                        .accessibilityIdentifier(
-                            AccessibilityIdentifier.studySizeOption(size)
-                        )
-                }
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+            // The choice slides rather than snaps: the thumb travels to the
+            // tapped size, the way the system's own control moves everywhere
+            // the scene is not glass.
+            GlassSegmentedPicker(
+                selection: $sessionSize,
+                options: StudySessionSize.allCases,
+                label: { "\($0.rawValue)" },
+                identifier: { AccessibilityIdentifier.studySizeOption($0) }
+            )
         }
 
         // A session can start with no network at all: the cards and

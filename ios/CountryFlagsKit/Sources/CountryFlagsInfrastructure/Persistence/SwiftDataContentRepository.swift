@@ -271,6 +271,7 @@ actor SwiftDataContentRepository: ContentRepository {
             modelContext.insert(stored)
         }
         stored.defaultLocale = manifest.defaultLocale
+        stored.importedLocale = manifest.importedLocale
         stored.supportedLocales = manifest.supportedLocales
         stored.supportedTemplateSchemaVersions = manifest.supportedTemplateSchemaVersions
         stored.assetBaseURL = manifest.assetBaseURL
@@ -430,6 +431,7 @@ actor SwiftDataContentRepository: ContentRepository {
         ContentManifestRecord(
             contentVersion: stored.contentVersion,
             defaultLocale: stored.defaultLocale,
+            importedLocale: stored.importedLocale,
             supportedLocales: stored.supportedLocales,
             supportedTemplateSchemaVersions: stored.supportedTemplateSchemaVersions,
             assetBaseURL: stored.assetBaseURL,

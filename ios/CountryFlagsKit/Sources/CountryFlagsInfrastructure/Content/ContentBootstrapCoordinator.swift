@@ -128,7 +128,14 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         )
 
         do {
-            let entityTag = stored.flatMap { tags.entityTag(forVersion: $0.contentVersion) }
+            // The tag says "these bytes are unchanged", but the words on the
+            // device are in the language the release was imported in — after
+            // a language change a 304 would be the wrong answer, so the tag
+            // stays home and the manifest is fetched for real.
+            let entityTag =
+                stored?.importedLocale == locale
+                ? stored.flatMap { tags.entityTag(forVersion: $0.contentVersion) }
+                : nil
             switch try await service.manifest(locale: locale, entityTag: entityTag) {
             case .notModified:
                 guard let stored else {
@@ -147,7 +154,9 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                     tags.store(entityTag: entityTag, forVersion: fetch.manifest.contentVersion)
                 }
 
-                if stored?.contentVersion == fetch.manifest.contentVersion {
+                if stored?.contentVersion == fetch.manifest.contentVersion,
+                    stored?.importedLocale == locale
+                {
                     try await applyChanges(
                         after: stored?.changeCursor ?? fetch.manifest.changeCursor,
                         manifest: fetch.manifest,
@@ -350,6 +359,7 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             applied = ContentManifestRecord(
                 contentVersion: applied.contentVersion,
                 defaultLocale: applied.defaultLocale,
+                importedLocale: applied.importedLocale,
                 supportedLocales: applied.supportedLocales,
                 supportedTemplateSchemaVersions: applied.supportedTemplateSchemaVersions,
                 assetBaseURL: applied.assetBaseURL,

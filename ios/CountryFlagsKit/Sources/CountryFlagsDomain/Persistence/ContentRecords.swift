@@ -10,6 +10,11 @@ import Foundation
 public struct ContentManifestRecord: Hashable, Sendable {
     public let contentVersion: String
     public let defaultLocale: String
+    /// The locale the stored release's text was imported in. A device whose
+    /// language changed compares this against what it would ask for now: the
+    /// version being current says nothing about the words being in the right
+    /// language.
+    public let importedLocale: String
     public let supportedLocales: [String]
     public let supportedTemplateSchemaVersions: [Int]
     public let assetBaseURL: URL
@@ -20,6 +25,7 @@ public struct ContentManifestRecord: Hashable, Sendable {
     public init(
         contentVersion: String,
         defaultLocale: String,
+        importedLocale: String = "",
         supportedLocales: [String],
         supportedTemplateSchemaVersions: [Int],
         assetBaseURL: URL,
@@ -29,6 +35,7 @@ public struct ContentManifestRecord: Hashable, Sendable {
     ) {
         self.contentVersion = contentVersion
         self.defaultLocale = defaultLocale
+        self.importedLocale = importedLocale
         self.supportedLocales = supportedLocales
         self.supportedTemplateSchemaVersions = supportedTemplateSchemaVersions
         self.assetBaseURL = assetBaseURL
