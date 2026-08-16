@@ -60,6 +60,93 @@ const SCALES = [
   { scale: "3x", width: 1080 },
 ];
 
+/// Expands the one SVG feature resvg does not implement: markers.
+///
+/// Two flags in the set — the United States and its Minor Outlying Islands —
+/// draw their fifty stars as a `marker-mid` stamped along an invisible
+/// polyline. resvg skips markers entirely, which rendered the canton as a
+/// plain blue field. The expansion is literal: the marker's own path is
+/// stamped at every interior vertex of the polyline, which for a closed path
+/// is every vertex after the starting point. Anything fancier than the
+/// straight-line commands these files use fails loudly rather than silently
+/// dropping part of a flag.
+function expandMarkers(svg) {
+  const definition = svg.match(
+    /<marker id="([a-z0-9-]+)"[^>]*><path ([^>]*?)\/><\/marker>/u,
+  );
+  if (definition === null) {
+    return svg;
+  }
+  const [defTag, id, starAttributes] = definition;
+  const carrier = svg.match(
+    new RegExp(`<path [^>]*marker-mid="url\\(#${id}\\)"[^>]* d="([^"]+)"[^>]*/>`, "u"),
+  );
+  if (carrier === null) {
+    throw new Error("A marker is defined but nothing references it");
+  }
+
+  const vertices = [];
+  let x = 0;
+  let y = 0;
+  let closed = false;
+  const tokens = carrier[1].match(/[a-zA-Z]|-?[\d.]+/gu) ?? [];
+  let index = 0;
+  const read = () => Number(tokens[index++]);
+  while (index < tokens.length) {
+    const command = tokens[index++];
+    switch (command) {
+      case "m":
+      case "M":
+      case "l":
+      case "L": {
+        const relative = command === "m" || command === "l";
+        // Coordinate pairs run until the next letter: an implicit lineto.
+        while (index < tokens.length && !/[a-zA-Z]/u.test(tokens[index])) {
+          const px = read();
+          const py = read();
+          x = relative ? x + px : px;
+          y = relative ? y + py : py;
+          vertices.push([x, y]);
+        }
+        break;
+      }
+      case "h":
+      case "H": {
+        while (index < tokens.length && !/[a-zA-Z]/u.test(tokens[index])) {
+          const px = read();
+          x = command === "h" ? x + px : px;
+          vertices.push([x, y]);
+        }
+        break;
+      }
+      case "v":
+      case "V": {
+        while (index < tokens.length && !/[a-zA-Z]/u.test(tokens[index])) {
+          const py = read();
+          y = command === "v" ? y + py : py;
+          vertices.push([x, y]);
+        }
+        break;
+      }
+      case "z":
+      case "Z":
+        closed = true;
+        break;
+      default:
+        throw new Error(`The marker carrier uses an unsupported command: ${command}`);
+    }
+  }
+
+  // marker-mid decorates every vertex except the first and the last; closing
+  // the path makes the return to the start the last vertex, so on a closed
+  // carrier every vertex after the start carries a star.
+  const middles = closed ? vertices.slice(1) : vertices.slice(1, -1);
+  const stars = middles
+    .map(([vx, vy]) => `<path ${starAttributes} transform="translate(${vx} ${vy})"/>`)
+    .join("");
+  return svg.replace(defTag, "").replace(carrier[0], `<g>${stars}</g>`);
+}
+
 /// Renders the release's own SVG bytes to pixels.
 ///
 /// resvg, not Xcode: the asset catalog's SVG support implements a sliver of
@@ -69,8 +156,13 @@ const SCALES = [
 /// class of bug for all 250 flags at once, and lets the release bytes ship
 /// untouched instead of being patched around one parser.
 function rasterize(svg, width) {
-  const renderer = new Resvg(svg, {
+  const renderer = new Resvg(expandMarkers(svg), {
     fitTo: { mode: "width", value: width },
+    // White, not transparent: every rectangular flag covers the canvas and
+    // never shows it, and Nepal — the one flag that is not a rectangle —
+    // reads as a pennant on a white field, the way every flag set shows it,
+    // rather than as a hole in the card.
+    background: "#ffffff",
     // Deterministic output: the check mode re-renders and compares bytes,
     // so nothing machine-local may leak into them. Flags carry no text.
     font: { loadSystemFonts: false },
