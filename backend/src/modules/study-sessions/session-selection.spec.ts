@@ -96,7 +96,6 @@ describe("selectSessionCandidates", () => {
   });
 });
 
-
 describe("isDue", () => {
   const now = new Date("2026-08-16T12:00:00Z");
   const candidate = (
@@ -117,13 +116,19 @@ describe("isDue", () => {
   });
 
   it("owes a started card whose schedule has come round", () => {
-    expect(isDue(candidate("REVIEW", new Date("2026-08-16T11:00:00Z")), now)).toBe(true);
+    expect(
+      isDue(candidate("REVIEW", new Date("2026-08-16T11:00:00Z")), now),
+    ).toBe(true);
     expect(isDue(candidate("LEARNING", now), now)).toBe(true);
   });
 
   it("owes nothing for the future, the unseen and the new", () => {
-    expect(isDue(candidate("REVIEW", new Date("2026-08-17T11:00:00Z")), now)).toBe(false);
-    expect(isDue(candidate("NEW", new Date("2026-08-16T11:00:00Z")), now)).toBe(false);
+    expect(
+      isDue(candidate("REVIEW", new Date("2026-08-17T11:00:00Z")), now),
+    ).toBe(false);
+    expect(isDue(candidate("NEW", new Date("2026-08-16T11:00:00Z")), now)).toBe(
+      false,
+    );
     expect(isDue(candidate(null, now), now)).toBe(false);
   });
 });

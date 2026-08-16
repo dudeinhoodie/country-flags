@@ -309,7 +309,8 @@ export function parseCreateStudySessionRequest(
     mode: body.mode,
     locale: parseLocale(body.locale),
     selectionOrigin: SelectionOrigin.SERVER,
-    composition: (body.composition as SessionComposition | undefined) ?? "STANDARD",
+    composition:
+      (body.composition as SessionComposition | undefined) ?? "STANDARD",
   };
 }
 

@@ -289,7 +289,6 @@ describe("requestHash", () => {
   });
 });
 
-
 describe("composition", () => {
   const server = {
     id: "6f9b91c2-9a44-4b6e-9a6b-3d4f8b6a2c11",
