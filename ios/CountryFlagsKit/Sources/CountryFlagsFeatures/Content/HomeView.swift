@@ -15,7 +15,6 @@ public struct HomeView: View {
     private let onOpenDeck: (UUID) -> Void
     private let onContinueSession: ((ContinuableSession) -> Void)?
     private let onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)?
-    private let makeSettings: (() -> SettingsStore)?
 
     /// The counts behind the hero. Built here, once, from the factory: this
     /// view is re-initialised whenever the launch makes progress, and a store
@@ -27,7 +26,6 @@ public struct HomeView: View {
         store: ContentStore,
         sync: SyncCenter,
         makeProgress: (() -> ProgressStore)? = nil,
-        makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
         onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)? = nil
@@ -35,7 +33,6 @@ public struct HomeView: View {
         self.store = store
         self.sync = sync
         self.makeProgress = makeProgress
-        self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
         self.onStartStudy = onStartStudy
@@ -195,7 +192,7 @@ public struct HomeView: View {
                 } else {
                     ForEach(due) { deck in
                         Button {
-                            startDueSession(deckID: deck.id)
+                            startDueSession(deckID: deck.id, dueCount: deck.dueCards)
                         } label: {
                             GlassCard(padding: DesignTokens.Spacing.medium) {
                                 HStack(
@@ -254,7 +251,7 @@ public struct HomeView: View {
                 total: nil,
                 name: due.name,
                 action: L10n.homeContinue,
-                run: { startDueSession(deckID: due.id) }
+                run: { startDueSession(deckID: due.id, dueCount: due.dueCards) }
             )
         }
         guard let deck = recommended(sections).first else { return nil }
@@ -324,20 +321,18 @@ public struct HomeView: View {
     /// the schedule has picked. The session honours the stored size setting,
     /// the same one the deck screen reads, and the selection puts the due
     /// cards first on its own.
-    private func startDueSession(deckID: UUID) {
+    private func startDueSession(deckID: UUID, dueCount: Int) {
         guard let onStartStudy else {
             onOpenDeck(deckID)
             return
         }
-        Task {
-            var size = StudySessionSize.ten
-            if let makeSettings {
-                let settings = makeSettings()
-                await settings.load()
-                size = StudySessionSize(storedValue: settings.settings.sessionSize)
-            }
-            onStartStudy(deckID, size, .selfRated)
-        }
+        // The queue is what was asked for. The contract only offers three
+        // sizes, so the session takes the smallest one that holds the queue —
+        // two due cards make a session of five, not the ten the settings
+        // would deal a fresh deck. The selection puts the due cards first, so
+        // whatever tops the size up is a few new ones, not a burial.
+        let size = StudySessionSize.allCases.first { $0.rawValue >= dueCount } ?? .twenty
+        onStartStudy(deckID, size, .selfRated)
     }
 
     /// The curated decks are what the product recommends; the taxonomy ones are
