@@ -1,7 +1,7 @@
 {
-  "assetBaseUrl": "https://cdn.country-flags.app/content/fixture-v3/",
-  "changeCursor": "content:fixture-v3:0",
-  "contentVersion": "fixture-v3",
+  "assetBaseUrl": "https://cdn.country-flags.app/content/fixture-v1/",
+  "changeCursor": "content:fixture-v1:0",
+  "contentVersion": "fixture-v1",
   "createdAt": "2026-08-16T08:46:55.488Z",
   "defaultLocale": "ru",
   "files": [
@@ -21,7 +21,7 @@
       "bytes": 265661,
       "path": "catalog.json",
       "schemaId": "https://country-flags.example/schemas/catalog.schema.json",
-      "sha256": "bd963a8101ca5f415d40903d1d56f4beb1572bbfe339b1bbcdae22a6b115c879"
+      "sha256": "9b84b1b436007e2e29d9361f7d412d5593f92b2d0a71dfb4fb96705ce4d3b46c"
     },
     {
       "bytes": 89092,

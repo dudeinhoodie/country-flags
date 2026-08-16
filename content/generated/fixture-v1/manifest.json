@@ -3,14 +3,14 @@
   "assetBaseUrl": "https://cdn.country-flags.app/content/fixture-v1/",
   "changeCursor": "content:fixture-v1:0",
   "contentVersion": "fixture-v1",
-  "createdAt": "2026-07-28T13:13:41.707Z",
+  "createdAt": "2026-08-16T08:46:55.488Z",
   "defaultLocale": "ru",
   "files": [
     {
-      "bytes": 342902,
+      "bytes": 342905,
       "path": "assets/assets.json",
       "schemaId": "https://country-flags.app/content/v1/asset-registry.schema.json",
-      "sha256": "551df56539899c6473ce24745af7b613b0929544aad954ad5b8c6d1f719345d3"
+      "sha256": "02d71b991dd1177982b92411af6c7cf2108a74d2146f09ad06a8b1d0323387bd"
     },
     {
       "bytes": 547,
@@ -52,7 +52,7 @@
       "bytes": 156348,
       "path": "learning-cards.json",
       "schemaId": "https://country-flags.app/content/v1/learning-cards.schema.json",
-      "sha256": "ceba3a555a769f6c960e474f09b3ffec57b9ba984cc9b4ffc9596d16dc4a9e69"
+      "sha256": "4702817e2ac1c5f42c5c76c678b38fe78303fe58fca13fc3431f2925e439fcd9"
     },
     {
       "bytes": 817716,

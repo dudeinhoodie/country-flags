@@ -27,7 +27,7 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..")
 /// The release the Mock build serves. The same one the app bundles its flags
 /// from, which is what makes every flag resolve out of the bundle and the run
 /// need no network at all.
-const CONTENT_VERSION = "fixture-v3";
+const CONTENT_VERSION = "fixture-v1";
 
 /// The locale the mock answers in. A response carries one language because the
 /// transport answers per operation rather than per request, and the client's

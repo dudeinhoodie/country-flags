@@ -11,12 +11,12 @@
         "asset": {
           "id": "b6e123d6-163a-5ae0-9d46-0f4728cbe3e4",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/french-southern-territories.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/french-southern-territories.svg",
           "mimeType": "image/svg+xml",
           "sha256": "8f70762806fb80f3ea780d02e4dc75bbb33f01cbdadc5d43397b3371fe59ee73",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/french-southern-territories.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/french-southern-territories.svg",
               "mimeType": "image/svg+xml",
               "sha256": "8f70762806fb80f3ea780d02e4dc75bbb33f01cbdadc5d43397b3371fe59ee73",
               "scale": null,
@@ -24,7 +24,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/french-southern-territories@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/french-southern-territories@2x.png",
               "mimeType": "image/png",
               "sha256": "98e0eaae3c8feedb519c2bf2b939e0fbe395d6f10ad2a7b5ed1668c290e7bca7",
               "scale": 2,
@@ -32,7 +32,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/french-southern-territories@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/french-southern-territories@3x.png",
               "mimeType": "image/png",
               "sha256": "919cc141d0a21d3276757a870193ebcbb80964fbd0f657390187312894fbe71c",
               "scale": 3,
@@ -83,7 +83,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "fa816b63-4168-5331-b2a0-388547211a3d",
@@ -96,12 +96,12 @@
         "asset": {
           "id": "0307f250-1dbd-5755-a693-e70e519ce718",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/algeria.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/algeria.svg",
           "mimeType": "image/svg+xml",
           "sha256": "27f6f10cba42bafc0404678a330bd532c8feaf94e1b23d05ee469c623c7ea3f2",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/algeria.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/algeria.svg",
               "mimeType": "image/svg+xml",
               "sha256": "27f6f10cba42bafc0404678a330bd532c8feaf94e1b23d05ee469c623c7ea3f2",
               "scale": null,
@@ -109,7 +109,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/algeria@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/algeria@2x.png",
               "mimeType": "image/png",
               "sha256": "f1010ae683b56d962d47829ba07a8d9f258941e43199dc202eb2c7a120806b01",
               "scale": 2,
@@ -117,7 +117,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/algeria@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/algeria@3x.png",
               "mimeType": "image/png",
               "sha256": "6d3e1c8604dff458205f574d2b1e6e49f4be0becee6c6924ad13fc72456f3a52",
               "scale": 3,
@@ -177,7 +177,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "6479b1ac-6164-579f-9c0f-31de6cecf7f7",
@@ -190,12 +190,12 @@
         "asset": {
           "id": "184f1a5b-1011-5bb0-b9d6-11106530c30a",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/angola.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/angola.svg",
           "mimeType": "image/svg+xml",
           "sha256": "9c86a2053e599b8d74ba1c8b43dbf436ae89b490823b8cb38a81cde28fce73a6",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/angola.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/angola.svg",
               "mimeType": "image/svg+xml",
               "sha256": "9c86a2053e599b8d74ba1c8b43dbf436ae89b490823b8cb38a81cde28fce73a6",
               "scale": null,
@@ -203,7 +203,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/angola@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/angola@2x.png",
               "mimeType": "image/png",
               "sha256": "3264171aa871464e3fa3eb6f378b5c9336ee77457d1e70f076c294b4b49635af",
               "scale": 2,
@@ -211,7 +211,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/angola@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/angola@3x.png",
               "mimeType": "image/png",
               "sha256": "533ec74485717ff9687428d4f54620ce28cfc0f9981d48349ba12319c73c48b3",
               "scale": 3,
@@ -271,7 +271,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "75d2a0a0-af98-5970-bfcf-7a28f35d8976",
@@ -284,12 +284,12 @@
         "asset": {
           "id": "96e3a622-9d35-5571-a56a-e77f875b857a",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/benin.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/benin.svg",
           "mimeType": "image/svg+xml",
           "sha256": "cc3f55a4c74425454176a023a82757a9194bc79ec6aa11775e255ba26f071462",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/benin.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/benin.svg",
               "mimeType": "image/svg+xml",
               "sha256": "cc3f55a4c74425454176a023a82757a9194bc79ec6aa11775e255ba26f071462",
               "scale": null,
@@ -297,7 +297,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/benin@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/benin@2x.png",
               "mimeType": "image/png",
               "sha256": "ce3b79ac77a05647e9233c9f4ee89c46819d0f0e1ba6d713441b0a079665d5c9",
               "scale": 2,
@@ -305,7 +305,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/benin@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/benin@3x.png",
               "mimeType": "image/png",
               "sha256": "31117fc5243ac6c9a28d1e63ce675c0574b28d29f0e1a6a572acd944c08ec16e",
               "scale": 3,
@@ -365,7 +365,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "f0e69ff1-ca9c-577c-b89e-89e43d32d1a6",
@@ -378,12 +378,12 @@
         "asset": {
           "id": "fd1043b4-047d-595b-831d-b58c995059da",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/botswana.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/botswana.svg",
           "mimeType": "image/svg+xml",
           "sha256": "e1219f3f97649e3e3b818263b47944aa00a7826d443eeeea211bc91926af1a31",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/botswana.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/botswana.svg",
               "mimeType": "image/svg+xml",
               "sha256": "e1219f3f97649e3e3b818263b47944aa00a7826d443eeeea211bc91926af1a31",
               "scale": null,
@@ -391,7 +391,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/botswana@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/botswana@2x.png",
               "mimeType": "image/png",
               "sha256": "d15ef83521a863998f1bdf2597e3889fb5cf0a45285c7b107af49ba2f48b7c81",
               "scale": 2,
@@ -399,7 +399,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/botswana@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/botswana@3x.png",
               "mimeType": "image/png",
               "sha256": "a4da4ac53f01dac13f039387dfa0d9fae2aba2bc3b9ac839a50767777dff5b37",
               "scale": 3,
@@ -459,7 +459,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "1d685769-12f4-5f05-8105-b5c59eedb2fc",
@@ -472,12 +472,12 @@
         "asset": {
           "id": "a1804a6a-7704-5455-95da-5cfdb04c0ba8",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/burkina-faso.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/burkina-faso.svg",
           "mimeType": "image/svg+xml",
           "sha256": "cdda80b4d785bcc546b0a9be995c0664ac894d18f21bbc6cbdcd0505fa3d7ff2",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/burkina-faso.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/burkina-faso.svg",
               "mimeType": "image/svg+xml",
               "sha256": "cdda80b4d785bcc546b0a9be995c0664ac894d18f21bbc6cbdcd0505fa3d7ff2",
               "scale": null,
@@ -485,7 +485,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/burkina-faso@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/burkina-faso@2x.png",
               "mimeType": "image/png",
               "sha256": "994bd8dfd269fa820541c4659cc6e53bfeb2b2f778dcaa74b272050f7c102bc2",
               "scale": 2,
@@ -493,7 +493,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/burkina-faso@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/burkina-faso@3x.png",
               "mimeType": "image/png",
               "sha256": "d2444b5ffee55d1e4ea383fc27cc7de50e06a5ee90a07a8d978ad8e494dfd6bb",
               "scale": 3,
@@ -553,7 +553,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "fe7c0aa4-fbd5-5758-ad8a-6ae13a3ee241",
@@ -566,12 +566,12 @@
         "asset": {
           "id": "573ee8cc-9eb9-55ee-806f-b9c3786c2bb6",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/burundi.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/burundi.svg",
           "mimeType": "image/svg+xml",
           "sha256": "b8ef7836cb66deda8edc7797e76381a837304e37c84c746760c8c55502aea2f7",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/burundi.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/burundi.svg",
               "mimeType": "image/svg+xml",
               "sha256": "b8ef7836cb66deda8edc7797e76381a837304e37c84c746760c8c55502aea2f7",
               "scale": null,
@@ -579,7 +579,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/burundi@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/burundi@2x.png",
               "mimeType": "image/png",
               "sha256": "ee848bcd16f22c9f6a871b98bd10576c54b686e24c1e9960ccce6b87088b3233",
               "scale": 2,
@@ -587,7 +587,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/burundi@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/burundi@3x.png",
               "mimeType": "image/png",
               "sha256": "6796ce7e65ccbabd6159ec9f4ce70035f96178c04f4c670744dfb585c2a2ace1",
               "scale": 3,
@@ -647,7 +647,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "60724c85-c13d-5cfd-829a-f1a20c05e335",
@@ -660,12 +660,12 @@
         "asset": {
           "id": "2e920155-e623-58cb-8974-79d234c9af46",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/cabo-verde.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cabo-verde.svg",
           "mimeType": "image/svg+xml",
           "sha256": "7744d3124de039fe84754f8cec33fd084c654ba8fd1d5f5aef499828cd9ae69f",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/cabo-verde.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cabo-verde.svg",
               "mimeType": "image/svg+xml",
               "sha256": "7744d3124de039fe84754f8cec33fd084c654ba8fd1d5f5aef499828cd9ae69f",
               "scale": null,
@@ -673,7 +673,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/cabo-verde@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cabo-verde@2x.png",
               "mimeType": "image/png",
               "sha256": "5267c925d354134a582b1369b69820643d5db79d2f6024800468d123c1b89284",
               "scale": 2,
@@ -681,7 +681,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/cabo-verde@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cabo-verde@3x.png",
               "mimeType": "image/png",
               "sha256": "8c6d2f234b31dc56ef5842d1e9f132957affcbdf2a1bc2ac4e70f83de7deb560",
               "scale": 3,
@@ -741,7 +741,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "99bf75ad-254d-5c00-a1ae-cdfd820be8eb",
@@ -754,12 +754,12 @@
         "asset": {
           "id": "69100545-ec21-5649-a459-cde97a5b2875",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/cameroon.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cameroon.svg",
           "mimeType": "image/svg+xml",
           "sha256": "b8fafbbf6a0980265fc77a819bb094a2aedd9fdddcbe826cdfd8ff4206b7737e",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/cameroon.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cameroon.svg",
               "mimeType": "image/svg+xml",
               "sha256": "b8fafbbf6a0980265fc77a819bb094a2aedd9fdddcbe826cdfd8ff4206b7737e",
               "scale": null,
@@ -767,7 +767,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/cameroon@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cameroon@2x.png",
               "mimeType": "image/png",
               "sha256": "6ca9945d81210d2d39348829afaa5902125d1188525a24eeb5a494d788c7b686",
               "scale": 2,
@@ -775,7 +775,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/cameroon@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cameroon@3x.png",
               "mimeType": "image/png",
               "sha256": "516818ff48e05d4aaf5c58224a99962bc0e217749fd9abe9163102717438d7c3",
               "scale": 3,
@@ -835,7 +835,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "7f25ee3a-d53e-5c11-856c-03a13ecba8d6",
@@ -848,12 +848,12 @@
         "asset": {
           "id": "dea94688-967f-5da8-9a90-ed01cd90601d",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/central-african-republic.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/central-african-republic.svg",
           "mimeType": "image/svg+xml",
           "sha256": "1701218b4d8f70b7393b0f72ecf979815b257ba78bfde7e52a3c40dca054227a",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/central-african-republic.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/central-african-republic.svg",
               "mimeType": "image/svg+xml",
               "sha256": "1701218b4d8f70b7393b0f72ecf979815b257ba78bfde7e52a3c40dca054227a",
               "scale": null,
@@ -861,7 +861,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/central-african-republic@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/central-african-republic@2x.png",
               "mimeType": "image/png",
               "sha256": "5b871717bb80a486c09b9ec46d02854dd7543113a6eff32f6ab2be839eb50cf0",
               "scale": 2,
@@ -869,7 +869,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/central-african-republic@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/central-african-republic@3x.png",
               "mimeType": "image/png",
               "sha256": "441cff8d60cec7c9ac2bb762f8c79f97d7df4ec386e4ce8ce08b1f54c922f093",
               "scale": 3,
@@ -929,7 +929,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "621e1c1b-d6ed-5a1e-8e43-5907f303deeb",
@@ -942,12 +942,12 @@
         "asset": {
           "id": "a17dc31e-2e33-5008-9324-4ec140f1e9c5",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/chad.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/chad.svg",
           "mimeType": "image/svg+xml",
           "sha256": "62a4dc07e84ed00b4213ef15d603d229093f575b48ae6cfe37c817e52e652ff1",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/chad.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/chad.svg",
               "mimeType": "image/svg+xml",
               "sha256": "62a4dc07e84ed00b4213ef15d603d229093f575b48ae6cfe37c817e52e652ff1",
               "scale": null,
@@ -955,7 +955,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/chad@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/chad@2x.png",
               "mimeType": "image/png",
               "sha256": "049934d5bb151555dee25bb62c275a65b09ab9a80740761bea2d29f3bbf7ef94",
               "scale": 2,
@@ -963,7 +963,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/chad@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/chad@3x.png",
               "mimeType": "image/png",
               "sha256": "999ae80c5eb94fc1a9296ba99df421423c313eacb7aa215c9d1c648c9f9a9bbf",
               "scale": 3,
@@ -1023,7 +1023,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "e27c2cfd-2d40-5974-989a-f91c7994478a",
@@ -1036,12 +1036,12 @@
         "asset": {
           "id": "ae234a03-8d9b-5ad6-8940-3ce9858f62b9",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/comoros.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/comoros.svg",
           "mimeType": "image/svg+xml",
           "sha256": "f32a27981712439db17e0c2326733aeac155b23ec94f3a24f1a5c06074a6a572",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/comoros.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/comoros.svg",
               "mimeType": "image/svg+xml",
               "sha256": "f32a27981712439db17e0c2326733aeac155b23ec94f3a24f1a5c06074a6a572",
               "scale": null,
@@ -1049,7 +1049,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/comoros@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/comoros@2x.png",
               "mimeType": "image/png",
               "sha256": "a4642fbf91293db34b8fa6ed7f8ddc07046435db0e3bf30fa4d46ea59b0fddd7",
               "scale": 2,
@@ -1057,7 +1057,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/comoros@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/comoros@3x.png",
               "mimeType": "image/png",
               "sha256": "ade989a5f282a26e35e25927ff1ddd7c57d0bf583d2800a3fbfc2ba823b0e9b9",
               "scale": 3,
@@ -1117,7 +1117,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "80e96064-3e3a-5902-ae57-88395012992c",
@@ -1130,12 +1130,12 @@
         "asset": {
           "id": "e38ca3de-7d64-53a3-b84b-42b2a23fab13",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/congo.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/congo.svg",
           "mimeType": "image/svg+xml",
           "sha256": "980dd96111089f88c93c1e1b8c4ef9a026951b5863c0d56d1b800170dd8068ad",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/congo.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/congo.svg",
               "mimeType": "image/svg+xml",
               "sha256": "980dd96111089f88c93c1e1b8c4ef9a026951b5863c0d56d1b800170dd8068ad",
               "scale": null,
@@ -1143,7 +1143,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/congo@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/congo@2x.png",
               "mimeType": "image/png",
               "sha256": "2837e85fa05accf19628bbd434f0a9fb3613d5b453025c23129629a45625cf0e",
               "scale": 2,
@@ -1151,7 +1151,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/congo@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/congo@3x.png",
               "mimeType": "image/png",
               "sha256": "31280969f798a03e10949ffce4c2033aa77ca74b2c3589145154035300053f61",
               "scale": 3,
@@ -1211,7 +1211,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "9468c8ff-c09c-5479-a887-8b154de8df95",
@@ -1224,12 +1224,12 @@
         "asset": {
           "id": "289cb622-ec5d-534a-b777-7483c06073e5",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/cote-d-ivoire.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cote-d-ivoire.svg",
           "mimeType": "image/svg+xml",
           "sha256": "4fcc3a09c22ada7b2b4f5722476dec806dba0b2991b5145acd1af82b7786ecf4",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/cote-d-ivoire.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cote-d-ivoire.svg",
               "mimeType": "image/svg+xml",
               "sha256": "4fcc3a09c22ada7b2b4f5722476dec806dba0b2991b5145acd1af82b7786ecf4",
               "scale": null,
@@ -1237,7 +1237,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/cote-d-ivoire@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cote-d-ivoire@2x.png",
               "mimeType": "image/png",
               "sha256": "4834089c328a33db5b260cf39a78798b2609f4349457ef59fc31848b4a9ca21b",
               "scale": 2,
@@ -1245,7 +1245,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/cote-d-ivoire@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cote-d-ivoire@3x.png",
               "mimeType": "image/png",
               "sha256": "4ddd1c974c007aa2a4f98db888730a13e55879eca705a7715680a565669475be",
               "scale": 3,
@@ -1305,7 +1305,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "1f104008-00cc-5ac7-906b-98a5fd21a345",
@@ -1318,12 +1318,12 @@
         "asset": {
           "id": "e175fc09-07cf-57d8-ad36-bd9a6cf0679f",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/democratic-republic-of-the-congo.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/democratic-republic-of-the-congo.svg",
           "mimeType": "image/svg+xml",
           "sha256": "0b18e2071e3dd01904931a0054bac6efc882acf2a54dce85fd28bf3a5692f5ce",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/democratic-republic-of-the-congo.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/democratic-republic-of-the-congo.svg",
               "mimeType": "image/svg+xml",
               "sha256": "0b18e2071e3dd01904931a0054bac6efc882acf2a54dce85fd28bf3a5692f5ce",
               "scale": null,
@@ -1331,7 +1331,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/democratic-republic-of-the-congo@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/democratic-republic-of-the-congo@2x.png",
               "mimeType": "image/png",
               "sha256": "0c9b3f859ab7c2ff3363d25b176477f42589f7d9a6155158cf3e19240386c59e",
               "scale": 2,
@@ -1339,7 +1339,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/democratic-republic-of-the-congo@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/democratic-republic-of-the-congo@3x.png",
               "mimeType": "image/png",
               "sha256": "41671aa8e7b8d83df09c026542eb731c4ee18437750c3bf838d4bc46d0eee30e",
               "scale": 3,
@@ -1399,7 +1399,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "886f5953-2703-57da-b762-631acf19035e",
@@ -1412,12 +1412,12 @@
         "asset": {
           "id": "eb2760d1-1766-5b41-b3bc-f0c94931342b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/djibouti.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/djibouti.svg",
           "mimeType": "image/svg+xml",
           "sha256": "8ef52f179c79e19e52c6aa819a385b39a4095a08c915037e977bc4f18faa2d79",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/djibouti.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/djibouti.svg",
               "mimeType": "image/svg+xml",
               "sha256": "8ef52f179c79e19e52c6aa819a385b39a4095a08c915037e977bc4f18faa2d79",
               "scale": null,
@@ -1425,7 +1425,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/djibouti@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/djibouti@2x.png",
               "mimeType": "image/png",
               "sha256": "39457861a2fffcdef7fd6d597ec79f0333e371fccb7186a9e57469359fe9eb2a",
               "scale": 2,
@@ -1433,7 +1433,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/djibouti@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/djibouti@3x.png",
               "mimeType": "image/png",
               "sha256": "cc9332970e4d52ca44b6a7232b9b6e9dba95f3cdf69a3db439b79fa81a2edd41",
               "scale": 3,
@@ -1493,7 +1493,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "c64af2e7-f94f-5fb7-b57d-1e06deb9fc1d",
@@ -1506,12 +1506,12 @@
         "asset": {
           "id": "995540fc-601c-5cd8-8a0d-de4cc2d26c3d",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/egypt.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/egypt.svg",
           "mimeType": "image/svg+xml",
           "sha256": "f404797bddfbb97e473d8a78c8625357edb792fe1c2acdf1ac577e44b5d767ed",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/egypt.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/egypt.svg",
               "mimeType": "image/svg+xml",
               "sha256": "f404797bddfbb97e473d8a78c8625357edb792fe1c2acdf1ac577e44b5d767ed",
               "scale": null,
@@ -1519,7 +1519,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/egypt@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/egypt@2x.png",
               "mimeType": "image/png",
               "sha256": "04a9e0f0b1c16e2026f1bd866e14f5bf6ae6ff4e80891f0ce53cb230ac2fac83",
               "scale": 2,
@@ -1527,7 +1527,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/egypt@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/egypt@3x.png",
               "mimeType": "image/png",
               "sha256": "bb10e863320827789a845d05f841cb1601489fc887900ee4e5d462dcd7db0e65",
               "scale": 3,
@@ -1587,7 +1587,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "d3f39fea-beeb-5fed-851c-b99f9a089c2e",
@@ -1600,12 +1600,12 @@
         "asset": {
           "id": "699ea0ef-fd26-551a-9563-c719a9e8ab1b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/equatorial-guinea.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/equatorial-guinea.svg",
           "mimeType": "image/svg+xml",
           "sha256": "878297705434539813beff368afc80bfd25973faf0e3530a9441626d0e0f8a1a",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/equatorial-guinea.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/equatorial-guinea.svg",
               "mimeType": "image/svg+xml",
               "sha256": "878297705434539813beff368afc80bfd25973faf0e3530a9441626d0e0f8a1a",
               "scale": null,
@@ -1613,7 +1613,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/equatorial-guinea@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/equatorial-guinea@2x.png",
               "mimeType": "image/png",
               "sha256": "f5a885c01876594139c515083cc01b1d2ed204a5f3076b353fc0ce3f3ed24e22",
               "scale": 2,
@@ -1621,7 +1621,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/equatorial-guinea@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/equatorial-guinea@3x.png",
               "mimeType": "image/png",
               "sha256": "9ab0e5fdbd0988a25ebf9a912a40af0fdeddcc1c997f7b17c329bd3f5d4d7a88",
               "scale": 3,
@@ -1681,7 +1681,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "60c93531-0b48-524d-96c6-a363825a6bbb",
@@ -1694,12 +1694,12 @@
         "asset": {
           "id": "0d5ab06b-10af-523b-9798-55133761137a",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/eritrea.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/eritrea.svg",
           "mimeType": "image/svg+xml",
           "sha256": "d98a116f648f0d7c0b92fa70c867f03a651214aa156fca04ff634ad1276bb8af",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/eritrea.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/eritrea.svg",
               "mimeType": "image/svg+xml",
               "sha256": "d98a116f648f0d7c0b92fa70c867f03a651214aa156fca04ff634ad1276bb8af",
               "scale": null,
@@ -1707,7 +1707,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/eritrea@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/eritrea@2x.png",
               "mimeType": "image/png",
               "sha256": "dad4423c82a2dd0617a91e66f29a73943405b9b6018213d9d3be0f012aa7b51d",
               "scale": 2,
@@ -1715,7 +1715,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/eritrea@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/eritrea@3x.png",
               "mimeType": "image/png",
               "sha256": "506f269b6961e7ee867568796d8d79d7bbe2d39c561ba03b7f8eaebdc5bf5d37",
               "scale": 3,
@@ -1775,7 +1775,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "b84a64fe-4a1b-5edf-bd19-2fb8a942f455",
@@ -1788,12 +1788,12 @@
         "asset": {
           "id": "dcfa10bb-0f71-5e3a-91e4-2009ddf5fd53",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/eswatini.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/eswatini.svg",
           "mimeType": "image/svg+xml",
           "sha256": "0296ece5ce8e3f0c65507d5ee7bb98c1f1cf4fa2198ce1ca5f42d49bbea9b065",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/eswatini.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/eswatini.svg",
               "mimeType": "image/svg+xml",
               "sha256": "0296ece5ce8e3f0c65507d5ee7bb98c1f1cf4fa2198ce1ca5f42d49bbea9b065",
               "scale": null,
@@ -1801,7 +1801,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/eswatini@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/eswatini@2x.png",
               "mimeType": "image/png",
               "sha256": "d98da1f8d674524c4efc22318dd47127b3af0f4eee03ea273d30fe89d1d5ce8c",
               "scale": 2,
@@ -1809,7 +1809,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/eswatini@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/eswatini@3x.png",
               "mimeType": "image/png",
               "sha256": "93bb83e0b5284cb4a12404de8838251adc03f123d02d45d152c8d76c7c09daae",
               "scale": 3,
@@ -1869,7 +1869,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "3d9a139a-ca05-5e83-b90b-034a4e22232a",
@@ -1882,12 +1882,12 @@
         "asset": {
           "id": "d814977a-2e1e-5c2e-9535-30ce59de0714",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/ethiopia.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/ethiopia.svg",
           "mimeType": "image/svg+xml",
           "sha256": "2e3ef858c5e72c65c7b5bfc39d66718808339706eeaa12811833165936500416",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/ethiopia.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/ethiopia.svg",
               "mimeType": "image/svg+xml",
               "sha256": "2e3ef858c5e72c65c7b5bfc39d66718808339706eeaa12811833165936500416",
               "scale": null,
@@ -1895,7 +1895,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/ethiopia@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/ethiopia@2x.png",
               "mimeType": "image/png",
               "sha256": "612526140a3e7c409f8f4417f4a3e0fd55c8f85394e006671c909515bebd70eb",
               "scale": 2,
@@ -1903,7 +1903,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/ethiopia@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/ethiopia@3x.png",
               "mimeType": "image/png",
               "sha256": "e0a374fef2ffd57d609e80c3d03446300e069cd0dc79f690c22b3ec099e0c43f",
               "scale": 3,
@@ -1963,7 +1963,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "3add69d1-1bf4-5719-bc8a-446847bc9ab2",
@@ -1976,12 +1976,12 @@
         "asset": {
           "id": "976b6c41-f37d-5756-bf41-023998e483a6",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/gabon.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/gabon.svg",
           "mimeType": "image/svg+xml",
           "sha256": "94b395bfadddad03ee748309b166831ff905162a885c7d0f0f0ea20ec1cea911",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/gabon.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/gabon.svg",
               "mimeType": "image/svg+xml",
               "sha256": "94b395bfadddad03ee748309b166831ff905162a885c7d0f0f0ea20ec1cea911",
               "scale": null,
@@ -1989,7 +1989,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/gabon@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/gabon@2x.png",
               "mimeType": "image/png",
               "sha256": "c01c51fdd89a14dddfef7b704a83c4bf822aa71beab7ca785d10864900b3e80e",
               "scale": 2,
@@ -1997,7 +1997,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/gabon@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/gabon@3x.png",
               "mimeType": "image/png",
               "sha256": "91521943eaec759e371168f29d73fc674ea17c0fbce5cb2bd5302b8d2838cf97",
               "scale": 3,
@@ -2057,7 +2057,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "e8b98cee-ddfa-5af6-bdbd-75a8dca208b9",
@@ -2070,12 +2070,12 @@
         "asset": {
           "id": "be0df0ba-cd0a-5903-a338-71d414680dd1",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/gambia.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/gambia.svg",
           "mimeType": "image/svg+xml",
           "sha256": "e5057cda5619a3318879cff51ccc046db241918ac46a2b628f911ccf69587404",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/gambia.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/gambia.svg",
               "mimeType": "image/svg+xml",
               "sha256": "e5057cda5619a3318879cff51ccc046db241918ac46a2b628f911ccf69587404",
               "scale": null,
@@ -2083,7 +2083,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/gambia@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/gambia@2x.png",
               "mimeType": "image/png",
               "sha256": "3121e66242f23b907882402b99b13ddd59cfcb5fa615368f8d3fa6d3bf89ca3c",
               "scale": 2,
@@ -2091,7 +2091,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/gambia@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/gambia@3x.png",
               "mimeType": "image/png",
               "sha256": "4aec403e5eb69e69e804f0e58d278356abac013bdc55605f3a2f12d186defdf1",
               "scale": 3,
@@ -2151,7 +2151,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "adf03500-cd84-5da9-8210-7b59d1cae96c",
@@ -2164,12 +2164,12 @@
         "asset": {
           "id": "74302541-9fe6-5e6b-a4ea-78c23b010b00",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/ghana.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/ghana.svg",
           "mimeType": "image/svg+xml",
           "sha256": "4b32abd18b7c69ac6109bee44a5df2a8ec74a373e75112520c831cfaba4ad5b1",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/ghana.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/ghana.svg",
               "mimeType": "image/svg+xml",
               "sha256": "4b32abd18b7c69ac6109bee44a5df2a8ec74a373e75112520c831cfaba4ad5b1",
               "scale": null,
@@ -2177,7 +2177,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/ghana@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/ghana@2x.png",
               "mimeType": "image/png",
               "sha256": "a8c9ac1f56ba162c0775c191cc10e05a38657e86746606c47bf17f5bbed8685b",
               "scale": 2,
@@ -2185,7 +2185,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/ghana@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/ghana@3x.png",
               "mimeType": "image/png",
               "sha256": "32b537e36651fa8507a050e63e86c923266ac89c421b560c843947fa0c885881",
               "scale": 3,
@@ -2245,7 +2245,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "3a810a8a-f5af-53d6-99f5-3c648a59ebb0",
@@ -2258,12 +2258,12 @@
         "asset": {
           "id": "bc0b9cd6-e88a-5f94-8f46-ea983d194e94",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/guinea.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/guinea.svg",
           "mimeType": "image/svg+xml",
           "sha256": "8806af1a7257120a8278281e6270c2e44f81e3f41b7ae3642c8d01aeed492b15",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/guinea.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/guinea.svg",
               "mimeType": "image/svg+xml",
               "sha256": "8806af1a7257120a8278281e6270c2e44f81e3f41b7ae3642c8d01aeed492b15",
               "scale": null,
@@ -2271,7 +2271,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/guinea@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/guinea@2x.png",
               "mimeType": "image/png",
               "sha256": "9220ff2940c7f3107c80637d9ea94be1098e34b910220a04396f3b0dd5390d28",
               "scale": 2,
@@ -2279,7 +2279,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/guinea@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/guinea@3x.png",
               "mimeType": "image/png",
               "sha256": "0d16cf2eca0b10062d67050372b6ad0fc90b6626f25d2c72184752f61f108ecb",
               "scale": 3,
@@ -2339,7 +2339,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "e970570b-cd57-5c62-85f2-234c5cdef8e1",
@@ -2352,12 +2352,12 @@
         "asset": {
           "id": "bf2ea83f-561c-5523-9ae6-41f80935147e",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/guinea-bissau.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/guinea-bissau.svg",
           "mimeType": "image/svg+xml",
           "sha256": "6f3610e75c6ce94119784a22729edcf480a393108dbcc33ac7317e57ae231e08",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/guinea-bissau.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/guinea-bissau.svg",
               "mimeType": "image/svg+xml",
               "sha256": "6f3610e75c6ce94119784a22729edcf480a393108dbcc33ac7317e57ae231e08",
               "scale": null,
@@ -2365,7 +2365,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/guinea-bissau@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/guinea-bissau@2x.png",
               "mimeType": "image/png",
               "sha256": "e607448c17662a43b499131294d6d7e93e3c68f6e72efa5aaf32681ab5e67224",
               "scale": 2,
@@ -2373,7 +2373,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/guinea-bissau@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/guinea-bissau@3x.png",
               "mimeType": "image/png",
               "sha256": "19bd8a48e8169dc559a6df1ebab29bf8b0747b0c7b534bd925e6dc91acf19da2",
               "scale": 3,
@@ -2433,7 +2433,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "a2fd4783-17b4-50f9-abbf-b557a5738f81",
@@ -2446,12 +2446,12 @@
         "asset": {
           "id": "b0008930-587b-5ccb-b01b-3c7e70eccd86",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/kenya.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kenya.svg",
           "mimeType": "image/svg+xml",
           "sha256": "585875ec47a7a5f600eabd9053adb8b6747ada9e694aecb84415645624a19725",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/kenya.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kenya.svg",
               "mimeType": "image/svg+xml",
               "sha256": "585875ec47a7a5f600eabd9053adb8b6747ada9e694aecb84415645624a19725",
               "scale": null,
@@ -2459,7 +2459,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/kenya@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/kenya@2x.png",
               "mimeType": "image/png",
               "sha256": "aef8f364e02afc74e2eb5353dc9bbd8b83b8476841ce29d35fdaf5b983b3e916",
               "scale": 2,
@@ -2467,7 +2467,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/kenya@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/kenya@3x.png",
               "mimeType": "image/png",
               "sha256": "613256350d5562263b9f91201748ec19944dce4b0b06256a5575a93a65ee42c4",
               "scale": 3,
@@ -2527,7 +2527,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "2e4c03cc-0c31-51db-a1df-1715d13eb3e6",
@@ -2540,12 +2540,12 @@
         "asset": {
           "id": "1dba77ba-f2fb-52ce-b611-23cb008153e2",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/lesotho.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/lesotho.svg",
           "mimeType": "image/svg+xml",
           "sha256": "2f3810beb7d7a2dc8a81d85c1305f26cb0f5526dc5b77ad63a123e9c48ef8e48",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/lesotho.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/lesotho.svg",
               "mimeType": "image/svg+xml",
               "sha256": "2f3810beb7d7a2dc8a81d85c1305f26cb0f5526dc5b77ad63a123e9c48ef8e48",
               "scale": null,
@@ -2553,7 +2553,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/lesotho@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/lesotho@2x.png",
               "mimeType": "image/png",
               "sha256": "f60e71b6a6c799c37c00fdfa49d653c9137edb078b0ff51dd314729be0f72509",
               "scale": 2,
@@ -2561,7 +2561,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/lesotho@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/lesotho@3x.png",
               "mimeType": "image/png",
               "sha256": "e5ae7e908e4db94fb445c3162642530a8daf59f28e99e46c547c56a2081f0eb8",
               "scale": 3,
@@ -2621,7 +2621,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "d67ea357-3674-5d5a-a92e-15074f7d3987",
@@ -2634,12 +2634,12 @@
         "asset": {
           "id": "14976dfe-dc2c-59c0-8c02-8f714c9cdb81",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/liberia.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/liberia.svg",
           "mimeType": "image/svg+xml",
           "sha256": "185fefca8a9c3ff24a76d76897c2e07647a2ba6132881f9f65c56a34e0ec8d2c",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/liberia.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/liberia.svg",
               "mimeType": "image/svg+xml",
               "sha256": "185fefca8a9c3ff24a76d76897c2e07647a2ba6132881f9f65c56a34e0ec8d2c",
               "scale": null,
@@ -2647,7 +2647,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/liberia@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/liberia@2x.png",
               "mimeType": "image/png",
               "sha256": "82d4897419f2fc8532a3c1dd58223824260a895a33810bccf22ffb789e5b0981",
               "scale": 2,
@@ -2655,7 +2655,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/liberia@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/liberia@3x.png",
               "mimeType": "image/png",
               "sha256": "c826d4187d400482a87c1eedf47c81385ae7cf216e04495378c5f7d62affc78c",
               "scale": 3,
@@ -2715,7 +2715,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "79303013-8404-5c0d-9560-4f815bc4477e",
@@ -2728,12 +2728,12 @@
         "asset": {
           "id": "cc1f85c4-c7be-59d4-9c27-d34cf46099e0",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/libya.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/libya.svg",
           "mimeType": "image/svg+xml",
           "sha256": "da74d3a4fbae786d32ce25b86550e58fa2e851cf2181934c4f18fd16b829f525",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/libya.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/libya.svg",
               "mimeType": "image/svg+xml",
               "sha256": "da74d3a4fbae786d32ce25b86550e58fa2e851cf2181934c4f18fd16b829f525",
               "scale": null,
@@ -2741,7 +2741,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/libya@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/libya@2x.png",
               "mimeType": "image/png",
               "sha256": "6ecad08e4ffdedfa251fb08ea42e7dad3f267e8ffe4eddea903a6eb4aec522db",
               "scale": 2,
@@ -2749,7 +2749,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/libya@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/libya@3x.png",
               "mimeType": "image/png",
               "sha256": "a3b5b392075131740c9385ab326a2319836b8650f25218f891396bf8bc219dd5",
               "scale": 3,
@@ -2809,7 +2809,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "f5f5bd35-b64c-585e-97ad-f6bfdc5aca13",
@@ -2822,12 +2822,12 @@
         "asset": {
           "id": "9d0db59d-69cb-56b0-89d1-e806ef6f2669",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/madagascar.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/madagascar.svg",
           "mimeType": "image/svg+xml",
           "sha256": "72b4b134ff7feca1c81c869701bf20410d411cd66e6f7d7fd0af44dcf5202a11",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/madagascar.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/madagascar.svg",
               "mimeType": "image/svg+xml",
               "sha256": "72b4b134ff7feca1c81c869701bf20410d411cd66e6f7d7fd0af44dcf5202a11",
               "scale": null,
@@ -2835,7 +2835,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/madagascar@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/madagascar@2x.png",
               "mimeType": "image/png",
               "sha256": "0880548b210c6cb176e85a87ff435df4b665f575f3bedcf8f1581fc7c834f02f",
               "scale": 2,
@@ -2843,7 +2843,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/madagascar@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/madagascar@3x.png",
               "mimeType": "image/png",
               "sha256": "8a637a664648a236516f672981f62b28adc707ada9a90ebb9975b8ccfc2f419b",
               "scale": 3,
@@ -2903,7 +2903,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "3f21aff6-0a86-5e9e-95b6-5766d08f6fc3",
@@ -2916,12 +2916,12 @@
         "asset": {
           "id": "05f4f574-9f8b-54ae-b3f1-fd850e4a8e89",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/malawi.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/malawi.svg",
           "mimeType": "image/svg+xml",
           "sha256": "50e36fc9ba0dc83b84f874f91f74877e55861f2453d59c27369a8437b22dcf60",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/malawi.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/malawi.svg",
               "mimeType": "image/svg+xml",
               "sha256": "50e36fc9ba0dc83b84f874f91f74877e55861f2453d59c27369a8437b22dcf60",
               "scale": null,
@@ -2929,7 +2929,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/malawi@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/malawi@2x.png",
               "mimeType": "image/png",
               "sha256": "6f00ee17afb0bd0eee1a062f9e71dc22896f8b09c389b9e66ef13df6419b0fb2",
               "scale": 2,
@@ -2937,7 +2937,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/malawi@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/malawi@3x.png",
               "mimeType": "image/png",
               "sha256": "2e2c1efaff190a2af30cf27aff975177f228114fc1b2ed2919ba512bd0f0160e",
               "scale": 3,
@@ -2997,7 +2997,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "841e610b-d1a8-5d33-9194-21605c838077",
@@ -3010,12 +3010,12 @@
         "asset": {
           "id": "48eb8387-e5ed-57f9-afc0-7941b47ca90b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mali.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mali.svg",
           "mimeType": "image/svg+xml",
           "sha256": "b22b6b58db9213aba95731124d9348a8df70e35280c5a699caa743e475a9d606",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mali.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mali.svg",
               "mimeType": "image/svg+xml",
               "sha256": "b22b6b58db9213aba95731124d9348a8df70e35280c5a699caa743e475a9d606",
               "scale": null,
@@ -3023,7 +3023,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mali@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mali@2x.png",
               "mimeType": "image/png",
               "sha256": "6b270d597bd92dbb5fb5a902e90ea7a2783c353cd77141d7c896abc12bda36b1",
               "scale": 2,
@@ -3031,7 +3031,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mali@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mali@3x.png",
               "mimeType": "image/png",
               "sha256": "c7fd2b7991f19519181b2bd637bb0454e1efc6e982ff5cb1fa072db6eaf841c6",
               "scale": 3,
@@ -3091,7 +3091,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "d4f89e2b-523d-50d6-90b6-33889b9469de",
@@ -3104,12 +3104,12 @@
         "asset": {
           "id": "1e7864b9-ad83-5da8-81af-4a3bc7213330",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mauritania.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mauritania.svg",
           "mimeType": "image/svg+xml",
           "sha256": "4447643e91089f32c7b2f2364f0e7569645c6211f75a2da5962fd51978dac8a8",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mauritania.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mauritania.svg",
               "mimeType": "image/svg+xml",
               "sha256": "4447643e91089f32c7b2f2364f0e7569645c6211f75a2da5962fd51978dac8a8",
               "scale": null,
@@ -3117,7 +3117,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mauritania@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mauritania@2x.png",
               "mimeType": "image/png",
               "sha256": "4d3138fc349bbfe5f77e7680fd2af262d5f5fcf9b30d23de5052dc15aefa80e9",
               "scale": 2,
@@ -3125,7 +3125,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mauritania@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mauritania@3x.png",
               "mimeType": "image/png",
               "sha256": "10dbbb83779c35ad02e947640ef8e142f19e5771f2f6ecceba4657b71aa5562f",
               "scale": 3,
@@ -3185,7 +3185,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "870d8ee6-6a6f-5d79-8ee4-d1d476228ce3",
@@ -3198,12 +3198,12 @@
         "asset": {
           "id": "c8926fa2-548c-5e19-a2e2-1b054f1f3a91",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mauritius.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mauritius.svg",
           "mimeType": "image/svg+xml",
           "sha256": "677f1558c6bac5179178cb23b3b438bff75c9d217bc5a271d93893895fdd73bb",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mauritius.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mauritius.svg",
               "mimeType": "image/svg+xml",
               "sha256": "677f1558c6bac5179178cb23b3b438bff75c9d217bc5a271d93893895fdd73bb",
               "scale": null,
@@ -3211,7 +3211,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mauritius@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mauritius@2x.png",
               "mimeType": "image/png",
               "sha256": "bebea815e015bdf711aea47cad277ea9beda69f9853c69d683ee27fd294046e3",
               "scale": 2,
@@ -3219,7 +3219,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mauritius@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mauritius@3x.png",
               "mimeType": "image/png",
               "sha256": "2dac84b987598d5d2a3b661d51cba54653e2b75bddd908e59a20abc085bf336e",
               "scale": 3,
@@ -3279,7 +3279,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "b8c34600-3185-5d71-909b-a180ded1d260",
@@ -3292,12 +3292,12 @@
         "asset": {
           "id": "54fb71dc-9e2d-5a59-b094-b0b0494fddde",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/morocco.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/morocco.svg",
           "mimeType": "image/svg+xml",
           "sha256": "d1b90fd5d748401981ad1a7dd3a005561416a76b0e3eb9b741f4dabb4f94bf49",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/morocco.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/morocco.svg",
               "mimeType": "image/svg+xml",
               "sha256": "d1b90fd5d748401981ad1a7dd3a005561416a76b0e3eb9b741f4dabb4f94bf49",
               "scale": null,
@@ -3305,7 +3305,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/morocco@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/morocco@2x.png",
               "mimeType": "image/png",
               "sha256": "f4a1b87a3dedccd4262ac99a4447275da0aafe0e4fe5c56ec6a2f75448d2e76e",
               "scale": 2,
@@ -3313,7 +3313,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/morocco@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/morocco@3x.png",
               "mimeType": "image/png",
               "sha256": "3a483c93139fdfd9e0de607512ae9a53914eb7efdfae69fb59c178a548b5893a",
               "scale": 3,
@@ -3373,7 +3373,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "05688253-209c-5c38-89c1-25c91332a680",
@@ -3386,12 +3386,12 @@
         "asset": {
           "id": "4f0bf12e-567b-529a-ab4e-2b653e0c469d",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mozambique.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mozambique.svg",
           "mimeType": "image/svg+xml",
           "sha256": "e7115533d68b4f83057a3b5eaae0f408823cef9b230c0ec6d4f31c6aa0a1afb4",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mozambique.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mozambique.svg",
               "mimeType": "image/svg+xml",
               "sha256": "e7115533d68b4f83057a3b5eaae0f408823cef9b230c0ec6d4f31c6aa0a1afb4",
               "scale": null,
@@ -3399,7 +3399,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mozambique@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mozambique@2x.png",
               "mimeType": "image/png",
               "sha256": "b91fbd59a6d666e61045d6f8fb13717373951ef3a99d43e12ba32c6505d2359a",
               "scale": 2,
@@ -3407,7 +3407,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mozambique@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mozambique@3x.png",
               "mimeType": "image/png",
               "sha256": "cc4aa5e9fb5161c6779ea73366b17bd813b22fd978fbd44d1b1f2ac29bb353ff",
               "scale": 3,
@@ -3467,7 +3467,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "bfe1a608-15eb-57ea-bd93-ff432ea6b5b8",
@@ -3480,12 +3480,12 @@
         "asset": {
           "id": "5e659c97-c211-58b0-80c6-fdf36771c5e1",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/namibia.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/namibia.svg",
           "mimeType": "image/svg+xml",
           "sha256": "06d6f14fb53d46d6b9ee1ca585f743b3e2eddcc6d3ee1c0b180be4bf02b7b98f",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/namibia.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/namibia.svg",
               "mimeType": "image/svg+xml",
               "sha256": "06d6f14fb53d46d6b9ee1ca585f743b3e2eddcc6d3ee1c0b180be4bf02b7b98f",
               "scale": null,
@@ -3493,7 +3493,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/namibia@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/namibia@2x.png",
               "mimeType": "image/png",
               "sha256": "07b8299e67f63016b5fa2d741566977b2062994e157ac849f5badbbffc966e0c",
               "scale": 2,
@@ -3501,7 +3501,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/namibia@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/namibia@3x.png",
               "mimeType": "image/png",
               "sha256": "a22ae03bedc360cc91d60dc3d36feef8312d20ac855d0482dc3bd61b5fc958e9",
               "scale": 3,
@@ -3561,7 +3561,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "8af346c9-9041-5545-9cea-fe770e7bce59",
@@ -3574,12 +3574,12 @@
         "asset": {
           "id": "cb73e09d-358a-5dad-b7ff-b4eb67768e5b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/niger.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/niger.svg",
           "mimeType": "image/svg+xml",
           "sha256": "9f14144acd09a760e2e12327640c9160ab9abaecf88a8ee61df2d1e0a6653416",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/niger.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/niger.svg",
               "mimeType": "image/svg+xml",
               "sha256": "9f14144acd09a760e2e12327640c9160ab9abaecf88a8ee61df2d1e0a6653416",
               "scale": null,
@@ -3587,7 +3587,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/niger@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/niger@2x.png",
               "mimeType": "image/png",
               "sha256": "e38e40c1ec65feeee3d10f5efca80112106ea31c34202659b37fab25b6d000b9",
               "scale": 2,
@@ -3595,7 +3595,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/niger@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/niger@3x.png",
               "mimeType": "image/png",
               "sha256": "2e07691ad6173fd806e4a5ba7b3fce3a7ae530ecc897ad3312d30e42b6a9522c",
               "scale": 3,
@@ -3655,7 +3655,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "2b999f3a-4227-52e1-8148-524043443cc3",
@@ -3668,12 +3668,12 @@
         "asset": {
           "id": "45f8003c-4635-54c4-9741-4e5284cf2d45",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/nigeria.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/nigeria.svg",
           "mimeType": "image/svg+xml",
           "sha256": "7c87bcdfbf4152953319aedad0b52fed3358f1c072a853bc5666395741d50486",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/nigeria.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/nigeria.svg",
               "mimeType": "image/svg+xml",
               "sha256": "7c87bcdfbf4152953319aedad0b52fed3358f1c072a853bc5666395741d50486",
               "scale": null,
@@ -3681,7 +3681,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/nigeria@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/nigeria@2x.png",
               "mimeType": "image/png",
               "sha256": "3a129c5eb3cc3396af431c05b6a78124a1a63ef2922d380bd625d08aa69de353",
               "scale": 2,
@@ -3689,7 +3689,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/nigeria@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/nigeria@3x.png",
               "mimeType": "image/png",
               "sha256": "6a11345ff704b92a176379da182dfe8e9037106a3a67a6ae383ea3f39e322ab1",
               "scale": 3,
@@ -3749,7 +3749,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "f74ca036-e5d5-544e-a8eb-32c988d8a604",
@@ -3762,12 +3762,12 @@
         "asset": {
           "id": "55ad8982-a61f-52e2-98ae-2160bc9c78ae",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/rwanda.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/rwanda.svg",
           "mimeType": "image/svg+xml",
           "sha256": "ef0fb40afd0d87dbeb26a3703863aac832160ece185194cbc7580bb2c3c06bd4",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/rwanda.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/rwanda.svg",
               "mimeType": "image/svg+xml",
               "sha256": "ef0fb40afd0d87dbeb26a3703863aac832160ece185194cbc7580bb2c3c06bd4",
               "scale": null,
@@ -3775,7 +3775,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/rwanda@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/rwanda@2x.png",
               "mimeType": "image/png",
               "sha256": "68f8b0e7a7544ae2bff9a463409aa6f0cc29587410bc352c7dfc1be3d8086649",
               "scale": 2,
@@ -3783,7 +3783,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/rwanda@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/rwanda@3x.png",
               "mimeType": "image/png",
               "sha256": "df5e5c6287e769eef2d8cac8b6b127e94742f8fafb91dcd1bfbd735276198925",
               "scale": 3,
@@ -3843,7 +3843,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "eb06c6fb-860f-50cb-a739-530754d2229d",
@@ -3856,12 +3856,12 @@
         "asset": {
           "id": "43f53e4c-25f0-5ca7-bd9b-c9ec17c27b00",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/sao-tome-and-principe.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sao-tome-and-principe.svg",
           "mimeType": "image/svg+xml",
           "sha256": "69d15cfa498014b257aa37365e7f17460aaefb3e1c11f7ccc330a32e83d55dfa",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/sao-tome-and-principe.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sao-tome-and-principe.svg",
               "mimeType": "image/svg+xml",
               "sha256": "69d15cfa498014b257aa37365e7f17460aaefb3e1c11f7ccc330a32e83d55dfa",
               "scale": null,
@@ -3869,7 +3869,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/sao-tome-and-principe@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/sao-tome-and-principe@2x.png",
               "mimeType": "image/png",
               "sha256": "0c8b60e7a949feda08c18e6a1743f43fdc3d606bd20b169275aec9b2e16d770b",
               "scale": 2,
@@ -3877,7 +3877,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/sao-tome-and-principe@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/sao-tome-and-principe@3x.png",
               "mimeType": "image/png",
               "sha256": "68d2cb1a42f1564db0bed234a795b61639fcec21ec890daac34503980c63b04d",
               "scale": 3,
@@ -3937,7 +3937,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "a65caeba-2d43-552d-a885-98c7b1a6be47",
@@ -3950,12 +3950,12 @@
         "asset": {
           "id": "5ee50ae4-d04f-54bc-b420-0a7ec24928b1",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/senegal.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/senegal.svg",
           "mimeType": "image/svg+xml",
           "sha256": "5745905c8f1d29e5a0ff3b0314f805574c8f3acb4c5a4dbc70ededa350946820",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/senegal.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/senegal.svg",
               "mimeType": "image/svg+xml",
               "sha256": "5745905c8f1d29e5a0ff3b0314f805574c8f3acb4c5a4dbc70ededa350946820",
               "scale": null,
@@ -3963,7 +3963,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/senegal@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/senegal@2x.png",
               "mimeType": "image/png",
               "sha256": "9652ae104252a67b5abcfce8e922f26d141bde713732017c617a9d42632d826d",
               "scale": 2,
@@ -3971,7 +3971,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/senegal@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/senegal@3x.png",
               "mimeType": "image/png",
               "sha256": "1c696199710325fd37fdde229522449012290539f552c17450f380e98399e7a7",
               "scale": 3,
@@ -4031,7 +4031,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "233740be-981d-5e82-8b39-317639ccad98",
@@ -4044,12 +4044,12 @@
         "asset": {
           "id": "c67ff8b1-a202-53ac-9c3c-0c6a47854bdf",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/seychelles.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/seychelles.svg",
           "mimeType": "image/svg+xml",
           "sha256": "c99c78211eda63f5a533bf0acb2339e17cf097149e2695dbebf14dad3874413b",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/seychelles.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/seychelles.svg",
               "mimeType": "image/svg+xml",
               "sha256": "c99c78211eda63f5a533bf0acb2339e17cf097149e2695dbebf14dad3874413b",
               "scale": null,
@@ -4057,7 +4057,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/seychelles@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/seychelles@2x.png",
               "mimeType": "image/png",
               "sha256": "b699a252585a55e5288a3866d8b6ff9c9d4e7dd6701436938073e9671b478084",
               "scale": 2,
@@ -4065,7 +4065,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/seychelles@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/seychelles@3x.png",
               "mimeType": "image/png",
               "sha256": "6dfcac6c57407f964575b7ad5065557b7315ca68316c553efe1ea2d8d4b05dd9",
               "scale": 3,
@@ -4125,7 +4125,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "dcf579ca-4b1e-54d3-92c4-fd4614ed0544",
@@ -4138,12 +4138,12 @@
         "asset": {
           "id": "1ebd54b9-9bb1-5dda-9c00-20a36f1dfbab",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/sierra-leone.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sierra-leone.svg",
           "mimeType": "image/svg+xml",
           "sha256": "1ddd2f6b4f4656c5ee598a61bc40be19429e5c0d8e79d48b1b4546636819a472",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/sierra-leone.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sierra-leone.svg",
               "mimeType": "image/svg+xml",
               "sha256": "1ddd2f6b4f4656c5ee598a61bc40be19429e5c0d8e79d48b1b4546636819a472",
               "scale": null,
@@ -4151,7 +4151,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/sierra-leone@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/sierra-leone@2x.png",
               "mimeType": "image/png",
               "sha256": "741c05a8db61e683ec1ba2db0dfa86a61e82bcd5c0ab32904096b33e36008f3e",
               "scale": 2,
@@ -4159,7 +4159,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/sierra-leone@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/sierra-leone@3x.png",
               "mimeType": "image/png",
               "sha256": "23c53c6f16c4e717992fa5c9f3c94984a1c6f73122cebdfaa24dac241c7ca3e4",
               "scale": 3,
@@ -4219,7 +4219,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "b30cc3ca-81ba-5860-be31-a88afc44d99e",
@@ -4232,12 +4232,12 @@
         "asset": {
           "id": "0ce96733-ff83-592f-97ef-79631e4d8058",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/somalia.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/somalia.svg",
           "mimeType": "image/svg+xml",
           "sha256": "24f0dd015b61f5ce66ab076c24145692f0f514c18a2125151c21a0a1c0684ee6",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/somalia.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/somalia.svg",
               "mimeType": "image/svg+xml",
               "sha256": "24f0dd015b61f5ce66ab076c24145692f0f514c18a2125151c21a0a1c0684ee6",
               "scale": null,
@@ -4245,7 +4245,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/somalia@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/somalia@2x.png",
               "mimeType": "image/png",
               "sha256": "41afc6c6dff0a1c828591af085a9beacbda763b155df40e6d014b67dd63c4362",
               "scale": 2,
@@ -4253,7 +4253,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/somalia@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/somalia@3x.png",
               "mimeType": "image/png",
               "sha256": "c06171982044d13d951ee8b97164968bb54dcbf402995a08dd546895a63c5e4f",
               "scale": 3,
@@ -4313,7 +4313,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "82ce8529-0289-59eb-9bdc-b9b215f780d5",
@@ -4326,12 +4326,12 @@
         "asset": {
           "id": "912cf00f-579e-598f-997e-bc77bc3d60e7",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/south-africa.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/south-africa.svg",
           "mimeType": "image/svg+xml",
           "sha256": "afb17a6bb4da07490fd34c1c9996dd139846a1e3b4d286a9cec4aead38b566d6",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/south-africa.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/south-africa.svg",
               "mimeType": "image/svg+xml",
               "sha256": "afb17a6bb4da07490fd34c1c9996dd139846a1e3b4d286a9cec4aead38b566d6",
               "scale": null,
@@ -4339,7 +4339,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/south-africa@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/south-africa@2x.png",
               "mimeType": "image/png",
               "sha256": "54f987cefd15362fa54919236a59faa8e236afa0a7342d42892ff9f07e3aed8e",
               "scale": 2,
@@ -4347,7 +4347,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/south-africa@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/south-africa@3x.png",
               "mimeType": "image/png",
               "sha256": "9ebc6057822116becb2d6909d1bc9140cadce20a3c8eb5a0f597e463537a69d0",
               "scale": 3,
@@ -4407,7 +4407,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "5851f88a-a44f-58dc-bd36-4afd47004b8e",
@@ -4420,12 +4420,12 @@
         "asset": {
           "id": "9dc178d2-bfe1-5c0d-aad9-a95a06f4f00c",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/south-sudan.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/south-sudan.svg",
           "mimeType": "image/svg+xml",
           "sha256": "1cb2e64ff24b1b440a37c4bef6a47f9a9e81c37cd0f1e6dd9e9153a8944012e4",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/south-sudan.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/south-sudan.svg",
               "mimeType": "image/svg+xml",
               "sha256": "1cb2e64ff24b1b440a37c4bef6a47f9a9e81c37cd0f1e6dd9e9153a8944012e4",
               "scale": null,
@@ -4433,7 +4433,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/south-sudan@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/south-sudan@2x.png",
               "mimeType": "image/png",
               "sha256": "14d4ad99421b1e973a26774c1196230d46b272a645d54b1cf9d8599a5815707c",
               "scale": 2,
@@ -4441,7 +4441,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/south-sudan@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/south-sudan@3x.png",
               "mimeType": "image/png",
               "sha256": "ff9f6ec53d208c3055b533dc5f58b266dfada8a4f446841baa2cf0f2d0deec1d",
               "scale": 3,
@@ -4501,7 +4501,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "67ff27f2-1af2-5b55-b186-abf8bcd1acd6",
@@ -4514,12 +4514,12 @@
         "asset": {
           "id": "3298cc2b-2484-52b0-a871-487c3149701c",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/sudan.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sudan.svg",
           "mimeType": "image/svg+xml",
           "sha256": "b5674a317893f4e2f5a5f147e4ffce447a53d7670a5f58e27ee3989b55863c70",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/sudan.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sudan.svg",
               "mimeType": "image/svg+xml",
               "sha256": "b5674a317893f4e2f5a5f147e4ffce447a53d7670a5f58e27ee3989b55863c70",
               "scale": null,
@@ -4527,7 +4527,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/sudan@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/sudan@2x.png",
               "mimeType": "image/png",
               "sha256": "e20979379646834560ace3f8d453b8fb82a339ce793e60139cf095c8c659f0d4",
               "scale": 2,
@@ -4535,7 +4535,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/sudan@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/sudan@3x.png",
               "mimeType": "image/png",
               "sha256": "ff901c602aeccb51f103816e207bf4915c8c88bfeb41ff562c07f1e7d405e017",
               "scale": 3,
@@ -4595,7 +4595,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "1ec80ac2-5665-5117-96a5-299b020a6eb7",
@@ -4608,12 +4608,12 @@
         "asset": {
           "id": "21194167-69e8-5bbe-96a7-2f08c4a3fb1e",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/togo.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/togo.svg",
           "mimeType": "image/svg+xml",
           "sha256": "a7a3133b8df26a26b3d75bd158ad1bad153a43f7327ba853b8691873fae39074",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/togo.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/togo.svg",
               "mimeType": "image/svg+xml",
               "sha256": "a7a3133b8df26a26b3d75bd158ad1bad153a43f7327ba853b8691873fae39074",
               "scale": null,
@@ -4621,7 +4621,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/togo@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/togo@2x.png",
               "mimeType": "image/png",
               "sha256": "0b38fc53ed66ad62b55383581808ceca682fa176acb6c1ee95911b355170ac61",
               "scale": 2,
@@ -4629,7 +4629,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/togo@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/togo@3x.png",
               "mimeType": "image/png",
               "sha256": "490daabe69806c2be52be173e389719ed0aafaf57c4979249a99c6ebcff2de4c",
               "scale": 3,
@@ -4689,7 +4689,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "a4da3ddd-87c1-5d0d-a68f-1acf2b176270",
@@ -4702,12 +4702,12 @@
         "asset": {
           "id": "87033c12-4713-5a04-8a9b-e16602a2f018",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/tunisia.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tunisia.svg",
           "mimeType": "image/svg+xml",
           "sha256": "c396d24e164730dcbeff407901af4057e0936629fcc3374997a256e4a7f3c720",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/tunisia.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tunisia.svg",
               "mimeType": "image/svg+xml",
               "sha256": "c396d24e164730dcbeff407901af4057e0936629fcc3374997a256e4a7f3c720",
               "scale": null,
@@ -4715,7 +4715,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/tunisia@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/tunisia@2x.png",
               "mimeType": "image/png",
               "sha256": "b4f9c3418e33b317d179774bbca0fb749e7ee843d87ae0428e2f8a8e354ffc64",
               "scale": 2,
@@ -4723,7 +4723,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/tunisia@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/tunisia@3x.png",
               "mimeType": "image/png",
               "sha256": "f96a31754dacb3e017cf9130210699a19a0f886790a314d4baec6df68bda828d",
               "scale": 3,
@@ -4783,7 +4783,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "9ed36650-1d34-594d-8e7b-be2e6ca8d707",
@@ -4796,12 +4796,12 @@
         "asset": {
           "id": "4010aca6-0fca-518b-a8a9-930c0af42363",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/uganda.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/uganda.svg",
           "mimeType": "image/svg+xml",
           "sha256": "fc4aeeeb46ae13480f65994db6564761da683eca1b91d3d7a96fc302b9c4878a",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/uganda.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/uganda.svg",
               "mimeType": "image/svg+xml",
               "sha256": "fc4aeeeb46ae13480f65994db6564761da683eca1b91d3d7a96fc302b9c4878a",
               "scale": null,
@@ -4809,7 +4809,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/uganda@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/uganda@2x.png",
               "mimeType": "image/png",
               "sha256": "45e81a4d06c2a4cc6f2a439f5cc3cc4650a00be33fcc2a2a66871b4eb3ac517f",
               "scale": 2,
@@ -4817,7 +4817,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/uganda@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/uganda@3x.png",
               "mimeType": "image/png",
               "sha256": "d02107c2005cf87b3bd1259af37690d88770013aa7bcb2e2f44fd1fc5d7522dc",
               "scale": 3,
@@ -4877,7 +4877,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "3ba66373-3833-560b-b63d-5ab8d3f9866d",
@@ -4890,12 +4890,12 @@
         "asset": {
           "id": "6407087e-f9e6-51a7-9b7e-bb6484083786",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/united-republic-of-tanzania.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/united-republic-of-tanzania.svg",
           "mimeType": "image/svg+xml",
           "sha256": "08fa5d954e987c3980baf917637688ec7fea7a67c3dcd33b26d747120557f382",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/united-republic-of-tanzania.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/united-republic-of-tanzania.svg",
               "mimeType": "image/svg+xml",
               "sha256": "08fa5d954e987c3980baf917637688ec7fea7a67c3dcd33b26d747120557f382",
               "scale": null,
@@ -4903,7 +4903,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/united-republic-of-tanzania@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/united-republic-of-tanzania@2x.png",
               "mimeType": "image/png",
               "sha256": "ad09e31c5710e749889d0166dd95fe3a5cf5ad4a593a2c3bb43e325b25b40c41",
               "scale": 2,
@@ -4911,7 +4911,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/united-republic-of-tanzania@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/united-republic-of-tanzania@3x.png",
               "mimeType": "image/png",
               "sha256": "0cbde5cc89045240d9605dbad31579afd704cead04b95f6659cbeefeb808961d",
               "scale": 3,
@@ -4971,7 +4971,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "cad357fc-5d2c-5164-91e2-f81402b9a303",
@@ -4984,12 +4984,12 @@
         "asset": {
           "id": "5bb06ec1-2c46-5da6-8cdd-3f24da7f2a01",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/western-sahara.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/western-sahara.svg",
           "mimeType": "image/svg+xml",
           "sha256": "1e6353725dda1ef28b89ef6f0ce7c9f9ff7db00a0ce6c9feea296f1fb047f4ad",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/western-sahara.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/western-sahara.svg",
               "mimeType": "image/svg+xml",
               "sha256": "1e6353725dda1ef28b89ef6f0ce7c9f9ff7db00a0ce6c9feea296f1fb047f4ad",
               "scale": null,
@@ -4997,7 +4997,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/western-sahara@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/western-sahara@2x.png",
               "mimeType": "image/png",
               "sha256": "533f9bf13481f850f757de69243bc0fe8805157018a53ce46a653180447b8bf9",
               "scale": 2,
@@ -5005,7 +5005,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/western-sahara@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/western-sahara@3x.png",
               "mimeType": "image/png",
               "sha256": "9a578fc8d9ac54af7f625988f763d5f2a3ac11833197cc23d4bd43a4f5d7833c",
               "scale": 3,
@@ -5056,7 +5056,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "968210a3-e406-5386-9f64-d62d15e9a384",
@@ -5069,12 +5069,12 @@
         "asset": {
           "id": "c511ae61-b840-5a71-835c-86fe29f4eada",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/zambia.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/zambia.svg",
           "mimeType": "image/svg+xml",
           "sha256": "35aa4fff5a9e08a774a15b0348e60401e2b39e8c7c1a16689f727ab635995ce0",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/zambia.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/zambia.svg",
               "mimeType": "image/svg+xml",
               "sha256": "35aa4fff5a9e08a774a15b0348e60401e2b39e8c7c1a16689f727ab635995ce0",
               "scale": null,
@@ -5082,7 +5082,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/zambia@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/zambia@2x.png",
               "mimeType": "image/png",
               "sha256": "5731b4b91e065bdf499f1935c98f909bae48d62d70b3a4e8ad5a5a4cf388bf00",
               "scale": 2,
@@ -5090,7 +5090,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/zambia@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/zambia@3x.png",
               "mimeType": "image/png",
               "sha256": "0d88a0b6fb42a3b0107d152dba4cce619d169e8bb3e36222bdfc138299b1762b",
               "scale": 3,
@@ -5150,7 +5150,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "a7ec4cf7-2434-541e-9305-34d1032e9284",
@@ -5163,12 +5163,12 @@
         "asset": {
           "id": "0f4c006f-b1d0-58b7-b129-574933865c10",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/zimbabwe.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/zimbabwe.svg",
           "mimeType": "image/svg+xml",
           "sha256": "6d97533329826fe9cd8f7835499575b21bef4e2edf03ae52f07ca7b425e20b00",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/zimbabwe.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/zimbabwe.svg",
               "mimeType": "image/svg+xml",
               "sha256": "6d97533329826fe9cd8f7835499575b21bef4e2edf03ae52f07ca7b425e20b00",
               "scale": null,
@@ -5176,7 +5176,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/zimbabwe@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/zimbabwe@2x.png",
               "mimeType": "image/png",
               "sha256": "1c19f3972559fb59cd49e83be23ecc9140aa46a12af5787785398d42ab6cd224",
               "scale": 2,
@@ -5184,7 +5184,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/zimbabwe@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/zimbabwe@3x.png",
               "mimeType": "image/png",
               "sha256": "2765df7cfe33d191e73e8041da4466842511952e3542b3948bb046571c4d4115",
               "scale": 3,
@@ -5244,7 +5244,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "a34a7252-41fe-5733-8cbe-a60e54a115f5",
@@ -5257,12 +5257,12 @@
         "asset": {
           "id": "8f5639d1-b164-5374-80b0-713a80a8f348",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/british-indian-ocean-territory.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/british-indian-ocean-territory.svg",
           "mimeType": "image/svg+xml",
           "sha256": "616dfba871de9c24e9d376749186b39d8b87b8a9b032c0dd544b512fcf8cc65a",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/british-indian-ocean-territory.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/british-indian-ocean-territory.svg",
               "mimeType": "image/svg+xml",
               "sha256": "616dfba871de9c24e9d376749186b39d8b87b8a9b032c0dd544b512fcf8cc65a",
               "scale": null,
@@ -5270,7 +5270,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/british-indian-ocean-territory@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/british-indian-ocean-territory@2x.png",
               "mimeType": "image/png",
               "sha256": "3ad1122f68c8f56cbb89200e37cfb4fb087f7a294ac8bfb7393d146d8676e96d",
               "scale": 2,
@@ -5278,7 +5278,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/british-indian-ocean-territory@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/british-indian-ocean-territory@3x.png",
               "mimeType": "image/png",
               "sha256": "8bfa541f3c855626ad4dca8c679a135c94ff3728f2fb782aad66ced448835b85",
               "scale": 3,
@@ -5329,7 +5329,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "d11b0a11-6d50-5a12-8ef4-d60bcac4a370",
@@ -5342,12 +5342,12 @@
         "asset": {
           "id": "8609c418-89e2-53e6-a533-957817a6c0e6",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mayotte.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mayotte.svg",
           "mimeType": "image/svg+xml",
           "sha256": "6c015a4f1b520221dc4e48fcdc6d1ebcfc785cad3a7c15946362b50f91401336",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/mayotte.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mayotte.svg",
               "mimeType": "image/svg+xml",
               "sha256": "6c015a4f1b520221dc4e48fcdc6d1ebcfc785cad3a7c15946362b50f91401336",
               "scale": null,
@@ -5355,7 +5355,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mayotte@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mayotte@2x.png",
               "mimeType": "image/png",
               "sha256": "43d859465c8a70ad6821dfbec338cdf7e4358f606c309d8128368718b94e9c33",
               "scale": 2,
@@ -5363,7 +5363,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/mayotte@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/mayotte@3x.png",
               "mimeType": "image/png",
               "sha256": "81ef993461898c41e31c526f97993693248e110612a4d109053813150e65378c",
               "scale": 3,
@@ -5414,7 +5414,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "3884c9da-1d2a-5f65-acee-2580740a6c5d",
@@ -5427,12 +5427,12 @@
         "asset": {
           "id": "4b651937-0f51-57f1-9fd1-aec472ee7a76",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/reunion.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/reunion.svg",
           "mimeType": "image/svg+xml",
           "sha256": "efd12c26610e95a80a52d230b49870abaf8426c913542835ebbf014525347931",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/reunion.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/reunion.svg",
               "mimeType": "image/svg+xml",
               "sha256": "efd12c26610e95a80a52d230b49870abaf8426c913542835ebbf014525347931",
               "scale": null,
@@ -5440,7 +5440,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/reunion@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/reunion@2x.png",
               "mimeType": "image/png",
               "sha256": "43d859465c8a70ad6821dfbec338cdf7e4358f606c309d8128368718b94e9c33",
               "scale": 2,
@@ -5448,7 +5448,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/reunion@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/reunion@3x.png",
               "mimeType": "image/png",
               "sha256": "81ef993461898c41e31c526f97993693248e110612a4d109053813150e65378c",
               "scale": 3,
@@ -5499,7 +5499,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     },
     {
       "id": "c4ca509f-b636-5436-9e81-f8e518e3eace",
@@ -5512,12 +5512,12 @@
         "asset": {
           "id": "a5ead5df-8e8a-5a4c-b97d-5f59d716658e",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/saint-helena.svg",
+          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/saint-helena.svg",
           "mimeType": "image/svg+xml",
           "sha256": "32c9bf4a7dcba7a201714be91f000e2b42a6c785f95cedcaa66bfcb426d8f443",
           "representations": [
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/svg/saint-helena.svg",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/saint-helena.svg",
               "mimeType": "image/svg+xml",
               "sha256": "32c9bf4a7dcba7a201714be91f000e2b42a6c785f95cedcaa66bfcb426d8f443",
               "scale": null,
@@ -5525,7 +5525,7 @@
               "heightPx": null
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/saint-helena@2x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/saint-helena@2x.png",
               "mimeType": "image/png",
               "sha256": "91f9a9e5b3cad0b03f52243df3d238184a2bc18f9fe1d7f75485f7bc54ad805e",
               "scale": 2,
@@ -5533,7 +5533,7 @@
               "heightPx": 240
             },
             {
-              "url": "https://cdn.country-flags.app/content/fixture-v3/assets/png/saint-helena@3x.png",
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/saint-helena@3x.png",
               "mimeType": "image/png",
               "sha256": "f14306060597ce11f7d843389f06f0cb2e583384eee50fe5b9dffe98afd06cdc",
               "scale": 3,
@@ -5584,7 +5584,7 @@
           }
         }
       ],
-      "contentVersion": "fixture-v3"
+      "contentVersion": "fixture-v1"
     }
   ],
   "page": {

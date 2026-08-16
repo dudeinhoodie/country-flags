@@ -69,7 +69,7 @@ private enum ContentFixture {
 
     static func assetRegistry() throws -> Registry {
         let url = repositoryRoot.appending(
-            path: "content/generated/fixture-v3/assets/assets.json"
+            path: "content/generated/fixture-v1/assets/assets.json"
         )
         return try JSONDecoder().decode(Registry.self, from: Data(contentsOf: url))
     }
@@ -90,7 +90,7 @@ final class BundledFlagsTests: XCTestCase {
     /// which is the state ADR-011 exists to end.
     func testTheBuildShipsTheFlagsOfOneRelease() {
         XCTAssertFalse(bundled.isEmpty)
-        XCTAssertEqual(bundled.contentVersion, "fixture-v3")
+        XCTAssertEqual(bundled.contentVersion, "fixture-v1")
         XCTAssertEqual(bundled.assetNameSet.count, 250)
     }
 
