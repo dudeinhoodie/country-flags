@@ -1,5 +1,5 @@
 {
-  "contentVersion": "fixture-v1",
+  "contentVersion": "fixture-v3",
   "assetNames": {
     "00258484cd824787679fc2fd4977e94272f4264987f8914effc47717167f9d6d": "flag-lebanon",
     "00c338a7a7f07aff304a0e46ec1c2a4af384ea563110c4111804fb49043f1b2a": "flag-falkland-islands-malvinas",
@@ -165,6 +165,7 @@
     "3279d680b6917081ee7d17ad02ab2ed74e563c8c22c03117e75678ff2a2a2644": "flag-austria",
     "327f9208873f01362d718a9c847e84f26a9f4c6787659f9760501f94f562ca24": "flag-fiji",
     "32b537e36651fa8507a050e63e86c923266ac89c421b560c843947fa0c885881": "flag-ghana",
+    "32c9bf4a7dcba7a201714be91f000e2b42a6c785f95cedcaa66bfcb426d8f443": "flag-saint-helena",
     "32ca1a64bf86e06bcae82fa7ad290b1e974e46fed6e4c3b17f742879b52e2394": "flag-netherlands-kingdom-of-the",
     "32ceabdd2d281d2606f0d861f5d577f52b847e919ff862e13f8cb85979e47ec4": "flag-bolivia-plurinational-state-of",
     "34f37004d48e24f529f2ceca74c6675a516c6dc202171172ab8a9d30d9853939": "flag-china",
@@ -426,6 +427,7 @@
     "91521943eaec759e371168f29d73fc674ea17c0fbce5cb2bd5302b8d2838cf97": "flag-gabon",
     "9189075b76240d0aff9663c63396ab946500444adc0f998c770706a07f039aa9": "flag-denmark",
     "919cc141d0a21d3276757a870193ebcbb80964fbd0f657390187312894fbe71c": "flag-french-southern-territories",
+    "91f9a9e5b3cad0b03f52243df3d238184a2bc18f9fe1d7f75485f7bc54ad805e": "flag-saint-helena",
     "921ecfae68af72f552cb39c1ca6a9984f84dc593256dfd3b152551f6d4cb24ef": "flag-french-guiana",
     "9220ff2940c7f3107c80637d9ea94be1098e34b910220a04396f3b0dd5390d28": "flag-guinea",
     "9332f8b0e16bd0b4607e0acab42328fb4103087e041b5b82a26d3c11bd995d55": "flag-pakistan",
@@ -510,7 +512,6 @@
     "ad9550780c248c6d8f38af07c7f2a85f17c936cc6b9fb0ee468dd3488586687f": "flag-norway",
     "ade989a5f282a26e35e25927ff1ddd7c57d0bf583d2800a3fbfc2ba823b0e9b9": "flag-comoros",
     "adfe99a0bc0409d26fc52f3f5ce0e17e512753bd8d44962b6bbd9bf3b3044d28": "flag-indonesia",
-    "aed9182cacbc338e9cf0213e49b1fc0b56176df456469fad85c72bf093fa2348": "flag-saint-helena",
     "aef8f364e02afc74e2eb5353dc9bbd8b83b8476841ce29d35fdaf5b983b3e916": "flag-kenya",
     "af0e7485291e911e7761005c0f20f40ad1737610ffa198f5cbdfe2bdf2d28630": "flag-luxembourg",
     "af4cc09afe85f459f2ab5003e55eaaf9dbe85bc36259304337f44da8f928b81d": "flag-bulgaria",
@@ -690,6 +691,7 @@
     "f0d1a07b12dc7f71d0d5e466858601fe56ac3c3f72a5ecd6e47c0dd22d6809bd": "flag-saint-kitts-and-nevis",
     "f1010ae683b56d962d47829ba07a8d9f258941e43199dc202eb2c7a120806b01": "flag-algeria",
     "f1199966f735854c90235cebbc4928885cd7f0186e7c71db83d05e35f74122c0": "flag-cuba",
+    "f14306060597ce11f7d843389f06f0cb2e583384eee50fe5b9dffe98afd06cdc": "flag-saint-helena",
     "f146f8978ee1933b816b53b2eb5c5fb2889ae935b89774e5f5459a6aa26f2c94": "flag-slovakia",
     "f1c56bab6bd8322595cf82255c9cb38028de3f83a6f37ab5608c2e01877534ee": "flag-niue",
     "f22e30ec446cb823ede48af519a77285a5e9cd258b75e0e39a77cb91a37b764a": "flag-bosnia-and-herzegovina",

@@ -21,7 +21,7 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..")
 /// The release this build ships. A binary must never carry images no release
 /// published, so the set and the version are generated together from one
 /// directory.
-const CONTENT_VERSION = "fixture-v1";
+const CONTENT_VERSION = "fixture-v3";
 
 const bundleDirectory = join(
   repositoryRoot,

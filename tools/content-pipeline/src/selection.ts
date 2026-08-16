@@ -246,7 +246,18 @@ export async function syncSelection(root: string): Promise<void> {
       "names.ru.short": SUBREGION_RU["outlying-oceania"],
     },
   });
-  const extras = preserved.filter(
+  /**
+ * Territories whose plain ISO file carries the parent state's flag while the
+ * territory has a flag of its own, published by flag-icons as a subdivision
+ * file. `SH` is the composite "Saint Helena, Ascension and Tristan da Cunha"
+ * and its file is the Union Flag; the catalog's entity is Saint Helena
+ * itself, whose flag is the blue ensign in `sh-hl`.
+ */
+const FLAG_FILE_OVERRIDES: Record<string, string> = {
+  SH: "sh-hl",
+};
+
+const extras = preserved.filter(
     (entity) =>
       entity.type !== "region" &&
       entity.type !== "subregion" &&
@@ -363,7 +374,7 @@ export async function syncSelection(root: string): Promise<void> {
         ...(code === "XK"
           ? { editorialAlias: "country.kosovo" }
           : { isoAlpha2: code }),
-        path: `flags/4x3/${code.toLowerCase()}.svg`,
+        path: `flags/4x3/${FLAG_FILE_OVERRIDES[code] ?? code.toLowerCase()}.svg`,
         aspectRatio: 1.333333,
         svg: typeof existing?.svg === "string" ? existing.svg : "",
       };

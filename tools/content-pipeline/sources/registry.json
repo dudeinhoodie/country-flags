@@ -55,9 +55,9 @@
       "adapter": "flag-icons",
       "key": "flag-icons",
       "license": "MIT",
-      "retrievedAt": "2026-07-28T13:07:28.468Z",
+      "retrievedAt": "2026-08-16T08:46:55.488Z",
       "revision": "v7.5.0",
-      "sha256": "944271bbc5b9c895d3caa9669c825ef02bcde1429a21d231760b05300fe8c8c5",
+      "sha256": "161bb8bcb7dbf91bd1cd142c002cbdf236ee37d5f219e0517fcde35193935220",
       "snapshotPath": "sources/snapshots/flag-icons.json",
       "url": "https://github.com/lipis/flag-icons/releases/tag/v7.5.0"
     },
@@ -67,7 +67,7 @@
       "license": "Proprietary editorial data",
       "retrievedAt": "2026-07-28T00:00:00.000Z",
       "revision": "editorial-v2",
-      "sha256": "975c2af4b2872b054f2adc440783efb6a15f9d141eea39d991e8ca5a5193c5a7",
+      "sha256": "9ec73eb12c6c5843e33667efdb7fbed43991b46560001b0ec6c59cb44778d73e",
       "snapshotPath": "editorial/catalog.json",
       "url": "file:editorial/catalog.json"
     }

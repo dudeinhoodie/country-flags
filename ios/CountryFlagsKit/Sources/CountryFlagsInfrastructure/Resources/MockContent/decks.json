@@ -8,7 +8,7 @@
       "description": "Approved development catalog",
       "cardCount": 250,
       "dueCount": null,
-      "contentVersion": "fixture-v1"
+      "contentVersion": "fixture-v3"
     },
     {
       "id": "24443c6e-25c1-5f90-b086-2da42d65af08",
@@ -18,7 +18,7 @@
       "description": "Flags of Europe",
       "cardCount": 52,
       "dueCount": null,
-      "contentVersion": "fixture-v1"
+      "contentVersion": "fixture-v3"
     },
     {
       "id": "d4426c26-ae31-52b1-91c7-67ae6b2a7e72",
@@ -28,7 +28,7 @@
       "description": "Flags of Africa",
       "cardCount": 60,
       "dueCount": null,
-      "contentVersion": "fixture-v1"
+      "contentVersion": "fixture-v3"
     },
     {
       "id": "a6fc6b37-ffde-568e-85cd-4ef7aa9e73f0",
@@ -38,7 +38,7 @@
       "description": "Flags of the Americas",
       "cardCount": 57,
       "dueCount": null,
-      "contentVersion": "fixture-v1"
+      "contentVersion": "fixture-v3"
     },
     {
       "id": "647b9b2f-84ee-5c69-877e-24495b007372",
@@ -48,7 +48,7 @@
       "description": "Flags of Asia",
       "cardCount": 51,
       "dueCount": null,
-      "contentVersion": "fixture-v1"
+      "contentVersion": "fixture-v3"
     },
     {
       "id": "886df4d1-2f8c-5abc-80cd-867669a0ebbd",
@@ -58,7 +58,7 @@
       "description": "Flags of Oceania",
       "cardCount": 30,
       "dueCount": null,
-      "contentVersion": "fixture-v1"
+      "contentVersion": "fixture-v3"
     }
   ],
   "page": {
