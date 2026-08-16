@@ -27,6 +27,10 @@ struct StudyCardStackView: View {
     /// How far the throw has gone, -1...1, negative to the left. The screen
     /// reads it to light the hint the throw is heading for.
     @Binding var swipeProgress: CGFloat
+    /// A throw asked for by a button rather than a finger. The card leaves
+    /// the same way it would under a swipe — the rating buttons answer the
+    /// card, and the card should visibly take the answer with it.
+    @Binding var commandedThrow: StudyRating?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     // A hairline is one device pixel, whatever the screen: asking the
@@ -66,6 +70,27 @@ struct StudyCardStackView: View {
             guard !isCommitting else { return }
             drag = .zero
         }
+        .onChange(of: commandedThrow) { _, rating in
+            guard let rating else { return }
+            commandedThrow = nil
+            throwCard(rating)
+        }
+    }
+
+    /// The button's version of the swipe: the card flies to the side its
+    /// rating lives on — the two the swipe cannot reach leave with their
+    /// neighbours, hard to the left with again, easy to the right with good.
+    private func throwCard(_ rating: StudyRating) {
+        guard !state.isCommitting else { return }
+        if !state.isAnswerRevealed { onReveal() }
+        let leavesRight = rating == .good || rating == .easy
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.35)) {
+            drag.width =
+                leavesRight
+                ? DesignTokens.Card.leavingDistance : -DesignTokens.Card.leavingDistance
+            swipeProgress = leavesRight ? 1 : -1
+        }
+        onRate(rating)
     }
 
     /// The top card and the ones still to come, nearest first.

@@ -9,6 +9,7 @@ public struct StudySessionView: View {
     @State private var isShowingDetails = false
     @State private var isShowingBack = false
     @State private var swipeProgress: CGFloat = 0
+    @State private var commandedThrow: StudyRating?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let deckID: UUID
@@ -85,7 +86,8 @@ public struct StudySessionView: View {
                 onRate: { rating in Task { await runner.rate(rating) } },
                 onDetails: { isShowingDetails = true },
                 isShowingBack: $isShowingBack,
-                swipeProgress: $swipeProgress
+                swipeProgress: $swipeProgress,
+                commandedThrow: $commandedThrow
             )
 
             // Where each throw leads, said before the first one is made. The
@@ -109,14 +111,18 @@ public struct StudySessionView: View {
                 // The button says it will show the answer, so it turns the
                 // card over. Unlocking the ratings without turning it left the
                 // learner looking at the same flag and no answer anywhere.
-                // The style, not loose modifiers: a frame and a capsule
-                // hung outside a Button decorate it without widening its hit
-                // area, and only the word itself answered the tap.
-                Button(L10n.studyReveal) {
+                //
+                // Glass, not the white capsule: white is the scene's loudest
+                // voice and belongs to the one action a screen recommends —
+                // here that is answering the card, and this button is the way
+                // to peek, sitting where the rating pane is about to appear.
+                Button {
                     runner.revealAnswer()
                     isShowingBack = true
+                } label: {
+                    Label(L10n.studyReveal, systemImage: "arrow.2.squarepath")
                 }
-                    .buttonStyle(PrimaryActionStyle())
+                    .buttonStyle(GlassActionStyle())
                     .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
             }
         }
@@ -151,6 +157,13 @@ public struct StudySessionView: View {
                 isLeading: true,
                 emphasis: max(-swipeProgress, 0)
             )
+
+            // The gesture itself, between the two destinations: the arrows
+            // say where, the hand says how.
+            Image(systemName: "hand.draw")
+                .font(DesignTokens.Typography.caption)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white.opacity(0.5))
 
             SwipeHintHalf(
                 symbol: "arrow.right",
@@ -212,8 +225,11 @@ public struct StudySessionView: View {
     private func ratingButtons(disabled: Bool) -> some View {
         HStack(spacing: DesignTokens.Spacing.extraSmall) {
             ForEach(StudyRating.allCases, id: \.self) { rating in
+                // The button does not rate directly: it asks the stack to
+                // throw, and the throw rates — one path, so the card always
+                // visibly takes the answer with it.
                 Button {
-                    Task { await runner.rate(rating) }
+                    commandedThrow = rating
                 } label: {
                     VStack(spacing: DesignTokens.Spacing.extraSmall) {
                         Image(systemName: symbol(for: rating))
