@@ -101,7 +101,7 @@ describe("isDue", () => {
   const candidate = (
     state: "NEW" | "LEARNING" | "REVIEW" | "RELEARNING" | null,
     dueAt: Date,
-  ) => ({
+  ): SessionCandidate => ({
     learningCardId: "11111111-1111-4111-8111-111111111111",
     state:
       state === null
