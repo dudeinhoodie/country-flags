@@ -64,19 +64,7 @@ public struct DeckProgressDetailsView: View {
                 await settings.load()
                 sessionSize = StudySessionSize(storedValue: settings.settings.sessionSize)
             }
-            // Pinned under the shelves rather than lost below them: looking
-            // at where a deck stands and doing something about it are one
-            // visit.
-            .safeAreaInset(edge: .bottom) {
-                if let onStartStudy, case .ready = model.state {
-                    Button(L10n.studyStart) {
-                        onStartStudy(deckID, sessionSize)
-                    }
-                    .buttonStyle(PrimaryActionStyle())
-                    .padding(.horizontal, DesignTokens.Spacing.large)
-                    .padding(.bottom, DesignTokens.Spacing.small)
-                }
-            }
+
             // The same sheet a card opens mid-session: one country, one
             // surface, whoever asks.
             .sheet(item: $selectedCountry) { subject in
@@ -108,6 +96,17 @@ public struct DeckProgressDetailsView: View {
     private func loaded(_ details: DeckDetails) -> some View {
         let groups = grouped(details.cards)
         return SceneScrollView {
+            // The action leads, the evidence follows: the screen answers
+            // "where does this deck stand" and the very next thought is
+            // "keep going" — so the button stands above the shelves rather
+            // than after two hundred flags.
+            if let onStartStudy {
+                Button(L10n.studyStart) {
+                    onStartStudy(deckID, sessionSize)
+                }
+                .buttonStyle(PrimaryActionStyle())
+            }
+
             shelf(L10n.progressLearnedLabel, cards: groups.learned, dimmed: false)
             shelf(L10n.progressInProgressLabel, cards: groups.inProgress, dimmed: false)
             shelf(L10n.progressNotStartedLabel, cards: groups.untouched, dimmed: true)
