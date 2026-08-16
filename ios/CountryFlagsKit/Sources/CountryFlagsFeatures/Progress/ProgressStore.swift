@@ -114,7 +114,15 @@ public final class ProgressStore {
             return
         }
 
-        let decks = (try? await content.decks()) ?? []
+        // The curated decks lead, the regions follow — the same order the
+        // catalog offers them in: "All countries" is the whole picture, and
+        // burying it among nine regions made the headline row a needle.
+        let decks = ((try? await content.decks()) ?? []).sorted { left, right in
+            let leftCurated = left.kind == "CURATED"
+            let rightCurated = right.kind == "CURATED"
+            if leftCurated != rightCurated { return leftCurated }
+            return (left.sortOrder, left.name) < (right.sortOrder, right.name)
+        }
         let cardsByDeck = (try? await content.cardIdentifiersByDeck()) ?? [:]
         let counted = LocalProgressProjection.progress(
             cardsByDeck: cardsByDeck,
