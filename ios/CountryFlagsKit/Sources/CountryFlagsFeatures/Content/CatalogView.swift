@@ -89,7 +89,18 @@ public struct CatalogView: View {
                             Button {
                                 onOpenDeck(deck.id)
                             } label: {
-                                DeckTile(deck: deck, store: store, assets: assets)
+                                DeckTile(
+                                    deck: deck,
+                                    store: store,
+                                    assets: assets,
+                                    // Reserved only where tiles sit beside
+                                    // each other: in the grid a one-line name
+                                    // next to a two-line one would stagger
+                                    // the shelf; full width has no neighbour
+                                    // to align with, and the blank line reads
+                                    // as a hole.
+                                    reservesNameSpace: section.kind != .curated
+                                )
                             }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier(
@@ -141,6 +152,7 @@ struct DeckTile: View {
     let deck: DeckRecord
     let store: ContentStore
     let assets: any AssetLoading
+    var reservesNameSpace = true
 
     @State private var preview: [LearningCardRecord] = []
     @Environment(\.displayScale) private var displayScale
@@ -155,7 +167,7 @@ struct DeckTile: View {
                 Text(deck.name)
                     .font(DesignTokens.Typography.sectionTitle)
                     .foregroundStyle(.white)
-                    .lineLimit(2, reservesSpace: true)
+                    .lineLimit(2, reservesSpace: reservesNameSpace)
                     .multilineTextAlignment(.leading)
 
                 Text(L10n.deckCardCount(deck.cardCount))
