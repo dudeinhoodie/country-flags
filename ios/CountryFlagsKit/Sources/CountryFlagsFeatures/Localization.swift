@@ -57,6 +57,8 @@ public enum L10n {
     public static var homeDeckSize: String { localized("home.deck_size") }
     public static var homeContinue: String { localized("home.continue") }
     public static var homeSessionInProgress: String { localized("home.session_in_progress") }
+    public static var homeDueToday: String { localized("home.due_today") }
+    public static var homeReview: String { localized("home.review") }
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
     public static var catalogNoMatches: String { localized("catalog.no_matches") }

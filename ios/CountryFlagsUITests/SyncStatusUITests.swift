@@ -9,7 +9,7 @@ final class SyncStatusUITests: XCTestCase {
         app.launchArguments += ["-reset-store"]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["home.greeting"].waitForExistence(timeout: 60))
+        XCTAssertTrue(app.buttons["home.deck.ALL"].waitForExistence(timeout: 60))
         // Nothing queued yet, so a healthy device says nothing at all.
         XCTAssertFalse(app.staticTexts["sync.status"].exists)
 

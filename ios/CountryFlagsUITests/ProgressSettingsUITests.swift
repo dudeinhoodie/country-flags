@@ -82,7 +82,7 @@ final class ProgressSettingsUITests: XCTestCase {
         // the way a person would is what gives it time.
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(
-            app.staticTexts["home.greeting"].waitForExistence(timeout: 30),
+            app.buttons["home.deck.ALL"].waitForExistence(timeout: 30),
             app.debugDescription
         )
         app.terminate()

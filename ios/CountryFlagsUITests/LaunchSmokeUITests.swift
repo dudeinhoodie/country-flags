@@ -18,11 +18,11 @@ final class LaunchSmokeUITests: XCTestCase {
         app.launch()
 
         // Home is the root screen; the greeting is its localized headline.
-        let greeting = app.staticTexts["home.greeting"]
+        let greeting = app.buttons["home.deck.ALL"]
         XCTAssertTrue(greeting.waitForExistence(timeout: 10))
         XCTAssertFalse(greeting.label.isEmpty)
         // A string catalog key must never reach the interface.
-        XCTAssertNotEqual(greeting.label, "home.greeting")
+        XCTAssertNotEqual(greeting.label, "home.deck.ALL")
 
         // The Mock build carries the environment badge; Prod must not.
         XCTAssertTrue(app.staticTexts["root.shell.environmentBadge"].exists)
@@ -46,6 +46,6 @@ final class LaunchSmokeUITests: XCTestCase {
         XCTAssertFalse(reminders.label.contains("settings."), app.debugDescription)
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(app.staticTexts["home.greeting"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["home.deck.ALL"].waitForExistence(timeout: 5))
     }
 }

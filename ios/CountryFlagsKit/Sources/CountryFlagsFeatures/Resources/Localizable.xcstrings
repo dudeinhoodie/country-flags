@@ -1174,6 +1174,23 @@
         }
       }
     },
+    "home.due_today": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To review today"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сегодня к повторению"
+          }
+        }
+      }
+    },
     "home.greeting": {
       "extractionState": "manual",
       "localizations": {
@@ -1238,6 +1255,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Рекомендуем"
+          }
+        }
+      }
+    },
+    "home.review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить"
           }
         }
       }

@@ -57,6 +57,7 @@ public struct RootView: View {
                 HomeView(
                     store: content,
                     sync: sync,
+                    assets: assets,
                     makeProgress: makeProgressStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
