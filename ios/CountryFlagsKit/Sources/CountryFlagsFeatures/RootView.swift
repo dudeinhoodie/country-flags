@@ -248,6 +248,7 @@ public enum AccessibilityIdentifier {
 
     public static let homeDueEmpty = "home.due.empty"
     public static let achievementsEmpty = "achievements.empty"
+    public static let studyDeckName = "study.deckName"
 
     public static func deckCountryRow(_ cardID: UUID) -> String {
         "deck.country.\(cardID.uuidString)"

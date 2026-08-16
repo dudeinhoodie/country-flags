@@ -8,6 +8,11 @@ public struct ObjectiveSessionView: View {
     @State private var palette: ScenePalette = .neutral
 
     private let deckID: UUID
+    /// The deck's own name, worn by the session. Identical flags fly over
+    /// different countries — Heard Island under Australia's, Bonaire under
+    /// the Dutch — and which answer is right can depend on which deck is
+    /// asking. The context stays on screen rather than being remembered.
+    @State private var deckName = ""
     private let size: StudySessionSize
     private let store: ContentStore
     private let assets: any AssetLoading
@@ -38,6 +43,7 @@ public struct ObjectiveSessionView: View {
             AppScene(palette: palette)
 
             content
+            .task(id: deckID) { deckName = await store.deck(id: deckID)?.name ?? "" }
                 .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
                 .padding(DesignTokens.Spacing.large)
         }
@@ -155,6 +161,16 @@ public struct ObjectiveSessionView: View {
                 .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
                 .glassEffect(.regular, in: Capsule())
                 .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
+
+            Spacer()
+
+            if !deckName.isEmpty {
+                Text(deckName)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.65))
+                    .lineLimit(1)
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyDeckName)
+            }
 
             Spacer()
 
