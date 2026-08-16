@@ -212,6 +212,15 @@ public struct HomeView: View {
                                         .monospacedDigit()
                                         .contentTransition(.numericText())
                                         .foregroundStyle(.white.opacity(0.7))
+
+                                    // The region's own landmass, from the same
+                                    // geodata the maps draw — a place mark, not
+                                    // an icon set.
+                                    ContinentSilhouetteView(code: deck.code)
+                                        .frame(
+                                            width: DesignTokens.Layout.minimumTouchTarget,
+                                            height: DesignTokens.Layout.minimumTouchTarget * 0.75
+                                        )
                                 }
                             }
                             // The whole pane answers, not just its words.
