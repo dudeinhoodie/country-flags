@@ -248,26 +248,27 @@ public struct StudySessionView: View {
                 Button {
                     commandedThrow = rating
                 } label: {
-                    VStack(spacing: DesignTokens.Spacing.extraSmall) {
-                        Image(systemName: symbol(for: rating))
-                            .font(DesignTokens.Typography.body)
-                            .symbolRenderingMode(.hierarchical)
-                        Text(L10n.studyRating(rating))
-                            .font(DesignTokens.Typography.caption)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: DesignTokens.Layout.actionHeight)
-                    // "Good" is the answer most cards get, so it is the one the
-                    // thumb finds without aiming.
-                    .foregroundStyle(rating == .good ? .black : .white)
-                    .background {
-                        if rating == .good {
-                            Capsule(style: .continuous).fill(.white)
+                    // Words alone, at reading size: the icon row above tiny
+                    // captions read as a second tab bar, and four glyphs were
+                    // four more things to decode in the second an answer
+                    // takes. The word is the carrier; the colour underneath
+                    // it — the swipe hints' own red and green family — only
+                    // says which way this answer leans.
+                    Text(L10n.studyRating(rating))
+                        .font(DesignTokens.Typography.body.weight(rating == .good ? .semibold : .medium))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: DesignTokens.Layout.actionHeight)
+                        .foregroundStyle(tint(for: rating))
+                        // "Good" is the answer most cards get, so it is the
+                        // one the thumb finds without aiming.
+                        .background {
+                            if rating == .good {
+                                Capsule(style: .continuous).fill(.white)
+                            }
                         }
-                    }
-                    .contentShape(Capsule(style: .continuous))
+                        .contentShape(Capsule(style: .continuous))
                 }
                 // The buttons are disabled rather than hidden while a rating is
                 // written, so a second tap lands on nothing and the layout does
@@ -278,20 +279,16 @@ public struct StudySessionView: View {
         }
         .padding(DesignTokens.Spacing.extraSmall)
         .glassEffect(.regular, in: Capsule(style: .continuous))
-        .overlay {
-            Capsule(style: .continuous)
-                .strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
-        }
     }
 
-    /// Shape as well as word: the spec forbids colour as the only carrier, and
-    /// a symbol is what a hand reaches for before it reads.
-    private func symbol(for rating: StudyRating) -> String {
+    /// The rating's lean, worn quietly. Whitened well past pastel so the row
+    /// stays one calm object; the word, not the colour, is the carrier.
+    private func tint(for rating: StudyRating) -> Color {
         switch rating {
-        case .again: "arrow.counterclockwise"
-        case .hard: "tortoise"
-        case .good: "checkmark"
-        case .easy: "hare"
+        case .again: Color.red.mix(with: .white, by: 0.55)
+        case .hard: Color.orange.mix(with: .white, by: 0.6)
+        case .good: .black
+        case .easy: Color.green.mix(with: .white, by: 0.6)
         }
     }
 }
