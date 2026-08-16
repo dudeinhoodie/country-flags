@@ -32,23 +32,25 @@ enum FactDisplay {
             value = compactNumber(value)
         }
 
+        if fact.type.uppercased() == "CURRENCY" {
+            value = strippingCurrencyCodes(value)
+        }
+
         return (label, value)
     }
 
-    /// The currency's ISO codes, pulled out of the prose.
+    /// "Norwegian Krone (NOK)" → "Norwegian Krone".
     ///
-    /// The backend renders currency as "Norwegian Krone (NOK)" — name and
-    /// code in one string, several tenders joined. The code is not prose: it
-    /// is the three-letter tag the world writes on price boards, and both
-    /// surfaces show it as a tag rather than as an aside in brackets.
-    static func currencyParts(_ value: String) -> (text: String, codes: [String]) {
+    /// The backend joins the name and the ISO code into one string; the code
+    /// is catalogue data, not reading matter, and the screens show the name
+    /// alone. The backlog asks the contract to publish the fact structured so
+    /// this regex can retire.
+    static func strippingCurrencyCodes(_ value: String) -> String {
         var text = value
-        var codes: [String] = []
-        while let match = text.range(of: #" \(([A-Z]{3})\)"#, options: .regularExpression) {
-            codes.append(String(text[match].dropFirst(2).dropLast(1)))
+        while let match = text.range(of: #" \([A-Z]{3}\)"#, options: .regularExpression) {
             text.removeSubrange(match)
         }
-        return (text, codes)
+        return text
     }
 
     /// "8,406,558" → "8.4M", whatever the thousands separator was.
@@ -79,27 +81,5 @@ enum FactDisplay {
             return "\(Int(rounded.rounded()))\(tier.suffix)"
         }
         return "\(rounded)\(tier.suffix)"
-    }
-}
-
-
-/// The three letters the world writes on price boards, worn as a tag.
-struct CurrencyCodeTag: View {
-    let code: String
-
-    var body: some View {
-        Text(code)
-            .font(DesignTokens.Typography.caption.weight(.semibold).monospaced())
-            .foregroundStyle(.white.opacity(0.85))
-            .padding(.horizontal, DesignTokens.Spacing.extraSmall)
-            .padding(.vertical, 2)
-            .background(
-                .white.opacity(0.12),
-                in: RoundedRectangle(cornerRadius: DesignTokens.Radius.small * 0.6)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: DesignTokens.Radius.small * 0.6)
-                    .strokeBorder(.white.opacity(0.25), lineWidth: 1)
-            }
     }
 }

@@ -330,29 +330,17 @@ private struct StudyCardBack: View {
                 let presentation = FactDisplay.presentation(for: fact)
                 HStack(spacing: DesignTokens.Spacing.small) {
                     FactBadge(fact: fact)
-                    if fact.type.uppercased() == "CURRENCY" {
-                        let parts = FactDisplay.currencyParts(presentation.value)
-                        Text(parts.text)
+                    VStack(alignment: .leading, spacing: 0) {
+                        if let label = presentation.label {
+                            Text(label)
+                                .font(DesignTokens.Typography.caption)
+                                .foregroundStyle(.white.opacity(0.6))
+                        }
+                        Text(presentation.value)
                             .font(DesignTokens.Typography.body.weight(.medium))
                             .foregroundStyle(.white)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
-                        ForEach(parts.codes, id: \.self) { code in
-                            CurrencyCodeTag(code: code)
-                        }
-                    } else {
-                        VStack(alignment: .leading, spacing: 0) {
-                            if let label = presentation.label {
-                                Text(label)
-                                    .font(DesignTokens.Typography.caption)
-                                    .foregroundStyle(.white.opacity(0.6))
-                            }
-                            Text(presentation.value)
-                                .font(DesignTokens.Typography.body.weight(.medium))
-                                .foregroundStyle(.white)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                        }
                     }
                 }
                 // One fact is one thing to hear, not a label and a value in
