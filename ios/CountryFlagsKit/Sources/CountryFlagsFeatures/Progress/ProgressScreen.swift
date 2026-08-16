@@ -113,6 +113,10 @@ public struct ProgressScreen: View {
                                 AccessibilityIdentifier.progressDeckRow(deck.code)
                             )
                         }
+                        // The whole pane is the door: a plain button only
+                        // answers where its label has pixels, and glass and
+                        // padding have none.
+                        .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
                     .disabled(onOpenDeck == nil)

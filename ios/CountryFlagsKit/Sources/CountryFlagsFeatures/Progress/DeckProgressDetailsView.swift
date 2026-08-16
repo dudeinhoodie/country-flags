@@ -15,10 +15,14 @@ public struct DeckProgressDetailsView: View {
     @State private var model: DeckDetailsModel
     @State private var states: [UUID: CardStateRecord] = [:]
     @State private var selectedCountry: CountryDetailsSubject?
+    private let deckID: UUID
     private let store: ContentStore
     private let assets: any AssetLoading
     private let makeProgress: (() -> ProgressStore)?
+    private let makeSettings: (() -> SettingsStore)?
+    private let onStartStudy: ((UUID, StudySessionSize) -> Void)?
     private let dates: any DateProviding
+    @State private var sessionSize = StudySessionSize.ten
 
     @Environment(\.displayScale) private var displayScale
 
@@ -27,12 +31,17 @@ public struct DeckProgressDetailsView: View {
         store: ContentStore,
         assets: any AssetLoading,
         makeProgress: (() -> ProgressStore)? = nil,
+        makeSettings: (() -> SettingsStore)? = nil,
+        onStartStudy: ((UUID, StudySessionSize) -> Void)? = nil,
         dates: any DateProviding = SystemDateProvider()
     ) {
         _model = State(wrappedValue: DeckDetailsModel(deckID: deckID, store: store))
+        self.deckID = deckID
         self.store = store
         self.assets = assets
         self.makeProgress = makeProgress
+        self.makeSettings = makeSettings
+        self.onStartStudy = onStartStudy
         self.dates = dates
     }
 
@@ -46,6 +55,27 @@ public struct DeckProgressDetailsView: View {
             .onAppear {
                 guard let makeProgress else { return }
                 Task { states = await makeProgress().cardStatesByID() }
+            }
+            // The learner's own size setting, read once: the screen shows
+            // where the deck stands, and the button starts the next sitting.
+            .task {
+                guard let makeSettings else { return }
+                let settings = makeSettings()
+                await settings.load()
+                sessionSize = StudySessionSize(storedValue: settings.settings.sessionSize)
+            }
+            // Pinned under the shelves rather than lost below them: looking
+            // at where a deck stands and doing something about it are one
+            // visit.
+            .safeAreaInset(edge: .bottom) {
+                if let onStartStudy, case .ready = model.state {
+                    Button(L10n.studyStart) {
+                        onStartStudy(deckID, sessionSize)
+                    }
+                    .buttonStyle(PrimaryActionStyle())
+                    .padding(.horizontal, DesignTokens.Spacing.large)
+                    .padding(.bottom, DesignTokens.Spacing.small)
+                }
             }
             // The same sheet a card opens mid-session: one country, one
             // surface, whoever asks.

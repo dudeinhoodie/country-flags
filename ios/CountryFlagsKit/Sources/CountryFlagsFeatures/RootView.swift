@@ -210,7 +210,13 @@ public struct RootView: View {
                 deckID: deckID,
                 store: content,
                 assets: assets,
-                makeProgress: makeProgressStore
+                makeProgress: makeProgressStore,
+                makeSettings: makeSettingsStore,
+                onStartStudy: { deckID, size in
+                    router.push(
+                        .study(deckID: deckID, size: size, mode: .selfRated, composition: .standard)
+                    )
+                }
             )
         case .settings:
             SettingsScreen(store: makeSettingsStore(), makeAccount: makeAccountStore)

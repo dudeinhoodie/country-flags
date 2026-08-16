@@ -155,6 +155,7 @@ public struct HomeView: View {
                                         .foregroundStyle(.white.opacity(0.6))
                                 }
                             }
+                            .contentShape(.rect)
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
@@ -213,6 +214,8 @@ public struct HomeView: View {
                                         .foregroundStyle(.white.opacity(0.7))
                                 }
                             }
+                            // The whole pane answers, not just its words.
+                            .contentShape(.rect)
                         }
                         .buttonStyle(.plain)
                         .accessibilityElement(children: .combine)
