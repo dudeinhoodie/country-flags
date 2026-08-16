@@ -1,102 +1,109 @@
 import SwiftUI
 
-import CountryFlagsDomain
-
-/// A quiet fall of sparks for a finished deck.
+/// A pulse of light for a finished deck.
 ///
-/// Deliberately not confetti: a few dozen small motes in white and warm
-/// gold, drifting down once behind the result and gone — the visual
-/// register of a toast raised, not a piñata burst. Everything about it is
-/// restraint: the particles are small, the palette is two colours, the fall
-/// is slow, and it never repeats or loops. Under reduced motion nothing
-/// moves — the result's own arrival is the celebration.
+/// Not particles: one soft bloom of warm light behind the result and two
+/// fine rings that widen out of it and dissolve — the register of a glass
+/// raised once, drawn with keyframes so every phase eases the way a hand
+/// would move. It plays once and leaves nothing running. Under reduced
+/// motion nothing moves — the result's own arrival is the celebration.
 struct CelebrationView: View {
-    @State private var start: Date?
-    @State private var isFinished = false
+    @State private var isRaised = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// Deterministic sparks: seeded, so the shower is designed rather than
-    /// rolled, and every finish looks equally considered.
-    private static let motes: [Mote] = {
-        var generator = SeededRandomNumberGenerator(seed: 20)
-        return (0..<34).map { _ in Mote(using: &generator) }
-    }()
+    private static let gold = Color(red: 0.94, green: 0.82, blue: 0.55)
 
     var body: some View {
-        if !reduceMotion && !isFinished {
-            TimelineView(.animation) { context in
-                Canvas { graphics, size in
-                    guard let start else { return }
-                    var canvas = graphics
-                    let elapsed = context.date.timeIntervalSince(start)
-                    for mote in Self.motes {
-                        mote.draw(in: &canvas, size: size, at: elapsed)
-                    }
-                }
+        if !reduceMotion {
+            ZStack {
+                bloom
+                mainRing
+                echoRing
             }
+            .frame(width: 320, height: 320)
             .allowsHitTesting(false)
-            .onAppear { start = Date() }
-            .task {
-                // The shower is over; the timeline has no reason to keep
-                // asking for frames under a screen that has settled.
-                try? await Task.sleep(for: .seconds(Mote.showerDuration))
-                isFinished = true
+            .onAppear { isRaised = true }
+        }
+    }
+
+    private var bloom: some View {
+        RadialGradient(
+            colors: [Self.gold.opacity(0.6), Self.gold.opacity(0.12), .clear],
+            center: .center,
+            startRadius: 0,
+            endRadius: 150
+        )
+        .keyframeAnimator(initialValue: Pulse(), trigger: isRaised) { view, pulse in
+            view
+                .scaleEffect(pulse.bloomScale)
+                .opacity(pulse.bloomOpacity)
+        } keyframes: { _ in
+            KeyframeTrack(\.bloomOpacity) {
+                // In quickly enough to be felt, out slowly enough to be missed.
+                CubicKeyframe(0.9, duration: 0.35)
+                CubicKeyframe(0, duration: 1.6)
+            }
+            KeyframeTrack(\.bloomScale) {
+                CubicKeyframe(1.05, duration: 0.5)
+                CubicKeyframe(1.25, duration: 1.45)
             }
         }
     }
-}
 
-/// One spark: where it starts, how it falls, when it lives.
-private struct Mote {
-    static let showerDuration: TimeInterval = 4.5
-
-    let x: Double
-    let delay: TimeInterval
-    let lifetime: TimeInterval
-    let size: Double
-    let swayAmplitude: Double
-    let swayPhase: Double
-    let isGold: Bool
-
-    init(using generator: inout SeededRandomNumberGenerator) {
-        x = Double.random(in: 0.05...0.95, using: &generator)
-        delay = Double.random(in: 0...1.4, using: &generator)
-        lifetime = Double.random(in: 2.2...3, using: &generator)
-        size = Double.random(in: 2...4.5, using: &generator)
-        swayAmplitude = Double.random(in: 6...18, using: &generator)
-        swayPhase = Double.random(in: 0...(2 * .pi), using: &generator)
-        isGold = Bool.random(using: &generator)
-    }
-
-    func draw(in canvas: inout GraphicsContext, size: CGSize, at elapsed: TimeInterval) {
-        let life = elapsed - delay
-        guard life > 0, life < lifetime else { return }
-        let progress = life / lifetime
-
-        // Eased fall — fast enough to read as falling, slow enough to read
-        // as expensive — with a gentle sway, like dust in a shaft of light.
-        let eased = 1 - pow(1 - progress, 2)
-        let cx = x * size.width + sin(life * 1.8 + swayPhase) * swayAmplitude
-        let cy = -10 + eased * (size.height * 0.72)
-
-        // In quickly, out slowly: a spark that pops into existence reads as
-        // an effect; one that fades in reads as noticed.
-        let opacity = min(progress / 0.12, 1) * pow(1 - progress, 1.4) * 0.85
-
-        let colour: Color =
-            isGold
-            ? Color(red: 0.94, green: 0.8, blue: 0.5)
-            : .white
-        let rect = CGRect(x: cx - size2, y: cy - size2, width: self.size, height: self.size)
-        canvas.opacity = opacity
-        canvas.fill(Circle().path(in: rect), with: .color(colour))
-        // A faint halo doubles the spark's presence without doubling its size.
-        canvas.opacity = opacity * 0.35
-        canvas.fill(
-            Circle().path(in: rect.insetBy(dx: -self.size * 0.8, dy: -self.size * 0.8)),
-            with: .color(colour)
+    private var ringStroke: LinearGradient {
+        LinearGradient(
+            colors: [.white.opacity(0.9), Self.gold],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
         )
     }
 
-    private var size2: Double { size / 2 }
+    private var mainRing: some View {
+        Circle()
+            .strokeBorder(ringStroke, lineWidth: 1.5)
+            .keyframeAnimator(initialValue: Pulse(), trigger: isRaised) { view, pulse in
+                view
+                    .scaleEffect(pulse.ringScale)
+                    .opacity(pulse.ringOpacity)
+            } keyframes: { _ in
+                KeyframeTrack(\.ringScale) {
+                    CubicKeyframe(1.45, duration: 1.7)
+                }
+                KeyframeTrack(\.ringOpacity) {
+                    CubicKeyframe(0.5, duration: 0.25)
+                    CubicKeyframe(0, duration: 1.45)
+                }
+            }
+    }
+
+    /// The echo starts later and travels less: a second, quieter word of the
+    /// same sentence.
+    private var echoRing: some View {
+        Circle()
+            .strokeBorder(ringStroke, lineWidth: 1)
+            .keyframeAnimator(initialValue: Pulse(), trigger: isRaised) { view, pulse in
+                view
+                    .scaleEffect(pulse.echoScale)
+                    .opacity(pulse.echoOpacity)
+            } keyframes: { _ in
+                KeyframeTrack(\.echoScale) {
+                    CubicKeyframe(0.55, duration: 0.35)
+                    CubicKeyframe(1.15, duration: 1.6)
+                }
+                KeyframeTrack(\.echoOpacity) {
+                    CubicKeyframe(0, duration: 0.35)
+                    CubicKeyframe(0.35, duration: 0.3)
+                    CubicKeyframe(0, duration: 1.3)
+                }
+            }
+    }
+
+    private struct Pulse {
+        var bloomOpacity = 0.0
+        var bloomScale = 0.6
+        var ringScale = 0.5
+        var ringOpacity = 0.0
+        var echoScale = 0.55
+        var echoOpacity = 0.0
+    }
 }

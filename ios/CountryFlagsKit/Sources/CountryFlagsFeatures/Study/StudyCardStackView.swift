@@ -324,22 +324,35 @@ private struct StudyCardBack: View {
 
             // The same badges the details sheet deals, at card size: a symbol
             // on its own colour is scannable in the second the answer takes,
-            // where a grey label next to a grey value was not.
-            ForEach(facts.prefix(2), id: \.self) { fact in
+            // where a grey label next to a grey value was not. Three facts —
+            // capital, population, currency — in the release's own order.
+            ForEach(facts.prefix(3), id: \.self) { fact in
                 let presentation = FactDisplay.presentation(for: fact)
                 HStack(spacing: DesignTokens.Spacing.small) {
                     FactBadge(fact: fact)
-                    VStack(alignment: .leading, spacing: 0) {
-                        if let label = presentation.label {
-                            Text(label)
-                                .font(DesignTokens.Typography.caption)
-                                .foregroundStyle(.white.opacity(0.6))
-                        }
-                        Text(presentation.value)
+                    if fact.type.uppercased() == "CURRENCY" {
+                        let parts = FactDisplay.currencyParts(presentation.value)
+                        Text(parts.text)
                             .font(DesignTokens.Typography.body.weight(.medium))
                             .foregroundStyle(.white)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
+                        ForEach(parts.codes, id: \.self) { code in
+                            CurrencyCodeTag(code: code)
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 0) {
+                            if let label = presentation.label {
+                                Text(label)
+                                    .font(DesignTokens.Typography.caption)
+                                    .foregroundStyle(.white.opacity(0.6))
+                            }
+                            Text(presentation.value)
+                                .font(DesignTokens.Typography.body.weight(.medium))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
                     }
                 }
                 // One fact is one thing to hear, not a label and a value in

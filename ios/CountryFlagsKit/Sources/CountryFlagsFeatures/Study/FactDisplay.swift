@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 import CountryFlagsDomain
 
@@ -34,6 +35,22 @@ enum FactDisplay {
         return (label, value)
     }
 
+    /// The currency's ISO codes, pulled out of the prose.
+    ///
+    /// The backend renders currency as "Norwegian Krone (NOK)" — name and
+    /// code in one string, several tenders joined. The code is not prose: it
+    /// is the three-letter tag the world writes on price boards, and both
+    /// surfaces show it as a tag rather than as an aside in brackets.
+    static func currencyParts(_ value: String) -> (text: String, codes: [String]) {
+        var text = value
+        var codes: [String] = []
+        while let match = text.range(of: #" \(([A-Z]{3})\)"#, options: .regularExpression) {
+            codes.append(String(text[match].dropFirst(2).dropLast(1)))
+            text.removeSubrange(match)
+        }
+        return (text, codes)
+    }
+
     /// "8,406,558" → "8.4M", whatever the thousands separator was.
     ///
     /// The suffixes are the classical K / M / B, not localised: they are the
@@ -62,5 +79,27 @@ enum FactDisplay {
             return "\(Int(rounded.rounded()))\(tier.suffix)"
         }
         return "\(rounded)\(tier.suffix)"
+    }
+}
+
+
+/// The three letters the world writes on price boards, worn as a tag.
+struct CurrencyCodeTag: View {
+    let code: String
+
+    var body: some View {
+        Text(code)
+            .font(DesignTokens.Typography.caption.weight(.semibold).monospaced())
+            .foregroundStyle(.white.opacity(0.85))
+            .padding(.horizontal, DesignTokens.Spacing.extraSmall)
+            .padding(.vertical, 2)
+            .background(
+                .white.opacity(0.12),
+                in: RoundedRectangle(cornerRadius: DesignTokens.Radius.small * 0.6)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.small * 0.6)
+                    .strokeBorder(.white.opacity(0.25), lineWidth: 1)
+            }
     }
 }

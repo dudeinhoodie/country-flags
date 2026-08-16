@@ -252,10 +252,25 @@ private struct FactTile: View {
                         .font(DesignTokens.Typography.caption)
                         .foregroundStyle(.secondary)
                 }
-                Text(presentation.value)
-                    .font(DesignTokens.Typography.sectionTitle)
-                    .minimumScaleFactor(0.7)
-                    .lineLimit(3)
+                if fact.type.uppercased() == "CURRENCY" {
+                    let parts = FactDisplay.currencyParts(presentation.value)
+                    Text(parts.text)
+                        .font(DesignTokens.Typography.sectionTitle)
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(3)
+                    if !parts.codes.isEmpty {
+                        HStack(spacing: DesignTokens.Spacing.extraSmall) {
+                            ForEach(parts.codes, id: \.self) { code in
+                                CurrencyCodeTag(code: code)
+                            }
+                        }
+                    }
+                } else {
+                    Text(presentation.value)
+                        .font(DesignTokens.Typography.sectionTitle)
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(3)
+                }
             }
         }
         // Filled to the slot rather than hugging the text, so the pair of
