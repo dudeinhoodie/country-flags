@@ -88,6 +88,7 @@ public struct StudySessionView: View {
                 state: state,
                 store: store,
                 assets: assets,
+                palette: palette,
                 onReveal: { runner.revealAnswer() },
                 onRate: { rating in Task { await runner.rate(rating) } },
                 onDetails: { isShowingDetails = true },
@@ -388,6 +389,9 @@ struct StudySessionResultView: View {
         }
         .onAppear { hasArrived = true }
         .animation(reduceMotion ? nil : .bouncy(duration: 0.5), value: hasArrived)
+        // Raised once, behind the number: the shower celebrates the deck,
+        // and the summary stays readable through it.
+        .background { CelebrationView() }
         // Finishing is one of the two moments docs/16 gives a success
         // notification to.
         .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }

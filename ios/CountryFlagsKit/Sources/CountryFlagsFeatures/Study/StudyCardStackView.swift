@@ -17,6 +17,9 @@ struct StudyCardStackView: View {
     let state: StudySessionState
     let store: ContentStore
     let assets: any AssetLoading
+    /// The colours read off the flag: the scene wears them, and the back of
+    /// the card wears them too.
+    let palette: ScenePalette
     let onReveal: () -> Void
     let onRate: (StudyRating) -> Void
     let onDetails: () -> Void
@@ -125,6 +128,7 @@ struct StudyCardStackView: View {
                 StudyCardBack(
                     card: entry.card,
                     store: store,
+                    palette: palette,
                     onDetails: onDetails
                 )
                 // The back is drawn mirrored inside a view the flip has already
@@ -304,29 +308,40 @@ struct StudyCardStackView: View {
 private struct StudyCardBack: View {
     let card: StudySessionCardRecord
     let store: ContentStore
+    let palette: ScenePalette
     let onDetails: () -> Void
 
     @State private var facts: [FactRecord] = []
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
             Text(card.displayName)
                 .font(DesignTokens.Typography.cardAnswer)
                 .minimumScaleFactor(0.8)
                 .lineLimit(2)
+                .foregroundStyle(.white)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyAnswer)
 
+            // The same badges the details sheet deals, at card size: a symbol
+            // on its own colour is scannable in the second the answer takes,
+            // where a grey label next to a grey value was not.
             ForEach(facts.prefix(2), id: \.self) { fact in
                 let presentation = FactDisplay.presentation(for: fact)
                 HStack(spacing: DesignTokens.Spacing.small) {
-                    if let label = presentation.label {
-                        Text(label)
-                            .foregroundStyle(.secondary)
+                    FactBadge(fact: fact)
+                    VStack(alignment: .leading, spacing: 0) {
+                        if let label = presentation.label {
+                            Text(label)
+                                .font(DesignTokens.Typography.caption)
+                                .foregroundStyle(.white.opacity(0.6))
+                        }
+                        Text(presentation.value)
+                            .font(DesignTokens.Typography.body.weight(.medium))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
-                    Text(presentation.value)
-                        .fontWeight(.medium)
                 }
-                .font(DesignTokens.Typography.caption)
                 // One fact is one thing to hear, not a label and a value in
                 // sequence — and combining them is also what lets the row carry
                 // an identifier without handing it to both.
@@ -336,15 +351,41 @@ private struct StudyCardBack: View {
 
             Spacer(minLength: 0)
 
-            Button(L10n.studyDetails) { onDetails() }
+            Button {
+                onDetails()
+            } label: {
+                HStack(spacing: DesignTokens.Spacing.extraSmall) {
+                    Text(L10n.studyDetails)
+                    Image(systemName: "chevron.right")
+                }
                 .font(DesignTokens.Typography.caption.weight(.semibold))
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyDetails)
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
+            }
+            .buttonStyle(.plain)
+            .glassEffect(.regular.interactive(), in: Capsule(style: .continuous))
+            .accessibilityIdentifier(AccessibilityIdentifier.studyDetails)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(DesignTokens.Spacing.medium)
-        .background(.regularMaterial)
+        // The flag's own colours, dimmed to a wash the type can sit on: the
+        // answer belongs to the flag that asked, and a flat grey material
+        // said it belonged to the system.
+        .background {
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        palette.primary.opacity(0.75),
+                        palette.secondary.opacity(0.55),
+                        Color.black.opacity(0.65),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                Rectangle().fill(.ultraThinMaterial)
+            }
+        }
         .task(id: card.learningCardID) {
             facts = await store.card(id: card.learningCardID)?.backSideFacts ?? []
         }

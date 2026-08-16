@@ -318,6 +318,9 @@ struct ObjectiveResultView: View {
         }
         .onAppear { hasArrived = true }
         .animation(reduceMotion ? nil : .bouncy(duration: 0.5), value: hasArrived)
+        // Raised once, behind the number: the shower celebrates the deck,
+        // and the summary stays readable through it.
+        .background { CelebrationView() }
         .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
     }
 }

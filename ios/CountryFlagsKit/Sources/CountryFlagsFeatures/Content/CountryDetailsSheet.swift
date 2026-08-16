@@ -201,7 +201,7 @@ struct CountryDetailsSheet: View {
 ///
 /// The colour is never the only carrier — the symbol and the label are always
 /// beside it — it is what lets the eye land on "population" without reading.
-private struct FactBadge: View {
+struct FactBadge: View {
     let fact: FactRecord
 
     var body: some View {
