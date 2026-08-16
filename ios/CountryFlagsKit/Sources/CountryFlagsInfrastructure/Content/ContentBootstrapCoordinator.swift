@@ -3,10 +3,14 @@ import Foundation
 import CountryFlagsDomain
 
 /// Remembers the entity tag of the manifest this device applied, so an
-/// unchanged release costs a 304 and no body.
+/// unchanged release costs a 304 and no body — and the locale its text was
+/// imported in, so a language change is a reason to import again. Device
+/// bookkeeping, not release data: it lives beside the store, not in it.
 public protocol ContentManifestTagStoring: Sendable {
     func entityTag(forVersion contentVersion: String) -> String?
     func store(entityTag: String, forVersion contentVersion: String)
+    func importedLocale(forVersion contentVersion: String) -> String?
+    func store(importedLocale: String, forVersion contentVersion: String)
 }
 
 public struct UserDefaultsContentManifestTagStore: ContentManifestTagStoring, @unchecked Sendable {
@@ -24,14 +28,27 @@ public struct UserDefaultsContentManifestTagStore: ContentManifestTagStoring, @u
         defaults.set(entityTag, forKey: Self.key(contentVersion))
     }
 
+    public func importedLocale(forVersion contentVersion: String) -> String? {
+        defaults.string(forKey: Self.localeKey(contentVersion))
+    }
+
+    public func store(importedLocale: String, forVersion contentVersion: String) {
+        defaults.set(importedLocale, forKey: Self.localeKey(contentVersion))
+    }
+
     private static func key(_ contentVersion: String) -> String {
         "content.manifest.etag.\(contentVersion)"
+    }
+
+    private static func localeKey(_ contentVersion: String) -> String {
+        "content.manifest.locale.\(contentVersion)"
     }
 }
 
 public struct InMemoryContentManifestTagStore: ContentManifestTagStoring, @unchecked Sendable {
     private final class Box: @unchecked Sendable {
         var tags: [String: String] = [:]
+        var locales: [String: String] = [:]
     }
 
     private let box = Box()
@@ -44,6 +61,14 @@ public struct InMemoryContentManifestTagStore: ContentManifestTagStoring, @unche
 
     public func store(entityTag: String, forVersion contentVersion: String) {
         box.tags[contentVersion] = entityTag
+    }
+
+    public func importedLocale(forVersion contentVersion: String) -> String? {
+        box.locales[contentVersion]
+    }
+
+    public func store(importedLocale: String, forVersion contentVersion: String) {
+        box.locales[contentVersion] = importedLocale
     }
 }
 
@@ -131,9 +156,12 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             // The tag says "these bytes are unchanged", but the words on the
             // device are in the language the release was imported in — after
             // a language change a 304 would be the wrong answer, so the tag
-            // stays home and the manifest is fetched for real.
+            // stays home and the manifest is fetched for real. A release from
+            // a build that never recorded its locale reads as unknown and
+            // heals with one re-import.
+            let storedLocale = stored.flatMap { tags.importedLocale(forVersion: $0.contentVersion) }
             let entityTag =
-                stored?.importedLocale == locale
+                storedLocale == locale
                 ? stored.flatMap { tags.entityTag(forVersion: $0.contentVersion) }
                 : nil
             switch try await service.manifest(locale: locale, entityTag: entityTag) {
@@ -155,7 +183,7 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                 }
 
                 if stored?.contentVersion == fetch.manifest.contentVersion,
-                    stored?.importedLocale == locale
+                    storedLocale == locale
                 {
                     try await applyChanges(
                         after: stored?.changeCursor ?? fetch.manifest.changeCursor,
@@ -168,6 +196,10 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             }
 
             let applied = try? await repository.currentManifest()
+            if let applied {
+                // Recorded only after the words are actually on the device.
+                tags.store(importedLocale: locale, forVersion: applied.contentVersion)
+            }
             status = ContentSyncStatus(
                 phase: .idle,
                 lastSuccessAt: applied?.appliedAt ?? dates.now(),
@@ -359,7 +391,6 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             applied = ContentManifestRecord(
                 contentVersion: applied.contentVersion,
                 defaultLocale: applied.defaultLocale,
-                importedLocale: applied.importedLocale,
                 supportedLocales: applied.supportedLocales,
                 supportedTemplateSchemaVersions: applied.supportedTemplateSchemaVersions,
                 assetBaseURL: applied.assetBaseURL,

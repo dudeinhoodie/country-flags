@@ -100,10 +100,6 @@ enum LocalSchemaV1: VersionedSchema {
 final class StoredContentManifest {
     var contentVersion: String = ""
     var defaultLocale: String = ""
-    /// The locale the release's text was imported in; empty on rows written
-    /// by builds that predate it, which reads as "unknown" and triggers one
-    /// re-import.
-    var importedLocale: String = ""
     var supportedLocales: [String] = []
     var supportedTemplateSchemaVersions: [Int] = []
     var assetBaseURL: URL = URL(fileURLWithPath: "/")
