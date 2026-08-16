@@ -20,6 +20,36 @@ final class AccountStoreTests: XCTestCase {
         XCTAssertNil(store.lastFailure)
     }
 
+    /// The sync follows the import, in that order: it is what brings the
+    /// account's history home, and without it a fresh device showed nothing
+    /// until the next foreground.
+    func testASuccessfulSignInStartsASyncAfterTheImport() async {
+        let session = ScriptedSession(outcome: .succeeded(userID: Fixtures.userID))
+        let migrations = RecordingMigrations()
+        let store = makeStore(session: session, migrations: migrations)
+        let order = OrderRecorder()
+        store.onSignedIn = { await order.note("sync") }
+
+        await store.signIn(with: Fixtures.credential)
+
+        let imported = await migrations.importedInto
+        XCTAssertEqual(imported, [Fixtures.userID])
+        let notes = await order.notes
+        XCTAssertEqual(notes, ["sync"])
+    }
+
+    func testAFailedSignInDoesNotStartASync() async {
+        let session = ScriptedSession(outcome: .failed(.offline))
+        let store = makeStore(session: session, migrations: RecordingMigrations())
+        let order = OrderRecorder()
+        store.onSignedIn = { await order.note("sync") }
+
+        await store.signIn(with: Fixtures.credential)
+
+        let notes = await order.notes
+        XCTAssertEqual(notes, [])
+    }
+
     func testAFailedSignInIsWordedAndImportsNothing() async {
         let session = ScriptedSession(outcome: .failed(.offline))
         let migrations = RecordingMigrations()
@@ -188,4 +218,13 @@ private struct StubOutbox: OutboxRepository {
     ) async throws -> SyncCursorRecord? { nil }
 
     func saveCursor(_ cursor: SyncCursorRecord, for scope: AccountScope) async throws {}
+}
+
+
+private actor OrderRecorder {
+    private(set) var notes: [String] = []
+
+    func note(_ name: String) {
+        notes.append(name)
+    }
 }

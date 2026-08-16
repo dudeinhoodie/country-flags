@@ -7,6 +7,9 @@ import Foundation
 public enum SyncTrigger: String, Hashable, Sendable, CaseIterable {
     case launch
     case foreground
+    /// An account just signed in: the device finally has someone to sync as,
+    /// and waiting for the next foreground made a fresh install look empty.
+    case signedIn
     /// The network monitor saw a path come back. It is a hint that a request is
     /// worth trying, never proof that the API is reachable.
     case networkAvailable

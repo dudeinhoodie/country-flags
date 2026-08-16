@@ -294,7 +294,7 @@ struct AppComposition: AppDependencies {
     }
 
     func makeAccountStore() -> AccountStore {
-        AccountStore(
+        let store = AccountStore(
             session: sessions,
             migrations: guestMigrations,
             outbox: store.makeOutboxRepository(),
@@ -314,6 +314,10 @@ struct AppComposition: AppDependencies {
                 && ProcessInfo.processInfo.arguments.contains("-fake-signin"),
             logger: logger
         )
+        store.onSignedIn = { [sync] in
+            await sync.synchronize(trigger: .signedIn)
+        }
+        return store
     }
 
     func makeSettingsStore() -> SettingsStore {
