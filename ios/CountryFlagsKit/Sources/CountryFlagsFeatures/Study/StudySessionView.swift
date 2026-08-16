@@ -240,45 +240,60 @@ public struct StudySessionView: View {
     /// and the material behind it belongs to the scene rather than to each
     /// button separately.
     private func ratingButtons(disabled: Bool) -> some View {
-        HStack(spacing: DesignTokens.Spacing.extraSmall) {
-            ForEach(StudyRating.allCases, id: \.self) { rating in
-                // The button does not rate directly: it asks the stack to
-                // throw, and the throw rates — one path, so the card always
-                // visibly takes the answer with it.
-                Button {
-                    commandedThrow = rating
-                } label: {
-                    // Words alone, at reading size: the icon row above tiny
-                    // captions read as a second tab bar, and four glyphs were
-                    // four more things to decode in the second an answer
-                    // takes. The word is the carrier; the colour underneath
-                    // it — the swipe hints' own red and green family — only
-                    // says which way this answer leans.
-                    Text(L10n.studyRating(rating))
-                        .font(DesignTokens.Typography.body.weight(rating == .good ? .semibold : .medium))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: DesignTokens.Layout.actionHeight)
-                        .foregroundStyle(tint(for: rating))
-                        // "Good" is the answer most cards get, so it is the
-                        // one the thumb finds without aiming.
-                        .background {
-                            if rating == .good {
-                                Capsule(style: .continuous).fill(.white)
-                            }
-                        }
-                        .contentShape(Capsule(style: .continuous))
+        // The platform's own grammar for a group of related actions on glass:
+        // each button wears the system's glass — the prominent one tinted —
+        // and the container is what lets neighbouring glass flow together and
+        // answer a press with the lens the system draws, instead of one
+        // hand-rolled slab with flat buttons painted on it.
+        GlassEffectContainer(spacing: DesignTokens.Spacing.extraSmall) {
+            HStack(spacing: DesignTokens.Spacing.extraSmall) {
+                ForEach(StudyRating.allCases, id: \.self) { rating in
+                    // The button does not rate directly: it asks the stack to
+                    // throw, and the throw rates — one path, so the card
+                    // always visibly takes the answer with it.
+                    ratingButton(rating)
+                        // Disabled rather than hidden while a rating is
+                        // written, so a second tap lands on nothing and the
+                        // layout does not jump under the learner's finger.
+                        .disabled(disabled)
+                        .accessibilityIdentifier(
+                            AccessibilityIdentifier.studyRating(rating)
+                        )
                 }
-                // The buttons are disabled rather than hidden while a rating is
-                // written, so a second tap lands on nothing and the layout does
-                // not jump under the learner's finger.
-                .disabled(disabled)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyRating(rating))
             }
         }
-        .padding(DesignTokens.Spacing.extraSmall)
-        .glassEffect(.regular, in: Capsule(style: .continuous))
+    }
+
+    /// Words alone, at reading size: the word is the carrier, and the colour
+    /// under it — the swipe hints' own red and green family — only says which
+    /// way this answer leans. "Good" is the answer most cards get, so it is
+    /// the one button the system draws prominent and the thumb finds without
+    /// aiming.
+    @ViewBuilder
+    private func ratingButton(_ rating: StudyRating) -> some View {
+        let label = Text(L10n.studyRating(rating))
+            .font(DesignTokens.Typography.body.weight(rating == .good ? .semibold : .medium))
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: DesignTokens.Layout.actionHeight * 0.8)
+
+        if rating == .good {
+            Button {
+                commandedThrow = rating
+            } label: {
+                label.foregroundStyle(.black)
+            }
+            .buttonStyle(.glassProminent)
+            .tint(.white)
+        } else {
+            Button {
+                commandedThrow = rating
+            } label: {
+                label.foregroundStyle(tint(for: rating))
+            }
+            .buttonStyle(.glass)
+        }
     }
 
     /// The rating's lean, worn quietly. Whitened well past pastel so the row
