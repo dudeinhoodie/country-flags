@@ -14,7 +14,8 @@ public struct HomeView: View {
     private let sync: SyncCenter
     private let onOpenDeck: (UUID) -> Void
     private let onContinueSession: ((ContinuableSession) -> Void)?
-    private let onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)?
+    private let onStartStudy:
+        ((UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void)?
 
     /// The counts behind the hero. Built here, once, from the factory: this
     /// view is re-initialised whenever the launch makes progress, and a store
@@ -28,7 +29,9 @@ public struct HomeView: View {
         makeProgress: (() -> ProgressStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
-        onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)? = nil
+        onStartStudy: (
+            (UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void
+        )? = nil
     ) {
         self.store = store
         self.sync = sync
@@ -326,13 +329,10 @@ public struct HomeView: View {
             onOpenDeck(deckID)
             return
         }
-        // The queue is what was asked for. The contract only offers three
-        // sizes, so the session takes the smallest one that holds the queue —
-        // two due cards make a session of five, not the ten the settings
-        // would deal a fresh deck. The selection puts the due cards first, so
-        // whatever tops the size up is a few new ones, not a burial.
-        let size = StudySessionSize.allCases.first { $0.rawValue >= dueCount } ?? .twenty
-        onStartStudy(deckID, size, .selfRated)
+        // The queue is what was asked for, and the backend decides how big
+        // that is: DUE_ONLY returns the due cards and nothing else, however
+        // few. The size is only the contract's cap on one sitting.
+        onStartStudy(deckID, .twenty, .selfRated, .dueOnly)
     }
 
     /// The curated decks are what the product recommends; the taxonomy ones are

@@ -109,6 +109,7 @@ describe("parseCreateStudySessionRequest", () => {
       mode: "SELF_RATED",
       locale: "en",
       selectionOrigin: "SERVER",
+      composition: "STANDARD",
     });
   });
 
@@ -285,5 +286,45 @@ describe("requestHash", () => {
     );
 
     expect(requestHash(parseCreateStudySessionRequest(variant))).not.toBe(base);
+  });
+});
+
+
+describe("composition", () => {
+  const server = {
+    id: "6f9b91c2-9a44-4b6e-9a6b-3d4f8b6a2c11",
+    deckId: "6f9b91c2-9a44-4b6e-9a6b-3d4f8b6a2c12",
+    requestedUniqueCount: 10,
+    mode: "SELF_RATED",
+    locale: "en-US",
+    selectionOrigin: "SERVER",
+  };
+
+  it("defaults to STANDARD when the field is absent", () => {
+    const parsed = parseCreateStudySessionRequest(server);
+    expect(parsed).toMatchObject({ composition: "STANDARD" });
+  });
+
+  it("accepts DUE_ONLY", () => {
+    const parsed = parseCreateStudySessionRequest({
+      ...server,
+      composition: "DUE_ONLY",
+    });
+    expect(parsed).toMatchObject({ composition: "DUE_ONLY" });
+  });
+
+  it("rejects a composition the contract does not name", () => {
+    expect(() =>
+      parseCreateStudySessionRequest({ ...server, composition: "REVIEW" }),
+    ).toThrow("composition must be STANDARD or DUE_ONLY");
+  });
+
+  it("keeps the idempotency hash sensitive to the composition", () => {
+    const standard = parseCreateStudySessionRequest(server);
+    const dueOnly = parseCreateStudySessionRequest({
+      ...server,
+      composition: "DUE_ONLY",
+    });
+    expect(requestHash(standard)).not.toEqual(requestHash(dueOnly));
   });
 });

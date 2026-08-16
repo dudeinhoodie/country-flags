@@ -29,6 +29,8 @@ export function parseCompleteStudySessionRequest(
   return { completedAt: dateTime(body.completedAt, "body.completedAt") };
 }
 
+export type SessionComposition = "STANDARD" | "DUE_ONLY";
+
 export interface CreateServerStudySessionRequest {
   id: string;
   deckId: string;
@@ -36,6 +38,13 @@ export interface CreateServerStudySessionRequest {
   mode: typeof AnswerMode.SELF_RATED | typeof AnswerMode.MULTIPLE_CHOICE;
   locale: string;
   selectionOrigin: typeof SelectionOrigin.SERVER;
+  /**
+   * STANDARD fills the session to `requestedUniqueCount` — due, then new,
+   * then maintenance. DUE_ONLY selects only cards whose schedule has come
+   * round, capped at `requestedUniqueCount`: the session may hold fewer
+   * cards than requested, and holds none when nothing is due.
+   */
+  composition: SessionComposition;
 }
 
 export interface OfflineStudySessionCardRequest {
@@ -251,8 +260,9 @@ export function parseCreateStudySessionRequest(
     return parseCreateOfflineStudySessionRequest(body);
   }
 
+  const serverKeys: readonly string[] = [...REQUIRED_KEYS, "composition"];
   const unknownKeys = Object.keys(body).filter(
-    (key) => !REQUIRED_KEYS.includes(key as (typeof REQUIRED_KEYS)[number]),
+    (key) => !serverKeys.includes(key),
   );
   if (unknownKeys.length > 0) {
     throw new BadRequestException(
@@ -284,6 +294,13 @@ export function parseCreateStudySessionRequest(
   if (typeof body.locale !== "string") {
     throw new BadRequestException("locale must be a string");
   }
+  if (
+    body.composition !== undefined &&
+    body.composition !== "STANDARD" &&
+    body.composition !== "DUE_ONLY"
+  ) {
+    throw new BadRequestException("composition must be STANDARD or DUE_ONLY");
+  }
 
   return {
     id: parseUuid(body.id, "id"),
@@ -292,6 +309,7 @@ export function parseCreateStudySessionRequest(
     mode: body.mode,
     locale: parseLocale(body.locale),
     selectionOrigin: SelectionOrigin.SERVER,
+    composition: (body.composition as SessionComposition | undefined) ?? "STANDARD",
   };
 }
 
@@ -310,6 +328,12 @@ export function requestHash(request: CreateStudySessionRequest): string {
           mode: request.mode,
           locale: request.locale.toLowerCase(),
           selectionOrigin: request.selectionOrigin,
+          // STANDARD stays out of the digest: every session before this
+          // field existed hashed without it, and a retry of one of those must
+          // still resolve to its stored row rather than conflict.
+          ...(request.composition === "DUE_ONLY"
+            ? { composition: request.composition }
+            : {}),
         }
       : {
           id: request.id,

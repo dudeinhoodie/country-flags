@@ -18,6 +18,7 @@ public struct StudySessionView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let deckID: UUID
+    private let composition: StudySessionComposition
     private let size: StudySessionSize
     private let store: ContentStore
     private let assets: any AssetLoading
@@ -26,12 +27,14 @@ public struct StudySessionView: View {
     public init(
         deckID: UUID,
         size: StudySessionSize,
+        composition: StudySessionComposition = .standard,
         runner: StudySessionRunner,
         store: ContentStore,
         assets: any AssetLoading,
         onFinish: @escaping () -> Void
     ) {
         self.deckID = deckID
+        self.composition = composition
         self.size = size
         _runner = State(wrappedValue: runner)
         self.store = store
@@ -56,7 +59,7 @@ public struct StudySessionView: View {
         .toolbar(.hidden, for: .navigationBar)
         // The flag is the screen: while a session runs, the tab bar leaves too.
         .toolbar(.hidden, for: .tabBar)
-        .task { await runner.startOrResume(deckID: deckID, size: size) }
+        .task { await runner.startOrResume(deckID: deckID, size: size, composition: composition) }
     }
 
     @ViewBuilder

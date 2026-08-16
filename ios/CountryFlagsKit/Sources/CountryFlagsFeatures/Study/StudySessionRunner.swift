@@ -89,10 +89,14 @@ public final class StudySessionRunner {
     /// Resuming comes first: a learner who closed the app mid-session expects
     /// the card they were on, not a fresh selection that discards their
     /// answers.
-    public func startOrResume(deckID: UUID, size: StudySessionSize) async {
+    public func startOrResume(
+        deckID: UUID,
+        size: StudySessionSize,
+        composition: StudySessionComposition = .standard
+    ) async {
         if scope == nil { scope = await scopes.currentScope() }
         if await resume(deckID: deckID) { return }
-        await start(deckID: deckID, size: size)
+        await start(deckID: deckID, size: size, composition: composition)
     }
 
     /// - Returns: whether an unfinished session was picked up.
@@ -138,7 +142,11 @@ public final class StudySessionRunner {
         return true
     }
 
-    private func start(deckID: UUID, size: StudySessionSize) async {
+    private func start(
+        deckID: UUID,
+        size: StudySessionSize,
+        composition: StudySessionComposition
+    ) async {
         // The backend composes when it can: it has seen every device's
         // answers, so its selection is the canonical one. Every failure —
         // offline, a refusal, an empty answer — falls through to the local
@@ -149,7 +157,8 @@ public final class StudySessionRunner {
                     id: identifiers.next(),
                     deckID: deckID,
                     size: size,
-                    mode: .selfRated
+                    mode: .selfRated,
+                    composition: composition
                 )
                 if !record.cards.isEmpty {
                     try await learning.saveSession(record, for: resolvedScope)
@@ -178,13 +187,18 @@ public final class StudySessionRunner {
             supportedTemplateSchemaVersions: manifest?.supportedTemplateSchemaVersions ?? [],
             now: dates.now()
         )
-        guard !selected.isEmpty else {
+        // Offline, the due-only promise still holds: the local bands mark
+        // every card with its reason, and the queue is the due band alone.
+        let composed = composition == .dueOnly
+            ? selected.filter { $0.reason == .due }
+            : selected
+        guard !composed.isEmpty else {
             startFailure = .noUsableCards
             return
         }
 
         let sessionID = identifiers.next()
-        let snapshot = selected.map { selection in
+        let snapshot = composed.map { selection in
             StudySessionCardRecord(
                 id: identifiers.next(),
                 learningCardID: selection.card.id,

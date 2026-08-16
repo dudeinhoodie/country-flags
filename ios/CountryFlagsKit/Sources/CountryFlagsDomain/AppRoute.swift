@@ -11,7 +11,12 @@ public enum AppRoute: Hashable, Sendable {
     /// A study session for a deck. It carries the size because the session's
     /// composition is fixed when it starts, and the screen must not have to ask
     /// the settings again halfway through.
-    case study(deckID: UUID, size: StudySessionSize, mode: StudyAnswerMode)
+    case study(
+        deckID: UUID,
+        size: StudySessionSize,
+        mode: StudyAnswerMode,
+        composition: StudySessionComposition
+    )
     case progress
     /// One deck's progress, country by country.
     case deckProgress(deckID: UUID)

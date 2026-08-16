@@ -68,12 +68,20 @@ public struct RootView: View {
                             .study(
                                 deckID: continuable.deckID,
                                 size: continuable.size,
-                                mode: continuable.mode
+                                mode: continuable.mode,
+                                composition: .standard
                             )
                         )
                     },
-                    onStartStudy: { deckID, size, mode in
-                        router.push(.study(deckID: deckID, size: size, mode: mode))
+                    onStartStudy: { deckID, size, mode, composition in
+                        router.push(
+                            .study(
+                                deckID: deckID,
+                                size: size,
+                                mode: mode,
+                                composition: composition
+                            )
+                        )
                     }
                 )
                 .toolbar {
@@ -160,14 +168,17 @@ public struct RootView: View {
                 makeProgress: makeProgressStore,
                 isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
             ) { deckID, size, mode in
-                router.push(.study(deckID: deckID, size: size, mode: mode))
+                router.push(
+                    .study(deckID: deckID, size: size, mode: mode, composition: .standard)
+                )
             }
-        case .study(let deckID, let size, let mode):
+        case .study(let deckID, let size, let mode, let composition):
             switch mode {
             case .selfRated:
                 StudySessionView(
                     deckID: deckID,
                     size: size,
+                    composition: composition,
                     runner: makeStudyRunner(),
                     store: content,
                     assets: assets,

@@ -34,6 +34,17 @@ public enum StudySessionSize: Int, Hashable, Sendable, CaseIterable, Identifiabl
     }
 }
 
+/// What a session is made of.
+///
+/// `.standard` fills the session to its size — due cards first, then new,
+/// then maintenance. `.dueOnly` asks for the repeat queue and nothing else:
+/// the backend decides how many cards that is, and the session may be
+/// smaller than any size the settings could name.
+public enum StudySessionComposition: String, Hashable, Sendable {
+    case standard = "STANDARD"
+    case dueOnly = "DUE_ONLY"
+}
+
 /// The lifecycle of a study session.
 ///
 /// The raw values are the contract's. They are typed here because they are
