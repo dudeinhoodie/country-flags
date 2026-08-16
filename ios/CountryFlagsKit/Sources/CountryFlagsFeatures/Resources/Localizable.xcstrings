@@ -1531,6 +1531,23 @@
         }
       }
     },
+    "progress.map_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "brighter is closer to done"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ярче — ближе к цели"
+          }
+        }
+      }
+    },
     "progress.review_at": {
       "extractionState": "manual",
       "localizations": {

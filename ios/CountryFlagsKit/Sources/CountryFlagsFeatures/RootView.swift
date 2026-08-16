@@ -111,7 +111,7 @@ public struct RootView: View {
             .tag(AppTab.home)
 
             NavigationStack(path: $router.catalogNavigationPath) {
-                CatalogView(store: content, assets: assets) { router.push(.deck(id: $0)) }
+                CatalogView(store: content, assets: assets, makeProgress: makeProgressStore) { router.push(.deck(id: $0)) }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -159,7 +159,7 @@ public struct RootView: View {
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .catalog:
-            CatalogView(store: content, assets: assets) { router.push(.deck(id: $0)) }
+            CatalogView(store: content, assets: assets, makeProgress: makeProgressStore) { router.push(.deck(id: $0)) }
         case .deck(let id):
             DeckDetailsView(
                 deckID: id,

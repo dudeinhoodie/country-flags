@@ -10,6 +10,9 @@ public struct DeckProgressRow: Identifiable, Hashable, Sendable {
     /// does not break when the catalogue gains a deck.
     public let code: String
     public let name: String
+    /// Whether this is a curated deck — the whole picture — rather than one
+    /// region of it. The screens that avoid double-counting read this.
+    public let isCurated: Bool
     public let totalCards: Int
     public let startedCards: Int
     /// Cards that graduated to REVIEW — the ones honestly learned, as opposed
@@ -147,6 +150,7 @@ public final class ProgressStore {
                 id: deck.id,
                 code: deck.code,
                 name: deck.name,
+                isCurated: deck.kind == "CURATED",
                 totalCards: counts?.totalCards ?? deck.cardCount,
                 startedCards: counts?.startedCards ?? 0,
                 learnedCards: counts?.learnedCards ?? 0,

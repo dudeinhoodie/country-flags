@@ -74,133 +74,168 @@ public struct ProgressScreen: View {
 
     private var loaded: some View {
         SceneScrollView {
-            // The hero is what has actually been learned across every deck: the
-            // per-deck rows underneath answer "where", and this answers "how
-            // much", which is the question the screen is opened with.
+            // The hero is the world itself: every continent drawn from the
+            // app's own geodata, its brightness the share of it learned. The
+            // rows underneath answer "where exactly"; this answers "how much
+            // of the world", which is the question the screen is opened with.
             GlassCard(padding: DesignTokens.Spacing.large) {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                    SectionLabel(L10n.progressLearnedLabel)
-                    Text("\(learnedCards)")
-                        .font(DesignTokens.Typography.heroNumber)
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                    WorldMapView(
+                        brightness: Dictionary(
+                            regions.map { ($0.code, $0.learnedFraction) },
+                            uniquingKeysWith: { first, _ in first }
+                        )
+                    )
+                    .frame(maxWidth: .infinity)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        SectionLabel(L10n.progressLearnedLabel)
+                        HStack(
+                            alignment: .firstTextBaseline,
+                            spacing: DesignTokens.Spacing.extraSmall
+                        ) {
+                            Text("\(learnedCards)")
+                                .font(DesignTokens.Typography.heroNumber)
+                                .monospacedDigit()
+                                .contentTransition(.numericText())
+                            Text("/ \(totalCards)")
+                                .font(DesignTokens.Typography.sectionTitle)
+                                .foregroundStyle(.white.opacity(0.55))
+                            Spacer(minLength: DesignTokens.Spacing.small)
+                            Text(L10n.progressMapHint)
+                                .font(DesignTokens.Typography.caption)
+                                .foregroundStyle(.white.opacity(0.45))
+                        }
                         .foregroundStyle(.white)
-                    Text(L10n.progressDeckCounts(studiedCards, totalCards))
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.6))
+                        // The whole-picture counts keep the identifier the
+                        // curated row used to carry: same fact, new place.
+                        .accessibilityIdentifier(
+                            AccessibilityIdentifier.progressDeckCounts(
+                                whole?.code ?? "ALL"
+                            )
+                        )
+                    }
+                    .accessibilityElement(children: .combine)
                 }
-                .accessibilityElement(children: .combine)
             }
 
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                SectionLabel(L10n.progressDecksSection)
-                ForEach(store.decks) { deck in
-                    // A row is a door when there is somewhere to go: the
-                    // drill-down says which countries stand where.
-                    Button {
-                        onOpenDeck?(deck.id)
-                    } label: {
-                        GlassCard(padding: DesignTokens.Spacing.medium) {
-                            // The identifier goes on the row, not on the card
-                            // around it: an identifier on a plain SwiftUI
-                            // container is handed to every descendant and
-                            // overwrites theirs.
-                            DeckProgressRowView(
-                                deck: deck,
-                                showsChevron: onOpenDeck != nil
-                            )
-                            .accessibilityIdentifier(
-                                AccessibilityIdentifier.progressDeckRow(deck.code)
-                            )
+            GlassCard(padding: DesignTokens.Spacing.small) {
+                VStack(spacing: 0) {
+                    ForEach(Array(regions.enumerated()), id: \.element.id) { index, deck in
+                        if index > 0 {
+                            Divider()
+                                .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
                         }
-                        // The whole pane is the door: a plain button only
-                        // answers where its label has pixels, and glass and
-                        // padding have none.
-                        .contentShape(.rect)
+                        // A row is a door: the drill-down says which countries
+                        // stand where.
+                        Button {
+                            onOpenDeck?(deck.id)
+                        } label: {
+                            regionRow(deck)
+                                .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(onOpenDeck == nil)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier(
+                            AccessibilityIdentifier.progressDeckRow(deck.code)
+                        )
                     }
-                    .buttonStyle(.plain)
-                    .disabled(onOpenDeck == nil)
                 }
             }
         }
     }
 
-    private var studiedCards: Int {
-        store.decks.reduce(0) { $0 + $1.startedCards }
+    private func regionRow(_ deck: DeckProgressRow) -> some View {
+        HStack(spacing: DesignTokens.Spacing.small) {
+            ContinentSilhouetteView(
+                code: deck.code,
+                opacity: 0.15 + 0.85 * deck.learnedFraction
+            )
+            .frame(width: 44, height: 32)
+
+            Text(deck.name)
+                .font(DesignTokens.Typography.sectionTitle)
+                .foregroundStyle(.white)
+                .lineLimit(1)
+
+            Spacer(minLength: DesignTokens.Spacing.small)
+
+            if let tier = deck.masteryTier {
+                MasteryTierLabel(tier: tier)
+            }
+
+            Text(verbatim: "\(deck.learnedCards)/\(deck.totalCards)")
+                .font(DesignTokens.Typography.sectionTitle)
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier(AccessibilityIdentifier.progressDeckCounts(deck.code))
+
+            if onOpenDeck != nil {
+                Image(systemName: "chevron.right")
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.4))
+            }
+        }
+        .padding(.horizontal, DesignTokens.Spacing.small)
+        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+    }
+
+    /// The regions, without the whole: the curated deck spans every card, so
+    /// a row for it would restate the hero in different words.
+    private var regions: [DeckProgressRow] {
+        store.decks.filter { !$0.isCurated }
+    }
+
+    /// The curated deck, when the release publishes one: the numbers that
+    /// count each card exactly once.
+    private var whole: DeckProgressRow? {
+        store.decks.first { $0.isCurated }
     }
 
     private var learnedCards: Int {
-        store.decks.reduce(0) { $0 + $1.learnedCards }
+        whole?.learnedCards ?? regions.reduce(0) { $0 + $1.learnedCards }
     }
 
     private var totalCards: Int {
-        store.decks.reduce(0) { $0 + $1.totalCards }
+        whole?.totalCards ?? regions.reduce(0) { $0 + $1.totalCards }
     }
 }
 
-struct DeckProgressRowView: View {
-    let deck: DeckProgressRow
-    var showsChevron = false
+/// The world, assembled from the same silhouettes everything else draws.
+///
+/// The layout is a hand-set composition rather than a projection: each
+/// continent sits at a fixed fraction of the pane, sized to read at a
+/// glance, and its brightness is the share of it learned. Fill the world by
+/// learning it, literally.
+struct WorldMapView: View {
+    /// Deck code to learned fraction, 0...1.
+    let brightness: [String: Double]
+
+    private static let placements: [(code: String, x: Double, y: Double, height: Double)] = [
+        ("AMERICAS", 0.00, 0.10, 0.78),
+        ("EUROPE", 0.40, 0.00, 0.36),
+        ("AFRICA", 0.42, 0.38, 0.58),
+        ("ASIA", 0.62, 0.04, 0.54),
+        ("OCEANIA", 0.80, 0.66, 0.30),
+    ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-            HStack {
-                Text(deck.name)
-                    .font(DesignTokens.Typography.sectionTitle)
-                    .foregroundStyle(.white)
-                Spacer()
-                if let tier = deck.masteryTier {
-                    MasteryTierLabel(tier: tier)
-                }
-                if showsChevron {
-                    Image(systemName: "chevron.right")
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.4))
-                }
-            }
-
-            // A bar drawn rather than a system indicator: on glass the platform
-            // one brings its own tinted track, which reads as a second material
-            // sitting on the first.
-            GeometryReader { proxy in
-                // Two readings on one track: the dimmer reach is what has
-                // been touched, the solid one what has actually been learned.
-                ZStack(alignment: .leading) {
-                    Capsule().fill(.white.opacity(0.15))
-                    Capsule()
-                        .fill(.white.opacity(0.4))
-                        .frame(width: proxy.size.width * deck.fraction)
-                    Capsule()
-                        .fill(.white)
-                        .frame(width: proxy.size.width * deck.learnedFraction)
-                }
-            }
-            .frame(height: DesignTokens.Layout.progressBarHeight)
-
-            HStack(spacing: DesignTokens.Spacing.small) {
-                Text(
-                    "\(L10n.progressDeckLearned(deck.learnedCards)) · "
-                        + L10n.progressDeckCounts(deck.startedCards, deck.totalCards)
+        GeometryReader { proxy in
+            ForEach(Self.placements, id: \.code) { placement in
+                ContinentSilhouetteView(
+                    code: placement.code,
+                    opacity: 0.15 + 0.85 * (brightness[placement.code] ?? 0)
                 )
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.6))
-                    .accessibilityIdentifier(
-                        AccessibilityIdentifier.progressDeckCounts(deck.code)
-                    )
-
-                if deck.dueCards > 0 {
-                    Text(L10n.progressDeckDue(deck.dueCards))
-                        .font(DesignTokens.Typography.caption.weight(.medium))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, DesignTokens.Spacing.small)
-                        .padding(.vertical, DesignTokens.Spacing.extraSmall)
-                        .background(.white.opacity(0.15), in: Capsule())
-                }
+                .frame(height: proxy.size.height * placement.height)
+                .position(
+                    x: proxy.size.width * placement.x + proxy.size.height * placement.height * 0.6,
+                    y: proxy.size.height * placement.y + proxy.size.height * placement.height / 2
+                )
             }
         }
-        // The bar is decoration for a number that is already spoken; reading
-        // both would say the same thing twice.
-        .accessibilityElement(children: .combine)
+        .aspectRatio(1.9, contentMode: .fit)
+        .accessibilityHidden(true)
     }
 }
 

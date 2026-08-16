@@ -2,25 +2,33 @@ import SwiftUI
 
 import CountryFlagsDomain
 
-/// The deck catalog.
+/// The deck catalog, as an atlas.
 ///
-/// The one screen with no hero, deliberately: it is a list, and the job is to
-/// choose from it. Sections come from the domain grouping rather than from the
-/// view, so what the user sees and what the tests assert are the same rule.
+/// One column. The curated deck leads with a fan of its own cards; each
+/// region under it is recognised by its continent's shape — drawn large and
+/// bright, the row's own subject rather than a watermark — with the learner's
+/// trail beside it: how many cards, how many learned, and the same two-layer
+/// bar the progress screen reads. Sections need no headings when every row
+/// says what it is.
 public struct CatalogView: View {
     private let store: ContentStore
     private let assets: any AssetLoading
+    private let makeProgress: (() -> ProgressStore)?
     private let onOpenDeck: (UUID) -> Void
 
     @State private var searchText = ""
+    @State private var progress: ProgressStore?
+    @State private var curatedFan: [LearningCardRecord] = []
 
     public init(
         store: ContentStore,
         assets: any AssetLoading,
+        makeProgress: (() -> ProgressStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void
     ) {
         self.store = store
         self.assets = assets
+        self.makeProgress = makeProgress
         self.onOpenDeck = onOpenDeck
     }
 
@@ -30,6 +38,15 @@ public struct CatalogView: View {
             .searchable(text: $searchText, prompt: L10n.catalogSearchPrompt)
             .refreshable { await store.refresh() }
             .task { await store.start() }
+            // The trail changes while this screen is covered — a session
+            // answers cards — so it is re-read on the way back in.
+            .onAppear {
+                if progress == nil { progress = makeProgress?() }
+                Task {
+                    await progress?.load()
+                    await reloadFan()
+                }
+            }
     }
 
     @ViewBuilder
@@ -66,48 +83,15 @@ public struct CatalogView: View {
             let matches = filtered(sections)
 
             ForEach(matches) { section in
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                    SectionLabel(sectionTitle(section.kind))
-
-                    // Tiles, not rows: a deck is a pile of flag cards, and the
-                    // catalog shows each one as exactly that — a small fan of
-                    // its own flags with air around it, instead of three lines
-                    // of text pressed against three more.
-                    // The curated shelf runs full width: those decks are
-                    // the recommendation, and one half-width tile beside an
-                    // empty half reads as a gap, not as an offer.
-                    LazyVGrid(
-                        columns: Array(
-                            repeating: GridItem(
-                                .flexible(), spacing: DesignTokens.Spacing.small
-                            ),
-                            count: section.kind == .curated ? 1 : 2
-                        ),
-                        spacing: DesignTokens.Spacing.small
-                    ) {
-                        ForEach(section.decks, id: \.id) { deck in
-                            Button {
-                                onOpenDeck(deck.id)
-                            } label: {
-                                DeckTile(
-                                    deck: deck,
-                                    store: store,
-                                    assets: assets,
-                                    // Reserved only where tiles sit beside
-                                    // each other: in the grid a one-line name
-                                    // next to a two-line one would stagger
-                                    // the shelf; full width has no neighbour
-                                    // to align with, and the blank line reads
-                                    // as a hole.
-                                    reservesNameSpace: section.kind != .curated
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityIdentifier(
-                                AccessibilityIdentifier.catalogDeckRow(deck.code)
-                            )
-                        }
+                ForEach(section.decks, id: \.id) { deck in
+                    Button {
+                        onOpenDeck(deck.id)
+                    } label: {
+                        row(deck, isCurated: section.kind == .curated)
+                            .contentShape(.rect)
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier(AccessibilityIdentifier.catalogDeckRow(deck.code))
                 }
             }
 
@@ -121,6 +105,66 @@ public struct CatalogView: View {
         }
     }
 
+    /// One deck, one row. The curated deck carries a fan of its own cards —
+    /// it holds every flag, so no single shape stands for it; a region
+    /// carries its continent.
+    private func row(_ deck: DeckRecord, isCurated: Bool) -> some View {
+        GlassCard(padding: DesignTokens.Spacing.medium) {
+            HStack(spacing: DesignTokens.Spacing.medium) {
+                if !isCurated {
+                    ContinentSilhouetteView(code: deck.code, opacity: 0.55)
+                        .frame(width: 64, height: 48)
+                }
+
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                    Text(deck.name)
+                        .font(
+                            isCurated
+                                ? DesignTokens.Typography.sectionTitle.weight(.bold)
+                                : DesignTokens.Typography.sectionTitle
+                        )
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+
+                    Text(trail(for: deck))
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.55))
+
+                    if let row = progressRow(for: deck) {
+                        ProgressTrackView(
+                            started: row.fraction, learned: row.learnedFraction
+                        )
+                    }
+                }
+
+                if isCurated {
+                    FlagFanView(cards: curatedFan, store: store, assets: assets)
+                }
+            }
+        }
+        // One row is one thing to hear: the name, the trail, nothing twice.
+        .accessibilityElement(children: .combine)
+    }
+
+    /// "250 карточек · Выучено: 34", and just the count until something is.
+    private func trail(for deck: DeckRecord) -> String {
+        let count = L10n.deckCardCount(deck.cardCount)
+        guard let row = progressRow(for: deck), row.learnedCards > 0 else { return count }
+        return "\(count) · \(L10n.progressDeckLearned(row.learnedCards))"
+    }
+
+    private func progressRow(for deck: DeckRecord) -> DeckProgressRow? {
+        progress?.decks.first { $0.id == deck.id }
+    }
+
+    private func reloadFan() async {
+        if case .ready(let sections, _, _) = store.catalog,
+            let curated = sections.first(where: { $0.kind == .curated })?.decks.first
+        {
+            curatedFan = Array(await store.cards(inDeck: curated.id).prefix(3))
+        }
+    }
+
     private func filtered(_ sections: [CatalogSection]) -> [CatalogSection] {
         guard !searchText.isEmpty else { return sections }
         return sections.compactMap { section in
@@ -128,103 +172,28 @@ public struct CatalogView: View {
             return decks.isEmpty ? nil : CatalogSection(kind: section.kind, decks: decks)
         }
     }
-
-    /// An unknown kind keeps its own name rather than being relabelled: the
-    /// backend published something this build has no word for, and inventing
-    /// one would be worse than showing theirs.
-    private func sectionTitle(_ kind: DeckKind) -> String {
-        switch kind {
-        case .curated: L10n.catalogSectionCurated
-        case .taxonomy: L10n.catalogSectionRegions
-        case .custom, .dynamicUser: L10n.catalogSectionPersonal
-        case .unknown(let raw): raw
-        }
-    }
 }
 
-/// One deck as a small pile of its own flags.
-///
-/// The fan is the first three cards of the deck, held in fixed poses — the
-/// same thrown-on-a-table language the study pile speaks. The description is
-/// deliberately absent: it belongs to the deck's own screen, and the tile
-/// says what a shelf label says — what it is and how much of it there is.
-struct DeckTile: View {
-    let deck: DeckRecord
-    let store: ContentStore
-    let assets: any AssetLoading
-    var reservesNameSpace = true
-
-    @State private var preview: [LearningCardRecord] = []
-    @Environment(\.displayScale) private var displayScale
+/// The two-layer trail: the dim reach is what has been touched, the solid
+/// one what has actually been learned — the same reading the progress screen
+/// gives it.
+struct ProgressTrackView: View {
+    let started: Double
+    let learned: Double
 
     var body: some View {
-        GlassCard(padding: DesignTokens.Spacing.medium) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                fan
-                    .frame(maxWidth: .infinity)
-                    .accessibilityHidden(true)
-
-                Text(deck.name)
-                    .font(DesignTokens.Typography.sectionTitle)
-                    .foregroundStyle(.white)
-                    .lineLimit(2, reservesSpace: reservesNameSpace)
-                    .multilineTextAlignment(.leading)
-
-                Text(L10n.deckCardCount(deck.cardCount))
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.5))
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(.white.opacity(0.15))
+                Capsule()
+                    .fill(.white.opacity(0.4))
+                    .frame(width: proxy.size.width * started)
+                Capsule()
+                    .fill(.white)
+                    .frame(width: proxy.size.width * learned)
             }
         }
-        .contentShape(.rect)
-        .task(id: deck.id) {
-            preview = Array(await store.cards(inDeck: deck.id).prefix(3))
-        }
+        .frame(height: DesignTokens.Layout.progressBarHeight)
+        .accessibilityHidden(true)
     }
-
-    private var fan: some View {
-        ZStack {
-            if preview.isEmpty {
-                RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .frame(width: Self.flagSize.width, height: Self.flagSize.height)
-            }
-            ForEach(
-                Array(preview.enumerated().reversed()), id: \.element.id
-            ) { index, card in
-                FlagImageView(
-                    assetID: card.promptAssetID,
-                    accessibilityLabel: card.displayName,
-                    store: store,
-                    assets: assets
-                )
-                .frame(width: Self.flagSize.width, height: Self.flagSize.height)
-                .clipShape(
-                    RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
-                )
-                .overlay {
-                    RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
-                        .strokeBorder(
-                            .white.opacity(DesignTokens.Card.borderOpacity),
-                            lineWidth: 1 / displayScale
-                        )
-                }
-                // The shadow is what separates the cards where they overlap:
-                // the poses alone read as one crooked flag.
-                .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
-                .rotationEffect(.degrees(Self.poses[index].rotation))
-                .offset(x: Self.poses[index].x, y: Self.poses[index].y)
-            }
-        }
-        .frame(height: Self.fanHeight)
-    }
-
-    private static let flagSize = CGSize(width: 96, height: 72)
-    private static let fanHeight: CGFloat = 92
-    /// Fixed rather than scattered: every tile holds the same pile, so the
-    /// grid reads as a set of shelves rather than a mess of tables.
-    private static let poses: [(rotation: Double, x: CGFloat, y: CGFloat)] = [
-        (0, 0, 0),
-        (-9, -26, 4),
-        (8, 26, 6),
-    ]
 }
