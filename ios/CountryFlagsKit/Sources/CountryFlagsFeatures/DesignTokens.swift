@@ -55,11 +55,11 @@ public enum DesignTokens {
         /// colour, from the side the throw is going, never opaque enough to
         /// hide the flag.
         public static let swipeWashOpacity: Double = 0.35
-        /// The passe-partout around the flag: the mat's reveal on each side,
-        /// and the shade it is cut from. A mounted print, not a full-bleed
-        /// photo — and a mostly white flag gets its border for free.
-        public static let matInset: CGFloat = 12
-        public static let matShade: Double = 0.10
+        /// The lens over the flag: a faint sheen falling to a faint shade,
+        /// so the card reads as glass over print rather than a picture
+        /// pasted on.
+        public static let lensSheenOpacity: Double = 0.1
+        public static let lensShadeOpacity: Double = 0.12
         /// Cards drawn behind the top one. A thicker stack reads as depth
         /// rather than as more information.
         public static let stackDepth: Int = 3

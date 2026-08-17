@@ -48,6 +48,10 @@ struct CountryDetailsSheet: View {
     @State private var facts: [FactRecord] = []
     @State private var officialName: String?
     @State private var outline: CountryBoundaries.Outline?
+    /// Whether the outline lookup has answered. Until it has, the pair row
+    /// keeps the map's slot as a placeholder: laying the flag out full-width
+    /// and then shrinking it when the map arrived read as a glitch.
+    @State private var didResolveOutline = false
     @State private var isShowingFullMap = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.displayScale) private var displayScale
@@ -64,15 +68,22 @@ struct CountryDetailsSheet: View {
                 HStack(spacing: DesignTokens.Spacing.small) {
                     flag
                         .frame(
-                            width: outline == nil
+                            width: didResolveOutline && outline == nil
                                 ? nil : DesignTokens.Layout.detailPairFlagWidth
                         )
 
                     if let outline {
                         mapTile(outline)
+                    } else if !didResolveOutline {
+                        // The map's seat, held while the lookup answers.
+                        SkeletonBlock(
+                            height: DesignTokens.Layout.detailPairHeight,
+                            radius: DesignTokens.Radius.large
+                        )
                     }
                 }
                 .frame(height: DesignTokens.Layout.detailPairHeight)
+                .animation(.snappy(duration: 0.25), value: didResolveOutline)
 
                 // Every fact is a tile, dealt in pairs. Each pair is fixed
                 // vertically so it takes the taller tile's height: left to
@@ -115,6 +126,7 @@ struct CountryDetailsSheet: View {
             outline = await CountryOutlineLookup.outline(
                 forPromptAsset: subject.promptAssetID, store: store
             )
+            didResolveOutline = true
         }
     }
 

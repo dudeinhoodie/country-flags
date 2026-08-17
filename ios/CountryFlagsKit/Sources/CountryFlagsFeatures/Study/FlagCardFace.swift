@@ -24,14 +24,11 @@ struct FlagCardFace: View {
     let store: ContentStore
     let assets: any AssetLoading
 
-    @Environment(\.displayScale) private var displayScale
-
     var body: some View {
-        // A mounted print: the flag sits on a dark mat with an even reveal,
-        // lifted by its own shadow. The artwork and the card share one aspect,
-        // so the reveal is even by construction — and a mostly white flag gets
-        // its border from the mat instead of from a hairline fighting the
-        // scene.
+        // Full bleed, under a lens: the flag is the card edge to edge, and a
+        // light top rim with a shaded lower one says glass over print rather
+        // than a picture pasted on. The card's own hairline still gives a
+        // mostly white flag its edge against the scene.
         FlagImageView(
             assetID: assetID,
             accessibilityLabel: accessibilityLabel,
@@ -39,16 +36,23 @@ struct FlagCardFace: View {
             assets: assets
         )
         .accessibilityHint(accessibilityHint)
-        .clipShape(
-            RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
-        )
         .overlay {
-            RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
-                .strokeBorder(.white.opacity(0.12), lineWidth: 1 / displayScale)
+            LinearGradient(
+                colors: [
+                    .white.opacity(DesignTokens.Card.lensSheenOpacity),
+                    .clear,
+                    .black.opacity(DesignTokens.Card.lensShadeOpacity),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .allowsHitTesting(false)
         }
-        .shadow(color: .black.opacity(0.5), radius: 6, y: 3)
-        .padding(DesignTokens.Card.matInset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(white: DesignTokens.Card.matShade))
+        .overlay(alignment: .top) {
+            Color.white.opacity(0.3).frame(height: 1).allowsHitTesting(false)
+        }
+        .overlay(alignment: .bottom) {
+            Color.black.opacity(0.25).frame(height: 1).allowsHitTesting(false)
+        }
     }
 }
