@@ -111,14 +111,15 @@ public struct StudySessionView: View {
                 .scaleEffect(0.92 + 0.08 * surfacedOpacity)
                 .accessibilityHidden(true)
                 .padding(.bottom, DesignTokens.Spacing.small)
-                // Cubed, so the name belongs to the end of the gesture: a
-                // quarter-swipe shows almost nothing, half shows a ghost, and
-                // only a throw about to commit reads clearly. A release fades
-                // it out; a card change above zeroes it before this runs.
+                // The fifth power, so the name belongs to the very end of
+                // the gesture: half a swipe still shows almost nothing, three
+                // quarters a ghost, and only a throw at the threshold reads
+                // in full. A release fades it out; a card change above zeroes
+                // it before this runs.
                 .onChange(of: swipeProgress) { _, progress in
                     if progress != 0 {
                         surfacedName = card.displayName
-                        surfacedOpacity = pow(min(1, Double(abs(progress))), 3)
+                        surfacedOpacity = pow(min(1, Double(abs(progress))), 5)
                     } else {
                         withAnimation(.easeOut(duration: 0.25)) { surfacedOpacity = 0 }
                     }
