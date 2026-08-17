@@ -425,26 +425,60 @@ public final class StudySessionRunner {
             guard let rating = StudyRating(rawValue: review.rating) else { continue }
             counts[rating, default: 0] += 1
         }
+        // The flags return in the session's own order, each wearing what was
+        // said about it.
+        let ratingByCard = Dictionary(
+            reviews.compactMap { review in
+                StudyRating(rawValue: review.rating).map { (review.learningCardID, $0) }
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let answered = session.cards.compactMap { card in
+            ratingByCard[card.learningCardID].map {
+                StudySessionSummary.AnsweredCard(promptAssetID: card.promptAssetID, rating: $0)
+            }
+        }
         summary = StudySessionSummary(
             sessionID: session.sessionID,
             deckID: session.deckID,
             plannedCards: session.cards.count,
-            ratings: counts
+            ratings: counts,
+            answered: answered
         )
     }
 }
 
 public struct StudySessionSummary: Hashable, Sendable {
+    /// One answered card, in the order it was answered: enough to show the
+    /// flag again and the colour of what the learner said about it.
+    public struct AnsweredCard: Hashable, Sendable {
+        public let promptAssetID: UUID
+        public let rating: StudyRating
+
+        public init(promptAssetID: UUID, rating: StudyRating) {
+            self.promptAssetID = promptAssetID
+            self.rating = rating
+        }
+    }
+
     public let sessionID: UUID
     public let deckID: UUID
     public let plannedCards: Int
     public let ratings: [StudyRating: Int]
+    public let answered: [AnsweredCard]
 
-    public init(sessionID: UUID, deckID: UUID, plannedCards: Int, ratings: [StudyRating: Int]) {
+    public init(
+        sessionID: UUID,
+        deckID: UUID,
+        plannedCards: Int,
+        ratings: [StudyRating: Int],
+        answered: [AnsweredCard] = []
+    ) {
         self.sessionID = sessionID
         self.deckID = deckID
         self.plannedCards = plannedCards
         self.ratings = ratings
+        self.answered = answered
     }
 
     /// How many answers reached the store. It is counted from the reviews

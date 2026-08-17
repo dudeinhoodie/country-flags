@@ -379,10 +379,15 @@ private struct StudyCardBack: View {
                 .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
             }
             .buttonStyle(.plain)
-            // Plain glass, deliberately: interactive glass answers any touch
-            // with its lens, and a swipe that starts over this button held it
-            // swollen for the whole throw.
-            .glassEffect(.regular, in: Capsule(style: .continuous))
+            // A material, not glass: liquid glass morphs elastically when its
+            // view moves, and this button rides a card that is thrown across
+            // the screen — it swelled with every swipe. The card's surface is
+            // content anyway, and content wears materials.
+            .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+            .overlay {
+                Capsule(style: .continuous)
+                    .strokeBorder(.white.opacity(0.25), lineWidth: 1)
+            }
             .accessibilityIdentifier(AccessibilityIdentifier.studyDetails)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

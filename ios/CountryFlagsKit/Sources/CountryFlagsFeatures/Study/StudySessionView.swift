@@ -65,7 +65,9 @@ public struct StudySessionView: View {
     @ViewBuilder
     private var content: some View {
         if let summary = runner.summary {
-            StudySessionResultView(summary: summary, onDone: onFinish)
+            StudySessionResultView(
+                summary: summary, store: store, assets: assets, onDone: onFinish
+            )
         } else if let failure = runner.startFailure {
             StudyUnavailableView(failure: failure, onDone: onFinish)
         } else if let state = runner.state, let card = state.currentCard {
@@ -339,6 +341,8 @@ private struct SwipeHintHalf: View {
 
 struct StudySessionResultView: View {
     let summary: StudySessionSummary
+    let store: ContentStore
+    let assets: any AssetLoading
     let onDone: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -366,7 +370,6 @@ struct StudySessionResultView: View {
                         .foregroundStyle(.white.opacity(0.55))
                 }
                 .foregroundStyle(.white)
-                .scaleEffect(hasArrived || reduceMotion ? 1 : 0.86)
 
                 // The sentence stays for anyone reading rather than glancing,
                 // and for the test that reads it.
@@ -375,65 +378,143 @@ struct StudySessionResultView: View {
                     .foregroundStyle(.white.opacity(0.7))
                     .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
             }
+            .settled(hasArrived, step: 0, reduceMotion: reduceMotion)
 
-            distribution
+            // One track instead of four rows: which way the session leaned is
+            // a single shape, read left to right.
+            if summary.answeredCards > 0 {
+                distributionBar
+                    .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
+            }
+
+            // The flags themselves, back from the session in the order they
+            // were answered, each underlined by what was said about it.
+            if !summary.answered.isEmpty {
+                answeredFlags
+                    .settled(hasArrived, step: 2, reduceMotion: reduceMotion)
+            }
 
             Spacer(minLength: 0)
 
             Button(L10n.studyResultDone, action: onDone)
                 .buttonStyle(PrimaryActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
+                .settled(hasArrived, step: 3, reduceMotion: reduceMotion)
         }
         .onAppear { hasArrived = true }
-        .animation(reduceMotion ? nil : .bouncy(duration: 0.5), value: hasArrived)
-        // Raised once, behind the number: the shower celebrates the deck,
-        // and the summary stays readable through it.
-        .background { CelebrationView() }
         // Finishing is one of the two moments docs/16 gives a success
         // notification to.
         .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
     }
 
-    /// How the session went, rating by rating.
-    ///
-    /// Bars rather than a list of numbers: which way a session leaned is a
-    /// shape, and reading four numbers to find it is work the screen can do.
-    private var distribution: some View {
+    private var distributionBar: some View {
         VStack(spacing: DesignTokens.Spacing.small) {
-            ForEach(StudyRating.allCases, id: \.self) { rating in
-                let count = summary.ratings[rating] ?? 0
-                HStack(spacing: DesignTokens.Spacing.small) {
-                    Text(L10n.studyRating(rating))
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.8))
-                        .frame(width: DesignTokens.Layout.ratingLabelWidth, alignment: .leading)
-
-                    GeometryReader { proxy in
-                        Capsule()
-                            .fill(.white.opacity(rating == .good ? 0.9 : 0.45))
-                            .frame(width: proxy.size.width * fraction(count))
-                            .frame(maxWidth: .infinity, alignment: .leading)
+            GeometryReader { proxy in
+                HStack(spacing: 2) {
+                    ForEach(StudyRating.allCases, id: \.self) { rating in
+                        let count = summary.ratings[rating] ?? 0
+                        if count > 0 {
+                            Capsule(style: .continuous)
+                                .fill(Self.tint(rating))
+                                .frame(
+                                    width: max(
+                                        proxy.size.width
+                                            * CGFloat(count) / CGFloat(summary.answeredCards)
+                                            - 2,
+                                        DesignTokens.Spacing.small
+                                    )
+                                )
+                        }
                     }
-                    .frame(height: DesignTokens.Spacing.small)
-
-                    Text("\(count)")
-                        .font(DesignTokens.Typography.caption)
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .frame(width: DesignTokens.Spacing.large, alignment: .trailing)
                 }
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyResultRating(rating))
+            }
+            .frame(height: DesignTokens.Spacing.small)
+            .clipShape(Capsule(style: .continuous))
+
+            HStack(spacing: DesignTokens.Spacing.medium) {
+                ForEach(StudyRating.allCases, id: \.self) { rating in
+                    let count = summary.ratings[rating] ?? 0
+                    if count > 0 {
+                        HStack(spacing: DesignTokens.Spacing.extraSmall) {
+                            Circle()
+                                .fill(Self.tint(rating))
+                                .frame(width: 7, height: 7)
+                            Text("\(L10n.studyRating(rating)) \(count)")
+                                .font(DesignTokens.Typography.caption)
+                                .monospacedDigit()
+                                .foregroundStyle(.white.opacity(0.8))
+                        }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier(AccessibilityIdentifier.studyResultRating(rating))
+                    }
+                }
             }
         }
         .padding(DesignTokens.Spacing.medium)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous))
+        .glassEffect(
+            .regular,
+            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+        )
     }
 
-    private func fraction(_ count: Int) -> CGFloat {
-        let highest = summary.ratings.values.max() ?? 0
-        guard highest > 0 else { return 0 }
-        return CGFloat(count) / CGFloat(highest)
+    private var answeredFlags: some View {
+        LazyVGrid(
+            columns: [GridItem(.adaptive(minimum: 44), spacing: DesignTokens.Spacing.small)],
+            spacing: DesignTokens.Spacing.small
+        ) {
+            ForEach(Array(summary.answered.enumerated()), id: \.offset) { _, card in
+                VStack(spacing: 3) {
+                    FlagImageView(
+                        assetID: card.promptAssetID,
+                        accessibilityLabel: "",
+                        store: store,
+                        assets: assets
+                    )
+                    .frame(width: 44, height: 33)
+                    .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+
+                    Capsule()
+                        .fill(Self.tint(card.rating))
+                        .frame(width: 20, height: 3)
+                }
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// The ratings' colours, shared by the bar, the legend and the flags'
+    /// underlines. Good is white — the scene's own emphasis — and the rest
+    /// lean the way the swipe hints do.
+    private static func tint(_ rating: StudyRating) -> Color {
+        switch rating {
+        case .again: Color.red.mix(with: .white, by: 0.3)
+        case .hard: Color.orange.mix(with: .white, by: 0.3)
+        case .good: .white
+        case .easy: Color.green.mix(with: .white, by: 0.3)
+        }
+    }
+}
+
+/// The result screen's arrival: fade and settle, one step after another.
+private struct SettledModifier: ViewModifier {
+    let isSettled: Bool
+    let step: Double
+    let reduceMotion: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(isSettled || reduceMotion ? 1 : 0)
+            .offset(y: isSettled || reduceMotion ? 0 : 10)
+            .animation(
+                reduceMotion ? nil : .easeOut(duration: 0.4).delay(step * 0.08),
+                value: isSettled
+            )
+    }
+}
+
+extension View {
+    fileprivate func settled(_ isSettled: Bool, step: Double, reduceMotion: Bool) -> some View {
+        modifier(SettledModifier(isSettled: isSettled, step: step, reduceMotion: reduceMotion))
     }
 }
 
