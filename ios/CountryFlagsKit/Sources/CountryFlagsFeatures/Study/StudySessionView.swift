@@ -89,6 +89,26 @@ public struct StudySessionView: View {
 
             Spacer(minLength: 0)
 
+            // The answer, surfacing with the throw: transparent while the
+            // card rests, fading in as the swipe commits — the learner has
+            // already decided by then, and the name confirms rather than
+            // spoils. Dragging back to centre takes it away again. The slot
+            // keeps its height so the deck never jumps.
+            Text(card.displayName)
+                .font(DesignTokens.Typography.sectionTitle.weight(.semibold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .frame(maxWidth: .infinity)
+                .frame(height: DesignTokens.Spacing.large)
+                .opacity(min(1, Double(abs(swipeProgress)) * 1.15))
+                .scaleEffect(0.94 + 0.06 * min(1, Double(abs(swipeProgress))))
+                // Continuous while the finger moves; this smooths the snap
+                // back to hidden when the card is released.
+                .animation(.easeOut(duration: 0.25), value: swipeProgress == 0)
+                .accessibilityHidden(true)
+                .padding(.bottom, DesignTokens.Spacing.small)
+
             StudyCardStackView(
                 state: state,
                 store: store,
