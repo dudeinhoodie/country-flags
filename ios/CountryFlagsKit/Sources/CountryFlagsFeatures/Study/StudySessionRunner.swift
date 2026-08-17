@@ -95,8 +95,26 @@ public final class StudySessionRunner {
         composition: StudySessionComposition = .standard
     ) async {
         if scope == nil { scope = await scopes.currentScope() }
+        // The deck's level before a card is answered: what the finish screen
+        // measures the sitting against. For a session resumed mid-way the
+        // baseline is taken at reopening, so the delta speaks for this
+        // sitting rather than for the whole interrupted session.
+        deckBaseline = await deckLearned(deckID: deckID)
         if await resume(deckID: deckID) { return }
         await start(deckID: deckID, size: size, composition: composition)
+    }
+
+    private var deckBaseline: (learned: Int, total: Int)?
+
+    /// Cards of the deck that graduated to REVIEW — the honest "learned",
+    /// counted the way every progress surface counts it.
+    private func deckLearned(deckID: UUID) async -> (learned: Int, total: Int) {
+        let cards = (try? await content.cards(inDeck: deckID)) ?? []
+        let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
+        let review = Set(
+            states.filter { $0.state == "REVIEW" }.map(\.learningCardID)
+        )
+        return (cards.count { review.contains($0.id) }, cards.count)
     }
 
     /// - Returns: whether an unfinished session was picked up.
@@ -438,12 +456,16 @@ public final class StudySessionRunner {
                 StudySessionSummary.AnsweredCard(promptAssetID: card.promptAssetID, rating: $0)
             }
         }
+        let after = await deckLearned(deckID: session.deckID)
         summary = StudySessionSummary(
             sessionID: session.sessionID,
             deckID: session.deckID,
             plannedCards: session.cards.count,
             ratings: counts,
-            answered: answered
+            answered: answered,
+            deckLearnedBefore: min(deckBaseline?.learned ?? after.learned, after.learned),
+            deckLearnedAfter: after.learned,
+            deckTotal: after.total
         )
     }
 }
@@ -466,19 +488,30 @@ public struct StudySessionSummary: Hashable, Sendable {
     public let plannedCards: Int
     public let ratings: [StudyRating: Int]
     public let answered: [AnsweredCard]
+    /// The deck's learned count before and after this session, and its size:
+    /// the finish screen's news is what the sitting did to the deck.
+    public let deckLearnedBefore: Int
+    public let deckLearnedAfter: Int
+    public let deckTotal: Int
 
     public init(
         sessionID: UUID,
         deckID: UUID,
         plannedCards: Int,
         ratings: [StudyRating: Int],
-        answered: [AnsweredCard] = []
+        answered: [AnsweredCard] = [],
+        deckLearnedBefore: Int = 0,
+        deckLearnedAfter: Int = 0,
+        deckTotal: Int = 0
     ) {
         self.sessionID = sessionID
         self.deckID = deckID
         self.plannedCards = plannedCards
         self.ratings = ratings
         self.answered = answered
+        self.deckLearnedBefore = deckLearnedBefore
+        self.deckLearnedAfter = deckLearnedAfter
+        self.deckTotal = deckTotal
     }
 
     /// How many answers reached the store. It is counted from the reviews

@@ -347,6 +347,13 @@ struct StudySessionResultView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var hasArrived = false
+    @State private var beamRevealed = false
+    @State private var deltaRevealed = false
+    @State private var deckName: String?
+
+    /// The award family's gold — the same the celebration pulse and the
+    /// delta's gained tail wear.
+    static let gold = Color(red: 0.94, green: 0.82, blue: 0.55)
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.large) {
@@ -377,14 +384,34 @@ struct StudySessionResultView: View {
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(.white.opacity(0.7))
                     .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
+
+                // The session, refracted: one beam under the score, split
+                // into the answers' colours by their share. The screen's only
+                // colour statement, standing on the scene rather than in a
+                // pane — and a perfect session is a pure white beam.
+                if summary.answeredCards > 0 {
+                    SpectrumBeam(
+                        segments: beamSegments,
+                        total: summary.answeredCards,
+                        revealed: beamRevealed
+                    )
+                    .padding(.top, DesignTokens.Spacing.small)
+                }
             }
             .settled(hasArrived, step: 0, reduceMotion: reduceMotion)
 
-            // One track instead of four rows: which way the session leaned is
-            // a single shape, read left to right.
-            if summary.answeredCards > 0 {
-                distributionBar
-                    .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
+            // What the sitting did to the deck: the level it stood at, and
+            // the gained tail in gold. No gain, no gold — a review-only
+            // session holds the thread steady rather than gilding nothing.
+            if summary.deckTotal > 0 {
+                DeckDeltaPane(
+                    deckName: deckName,
+                    before: summary.deckLearnedBefore,
+                    after: summary.deckLearnedAfter,
+                    total: summary.deckTotal,
+                    revealed: deltaRevealed
+                )
+                .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
             }
 
             // The flags themselves, back from the session in the order they
@@ -401,60 +428,35 @@ struct StudySessionResultView: View {
                 .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
                 .settled(hasArrived, step: 3, reduceMotion: reduceMotion)
         }
-        .onAppear { hasArrived = true }
+        .onAppear {
+            hasArrived = true
+            if reduceMotion {
+                beamRevealed = true
+                deltaRevealed = true
+            } else {
+                // The beam draws itself once the score has settled; the gold
+                // extends once the beam has spoken.
+                Task {
+                    try? await Task.sleep(for: .milliseconds(350))
+                    beamRevealed = true
+                    try? await Task.sleep(for: .milliseconds(450))
+                    deltaRevealed = true
+                }
+            }
+        }
+        .task { deckName = await store.deck(id: summary.deckID)?.name }
         // Finishing is one of the two moments docs/16 gives a success
         // notification to.
         .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
     }
 
-    private var distributionBar: some View {
-        VStack(spacing: DesignTokens.Spacing.small) {
-            GeometryReader { proxy in
-                HStack(spacing: 2) {
-                    ForEach(StudyRating.allCases, id: \.self) { rating in
-                        let count = summary.ratings[rating] ?? 0
-                        if count > 0 {
-                            Capsule(style: .continuous)
-                                .fill(Self.tint(rating))
-                                .frame(
-                                    width: max(
-                                        proxy.size.width
-                                            * CGFloat(count) / CGFloat(summary.answeredCards)
-                                            - 2,
-                                        DesignTokens.Spacing.small
-                                    )
-                                )
-                        }
-                    }
-                }
-            }
-            .frame(height: DesignTokens.Spacing.small)
-            .clipShape(Capsule(style: .continuous))
-
-            HStack(spacing: DesignTokens.Spacing.medium) {
-                ForEach(StudyRating.allCases, id: \.self) { rating in
-                    let count = summary.ratings[rating] ?? 0
-                    if count > 0 {
-                        HStack(spacing: DesignTokens.Spacing.extraSmall) {
-                            Circle()
-                                .fill(Self.tint(rating))
-                                .frame(width: 7, height: 7)
-                            Text("\(L10n.studyRating(rating)) \(count)")
-                                .font(DesignTokens.Typography.caption)
-                                .monospacedDigit()
-                                .foregroundStyle(.white.opacity(0.8))
-                        }
-                        .accessibilityElement(children: .combine)
-                        .accessibilityIdentifier(AccessibilityIdentifier.studyResultRating(rating))
-                    }
-                }
-            }
+    /// The answers in the beam's reading order — sure to shaky — with the
+    /// zeroes already gone.
+    private var beamSegments: [(rating: StudyRating, count: Int)] {
+        [StudyRating.good, .easy, .hard, .again].compactMap { rating in
+            let count = summary.ratings[rating] ?? 0
+            return count > 0 ? (rating, count) : nil
         }
-        .padding(DesignTokens.Spacing.medium)
-        .glassEffect(
-            .regular,
-            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
-        )
     }
 
     private var answeredFlags: some View {
@@ -474,18 +476,152 @@ struct StudySessionResultView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
 
                     Capsule()
-                        .fill(Self.tint(card.rating))
+                        .fill(SpectrumBeam.tint(card.rating))
                         .frame(width: 20, height: 3)
                 }
             }
         }
         .accessibilityHidden(true)
     }
+}
 
-    /// The ratings' colours, shared by the bar, the legend and the flags'
-    /// underlines. Good is white — the scene's own emphasis — and the rest
-    /// lean the way the swipe hints do.
-    private static func tint(_ rating: StudyRating) -> Color {
+/// One beam of light, refracted into the session's answers by their share.
+///
+/// Three layers make it light rather than paint: a wide blurred halo, the
+/// core, and a white sparkle blended over it. Colours meet in short blend
+/// zones and the ends dissolve — the beam enters and leaves, it does not
+/// stop. Each segment's count stands over its own span, tied to the beam by
+/// a fading tick.
+struct SpectrumBeam: View {
+    let segments: [(rating: StudyRating, count: Int)]
+    let total: Int
+    let revealed: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            labels
+                .opacity(revealed ? 1 : 0)
+                .animation(.easeOut(duration: 0.35).delay(0.3), value: revealed)
+
+            beam
+        }
+    }
+
+    private var labels: some View {
+        GeometryReader { proxy in
+            ForEach(Array(segments.enumerated()), id: \.offset) { index, segment in
+                let fraction = CGFloat(segment.count) / CGFloat(total)
+                let centre = starts[index] + fraction / 2
+                VStack(spacing: 1) {
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text("\(segment.count)")
+                            .font(DesignTokens.Typography.body.weight(.semibold))
+                            .monospacedDigit()
+                        // The word only where it fits; a narrow sliver keeps
+                        // its number and its colour says the rest.
+                        if fraction > 0.24 {
+                            Text(L10n.studyRating(segment.rating))
+                                .font(DesignTokens.Typography.caption)
+                                .opacity(0.85)
+                        }
+                    }
+                    .foregroundStyle(Self.tint(segment.rating))
+                    .lineLimit(1)
+                    .fixedSize()
+
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Self.tint(segment.rating).opacity(0),
+                                    Self.tint(segment.rating).opacity(0.55),
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .frame(width: 1, height: 9)
+                }
+                .position(x: proxy.size.width * centre, y: 16)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier(AccessibilityIdentifier.studyResultRating(segment.rating))
+            }
+        }
+        .frame(height: 34)
+    }
+
+    private var beam: some View {
+        ZStack {
+            beamGradient
+                .frame(height: 8)
+                .blur(radius: 6)
+                .opacity(0.55)
+            beamGradient
+                .frame(height: 3.5)
+                .clipShape(Capsule())
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .white.opacity(0.7), location: 0.3),
+                    .init(color: .white.opacity(0.45), location: 0.6),
+                    .init(color: .clear, location: 1),
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(height: 1.2)
+            .blendMode(.screen)
+        }
+        .frame(height: 12)
+        .mask(alignment: .leading) {
+            GeometryReader { proxy in
+                Rectangle()
+                    .frame(width: proxy.size.width * (revealed ? 1 : 0))
+            }
+        }
+        .animation(.easeOut(duration: 0.6), value: revealed)
+        .accessibilityHidden(true)
+    }
+
+    private var beamGradient: LinearGradient {
+        LinearGradient(stops: stops, startPoint: .leading, endPoint: .trailing)
+    }
+
+    /// Cumulative segment starts, as fractions of the beam.
+    private var starts: [CGFloat] {
+        var out: [CGFloat] = []
+        var running: CGFloat = 0
+        for segment in segments {
+            out.append(running)
+            running += CGFloat(segment.count) / CGFloat(total)
+        }
+        return out
+    }
+
+    /// Colour stops with short refraction zones at each boundary and
+    /// dissolving ends.
+    private var stops: [Gradient.Stop] {
+        let blend: CGFloat = 0.03
+        let edge: CGFloat = 0.04
+        var out: [Gradient.Stop] = [.init(color: .clear, location: 0)]
+        var running: CGFloat = 0
+        for (index, segment) in segments.enumerated() {
+            let width = CGFloat(segment.count) / CGFloat(total)
+            let colour = Self.tint(segment.rating)
+            let from = index == 0 ? edge : running + blend
+            let to = index == segments.count - 1 ? 1 - edge : running + width - blend
+            out.append(.init(color: colour, location: max(from, running)))
+            out.append(.init(color: colour, location: max(to, from)))
+            running += width
+        }
+        out.append(.init(color: .clear, location: 1))
+        return out
+    }
+
+    /// The answers' colours, shared with the flags' underlines: good is
+    /// white — the scene's own emphasis — and the rest lean the way the
+    /// swipe hints do.
+    static func tint(_ rating: StudyRating) -> Color {
         switch rating {
         case .again: Color.red.mix(with: .white, by: 0.3)
         case .hard: Color.orange.mix(with: .white, by: 0.3)
@@ -495,29 +631,102 @@ struct StudySessionResultView: View {
     }
 }
 
-/// The result screen's arrival: fade and settle, one step after another.
-private struct SettledModifier: ViewModifier {
-    let isSettled: Bool
-    let step: Double
-    let reduceMotion: Bool
+/// What the sitting did to the deck: the thread of its learned share, with
+/// the gained tail in gold and the deck's name over it.
+struct DeckDeltaPane: View {
+    let deckName: String?
+    let before: Int
+    let after: Int
+    let total: Int
+    let revealed: Bool
 
-    func body(content: Content) -> some View {
-        content
-            .opacity(isSettled || reduceMotion ? 1 : 0)
-            .offset(y: isSettled || reduceMotion ? 0 : 10)
-            .animation(
-                reduceMotion ? nil : .easeOut(duration: 0.4).delay(step * 0.08),
-                value: isSettled
-            )
+    var body: some View {
+        GlassCard(padding: DesignTokens.Spacing.medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
+                    if let deckName {
+                        Text(deckName)
+                            .font(DesignTokens.Typography.sectionTitle)
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                    }
+                    Spacer(minLength: DesignTokens.Spacing.small)
+                    caption
+                }
+
+                thread
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var caption: some View {
+        HStack(spacing: 4) {
+            if after > before {
+                Text(L10n.studyResultLearnedFrom(before))
+                    .foregroundStyle(.white.opacity(0.65))
+                Text("\(after)")
+                    .fontWeight(.bold)
+                    .foregroundStyle(StudySessionResultView.gold)
+            } else {
+                Text(L10n.progressDeckLearned(after))
+                    .foregroundStyle(.white.opacity(0.65))
+            }
+            Text(L10n.studyResultLearnedOf(total))
+                .foregroundStyle(.white.opacity(0.65))
+        }
+        .font(DesignTokens.Typography.caption)
+        .monospacedDigit()
+        .lineLimit(1)
+    }
+
+    private var thread: some View {
+        GeometryReader { proxy in
+            let beforeFraction = total > 0 ? CGFloat(before) / CGFloat(total) : 0
+            let afterFraction = total > 0 ? CGFloat(after) / CGFloat(total) : 0
+            let shown = revealed ? afterFraction : beforeFraction
+            ZStack(alignment: .leading) {
+                Capsule().fill(.white.opacity(0.12))
+
+                // The gained tail first, gold, reaching to the new level…
+                if after > before {
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    .white.opacity(0.55), StudySessionResultView.gold,
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: proxy.size.width * shown)
+                        .shadow(
+                            color: StudySessionResultView.gold.opacity(revealed ? 0.45 : 0),
+                            radius: 5
+                        )
+                }
+
+                // …and the old level over it, so the gold shows only as the
+                // part this sitting added.
+                Capsule()
+                    .fill(.white.opacity(0.55))
+                    .frame(width: proxy.size.width * beforeFraction)
+
+                if after > before {
+                    Circle()
+                        .fill(StudySessionResultView.gold)
+                        .frame(width: 9, height: 9)
+                        .shadow(color: StudySessionResultView.gold.opacity(0.7), radius: 5)
+                        .offset(x: proxy.size.width * shown - 4.5)
+                        .opacity(revealed ? 1 : 0)
+                }
+            }
+            .animation(.easeOut(duration: 0.5), value: revealed)
+        }
+        .frame(height: 6)
     }
 }
-
-extension View {
-    fileprivate func settled(_ isSettled: Bool, step: Double, reduceMotion: Bool) -> some View {
-        modifier(SettledModifier(isSettled: isSettled, step: step, reduceMotion: reduceMotion))
-    }
-}
-
 struct StudyUnavailableView: View {
     let failure: StudySessionStartFailure
     let onDone: () -> Void
@@ -560,6 +769,30 @@ struct StudyUnavailableView: View {
         }
     }
 }
+
+/// The result screen's arrival: fade and settle, one step after another.
+private struct SettledModifier: ViewModifier {
+    let isSettled: Bool
+    let step: Double
+    let reduceMotion: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(isSettled || reduceMotion ? 1 : 0)
+            .offset(y: isSettled || reduceMotion ? 0 : 10)
+            .animation(
+                reduceMotion ? nil : .easeOut(duration: 0.4).delay(step * 0.08),
+                value: isSettled
+            )
+    }
+}
+
+extension View {
+    fileprivate func settled(_ isSettled: Bool, step: Double, reduceMotion: Bool) -> some View {
+        modifier(SettledModifier(isSettled: isSettled, step: step, reduceMotion: reduceMotion))
+    }
+}
+
 
 /// What the session looks like while it is being put together.
 ///
