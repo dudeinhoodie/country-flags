@@ -10,6 +10,12 @@ public struct StudySessionView: View {
     @State private var isShowingBack = false
     @State private var swipeProgress: CGFloat = 0
     @State private var commandedThrow: StudyRating?
+    /// The name surfacing over the deck, held apart from the card on top:
+    /// tied to the card, a throw's full opacity outlived the throw by a
+    /// frame and lit the next country's name. The card change zeroes this
+    /// instantly; only the gesture itself may raise it.
+    @State private var surfacedName = ""
+    @State private var surfacedOpacity: Double = 0
     /// The deck's own name, worn by the session. Identical flags fly over
     /// different countries — Heard Island under Australia's, Bonaire under
     /// the Dutch — and which answer is right can depend on which deck is
@@ -94,23 +100,36 @@ public struct StudySessionView: View {
             // already decided by then, and the name confirms rather than
             // spoils. Dragging back to centre takes it away again. The slot
             // keeps its height so the deck never jumps.
-            Text(card.displayName)
+            Text(surfacedName)
                 .font(DesignTokens.Typography.screenTitle)
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .frame(maxWidth: .infinity)
                 .frame(height: DesignTokens.Spacing.extraLarge)
-                // Cubed, so the name belongs to the end of the gesture: a
-                // quarter-swipe shows almost nothing, half shows a ghost, and
-                // only a throw about to commit reads clearly.
-                .opacity(pow(min(1, Double(abs(swipeProgress))), 3))
-                .scaleEffect(0.92 + 0.08 * pow(min(1, Double(abs(swipeProgress))), 3))
-                // Continuous while the finger moves; this smooths the snap
-                // back to hidden when the card is released.
-                .animation(.easeOut(duration: 0.25), value: swipeProgress == 0)
+                .opacity(surfacedOpacity)
+                .scaleEffect(0.92 + 0.08 * surfacedOpacity)
                 .accessibilityHidden(true)
                 .padding(.bottom, DesignTokens.Spacing.small)
+                // Cubed, so the name belongs to the end of the gesture: a
+                // quarter-swipe shows almost nothing, half shows a ghost, and
+                // only a throw about to commit reads clearly. A release fades
+                // it out; a card change above zeroes it before this runs.
+                .onChange(of: swipeProgress) { _, progress in
+                    if progress != 0 {
+                        surfacedName = card.displayName
+                        surfacedOpacity = pow(min(1, Double(abs(progress))), 3)
+                    } else {
+                        withAnimation(.easeOut(duration: 0.25)) { surfacedOpacity = 0 }
+                    }
+                }
+                .onChange(of: card.id) { _, _ in
+                    // Instant and unanimated: the thrown card's opacity must
+                    // never light the next country's name, even for a frame.
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+                    withTransaction(transaction) { surfacedOpacity = 0 }
+                }
 
             StudyCardStackView(
                 state: state,
