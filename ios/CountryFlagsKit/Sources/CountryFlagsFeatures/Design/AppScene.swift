@@ -42,8 +42,8 @@ struct AppScene: View {
                 RadialGradient(
                     colors: [palette.primary.opacity(0.55 * palette.intensity), .clear],
                     center: .init(
-                        x: 0.2 + 0.05 * sin(time * 0.13),
-                        y: 0.12 + 0.04 * cos(time * 0.09)
+                        x: 0.2 + 0.14 * sin(time * 0.5),
+                        y: 0.12 + 0.1 * cos(time * 0.34)
                     ),
                     startRadius: 0,
                     endRadius: DesignTokens.Scene.lightRadius
@@ -51,8 +51,8 @@ struct AppScene: View {
                 RadialGradient(
                     colors: [palette.secondary.opacity(0.45 * palette.intensity), .clear],
                     center: .init(
-                        x: 0.85 + 0.05 * sin(time * 0.08 + 2),
-                        y: 0.3 + 0.05 * cos(time * 0.11 + 1)
+                        x: 0.85 + 0.13 * sin(time * 0.31 + 2),
+                        y: 0.3 + 0.12 * cos(time * 0.43 + 1)
                     ),
                     startRadius: 0,
                     endRadius: DesignTokens.Scene.lightRadius
@@ -60,8 +60,8 @@ struct AppScene: View {
                 RadialGradient(
                     colors: [palette.primary.opacity(0.28 * palette.intensity), .clear],
                     center: .init(
-                        x: 0.5 + 0.06 * sin(time * 0.07 + 4),
-                        y: 1.0 + 0.03 * cos(time * 0.1 + 3)
+                        x: 0.5 + 0.16 * sin(time * 0.27 + 4),
+                        y: 1.0 + 0.08 * cos(time * 0.39 + 3)
                     ),
                     startRadius: 0,
                     endRadius: DesignTokens.Scene.groundLightRadius
