@@ -90,12 +90,6 @@ public enum L10n {
     public static var progressLearnedLabel: String { localized("progress.learned") }
     public static var progressMapHint: String { localized("progress.map_hint") }
     public static var detailsRegion: String { localized("details.region") }
-    public static var detailsYourCard: String { localized("details.your_card") }
-
-    public static func detailsRepetitions(_ count: Int) -> String {
-        String(format: localized("details.repetitions"), count)
-    }
-
     public static func detailsAlsoKnown(_ names: String) -> String {
         String(format: localized("details.also_known"), names)
     }

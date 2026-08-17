@@ -68,9 +68,7 @@ public struct DeckProgressDetailsView: View {
             // The same sheet a card opens mid-session: one country, one
             // surface, whoever asks.
             .sheet(item: $selectedCountry) { subject in
-                CountryDetailsSheet(
-                    subject: subject, store: store, assets: assets, makeProgress: makeProgress
-                )
+                CountryDetailsSheet(subject: subject, store: store, assets: assets)
             }
     }
 

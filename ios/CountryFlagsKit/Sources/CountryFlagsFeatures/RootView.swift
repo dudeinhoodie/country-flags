@@ -180,7 +180,6 @@ public struct RootView: View {
                     deckID: deckID,
                     size: size,
                     composition: composition,
-                    makeProgress: makeProgressStore,
                     runner: makeStudyRunner(),
                     store: content,
                     assets: assets,

@@ -19,7 +19,6 @@ public struct StudySessionView: View {
 
     private let deckID: UUID
     private let composition: StudySessionComposition
-    private let makeProgress: (() -> ProgressStore)?
     private let size: StudySessionSize
     private let store: ContentStore
     private let assets: any AssetLoading
@@ -29,7 +28,6 @@ public struct StudySessionView: View {
         deckID: UUID,
         size: StudySessionSize,
         composition: StudySessionComposition = .standard,
-        makeProgress: (() -> ProgressStore)? = nil,
         runner: StudySessionRunner,
         store: ContentStore,
         assets: any AssetLoading,
@@ -37,7 +35,6 @@ public struct StudySessionView: View {
     ) {
         self.deckID = deckID
         self.composition = composition
-        self.makeProgress = makeProgress
         self.size = size
         _runner = State(wrappedValue: runner)
         self.store = store
@@ -153,8 +150,7 @@ public struct StudySessionView: View {
             CountryDetailsSheet(
                 subject: CountryDetailsSubject(card: card),
                 store: store,
-                assets: assets,
-                makeProgress: makeProgress
+                assets: assets
             )
         }
     }

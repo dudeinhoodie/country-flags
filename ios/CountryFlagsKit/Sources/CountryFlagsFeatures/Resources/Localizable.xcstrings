@@ -834,40 +834,6 @@
         }
       }
     },
-    "details.repetitions": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld repetitions"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Повторений: %lld"
-          }
-        }
-      }
-    },
-    "details.your_card": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your card"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Твоя карточка"
-          }
-        }
-      }
-    },
     "error.conflict": {
       "extractionState": "manual",
       "localizations": {
