@@ -53,7 +53,7 @@ public struct StudySessionView: View {
             // The ground belongs to the session rather than to one of its
             // states: it stays put while the session loads, is answered and
             // ends, so nothing flashes white between them.
-            AppScene(palette: palette)
+            AppScene(palette: palette, drifts: true)
 
             content
             .task(id: deckID) { deckName = await store.deck(id: deckID)?.name ?? "" }
@@ -594,28 +594,29 @@ struct SpectrumBeam: View {
     }
 
     private var beam: some View {
-        ZStack {
-            beamGradient
-                .frame(height: 8)
-                .blur(radius: 6)
-                .opacity(0.55)
-            beamGradient
-                .frame(height: 3.5)
-                .clipShape(Capsule())
-            LinearGradient(
-                stops: [
-                    .init(color: .clear, location: 0),
-                    .init(color: .white.opacity(0.7), location: 0.3),
-                    .init(color: .white.opacity(0.45), location: 0.6),
-                    .init(color: .clear, location: 1),
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .frame(height: 1.2)
-            .blendMode(.screen)
+        // The app's own bar language: a quiet track, flat colour segments
+        // with hairline gaps, no glow — the colours carry the story on their
+        // own, the way every other capsule in the app does.
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(.white.opacity(0.12))
+                HStack(spacing: 2) {
+                    ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
+                        Capsule(style: .continuous)
+                            .fill(Self.tint(segment.rating))
+                            .frame(
+                                width: max(
+                                    proxy.size.width
+                                        * CGFloat(segment.count) / CGFloat(total) - 2,
+                                    4
+                                )
+                            )
+                    }
+                }
+            }
         }
-        .frame(height: 12)
+        .frame(height: 6)
+        .clipShape(Capsule(style: .continuous))
         .mask(alignment: .leading) {
             GeometryReader { proxy in
                 Rectangle()
@@ -626,10 +627,6 @@ struct SpectrumBeam: View {
         .accessibilityHidden(true)
     }
 
-    private var beamGradient: LinearGradient {
-        LinearGradient(stops: stops, startPoint: .leading, endPoint: .trailing)
-    }
-
     /// Cumulative segment starts, as fractions of the beam.
     private var starts: [CGFloat] {
         var out: [CGFloat] = []
@@ -638,26 +635,6 @@ struct SpectrumBeam: View {
             out.append(running)
             running += CGFloat(segment.count) / CGFloat(total)
         }
-        return out
-    }
-
-    /// Colour stops with short refraction zones at each boundary and
-    /// dissolving ends.
-    private var stops: [Gradient.Stop] {
-        let blend: CGFloat = 0.03
-        let edge: CGFloat = 0.04
-        var out: [Gradient.Stop] = [.init(color: .clear, location: 0)]
-        var running: CGFloat = 0
-        for (index, segment) in segments.enumerated() {
-            let width = CGFloat(segment.count) / CGFloat(total)
-            let colour = Self.tint(segment.rating)
-            let from = index == 0 ? edge : running + blend
-            let to = index == segments.count - 1 ? 1 - edge : running + width - blend
-            out.append(.init(color: colour, location: max(from, running)))
-            out.append(.init(color: colour, location: max(to, from)))
-            running += width
-        }
-        out.append(.init(color: .clear, location: 1))
         return out
     }
 
@@ -744,10 +721,6 @@ struct DeckDeltaPane: View {
                             )
                         )
                         .frame(width: proxy.size.width * shown)
-                        .shadow(
-                            color: StudySessionResultView.gold.opacity(revealed ? 0.45 : 0),
-                            radius: 5
-                        )
                 }
 
                 // …and the old level over it, so the gold shows only as the
@@ -760,7 +733,6 @@ struct DeckDeltaPane: View {
                     Circle()
                         .fill(StudySessionResultView.gold)
                         .frame(width: 9, height: 9)
-                        .shadow(color: StudySessionResultView.gold.opacity(0.7), radius: 5)
                         .offset(x: proxy.size.width * shown - 4.5)
                         .opacity(revealed ? 1 : 0)
                 }

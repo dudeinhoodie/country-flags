@@ -10,11 +10,29 @@ import SwiftUI
 /// like the same place as the session.
 struct AppScene: View {
     var palette: ScenePalette = .brand
+    /// Whether the lights wander. Only the session asks for it: its ground is
+    /// lit by the flag and a slow drift makes the room feel inhabited — the
+    /// browsing screens hold still under their content.
+    var drifts: Bool = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
+        if drifts && !reduceMotion && !reduceTransparency {
+            TimelineView(.animation(minimumInterval: 1 / 12)) { context in
+                lights(at: context.date.timeIntervalSinceReferenceDate)
+            }
+        } else {
+            lights(at: 0)
+        }
+    }
+
+    /// The lamps' positions at one instant. The drift moves each lamp on its
+    /// own slow ellipse — different speeds, so the pattern never repeats
+    /// visibly — and never touches the colours: the gamut is the flag's, the
+    /// wandering is the room's.
+    private func lights(at time: TimeInterval) -> some View {
         ZStack {
             // A dark base rather than the system background: the flag is the
             // only thing in this app that should look lit.
@@ -23,19 +41,28 @@ struct AppScene: View {
             if !reduceTransparency {
                 RadialGradient(
                     colors: [palette.primary.opacity(0.55 * palette.intensity), .clear],
-                    center: .init(x: 0.2, y: 0.12),
+                    center: .init(
+                        x: 0.2 + 0.05 * sin(time * 0.13),
+                        y: 0.12 + 0.04 * cos(time * 0.09)
+                    ),
                     startRadius: 0,
                     endRadius: DesignTokens.Scene.lightRadius
                 )
                 RadialGradient(
                     colors: [palette.secondary.opacity(0.45 * palette.intensity), .clear],
-                    center: .init(x: 0.85, y: 0.3),
+                    center: .init(
+                        x: 0.85 + 0.05 * sin(time * 0.08 + 2),
+                        y: 0.3 + 0.05 * cos(time * 0.11 + 1)
+                    ),
                     startRadius: 0,
                     endRadius: DesignTokens.Scene.lightRadius
                 )
                 RadialGradient(
                     colors: [palette.primary.opacity(0.28 * palette.intensity), .clear],
-                    center: .init(x: 0.5, y: 1.0),
+                    center: .init(
+                        x: 0.5 + 0.06 * sin(time * 0.07 + 4),
+                        y: 1.0 + 0.03 * cos(time * 0.1 + 3)
+                    ),
                     startRadius: 0,
                     endRadius: DesignTokens.Scene.groundLightRadius
                 )

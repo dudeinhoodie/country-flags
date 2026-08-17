@@ -40,14 +40,19 @@ struct StudyCardStackView: View {
     // environment keeps it right on every device and in a preview.
     @Environment(\.displayScale) private var displayScale
     @State private var drag: CGSize = .zero
-    /// Toggled once, under a slow autoreversing animation: every waiting card
-    /// leans between two poses of its own and the pile breathes.
-    @State private var isBreathing = false
 
     var body: some View {
-        ZStack {
-            ForEach(visible.reversed(), id: \.card.id) { entry in
-                card(entry)
+        // Time drives the breathing, not a toggled state: a repeat-forever
+        // animation only carries the views alive when it started, so cards
+        // dealt later stood still. A clock has no such memory — every card
+        // that ever reaches the pile sways on its own phase.
+        TimelineView(
+            .animation(minimumInterval: 1 / 20, paused: reduceMotion)
+        ) { context in
+            ZStack {
+                ForEach(visible.reversed(), id: \.card.id) { entry in
+                    card(entry, at: context.date.timeIntervalSinceReferenceDate)
+                }
             }
         }
         .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
@@ -58,12 +63,6 @@ struct StudyCardStackView: View {
             drag = .zero
             swipeProgress = 0
             isShowingBack = false
-        }
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-                isBreathing = true
-            }
         }
         // A commit that fails hands the same card back, and the same card
         // means the reset above never fires — the card had already been thrown
@@ -112,7 +111,7 @@ struct StudyCardStackView: View {
     }
 
     @ViewBuilder
-    private func card(_ entry: StackEntry) -> some View {
+    private func card(_ entry: StackEntry, at time: TimeInterval = 0) -> some View {
         let isTop = entry.depth == 0
         let isTurned = isTop && isShowingBack
 
@@ -185,14 +184,16 @@ struct StudyCardStackView: View {
         // straightens as it comes to the top — the same move a hand makes
         // picking a card off a pile.
         .offset(
-            x: isTop ? drag.width : scatter(entry.card.id).drift + breath(entry.card.id).drift,
+            x: isTop
+                ? drag.width
+                : scatter(entry.card.id).drift + breath(entry.card.id, at: time).drift,
             y: DesignTokens.Card.stackOffset * CGFloat(entry.depth)
         )
         .rotationEffect(
             .degrees(
                 isTop
                     ? drag.width * DesignTokens.Card.swipeRotation
-                    : scatter(entry.card.id).lean + breath(entry.card.id).lean
+                    : scatter(entry.card.id).lean + breath(entry.card.id, at: time).lean
             )
         )
         .zIndex(Double(DesignTokens.Card.stackDepth - entry.depth))
@@ -229,13 +230,17 @@ struct StudyCardStackView: View {
         return (lean, CGFloat(drift))
     }
 
-    /// This card's share of the pile's breathing: its own direction and
-    /// reach, swung to the other side by the autoreversing animation.
-    private func breath(_ id: UUID) -> (lean: Double, drift: CGFloat) {
+    /// This card's share of the pile's breathing at one instant: its own
+    /// reach from its identity, its own phase so the pile never sways in
+    /// lockstep, and the slow sine both directions ride.
+    private func breath(_ id: UUID, at time: TimeInterval) -> (lean: Double, drift: CGFloat) {
+        guard time > 0 else { return (0, 0) }
         let bytes = id.uuid
+        let phase = Double(bytes.4) / 255 * 2 * .pi
+        let swing = sin(time * (2 * .pi / 4) + phase)
         let lean = (Double(bytes.2) / 255 * 2 - 1) * DesignTokens.Card.breathRotation
         let drift = (Double(bytes.3) / 255 * 2 - 1) * Double(DesignTokens.Card.breathOffset)
-        return (isBreathing ? lean : -lean, CGFloat(isBreathing ? drift : -drift))
+        return (lean * swing, CGFloat(drift * swing))
     }
 
     private var shape: RoundedRectangle {
