@@ -24,27 +24,31 @@ struct FlagCardFace: View {
     let store: ContentStore
     let assets: any AssetLoading
 
-    var body: some View {
-        ZStack {
-            FlagImageView(
-                assetID: assetID,
-                accessibilityLabel: "",
-                store: store,
-                assets: assets,
-                contentMode: .fill
-            )
-            .blur(radius: DesignTokens.Card.groundBlur)
-            .scaleEffect(DesignTokens.Card.groundOverscan)
-            .opacity(DesignTokens.Card.groundOpacity)
-            .accessibilityHidden(true)
+    @Environment(\.displayScale) private var displayScale
 
-            FlagImageView(
-                assetID: assetID,
-                accessibilityLabel: accessibilityLabel,
-                store: store,
-                assets: assets
-            )
-            .accessibilityHint(accessibilityHint)
+    var body: some View {
+        // A mounted print: the flag sits on a dark mat with an even reveal,
+        // lifted by its own shadow. The artwork and the card share one aspect,
+        // so the reveal is even by construction — and a mostly white flag gets
+        // its border from the mat instead of from a hairline fighting the
+        // scene.
+        FlagImageView(
+            assetID: assetID,
+            accessibilityLabel: accessibilityLabel,
+            store: store,
+            assets: assets
+        )
+        .accessibilityHint(accessibilityHint)
+        .clipShape(
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
+                .strokeBorder(.white.opacity(0.12), lineWidth: 1 / displayScale)
         }
+        .shadow(color: .black.opacity(0.5), radius: 6, y: 3)
+        .padding(DesignTokens.Card.matInset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(white: DesignTokens.Card.matShade))
     }
 }

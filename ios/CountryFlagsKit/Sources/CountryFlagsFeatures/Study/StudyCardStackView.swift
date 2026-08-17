@@ -312,15 +312,29 @@ private struct StudyCardBack: View {
     let onDetails: () -> Void
 
     @State private var facts: [FactRecord] = []
+    @State private var officialName: String?
+    @State private var outline: CountryBoundaries.Outline?
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-            Text(card.displayName)
-                .font(DesignTokens.Typography.cardAnswer)
-                .minimumScaleFactor(0.8)
-                .lineLimit(2)
-                .foregroundStyle(.white)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyAnswer)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(card.displayName)
+                    .font(DesignTokens.Typography.cardAnswer)
+                    .minimumScaleFactor(0.8)
+                    .lineLimit(2)
+                    .foregroundStyle(.white)
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyAnswer)
+
+                // The official name is part of the answer — Iran and "Islamic
+                // Republic of Iran" should meet here, not in a search later.
+                if let officialName {
+                    Text(officialName)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+            }
 
             // The same badges the details sheet deals, at card size: a symbol
             // on its own colour is scannable in the second the answer takes,
@@ -385,10 +399,29 @@ private struct StudyCardBack: View {
                     endPoint: .bottomTrailing
                 )
                 Rectangle().fill(.ultraThinMaterial)
+
+                // The country itself, as a watermark in the corner: the
+                // exhibit's plate carries a small map of where it is from.
+                if let outline {
+                    CountrySilhouetteView(outline: outline, opacity: 0.1)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                        .padding(DesignTokens.Spacing.small)
+                        .scaleEffect(0.62, anchor: .bottomTrailing)
+                }
             }
         }
         .task(id: card.learningCardID) {
-            facts = await store.card(id: card.learningCardID)?.backSideFacts ?? []
+            let record = await store.card(id: card.learningCardID)
+            facts = record?.backSideFacts ?? []
+            if let entityID = record?.subjectEntityID,
+                let entity = await store.entity(id: entityID)
+            {
+                let official = entity.names.first { !$0.isPrimary }?.value
+                officialName = official == card.displayName ? nil : official
+            }
+            outline = await CountryOutlineLookup.outline(
+                forPromptAsset: card.promptAssetID, store: store
+            )
         }
     }
 }

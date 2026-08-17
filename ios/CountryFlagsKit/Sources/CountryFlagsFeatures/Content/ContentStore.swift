@@ -91,6 +91,10 @@ public final class ContentStore {
         try? await repository.card(id: id)
     }
 
+    public func entity(id: UUID) async -> GeoEntityRecord? {
+        (try? await repository.entity(id: id)) ?? nil
+    }
+
     public func asset(id: UUID) async -> AssetRecord? {
         (try? await repository.asset(id: id)) ?? nil
     }

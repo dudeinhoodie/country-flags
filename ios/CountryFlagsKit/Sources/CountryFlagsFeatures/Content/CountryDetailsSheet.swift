@@ -46,6 +46,7 @@ struct CountryDetailsSheet: View {
     let assets: any AssetLoading
 
     @State private var facts: [FactRecord] = []
+    @State private var officialName: String?
     @State private var outline: CountryBoundaries.Outline?
     @State private var isShowingFullMap = false
     @Environment(\.dismiss) private var dismiss
@@ -56,7 +57,22 @@ struct CountryDetailsSheet: View {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 header
 
-                flag
+                // The flag and the place, side by side: the two halves of the
+                // answer in one glance, with the real globe a tap away. A
+                // country the 1:110m source does not carry simply gives the
+                // flag the whole row.
+                HStack(spacing: DesignTokens.Spacing.small) {
+                    flag
+                        .frame(
+                            width: outline == nil
+                                ? nil : DesignTokens.Layout.detailPairFlagWidth
+                        )
+
+                    if let outline {
+                        mapTile(outline)
+                    }
+                }
+                .frame(height: DesignTokens.Layout.detailPairHeight)
 
                 // Every fact is a tile, dealt in pairs. Each pair is fixed
                 // vertically so it takes the taller tile's height: left to
@@ -72,46 +88,6 @@ struct CountryDetailsSheet: View {
                     .fixedSize(horizontal: false, vertical: true)
                 }
 
-                // Where the country is. Missing for the flags whose landmass
-                // the 1:110m source does not carry — a microstate's sheet
-                // simply ends at the facts.
-                if let outline {
-                    CountryMapView(outline: outline)
-                        .frame(height: DesignTokens.Layout.detailMapHeight)
-                        .clipShape(
-                            RoundedRectangle(
-                                cornerRadius: DesignTokens.Radius.large, style: .continuous
-                            )
-                        )
-                        .overlay {
-                            RoundedRectangle(
-                                cornerRadius: DesignTokens.Radius.large, style: .continuous
-                            )
-                            .strokeBorder(
-                                .white.opacity(DesignTokens.Card.borderOpacity),
-                                lineWidth: 1 / displayScale
-                            )
-                        }
-                        // The button lies over the map rather than around it:
-                        // MapKit owns its own touch handling underneath, and a
-                        // wrapping button's tap never reliably got through.
-                        .overlay {
-                            Button {
-                                isShowingFullMap = true
-                            } label: {
-                                Color.clear
-                                    .contentShape(
-                                        RoundedRectangle(
-                                            cornerRadius: DesignTokens.Radius.large,
-                                            style: .continuous
-                                        )
-                                    )
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(L10n.studyMapOpen)
-                            .accessibilityIdentifier(AccessibilityIdentifier.studyMap)
-                        }
-                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(DesignTokens.Spacing.large)
@@ -128,27 +104,73 @@ struct CountryDetailsSheet: View {
             }
         }
         .task(id: subject.cardID) {
-            facts = await store.card(id: subject.cardID)?.backSideFacts ?? []
-            // The outline is found the way the flag itself is: by the asset's
-            // checksum, through the bundled index, to the slug — which is what
-            // makes it survive a display name in any language.
-            if let record = await store.asset(id: subject.promptAssetID),
-                let assetName = BundledFlags.shipped.assetName(forChecksum: record.sha256) {
-                let slug = String(assetName.dropFirst("flag-".count))
-                outline = CountryBoundaries.shipped.outline(forSlug: slug)
+            let record = await store.card(id: subject.cardID)
+            facts = record?.backSideFacts ?? []
+            if let entityID = record?.subjectEntityID,
+                let entity = await store.entity(id: entityID)
+            {
+                let official = entity.names.first { !$0.isPrimary }?.value
+                officialName = official == subject.displayName ? nil : official
             }
+            outline = await CountryOutlineLookup.outline(
+                forPromptAsset: subject.promptAssetID, store: store
+            )
         }
+    }
+
+    /// The real globe, tile-sized: the same MapKit view, the same tap into
+    /// the full-screen interactive map.
+    private func mapTile(_ outline: CountryBoundaries.Outline) -> some View {
+        CountryMapView(outline: outline)
+            .clipShape(
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+                    .strokeBorder(
+                        .white.opacity(DesignTokens.Card.borderOpacity),
+                        lineWidth: 1 / displayScale
+                    )
+            }
+            // The button lies over the map rather than around it: MapKit owns
+            // its own touch handling underneath, and a wrapping button's tap
+            // never reliably got through.
+            .overlay {
+                Button {
+                    isShowingFullMap = true
+                } label: {
+                    Color.clear
+                        .contentShape(
+                            RoundedRectangle(
+                                cornerRadius: DesignTokens.Radius.large, style: .continuous
+                            )
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L10n.studyMapOpen)
+                .accessibilityIdentifier(AccessibilityIdentifier.studyMap)
+            }
     }
 
     private var header: some View {
         HStack(alignment: .top, spacing: DesignTokens.Spacing.medium) {
             // The country is content, so it takes the largest role here as it
             // does everywhere else it appears.
-            Text(subject.displayName)
-                .font(DesignTokens.Typography.screenTitle)
-                .minimumScaleFactor(0.6)
-                .lineLimit(2)
-                .accessibilityAddTraits(.isHeader)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(subject.displayName)
+                    .font(DesignTokens.Typography.screenTitle)
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(2)
+                    .accessibilityAddTraits(.isHeader)
+
+                if let officialName {
+                    Text(officialName)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+            }
 
             Spacer(minLength: 0)
 
@@ -181,10 +203,10 @@ struct CountryDetailsSheet: View {
             assetID: subject.promptAssetID,
             accessibilityLabel: subject.displayName,
             store: store,
-            assets: assets
+            assets: assets,
+            contentMode: .fill
         )
-        .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
