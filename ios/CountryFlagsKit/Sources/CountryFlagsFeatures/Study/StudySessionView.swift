@@ -368,15 +368,16 @@ struct StudySessionResultView: View {
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.large) {
-            Spacer(minLength: 0)
-
             score
                 .settled(hasArrived, step: 0, reduceMotion: reduceMotion)
+                .padding(.top, DesignTokens.Spacing.large)
 
             if !summary.answered.isEmpty {
                 answeredFlags
                     .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
             }
+
+            Spacer(minLength: 0)
 
             Button(L10n.studyResultExcellent, action: onDone)
                 .buttonStyle(PrimaryActionStyle())
@@ -497,19 +498,21 @@ struct ResultWaterView: View {
 
                 let drift = reduceMotion ? 0 : time * 0.55
                 let swell = reduceMotion ? 0 : sin(time * 0.9) * 3.5
-                let amplitude = reduceMotion ? 8.0 : 8 + 2.5 * sin(time * 0.6 + 1)
+                let amplitude = reduceMotion ? 5.0 : 5 + 1.5 * sin(time * 0.6 + 1)
                 let surfaceY = size.height * (1 - CGFloat(level)) + CGFloat(swell)
                 let wavelength = max(size.width / 1.5, 1)
 
-                var path = Path()
-                path.move(to: CGPoint(x: 0, y: surfaceY))
-                var x: CGFloat = 0
-                let step: CGFloat = 6
-                while x <= size.width + step {
+                func surface(_ x: CGFloat) -> CGFloat {
                     let angle = Double(x / wavelength) * 2 * .pi + drift
-                    path.addLine(
-                        to: CGPoint(x: x, y: surfaceY + CGFloat(sin(angle) * amplitude))
-                    )
+                    return surfaceY + CGFloat(sin(angle) * amplitude)
+                }
+
+                let step: CGFloat = 6
+                var path = Path()
+                path.move(to: CGPoint(x: 0, y: surface(0)))
+                var x: CGFloat = step
+                while x <= size.width + step {
+                    path.addLine(to: CGPoint(x: x, y: surface(x)))
                     x += step
                 }
                 path.addLine(to: CGPoint(x: size.width + step, y: size.height))
@@ -520,14 +523,32 @@ struct ResultWaterView: View {
                     path,
                     with: .linearGradient(
                         Gradient(stops: [
-                            .init(color: Self.green.opacity(0.42), location: 0),
-                            .init(color: Self.green.opacity(0.16), location: 0.65),
-                            .init(color: Self.green.opacity(0.12), location: 1),
+                            .init(color: Self.green.opacity(0.28), location: 0),
+                            .init(color: Self.green.opacity(0.1), location: 0.65),
+                            .init(color: Self.green.opacity(0.07), location: 1),
                         ]),
                         startPoint: CGPoint(x: 0, y: surfaceY),
                         endPoint: CGPoint(x: 0, y: size.height)
                     )
                 )
+
+                // The crest: a band under the surface a shade brighter than
+                // the body, riding the same curve — light caught at the top
+                // of the water, not a separate line that could detach.
+                var crest = Path()
+                crest.move(to: CGPoint(x: 0, y: surface(0)))
+                x = step
+                while x <= size.width + step {
+                    crest.addLine(to: CGPoint(x: x, y: surface(x)))
+                    x += step
+                }
+                x = size.width + step
+                while x >= -step {
+                    crest.addLine(to: CGPoint(x: x, y: surface(x) + 8))
+                    x -= step
+                }
+                crest.closeSubpath()
+                canvas.fill(crest, with: .color(Self.green.opacity(0.42)))
             }
         }
         .ignoresSafeArea()
