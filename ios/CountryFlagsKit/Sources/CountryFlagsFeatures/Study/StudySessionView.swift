@@ -393,8 +393,8 @@ struct StudySessionResultView: View {
                 // the rise, then the firmer arrival at the waterline, timed
                 // to the water view's 2.4-second fill.
                 Task {
-                    for _ in 0..<8 {
-                        try? await Task.sleep(for: .milliseconds(300))
+                    for _ in 0..<16 {
+                        try? await Task.sleep(for: .milliseconds(150))
                         pourTick += 1
                     }
                     hasFilled = true
@@ -483,7 +483,7 @@ struct ResultWaterView: View {
     static let green = Color(red: 143 / 255, green: 212 / 255, blue: 160 / 255)
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduceMotion)) { context in
+        TimelineView(.animation(paused: reduceMotion)) { context in
             Canvas { canvas, size in
                 let time = context.date.timeIntervalSince(poursFrom)
                 let poured = reduceMotion ? 1.0 : min(1, max(0, time / 2.4))
@@ -498,40 +498,52 @@ struct ResultWaterView: View {
                 let surfaceY = size.height * (1 - CGFloat(level)) + CGFloat(swell)
                 let wavelength = max(size.width / 1.5, 1)
 
-                func wave(offset: CGFloat, drift: Double, amplitude: Double) -> Path {
-                    var path = Path()
-                    var x: CGFloat = 0
-                    while x <= size.width + 6 {
-                        let angle = Double(x / wavelength) * 2 * .pi + drift
-                        let y = surfaceY + offset + CGFloat(sin(angle) * amplitude)
-                        if x == 0 {
-                            path.move(to: CGPoint(x: 0, y: y))
-                        } else {
-                            path.addLine(to: CGPoint(x: x, y: y))
-                        }
-                        x += 6
-                    }
-                    path.addLine(to: CGPoint(x: size.width + 6, y: size.height))
-                    path.addLine(to: CGPoint(x: 0, y: size.height))
-                    path.closeSubpath()
-                    return path
+                func greenY(_ x: CGFloat) -> CGFloat {
+                    let angle = Double(x / wavelength) * 2 * .pi + drift
+                    return surfaceY + CGFloat(sin(angle) * amplitude)
+                }
+                let greyDrift = reduceMotion ? 0.9 : time * 0.4 + 2
+                func greyY(_ x: CGFloat) -> CGFloat {
+                    let angle = Double(x / wavelength) * 2 * .pi + greyDrift
+                    return surfaceY - 8 + CGFloat(sin(angle) * amplitude * 1.25)
                 }
 
-                // A grey wave behind the green one, riding slightly higher on
-                // its own phase and pace: the small delta keeps it peeking
-                // over the surface by a changing amount, the way a second
-                // swell trails the first.
-                canvas.fill(
-                    wave(
-                        offset: -6,
-                        drift: reduceMotion ? 0.9 : time * 0.47 + 1.4,
-                        amplitude: amplitude * 1.15
-                    ),
-                    with: .color(Color(white: 0.78).opacity(0.3))
-                )
+                let step: CGFloat = 4
+                let end = size.width + step
 
+                // The grey swell trails the green wave on its own phase and
+                // pace, and lives only where it rises above the green
+                // surface — the water always overlaps the swell, never the
+                // other way around. Its lower edge is clamped to the green
+                // curve, so the band closes to nothing where the swell dips
+                // under.
+                var swellBand = Path()
+                var x: CGFloat = 0
+                while x <= end {
+                    let point = CGPoint(x: x, y: min(greyY(x), greenY(x)))
+                    if x == 0 { swellBand.move(to: point) } else { swellBand.addLine(to: point) }
+                    x += step
+                }
+                x = end
+                while x >= 0 {
+                    swellBand.addLine(to: CGPoint(x: x, y: greenY(x)))
+                    x -= step
+                }
+                swellBand.closeSubpath()
+                canvas.fill(swellBand, with: .color(Color(white: 0.78).opacity(0.3)))
+
+                var water = Path()
+                x = 0
+                while x <= end {
+                    let point = CGPoint(x: x, y: greenY(x))
+                    if x == 0 { water.move(to: point) } else { water.addLine(to: point) }
+                    x += step
+                }
+                water.addLine(to: CGPoint(x: end, y: size.height))
+                water.addLine(to: CGPoint(x: 0, y: size.height))
+                water.closeSubpath()
                 canvas.fill(
-                    wave(offset: 0, drift: drift, amplitude: amplitude),
+                    water,
                     with: .linearGradient(
                         Gradient(stops: [
                             .init(color: Self.green.opacity(0.28), location: 0),
