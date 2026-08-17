@@ -379,7 +379,10 @@ private struct StudyCardBack: View {
                 .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
             }
             .buttonStyle(.plain)
-            .glassEffect(.regular.interactive(), in: Capsule(style: .continuous))
+            // Plain glass, deliberately: interactive glass answers any touch
+            // with its lens, and a swipe that starts over this button held it
+            // swollen for the whole throw.
+            .glassEffect(.regular, in: Capsule(style: .continuous))
             .accessibilityIdentifier(AccessibilityIdentifier.studyDetails)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
