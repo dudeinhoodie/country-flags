@@ -480,7 +480,7 @@ struct ResultWaterView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var poursFrom = Date()
 
-    static let green = Color(red: 143 / 255, green: 212 / 255, blue: 160 / 255)
+    static let green = Color(red: 122 / 255, green: 224 / 255, blue: 150 / 255)
 
     var body: some View {
         TimelineView(.animation(paused: reduceMotion)) { context in
@@ -505,28 +505,27 @@ struct ResultWaterView: View {
                 let greyDrift = reduceMotion ? 0.9 : time * 0.4 + 2
                 func greyY(_ x: CGFloat) -> CGFloat {
                     let angle = Double(x / wavelength) * 2 * .pi + greyDrift
-                    return surfaceY - 8 + CGFloat(sin(angle) * amplitude * 1.25)
+                    return surfaceY - 4 + CGFloat(sin(angle) * amplitude * 1.35)
                 }
 
                 let step: CGFloat = 4
                 let end = size.width + step
 
-                // The grey swell trails the green wave on its own phase and
-                // pace, and lives only where it rises above the green
-                // surface — the water always overlaps the swell, never the
-                // other way around. Its lower edge is clamped to the green
-                // curve, so the band closes to nothing where the swell dips
-                // under.
+                // The grey swell is a band of its own, riding close enough to
+                // the surface that the two curves cross now and then as they
+                // drift: where it lifts above the green it shows clean, where
+                // it dips under, the water washes over it — painted first, so
+                // the green always lies on top.
                 var swellBand = Path()
                 var x: CGFloat = 0
                 while x <= end {
-                    let point = CGPoint(x: x, y: min(greyY(x), greenY(x)))
+                    let point = CGPoint(x: x, y: greyY(x))
                     if x == 0 { swellBand.move(to: point) } else { swellBand.addLine(to: point) }
                     x += step
                 }
                 x = end
                 while x >= 0 {
-                    swellBand.addLine(to: CGPoint(x: x, y: greenY(x)))
+                    swellBand.addLine(to: CGPoint(x: x, y: greyY(x) + 10))
                     x -= step
                 }
                 swellBand.closeSubpath()
@@ -546,9 +545,9 @@ struct ResultWaterView: View {
                     water,
                     with: .linearGradient(
                         Gradient(stops: [
-                            .init(color: Self.green.opacity(0.28), location: 0),
-                            .init(color: Self.green.opacity(0.1), location: 0.65),
-                            .init(color: Self.green.opacity(0.07), location: 1),
+                            .init(color: Self.green.opacity(0.36), location: 0),
+                            .init(color: Self.green.opacity(0.14), location: 0.65),
+                            .init(color: Self.green.opacity(0.1), location: 1),
                         ]),
                         startPoint: CGPoint(x: 0, y: surfaceY),
                         endPoint: CGPoint(x: 0, y: size.height)
