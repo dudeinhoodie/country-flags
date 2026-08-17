@@ -95,14 +95,17 @@ public struct StudySessionView: View {
             // spoils. Dragging back to centre takes it away again. The slot
             // keeps its height so the deck never jumps.
             Text(card.displayName)
-                .font(DesignTokens.Typography.sectionTitle.weight(.semibold))
+                .font(DesignTokens.Typography.screenTitle)
                 .foregroundStyle(.white)
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(0.5)
                 .frame(maxWidth: .infinity)
-                .frame(height: DesignTokens.Spacing.large)
-                .opacity(min(1, Double(abs(swipeProgress)) * 1.15))
-                .scaleEffect(0.94 + 0.06 * min(1, Double(abs(swipeProgress))))
+                .frame(height: DesignTokens.Spacing.extraLarge)
+                // Cubed, so the name belongs to the end of the gesture: a
+                // quarter-swipe shows almost nothing, half shows a ghost, and
+                // only a throw about to commit reads clearly.
+                .opacity(pow(min(1, Double(abs(swipeProgress))), 3))
+                .scaleEffect(0.92 + 0.08 * pow(min(1, Double(abs(swipeProgress))), 3))
                 // Continuous while the finger moves; this smooths the snap
                 // back to hidden when the card is released.
                 .animation(.easeOut(duration: 0.25), value: swipeProgress == 0)
