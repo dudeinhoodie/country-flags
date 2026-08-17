@@ -20,7 +20,7 @@ struct AppScene: View {
 
     var body: some View {
         if drifts && !reduceMotion && !reduceTransparency {
-            TimelineView(.animation(minimumInterval: 1 / 12)) { context in
+            TimelineView(.animation(minimumInterval: 1 / 20)) { context in
                 lights(at: context.date.timeIntervalSinceReferenceDate)
             }
         } else {
