@@ -126,6 +126,10 @@ public enum DesignTokens {
         /// The map is the sheet's closing block, full width and generous:
         /// the drawer ends on where the country is.
         public static let detailMapHeight: CGFloat = 300
+        /// The flag-and-region row at the top of the details sheet: the flag
+        /// keeps a fixed 4:3 plate and the region tile takes the rest.
+        public static let detailPairHeight: CGFloat = 150
+        public static let detailPairFlagWidth: CGFloat = 200
         public static let maximumContentWidth: CGFloat = 520
     }
 

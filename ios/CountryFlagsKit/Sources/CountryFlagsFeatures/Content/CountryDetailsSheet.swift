@@ -62,17 +62,22 @@ struct CountryDetailsSheet: View {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 header
 
-                // The flag and its shelf, one row: the region tile stands
-                // beside the flag rather than a screen below it.
-                HStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
+                // The flag and its shelf, one row: the flag keeps a fixed
+                // plate — an aspect-ratio view offered the whole width takes
+                // it, and the region vanished into a sliver — and the region
+                // tile takes the rest.
+                HStack(spacing: DesignTokens.Spacing.small) {
                     flag
-                        .layoutPriority(1)
+                        .frame(
+                            width: regionDeck == nil
+                                ? nil : DesignTokens.Layout.detailPairFlagWidth
+                        )
 
                     if let regionDeck {
                         regionTile(regionDeck)
                     }
                 }
-                .fixedSize(horizontal: false, vertical: true)
+                .frame(height: DesignTokens.Layout.detailPairHeight)
 
                 // The other names this country answers to, quietly under the
                 // flag: the aliases are part of knowing it.
@@ -134,7 +139,9 @@ struct CountryDetailsSheet: View {
                 let official = entity.names.first { !$0.isPrimary }?.value
                 officialName = official == subject.displayName ? nil : official
             }
-            aliases = record?.aliases ?? []
+            aliases = (record?.aliases ?? []).filter {
+                $0.localizedCaseInsensitiveCompare(subject.displayName) != .orderedSame
+            }
             let decks = await store.decks()
             let membership = await store.cardIdentifiersByDeck()
             regionDeck = decks.first { deck in
@@ -150,8 +157,7 @@ struct CountryDetailsSheet: View {
     private func regionTile(_ deck: DeckRecord) -> some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
             ContinentSilhouetteView(code: deck.code, opacity: 0.8)
-                .frame(height: 34)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             VStack(alignment: .leading, spacing: 0) {
                 Text(L10n.detailsRegion)
                     .font(DesignTokens.Typography.caption)
