@@ -123,10 +123,9 @@ public enum DesignTokens {
         public static let progressBarHeight: CGFloat = 6
         /// The map on the country sheet: tall enough that a shape reads,
         /// short enough that the facts stay on the first screenful.
-        public static let detailMapHeight: CGFloat = 240
-        /// The paired flag-and-map row at the top of the details sheet.
-        public static let detailPairHeight: CGFloat = 150
-        public static let detailPairFlagWidth: CGFloat = 200
+        /// The map is the sheet's closing block, full width and generous:
+        /// the drawer ends on where the country is.
+        public static let detailMapHeight: CGFloat = 300
         public static let maximumContentWidth: CGFloat = 520
     }
 

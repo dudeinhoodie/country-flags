@@ -44,8 +44,14 @@ struct CountryDetailsSheet: View {
     let subject: CountryDetailsSubject
     let store: ContentStore
     let assets: any AssetLoading
+    /// The learner's own record for this card, when the presenter can hand
+    /// one over: the sheet then says where this country stands for *you*.
+    var makeProgress: (() -> ProgressStore)?
 
     @State private var facts: [FactRecord] = []
+    @State private var aliases: [String] = []
+    @State private var regionDeck: DeckRecord?
+    @State private var cardState: CardStateRecord?
     @State private var officialName: String?
     @State private var outline: CountryBoundaries.Outline?
     /// Whether the outline lookup has answered. Until it has, the pair row
@@ -61,29 +67,16 @@ struct CountryDetailsSheet: View {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 header
 
-                // The flag and the place, side by side: the two halves of the
-                // answer in one glance, with the real globe a tap away. A
-                // country the 1:110m source does not carry simply gives the
-                // flag the whole row.
-                HStack(spacing: DesignTokens.Spacing.small) {
-                    flag
-                        .frame(
-                            width: didResolveOutline && outline == nil
-                                ? nil : DesignTokens.Layout.detailPairFlagWidth
-                        )
+                flag
 
-                    if let outline {
-                        mapTile(outline)
-                    } else if !didResolveOutline {
-                        // The map's seat, held while the lookup answers.
-                        SkeletonBlock(
-                            height: DesignTokens.Layout.detailPairHeight,
-                            radius: DesignTokens.Radius.large
-                        )
-                    }
+                // The other names this country answers to, quietly under the
+                // flag: the aliases are part of knowing it.
+                if !aliases.isEmpty {
+                    Text(L10n.detailsAlsoKnown(aliases.prefix(3).joined(separator: ", ")))
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
                 }
-                .frame(height: DesignTokens.Layout.detailPairHeight)
-                .animation(.snappy(duration: 0.25), value: didResolveOutline)
 
                 // Every fact is a tile, dealt in pairs. Each pair is fixed
                 // vertically so it takes the taller tile's height: left to
@@ -99,6 +92,30 @@ struct CountryDetailsSheet: View {
                     .fixedSize(horizontal: false, vertical: true)
                 }
 
+                // The country in the learner's world: which shelf it sits on,
+                // and where their own card for it stands.
+                HStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
+                    if let regionDeck {
+                        regionTile(regionDeck)
+                    }
+                    if let cardState {
+                        yourCardTile(cardState)
+                    }
+                }
+                .fixedSize(horizontal: false, vertical: true)
+
+                // The map closes the sheet, full width and generous: the
+                // drawer ends on where the country is. Its seat is held while
+                // the lookup answers, so nothing below the fold jumps.
+                if let outline {
+                    mapTile(outline)
+                        .frame(height: DesignTokens.Layout.detailMapHeight)
+                } else if !didResolveOutline {
+                    SkeletonBlock(
+                        height: DesignTokens.Layout.detailMapHeight,
+                        radius: DesignTokens.Radius.large
+                    )
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(DesignTokens.Spacing.large)
@@ -123,11 +140,97 @@ struct CountryDetailsSheet: View {
                 let official = entity.names.first { !$0.isPrimary }?.value
                 officialName = official == subject.displayName ? nil : official
             }
+            aliases = record?.aliases ?? []
+            let decks = await store.decks()
+            let membership = await store.cardIdentifiersByDeck()
+            regionDeck = decks.first { deck in
+                deck.kind == "TAXONOMY" && (membership[deck.id] ?? []).contains(subject.cardID)
+            }
+            if let makeProgress {
+                cardState = await makeProgress().cardStatesByID()[subject.cardID]
+            }
             outline = await CountryOutlineLookup.outline(
                 forPromptAsset: subject.promptAssetID, store: store
             )
             didResolveOutline = true
         }
+    }
+
+    private func regionTile(_ deck: DeckRecord) -> some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+            ContinentSilhouetteView(code: deck.code, opacity: 0.8)
+                .frame(height: 34)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(L10n.detailsRegion)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.secondary)
+                Text(deck.name)
+                    .font(DesignTokens.Typography.sectionTitle)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(DesignTokens.Spacing.medium)
+        .glassEffect(
+            .regular,
+            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+        )
+        .accessibilityElement(children: .combine)
+    }
+
+    /// Where the learner's own card stands: its state in the schedule's
+    /// words, the repetition count, and when it comes round again — the same
+    /// clock the repeat queue runs on.
+    private func yourCardTile(_ state: CardStateRecord) -> some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+            Image(systemName: "person.text.rectangle")
+                .font(DesignTokens.Typography.sectionTitle)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white.opacity(0.8))
+                .frame(height: 34, alignment: .center)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(L10n.detailsYourCard)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.secondary)
+                Text(stateName(state))
+                    .font(DesignTokens.Typography.sectionTitle)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                Text(scheduleLine(state))
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(DesignTokens.Spacing.medium)
+        .glassEffect(
+            .regular,
+            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+        )
+        .accessibilityElement(children: .combine)
+    }
+
+    private func stateName(_ state: CardStateRecord) -> String {
+        switch state.state {
+        case "REVIEW": L10n.progressLearnedLabel
+        case "LEARNING", "RELEARNING": L10n.progressInProgressLabel
+        default: L10n.progressNotStartedLabel
+        }
+    }
+
+    private func scheduleLine(_ state: CardStateRecord) -> String {
+        let repetitions = L10n.detailsRepetitions(state.repetitions)
+        if state.dueAt <= Date() {
+            return "\(repetitions) · \(L10n.progressReviewDue)"
+        }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        let moment = formatter.localizedString(for: state.dueAt, relativeTo: Date())
+        return "\(repetitions) · \(L10n.progressReviewAt(moment))"
     }
 
     /// The real globe, tile-sized: the same MapKit view, the same tap into
@@ -215,10 +318,10 @@ struct CountryDetailsSheet: View {
             assetID: subject.promptAssetID,
             accessibilityLabel: subject.displayName,
             store: store,
-            assets: assets,
-            contentMode: .fill
+            assets: assets
         )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
+        .frame(maxWidth: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)

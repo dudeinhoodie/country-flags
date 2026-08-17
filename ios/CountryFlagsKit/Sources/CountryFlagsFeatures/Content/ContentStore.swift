@@ -91,6 +91,10 @@ public final class ContentStore {
         try? await repository.card(id: id)
     }
 
+    public func cardIdentifiersByDeck() async -> [UUID: [UUID]] {
+        (try? await repository.cardIdentifiersByDeck()) ?? [:]
+    }
+
     public func entity(id: UUID) async -> GeoEntityRecord? {
         (try? await repository.entity(id: id)) ?? nil
     }
