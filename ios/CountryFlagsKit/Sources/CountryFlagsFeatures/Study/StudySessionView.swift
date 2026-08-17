@@ -58,10 +58,10 @@ public struct StudySessionView: View {
             // The verdict is poured over the scene itself, not into the
             // padded column: green water rising to the share of remembered
             // answers, edge to edge.
-            if let summary = runner.summary, summary.answeredCards > 0 {
+            if let summary = runner.summary, summary.plannedCards > 0 {
                 ResultWaterView(
                     fraction: Double(summary.rememberedCards)
-                        / Double(summary.answeredCards)
+                        / Double(summary.plannedCards)
                 )
             }
 
@@ -407,21 +407,16 @@ struct StudySessionResultView: View {
         }
     }
 
-    /// "3 / 7": the misses first and smaller, the remembered count the hero.
-    /// A clean session drops the misses digit and keeps just its number.
+    /// "7 / 10", always: the remembered count over the session's size — the
+    /// same fraction the water stands at.
     private var score: some View {
         HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
-            if summary.missedCards > 0 {
-                Text("\(summary.missedCards)")
-                    .font(.system(size: 32, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.75))
-                Text(verbatim: "/")
-                    .font(.system(size: 30, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.5))
-            }
             Text("\(summary.rememberedCards)")
                 .font(.system(size: 46, weight: .heavy, design: .rounded))
                 .foregroundStyle(.white)
+            Text(verbatim: "/ \(summary.plannedCards)")
+                .font(.system(size: 30, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.5))
         }
         .monospacedDigit()
         .accessibilityElement(children: .combine)
@@ -492,8 +487,9 @@ struct ResultWaterView: View {
             Canvas { canvas, size in
                 let time = context.date.timeIntervalSince(poursFrom)
                 let poured = reduceMotion ? 1.0 : min(1, max(0, time / 2.4))
-                // Ease-out: the water slows as it nears its level.
-                let level = fraction * (1 - pow(1 - poured, 3))
+                // Ease-out into the level, and the brim is 90% of the
+                // screen: even a perfect session leaves the score dry air.
+                let level = fraction * 0.9 * (1 - pow(1 - poured, 3))
                 guard level > 0.001 else { return }
 
                 let drift = reduceMotion ? 0 : time * 0.55
@@ -502,25 +498,40 @@ struct ResultWaterView: View {
                 let surfaceY = size.height * (1 - CGFloat(level)) + CGFloat(swell)
                 let wavelength = max(size.width / 1.5, 1)
 
-                func surface(_ x: CGFloat) -> CGFloat {
-                    let angle = Double(x / wavelength) * 2 * .pi + drift
-                    return surfaceY + CGFloat(sin(angle) * amplitude)
+                func wave(offset: CGFloat, drift: Double, amplitude: Double) -> Path {
+                    var path = Path()
+                    var x: CGFloat = 0
+                    while x <= size.width + 6 {
+                        let angle = Double(x / wavelength) * 2 * .pi + drift
+                        let y = surfaceY + offset + CGFloat(sin(angle) * amplitude)
+                        if x == 0 {
+                            path.move(to: CGPoint(x: 0, y: y))
+                        } else {
+                            path.addLine(to: CGPoint(x: x, y: y))
+                        }
+                        x += 6
+                    }
+                    path.addLine(to: CGPoint(x: size.width + 6, y: size.height))
+                    path.addLine(to: CGPoint(x: 0, y: size.height))
+                    path.closeSubpath()
+                    return path
                 }
 
-                let step: CGFloat = 6
-                var path = Path()
-                path.move(to: CGPoint(x: 0, y: surface(0)))
-                var x: CGFloat = step
-                while x <= size.width + step {
-                    path.addLine(to: CGPoint(x: x, y: surface(x)))
-                    x += step
-                }
-                path.addLine(to: CGPoint(x: size.width + step, y: size.height))
-                path.addLine(to: CGPoint(x: 0, y: size.height))
-                path.closeSubpath()
+                // A grey wave behind the green one, riding slightly higher on
+                // its own phase and pace: the small delta keeps it peeking
+                // over the surface by a changing amount, the way a second
+                // swell trails the first.
+                canvas.fill(
+                    wave(
+                        offset: -6,
+                        drift: reduceMotion ? 0.9 : time * 0.47 + 1.4,
+                        amplitude: amplitude * 1.15
+                    ),
+                    with: .color(Color(white: 0.78).opacity(0.3))
+                )
 
                 canvas.fill(
-                    path,
+                    wave(offset: 0, drift: drift, amplitude: amplitude),
                     with: .linearGradient(
                         Gradient(stops: [
                             .init(color: Self.green.opacity(0.28), location: 0),
@@ -531,24 +542,6 @@ struct ResultWaterView: View {
                         endPoint: CGPoint(x: 0, y: size.height)
                     )
                 )
-
-                // The crest: a band under the surface a shade brighter than
-                // the body, riding the same curve — light caught at the top
-                // of the water, not a separate line that could detach.
-                var crest = Path()
-                crest.move(to: CGPoint(x: 0, y: surface(0)))
-                x = step
-                while x <= size.width + step {
-                    crest.addLine(to: CGPoint(x: x, y: surface(x)))
-                    x += step
-                }
-                x = size.width + step
-                while x >= -step {
-                    crest.addLine(to: CGPoint(x: x, y: surface(x) + 8))
-                    x -= step
-                }
-                crest.closeSubpath()
-                canvas.fill(crest, with: .color(Self.green.opacity(0.42)))
             }
         }
         .ignoresSafeArea()
