@@ -55,6 +55,16 @@ public struct StudySessionView: View {
             // ends, so nothing flashes white between them.
             AppScene(palette: palette, drifts: true)
 
+            // The verdict is poured over the scene itself, not into the
+            // padded column: green water rising to the share of remembered
+            // answers, edge to edge.
+            if let summary = runner.summary, summary.answeredCards > 0 {
+                ResultWaterView(
+                    fraction: Double(summary.rememberedCards)
+                        / Double(summary.answeredCards)
+                )
+            }
+
             content
             .task(id: deckID) { deckName = await store.deck(id: deckID)?.name ?? "" }
                 .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
@@ -338,50 +348,12 @@ public struct StudySessionView: View {
     }
 }
 
-/// One half of the deck's promise: the direction, and the rating a throw
-/// that way commits.
+/// The session's verdict, read off the waterline.
 ///
-/// The half is drawn twice — once quiet and white, once in its answer's
-/// colour laid over it — and the coloured layer's opacity follows the throw.
-/// Drawing it as two layers is what makes the colour change a fade rather
-/// than a switch, and it lights exactly this half and nothing beside it.
-/// The colour is never the only carrier: the arrow, the word and the side
-/// say the same thing.
-private struct SwipeHintHalf: View {
-    let symbol: String
-    let text: String
-    let tint: Color
-    let isLeading: Bool
-    /// 0...1, how far the current throw has gone this way.
-    let emphasis: CGFloat
-
-    var body: some View {
-        content
-            .foregroundStyle(.white.opacity(0.45))
-            .overlay {
-                content
-                    .foregroundStyle(tint)
-                    .opacity(emphasis)
-            }
-            // The follow is continuous while the finger moves; this smooths
-            // the snap back to quiet when the card is released.
-            .animation(.easeOut(duration: 0.25), value: emphasis == 0)
-    }
-
-    private var content: some View {
-        HStack(spacing: DesignTokens.Spacing.extraSmall) {
-            if isLeading {
-                Image(systemName: symbol)
-                Text(text)
-            } else {
-                Text(text)
-                Image(systemName: symbol)
-            }
-        }
-        .font(DesignTokens.Typography.caption.weight(.medium))
-    }
-}
-
+/// The scene fills with green water to the share of remembered answers — the
+/// level is the result, and a perfect session reaches the brim. Over the
+/// water only what the water cannot say: the two counts, the flags that were
+/// answered with the misses dimmed, and the way out. Nothing is said twice.
 struct StudySessionResultView: View {
     let summary: StudySessionSummary
     let store: ContentStore
@@ -390,124 +362,81 @@ struct StudySessionResultView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var hasArrived = false
-    @State private var beamRevealed = false
-    @State private var deltaRevealed = false
-    @State private var deckName: String?
-
-    /// The award family's gold — the same the celebration pulse and the
-    /// delta's gained tail wear.
-    static let gold = Color(red: 0.94, green: 0.82, blue: 0.55)
+    /// One soft tap per step of the pour, and a firmer one at the waterline.
+    @State private var pourTick = 0
+    @State private var hasFilled = false
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.large) {
             Spacer(minLength: 0)
 
-            VStack(spacing: DesignTokens.Spacing.small) {
-                Text(L10n.studyResultTitle)
-                    .font(DesignTokens.Typography.caption)
-                    .textCase(.uppercase)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyResultTitle)
+            score
+                .settled(hasArrived, step: 0, reduceMotion: reduceMotion)
 
-                // The number is the screen. Everything else on it explains the
-                // number.
-                HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
-                    Text("\(summary.answeredCards)")
-                        .font(DesignTokens.Typography.resultScore)
-                        .monospacedDigit()
-                    Text("/ \(summary.plannedCards)")
-                        .font(DesignTokens.Typography.sectionTitle)
-                        .foregroundStyle(.white.opacity(0.55))
-                }
-                .foregroundStyle(.white)
-
-                // The sentence stays for anyone reading rather than glancing,
-                // and for the test that reads it.
-                Text(L10n.studyResultAnswered(summary.answeredCards, summary.plannedCards))
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
-
-                // The session, refracted: one beam under the score, split
-                // into the answers' colours by their share. The screen's only
-                // colour statement, standing on the scene rather than in a
-                // pane — and a perfect session is a pure white beam.
-                if summary.answeredCards > 0 {
-                    SpectrumBeam(
-                        segments: beamSegments,
-                        total: summary.answeredCards,
-                        revealed: beamRevealed
-                    )
-                    .padding(.top, DesignTokens.Spacing.small)
-                }
-            }
-            .settled(hasArrived, step: 0, reduceMotion: reduceMotion)
-
-            // What the sitting did to the deck: the level it stood at, and
-            // the gained tail in gold. No gain, no gold — a review-only
-            // session holds the thread steady rather than gilding nothing.
-            if summary.deckTotal > 0 {
-                DeckDeltaPane(
-                    deckName: deckName,
-                    before: summary.deckLearnedBefore,
-                    after: summary.deckLearnedAfter,
-                    total: summary.deckTotal,
-                    revealed: deltaRevealed
-                )
-                .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
-            }
-
-            // The flags themselves, back from the session in the order they
-            // were answered, each underlined by what was said about it.
             if !summary.answered.isEmpty {
                 answeredFlags
-                    .settled(hasArrived, step: 2, reduceMotion: reduceMotion)
+                    .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
             }
 
-            Spacer(minLength: 0)
-
-            Button(L10n.studyResultDone, action: onDone)
+            Button(L10n.studyResultExcellent, action: onDone)
                 .buttonStyle(PrimaryActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
-                .settled(hasArrived, step: 3, reduceMotion: reduceMotion)
+                .settled(hasArrived, step: 2, reduceMotion: reduceMotion)
         }
         .onAppear {
             hasArrived = true
             if reduceMotion {
-                beamRevealed = true
-                deltaRevealed = true
+                hasFilled = true
             } else {
-                // The beam draws itself once the score has settled; the gold
-                // extends once the beam has spoken.
+                // The pour is felt as much as seen: a soft tap per step of
+                // the rise, then the firmer arrival at the waterline, timed
+                // to the water view's 2.4-second fill.
                 Task {
-                    try? await Task.sleep(for: .milliseconds(350))
-                    beamRevealed = true
-                    try? await Task.sleep(for: .milliseconds(450))
-                    deltaRevealed = true
+                    for _ in 0..<8 {
+                        try? await Task.sleep(for: .milliseconds(300))
+                        pourTick += 1
+                    }
+                    hasFilled = true
                 }
             }
         }
-        .task { deckName = await store.deck(id: summary.deckID)?.name }
-        // Finishing is one of the two moments docs/16 gives a success
-        // notification to.
-        .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
-    }
-
-    /// The answers in the beam's reading order — sure to shaky — with the
-    /// zeroes already gone.
-    private var beamSegments: [(rating: StudyRating, count: Int)] {
-        [StudyRating.good, .easy, .hard, .again].compactMap { rating in
-            let count = summary.ratings[rating] ?? 0
-            return count > 0 ? (rating, count) : nil
+        .sensoryFeedback(.impact(weight: .light, intensity: 0.45), trigger: pourTick)
+        .sensoryFeedback(.impact(weight: .medium, intensity: 1.0), trigger: hasFilled) {
+            _, filled in filled
         }
     }
 
+    /// "3 / 7": the misses first and smaller, the remembered count the hero.
+    /// A clean session drops the misses digit and keeps just its number.
+    private var score: some View {
+        HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
+            if summary.missedCards > 0 {
+                Text("\(summary.missedCards)")
+                    .font(.system(size: 32, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.75))
+                Text(verbatim: "/")
+                    .font(.system(size: 30, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.5))
+            }
+            Text("\(summary.rememberedCards)")
+                .font(.system(size: 46, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white)
+        }
+        .monospacedDigit()
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
+    }
+
+    /// The answered flags on a dark pane so they read over saturated water:
+    /// a remembered country carries a green mark, a missed one stands dimmed
+    /// — the dimming is the app's own word for "not yet yours".
     private var answeredFlags: some View {
         LazyVGrid(
             columns: [GridItem(.adaptive(minimum: 44), spacing: DesignTokens.Spacing.small)],
             spacing: DesignTokens.Spacing.small
         ) {
             ForEach(Array(summary.answered.enumerated()), id: \.offset) { _, card in
+                let missed = card.rating == .again || card.rating == .hard
                 VStack(spacing: 3) {
                     FlagImageView(
                         assetID: card.promptAssetID,
@@ -517,231 +446,96 @@ struct StudySessionResultView: View {
                     )
                     .frame(width: 44, height: 33)
                     .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                    .saturation(missed ? 0.5 : 1)
+                    .opacity(missed ? 0.45 : 1)
 
-                    Capsule()
-                        .fill(SpectrumBeam.tint(card.rating))
-                        .frame(width: 20, height: 3)
+                    if !missed {
+                        Capsule()
+                            .fill(ResultWaterView.green.opacity(0.9))
+                            .frame(width: 20, height: 3)
+                    }
                 }
             }
+        }
+        .padding(DesignTokens.Spacing.medium)
+        .background(
+            .black.opacity(0.25),
+            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+                .strokeBorder(.white.opacity(0.14), lineWidth: 1)
         }
         .accessibilityHidden(true)
     }
 }
 
-/// One beam of light, refracted into the session's answers by their share.
+/// The green water the finish screen stands in.
 ///
-/// Three layers make it light rather than paint: a wide blurred halo, the
-/// core, and a white sparkle blended over it. Colours meet in short blend
-/// zones and the ends dissolve — the beam enters and leaves, it does not
-/// stop. Each segment's count stands over its own span, tied to the beam by
-/// a fading tick.
-struct SpectrumBeam: View {
-    let segments: [(rating: StudyRating, count: Int)]
-    let total: Int
-    let revealed: Bool
+/// One Canvas shape — a sine surface over a filled body — so the waterline is
+/// the water's own edge and can never split from it. Time drives everything:
+/// the pour eases the level up over 2.4 seconds, then the surface keeps
+/// drifting sideways under a slow swell, on the same clock that moves the
+/// scene's lamps and sways the waiting cards.
+struct ResultWaterView: View {
+    /// The share of answers remembered, 0...1: the level the water settles at.
+    let fraction: Double
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var poursFrom = Date()
+
+    static let green = Color(red: 143 / 255, green: 212 / 255, blue: 160 / 255)
 
     var body: some View {
-        VStack(spacing: 0) {
-            labels
-                .opacity(revealed ? 1 : 0)
-                .animation(.easeOut(duration: 0.35).delay(0.3), value: revealed)
+        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduceMotion)) { context in
+            Canvas { canvas, size in
+                let time = context.date.timeIntervalSince(poursFrom)
+                let poured = reduceMotion ? 1.0 : min(1, max(0, time / 2.4))
+                // Ease-out: the water slows as it nears its level.
+                let level = fraction * (1 - pow(1 - poured, 3))
+                guard level > 0.001 else { return }
 
-            beam
-        }
-    }
+                let drift = reduceMotion ? 0 : time * 0.55
+                let swell = reduceMotion ? 0 : sin(time * 0.9) * 3.5
+                let amplitude = reduceMotion ? 8.0 : 8 + 2.5 * sin(time * 0.6 + 1)
+                let surfaceY = size.height * (1 - CGFloat(level)) + CGFloat(swell)
+                let wavelength = max(size.width / 1.5, 1)
 
-    private var labels: some View {
-        GeometryReader { proxy in
-            ForEach(Array(segments.enumerated()), id: \.offset) { index, segment in
-                let fraction = CGFloat(segment.count) / CGFloat(total)
-                let centre = starts[index] + fraction / 2
-                VStack(spacing: 1) {
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        Text("\(segment.count)")
-                            .font(DesignTokens.Typography.body.weight(.semibold))
-                            .monospacedDigit()
-                        // The word only where it fits; a narrow sliver keeps
-                        // its number and its colour says the rest.
-                        if fraction > 0.24 {
-                            Text(L10n.studyRating(segment.rating))
-                                .font(DesignTokens.Typography.caption)
-                                .opacity(0.85)
-                        }
-                    }
-                    .foregroundStyle(Self.tint(segment.rating))
-                    .lineLimit(1)
-                    .fixedSize()
-
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Self.tint(segment.rating).opacity(0),
-                                    Self.tint(segment.rating).opacity(0.55),
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .frame(width: 1, height: 9)
+                var path = Path()
+                path.move(to: CGPoint(x: 0, y: surfaceY))
+                var x: CGFloat = 0
+                let step: CGFloat = 6
+                while x <= size.width + step {
+                    let angle = Double(x / wavelength) * 2 * .pi + drift
+                    path.addLine(
+                        to: CGPoint(x: x, y: surfaceY + CGFloat(sin(angle) * amplitude))
+                    )
+                    x += step
                 }
-                .position(x: proxy.size.width * centre, y: 16)
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyResultRating(segment.rating))
-            }
-        }
-        .frame(height: 34)
-    }
+                path.addLine(to: CGPoint(x: size.width + step, y: size.height))
+                path.addLine(to: CGPoint(x: 0, y: size.height))
+                path.closeSubpath()
 
-    private var beam: some View {
-        // The app's own bar language: a quiet track, flat colour segments
-        // with hairline gaps, no glow — the colours carry the story on their
-        // own, the way every other capsule in the app does.
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Capsule().fill(.white.opacity(0.12))
-                HStack(spacing: 2) {
-                    ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
-                        Capsule(style: .continuous)
-                            .fill(Self.tint(segment.rating))
-                            .frame(
-                                width: max(
-                                    proxy.size.width
-                                        * CGFloat(segment.count) / CGFloat(total) - 2,
-                                    4
-                                )
-                            )
-                    }
-                }
+                canvas.fill(
+                    path,
+                    with: .linearGradient(
+                        Gradient(stops: [
+                            .init(color: Self.green.opacity(0.42), location: 0),
+                            .init(color: Self.green.opacity(0.16), location: 0.65),
+                            .init(color: Self.green.opacity(0.12), location: 1),
+                        ]),
+                        startPoint: CGPoint(x: 0, y: surfaceY),
+                        endPoint: CGPoint(x: 0, y: size.height)
+                    )
+                )
             }
         }
-        .frame(height: 6)
-        .clipShape(Capsule(style: .continuous))
-        .mask(alignment: .leading) {
-            GeometryReader { proxy in
-                Rectangle()
-                    .frame(width: proxy.size.width * (revealed ? 1 : 0))
-            }
-        }
-        .animation(.easeOut(duration: 0.6), value: revealed)
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
-
-    /// Cumulative segment starts, as fractions of the beam.
-    private var starts: [CGFloat] {
-        var out: [CGFloat] = []
-        var running: CGFloat = 0
-        for segment in segments {
-            out.append(running)
-            running += CGFloat(segment.count) / CGFloat(total)
-        }
-        return out
-    }
-
-    /// The answers' colours, shared with the flags' underlines: good is
-    /// white — the scene's own emphasis — and the rest lean the way the
-    /// swipe hints do.
-    static func tint(_ rating: StudyRating) -> Color {
-        switch rating {
-        case .again: Color.red.mix(with: .white, by: 0.3)
-        case .hard: Color.orange.mix(with: .white, by: 0.3)
-        case .good: .white
-        case .easy: Color.green.mix(with: .white, by: 0.3)
-        }
-    }
 }
 
-/// What the sitting did to the deck: the thread of its learned share, with
-/// the gained tail in gold and the deck's name over it.
-struct DeckDeltaPane: View {
-    let deckName: String?
-    let before: Int
-    let after: Int
-    let total: Int
-    let revealed: Bool
-
-    var body: some View {
-        GlassCard(padding: DesignTokens.Spacing.medium) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
-                    if let deckName {
-                        Text(deckName)
-                            .font(DesignTokens.Typography.sectionTitle)
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                    }
-                    Spacer(minLength: DesignTokens.Spacing.small)
-                    caption
-                }
-
-                thread
-            }
-        }
-        .accessibilityElement(children: .combine)
-    }
-
-    private var caption: some View {
-        HStack(spacing: 4) {
-            if after > before {
-                Text(L10n.studyResultLearnedFrom(before))
-                    .foregroundStyle(.white.opacity(0.65))
-                Text("\(after)")
-                    .fontWeight(.bold)
-                    .foregroundStyle(StudySessionResultView.gold)
-            } else {
-                Text(L10n.progressDeckLearned(after))
-                    .foregroundStyle(.white.opacity(0.65))
-            }
-            Text(L10n.studyResultLearnedOf(total))
-                .foregroundStyle(.white.opacity(0.65))
-        }
-        .font(DesignTokens.Typography.caption)
-        .monospacedDigit()
-        .lineLimit(1)
-    }
-
-    private var thread: some View {
-        GeometryReader { proxy in
-            let beforeFraction = total > 0 ? CGFloat(before) / CGFloat(total) : 0
-            let afterFraction = total > 0 ? CGFloat(after) / CGFloat(total) : 0
-            let shown = revealed ? afterFraction : beforeFraction
-            ZStack(alignment: .leading) {
-                Capsule().fill(.white.opacity(0.12))
-
-                // The gained tail first, gold, reaching to the new level…
-                if after > before {
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    .white.opacity(0.55), StudySessionResultView.gold,
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: proxy.size.width * shown)
-                }
-
-                // …and the old level over it, so the gold shows only as the
-                // part this sitting added.
-                Capsule()
-                    .fill(.white.opacity(0.55))
-                    .frame(width: proxy.size.width * beforeFraction)
-
-                if after > before {
-                    Circle()
-                        .fill(StudySessionResultView.gold)
-                        .frame(width: 9, height: 9)
-                        .offset(x: proxy.size.width * shown - 4.5)
-                        .opacity(revealed ? 1 : 0)
-                }
-            }
-            .animation(.easeOut(duration: 0.5), value: revealed)
-        }
-        .frame(height: 6)
-    }
-}
 struct StudyUnavailableView: View {
     let failure: StudySessionStartFailure
     let onDone: () -> Void
@@ -808,6 +602,50 @@ extension View {
     }
 }
 
+
+/// One half of the deck's promise: the direction, and the rating a throw
+/// that way commits.
+///
+/// The half is drawn twice — once quiet and white, once in its answer's
+/// colour laid over it — and the coloured layer's opacity follows the throw.
+/// Drawing it as two layers is what makes the colour change a fade rather
+/// than a switch, and it lights exactly this half and nothing beside it.
+/// The colour is never the only carrier: the arrow, the word and the side
+/// say the same thing.
+private struct SwipeHintHalf: View {
+    let symbol: String
+    let text: String
+    let tint: Color
+    let isLeading: Bool
+    /// 0...1, how far the current throw has gone this way.
+    let emphasis: CGFloat
+
+    var body: some View {
+        content
+            .foregroundStyle(.white.opacity(0.45))
+            .overlay {
+                content
+                    .foregroundStyle(tint)
+                    .opacity(emphasis)
+            }
+            // The follow is continuous while the finger moves; this smooths
+            // the snap back to quiet when the card is released.
+            .animation(.easeOut(duration: 0.25), value: emphasis == 0)
+    }
+
+    private var content: some View {
+        HStack(spacing: DesignTokens.Spacing.extraSmall) {
+            if isLeading {
+                Image(systemName: symbol)
+                Text(text)
+            } else {
+                Text(text)
+                Image(systemName: symbol)
+            }
+        }
+        .font(DesignTokens.Typography.caption.weight(.medium))
+    }
+}
 
 /// What the session looks like while it is being put together.
 ///

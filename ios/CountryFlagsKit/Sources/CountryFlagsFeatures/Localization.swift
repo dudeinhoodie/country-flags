@@ -190,13 +190,7 @@ public enum L10n {
     public static var studyResultTitle: String { localized("study.result.title") }
     public static var studyResultDone: String { localized("study.result.done") }
 
-    public static func studyResultLearnedFrom(_ count: Int) -> String {
-        String(format: localized("study.result.learned_from"), count)
-    }
-
-    public static func studyResultLearnedOf(_ total: Int) -> String {
-        String(format: localized("study.result.learned_of"), total)
-    }
+    public static var studyResultExcellent: String { localized("study.result.excellent") }
     public static var studyStart: String { localized("study.start") }
     public static var studySessionSize: String { localized("study.session_size") }
 

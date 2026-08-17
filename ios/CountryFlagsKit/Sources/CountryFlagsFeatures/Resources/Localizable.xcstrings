@@ -2296,36 +2296,19 @@
         }
       }
     },
-    "study.result.learned_from": {
+    "study.result.excellent": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "learned %lld →"
+            "value": "Excellent!"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "выучено %lld →"
-          }
-        }
-      }
-    },
-    "study.result.learned_of": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "of %lld"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "из %lld"
+            "value": "Отлично!"
           }
         }
       }
