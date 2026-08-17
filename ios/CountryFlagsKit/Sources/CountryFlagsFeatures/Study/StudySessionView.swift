@@ -511,38 +511,55 @@ struct ResultWaterView: View {
                 let step: CGFloat = 4
                 let end = size.width + step
 
-                // The grey swell is a band of its own, riding close enough to
-                // the surface that the two curves cross now and then as they
-                // drift: where it lifts above the green it shows clean, where
-                // it dips under, the water washes over it — painted first, so
-                // the green always lies on top.
-                var swellBand = Path()
-                var x: CGFloat = 0
-                while x <= end {
-                    let point = CGPoint(x: x, y: greyY(x))
-                    if x == 0 { swellBand.move(to: point) } else { swellBand.addLine(to: point) }
-                    x += step
+                func body(of surface: (CGFloat) -> CGFloat) -> Path {
+                    var path = Path()
+                    var x: CGFloat = 0
+                    while x <= end {
+                        let point = CGPoint(x: x, y: surface(x))
+                        if x == 0 { path.move(to: point) } else { path.addLine(to: point) }
+                        x += step
+                    }
+                    path.addLine(to: CGPoint(x: end, y: size.height))
+                    path.addLine(to: CGPoint(x: 0, y: size.height))
+                    path.closeSubpath()
+                    return path
                 }
-                x = end
-                while x >= 0 {
-                    swellBand.addLine(to: CGPoint(x: x, y: greyY(x) + 10))
-                    x -= step
+                func crest(of surface: (CGFloat) -> CGFloat) -> Path {
+                    var path = Path()
+                    var x: CGFloat = 0
+                    while x <= end {
+                        let point = CGPoint(x: x, y: surface(x))
+                        if x == 0 { path.move(to: point) } else { path.addLine(to: point) }
+                        x += step
+                    }
+                    return path
                 }
-                swellBand.closeSubpath()
-                canvas.fill(swellBand, with: .color(Color(white: 0.78).opacity(0.3)))
 
-                var water = Path()
-                x = 0
-                while x <= end {
-                    let point = CGPoint(x: x, y: greenY(x))
-                    if x == 0 { water.move(to: point) } else { water.addLine(to: point) }
-                    x += step
-                }
-                water.addLine(to: CGPoint(x: end, y: size.height))
-                water.addLine(to: CGPoint(x: 0, y: size.height))
-                water.closeSubpath()
+                // The grey swell is a wave of its own, full-bodied down to
+                // the floor so it never reads as a strip floating free of the
+                // bar, its own hairline marking where it ends. Painted first:
+                // the green water always lies on top, and the two crests
+                // cross now and then as they drift.
                 canvas.fill(
-                    water,
+                    body(of: greyY),
+                    with: .linearGradient(
+                        Gradient(stops: [
+                            .init(color: Color(white: 0.78).opacity(0.26), location: 0),
+                            .init(color: Color(white: 0.78).opacity(0.08), location: 0.4),
+                            .init(color: Color(white: 0.78).opacity(0.05), location: 1),
+                        ]),
+                        startPoint: CGPoint(x: 0, y: surfaceY - 4),
+                        endPoint: CGPoint(x: 0, y: size.height)
+                    )
+                )
+                canvas.stroke(
+                    crest(of: greyY),
+                    with: .color(Color(white: 0.62).opacity(0.85)),
+                    lineWidth: 1
+                )
+
+                canvas.fill(
+                    body(of: greenY),
                     with: .linearGradient(
                         Gradient(stops: [
                             .init(color: Self.green.opacity(0.36), location: 0),
@@ -552,6 +569,11 @@ struct ResultWaterView: View {
                         startPoint: CGPoint(x: 0, y: surfaceY),
                         endPoint: CGPoint(x: 0, y: size.height)
                     )
+                )
+                canvas.stroke(
+                    crest(of: greenY),
+                    with: .color(Self.green.opacity(0.9)),
+                    lineWidth: 1
                 )
             }
         }
