@@ -72,6 +72,21 @@ public struct APIClientFactory: Sendable {
         )
     }
 
+    /// A client that also carries a fresh reauthentication proof.
+    ///
+    /// The proof is a security scheme rather than a parameter, so no generated
+    /// operation has a place to put it; a middleware on a client built for one
+    /// operation does. Built per call and thrown away with the proof, which is
+    /// what keeps it from reaching an operation nobody re-authenticated for.
+    func makeClient(proving proof: ReauthenticationProof) -> Client {
+        Client(
+            serverURL: configuration.baseURL,
+            configuration: Configuration(dateTranscoder: FractionalSecondsDateTranscoder()),
+            transport: transport,
+            middlewares: [ReauthenticationMiddleware(token: proof.token)] + middlewares
+        )
+    }
+
     /// Outermost first.
     ///
     /// The context middleware runs first so one logical request carries one

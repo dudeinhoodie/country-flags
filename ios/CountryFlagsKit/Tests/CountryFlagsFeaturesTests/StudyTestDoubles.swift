@@ -133,4 +133,20 @@ actor RecordingLearningRepository: LearningRepository {
     func saveDeckProgress(_ progress: [DeckProgressRecord], for scope: AccountScope) async throws {}
     func achievements(for scope: AccountScope) async throws -> [AchievementRecord] { [] }
     func saveAchievements(_ achievements: [AchievementRecord], for scope: AccountScope) async throws {}
+
+    private var storedDueSummary: DueSummaryRecord?
+
+    func dueSummary(for scope: AccountScope) async throws -> DueSummaryRecord? { storedDueSummary }
+
+    func saveDueSummary(_ summary: DueSummaryRecord, for scope: AccountScope) async throws {
+        storedDueSummary = summary
+    }
+
+    func deleteAllProgress(for scope: AccountScope) async throws {
+        states = []
+        sessions = []
+        reviews = []
+        projectedStates = []
+        storedDueSummary = nil
+    }
 }

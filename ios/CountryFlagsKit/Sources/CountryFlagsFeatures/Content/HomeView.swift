@@ -165,7 +165,7 @@ public struct HomeView: View {
                 label: L10n.homeDueToday,
                 count: due,
                 total: nil,
-                caption: nil,
+                caption: dueBreakdown,
                 action: L10n.homeReview,
                 identifier: AccessibilityIdentifier.homeContinue,
                 run: { startDueSession(deckID: deckID) },
@@ -213,6 +213,26 @@ public struct HomeView: View {
     /// cleared queue from a fresh install.
     private var hasAnyProgress: Bool {
         progress?.decks.contains { $0.startedCards > 0 } ?? false
+    }
+
+    /// What kind of work the number above is: overdue, still being learned,
+    /// never seen. The backend counts it — a card this device has never been
+    /// shown has no local state to be counted in — so the line appears only
+    /// when a recent count arrived, and is simply absent otherwise.
+    ///
+    /// Learning and relearning are added together: the difference between a
+    /// card being learned and one being learned again is the scheduler's
+    /// business, and naming both would explain the algorithm rather than the
+    /// day.
+    private var dueBreakdown: String? {
+        guard let summary = progress?.dueSummary, summary.totalDue > 0 else { return nil }
+        var parts: [String] = []
+        if summary.overdue > 0 { parts.append(L10n.homeDueOverdue(summary.overdue)) }
+        let inLearning = summary.learning + summary.relearning
+        if inLearning > 0 { parts.append(L10n.homeDueLearning(inLearning)) }
+        if summary.newCards > 0 { parts.append(L10n.homeDueNew(summary.newCards)) }
+        guard !parts.isEmpty else { return nil }
+        return parts.joined(separator: " · ")
     }
 
     private func pane(

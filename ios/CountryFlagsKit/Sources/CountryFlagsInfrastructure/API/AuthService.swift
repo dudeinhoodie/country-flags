@@ -47,6 +47,42 @@ public struct AuthService: AuthenticationService {
         }
     }
 
+    /// The same credentials, exchanged for a proof instead of a session: the
+    /// account is already signed in, and what the backend wants before it
+    /// deletes anything is evidence that whoever asked is still at the device.
+    ///
+    /// The device is deliberately absent from the request — it registered when
+    /// the session was created, and a proof creates nothing.
+    public func reauthenticate(
+        with credential: ProviderCredential
+    ) async throws -> ReauthenticationProof {
+        let client = clientFactory.makeClient()
+        do {
+            switch credential {
+            case .apple(let identityToken, let authorizationCode, let rawNonce):
+                let output = try await client.reauthenticateApple(
+                    body: .json(
+                        .init(
+                            identityToken: identityToken,
+                            authorizationCode: authorizationCode,
+                            rawNonce: rawNonce
+                        )
+                    )
+                )
+                guard case .ok(let response) = output else { throw Self.unexpected }
+                return try Self.proof(from: response.body.json)
+            case .google(let idToken):
+                let output = try await client.reauthenticateGoogle(
+                    body: .json(.init(idToken: idToken))
+                )
+                guard case .ok(let response) = output else { throw Self.unexpected }
+                return try Self.proof(from: response.body.json)
+            }
+        } catch {
+            throw APIError.from(error)
+        }
+    }
+
     public func refresh(refreshToken: String) async throws -> RefreshedSessionRecord {
         let client = clientFactory.makeClient()
         do {
@@ -109,6 +145,15 @@ public struct AuthService: AuthenticationService {
             appVersion: record.appVersion,
             locale: record.locale,
             timezone: record.timezone
+        )
+    }
+
+    private static func proof(
+        from payload: Components.Schemas.ReauthenticationProof
+    ) throws -> ReauthenticationProof {
+        ReauthenticationProof(
+            token: payload.reauthenticationToken,
+            expiresAt: payload.expiresAt
         )
     }
 

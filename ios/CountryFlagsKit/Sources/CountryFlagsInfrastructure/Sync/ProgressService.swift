@@ -3,9 +3,10 @@ import OpenAPIRuntime
 
 import CountryFlagsDomain
 
-/// Reads `/v1/me/progress`, `/v1/me/achievements` and `/v1/me/settings`, and
-/// writes settings back under optimistic concurrency.
-public struct ProgressService: ProgressDownloading, SettingsSyncing {
+/// Reads `/v1/me/progress`, `/v1/me/achievements`, `/v1/me/due-summary` and
+/// `/v1/me/settings`, writes settings back under optimistic concurrency, and
+/// asks for an account's progress to be deleted.
+public struct ProgressService: ProgressDownloading, SettingsSyncing, ProgressClearing {
     /// Enough pages to carry every achievement the rules can award, and a stop
     /// so a server that always reports `hasMore` cannot spin here forever.
     private static let achievementPageLimit = 20
@@ -23,10 +24,12 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing {
         async let decks = deckProgress(using: client)
         async let achievements = achievements(using: client)
         async let settings = settings(using: client)
+        async let dueSummary = dueSummary(using: client)
         return try await ProgressSnapshot(
             decks: decks,
             achievements: achievements,
-            settings: settings
+            settings: settings,
+            dueSummary: dueSummary
         )
     }
 
@@ -66,6 +69,61 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing {
         }
     }
 
+    /// Asks the backend to delete the account's progress, proving the request
+    /// with what the learner just signed in for.
+    ///
+    /// Nothing local is touched here: the caller wipes the device only once
+    /// this returns, so a refusal — an expired proof, a network that dropped —
+    /// leaves the learner with everything they had.
+    public func clearProgress(
+        provingWith proof: ReauthenticationProof
+    ) async throws -> ProgressDeletionOutcome {
+        let client = clientFactory.makeClient(proving: proof)
+        let output: Operations.deleteProgress.Output
+        do {
+            output = try await client.deleteProgress(
+                body: .json(.init(confirmation: .DELETE_PROGRESS))
+            )
+        } catch {
+            throw APIError.from(error)
+        }
+
+        switch output {
+        case .accepted(let response):
+            let payload = try response.body.json
+            guard let operationID = UUID(uuidString: payload.operationId) else {
+                throw APIError.decoding("The deletion names an operation this client cannot read")
+            }
+            // An unknown status is refused rather than read as "done": the
+            // device is about to delete a learner's history on the strength of
+            // this answer.
+            guard let status = ProgressDeletionOutcome.Status(rawValue: payload.status.rawValue)
+            else {
+                throw APIError.decoding("The deletion reports a status this client cannot read")
+            }
+            logger.log(
+                .notice,
+                .sync,
+                "The backend accepted a progress deletion",
+                ["status": .safe(status.rawValue)]
+            )
+            return ProgressDeletionOutcome(
+                operationID: operationID,
+                status: status,
+                requestedAt: payload.requestedAt
+            )
+        case .unauthorized, .unprocessableContent, .default:
+            throw APIError.status(
+                APIErrorDetails(
+                    statusCode: 0,
+                    code: "UNKNOWN",
+                    message: "Unmapped progress deletion response",
+                    requestID: nil
+                )
+            )
+        }
+    }
+
     // MARK: - Reads
 
     private func deckProgress(using client: some APIProtocol) async throws -> [DeckProgressRecord] {
@@ -97,6 +155,20 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing {
             cursor = next
         }
         return collected
+    }
+
+    /// The queue as the backend counts it. Absent rather than zeroed when the
+    /// answer is not a 200: nobody counted is not the same as nothing waiting,
+    /// and the screen that reads this says nothing instead of "0".
+    private func dueSummary(using client: some APIProtocol) async throws -> DueSummaryRecord? {
+        let output: Operations.getDueSummary.Output
+        do {
+            output = try await client.getDueSummary()
+        } catch {
+            throw APIError.from(error)
+        }
+        guard case .ok(let response) = output else { return nil }
+        return Self.dueSummary(from: try response.body.json)
     }
 
     private func settings(using client: some APIProtocol) async throws -> UserSettingsRecord? {
@@ -140,6 +212,22 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing {
             currentMasteryTier: payload.currentMasteryTier,
             highestAchievementTier: payload.highestAchievementTier,
             updatedAt: payload.updatedAt
+        )
+    }
+
+    /// `review` is optional in the contract — a release that stops sending it
+    /// leaves the breakdown one line shorter rather than failing the download.
+    private static func dueSummary(
+        from payload: Components.Schemas.DueSummary
+    ) -> DueSummaryRecord {
+        DueSummaryRecord(
+            overdue: payload.overdue,
+            learning: payload.learning,
+            relearning: payload.relearning,
+            review: payload.review ?? 0,
+            newCards: payload.newCards,
+            totalDue: payload.totalDue,
+            serverTime: payload.serverTime
         )
     }
 

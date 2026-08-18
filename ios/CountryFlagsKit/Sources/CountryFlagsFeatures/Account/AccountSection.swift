@@ -90,71 +90,28 @@ struct AccountSection: View {
 
     @ViewBuilder
     private var signInControls: some View {
-        SignInWithAppleButton(.signIn) { request in
-            request.requestedScopes = [.fullName, .email]
-            // Apple signs the hash into the identity token; the backend
-            // compares it against the raw value sent with the exchange.
-            request.nonce = store.prepareNonce().hashed
-        } onCompletion: { result in
-            let rawNonce = store.preparedNonce?.raw ?? ""
-            switch AppleCredentialMapper.outcome(of: result, rawNonce: rawNonce) {
-            case .credential(let credential, let profile):
+        ProviderSignInButtons(
+            prepareNonce: { store.prepareNonce() },
+            rawNonce: { store.preparedNonce?.raw ?? "" },
+            google: store.google,
+            // Debug environments only, and only when the launch asked for it.
+            fixtureCredential: store.allowsFakeSignIn ? Self.fixtureCredential : nil,
+            appleIdentifier: AccessibilityIdentifier.accountSignInApple,
+            googleIdentifier: AccessibilityIdentifier.accountSignInGoogle,
+            fixtureIdentifier: AccessibilityIdentifier.accountFakeSignIn,
+            onCredential: { credential, profile in
                 Task { await store.signIn(with: credential, providerProfile: profile) }
-            case .cancelled:
-                store.noteCancelledSignIn()
-            case .failed(let failure):
-                store.noteProviderFailure(failure)
-            }
-        }
-        .signInWithAppleButtonStyle(.white)
-        .frame(height: DesignTokens.Layout.providerButtonHeight)
-        .accessibilityIdentifier(AccessibilityIdentifier.accountSignInApple)
-
-        if store.google != nil {
-            // The same slab as Apple's, deliberately: white, the same height,
-            // the same radius, the provider's own mark on the left. Two ways
-            // in must not look like a first choice and an afterthought.
-            Button {
-                Task { await store.signInWithGoogle() }
-            } label: {
-                HStack(spacing: DesignTokens.Spacing.small) {
-                    GoogleLogoMark()
-                        .frame(width: 18, height: 18)
-                    Text(L10n.accountSignInGoogle)
-                        .font(DesignTokens.Typography.body.weight(.medium))
-                }
-                .foregroundStyle(.black)
-                .frame(maxWidth: .infinity)
-                .frame(height: DesignTokens.Layout.providerButtonHeight)
-                .background(
-                    .white,
-                    in: RoundedRectangle(
-                        cornerRadius: DesignTokens.Radius.small, style: .continuous
-                    )
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier(AccessibilityIdentifier.accountSignInGoogle)
-        }
-
-        // Debug environments only, and only when the launch asked: the whole
-        // flow — exchange, migration, state — without a provider sheet a test
-        // cannot drive.
-        if store.allowsFakeSignIn {
-            Button(String("Sign in (fixture)")) {
-                Task {
-                    await store.signIn(
-                        with: .apple(
-                            identityToken: "fixture-identity-token",
-                            authorizationCode: "fixture-authorization-code",
-                            rawNonce: "fixture-nonce"
-                        )
-                    )
-                }
-            }
-            .accessibilityIdentifier(AccessibilityIdentifier.accountFakeSignIn)
-        }
+            },
+            onCancelled: { store.noteCancelledSignIn() },
+            onFailure: { store.noteProviderFailure($0) }
+        )
     }
+
+    private static let fixtureCredential = ProviderCredential.apple(
+        identityToken: "fixture-identity-token",
+        authorizationCode: "fixture-authorization-code",
+        rawNonce: "fixture-nonce"
+    )
 
     @ViewBuilder
     private var footer: some View {
@@ -267,7 +224,7 @@ private struct AccountAvatarView: View {
 /// Four arcs and the bar, in the brand's own colours — a trademark keeps its
 /// palette the way a flag does, so the hex values here are the logo's, not
 /// ours. Drawing it keeps the mark crisp at any size with no asset to age.
-private struct GoogleLogoMark: View {
+struct GoogleLogoMark: View {
     var body: some View {
         GeometryReader { proxy in
             let side = min(proxy.size.width, proxy.size.height)

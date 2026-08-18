@@ -89,6 +89,58 @@ public struct CardStateRecord: Hashable, Sendable {
     }
 }
 
+/// What the backend says is waiting, counted its way.
+///
+/// The device can see for itself which of the cards it holds are scheduled,
+/// and it does — the queue on the first screen is a local projection, so it
+/// stays right for a guest and stays right without a network. This is the
+/// other half: the breakdown the device cannot compute, because a card nobody
+/// on this device has ever answered has no local state to be counted in. It is
+/// read rather than derived, and it goes stale by the clock rather than by an
+/// edit, which is why it carries the instant the server counted at.
+public struct DueSummaryRecord: Hashable, Sendable {
+    public let overdue: Int
+    public let learning: Int
+    public let relearning: Int
+    /// Cards in the REVIEW state that are due. Optional in the contract, so a
+    /// release that stops sending it leaves this at zero rather than failing.
+    public let review: Int
+    public let newCards: Int
+    public let totalDue: Int
+    /// When the server counted. A reader compares it with the device's own
+    /// clock and says nothing rather than showing yesterday's queue as today's.
+    public let serverTime: Date
+
+    public init(
+        overdue: Int,
+        learning: Int,
+        relearning: Int,
+        review: Int,
+        newCards: Int,
+        totalDue: Int,
+        serverTime: Date
+    ) {
+        self.overdue = overdue
+        self.learning = learning
+        self.relearning = relearning
+        self.review = review
+        self.newCards = newCards
+        self.totalDue = totalDue
+        self.serverTime = serverTime
+    }
+
+    /// Whether the count is recent enough to put in front of someone.
+    ///
+    /// The queue moves with the clock — a card falls due at its own instant,
+    /// not at midnight — so the summary ages out rather than expiring on a
+    /// calendar boundary. Skew is treated the same in both directions: a
+    /// device whose clock runs ahead of the server's has no better claim to
+    /// the number than one that runs behind.
+    public func isFresh(at now: Date, within window: TimeInterval = 12 * 3600) -> Bool {
+        abs(now.timeIntervalSince(serverTime)) < window
+    }
+}
+
 public struct DeckProgressRecord: Hashable, Sendable {
     public let deckID: UUID
     public let totalCards: Int

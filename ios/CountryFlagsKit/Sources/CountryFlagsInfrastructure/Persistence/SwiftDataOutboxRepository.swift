@@ -127,6 +127,24 @@ actor SwiftDataOutboxRepository: OutboxRepository {
         }
     }
 
+    /// Drops the queue and the cursors together, in one transaction: a device
+    /// that kept its cursor would resume a stream the account has rotated, and
+    /// a device that kept its queue would upload answers to sessions the
+    /// backend has just deleted.
+    func discardQueuedWork(for scope: AccountScope) async throws {
+        let key = scope.key
+        try transaction {
+            for stored in try modelContext.fetch(FetchDescriptor<StoredOutboxOperation>())
+            where stored.scopeKey == key {
+                modelContext.delete(stored)
+            }
+            for stored in try modelContext.fetch(FetchDescriptor<StoredSyncCursor>())
+            where stored.scopeKey == key {
+                modelContext.delete(stored)
+            }
+        }
+    }
+
     /// An operation whose kind or state this build does not recognize is
     /// skipped rather than crashed on: a downgrade must not take the queue
     /// with it.

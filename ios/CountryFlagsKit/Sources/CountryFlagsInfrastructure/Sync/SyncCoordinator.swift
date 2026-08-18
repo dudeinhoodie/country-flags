@@ -262,6 +262,12 @@ public actor SyncCoordinator: SyncCoordinating {
             let snapshot = try await progressDownload.download()
             try await learning.saveDeckProgress(snapshot.decks, for: scope)
             try await learning.saveAchievements(snapshot.achievements, for: scope)
+            // Stored rather than held: the breakdown is what the screen shows
+            // beside its own count, and a relaunch should not have to wait for
+            // a network before it can show anything but the local projection.
+            if let dueSummary = snapshot.dueSummary {
+                try await learning.saveDueSummary(dueSummary, for: scope)
+            }
             if let serverSettings = snapshot.settings {
                 // The server's settings win only by being newer: the version
                 // moves when the server accepts a change, so an older number

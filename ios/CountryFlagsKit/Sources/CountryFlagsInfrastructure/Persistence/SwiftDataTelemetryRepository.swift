@@ -174,6 +174,7 @@ actor SwiftDataAccountScopeCleaner: AccountScopeCleaner {
             try delete(StoredCardState.self, scopeKey: key)
             try delete(StoredDeckProgress.self, scopeKey: key)
             try delete(StoredAchievement.self, scopeKey: key)
+            try delete(StoredDueSummary.self, scopeKey: key)
             try delete(StoredReviewEvent.self, scopeKey: key)
             try delete(StoredStudySession.self, scopeKey: key)
             try delete(StoredOutboxOperation.self, scopeKey: key)
@@ -204,6 +205,7 @@ extension StoredUserSettings: ScopedModel {}
 extension StoredCardState: ScopedModel {}
 extension StoredDeckProgress: ScopedModel {}
 extension StoredAchievement: ScopedModel {}
+extension StoredDueSummary: ScopedModel {}
 extension StoredReviewEvent: ScopedModel {}
 extension StoredStudySession: ScopedModel {}
 extension StoredOutboxOperation: ScopedModel {}

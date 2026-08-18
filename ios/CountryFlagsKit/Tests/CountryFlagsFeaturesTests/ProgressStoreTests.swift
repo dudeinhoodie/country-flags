@@ -11,6 +11,7 @@ private actor StoringLearningRepository: LearningRepository {
     private var storedStates: [CardStateRecord]
     private var storedDeckProgress: [DeckProgressRecord]
     private var storedAchievements: [AchievementRecord]
+    private var storedDueSummary: DueSummaryRecord?
     private(set) var savedSettings: [UserSettingsRecord] = []
 
     private let storedActiveSession: StudySessionRecord?
@@ -21,6 +22,7 @@ private actor StoringLearningRepository: LearningRepository {
         states: [CardStateRecord] = [],
         deckProgress: [DeckProgressRecord] = [],
         achievements: [AchievementRecord] = [],
+        dueSummary: DueSummaryRecord? = nil,
         activeSession: StudySessionRecord? = nil,
         sessionReviews: [ReviewEventRecord] = []
     ) {
@@ -28,6 +30,7 @@ private actor StoringLearningRepository: LearningRepository {
         storedStates = states
         storedDeckProgress = deckProgress
         storedAchievements = achievements
+        storedDueSummary = dueSummary
         storedActiveSession = activeSession
         storedSessionReviews = sessionReviews
     }
@@ -88,6 +91,21 @@ private actor StoringLearningRepository: LearningRepository {
         for scope: AccountScope
     ) async throws {
         storedAchievements = achievements
+    }
+
+    func dueSummary(for scope: AccountScope) async throws -> DueSummaryRecord? {
+        storedDueSummary
+    }
+
+    func saveDueSummary(_ summary: DueSummaryRecord, for scope: AccountScope) async throws {
+        storedDueSummary = summary
+    }
+
+    func deleteAllProgress(for scope: AccountScope) async throws {
+        storedStates = []
+        storedDeckProgress = []
+        storedAchievements = []
+        storedDueSummary = nil
     }
 }
 
@@ -393,11 +411,58 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertNil(store.continuable)
     }
 
+    // MARK: - The backend's breakdown
+
+    /// The counts stay local; the breakdown is the server's. A recent one is
+    /// what the screen puts beside the number.
+    func testARecentDueSummaryIsOfferedToTheScreen() async {
+        let card = UUID(uuidString: "20000000-0000-4000-8000-000000000001")!
+        let store = makeStore(
+            cards: [card],
+            states: [state(card, state: "REVIEW", dueAt: fixedNow)],
+            dueSummary: dueSummary(serverTime: fixedNow.addingTimeInterval(-600))
+        )
+
+        await store.load()
+
+        XCTAssertEqual(store.dueSummary?.newCards, 25)
+        XCTAssertEqual(store.dueSummary?.overdue, 7)
+    }
+
+    /// Yesterday's queue presented as today's would be worse than no
+    /// breakdown at all — and the number beside it is computed locally, so
+    /// dropping this costs nothing that matters.
+    func testAStaleDueSummaryIsNotOffered() async {
+        let card = UUID(uuidString: "20000000-0000-4000-8000-000000000001")!
+        let store = makeStore(
+            cards: [card],
+            states: [state(card, state: "REVIEW", dueAt: fixedNow)],
+            dueSummary: dueSummary(serverTime: fixedNow.addingTimeInterval(-2 * 24 * 3600))
+        )
+
+        await store.load()
+
+        XCTAssertNil(store.dueSummary)
+    }
+
+    private func dueSummary(serverTime: Date) -> DueSummaryRecord {
+        DueSummaryRecord(
+            overdue: 7,
+            learning: 3,
+            relearning: 1,
+            review: 12,
+            newCards: 25,
+            totalDue: 23,
+            serverTime: serverTime
+        )
+    }
+
     private func makeStore(
         cards: [UUID],
         states: [CardStateRecord],
         deckProgress: [DeckProgressRecord] = [],
         achievements: [AchievementRecord] = [],
+        dueSummary: DueSummaryRecord? = nil,
         activeSession: StudySessionRecord? = nil,
         sessionReviews: [ReviewEventRecord] = []
     ) -> ProgressStore {
@@ -410,6 +475,7 @@ final class ProgressStoreTests: XCTestCase {
                 states: states,
                 deckProgress: deckProgress,
                 achievements: achievements,
+                dueSummary: dueSummary,
                 activeSession: activeSession,
                 sessionReviews: sessionReviews
             ),

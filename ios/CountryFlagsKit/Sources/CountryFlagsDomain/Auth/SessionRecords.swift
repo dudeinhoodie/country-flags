@@ -82,10 +82,32 @@ public struct RefreshedSessionRecord: Hashable, Sendable {
     }
 }
 
+/// Short-lived proof that the person at the device just proved who they are.
+///
+/// Held in memory for the length of one sensitive operation and never stored:
+/// the whole point of a fresh proof is that it cannot be replayed later, and a
+/// keychain entry would make it exactly that. It is `writeOnly` in the
+/// contract for the same reason.
+public struct ReauthenticationProof: Hashable, Sendable {
+    public let token: String
+    public let expiresAt: Date
+
+    public init(token: String, expiresAt: Date) {
+        self.token = token
+        self.expiresAt = expiresAt
+    }
+
+    public func isValid(at instant: Date) -> Bool { instant < expiresAt }
+}
+
 /// The calls a session is made of, separated from the transport that carries
 /// them so the rules above can be tested without a socket.
 public protocol AuthenticationService: Sendable {
     func exchange(_ credential: ProviderCredential) async throws -> AuthSessionRecord
+    /// Turns a provider credential the account already owns into a proof for
+    /// one sensitive operation. It creates no session and rotates no tokens:
+    /// the caller is already signed in and is being asked to say so again.
+    func reauthenticate(with credential: ProviderCredential) async throws -> ReauthenticationProof
     /// - Returns: the rotated tokens. A refusal means the refresh token is
     ///   spent or revoked, and the caller must not retry with it.
     func refresh(refreshToken: String) async throws -> RefreshedSessionRecord
