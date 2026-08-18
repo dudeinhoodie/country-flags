@@ -107,15 +107,18 @@ public struct ProgressScreen: View {
                                 .foregroundStyle(.white.opacity(0.45))
                         }
                         .foregroundStyle(.white)
-                        // The whole-picture counts keep the identifier the
-                        // curated row used to carry: same fact, new place.
-                        .accessibilityIdentifier(
-                            AccessibilityIdentifier.progressDeckCounts(
-                                whole?.code ?? "ALL"
-                            )
-                        )
                     }
                     .accessibilityElement(children: .combine)
+                    // The whole-picture counts keep the identifier the
+                    // curated row used to carry: same fact, new place. It is
+                    // applied after the combine — on a container it would be
+                    // stamped onto every text inside, and a query that asks
+                    // for the single element would find a crowd.
+                    .accessibilityIdentifier(
+                        AccessibilityIdentifier.progressDeckCounts(
+                            whole?.code ?? "ALL"
+                        )
+                    )
                 }
             }
 

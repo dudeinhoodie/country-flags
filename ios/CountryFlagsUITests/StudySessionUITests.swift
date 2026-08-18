@@ -78,10 +78,14 @@ final class StudySessionUITests: XCTestCase {
         XCTAssertNotEqual(firstPosition, secondPosition)
         app.terminate()
 
-        // The same store and the same guest, so the session is still open.
+        // The same store and the same guest, so the session is still open —
+        // and Home leads with it: the today pane stands in its "continue"
+        // state, which is the product's own way back into the run. The deck
+        // pane is not rendered while a session is waiting.
         let relaunched = launch(arguments: identity)
-        openDeck(in: relaunched)
-        relaunched.buttons["study.start"].tap()
+        let resume = relaunched.buttons["home.continue"]
+        XCTAssertTrue(resume.waitForExistence(timeout: 30), relaunched.debugDescription)
+        resume.tap()
 
         XCTAssertTrue(relaunched.buttons["study.reveal"].waitForExistence(timeout: 15))
         XCTAssertEqual(
