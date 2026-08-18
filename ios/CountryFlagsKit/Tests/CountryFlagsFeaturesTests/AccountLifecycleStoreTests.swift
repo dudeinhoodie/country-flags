@@ -190,7 +190,7 @@ final class AccountLifecycleStoreTests: XCTestCase {
         XCTAssertEqual(store.export?.status, .ready)
         XCTAssertNotNil(store.exportArchive)
         XCTAssertFalse(store.exportFailure)
-        let stored = await archives.storedCount()
+        let stored = archives.storedCount()
         XCTAssertEqual(stored, 1)
     }
 
@@ -263,7 +263,7 @@ final class AccountLifecycleStoreTests: XCTestCase {
         store.discardExportArchive()
 
         XCTAssertNil(store.exportArchive)
-        let discarded = await archives.discardedCount()
+        let discarded = archives.discardedCount()
         XCTAssertEqual(discarded, 1)
     }
 
@@ -594,25 +594,25 @@ private final class InMemoryDeletionState: AccountDeletionStateStoring, @uncheck
     func store(pendingDeletion: AccountDeletionRecord?) { stored = pendingDeletion }
 }
 
-private actor RecordingArchiveStore: ExportArchiveStoring {
+/// Counts synchronously: the protocol is not async, so a double that recorded
+/// through a task would be counted after the assertion that reads it — which is
+/// a flake rather than a finding.
+private final class RecordingArchiveStore: ExportArchiveStoring, @unchecked Sendable {
+    private let lock = NSLock()
     private var stored = 0
     private var discarded = 0
 
-    nonisolated func store(archive: Data, for exportID: UUID) throws -> URL {
-        Task { await note(stored: true) }
+    func store(archive: Data, for exportID: UUID) throws -> URL {
+        lock.withLock { stored += 1 }
         return URL(fileURLWithPath: "/tmp/country-flags-export-\(exportID.uuidString).json")
     }
 
-    nonisolated func discard(archive url: URL) {
-        Task { await note(stored: false) }
+    func discard(archive url: URL) {
+        lock.withLock { discarded += 1 }
     }
 
-    private func note(stored isStore: Bool) {
-        if isStore { stored += 1 } else { discarded += 1 }
-    }
-
-    func storedCount() -> Int { stored }
-    func discardedCount() -> Int { discarded }
+    func storedCount() -> Int { lock.withLock { stored } }
+    func discardedCount() -> Int { lock.withLock { discarded } }
 }
 
 private struct StubReauthenticator: AuthenticationService {
