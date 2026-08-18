@@ -72,6 +72,13 @@ actor RecordingLearningRepository: LearningRepository {
     func saveCardStates(_ states: [CardStateRecord], for scope: AccountScope) async throws {
         self.states = states
     }
+    func deleteCardStates(_ learningCardIDs: [UUID], for scope: AccountScope) async throws {
+        let ids = Set(learningCardIDs)
+        states.removeAll { ids.contains($0.learningCardID) }
+    }
+    func deleteAllCardStates(for scope: AccountScope) async throws {
+        states = []
+    }
 
     func activeSession(for scope: AccountScope) async throws -> StudySessionRecord? {
         sessions.last { $0.status == StudySessionStatus.active.rawValue }

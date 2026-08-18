@@ -14,10 +14,15 @@ import CountryFlagsDomain
 public struct DeckProgressDetailsView: View {
     @State private var model: DeckDetailsModel
     @State private var states: [UUID: CardStateRecord] = [:]
+    @State private var selectedCountry: CountryDetailsSubject?
+    private let deckID: UUID
     private let store: ContentStore
     private let assets: any AssetLoading
     private let makeProgress: (() -> ProgressStore)?
+    private let makeSettings: (() -> SettingsStore)?
+    private let onStartStudy: ((UUID, StudySessionSize) -> Void)?
     private let dates: any DateProviding
+    @State private var sessionSize = StudySessionSize.ten
 
     @Environment(\.displayScale) private var displayScale
 
@@ -26,12 +31,17 @@ public struct DeckProgressDetailsView: View {
         store: ContentStore,
         assets: any AssetLoading,
         makeProgress: (() -> ProgressStore)? = nil,
+        makeSettings: (() -> SettingsStore)? = nil,
+        onStartStudy: ((UUID, StudySessionSize) -> Void)? = nil,
         dates: any DateProviding = SystemDateProvider()
     ) {
         _model = State(wrappedValue: DeckDetailsModel(deckID: deckID, store: store))
+        self.deckID = deckID
         self.store = store
         self.assets = assets
         self.makeProgress = makeProgress
+        self.makeSettings = makeSettings
+        self.onStartStudy = onStartStudy
         self.dates = dates
     }
 
@@ -45,6 +55,20 @@ public struct DeckProgressDetailsView: View {
             .onAppear {
                 guard let makeProgress else { return }
                 Task { states = await makeProgress().cardStatesByID() }
+            }
+            // The learner's own size setting, read once: the screen shows
+            // where the deck stands, and the button starts the next sitting.
+            .task {
+                guard let makeSettings else { return }
+                let settings = makeSettings()
+                await settings.load()
+                sessionSize = StudySessionSize(storedValue: settings.settings.sessionSize)
+            }
+
+            // The same sheet a card opens mid-session: one country, one
+            // surface, whoever asks.
+            .sheet(item: $selectedCountry) { subject in
+                CountryDetailsSheet(subject: subject, store: store, assets: assets)
             }
     }
 
@@ -72,6 +96,17 @@ public struct DeckProgressDetailsView: View {
     private func loaded(_ details: DeckDetails) -> some View {
         let groups = grouped(details.cards)
         return SceneScrollView {
+            // The action leads, the evidence follows: the screen answers
+            // "where does this deck stand" and the very next thought is
+            // "keep going" — so the button stands above the shelves rather
+            // than after two hundred flags.
+            if let onStartStudy {
+                Button(L10n.studyStart) {
+                    onStartStudy(deckID, sessionSize)
+                }
+                .buttonStyle(PrimaryActionStyle())
+            }
+
             shelf(L10n.progressLearnedLabel, cards: groups.learned, dimmed: false)
             shelf(L10n.progressInProgressLabel, cards: groups.inProgress, dimmed: false)
             shelf(L10n.progressNotStartedLabel, cards: groups.untouched, dimmed: true)
@@ -93,7 +128,12 @@ public struct DeckProgressDetailsView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
                         ForEach(cards, id: \.id) { card in
-                            tile(card, dimmed: dimmed)
+                            Button {
+                                selectedCountry = CountryDetailsSubject(card: card)
+                            } label: {
+                                tile(card, dimmed: dimmed)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .scrollTargetLayout()

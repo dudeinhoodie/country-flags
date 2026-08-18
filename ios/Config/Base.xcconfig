@@ -48,6 +48,11 @@ CODE_SIGNING_ALLOWED = NO
 // session. Ad-hoc needs no certificate, so CI is unaffected.
 CODE_SIGNING_ALLOWED[sdk=iphonesimulator*] = YES
 CODE_SIGN_IDENTITY[sdk=iphonesimulator*] = -
+// A device build is really signed: Xcode picks the team's development
+// certificate and provisions the phone. CI never builds for iphoneos, so
+// these do not touch it; the team comes from Local.xcconfig per machine.
+CODE_SIGNING_ALLOWED[sdk=iphoneos*] = YES
+CODE_SIGNING_REQUIRED[sdk=iphoneos*] = YES
 DEVELOPMENT_TEAM = $(CF_DEVELOPMENT_TEAM)
 
 // Config/App-Info.plist substitutes these into the app bundle, where

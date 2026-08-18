@@ -57,6 +57,7 @@ public struct RootView: View {
                 HomeView(
                     store: content,
                     sync: sync,
+                    assets: assets,
                     makeProgress: makeProgressStore,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
@@ -69,12 +70,20 @@ public struct RootView: View {
                             .study(
                                 deckID: continuable.deckID,
                                 size: continuable.size,
-                                mode: continuable.mode
+                                mode: continuable.mode,
+                                composition: .standard
                             )
                         )
                     },
-                    onStartStudy: { deckID, size, mode in
-                        router.push(.study(deckID: deckID, size: size, mode: mode))
+                    onStartStudy: { deckID, size, mode, composition in
+                        router.push(
+                            .study(
+                                deckID: deckID,
+                                size: size,
+                                mode: mode,
+                                composition: composition
+                            )
+                        )
                     }
                 )
                 .toolbar {
@@ -103,7 +112,7 @@ public struct RootView: View {
             .tag(AppTab.home)
 
             NavigationStack(path: $router.catalogNavigationPath) {
-                CatalogView(store: content) { router.push(.deck(id: $0)) }
+                CatalogView(store: content, assets: assets, makeProgress: makeProgressStore) { router.push(.deck(id: $0)) }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -151,7 +160,7 @@ public struct RootView: View {
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .catalog:
-            CatalogView(store: content) { router.push(.deck(id: $0)) }
+            CatalogView(store: content, assets: assets, makeProgress: makeProgressStore) { router.push(.deck(id: $0)) }
         case .deck(let id):
             DeckDetailsView(
                 deckID: id,
@@ -161,14 +170,17 @@ public struct RootView: View {
                 makeProgress: makeProgressStore,
                 isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
             ) { deckID, size, mode in
-                router.push(.study(deckID: deckID, size: size, mode: mode))
+                router.push(
+                    .study(deckID: deckID, size: size, mode: mode, composition: .standard)
+                )
             }
-        case .study(let deckID, let size, let mode):
+        case .study(let deckID, let size, let mode, let composition):
             switch mode {
             case .selfRated:
                 StudySessionView(
                     deckID: deckID,
                     size: size,
+                    composition: composition,
                     runner: makeStudyRunner(),
                     store: content,
                     assets: assets,
@@ -200,7 +212,13 @@ public struct RootView: View {
                 deckID: deckID,
                 store: content,
                 assets: assets,
-                makeProgress: makeProgressStore
+                makeProgress: makeProgressStore,
+                makeSettings: makeSettingsStore,
+                onStartStudy: { deckID, size in
+                    router.push(
+                        .study(deckID: deckID, size: size, mode: .selfRated, composition: .standard)
+                    )
+                }
             )
         case .settings:
             SettingsScreen(store: makeSettingsStore(), makeAccount: makeAccountStore)
@@ -219,7 +237,6 @@ public enum AccessibilityIdentifier {
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
 
-    public static let homeGreeting = "home.greeting"
     public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"
     public static let contentStatusBanner = "content.statusBanner"
@@ -248,6 +265,7 @@ public enum AccessibilityIdentifier {
 
     public static let homeDueEmpty = "home.due.empty"
     public static let achievementsEmpty = "achievements.empty"
+    public static let studyDeckName = "study.deckName"
 
     public static func deckCountryRow(_ cardID: UUID) -> String {
         "deck.country.\(cardID.uuidString)"

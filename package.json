@@ -50,5 +50,8 @@
     "db:down": "docker compose -f infrastructure/compose.yaml down",
     "app:up": "docker compose -f infrastructure/compose.yaml --profile app up --build -d",
     "app:down": "docker compose -f infrastructure/compose.yaml --profile app down"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "2.6.2"
   }
 }

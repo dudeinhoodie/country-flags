@@ -51,6 +51,85 @@ final class ContentBootstrapTests: XCTestCase {
         XCTAssertEqual(cardsAfterSecond, cardsAfterFirst)
     }
 
+    /// A language change re-imports the release: the version being current
+    /// says nothing about the words being in the right language, so the same
+    /// version asked for in a new locale is fetched and applied again.
+    func testALanguageChangeReimportsTheRelease() async throws {
+        let (first, repository, transport) = try makeSubject()
+        // One memory across relaunches, the way a device keeps its defaults.
+        let memory = InMemoryContentManifestTagStore()
+        let coordinator = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        _ = first
+        await coordinator.synchronize(locale: "en")
+        let fetchesAfterFirst = await transport.requests(for: "listDecks").count
+
+        let switched = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        await switched.synchronize(locale: "ru")
+
+        // The deck pages were fetched again — a full re-import, not a 304.
+        let fetchesAfterSwitch = await transport.requests(for: "listDecks").count
+        XCTAssertGreaterThan(fetchesAfterSwitch, fetchesAfterFirst)
+        // The store still holds one coherent release, not a doubled one.
+        let decks = try await repository.decks()
+        XCTAssertEqual(decks.count, 2)
+
+        // And the language settling means the next refresh is cheap again.
+        let settled = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        await settled.synchronize(locale: "ru")
+        let fetchesAfterSettled = await transport.requests(for: "listDecks").count
+        XCTAssertEqual(fetchesAfterSettled, fetchesAfterSwitch)
+    }
+
+    /// An interrupted locale re-import must not freeze half-translated: even
+    /// after the learner switches back to the original language — when the
+    /// recorded locale agrees with the request again — the open staging row
+    /// keeps the ETag home and the release is imported to the end.
+    func testAnInterruptedLocaleReimportIsFinishedAfterSwitchingBack() async throws {
+        let (first, repository, transport) = try makeSubject()
+        let memory = InMemoryContentManifestTagStore()
+        let coordinator = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        _ = first
+        await coordinator.synchronize(locale: "en")
+
+        // The Russian re-import dies on its first card page, half-way in.
+        await transport.enqueue(
+            .errorEnvelope(statusCode: 503, code: "SERVICE_UNAVAILABLE"),
+            for: "listDeckCards"
+        )
+        let switched = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        let failed = await switched.synchronize(locale: "ru")
+        XCTAssertNotNil(failed.lastFailure)
+        let staging = try await repository.stagingState(
+            forVersion: SyntheticContent.contentVersion
+        )
+        XCTAssertNotNil(staging)
+
+        // Back to English: the import runs to the end instead of a 304.
+        await transport.always(SyntheticContent.deckCardsResponse(), for: "listDeckCards")
+        let healed = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        let status = await healed.synchronize(locale: "en")
+
+        XCTAssertNil(status.lastFailure)
+        let cleared = try await repository.stagingState(
+            forVersion: SyntheticContent.contentVersion
+        )
+        XCTAssertNil(cleared)
+        let decks = try await repository.decks()
+        XCTAssertEqual(decks.count, 2)
+    }
+
     // MARK: - Paging
 
     func testASecondPageIsFetchedAndOrderedAfterTheFirst() async throws {
@@ -147,7 +226,12 @@ final class ContentBootstrapTests: XCTestCase {
     /// A tombstone takes a card out of selection without deleting the record an
     /// unfinished session may still be rendering.
     func testATombstoneRetiresACardConsistently() async throws {
-        let (coordinator, repository, transport) = try makeSubject()
+        let (first, repository, transport) = try makeSubject()
+        _ = first
+        let memory = InMemoryContentManifestTagStore()
+        let coordinator = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
         await coordinator.synchronize(locale: "en")
 
         let deckID = UUID(uuidString: SyntheticContent.allDeckID)!
@@ -166,7 +250,9 @@ final class ContentBootstrapTests: XCTestCase {
                 """),
             for: "getContentChanges"
         )
-        let refreshed = makeCoordinator(transport: transport, repository: repository)
+        let refreshed = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
         await refreshed.synchronize(locale: "en")
 
         let cards = try await repository.cards(inDeck: deckID)
@@ -177,7 +263,12 @@ final class ContentBootstrapTests: XCTestCase {
     /// The cursor advances with the feed, so the next launch does not replay
     /// changes it has already applied.
     func testTheChangeCursorAdvancesAfterAFeedPage() async throws {
-        let (coordinator, repository, transport) = try makeSubject()
+        let (first, repository, transport) = try makeSubject()
+        _ = first
+        let memory = InMemoryContentManifestTagStore()
+        let coordinator = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
         await coordinator.synchronize(locale: "en")
 
         await transport.always(
@@ -187,7 +278,9 @@ final class ContentBootstrapTests: XCTestCase {
                 """),
             for: "getContentChanges"
         )
-        let refreshed = makeCoordinator(transport: transport, repository: repository)
+        let refreshed = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
         await refreshed.synchronize(locale: "en")
 
         let manifest = try await repository.currentManifest()
@@ -261,12 +354,13 @@ final class ContentBootstrapTests: XCTestCase {
 
     private func makeCoordinator(
         transport: MockClientTransport,
-        repository: any ContentRepository
+        repository: any ContentRepository,
+        tags: any ContentManifestTagStoring = InMemoryContentManifestTagStore()
     ) -> ContentBootstrapCoordinator {
         ContentBootstrapCoordinator(
             service: ContentTestClient.makeService(transport: transport, dates: dates),
             repository: repository,
-            tags: InMemoryContentManifestTagStore(),
+            tags: tags,
             dates: dates,
             appVersion: "1.2.3",
             pageLimit: 50

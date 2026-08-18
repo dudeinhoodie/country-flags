@@ -61,6 +61,24 @@ final class ServerSelectionTests: XCTestCase {
         XCTAssertNotNil(runner.state)
     }
 
+    /// The due launch asks the backend for the queue itself: the request
+    /// carries DUE_ONLY, and the size is only the cap on one sitting.
+    func testADueOnlyLaunchAsksForTheQueue() async {
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID))
+        )
+        let runner = makeRunner(
+            learning: RecordingLearningRepository(),
+            selection: selection,
+            authenticated: true
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .twenty, composition: .dueOnly)
+
+        let compositions = await selection.requestedCompositions
+        XCTAssertEqual(compositions, [.dueOnly])
+    }
+
     /// An empty server answer is not a session; the local half decides
     /// whether there is anything to study.
     func testAnEmptyServerSessionFallsBackLocally() async {
@@ -114,6 +132,7 @@ private struct SelectableScopeResolver: AccountScopeResolving {
 private actor ScriptedSelection: StudySessionSelecting {
     private let result: Result<StudySessionRecord, any Error>
     private(set) var serverSessionCalls = 0
+    private(set) var requestedCompositions: [StudySessionComposition] = []
     private(set) var completedSessions: [UUID] = []
 
     init(result: Result<StudySessionRecord, any Error>) {
@@ -124,9 +143,11 @@ private actor ScriptedSelection: StudySessionSelecting {
         id: UUID,
         deckID: UUID,
         size: StudySessionSize,
-        mode: StudyAnswerMode
+        mode: StudyAnswerMode,
+        composition: StudySessionComposition
     ) async throws -> StudySessionRecord {
         serverSessionCalls += 1
+        requestedCompositions.append(composition)
         return try result.get()
     }
 

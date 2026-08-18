@@ -22,17 +22,26 @@ public final class ContentStore {
     private let coordinator: any ContentSynchronizing
     private let dates: any DateProviding
     private let preferredLanguages: [String]
+    /// Fetches one entity from the API when the store has no row for it. The
+    /// pages a bootstrap imports carry cards without their entities — only
+    /// the change feed delivers those — so on a fresh install this is how a
+    /// card back learns an official name. The composition wires it to the
+    /// content service and persists what it fetched; nil leaves the store's
+    /// answer final.
+    private let fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)?
 
     public init(
         repository: any ContentRepository,
         coordinator: any ContentSynchronizing,
         dates: any DateProviding = SystemDateProvider(),
-        preferredLanguages: [String] = Locale.preferredLanguages
+        preferredLanguages: [String] = Locale.preferredLanguages,
+        fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)? = nil
     ) {
         self.repository = repository
         self.coordinator = coordinator
         self.dates = dates
         self.preferredLanguages = preferredLanguages
+        self.fetchEntity = fetchEntity
     }
 
     /// Draws what the device already has, then brings it up to date.
@@ -89,6 +98,18 @@ public final class ContentStore {
 
     public func card(id: UUID) async -> LearningCardRecord? {
         try? await repository.card(id: id)
+    }
+
+    public func cardIdentifiersByDeck() async -> [UUID: [UUID]] {
+        (try? await repository.cardIdentifiersByDeck()) ?? [:]
+    }
+
+    public func entity(id: UUID) async -> GeoEntityRecord? {
+        if let stored = (try? await repository.entity(id: id)) ?? nil { return stored }
+        guard let fetchEntity else { return nil }
+        // Fetched once, persisted by the closure, and read back from the
+        // store on every later ask like everything else on screen.
+        return await fetchEntity(id, await requestLocale())
     }
 
     public func asset(id: UUID) async -> AssetRecord? {

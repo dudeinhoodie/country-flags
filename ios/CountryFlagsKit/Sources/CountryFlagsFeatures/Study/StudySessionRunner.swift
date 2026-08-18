@@ -25,6 +25,9 @@ struct PendingReviewPayload: Codable, Hashable, Sendable {
 public enum StudySessionStartFailure: Hashable, Sendable {
     /// The deck has no card this build can study.
     case noUsableCards
+    /// A due-only session found the repeat queue empty. Honest and happy:
+    /// there is nothing to review right now, which is not an error.
+    case nothingDue
     /// The store refused, so nothing was started.
     case storeUnavailable
 }
@@ -89,14 +92,18 @@ public final class StudySessionRunner {
     /// Resuming comes first: a learner who closed the app mid-session expects
     /// the card they were on, not a fresh selection that discards their
     /// answers.
-    public func startOrResume(deckID: UUID, size: StudySessionSize) async {
+    public func startOrResume(
+        deckID: UUID,
+        size: StudySessionSize,
+        composition: StudySessionComposition = .standard
+    ) async {
         if scope == nil { scope = await scopes.currentScope() }
-        if await resume(deckID: deckID) { return }
-        await start(deckID: deckID, size: size)
+        if await resume(deckID: deckID, composition: composition) { return }
+        await start(deckID: deckID, size: size, composition: composition)
     }
 
     /// - Returns: whether an unfinished session was picked up.
-    private func resume(deckID: UUID) async -> Bool {
+    private func resume(deckID: UUID, composition: StudySessionComposition) async -> Bool {
         guard let session = try? await learning.activeSession(for: resolvedScope),
             session.deckID == deckID,
             // A session belongs to the mode that started it. Without this
@@ -105,7 +112,15 @@ public final class StudySessionRunner {
             // multiple-choice session — a contract violation waiting for the
             // first upload.
             session.mode == StudyAnswerMode.selfRated.rawValue,
-            !session.cards.isEmpty
+            !session.cards.isEmpty,
+            // A due-only launch promises the repeat queue and nothing else.
+            // The record does not store its composition, but the snapshot
+            // wears it: a session holding a new or padding card is not the
+            // repeat queue, and picking it up would break the promise the
+            // button just made — it is abandoned by the fresh start instead.
+            // A standard launch resumes anything: a learner who closed the
+            // app mid-session expects their cards back, whatever they are.
+            composition == .standard || session.cards.allSatisfy(Self.belongsToRepeatQueue)
         else {
             return false
         }
@@ -138,7 +153,18 @@ public final class StudySessionRunner {
         return true
     }
 
-    private func start(deckID: UUID, size: StudySessionSize) async {
+    /// Whether a card snapshot belongs to the repeat queue. The reasons come
+    /// from two vocabularies — the backend's and the local selector's — and
+    /// the padding bands are what a due-only session must not contain.
+    private static func belongsToRepeatQueue(_ card: StudySessionCardRecord) -> Bool {
+        !["NEW", "MAINTENANCE", "FILLER"].contains(card.selectionReason)
+    }
+
+    private func start(
+        deckID: UUID,
+        size: StudySessionSize,
+        composition: StudySessionComposition
+    ) async {
         // The backend composes when it can: it has seen every device's
         // answers, so its selection is the canonical one. Every failure —
         // offline, a refusal, an empty answer — falls through to the local
@@ -149,7 +175,8 @@ public final class StudySessionRunner {
                     id: identifiers.next(),
                     deckID: deckID,
                     size: size,
-                    mode: .selfRated
+                    mode: .selfRated,
+                    composition: composition
                 )
                 if !record.cards.isEmpty {
                     try await learning.saveSession(record, for: resolvedScope)
@@ -160,6 +187,17 @@ public final class StudySessionRunner {
                         cards: record.cards,
                         phase: .front(index: 0)
                     )
+                    return
+                }
+                if composition == .dueOnly {
+                    // An empty due-only answer is the contract keeping its
+                    // word — the session "holds none when nothing is due" —
+                    // not a failure to route around. Composing locally here
+                    // would deal cards the server just said are not due. The
+                    // zero-card session is closed out, best effort, so it
+                    // does not linger ACTIVE on the backend.
+                    await selection.completeSession(id: record.id)
+                    startFailure = .nothingDue
                     return
                 }
             } catch {
@@ -178,13 +216,19 @@ public final class StudySessionRunner {
             supportedTemplateSchemaVersions: manifest?.supportedTemplateSchemaVersions ?? [],
             now: dates.now()
         )
-        guard !selected.isEmpty else {
-            startFailure = .noUsableCards
+        // Offline, the due-only promise still holds: the local bands mark
+        // every card with its reason, and the queue is the due band alone.
+        let composed = composition == .dueOnly
+            ? selected.filter { $0.reason == .due }
+            : selected
+        guard !composed.isEmpty else {
+            // An empty repeat queue is good news, not a broken deck.
+            startFailure = composition == .dueOnly ? .nothingDue : .noUsableCards
             return
         }
 
         let sessionID = identifiers.next()
-        let snapshot = selected.map { selection in
+        let snapshot = composed.map { selection in
             StudySessionCardRecord(
                 id: identifiers.next(),
                 learningCardID: selection.card.id,
@@ -411,31 +455,69 @@ public final class StudySessionRunner {
             guard let rating = StudyRating(rawValue: review.rating) else { continue }
             counts[rating, default: 0] += 1
         }
+        // The flags return in the session's own order, each wearing what was
+        // said about it.
+        let ratingByCard = Dictionary(
+            reviews.compactMap { review in
+                StudyRating(rawValue: review.rating).map { (review.learningCardID, $0) }
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let answered = session.cards.compactMap { card in
+            ratingByCard[card.learningCardID].map {
+                StudySessionSummary.AnsweredCard(promptAssetID: card.promptAssetID, rating: $0)
+            }
+        }
         summary = StudySessionSummary(
             sessionID: session.sessionID,
             deckID: session.deckID,
             plannedCards: session.cards.count,
-            ratings: counts
+            ratings: counts,
+            answered: answered
         )
     }
 }
 
 public struct StudySessionSummary: Hashable, Sendable {
+    /// One answered card, in the order it was answered: enough to show the
+    /// flag again and the colour of what the learner said about it.
+    public struct AnsweredCard: Hashable, Sendable {
+        public let promptAssetID: UUID
+        public let rating: StudyRating
+
+        public init(promptAssetID: UUID, rating: StudyRating) {
+            self.promptAssetID = promptAssetID
+            self.rating = rating
+        }
+    }
+
     public let sessionID: UUID
     public let deckID: UUID
     public let plannedCards: Int
     public let ratings: [StudyRating: Int]
+    public let answered: [AnsweredCard]
 
-    public init(sessionID: UUID, deckID: UUID, plannedCards: Int, ratings: [StudyRating: Int]) {
+    public init(
+        sessionID: UUID,
+        deckID: UUID,
+        plannedCards: Int,
+        ratings: [StudyRating: Int],
+        answered: [AnsweredCard] = []
+    ) {
         self.sessionID = sessionID
         self.deckID = deckID
         self.plannedCards = plannedCards
         self.ratings = ratings
+        self.answered = answered
     }
 
     /// How many answers reached the store. It is counted from the reviews
     /// rather than from the plan, because a session can be left unfinished.
     public var answeredCards: Int { ratings.values.reduce(0, +) }
+
+    /// The binary reading the finish screen speaks: good and easy answers
+    /// count as remembered.
+    public var rememberedCards: Int { (ratings[.good] ?? 0) + (ratings[.easy] ?? 0) }
     public var recalledCards: Int {
         ratings.filter(\.key.isRecall).values.reduce(0, +)
     }

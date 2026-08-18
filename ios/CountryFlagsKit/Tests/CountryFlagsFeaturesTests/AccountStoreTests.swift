@@ -20,6 +20,38 @@ final class AccountStoreTests: XCTestCase {
         XCTAssertNil(store.lastFailure)
     }
 
+    /// The sync follows the import, in that order: it is what brings the
+    /// account's history home, and without it a fresh device showed nothing
+    /// until the next foreground.
+    func testASuccessfulSignInStartsASyncAfterTheImport() async {
+        let session = ScriptedSession(outcome: .succeeded(userID: Fixtures.userID))
+        let order = OrderRecorder()
+        let migrations = RecordingMigrations(order: order)
+        let store = makeStore(session: session, migrations: migrations)
+        store.onSignedIn = { await order.note("sync") }
+
+        await store.signIn(with: Fixtures.credential)
+
+        let imported = await migrations.importedInto
+        XCTAssertEqual(imported, [Fixtures.userID])
+        // Both happened, and in this order: the sync must upload the imported
+        // work rather than race it.
+        let notes = await order.notes
+        XCTAssertEqual(notes, ["import", "sync"])
+    }
+
+    func testAFailedSignInDoesNotStartASync() async {
+        let session = ScriptedSession(outcome: .failed(.offline))
+        let store = makeStore(session: session, migrations: RecordingMigrations())
+        let order = OrderRecorder()
+        store.onSignedIn = { await order.note("sync") }
+
+        await store.signIn(with: Fixtures.credential)
+
+        let notes = await order.notes
+        XCTAssertEqual(notes, [])
+    }
+
     func testAFailedSignInIsWordedAndImportsNothing() async {
         let session = ScriptedSession(outcome: .failed(.offline))
         let migrations = RecordingMigrations()
@@ -133,9 +165,15 @@ private actor ScriptedSession: SessionControlling {
 
 private actor RecordingMigrations: GuestMigrationRunning {
     private(set) var importedInto: [UUID] = []
+    private let order: OrderRecorder?
+
+    init(order: OrderRecorder? = nil) {
+        self.order = order
+    }
 
     func importGuestWork(into userID: UUID) async -> GuestMigrationOutcome {
         importedInto.append(userID)
+        await order?.note("import")
         return .nothingToImport
     }
 }
@@ -188,4 +226,13 @@ private struct StubOutbox: OutboxRepository {
     ) async throws -> SyncCursorRecord? { nil }
 
     func saveCursor(_ cursor: SyncCursorRecord, for scope: AccountScope) async throws {}
+}
+
+
+private actor OrderRecorder {
+    private(set) var notes: [String] = []
+
+    func note(_ name: String) {
+        notes.append(name)
+    }
 }

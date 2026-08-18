@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "viet-nam.svg",
-      "idiom": "universal"
+      "filename": "flag-viet-nam@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-viet-nam@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

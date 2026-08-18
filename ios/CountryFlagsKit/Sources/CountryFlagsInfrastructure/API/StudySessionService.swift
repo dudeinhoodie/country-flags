@@ -33,7 +33,8 @@ public struct StudySessionService: StudySessionSelecting, StudySessionImporting 
         id: UUID,
         deckID: UUID,
         size: StudySessionSize,
-        mode: StudyAnswerMode
+        mode: StudyAnswerMode,
+        composition: StudySessionComposition
     ) async throws -> StudySessionRecord {
         let client = clientFactory.makeClient()
         do {
@@ -49,7 +50,8 @@ public struct StudySessionService: StudySessionSelecting, StudySessionImporting 
                 requestedUniqueCount: count,
                 mode: mode == .multipleChoice ? .MULTIPLE_CHOICE : .SELF_RATED,
                 locale: await requestLocale(),
-                selectionOrigin: .SERVER
+                selectionOrigin: .SERVER,
+                composition: composition == .dueOnly ? .DUE_ONLY : .STANDARD
             )
             let output = try await client.createStudySession(
                 body: .json(.SERVER(request))

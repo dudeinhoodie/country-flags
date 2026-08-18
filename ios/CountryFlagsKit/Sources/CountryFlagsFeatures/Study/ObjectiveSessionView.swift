@@ -8,6 +8,11 @@ public struct ObjectiveSessionView: View {
     @State private var palette: ScenePalette = .neutral
 
     private let deckID: UUID
+    /// The deck's own name, worn by the session. Identical flags fly over
+    /// different countries — Heard Island under Australia's, Bonaire under
+    /// the Dutch — and which answer is right can depend on which deck is
+    /// asking. The context stays on screen rather than being remembered.
+    @State private var deckName = ""
     private let size: StudySessionSize
     private let store: ContentStore
     private let assets: any AssetLoading
@@ -38,6 +43,7 @@ public struct ObjectiveSessionView: View {
             AppScene(palette: palette)
 
             content
+            .task(id: deckID) { deckName = await store.deck(id: deckID)?.name ?? "" }
                 .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
                 .padding(DesignTokens.Spacing.large)
         }
@@ -145,32 +151,12 @@ public struct ObjectiveSessionView: View {
 
     /// The counter and the way out, the same pair the deck carries.
     private func hud(state: ObjectiveSessionState) -> some View {
-        HStack {
-            Text(L10n.studyProgress(state.position, state.questions.count))
-                .font(DesignTokens.Typography.caption.weight(.medium))
-                .monospacedDigit()
-                .contentTransition(.numericText())
-                .foregroundStyle(.white)
-                .padding(.horizontal, DesignTokens.Spacing.medium)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
-                .background(.ultraThinMaterial, in: Capsule())
-                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
-
-            Spacer()
-
-            Button(action: onFinish) {
-                Image(systemName: "xmark")
-                    .font(DesignTokens.Typography.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(
-                        width: DesignTokens.Layout.minimumTouchTarget,
-                        height: DesignTokens.Layout.minimumTouchTarget
-                    )
-                    .background(.ultraThinMaterial, in: Circle())
-            }
-            .accessibilityLabel(L10n.studyClose)
-            .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
-        }
+        SessionHUD(
+            position: state.position,
+            total: state.questions.count,
+            deckName: deckName,
+            onClose: onFinish
+        )
     }
 
     private func loadPalette(for question: ObjectiveQuestion) async {
@@ -212,7 +198,7 @@ struct OptionButton: View {
             .padding(.horizontal, DesignTokens.Spacing.medium)
             .frame(minHeight: DesignTokens.Layout.actionHeight)
             .frame(maxWidth: .infinity)
-            .background(.ultraThinMaterial, in: shape)
+            .glassEffect(.regular, in: shape)
             // The verdict is painted as an edge rather than a fill: a tinted
             // fill under a material turns into a wash the whole row wears, and
             // two of them side by side stop reading as two answers.
@@ -302,6 +288,9 @@ struct ObjectiveResultView: View {
         }
         .onAppear { hasArrived = true }
         .animation(reduceMotion ? nil : .bouncy(duration: 0.5), value: hasArrived)
+        // Raised once, behind the number: the shower celebrates the deck,
+        // and the summary stays readable through it.
+        .background { CelebrationView() }
         .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
     }
 }

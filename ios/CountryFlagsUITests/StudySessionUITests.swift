@@ -19,8 +19,10 @@ final class StudySessionUITests: XCTestCase {
 
         // Answer until the session ends. The count is not hard-coded: the mock
         // release decides how many cards a deck has, and a test that pinned it
-        // would break every time the mock gains a country.
-        let result = app.staticTexts["study.result.title"]
+        // would break every time the mock gains a country. The result screen
+        // is recognised by its exit button — the redesigned screen carries no
+        // title.
+        let result = app.buttons["study.result.done"]
         var answered = 0
         while !result.exists && answered < 30 {
             let reveal = app.buttons["study.reveal"]
@@ -41,7 +43,11 @@ final class StudySessionUITests: XCTestCase {
 
         XCTAssertGreaterThan(answered, 0)
         XCTAssertTrue(result.waitForExistence(timeout: 10), app.debugDescription)
-        let score = app.staticTexts["study.result.answered"]
+        // Matched by identifier across every element type: how SwiftUI
+        // classifies the combined score element is its business.
+        let score = app.descendants(matching: .any)
+            .matching(identifier: "study.result.answered")
+            .firstMatch
         XCTAssertTrue(score.exists)
         XCTAssertFalse(score.label.isEmpty)
         // A string catalog key must never reach the interface.
@@ -72,10 +78,14 @@ final class StudySessionUITests: XCTestCase {
         XCTAssertNotEqual(firstPosition, secondPosition)
         app.terminate()
 
-        // The same store and the same guest, so the session is still open.
+        // The same store and the same guest, so the session is still open —
+        // and Home leads with it: the today pane stands in its "continue"
+        // state, which is the product's own way back into the run. The deck
+        // pane is not rendered while a session is waiting.
         let relaunched = launch(arguments: identity)
-        openDeck(in: relaunched)
-        relaunched.buttons["study.start"].tap()
+        let resume = relaunched.buttons["home.continue"]
+        XCTAssertTrue(resume.waitForExistence(timeout: 30), relaunched.debugDescription)
+        resume.tap()
 
         XCTAssertTrue(relaunched.buttons["study.reveal"].waitForExistence(timeout: 15))
         XCTAssertEqual(

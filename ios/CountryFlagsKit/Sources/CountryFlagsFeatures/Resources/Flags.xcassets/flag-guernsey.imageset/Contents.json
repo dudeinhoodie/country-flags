@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "guernsey.svg",
-      "idiom": "universal"
+      "filename": "flag-guernsey@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-guernsey@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

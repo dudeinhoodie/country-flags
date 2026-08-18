@@ -1063,6 +1063,16 @@ schemas:
       selectionOrigin:
         type: string
         const: SERVER
+      composition:
+        type: string
+        enum: [STANDARD, DUE_ONLY]
+        default: STANDARD
+        description: >-
+          STANDARD fills the session to requestedUniqueCount — due cards
+          first, then new, then maintenance. DUE_ONLY selects only cards
+          whose schedule has come round, capped at requestedUniqueCount:
+          the session may hold fewer cards than requested, and holds none
+          when nothing is due.
   CreateOfflineStudySessionRequest:
     type: object
     description: >-

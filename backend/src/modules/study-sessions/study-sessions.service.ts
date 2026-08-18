@@ -27,6 +27,7 @@ import { generateMultipleChoiceOptions } from "./multiple-choice-options";
 import {
   type SessionCandidate,
   type SelectedCandidate,
+  isDue,
   selectSessionCandidates,
   selectionReasonFor,
 } from "./session-selection";
@@ -213,13 +214,20 @@ export class StudySessionsService {
           },
         });
         const now = new Date();
+        const candidates = memberships.map((membership) => ({
+          ...membership,
+          state: membership.learningCard.userStates[0] ?? null,
+        }));
+        // DUE_ONLY narrows the pool before ranking: the session holds what
+        // the schedule owes and nothing else, however few that is.
+        const pool =
+          request.composition === "DUE_ONLY"
+            ? candidates.filter((candidate) => isDue(candidate, now))
+            : candidates;
         const ranked = selectSessionCandidates(
-          memberships.map((membership) => ({
-            ...membership,
-            state: membership.learningCard.userStates[0] ?? null,
-          })),
+          pool,
           request.mode === AnswerMode.MULTIPLE_CHOICE
-            ? memberships.length
+            ? pool.length
             : request.requestedUniqueCount,
           request.id,
           now,

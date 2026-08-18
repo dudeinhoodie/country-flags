@@ -409,57 +409,6 @@
         }
       }
     },
-    "catalog.section.curated": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Collections"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подборки"
-          }
-        }
-      }
-    },
-    "catalog.section.personal": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your decks"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ваши колоды"
-          }
-        }
-      }
-    },
-    "catalog.section.regions": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Regions"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Регионы"
-          }
-        }
-      }
-    },
     "catalog.title": {
       "extractionState": "manual",
       "localizations": {
@@ -796,6 +745,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Колода"
+          }
+        }
+      }
+    },
+    "details.also_known": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also known as %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Также: %@"
+          }
+        }
+      }
+    },
+    "details.region": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Region"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Регион"
           }
         }
       }
@@ -1174,19 +1157,19 @@
         }
       }
     },
-    "home.greeting": {
+    "home.due_today": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Learn the flags of the world"
+            "value": "To review today"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Учите флаги мира"
+            "value": "Сегодня к повторению"
           }
         }
       }
@@ -1238,6 +1221,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Рекомендуем"
+          }
+        }
+      }
+    },
+    "home.review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить"
           }
         }
       }
@@ -1429,23 +1429,6 @@
         }
       }
     },
-    "progress.decks": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Decks"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Колоды"
-          }
-        }
-      }
-    },
     "progress.empty.body": {
       "extractionState": "manual",
       "localizations": {
@@ -1493,6 +1476,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Выучено"
+          }
+        }
+      }
+    },
+    "progress.map_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "brighter is closer to done"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ярче — ближе к цели"
           }
         }
       }
@@ -2024,6 +2024,23 @@
         }
       }
     },
+    "study.nothing_due": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to review right now — come back when cards are due."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока нечего повторять — возвращайся, когда подойдёт срок карточек."
+          }
+        }
+      }
+    },
     "study.objective.score": {
       "extractionState": "manual",
       "localizations": {
@@ -2177,23 +2194,6 @@
         }
       }
     },
-    "study.result.answered": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$lld of %2$lld cards answered"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отвечено карточек: %1$lld из %2$lld"
-          }
-        }
-      }
-    },
     "study.result.done": {
       "extractionState": "manual",
       "localizations": {
@@ -2207,6 +2207,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Готово"
+          }
+        }
+      }
+    },
+    "study.result.excellent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excellent!"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отлично!"
+          }
+        }
+      }
+    },
+    "study.result.remembered": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld remembered"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запомнено %1$lld из %2$lld"
           }
         }
       }

@@ -83,6 +83,33 @@ actor SwiftDataLearningRepository: LearningRepository {
         }
     }
 
+    func deleteCardStates(_ learningCardIDs: [UUID], for scope: AccountScope) async throws {
+        guard !learningCardIDs.isEmpty else { return }
+        let key = scope.key
+        let ids = Set(learningCardIDs)
+        try transaction {
+            let descriptor = FetchDescriptor<StoredCardState>(
+                predicate: #Predicate { $0.scopeKey == key }
+            )
+            for stored in try modelContext.fetch(descriptor)
+            where ids.contains(stored.learningCardID) {
+                modelContext.delete(stored)
+            }
+        }
+    }
+
+    func deleteAllCardStates(for scope: AccountScope) async throws {
+        let key = scope.key
+        try transaction {
+            let descriptor = FetchDescriptor<StoredCardState>(
+                predicate: #Predicate { $0.scopeKey == key }
+            )
+            for stored in try modelContext.fetch(descriptor) {
+                modelContext.delete(stored)
+            }
+        }
+    }
+
     func activeSession(for scope: AccountScope) async throws -> StudySessionRecord? {
         let key = scope.key
         let active = "ACTIVE"

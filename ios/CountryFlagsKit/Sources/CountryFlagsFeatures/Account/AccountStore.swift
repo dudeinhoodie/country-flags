@@ -26,6 +26,10 @@ public final class AccountStore {
     /// Whether the debug fake sign-in is offered. Wired from the composition:
     /// debug environments only, and only when the launch asked for it.
     public let allowsFakeSignIn: Bool
+    /// Called after a sign-in succeeds and the guest migration has settled —
+    /// in that order, so the sync it starts uploads the imported work rather
+    /// than racing it. The composition points this at the sync coordinator.
+    public var onSignedIn: (@Sendable () async -> Void)?
 
     /// Present when the build carries Google credentials; the button follows.
     public let google: (any GoogleSignInPresenting)?
@@ -112,6 +116,9 @@ public final class AccountStore {
         switch outcome {
         case .succeeded(let userID):
             migration = await migrations.importGuestWork(into: userID)
+            // The sync is what brings the account's history home; without
+            // this, a fresh device showed nothing until the next foreground.
+            await onSignedIn?()
         case .cancelled:
             break
         case .failed(let failure):

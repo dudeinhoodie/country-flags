@@ -9,29 +9,22 @@ import SwiftUI
 
 /// A pane of glass holding content.
 ///
-/// The hairline is not decoration: a material over a dark scene has no edge of
-/// its own, and without one two stacked cards read as a single smudge.
+/// The system's own liquid glass — what the iOS 26 floor was raised for. The
+/// hand-drawn hairline is gone with the hand-rolled material: real glass
+/// carries its own edge, and drawing a second one over it read as a smudge
+/// outline rather than a rim.
 struct GlassCard<Content: View>: View {
     var padding: CGFloat = DesignTokens.Spacing.medium
     @ViewBuilder var content: Content
-
-    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         content
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(padding)
-            .background(.ultraThinMaterial, in: shape)
-            .overlay {
-                shape.strokeBorder(
-                    .white.opacity(DesignTokens.Card.borderOpacity),
-                    lineWidth: 1 / displayScale
-                )
-            }
-    }
-
-    private var shape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+            .glassEffect(
+                .regular,
+                in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+            )
     }
 }
 
@@ -81,7 +74,6 @@ struct PrimaryActionStyle: ButtonStyle {
 struct GlassActionStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.displayScale) private var displayScale
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -89,43 +81,112 @@ struct GlassActionStyle: ButtonStyle {
             .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.4))
             .frame(maxWidth: .infinity)
             .frame(minHeight: DesignTokens.Layout.actionHeight)
-            .background(.ultraThinMaterial, in: Capsule(style: .continuous))
-            .overlay {
-                Capsule(style: .continuous)
-                    .strokeBorder(
-                        .white.opacity(DesignTokens.Card.borderOpacity),
-                        lineWidth: 1 / displayScale
-                    )
-            }
+            .glassEffect(.regular.interactive(), in: Capsule(style: .continuous))
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
             .animation(reduceMotion ? nil : .snappy(duration: 0.2), value: configuration.isPressed)
     }
 }
 
-/// A row that opens something.
+/// A row of choices with one sliding thumb.
 ///
-/// The chevron is the whole affordance: rows on glass have no separators and no
-/// background of their own, so without it a row is indistinguishable from a
-/// paragraph.
-struct GlassRow<Leading: View, Content: View>: View {
-    @ViewBuilder var leading: Leading
-    @ViewBuilder var content: Content
+/// The system's segmented control fights the scene — its own material, its
+/// own tint, and on glass the thumb snapped instead of sliding. This one is
+/// built from the scene's parts: a glass capsule track, a white thumb that
+/// slides between choices with matched geometry, and the same reduced-motion
+/// manners as everything else.
+struct GlassSegmentedPicker<Option: Hashable>: View {
+    @Binding var selection: Option
+    let options: [Option]
+    let label: (Option) -> String
+    var identifier: ((Option) -> String)?
+
+    @Namespace private var thumb
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(spacing: DesignTokens.Spacing.medium) {
-            leading
-
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                content
+        HStack(spacing: 0) {
+            ForEach(options, id: \.self) { option in
+                Button {
+                    withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) {
+                        selection = option
+                    }
+                } label: {
+                    Text(label(option))
+                        .font(
+                            DesignTokens.Typography.body
+                                .weight(selection == option ? .semibold : .medium)
+                        )
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.8)
+                        .foregroundStyle(selection == option ? .black : .white.opacity(0.85))
+                        .background {
+                            if selection == option {
+                                Capsule(style: .continuous)
+                                    .fill(.white)
+                                    .matchedGeometryEffect(id: "thumb", in: thumb)
+                            }
+                        }
+                        .contentShape(Capsule(style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selection == option ? [.isSelected] : [])
+                .accessibilityIdentifier(identifier?(option) ?? "")
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            Image(systemName: "chevron.right")
-                .font(DesignTokens.Typography.caption.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.35))
         }
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-        .contentShape(.rect)
+        .padding(DesignTokens.Spacing.extraSmall)
+        .glassEffect(.regular, in: Capsule(style: .continuous))
+    }
+}
+
+/// The session chrome both study modes wear: the counter, the deck's name,
+/// and the way out — capsules over the scene, one component so the two modes
+/// cannot drift apart.
+struct SessionHUD: View {
+    let position: Int
+    let total: Int
+    /// The deck the learner is inside; hidden while it has not loaded.
+    let deckName: String
+    let onClose: () -> Void
+
+    var body: some View {
+        HStack {
+            Text(L10n.studyProgress(position, total))
+                .font(DesignTokens.Typography.caption.weight(.medium))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
+                .glassEffect(.regular, in: Capsule())
+                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
+
+            Spacer()
+
+            if !deckName.isEmpty {
+                Text(deckName)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.65))
+                    .lineLimit(1)
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyDeckName)
+            }
+
+            Spacer()
+
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .font(DesignTokens.Typography.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(
+                        width: DesignTokens.Layout.minimumTouchTarget,
+                        height: DesignTokens.Layout.minimumTouchTarget
+                    )
+                    .glassEffect(.regular, in: Circle())
+            }
+            .accessibilityLabel(L10n.studyClose)
+            .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
+        }
     }
 }
 
@@ -142,6 +203,35 @@ struct SkeletonBlock: View {
         RoundedRectangle(cornerRadius: radius, style: .continuous)
             .fill(.ultraThinMaterial)
             .frame(height: height)
+            .skeletonPulse()
+    }
+}
+
+/// The breath a placeholder takes while its content is on the way.
+///
+/// A still skeleton is indistinguishable from a hang; the slow fade says the
+/// screen is waiting, not stuck. With reduced motion the skeleton holds still,
+/// as everything else does.
+private struct SkeletonPulse: ViewModifier {
+    @State private var isDimmed = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(isDimmed ? 0.45 : 1)
+            .animation(
+                reduceMotion
+                    ? nil
+                    : .easeInOut(duration: 0.9).repeatForever(autoreverses: true),
+                value: isDimmed
+            )
+            .onAppear { isDimmed = true }
+    }
+}
+
+extension View {
+    func skeletonPulse() -> some View {
+        modifier(SkeletonPulse())
     }
 }
 

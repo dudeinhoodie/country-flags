@@ -43,6 +43,13 @@ private actor StoringLearningRepository: LearningRepository {
     func saveCardStates(_ states: [CardStateRecord], for scope: AccountScope) async throws {
         storedStates = states
     }
+    func deleteCardStates(_ learningCardIDs: [UUID], for scope: AccountScope) async throws {
+        let ids = Set(learningCardIDs)
+        storedStates.removeAll { ids.contains($0.learningCardID) }
+    }
+    func deleteAllCardStates(for scope: AccountScope) async throws {
+        storedStates = []
+    }
 
     func activeSession(for scope: AccountScope) async throws -> StudySessionRecord? {
         storedActiveSession

@@ -17,6 +17,9 @@ struct StudyCardStackView: View {
     let state: StudySessionState
     let store: ContentStore
     let assets: any AssetLoading
+    /// The colours read off the flag: the scene wears them, and the back of
+    /// the card wears them too.
+    let palette: ScenePalette
     let onReveal: () -> Void
     let onRate: (StudyRating) -> Void
     let onDetails: () -> Void
@@ -27,20 +30,29 @@ struct StudyCardStackView: View {
     /// How far the throw has gone, -1...1, negative to the left. The screen
     /// reads it to light the hint the throw is heading for.
     @Binding var swipeProgress: CGFloat
+    /// A throw asked for by a button rather than a finger. The card leaves
+    /// the same way it would under a swipe — the rating buttons answer the
+    /// card, and the card should visibly take the answer with it.
+    @Binding var commandedThrow: StudyRating?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     // A hairline is one device pixel, whatever the screen: asking the
     // environment keeps it right on every device and in a preview.
     @Environment(\.displayScale) private var displayScale
     @State private var drag: CGSize = .zero
-    /// Toggled once, under a slow autoreversing animation: every waiting card
-    /// leans between two poses of its own and the pile breathes.
-    @State private var isBreathing = false
 
     var body: some View {
-        ZStack {
-            ForEach(visible.reversed(), id: \.card.id) { entry in
-                card(entry)
+        // Time drives the breathing, not a toggled state: a repeat-forever
+        // animation only carries the views alive when it started, so cards
+        // dealt later stood still. A clock has no such memory — every card
+        // that ever reaches the pile sways on its own phase.
+        TimelineView(
+            .animation(minimumInterval: 1 / 20, paused: reduceMotion)
+        ) { context in
+            ZStack {
+                ForEach(visible.reversed(), id: \.card.id) { entry in
+                    card(entry, at: context.date.timeIntervalSinceReferenceDate)
+                }
             }
         }
         .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
@@ -52,20 +64,38 @@ struct StudyCardStackView: View {
             swipeProgress = 0
             isShowingBack = false
         }
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-                isBreathing = true
-            }
-        }
         // A commit that fails hands the same card back, and the same card
         // means the reset above never fires — the card had already been thrown
         // off the screen and stayed there, out of reach. When the write ends
-        // without advancing, the card returns to the hand.
+        // without advancing, the card returns to the hand — and the throw's
+        // progress returns with it, or the swipe hint would stay lit and the
+        // surfaced country name would stand revealed over an unanswered card.
         .onChange(of: state.isCommitting) { _, isCommitting in
             guard !isCommitting else { return }
             drag = .zero
+            swipeProgress = 0
         }
+        .onChange(of: commandedThrow) { _, rating in
+            guard let rating else { return }
+            commandedThrow = nil
+            throwCard(rating)
+        }
+    }
+
+    /// The button's version of the swipe: the card flies to the side its
+    /// rating lives on — the two the swipe cannot reach leave with their
+    /// neighbours, hard to the left with again, easy to the right with good.
+    private func throwCard(_ rating: StudyRating) {
+        guard !state.isCommitting else { return }
+        if !state.isAnswerRevealed { onReveal() }
+        let leavesRight = rating == .good || rating == .easy
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.35)) {
+            drag.width =
+                leavesRight
+                ? DesignTokens.Card.leavingDistance : -DesignTokens.Card.leavingDistance
+            swipeProgress = leavesRight ? 1 : -1
+        }
+        onRate(rating)
     }
 
     /// The top card and the ones still to come, nearest first.
@@ -84,7 +114,7 @@ struct StudyCardStackView: View {
     }
 
     @ViewBuilder
-    private func card(_ entry: StackEntry) -> some View {
+    private func card(_ entry: StackEntry, at time: TimeInterval = 0) -> some View {
         let isTop = entry.depth == 0
         let isTurned = isTop && isShowingBack
 
@@ -100,6 +130,7 @@ struct StudyCardStackView: View {
                 StudyCardBack(
                     card: entry.card,
                     store: store,
+                    palette: palette,
                     onDetails: onDetails
                 )
                 // The back is drawn mirrored inside a view the flip has already
@@ -156,14 +187,16 @@ struct StudyCardStackView: View {
         // straightens as it comes to the top — the same move a hand makes
         // picking a card off a pile.
         .offset(
-            x: isTop ? drag.width : scatter(entry.card.id).drift + breath(entry.card.id).drift,
+            x: isTop
+                ? drag.width
+                : scatter(entry.card.id).drift + breath(entry.card.id, at: time).drift,
             y: DesignTokens.Card.stackOffset * CGFloat(entry.depth)
         )
         .rotationEffect(
             .degrees(
                 isTop
                     ? drag.width * DesignTokens.Card.swipeRotation
-                    : scatter(entry.card.id).lean + breath(entry.card.id).lean
+                    : scatter(entry.card.id).lean + breath(entry.card.id, at: time).lean
             )
         )
         .zIndex(Double(DesignTokens.Card.stackDepth - entry.depth))
@@ -200,13 +233,17 @@ struct StudyCardStackView: View {
         return (lean, CGFloat(drift))
     }
 
-    /// This card's share of the pile's breathing: its own direction and
-    /// reach, swung to the other side by the autoreversing animation.
-    private func breath(_ id: UUID) -> (lean: Double, drift: CGFloat) {
+    /// This card's share of the pile's breathing at one instant: its own
+    /// reach from its identity, its own phase so the pile never sways in
+    /// lockstep, and the slow sine both directions ride.
+    private func breath(_ id: UUID, at time: TimeInterval) -> (lean: Double, drift: CGFloat) {
+        guard time > 0 else { return (0, 0) }
         let bytes = id.uuid
+        let phase = Double(bytes.4) / 255 * 2 * .pi
+        let swing = sin(time * (2 * .pi / 4) + phase)
         let lean = (Double(bytes.2) / 255 * 2 - 1) * DesignTokens.Card.breathRotation
         let drift = (Double(bytes.3) / 255 * 2 - 1) * Double(DesignTokens.Card.breathOffset)
-        return (isBreathing ? lean : -lean, CGFloat(isBreathing ? drift : -drift))
+        return (lean * swing, CGFloat(drift * swing))
     }
 
     private var shape: RoundedRectangle {
@@ -279,29 +316,55 @@ struct StudyCardStackView: View {
 private struct StudyCardBack: View {
     let card: StudySessionCardRecord
     let store: ContentStore
+    let palette: ScenePalette
     let onDetails: () -> Void
 
     @State private var facts: [FactRecord] = []
+    @State private var officialName: String?
+    @State private var outline: CountryBoundaries.Outline?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-            Text(card.displayName)
-                .font(DesignTokens.Typography.cardAnswer)
-                .minimumScaleFactor(0.8)
-                .lineLimit(2)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyAnswer)
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(card.displayName)
+                    .font(DesignTokens.Typography.cardAnswer)
+                    .minimumScaleFactor(0.8)
+                    .lineLimit(2)
+                    .foregroundStyle(.white)
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyAnswer)
 
-            ForEach(facts.prefix(2), id: \.self) { fact in
+                // The official name is part of the answer — Iran and "Islamic
+                // Republic of Iran" should meet here, not in a search later.
+                if let officialName {
+                    Text(officialName)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+            }
+
+            // The same badges the details sheet deals, at card size: a symbol
+            // on its own colour is scannable in the second the answer takes,
+            // where a grey label next to a grey value was not. Three facts —
+            // capital, population, currency — in the release's own order.
+            ForEach(facts.prefix(3), id: \.self) { fact in
                 let presentation = FactDisplay.presentation(for: fact)
                 HStack(spacing: DesignTokens.Spacing.small) {
-                    if let label = presentation.label {
-                        Text(label)
-                            .foregroundStyle(.secondary)
+                    FactBadge(fact: fact)
+                    VStack(alignment: .leading, spacing: 0) {
+                        if let label = presentation.label {
+                            Text(label)
+                                .font(DesignTokens.Typography.caption)
+                                .foregroundStyle(.white.opacity(0.6))
+                        }
+                        Text(presentation.value)
+                            .font(DesignTokens.Typography.body.weight(.medium))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
-                    Text(presentation.value)
-                        .fontWeight(.medium)
                 }
-                .font(DesignTokens.Typography.caption)
                 // One fact is one thing to hear, not a label and a value in
                 // sequence — and combining them is also what lets the row carry
                 // an identifier without handing it to both.
@@ -311,17 +374,69 @@ private struct StudyCardBack: View {
 
             Spacer(minLength: 0)
 
-            Button(L10n.studyDetails) { onDetails() }
+            Button {
+                onDetails()
+            } label: {
+                HStack(spacing: DesignTokens.Spacing.extraSmall) {
+                    Text(L10n.studyDetails)
+                    Image(systemName: "chevron.right")
+                }
                 .font(DesignTokens.Typography.caption.weight(.semibold))
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyDetails)
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
+            }
+            .buttonStyle(.plain)
+            // A material, not glass: liquid glass morphs elastically when its
+            // view moves, and this button rides a card that is thrown across
+            // the screen — it swelled with every swipe. The card's surface is
+            // content anyway, and content wears materials.
+            .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+            .overlay {
+                Capsule(style: .continuous)
+                    .strokeBorder(.white.opacity(0.25), lineWidth: 1)
+            }
+            .accessibilityIdentifier(AccessibilityIdentifier.studyDetails)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(DesignTokens.Spacing.medium)
-        .background(.regularMaterial)
+        // The flag's own colours, dimmed to a wash the type can sit on: the
+        // answer belongs to the flag that asked, and a flat grey material
+        // said it belonged to the system.
+        .background {
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        palette.primary.opacity(0.75),
+                        palette.secondary.opacity(0.55),
+                        Color.black.opacity(0.65),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                Rectangle().fill(.ultraThinMaterial)
+
+                // The country itself, as a watermark in the corner: the
+                // exhibit's plate carries a small map of where it is from.
+                if let outline {
+                    CountrySilhouetteView(outline: outline, opacity: 0.1)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                        .padding(DesignTokens.Spacing.small)
+                        .scaleEffect(0.62, anchor: .bottomTrailing)
+                }
+            }
+        }
         .task(id: card.learningCardID) {
-            facts = await store.card(id: card.learningCardID)?.backSideFacts ?? []
+            let record = await store.card(id: card.learningCardID)
+            facts = record?.backSideFacts ?? []
+            officialName = await CountryOfficialNameLookup.officialName(
+                forEntity: record?.subjectEntityID,
+                displayName: card.displayName,
+                store: store
+            )
+            outline = await CountryOutlineLookup.outline(
+                forPromptAsset: card.promptAssetID, store: store
+            )
         }
     }
 }

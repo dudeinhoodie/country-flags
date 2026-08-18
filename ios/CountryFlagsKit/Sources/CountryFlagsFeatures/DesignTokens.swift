@@ -55,6 +55,11 @@ public enum DesignTokens {
         /// colour, from the side the throw is going, never opaque enough to
         /// hide the flag.
         public static let swipeWashOpacity: Double = 0.35
+        /// The lens over the flag: a faint sheen falling to a faint shade,
+        /// so the card reads as glass over print rather than a picture
+        /// pasted on.
+        public static let lensSheenOpacity: Double = 0.1
+        public static let lensShadeOpacity: Double = 0.12
         /// Cards drawn behind the top one. A thicker stack reads as depth
         /// rather than as more information.
         public static let stackDepth: Int = 3
@@ -66,14 +71,11 @@ public enum DesignTokens {
         public static let borderOpacity: Double = 0.12
         /// The out-of-focus copy of the flag that fills a card its own shape
         /// does not: enough blur that no edge of it reads as part of the flag.
-        public static let groundBlur: CGFloat = 22
-        public static let groundOpacity: Double = 0.85
         /// How much larger than the card the copy is drawn. A blur fades to
         /// nothing at the edges of the image it is given, and wherever that
         /// edge coincided with the card's, the fade showed as a pale stripe
         /// along the border. Oversized, the soft edge falls outside the clip
         /// and the card is covered wall to wall.
-        public static let groundOverscan: CGFloat = 1.3
         /// Far enough that a thrown card is gone whatever the screen width.
         public static let leavingDistance: CGFloat = 900
         /// The card is the lit object on a dark scene, so it casts rather than
@@ -111,6 +113,9 @@ public enum DesignTokens {
         public static let ratingLabelWidth: CGFloat = 72
         /// The placeholder standing in for the counter while a session loads.
         public static let progressPlaceholderWidth: CGFloat = 88
+        /// The height the home hero settles at, held by its placeholder so the
+        /// screen does not jump when the numbers arrive.
+        public static let heroPlaceholderHeight: CGFloat = 208
         /// A flag in a list row: large enough to be recognised, small enough
         /// that the name beside it is still the thing being read.
         public static let rowFlagWidth: CGFloat = 44
@@ -118,7 +123,13 @@ public enum DesignTokens {
         public static let progressBarHeight: CGFloat = 6
         /// The map on the country sheet: tall enough that a shape reads,
         /// short enough that the facts stay on the first screenful.
-        public static let detailMapHeight: CGFloat = 240
+        /// The map is the sheet's closing block, full width and generous:
+        /// the drawer ends on where the country is.
+        public static let detailMapHeight: CGFloat = 300
+        /// The flag-and-region row at the top of the details sheet: the flag
+        /// keeps a fixed 4:3 plate and the region tile takes the rest.
+        public static let detailPairHeight: CGFloat = 150
+        public static let detailPairFlagWidth: CGFloat = 200
         public static let maximumContentWidth: CGFloat = 520
     }
 

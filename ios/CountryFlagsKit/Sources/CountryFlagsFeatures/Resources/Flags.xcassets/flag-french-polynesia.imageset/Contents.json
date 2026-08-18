@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "french-polynesia.svg",
-      "idiom": "universal"
+      "filename": "flag-french-polynesia@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-french-polynesia@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

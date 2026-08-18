@@ -2943,10 +2943,10 @@
   "sourceAliases": {
     "annexare:XK": "country.kosovo",
     "cldr:XK": "country.kosovo",
-    "flag-icons:XK": "country.kosovo",
     "flag-icons:country.kosovo": "country.kosovo",
-    "wikidata:XK": "country.kosovo",
-    "wikidata:country.kosovo": "country.kosovo"
+    "flag-icons:XK": "country.kosovo",
+    "wikidata:country.kosovo": "country.kosovo",
+    "wikidata:XK": "country.kosovo"
   },
   "supportedLocales": ["ru", "en"]
 }

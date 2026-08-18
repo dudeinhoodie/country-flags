@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "iran-islamic-republic-of.svg",
-      "idiom": "universal"
+      "filename": "flag-iran-islamic-republic-of@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-iran-islamic-republic-of@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

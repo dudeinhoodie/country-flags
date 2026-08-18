@@ -9,7 +9,7 @@ final class SyncStatusUITests: XCTestCase {
         app.launchArguments += ["-reset-store"]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["home.greeting"].waitForExistence(timeout: 60))
+        XCTAssertTrue(app.buttons["home.deck.ALL"].waitForExistence(timeout: 60))
         // Nothing queued yet, so a healthy device says nothing at all.
         XCTAssertFalse(app.staticTexts["sync.status"].exists)
 
@@ -29,8 +29,10 @@ final class SyncStatusUITests: XCTestCase {
         app.buttons["study.close"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         // Prove we are actually back on Home before blaming the status line.
+        // Two cards are answered and the session is still open, so the today
+        // pane is in its "continue" state.
         XCTAssertTrue(
-            app.staticTexts["home.greeting"].waitForExistence(timeout: 15),
+            app.buttons["home.continue"].waitForExistence(timeout: 15),
             app.debugDescription
         )
 

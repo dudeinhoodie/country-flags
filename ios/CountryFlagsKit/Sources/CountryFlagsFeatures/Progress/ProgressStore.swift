@@ -10,6 +10,9 @@ public struct DeckProgressRow: Identifiable, Hashable, Sendable {
     /// does not break when the catalogue gains a deck.
     public let code: String
     public let name: String
+    /// Whether this is a curated deck — the whole picture — rather than one
+    /// region of it. The screens that avoid double-counting read this.
+    public let isCurated: Bool
     public let totalCards: Int
     public let startedCards: Int
     /// Cards that graduated to REVIEW — the ones honestly learned, as opposed
@@ -114,7 +117,17 @@ public final class ProgressStore {
             return
         }
 
-        let decks = (try? await content.decks()) ?? []
+        // The curated decks lead, the regions follow — the same order the
+        // catalog offers them in: "All countries" is the whole picture, and
+        // burying it among nine regions made the headline row a needle.
+        let decks = ((try? await content.decks()) ?? []).sorted { left, right in
+            // The kind is read through the domain's own type, so a contract
+            // rename of the raw string breaks in one place, not here.
+            let leftCurated = DeckKind(rawValue: left.kind) == .curated
+            let rightCurated = DeckKind(rawValue: right.kind) == .curated
+            if leftCurated != rightCurated { return leftCurated }
+            return (left.sortOrder, left.name) < (right.sortOrder, right.name)
+        }
         let cardsByDeck = (try? await content.cardIdentifiersByDeck()) ?? [:]
         let counted = LocalProgressProjection.progress(
             cardsByDeck: cardsByDeck,
@@ -139,6 +152,7 @@ public final class ProgressStore {
                 id: deck.id,
                 code: deck.code,
                 name: deck.name,
+                isCurated: DeckKind(rawValue: deck.kind) == .curated,
                 totalCards: counts?.totalCards ?? deck.cardCount,
                 startedCards: counts?.startedCards ?? 0,
                 learnedCards: counts?.learnedCards ?? 0,

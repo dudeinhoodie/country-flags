@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 import CountryFlagsDomain
 
@@ -31,7 +32,25 @@ enum FactDisplay {
             value = compactNumber(value)
         }
 
+        if fact.type.uppercased() == "CURRENCY" {
+            value = strippingCurrencyCodes(value)
+        }
+
         return (label, value)
+    }
+
+    /// "Norwegian Krone (NOK)" → "Norwegian Krone".
+    ///
+    /// The backend joins the name and the ISO code into one string; the code
+    /// is catalogue data, not reading matter, and the screens show the name
+    /// alone. The backlog asks the contract to publish the fact structured so
+    /// this regex can retire.
+    static func strippingCurrencyCodes(_ value: String) -> String {
+        var text = value
+        while let match = text.range(of: #" \([A-Z]{3}\)"#, options: .regularExpression) {
+            text.removeSubrange(match)
+        }
+        return text
     }
 
     /// "8,406,558" → "8.4M", whatever the thousands separator was.

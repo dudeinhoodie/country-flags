@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "sierra-leone.svg",
-      "idiom": "universal"
+      "filename": "flag-sierra-leone@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-sierra-leone@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

@@ -8,6 +8,10 @@
 
 // The Apple Developer Team ID for running on a device locally.
 // Simulator and CI builds are unsigned and do not need it.
+// A free Apple ID works: add it in Xcode Settings -> Accounts, pick the
+// "(Personal Team)" once in Signing & Capabilities, copy the team id Xcode
+// resolves (Build Settings -> DEVELOPMENT_TEAM), put it here and discard the
+// project-file change. Free profiles expire after 7 days; rerun from Xcode.
 CF_DEVELOPMENT_TEAM =
 
 // A unique bundle id suffix so several developers do not fight over one

@@ -40,7 +40,7 @@ struct CountryMapView: View {
                     width: DesignTokens.Layout.minimumTouchTarget * 0.7,
                     height: DesignTokens.Layout.minimumTouchTarget * 0.7
                 )
-                .background(.ultraThinMaterial, in: Circle())
+                .glassEffect(.regular, in: Circle())
                 .padding(DesignTokens.Spacing.small)
         }
         .task {
@@ -90,7 +90,7 @@ struct CountryMapExpandedView: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, DesignTokens.Spacing.medium)
                     .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
-                    .background(.ultraThinMaterial, in: Capsule())
+                    .glassEffect(.regular, in: Capsule())
 
                 Spacer()
 
@@ -104,7 +104,7 @@ struct CountryMapExpandedView: View {
                             width: DesignTokens.Layout.minimumTouchTarget,
                             height: DesignTokens.Layout.minimumTouchTarget
                         )
-                        .background(.ultraThinMaterial, in: Circle())
+                        .glassEffect(.regular, in: Circle())
                 }
                 .accessibilityLabel(L10n.studyClose)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyClose)

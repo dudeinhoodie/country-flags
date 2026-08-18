@@ -52,6 +52,19 @@ export function selectionReasonFor(
   return SelectionReason.MAINTENANCE;
 }
 
+/**
+ * Whether the schedule has come round for this card — the same rule the
+ * progress aggregate counts a card as due by: answered at least once, and
+ * scheduled at or before now.
+ */
+export function isDue(candidate: SessionCandidate, now: Date): boolean {
+  return (
+    candidate.state !== null &&
+    candidate.state.state !== CardLearningState.NEW &&
+    candidate.state.dueAt.getTime() <= now.getTime()
+  );
+}
+
 function priority(reason: SelectionReason): number {
   switch (reason) {
     case SelectionReason.OVERDUE:

@@ -55,7 +55,12 @@ final class ProgressSettingsUITests: XCTestCase {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         openProgress(in: app)
 
-        let counts = app.staticTexts["progress.deck.ALL.counts"]
+        // Matched by identifier across every element type: the counts are a
+        // combined element now, and how SwiftUI classifies it is its
+        // business, not a promise the product makes.
+        let counts = app.descendants(matching: .any)
+            .matching(identifier: "progress.deck.ALL.counts")
+            .firstMatch
         XCTAssertTrue(counts.waitForExistence(timeout: 15), app.debugDescription)
         XCTAssertFalse(counts.label.isEmpty)
         // A string catalog key must never reach the interface.
@@ -82,7 +87,7 @@ final class ProgressSettingsUITests: XCTestCase {
         // the way a person would is what gives it time.
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(
-            app.staticTexts["home.greeting"].waitForExistence(timeout: 30),
+            app.buttons["home.deck.ALL"].waitForExistence(timeout: 30),
             app.debugDescription
         )
         app.terminate()

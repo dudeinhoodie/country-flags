@@ -1,6 +1,7 @@
 import { CardLearningState, SelectionReason } from "@prisma/client";
 
 import {
+  isDue,
   type SessionCandidate,
   selectSessionCandidates,
 } from "./session-selection";
@@ -92,5 +93,42 @@ describe("selectSessionCandidates", () => {
     ).not.toEqual(
       first.slice(2).map(({ candidate }) => candidate.learningCardId),
     );
+  });
+});
+
+describe("isDue", () => {
+  const now = new Date("2026-08-16T12:00:00Z");
+  const candidate = (
+    state: "NEW" | "LEARNING" | "REVIEW" | "RELEARNING" | null,
+    dueAt: Date,
+  ): SessionCandidate => ({
+    learningCardId: "11111111-1111-4111-8111-111111111111",
+    state:
+      state === null
+        ? null
+        : {
+            state: CardLearningState[state],
+            dueAt,
+            lastReviewedAt: null,
+            lapses: 0,
+            stateVersion: 1,
+          },
+  });
+
+  it("owes a started card whose schedule has come round", () => {
+    expect(
+      isDue(candidate("REVIEW", new Date("2026-08-16T11:00:00Z")), now),
+    ).toBe(true);
+    expect(isDue(candidate("LEARNING", now), now)).toBe(true);
+  });
+
+  it("owes nothing for the future, the unseen and the new", () => {
+    expect(
+      isDue(candidate("REVIEW", new Date("2026-08-17T11:00:00Z")), now),
+    ).toBe(false);
+    expect(isDue(candidate("NEW", new Date("2026-08-16T11:00:00Z")), now)).toBe(
+      false,
+    );
+    expect(isDue(candidate(null, now), now)).toBe(false);
   });
 });

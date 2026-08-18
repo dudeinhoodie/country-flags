@@ -175,7 +175,7 @@ public struct ReviewUploader: ReviewUploading {
         )
     }
 
-    private static func cardState(from payload: Components.Schemas.CardState) -> CardStateRecord? {
+    static func cardState(from payload: Components.Schemas.CardState) -> CardStateRecord? {
         guard let cardID = UUID(uuidString: payload.learningCardId) else { return nil }
         return CardStateRecord(
             learningCardID: cardID,

@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "liechtenstein.svg",
-      "idiom": "universal"
+      "filename": "flag-liechtenstein@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-liechtenstein@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

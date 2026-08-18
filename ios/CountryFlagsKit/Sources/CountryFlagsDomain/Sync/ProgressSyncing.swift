@@ -42,3 +42,45 @@ public enum SettingsUpdateOutcome: Sendable, Equatable {
 public protocol SettingsSyncing: Sendable {
     func update(_ settings: UserSettingsRecord) async throws -> SettingsUpdateOutcome
 }
+
+/// One account-scoped change from the backend's stream.
+///
+/// The stream is the canonical card states in arrival order: every review on
+/// any device appends one. A tombstone is contractual but never published
+/// today — clearing progress rotates the whole stream instead.
+public struct CardStateChange: Hashable, Sendable {
+    public enum Operation: Hashable, Sendable {
+        case upsert
+        case tombstone
+    }
+
+    public let operation: Operation
+    public let cardID: UUID
+    /// The canonical state; absent on a tombstone.
+    public let state: CardStateRecord?
+
+    public init(operation: Operation, cardID: UUID, state: CardStateRecord?) {
+        self.operation = operation
+        self.cardID = cardID
+        self.state = state
+    }
+}
+
+/// One page of the stream, with the cursor that names the next.
+public struct UserChangesPage: Hashable, Sendable {
+    public let changes: [CardStateChange]
+    public let nextCursor: String
+    public let hasMore: Bool
+
+    public init(changes: [CardStateChange], nextCursor: String, hasMore: Bool) {
+        self.changes = changes
+        self.nextCursor = nextCursor
+        self.hasMore = hasMore
+    }
+}
+
+/// Reads the account's change stream. A nil cursor asks from the beginning,
+/// which is how a fresh device inherits everything an account already knows.
+public protocol UserChangesDownloading: Sendable {
+    func changes(after cursor: String?, limit: Int) async throws -> UserChangesPage
+}

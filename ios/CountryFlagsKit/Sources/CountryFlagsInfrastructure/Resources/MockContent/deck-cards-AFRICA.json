@@ -5514,12 +5514,12 @@
           "type": "FLAG",
           "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/saint-helena.svg",
           "mimeType": "image/svg+xml",
-          "sha256": "aed9182cacbc338e9cf0213e49b1fc0b56176df456469fad85c72bf093fa2348",
+          "sha256": "32c9bf4a7dcba7a201714be91f000e2b42a6c785f95cedcaa66bfcb426d8f443",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/saint-helena.svg",
               "mimeType": "image/svg+xml",
-              "sha256": "aed9182cacbc338e9cf0213e49b1fc0b56176df456469fad85c72bf093fa2348",
+              "sha256": "32c9bf4a7dcba7a201714be91f000e2b42a6c785f95cedcaa66bfcb426d8f443",
               "scale": null,
               "widthPx": null,
               "heightPx": null
@@ -5527,7 +5527,7 @@
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/saint-helena@2x.png",
               "mimeType": "image/png",
-              "sha256": "3080ba43e9e68523d4c7e46ec5a33e5e07d37f9cd8079a21c7e8c69d11fe18f6",
+              "sha256": "91f9a9e5b3cad0b03f52243df3d238184a2bc18f9fe1d7f75485f7bc54ad805e",
               "scale": 2,
               "widthPx": 320,
               "heightPx": 240
@@ -5535,7 +5535,7 @@
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/saint-helena@3x.png",
               "mimeType": "image/png",
-              "sha256": "0d9f17968b82b20a15266d7da1a4f322a14f4608d0c70712c92221519ff078ec",
+              "sha256": "f14306060597ce11f7d843389f06f0cb2e583384eee50fe5b9dffe98afd06cdc",
               "scale": 3,
               "widthPx": 480,
               "heightPx": 360

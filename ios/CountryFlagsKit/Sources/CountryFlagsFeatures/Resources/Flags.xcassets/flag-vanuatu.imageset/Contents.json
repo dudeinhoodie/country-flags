@@ -1,15 +1,18 @@
 {
   "images": [
     {
-      "filename": "vanuatu.svg",
-      "idiom": "universal"
+      "filename": "flag-vanuatu@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "flag-vanuatu@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
-  },
-  "properties": {
-    "preserves-vector-representation": true
   }
 }

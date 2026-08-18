@@ -3,10 +3,14 @@ import Foundation
 import CountryFlagsDomain
 
 /// Remembers the entity tag of the manifest this device applied, so an
-/// unchanged release costs a 304 and no body.
+/// unchanged release costs a 304 and no body — and the locale its text was
+/// imported in, so a language change is a reason to import again. Device
+/// bookkeeping, not release data: it lives beside the store, not in it.
 public protocol ContentManifestTagStoring: Sendable {
     func entityTag(forVersion contentVersion: String) -> String?
     func store(entityTag: String, forVersion contentVersion: String)
+    func importedLocale(forVersion contentVersion: String) -> String?
+    func store(importedLocale: String, forVersion contentVersion: String)
 }
 
 public struct UserDefaultsContentManifestTagStore: ContentManifestTagStoring, @unchecked Sendable {
@@ -24,14 +28,27 @@ public struct UserDefaultsContentManifestTagStore: ContentManifestTagStoring, @u
         defaults.set(entityTag, forKey: Self.key(contentVersion))
     }
 
+    public func importedLocale(forVersion contentVersion: String) -> String? {
+        defaults.string(forKey: Self.localeKey(contentVersion))
+    }
+
+    public func store(importedLocale: String, forVersion contentVersion: String) {
+        defaults.set(importedLocale, forKey: Self.localeKey(contentVersion))
+    }
+
     private static func key(_ contentVersion: String) -> String {
         "content.manifest.etag.\(contentVersion)"
+    }
+
+    private static func localeKey(_ contentVersion: String) -> String {
+        "content.manifest.locale.\(contentVersion)"
     }
 }
 
 public struct InMemoryContentManifestTagStore: ContentManifestTagStoring, @unchecked Sendable {
     private final class Box: @unchecked Sendable {
         var tags: [String: String] = [:]
+        var locales: [String: String] = [:]
     }
 
     private let box = Box()
@@ -44,6 +61,14 @@ public struct InMemoryContentManifestTagStore: ContentManifestTagStoring, @unche
 
     public func store(entityTag: String, forVersion contentVersion: String) {
         box.tags[contentVersion] = entityTag
+    }
+
+    public func importedLocale(forVersion contentVersion: String) -> String? {
+        box.locales[contentVersion]
+    }
+
+    public func store(importedLocale: String, forVersion contentVersion: String) {
+        box.locales[contentVersion] = importedLocale
     }
 }
 
@@ -128,7 +153,31 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         )
 
         do {
-            let entityTag = stored.flatMap { tags.entityTag(forVersion: $0.contentVersion) }
+            // The tag says "these bytes are unchanged", but the words on the
+            // device are in the language the release was imported in — after
+            // a language change a 304 would be the wrong answer, so the tag
+            // stays home and the manifest is fetched for real. A release from
+            // a build that never recorded its locale reads as unknown and
+            // heals with one re-import.
+            let storedLocale = stored.flatMap { tags.importedLocale(forVersion: $0.contentVersion) }
+            // A half-finished re-import of the current release is a second
+            // reason the tag must stay home: half the records are not on the
+            // device in any one language, and a 304 — or the delta path —
+            // would freeze them that way forever. The manifest is fetched for
+            // real and the bootstrap below finishes the job.
+            var incompleteStaging: ContentStagingState?
+            if let stored,
+                let staging = try await repository.stagingState(
+                    forVersion: stored.contentVersion
+                ),
+                staging.stage != .ready
+            {
+                incompleteStaging = staging
+            }
+            let entityTag =
+                storedLocale == locale && incompleteStaging == nil
+                ? stored.flatMap { tags.entityTag(forVersion: $0.contentVersion) }
+                : nil
             switch try await service.manifest(locale: locale, entityTag: entityTag) {
             case .notModified:
                 guard let stored else {
@@ -147,7 +196,10 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                     tags.store(entityTag: entityTag, forVersion: fetch.manifest.contentVersion)
                 }
 
-                if stored?.contentVersion == fetch.manifest.contentVersion {
+                if stored?.contentVersion == fetch.manifest.contentVersion,
+                    storedLocale == locale,
+                    incompleteStaging == nil
+                {
                     try await applyChanges(
                         after: stored?.changeCursor ?? fetch.manifest.changeCursor,
                         manifest: fetch.manifest,
@@ -159,6 +211,10 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             }
 
             let applied = try? await repository.currentManifest()
+            if let applied {
+                // Recorded only after the words are actually on the device.
+                tags.store(importedLocale: locale, forVersion: applied.contentVersion)
+            }
             status = ContentSyncStatus(
                 phase: .idle,
                 lastSuccessAt: applied?.appliedAt ?? dates.now(),
@@ -173,8 +229,22 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
 
     /// Downloads a release page by page and makes it current only at the end.
     private func bootstrap(manifest: ContentManifestRecord, locale: String) async throws {
-        var staging = try await repository.stagingState(forVersion: manifest.contentVersion)
-            ?? .initial(contentVersion: manifest.contentVersion, at: dates.now())
+        let current = try? await repository.currentManifest()
+        var staging: ContentStagingState
+        if current?.contentVersion == manifest.contentVersion {
+            // A re-import of the release that is already current — a locale
+            // change, or a half-import left by one. The staging row cannot
+            // say which language its pages arrived in, so resuming it could
+            // stitch two locales into one catalog; it starts over instead.
+            // The pages land in live rows either way, so an interruption
+            // leaves mixed text on screen — but only until this run's
+            // successor finishes, because the incomplete staging row keeps
+            // routing back here.
+            staging = .initial(contentVersion: manifest.contentVersion, at: dates.now())
+        } else {
+            staging = try await repository.stagingState(forVersion: manifest.contentVersion)
+                ?? .initial(contentVersion: manifest.contentVersion, at: dates.now())
+        }
 
         while staging.stage != .ready {
             staging = try await applyNextPage(of: manifest, staging: staging, locale: locale)

@@ -13,7 +13,8 @@ public protocol StudySessionSelecting: Sendable {
         id: UUID,
         deckID: UUID,
         size: StudySessionSize,
-        mode: StudyAnswerMode
+        mode: StudyAnswerMode,
+        composition: StudySessionComposition
     ) async throws -> StudySessionRecord
 
     /// Tells the backend a session it composed is finished. Idempotent, and

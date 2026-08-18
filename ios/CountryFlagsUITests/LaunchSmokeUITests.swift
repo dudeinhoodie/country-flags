@@ -15,14 +15,20 @@ final class LaunchSmokeUITests: XCTestCase {
 
     func testLaunchShowsLocalizedShell() {
         let app = XCUIApplication()
+        // A fresh store, like every other suite: the deck pane this test
+        // anchors on is only rendered when nothing is due and no session is
+        // open, and leftover state from an earlier run must not decide that.
+        app.launchArguments += ["-reset-store"]
         app.launch()
 
-        // Home is the root screen; the greeting is its localized headline.
-        let greeting = app.staticTexts["home.greeting"]
-        XCTAssertTrue(greeting.waitForExistence(timeout: 10))
-        XCTAssertFalse(greeting.label.isEmpty)
-        // A string catalog key must never reach the interface.
-        XCTAssertNotEqual(greeting.label, "home.greeting")
+        // Home is the root screen; the hero deck pane is its localized entry.
+        let hero = app.buttons["home.deck.ALL"]
+        XCTAssertTrue(hero.waitForExistence(timeout: 10))
+        XCTAssertFalse(hero.label.isEmpty)
+        // A string catalog key must never reach the interface. The button's
+        // label is its action title, so a broken catalog would surface the
+        // raw "study." key there — never the identifier string.
+        XCTAssertFalse(hero.label.contains("study."), app.debugDescription)
 
         // The Mock build carries the environment badge; Prod must not.
         XCTAssertTrue(app.staticTexts["root.shell.environmentBadge"].exists)
@@ -30,6 +36,7 @@ final class LaunchSmokeUITests: XCTestCase {
 
     func testTypedRouteOpensAndReturns() {
         let app = XCUIApplication()
+        app.launchArguments += ["-reset-store"]
         app.launch()
 
         let openSettings = app.buttons["root.shell.openSettings"]
@@ -46,6 +53,6 @@ final class LaunchSmokeUITests: XCTestCase {
         XCTAssertFalse(reminders.label.contains("settings."), app.debugDescription)
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(app.staticTexts["home.greeting"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["home.deck.ALL"].waitForExistence(timeout: 5))
     }
 }
