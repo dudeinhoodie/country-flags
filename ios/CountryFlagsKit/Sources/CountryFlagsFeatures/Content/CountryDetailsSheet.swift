@@ -133,19 +133,19 @@ struct CountryDetailsSheet: View {
         .task(id: subject.cardID) {
             let record = await store.card(id: subject.cardID)
             facts = record?.backSideFacts ?? []
-            if let entityID = record?.subjectEntityID,
-                let entity = await store.entity(id: entityID)
-            {
-                let official = entity.names.first { !$0.isPrimary }?.value
-                officialName = official == subject.displayName ? nil : official
-            }
+            officialName = await CountryOfficialNameLookup.officialName(
+                forEntity: record?.subjectEntityID,
+                displayName: subject.displayName,
+                store: store
+            )
             aliases = (record?.aliases ?? []).filter {
                 $0.localizedCaseInsensitiveCompare(subject.displayName) != .orderedSame
             }
             let decks = await store.decks()
             let membership = await store.cardIdentifiersByDeck()
             regionDeck = decks.first { deck in
-                deck.kind == "TAXONOMY" && (membership[deck.id] ?? []).contains(subject.cardID)
+                DeckKind(rawValue: deck.kind) == .taxonomy
+                    && (membership[deck.id] ?? []).contains(subject.cardID)
             }
             outline = await CountryOutlineLookup.outline(
                 forPromptAsset: subject.promptAssetID, store: store
@@ -319,8 +319,6 @@ struct FactBadge: View {
 /// A fact large enough to be the reason the sheet was opened.
 private struct FactTile: View {
     let fact: FactRecord
-
-    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {

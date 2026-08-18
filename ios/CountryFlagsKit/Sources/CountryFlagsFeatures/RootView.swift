@@ -59,6 +59,7 @@ public struct RootView: View {
                     sync: sync,
                     assets: assets,
                     makeProgress: makeProgressStore,
+                    makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
                     // deck and the position, and a country list in between is
@@ -236,7 +237,6 @@ public enum AccessibilityIdentifier {
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
 
-    public static let homeGreeting = "home.greeting"
     public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"
     public static let contentStatusBanner = "content.statusBanner"

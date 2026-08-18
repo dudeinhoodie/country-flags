@@ -18,6 +18,10 @@ public struct HomeView: View {
     private let onContinueSession: ((ContinuableSession) -> Void)?
     private let onStartStudy:
         ((UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void)?
+    /// The stored session size, read when a due session starts: the cap on
+    /// one sitting is the learner's, the same setting every other entry
+    /// point honours.
+    private let makeSettings: (() -> SettingsStore)?
 
     /// The counts behind the hero. Built here, once, from the factory: this
     /// view is re-initialised whenever the launch makes progress, and a store
@@ -35,6 +39,7 @@ public struct HomeView: View {
         sync: SyncCenter,
         assets: (any AssetLoading)? = nil,
         makeProgress: (() -> ProgressStore)? = nil,
+        makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
         onStartStudy: (
@@ -45,6 +50,7 @@ public struct HomeView: View {
         self.sync = sync
         self.assets = assets
         self.makeProgress = makeProgress
+        self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
         self.onStartStudy = onStartStudy
@@ -162,7 +168,7 @@ public struct HomeView: View {
                 caption: nil,
                 action: L10n.homeReview,
                 identifier: AccessibilityIdentifier.homeContinue,
-                run: { startDueSession(deckID: deckID, dueCount: due) },
+                run: { startDueSession(deckID: deckID) },
                 continuable: continuable
             )
         } else if let continuable {
@@ -177,6 +183,16 @@ public struct HomeView: View {
                 continuable: nil
             )
         } else if let deck = recommended(sections) {
+            // A day already finished says so in words — a learner with real
+            // progress who cleared the queue must not see the fresh-install
+            // pane and wonder where their day went.
+            if hasAnyProgress {
+                Text(L10n.homeDueEmpty)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.65))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier(AccessibilityIdentifier.homeDueEmpty)
+            }
             // A fresh install, or a day already finished: a deck worth opening
             // instead of a zero, which says nothing and looks like a screen
             // that failed to load.
@@ -191,6 +207,12 @@ public struct HomeView: View {
                 continuable: nil
             )
         }
+    }
+
+    /// Whether the learner has ever answered anything: what separates a
+    /// cleared queue from a fresh install.
+    private var hasAnyProgress: Bool {
+        progress?.decks.contains { $0.startedCards > 0 } ?? false
     }
 
     private func pane(
@@ -304,7 +326,7 @@ public struct HomeView: View {
                                     .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
                             }
                             Button {
-                                startDueSession(deckID: deck.id, dueCount: deck.dueCards)
+                                startDueSession(deckID: deck.id)
                             } label: {
                                 queueRow(deck)
                             }
@@ -394,15 +416,24 @@ public struct HomeView: View {
         (sections.first { $0.kind == .curated }?.decks ?? sections.flatMap(\.decks)).first
     }
 
-    private func startDueSession(deckID: UUID, dueCount: Int) {
+    private func startDueSession(deckID: UUID) {
         guard let onStartStudy else {
             onOpenDeck(deckID)
             return
         }
-        // The queue is what was asked for, and the backend decides how big
-        // that is: DUE_ONLY returns the due cards and nothing else, however
-        // few. The size is only the contract's cap on one sitting.
-        onStartStudy(deckID, .twenty, .selfRated, .dueOnly)
+        Task {
+            // The queue is what was asked for: DUE_ONLY returns the due
+            // cards and nothing else, however few. The cap on one sitting
+            // is the learner's stored size — the same setting the deck
+            // screens read — not a number of this screen's own.
+            var size = StudySessionSize.ten
+            if let makeSettings {
+                let settings = makeSettings()
+                await settings.load()
+                size = StudySessionSize(storedValue: settings.settings.sessionSize)
+            }
+            onStartStudy(deckID, size, .selfRated, .dueOnly)
+        }
     }
 
     /// Reads the flags the pane and the rows show. Due cards first, so the
@@ -416,8 +447,10 @@ public struct HomeView: View {
         var fresh: [UUID: [LearningCardRecord]] = [:]
         for deck in progress.decks where deck.dueCards > 0 {
             let cards = await store.cards(inDeck: deck.id)
+            // Lazy, so the scan stops at the third match instead of testing
+            // the whole deck for three flags.
             fresh[deck.id] = Array(
-                cards.filter { card in
+                cards.lazy.filter { card in
                     guard let state = states[card.id] else { return false }
                     return state.state != "NEW" && state.dueAt <= now
                 }

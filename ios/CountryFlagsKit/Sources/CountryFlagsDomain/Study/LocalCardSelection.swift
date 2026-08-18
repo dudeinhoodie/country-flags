@@ -85,8 +85,12 @@ public enum LocalCardSelection {
     /// Due first, then never-seen, then everything else. The order is the
     /// product rule: a learner who opens a session expects the cards they owe
     /// before the ones they have never met.
+    ///
+    /// "Due" is the same rule the progress projection counts by — a state
+    /// past its date that is not NEW — so the number a screen advertises and
+    /// the cards a session deals can never disagree about what is owed.
     private static func rank(of card: LearningCardRecord, state: CardStateRecord?, now: Date) -> Int {
-        guard let state else { return 1 }
+        guard let state, state.state != "NEW" else { return 1 }
         return state.dueAt <= now ? 0 : 2
     }
 
@@ -95,7 +99,7 @@ public enum LocalCardSelection {
         state: CardStateRecord?,
         now: Date
     ) -> SelectionReason {
-        guard let state else { return .new }
+        guard let state, state.state != "NEW" else { return .new }
         return state.dueAt <= now ? .due : .filler
     }
 }

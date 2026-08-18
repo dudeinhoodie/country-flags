@@ -43,7 +43,6 @@ public enum L10n {
     // MARK: - Content
 
     public static var homeTitle: String { localized("home.title") }
-    public static var homeGreeting: String { localized("home.greeting") }
     public static var homeRecommended: String { localized("home.recommended") }
     public static var homeOpenCatalog: String { localized("home.open_catalog") }
     /// The label over the number the first screen is built around, in each of
@@ -62,9 +61,6 @@ public enum L10n {
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
     public static var catalogNoMatches: String { localized("catalog.no_matches") }
-    public static var catalogSectionCurated: String { localized("catalog.section.curated") }
-    public static var catalogSectionRegions: String { localized("catalog.section.regions") }
-    public static var catalogSectionPersonal: String { localized("catalog.section.personal") }
 
     /// Names the language the catalog is actually in, for the case where the
     /// device asked for one the release does not publish.
@@ -86,7 +82,6 @@ public enum L10n {
     public static var achievementsEarned: String { localized("achievements.earned") }
     public static var achievementsEmpty: String { localized("achievements.empty") }
 
-    public static var progressDecksSection: String { localized("progress.decks") }
     public static var progressLearnedLabel: String { localized("progress.learned") }
     public static var progressMapHint: String { localized("progress.map_hint") }
     public static var detailsRegion: String { localized("details.region") }
@@ -186,6 +181,8 @@ public enum L10n {
     public static var studyMapOpen: String { localized("study.map.open") }
     public static var studyNotSaved: String { localized("study.not_saved") }
     public static var studyNoCards: String { localized("study.no_cards") }
+    /// A due-only session with an empty queue: good news, said plainly.
+    public static var studyNothingDue: String { localized("study.nothing_due") }
     public static var studyStoreUnavailable: String { localized("study.store_unavailable") }
     public static var studyResultTitle: String { localized("study.result.title") }
     public static var studyResultDone: String { localized("study.result.done") }
@@ -198,8 +195,9 @@ public enum L10n {
         String(format: localized("study.progress"), position, total)
     }
 
-    public static func studyResultAnswered(_ answered: Int, _ planned: Int) -> String {
-        String(format: localized("study.result.answered"), answered, planned)
+    /// What the result screen's bare fraction counts, spoken for VoiceOver.
+    public static func studyResultRemembered(_ remembered: Int, _ planned: Int) -> String {
+        String(format: localized("study.result.remembered"), remembered, planned)
     }
 
     public static func studyRating(_ rating: StudyRating) -> String {

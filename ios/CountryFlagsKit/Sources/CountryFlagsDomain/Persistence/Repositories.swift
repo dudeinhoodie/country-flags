@@ -76,6 +76,15 @@ public protocol LearningRepository: Sendable {
 
     func cardStates(for scope: AccountScope) async throws -> [CardStateRecord]
     func saveCardStates(_ states: [CardStateRecord], for scope: AccountScope) async throws
+    /// Removes the named card states. A tombstone in the change stream is a
+    /// deletion decided elsewhere; keeping the row would resurrect what the
+    /// account already discarded.
+    func deleteCardStates(_ learningCardIDs: [UUID], for scope: AccountScope) async throws
+    /// Removes every card state the scope owns. The caller is the change
+    /// stream's restart: a rotated stream means the account's progress was
+    /// cleared, and a fresh read must not inherit rows the server no longer
+    /// knows about.
+    func deleteAllCardStates(for scope: AccountScope) async throws
 
     func activeSession(for scope: AccountScope) async throws -> StudySessionRecord?
     /// One session by its identifier, whatever its status: the uploader needs

@@ -121,8 +121,10 @@ public final class ProgressStore {
         // catalog offers them in: "All countries" is the whole picture, and
         // burying it among nine regions made the headline row a needle.
         let decks = ((try? await content.decks()) ?? []).sorted { left, right in
-            let leftCurated = left.kind == "CURATED"
-            let rightCurated = right.kind == "CURATED"
+            // The kind is read through the domain's own type, so a contract
+            // rename of the raw string breaks in one place, not here.
+            let leftCurated = DeckKind(rawValue: left.kind) == .curated
+            let rightCurated = DeckKind(rawValue: right.kind) == .curated
             if leftCurated != rightCurated { return leftCurated }
             return (left.sortOrder, left.name) < (right.sortOrder, right.name)
         }
@@ -150,7 +152,7 @@ public final class ProgressStore {
                 id: deck.id,
                 code: deck.code,
                 name: deck.name,
-                isCurated: deck.kind == "CURATED",
+                isCurated: DeckKind(rawValue: deck.kind) == .curated,
                 totalCards: counts?.totalCards ?? deck.cardCount,
                 startedCards: counts?.startedCards ?? 0,
                 learnedCards: counts?.learnedCards ?? 0,

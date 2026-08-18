@@ -162,8 +162,9 @@ struct AppComposition: AppDependencies {
             logger: logger
         )
         let contentRepository = store.makeContentRepository()
+        let contentService = ContentService(clientFactory: apiClientFactory, dates: dates)
         let coordinator = ContentBootstrapCoordinator(
-            service: ContentService(clientFactory: apiClientFactory, dates: dates),
+            service: contentService,
             repository: contentRepository,
             tags: UserDefaultsContentManifestTagStore(),
             dates: dates,
@@ -232,7 +233,28 @@ struct AppComposition: AppDependencies {
             content: ContentStore(
                 repository: contentRepository,
                 coordinator: coordinator,
-                dates: dates
+                dates: dates,
+                // The bootstrap imports cards without their entities — only
+                // the change feed carries those — so the first ask for an
+                // official name goes to the API once and is stored like
+                // everything else on screen.
+                fetchEntity: { id, locale in
+                    guard let entity = try? await contentService.entity(id: id, locale: locale)
+                    else { return nil }
+                    if let manifest = try? await contentRepository.currentManifest() {
+                        try? await contentRepository.applyStagedPage(
+                            ContentPage(entities: [entity]),
+                            staging: ContentStagingState(
+                                contentVersion: manifest.contentVersion,
+                                stage: .ready,
+                                cursor: nil,
+                                pendingDeckIDs: [],
+                                updatedAt: dates.now()
+                            )
+                        )
+                    }
+                    return entity
+                }
             ),
             assets: assetCache,
             // Who the repositories write as: the session when somebody signed

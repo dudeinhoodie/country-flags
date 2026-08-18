@@ -86,6 +86,50 @@ final class ContentBootstrapTests: XCTestCase {
         XCTAssertEqual(fetchesAfterSettled, fetchesAfterSwitch)
     }
 
+    /// An interrupted locale re-import must not freeze half-translated: even
+    /// after the learner switches back to the original language — when the
+    /// recorded locale agrees with the request again — the open staging row
+    /// keeps the ETag home and the release is imported to the end.
+    func testAnInterruptedLocaleReimportIsFinishedAfterSwitchingBack() async throws {
+        let (first, repository, transport) = try makeSubject()
+        let memory = InMemoryContentManifestTagStore()
+        let coordinator = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        _ = first
+        await coordinator.synchronize(locale: "en")
+
+        // The Russian re-import dies on its first card page, half-way in.
+        await transport.enqueue(
+            .errorEnvelope(statusCode: 503, code: "SERVICE_UNAVAILABLE"),
+            for: "listDeckCards"
+        )
+        let switched = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        let failed = await switched.synchronize(locale: "ru")
+        XCTAssertNotNil(failed.lastFailure)
+        let staging = try await repository.stagingState(
+            forVersion: SyntheticContent.contentVersion
+        )
+        XCTAssertNotNil(staging)
+
+        // Back to English: the import runs to the end instead of a 304.
+        await transport.always(SyntheticContent.deckCardsResponse(), for: "listDeckCards")
+        let healed = makeCoordinator(
+            transport: transport, repository: repository, tags: memory
+        )
+        let status = await healed.synchronize(locale: "en")
+
+        XCTAssertNil(status.lastFailure)
+        let cleared = try await repository.stagingState(
+            forVersion: SyntheticContent.contentVersion
+        )
+        XCTAssertNil(cleared)
+        let decks = try await repository.decks()
+        XCTAssertEqual(decks.count, 2)
+    }
+
     // MARK: - Paging
 
     func testASecondPageIsFetchedAndOrderedAfterTheFirst() async throws {

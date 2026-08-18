@@ -140,30 +140,53 @@ struct GlassSegmentedPicker<Option: Hashable>: View {
     }
 }
 
-/// A row that opens something.
-///
-/// The chevron is the whole affordance: rows on glass have no separators and no
-/// background of their own, so without it a row is indistinguishable from a
-/// paragraph.
-struct GlassRow<Leading: View, Content: View>: View {
-    @ViewBuilder var leading: Leading
-    @ViewBuilder var content: Content
+/// The session chrome both study modes wear: the counter, the deck's name,
+/// and the way out — capsules over the scene, one component so the two modes
+/// cannot drift apart.
+struct SessionHUD: View {
+    let position: Int
+    let total: Int
+    /// The deck the learner is inside; hidden while it has not loaded.
+    let deckName: String
+    let onClose: () -> Void
 
     var body: some View {
-        HStack(spacing: DesignTokens.Spacing.medium) {
-            leading
+        HStack {
+            Text(L10n.studyProgress(position, total))
+                .font(DesignTokens.Typography.caption.weight(.medium))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
+                .glassEffect(.regular, in: Capsule())
+                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
 
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                content
+            Spacer()
+
+            if !deckName.isEmpty {
+                Text(deckName)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.65))
+                    .lineLimit(1)
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyDeckName)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
 
-            Image(systemName: "chevron.right")
-                .font(DesignTokens.Typography.caption.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.35))
+            Spacer()
+
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .font(DesignTokens.Typography.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(
+                        width: DesignTokens.Layout.minimumTouchTarget,
+                        height: DesignTokens.Layout.minimumTouchTarget
+                    )
+                    .glassEffect(.regular, in: Circle())
+            }
+            .accessibilityLabel(L10n.studyClose)
+            .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
         }
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-        .contentShape(.rect)
     }
 }
 

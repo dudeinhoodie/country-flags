@@ -151,42 +151,12 @@ public struct ObjectiveSessionView: View {
 
     /// The counter and the way out, the same pair the deck carries.
     private func hud(state: ObjectiveSessionState) -> some View {
-        HStack {
-            Text(L10n.studyProgress(state.position, state.questions.count))
-                .font(DesignTokens.Typography.caption.weight(.medium))
-                .monospacedDigit()
-                .contentTransition(.numericText())
-                .foregroundStyle(.white)
-                .padding(.horizontal, DesignTokens.Spacing.medium)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
-                .glassEffect(.regular, in: Capsule())
-                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
-
-            Spacer()
-
-            if !deckName.isEmpty {
-                Text(deckName)
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.65))
-                    .lineLimit(1)
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyDeckName)
-            }
-
-            Spacer()
-
-            Button(action: onFinish) {
-                Image(systemName: "xmark")
-                    .font(DesignTokens.Typography.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(
-                        width: DesignTokens.Layout.minimumTouchTarget,
-                        height: DesignTokens.Layout.minimumTouchTarget
-                    )
-                    .glassEffect(.regular, in: Circle())
-            }
-            .accessibilityLabel(L10n.studyClose)
-            .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
-        }
+        SessionHUD(
+            position: state.position,
+            total: state.questions.count,
+            deckName: deckName,
+            onClose: onFinish
+        )
     }
 
     private func loadPalette(for question: ObjectiveQuestion) async {

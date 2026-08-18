@@ -25,17 +25,19 @@ final class AccountStoreTests: XCTestCase {
     /// until the next foreground.
     func testASuccessfulSignInStartsASyncAfterTheImport() async {
         let session = ScriptedSession(outcome: .succeeded(userID: Fixtures.userID))
-        let migrations = RecordingMigrations()
-        let store = makeStore(session: session, migrations: migrations)
         let order = OrderRecorder()
+        let migrations = RecordingMigrations(order: order)
+        let store = makeStore(session: session, migrations: migrations)
         store.onSignedIn = { await order.note("sync") }
 
         await store.signIn(with: Fixtures.credential)
 
         let imported = await migrations.importedInto
         XCTAssertEqual(imported, [Fixtures.userID])
+        // Both happened, and in this order: the sync must upload the imported
+        // work rather than race it.
         let notes = await order.notes
-        XCTAssertEqual(notes, ["sync"])
+        XCTAssertEqual(notes, ["import", "sync"])
     }
 
     func testAFailedSignInDoesNotStartASync() async {
@@ -163,9 +165,15 @@ private actor ScriptedSession: SessionControlling {
 
 private actor RecordingMigrations: GuestMigrationRunning {
     private(set) var importedInto: [UUID] = []
+    private let order: OrderRecorder?
+
+    init(order: OrderRecorder? = nil) {
+        self.order = order
+    }
 
     func importGuestWork(into userID: UUID) async -> GuestMigrationOutcome {
         importedInto.append(userID)
+        await order?.note("import")
         return .nothingToImport
     }
 }

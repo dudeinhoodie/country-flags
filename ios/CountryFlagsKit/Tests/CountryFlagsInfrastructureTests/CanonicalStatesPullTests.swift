@@ -88,10 +88,19 @@ final class CanonicalStatesPullTests: XCTestCase {
     }
 
     /// Progress was cleared somewhere: the stream rotated, the old cursor
-    /// stops resolving, and the device reads again from the beginning.
+    /// stops resolving, and the device reads again from the beginning —
+    /// dropping its own stale states, whose old version numbers would
+    /// otherwise outrank everything the account writes after the wipe.
     func testARotatedStreamRestartsFromTheBeginning() async throws {
         let store = try LocalStore(location: .inMemory)
         let learning = store.makeLearningRepository()
+        try await learning.saveCardStates(
+            [
+                Fixtures.state(cardA, stateVersion: 9, state: "REVIEW", now: now),
+                Fixtures.state(cardB, stateVersion: 4, state: "REVIEW", now: now),
+            ],
+            for: account
+        )
         try await store.makeOutboxRepository().saveCursor(
             SyncCursorRecord(feed: .userChanges, cursor: "c-stale", updatedAt: now),
             for: account
@@ -113,8 +122,96 @@ final class CanonicalStatesPullTests: XCTestCase {
         XCTAssertNil(status.lastFailure)
         let states = try await learning.cardStates(for: account)
         XCTAssertEqual(states.count, 1)
+        XCTAssertEqual(states.first?.learningCardID, cardA)
+        XCTAssertEqual(states.first?.stateVersion, 1)
         let cursor = try await store.makeOutboxRepository().cursor(.userChanges, for: account)
         XCTAssertEqual(cursor?.cursor, "c-new")
+    }
+
+    /// A rejected cursor whose restart also fails must not destroy anything:
+    /// the wipe waits until the fresh stream actually answers.
+    func testAFailedRestartLeavesLocalStatesStanding() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        try await learning.saveCardStates(
+            [Fixtures.state(cardA, stateVersion: 9, state: "REVIEW", now: now)],
+            for: account
+        )
+        try await store.makeOutboxRepository().saveCursor(
+            SyncCursorRecord(feed: .userChanges, cursor: "c-stale", updatedAt: now),
+            for: account
+        )
+        // The fresh read is not scripted, so the restart dies on the network.
+        let feed = ScriptedChangesFeed(pages: [:], rejecting: ["c-stale"])
+        let coordinator = makeCoordinator(store: store, feed: feed)
+
+        let status = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        XCTAssertNil(status.lastFailure)
+        let states = try await learning.cardStates(for: account)
+        XCTAssertEqual(states.first { $0.learningCardID == cardA }?.stateVersion, 9)
+    }
+
+    /// A tombstone is a deletion decided elsewhere. It is applied before the
+    /// cursor moves past its page, or it would be consumed once and lost.
+    func testATombstoneRemovesTheLocalState() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        try await learning.saveCardStates(
+            [
+                Fixtures.state(cardA, stateVersion: 5, state: "REVIEW", now: now),
+                Fixtures.state(cardB, stateVersion: 2, state: "LEARNING", now: now),
+            ],
+            for: account
+        )
+        let feed = ScriptedChangesFeed(pages: [
+            nil: UserChangesPage(
+                changes: [CardStateChange(operation: .tombstone, cardID: cardA, state: nil)],
+                nextCursor: "c-1",
+                hasMore: false
+            )
+        ])
+        let coordinator = makeCoordinator(store: store, feed: feed)
+
+        let status = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        XCTAssertNil(status.lastFailure)
+        let states = try await learning.cardStates(for: account)
+        XCTAssertNil(states.first { $0.learningCardID == cardA })
+        XCTAssertEqual(states.first { $0.learningCardID == cardB }?.stateVersion, 2)
+        let cursor = try await store.makeOutboxRepository().cursor(.userChanges, for: account)
+        XCTAssertEqual(cursor?.cursor, "c-1")
+    }
+
+    /// A push that cannot succeed must not starve the read side: the history
+    /// still arrives, and the run still reports the upload's failure.
+    func testAFailingUploadDoesNotBlockThePull() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        try await store.makeOutboxRepository().enqueue(
+            Fixtures.outboxReview(now: now),
+            for: account
+        )
+        let feed = ScriptedChangesFeed(pages: [
+            nil: UserChangesPage(
+                changes: [Fixtures.upsert(cardA, stateVersion: 3, state: "REVIEW", now: now)],
+                nextCursor: "c-1",
+                hasMore: false
+            )
+        ])
+        let coordinator = SyncCoordinator(
+            outbox: store.makeOutboxRepository(),
+            learning: learning,
+            uploader: FailingUploader(),
+            userChanges: feed,
+            dates: FixedDateProvider(instant: now)
+        )
+
+        let status = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        XCTAssertNotNil(status.lastFailure)
+        let states = try await learning.cardStates(for: account)
+        XCTAssertEqual(states.first { $0.learningCardID == cardA }?.state, "REVIEW")
     }
 
     /// A feed that misses leaves the local states standing and the run green.
@@ -153,6 +250,13 @@ private struct AcceptingUploader: ReviewUploading {
             cursor: nil,
             serverTime: Date(timeIntervalSince1970: 1_800_000_000)
         )
+    }
+}
+
+/// A push that can never succeed, without touching the network.
+private struct FailingUploader: ReviewUploading {
+    func upload(_ operations: [OutboxOperationRecord]) async throws -> ReviewBatchOutcome {
+        throw ReviewUploadFailure.deviceNotRegistered
     }
 }
 
@@ -198,6 +302,20 @@ private enum Fixtures {
             operation: .upsert,
             cardID: cardID,
             state: Self.state(cardID, stateVersion: stateVersion, state: state, now: now)
+        )
+    }
+
+    static func outboxReview(now: Date) -> OutboxOperationRecord {
+        OutboxOperationRecord(
+            id: UUID(uuidString: "60000000-0000-4000-8000-000000000001")!,
+            kind: .reviewBatch,
+            dependencyID: nil,
+            payload: Data(),
+            state: .pending,
+            attemptCount: 0,
+            lastFailureCode: nil,
+            createdAt: now,
+            updatedAt: now
         )
     }
 

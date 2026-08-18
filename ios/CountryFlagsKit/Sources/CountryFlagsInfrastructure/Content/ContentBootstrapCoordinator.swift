@@ -160,8 +160,22 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             // a build that never recorded its locale reads as unknown and
             // heals with one re-import.
             let storedLocale = stored.flatMap { tags.importedLocale(forVersion: $0.contentVersion) }
+            // A half-finished re-import of the current release is a second
+            // reason the tag must stay home: half the records are not on the
+            // device in any one language, and a 304 — or the delta path —
+            // would freeze them that way forever. The manifest is fetched for
+            // real and the bootstrap below finishes the job.
+            var incompleteStaging: ContentStagingState?
+            if let stored,
+                let staging = try await repository.stagingState(
+                    forVersion: stored.contentVersion
+                ),
+                staging.stage != .ready
+            {
+                incompleteStaging = staging
+            }
             let entityTag =
-                storedLocale == locale
+                storedLocale == locale && incompleteStaging == nil
                 ? stored.flatMap { tags.entityTag(forVersion: $0.contentVersion) }
                 : nil
             switch try await service.manifest(locale: locale, entityTag: entityTag) {
@@ -183,7 +197,8 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                 }
 
                 if stored?.contentVersion == fetch.manifest.contentVersion,
-                    storedLocale == locale
+                    storedLocale == locale,
+                    incompleteStaging == nil
                 {
                     try await applyChanges(
                         after: stored?.changeCursor ?? fetch.manifest.changeCursor,
@@ -214,8 +229,22 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
 
     /// Downloads a release page by page and makes it current only at the end.
     private func bootstrap(manifest: ContentManifestRecord, locale: String) async throws {
-        var staging = try await repository.stagingState(forVersion: manifest.contentVersion)
-            ?? .initial(contentVersion: manifest.contentVersion, at: dates.now())
+        let current = try? await repository.currentManifest()
+        var staging: ContentStagingState
+        if current?.contentVersion == manifest.contentVersion {
+            // A re-import of the release that is already current — a locale
+            // change, or a half-import left by one. The staging row cannot
+            // say which language its pages arrived in, so resuming it could
+            // stitch two locales into one catalog; it starts over instead.
+            // The pages land in live rows either way, so an interruption
+            // leaves mixed text on screen — but only until this run's
+            // successor finishes, because the incomplete staging row keeps
+            // routing back here.
+            staging = .initial(contentVersion: manifest.contentVersion, at: dates.now())
+        } else {
+            staging = try await repository.stagingState(forVersion: manifest.contentVersion)
+                ?? .initial(contentVersion: manifest.contentVersion, at: dates.now())
+        }
 
         while staging.stage != .ready {
             staging = try await applyNextPage(of: manifest, staging: staging, locale: locale)

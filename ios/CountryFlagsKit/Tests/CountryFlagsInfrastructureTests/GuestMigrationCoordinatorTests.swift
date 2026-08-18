@@ -217,6 +217,8 @@ private actor SeededLearningRepository: LearningRepository {
     func saveSettings(_ settings: UserSettingsRecord, for scope: AccountScope) async throws {}
     func cardStates(for scope: AccountScope) async throws -> [CardStateRecord] { [] }
     func saveCardStates(_ states: [CardStateRecord], for scope: AccountScope) async throws {}
+    func deleteCardStates(_ learningCardIDs: [UUID], for scope: AccountScope) async throws {}
+    func deleteAllCardStates(for scope: AccountScope) async throws {}
     func activeSession(for scope: AccountScope) async throws -> StudySessionRecord? { nil }
     func saveSession(_ session: StudySessionRecord, for scope: AccountScope) async throws {}
     func reviews(inSession sessionID: UUID, for scope: AccountScope) async throws

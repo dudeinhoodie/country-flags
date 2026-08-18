@@ -20,6 +20,24 @@ enum CountryOutlineLookup {
     }
 }
 
+/// Resolves the alternate, "official" name of the country behind a card —
+/// nil when the entity is unknown or its official name is only the display
+/// name again. The card's back and the details sheet both resolve through
+/// here, so they cannot drift on which name counts as official.
+enum CountryOfficialNameLookup {
+    static func officialName(
+        forEntity entityID: UUID?, displayName: String, store: ContentStore
+    ) async -> String? {
+        guard
+            let entityID,
+            let entity = await store.entity(id: entityID),
+            let official = entity.names.first(where: { !$0.isPrimary })?.value,
+            official != displayName
+        else { return nil }
+        return official
+    }
+}
+
 /// A country's landmass as a quiet filled shape — the watermark form of the
 /// outline the map draws, projected the same way the continent silhouettes
 /// are: longitude scaled by the middle latitude so the shape keeps its

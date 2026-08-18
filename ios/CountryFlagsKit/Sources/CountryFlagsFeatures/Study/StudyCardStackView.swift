@@ -67,10 +67,13 @@ struct StudyCardStackView: View {
         // A commit that fails hands the same card back, and the same card
         // means the reset above never fires — the card had already been thrown
         // off the screen and stayed there, out of reach. When the write ends
-        // without advancing, the card returns to the hand.
+        // without advancing, the card returns to the hand — and the throw's
+        // progress returns with it, or the swipe hint would stay lit and the
+        // surfaced country name would stand revealed over an unanswered card.
         .onChange(of: state.isCommitting) { _, isCommitting in
             guard !isCommitting else { return }
             drag = .zero
+            swipeProgress = 0
         }
         .onChange(of: commandedThrow) { _, rating in
             guard let rating else { return }
@@ -426,12 +429,11 @@ private struct StudyCardBack: View {
         .task(id: card.learningCardID) {
             let record = await store.card(id: card.learningCardID)
             facts = record?.backSideFacts ?? []
-            if let entityID = record?.subjectEntityID,
-                let entity = await store.entity(id: entityID)
-            {
-                let official = entity.names.first { !$0.isPrimary }?.value
-                officialName = official == card.displayName ? nil : official
-            }
+            officialName = await CountryOfficialNameLookup.officialName(
+                forEntity: record?.subjectEntityID,
+                displayName: card.displayName,
+                store: store
+            )
             outline = await CountryOutlineLookup.outline(
                 forPromptAsset: card.promptAssetID, store: store
             )

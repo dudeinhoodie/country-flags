@@ -97,12 +97,16 @@ public actor SyncCoordinator: SyncCoordinating {
         }
 
         let task = Task<SyncStatus, Never> { [self] in
-            await run(scope: scope, trigger: trigger)
+            let result = await run(scope: scope, trigger: trigger)
+            // Deregistered by the task itself, in the same actor job that
+            // finished the run: were it cleared only after the first caller
+            // resumed, a caller arriving in between would join a run that is
+            // already over and its trigger would be swallowed.
+            running[scope.key] = nil
+            return result
         }
         running[scope.key] = task
-        let result = await task.value
-        running[scope.key] = nil
-        return result
+        return await task.value
     }
 
     // MARK: - The run
@@ -123,22 +127,33 @@ public actor SyncCoordinator: SyncCoordinating {
             return await publish(scope: scope, phase: .idle, failure: nil)
         }
 
+        var uploadError: (any Error)?
         do {
             try await uploadPendingWork(scope: scope)
-            // The canonical answers ride home on the same run that delivered
-            // the questions: deck mastery, achievements and settings are the
-            // backend's to compute, and the screens only ever read the store.
-            await pullCanonicalStates(scope: scope)
-            await pullCanonicalProgress(scope: scope)
+        } catch {
+            // The failure is reported, but it must not starve the downlinks:
+            // a device whose push cannot succeed — an unregistered device is
+            // the standing example — still deserves the account's history.
+            uploadError = error
+        }
+        // The canonical answers ride home on the same run that delivered
+        // the questions: deck mastery, achievements and settings are the
+        // backend's to compute, and the screens only ever read the store.
+        await pullCanonicalStates(scope: scope)
+        await pullCanonicalProgress(scope: scope)
+        if let uploadError {
             return await publish(
                 scope: scope,
                 phase: .idle,
-                failure: nil,
-                recordSuccess: true
+                failure: Self.failure(from: uploadError)
             )
-        } catch {
-            return await publish(scope: scope, phase: .idle, failure: Self.failure(from: error))
         }
+        return await publish(
+            scope: scope,
+            phase: .idle,
+            failure: nil,
+            recordSuccess: true
+        )
     }
 
     /// Walks the account's change stream and applies the canonical card
@@ -155,6 +170,7 @@ public actor SyncCoordinator: SyncCoordinating {
         do {
             var cursor = try await outbox.cursor(.userChanges, for: scope)?.cursor
             var didRestart = false
+            var pendingWipe = false
             for _ in 0..<Self.maximumChangePages {
                 let page: UserChangesPage
                 do {
@@ -169,13 +185,37 @@ public actor SyncCoordinator: SyncCoordinating {
                     guard cursor != nil, !didRestart else { throw error }
                     cursor = nil
                     didRestart = true
+                    // The local states fall with the rotation, or their old
+                    // version numbers would outrank everything the account
+                    // writes after the wipe and the reset would never land.
+                    // Deferred until the fresh stream answers: destroying
+                    // local state over a refusal, without a replacement in
+                    // hand, would be worse than being stale.
+                    pendingWipe = true
                     continue
                 }
-                let states = page.changes.compactMap { change -> CardStateRecord? in
-                    guard case .upsert = change.operation else { return nil }
-                    return change.state
+                if pendingWipe {
+                    try await learning.deleteAllCardStates(for: scope)
+                    pendingWipe = false
                 }
-                try await applyCanonical(states: states, scope: scope)
+                var upserts: [UUID: CardStateRecord] = [:]
+                var tombstoned: Set<UUID> = []
+                for change in page.changes {
+                    switch change.operation {
+                    case .upsert:
+                        guard let state = change.state else { continue }
+                        upserts[change.cardID] = state
+                        tombstoned.remove(change.cardID)
+                    case .tombstone:
+                        upserts[change.cardID] = nil
+                        tombstoned.insert(change.cardID)
+                    }
+                }
+                try await applyCanonical(states: Array(upserts.values), scope: scope)
+                // A tombstone is applied, never skipped: the cursor is about
+                // to move past this page, and a deletion it carried would
+                // otherwise be consumed once and lost forever.
+                try await learning.deleteCardStates(Array(tombstoned), for: scope)
                 try await outbox.saveCursor(
                     SyncCursorRecord(
                         feed: .userChanges,
@@ -461,11 +501,9 @@ public actor SyncCoordinator: SyncCoordinating {
             }
         }
         guard !merged.isEmpty else { return }
-
-        let untouched = local.filter { state in
-            !merged.contains { $0.learningCardID == state.learningCardID }
-        }
-        try await learning.saveCardStates(untouched + merged, for: scope)
+        // The save is an upsert: rows the page did not mention stand as they
+        // are, so only the resolved states need writing.
+        try await learning.saveCardStates(merged, for: scope)
     }
 
     // MARK: - Status

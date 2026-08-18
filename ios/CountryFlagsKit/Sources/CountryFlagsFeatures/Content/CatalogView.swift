@@ -47,6 +47,19 @@ public struct CatalogView: View {
                     await reloadFan()
                 }
             }
+            // On a cold launch the appearance above races `store.start()`:
+            // the catalog is not `.ready` yet, `reloadFan` bails out, and the
+            // curated row would keep an empty fan for the whole visit. Keyed
+            // to the catalog's content, the fan is re-read the moment the
+            // import delivers it — and it is a no-op when the store was warm.
+            .task(id: catalogFingerprint) { await reloadFan() }
+    }
+
+    /// The ready catalog's identity, for the re-read above; nil while there
+    /// is nothing to fan.
+    private var catalogFingerprint: Int? {
+        guard case .ready(let sections, _, _) = store.catalog else { return nil }
+        return sections.hashValue
     }
 
     @ViewBuilder
@@ -146,7 +159,7 @@ public struct CatalogView: View {
         .accessibilityElement(children: .combine)
     }
 
-    /// "250 карточек · Выучено: 34", and just the count until something is.
+    /// "250 cards · Learned: 34", and just the count until something is.
     private func trail(for deck: DeckRecord) -> String {
         let count = L10n.deckCardCount(deck.cardCount)
         guard let row = progressRow(for: deck), row.learnedCards > 0 else { return count }

@@ -248,44 +248,12 @@ public struct StudySessionView: View {
 
     /// The counter and the way out, as capsules over the scene.
     private func hud(state: StudySessionState) -> some View {
-        HStack {
-            Text(L10n.studyProgress(state.position, state.cards.count))
-                .font(DesignTokens.Typography.caption.weight(.medium))
-                .monospacedDigit()
-                .contentTransition(.numericText())
-                .foregroundStyle(.white)
-                .padding(.horizontal, DesignTokens.Spacing.medium)
-                .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.75)
-                .glassEffect(.regular, in: Capsule())
-                .accessibilityIdentifier(AccessibilityIdentifier.studyProgress)
-
-            Spacer()
-
-            if !deckName.isEmpty {
-                Text(deckName)
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.65))
-                    .lineLimit(1)
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyDeckName)
-            }
-
-            Spacer()
-
-            Button {
-                onFinish()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(DesignTokens.Typography.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(
-                        width: DesignTokens.Layout.minimumTouchTarget,
-                        height: DesignTokens.Layout.minimumTouchTarget
-                    )
-                    .glassEffect(.regular, in: Circle())
-            }
-            .accessibilityLabel(L10n.studyClose)
-            .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
-        }
+        SessionHUD(
+            position: state.position,
+            total: state.cards.count,
+            deckName: deckName,
+            onClose: onFinish
+        )
     }
 
     private func loadPalette(for card: StudySessionCardRecord) async {
@@ -379,10 +347,17 @@ struct StudySessionResultView: View {
 
             Spacer(minLength: 0)
 
-            Button(L10n.studyResultExcellent, action: onDone)
-                .buttonStyle(PrimaryActionStyle())
-                .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
-                .settled(hasArrived, step: 2, reduceMotion: reduceMotion)
+            // The congratulation is earned, not printed: a full house leaves
+            // on "Excellent!", anything else on a plain "Done".
+            Button(
+                summary.rememberedCards == summary.plannedCards
+                    ? L10n.studyResultExcellent
+                    : L10n.studyResultDone,
+                action: onDone
+            )
+            .buttonStyle(PrimaryActionStyle())
+            .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
+            .settled(hasArrived, step: 2, reduceMotion: reduceMotion)
         }
         .onAppear {
             hasArrived = true
@@ -420,6 +395,10 @@ struct StudySessionResultView: View {
         }
         .monospacedDigit()
         .accessibilityElement(children: .combine)
+        // The bare fraction is for the eye; the sentence says what it counts.
+        .accessibilityLabel(
+            L10n.studyResultRemembered(summary.rememberedCards, summary.plannedCards)
+        )
         .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
     }
 
@@ -479,11 +458,17 @@ struct ResultWaterView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var poursFrom = Date()
+    /// The pour earns the display's full refresh; the idle drift after it
+    /// does not. Once the water stands at its level, the clock slows to the
+    /// same 20Hz every other ambient timeline in the app runs at.
+    @State private var hasSettled = false
 
     static let green = Color(red: 122 / 255, green: 224 / 255, blue: 150 / 255)
 
     var body: some View {
-        TimelineView(.animation(paused: reduceMotion)) { context in
+        TimelineView(
+            .animation(minimumInterval: hasSettled ? 1 / 20 : nil, paused: reduceMotion)
+        ) { context in
             Canvas { canvas, size in
                 let time = context.date.timeIntervalSince(poursFrom)
                 let poured = reduceMotion ? 1.0 : min(1, max(0, time / 2.4))
@@ -511,7 +496,10 @@ struct ResultWaterView: View {
                 let step: CGFloat = 4
                 let end = size.width + step
 
-                func body(of surface: (CGFloat) -> CGFloat) -> Path {
+                // One sampling loop for both uses of a surface: the crest is
+                // the open line, the body the same line closed to the floor —
+                // so the stroke can never drift off the fill it caps.
+                func surfacePath(of surface: (CGFloat) -> CGFloat, closed: Bool) -> Path {
                     var path = Path()
                     var x: CGFloat = 0
                     while x <= end {
@@ -519,20 +507,18 @@ struct ResultWaterView: View {
                         if x == 0 { path.move(to: point) } else { path.addLine(to: point) }
                         x += step
                     }
-                    path.addLine(to: CGPoint(x: end, y: size.height))
-                    path.addLine(to: CGPoint(x: 0, y: size.height))
-                    path.closeSubpath()
+                    if closed {
+                        path.addLine(to: CGPoint(x: end, y: size.height))
+                        path.addLine(to: CGPoint(x: 0, y: size.height))
+                        path.closeSubpath()
+                    }
                     return path
                 }
+                func body(of surface: (CGFloat) -> CGFloat) -> Path {
+                    surfacePath(of: surface, closed: true)
+                }
                 func crest(of surface: (CGFloat) -> CGFloat) -> Path {
-                    var path = Path()
-                    var x: CGFloat = 0
-                    while x <= end {
-                        let point = CGPoint(x: x, y: surface(x))
-                        if x == 0 { path.move(to: point) } else { path.addLine(to: point) }
-                        x += step
-                    }
-                    return path
+                    surfacePath(of: surface, closed: false)
                 }
 
                 // The grey swell is a wave of its own, full-bodied down to
@@ -580,6 +566,13 @@ struct ResultWaterView: View {
         .ignoresSafeArea()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+        .task {
+            guard !reduceMotion else { return }
+            // A hair past the 2.4-second pour, so the ease-out finishes at
+            // full rate before the clock slows.
+            try? await Task.sleep(for: .seconds(2.6))
+            hasSettled = true
+        }
     }
 }
 
@@ -612,6 +605,7 @@ struct StudyUnavailableView: View {
     private var title: String {
         switch failure {
         case .noUsableCards: L10n.studyNoCards
+        case .nothingDue: L10n.studyNothingDue
         case .storeUnavailable: L10n.studyStoreUnavailable
         }
     }
@@ -620,7 +614,7 @@ struct StudyUnavailableView: View {
     /// different problems and should not look like the same one.
     private var symbol: String {
         switch failure {
-        case .noUsableCards: "checkmark.circle"
+        case .noUsableCards, .nothingDue: "checkmark.circle"
         case .storeUnavailable: "exclamationmark.triangle"
         }
     }

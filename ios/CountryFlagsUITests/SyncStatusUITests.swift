@@ -29,8 +29,10 @@ final class SyncStatusUITests: XCTestCase {
         app.buttons["study.close"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         // Prove we are actually back on Home before blaming the status line.
+        // Two cards are answered and the session is still open, so the today
+        // pane is in its "continue" state.
         XCTAssertTrue(
-            app.staticTexts["home.greeting"].waitForExistence(timeout: 15),
+            app.buttons["home.continue"].waitForExistence(timeout: 15),
             app.debugDescription
         )
 

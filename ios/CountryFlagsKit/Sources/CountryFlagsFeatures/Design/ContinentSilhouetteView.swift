@@ -10,7 +10,7 @@ import SwiftUI
 struct ContinentSilhouettes: Sendable {
     static let shipped = ContinentSilhouettes()
 
-    private let rings: [String: [[[Double]]]]
+    private let silhouettes: [String: Silhouette]
 
     init(bundle: Bundle = .module) {
         guard
@@ -18,24 +18,30 @@ struct ContinentSilhouettes: Sendable {
             let data = try? Data(contentsOf: url),
             let decoded = try? JSONDecoder().decode([String: [[[Double]]]].self, from: data)
         else {
-            rings = [:]
+            silhouettes = [:]
             return
         }
-        rings = decoded
+        // Projected once, at load: the projection depends only on the
+        // geodata, and the rows ask for their shape on every render.
+        silhouettes = decoded.compactMapValues(Self.project)
     }
 
     /// The region's landmasses as unit-space rings, fitted to a box whose
     /// aspect matches the shape, latitude flipped into screen order and
     /// longitude scaled by the middle latitude so the north does not smear.
     func silhouette(forDeckCode code: String) -> Silhouette? {
-        guard let raw = rings[code], !raw.isEmpty else { return nil }
+        silhouettes[code]
+    }
 
-        var minimumLongitude = raw[0][0][0]
+    private static func project(_ raw: [[[Double]]]) -> Silhouette? {
+        guard let seed = raw.first?.first, seed.count >= 2 else { return nil }
+
+        var minimumLongitude = seed[0]
         var maximumLongitude = minimumLongitude
-        var minimumLatitude = raw[0][0][1]
+        var minimumLatitude = seed[1]
         var maximumLatitude = minimumLatitude
         for ring in raw {
-            for point in ring {
+            for point in ring where point.count >= 2 {
                 minimumLongitude = min(minimumLongitude, point[0])
                 maximumLongitude = max(maximumLongitude, point[0])
                 minimumLatitude = min(minimumLatitude, point[1])
@@ -50,8 +56,9 @@ struct ContinentSilhouettes: Sendable {
         guard width > 0, height > 0 else { return nil }
 
         let projected = raw.map { ring in
-            ring.map { point in
-                CGPoint(
+            ring.compactMap { point -> CGPoint? in
+                guard point.count >= 2 else { return nil }
+                return CGPoint(
                     x: (point[0] - minimumLongitude) * stretch / width,
                     y: (maximumLatitude - point[1]) / height
                 )
