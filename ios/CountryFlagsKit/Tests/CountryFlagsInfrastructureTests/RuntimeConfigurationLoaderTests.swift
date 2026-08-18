@@ -27,6 +27,53 @@ final class RuntimeConfigurationLoaderTests: XCTestCase {
         XCTAssertNil(configuration.apiBaseURL)
     }
 
+    /// The legal documents are not written yet, so every committed
+    /// configuration leaves their addresses empty — and an empty address is an
+    /// absent link rather than a broken build.
+    func testLegalLinksAreAbsentUntilTheyAreConfigured() throws {
+        let configuration = try RuntimeConfigurationLoader.configuration(from: [
+            RuntimeConfigurationLoader.environmentKey: "dev",
+            RuntimeConfigurationLoader.apiBaseURLKey: "https://dev.example.test",
+            RuntimeConfigurationLoader.deepLinkSchemeKey: "countryflags",
+            RuntimeConfigurationLoader.privacyPolicyURLKey: "",
+            RuntimeConfigurationLoader.termsURLKey: "",
+        ])
+
+        XCTAssertNil(configuration.privacyPolicyURL)
+        XCTAssertNil(configuration.termsURL)
+    }
+
+    func testConfiguredLegalLinksAreRead() throws {
+        let configuration = try RuntimeConfigurationLoader.configuration(from: [
+            RuntimeConfigurationLoader.environmentKey: "prod",
+            RuntimeConfigurationLoader.apiBaseURLKey: "https://api.example.test",
+            RuntimeConfigurationLoader.deepLinkSchemeKey: "countryflags",
+            RuntimeConfigurationLoader.privacyPolicyURLKey: "https://example.test/privacy",
+            RuntimeConfigurationLoader.termsURLKey: "https://example.test/terms",
+        ])
+
+        XCTAssertEqual(configuration.privacyPolicyURL, URL(string: "https://example.test/privacy"))
+        XCTAssertEqual(configuration.termsURL, URL(string: "https://example.test/terms"))
+    }
+
+    /// An address that was configured and cannot be opened is a mistake in the
+    /// build rather than a document nobody wrote.
+    func testAnUnreadableLegalLinkFailsTheLoad() {
+        XCTAssertThrowsError(
+            try RuntimeConfigurationLoader.configuration(from: [
+                RuntimeConfigurationLoader.environmentKey: "prod",
+                RuntimeConfigurationLoader.apiBaseURLKey: "https://api.example.test",
+                RuntimeConfigurationLoader.deepLinkSchemeKey: "countryflags",
+                RuntimeConfigurationLoader.privacyPolicyURLKey: "example.test/privacy",
+            ])
+        ) { error in
+            XCTAssertEqual(
+                error as? RuntimeConfigurationLoader.LoadError,
+                .invalidURL("example.test/privacy")
+            )
+        }
+    }
+
     /// An unknown value must never silently become production.
     func testRejectsUnknownEnvironment() {
         XCTAssertThrowsError(

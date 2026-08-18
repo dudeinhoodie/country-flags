@@ -115,7 +115,12 @@ Secret policy:
 - tokens, provider keys, signing identities, provisioning profiles and local
   paths never enter the repository;
 - the values in `Base/Mock/Dev/Prod.xcconfig` are public: an environment name, a
-  public base URL and a URL scheme;
+  public base URL, a URL scheme and the addresses of the legal documents;
+- `CF_PRIVACY_POLICY_URL` and `CF_TERMS_URL` are empty in every committed
+  configuration because the documents are not written yet. An empty address
+  hides its link on the account screen; an address that is set and unreadable
+  fails the launch, because that is a mistake in the build rather than a
+  document nobody wrote;
 - from later work packages on, access and refresh tokens live in the Keychain
   and never reach UserDefaults, SwiftData, logs or analytics;
 - an xcconfig cannot contain a bare `//`; write `https:/$()/` instead.
@@ -312,6 +317,40 @@ needs a registered `deviceId`, which the auth work package owns; until then
 
 The network monitor is a trigger, never proof: a satisfied path means a request
 is worth trying, and the request itself decides whether the API is reachable.
+
+## The account
+
+The settings screen holds who is signed in; the account screen behind it holds
+what can be done about the account itself: its ways in, the devices it is signed
+in on, a copy of its data and the end of it.
+
+Three operations are sensitive, and all three go through one
+`ReauthenticationCoordinator`: clearing progress, requesting an export and
+deleting the account. It obtains a proof per attempt, checks it against its own
+expiry before spending it, holds it in memory for the length of that attempt and
+never writes it anywhere. The proof travels as `X-Reauthentication-Token` on a
+client built for the one call, so no other request can carry it. The operation
+runs only after the proof exists, which is what makes every earlier failure
+leave the account exactly as it was.
+
+Linking needs no proof — the credential the provider just issued is itself the
+evidence, which is what the contract says by requiring only the session there.
+`IDENTITY_ALREADY_LINKED` means the login belongs to somebody else's account,
+and the only offer is to sign out and be that account: two accounts are never
+merged, and email is never used to match them. Whether the last identity may be
+removed is the server's policy, so the client shows its refusal rather than
+counting identities itself.
+
+Revoking the device you are holding revokes its sessions, so the app signs out
+locally rather than discovering that one request at a time. An accepted deletion
+does the same, in this order: the notice is stored where it survives both the
+sign-out and the launch, the account's local data is erased, the tokens go, and
+the interface returns to its guest self — which still studies.
+
+The export is followed from `PENDING` to a settled status, downloaded to a file
+in the caches and handed to the share sheet. The download URL carries a
+single-use proof in its query string, so it is fetched through a seam that keeps
+it out of the client's logging, and the file is removed when the screen goes.
 
 ## Feature flags, advertising and observability
 

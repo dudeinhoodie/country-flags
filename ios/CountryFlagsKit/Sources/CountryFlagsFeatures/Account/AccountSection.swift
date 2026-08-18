@@ -13,9 +13,13 @@ import CountryFlagsDomain
 struct AccountSection: View {
     /// Owned for the same reason every screen owns its store.
     @State private var store: AccountStore
+    /// Opens the account screen. Only a signed-in account has one worth
+    /// opening, so the row appears with the person rather than with the offer.
+    private let onOpenAccount: (() -> Void)?
 
-    init(store: AccountStore) {
+    init(store: AccountStore, onOpenAccount: (() -> Void)? = nil) {
         _store = State(wrappedValue: store)
+        self.onOpenAccount = onOpenAccount
     }
 
     var body: some View {
@@ -46,6 +50,19 @@ struct AccountSection: View {
 
     @ViewBuilder
     private var content: some View {
+        if let deletion = store.pendingDeletion {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                Text(L10n.accountDeletionPendingTitle)
+                    .font(DesignTokens.Typography.body.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(L10n.accountDeletionPendingBody(Self.day(deletion.expectedCompletionAt)))
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier(AccessibilityIdentifier.settingsDeletionPending)
+        }
+
         switch store.state {
         case .guest:
             signInControls
@@ -75,6 +92,11 @@ struct AccountSection: View {
             .accessibilityElement(children: .combine)
             .accessibilityIdentifier(AccessibilityIdentifier.accountSignedIn)
 
+            if let onOpenAccount {
+                Button(L10n.accountOpen, action: onOpenAccount)
+                    .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
+            }
+
             Button(L10n.accountSignOut, role: .destructive) {
                 Task { await store.requestSignOut() }
             }
@@ -95,7 +117,8 @@ struct AccountSection: View {
             rawNonce: { store.preparedNonce?.raw ?? "" },
             google: store.google,
             // Debug environments only, and only when the launch asked for it.
-            fixtureCredential: store.allowsFakeSignIn ? Self.fixtureCredential : nil,
+            fixtureCredential: store.allowsFakeSignIn
+                ? ProviderSignInButtons.fixtureCredential : nil,
             appleIdentifier: AccessibilityIdentifier.accountSignInApple,
             googleIdentifier: AccessibilityIdentifier.accountSignInGoogle,
             fixtureIdentifier: AccessibilityIdentifier.accountFakeSignIn,
@@ -106,12 +129,6 @@ struct AccountSection: View {
             onFailure: { store.noteProviderFailure($0) }
         )
     }
-
-    private static let fixtureCredential = ProviderCredential.apple(
-        identityToken: "fixture-identity-token",
-        authorizationCode: "fixture-authorization-code",
-        rawNonce: "fixture-nonce"
-    )
 
     @ViewBuilder
     private var footer: some View {
@@ -144,6 +161,12 @@ struct AccountSection: View {
             // place to narrate mechanics that resolved themselves.
             EmptyView()
         }
+    }
+
+    /// Days rather than instants: the hour an account finishes being deleted
+    /// is precision nobody acts on.
+    private static func day(_ date: Date) -> String {
+        date.formatted(date: .abbreviated, time: .omitted)
     }
 
     private var signOutTitle: String {

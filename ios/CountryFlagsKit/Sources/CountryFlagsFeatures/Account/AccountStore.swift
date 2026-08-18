@@ -22,6 +22,10 @@ public final class AccountStore {
     public private(set) var lastFailure: SignInFailure?
     /// Set while a sign-out waits for the user to confirm losing nothing.
     public private(set) var signOutAssessment: SignOutAssessment?
+    /// The deletion this device asked for, if it did. It is shown here rather
+    /// than only on the account screen because an accepted deletion signs the
+    /// device out, and a signed-out person cannot reach that screen at all.
+    public private(set) var pendingDeletion: AccountDeletionRecord?
 
     /// Whether the debug fake sign-in is offered. Wired from the composition:
     /// debug environments only, and only when the launch asked for it.
@@ -39,6 +43,7 @@ public final class AccountStore {
     private let outbox: any OutboxRepository
     private let scopes: any AccountScopeResolving
     private let nonces: any NonceGenerating
+    private let deletionState: (any AccountDeletionStateStoring)?
     private let logger: any AppLogging
     private var pendingNonce: SignInNonce?
 
@@ -48,6 +53,7 @@ public final class AccountStore {
         outbox: any OutboxRepository,
         scopes: any AccountScopeResolving,
         nonces: any NonceGenerating,
+        deletionState: (any AccountDeletionStateStoring)? = nil,
         google: (any GoogleSignInPresenting)? = nil,
         allowsFakeSignIn: Bool = false,
         logger: any AppLogging = NoOpLogger()
@@ -58,6 +64,7 @@ public final class AccountStore {
         self.outbox = outbox
         self.scopes = scopes
         self.nonces = nonces
+        self.deletionState = deletionState
         self.google = google
         self.allowsFakeSignIn = allowsFakeSignIn
     }
@@ -78,6 +85,7 @@ public final class AccountStore {
     public func start() async {
         state = await session.currentState()
         profile = await session.currentProfile()
+        pendingDeletion = deletionState?.pendingDeletion()
         // A migration a previous launch left unsettled is finished here, not
         // on the next sign-in: the user already signed in once.
         if case .authenticated(let userID) = state {
@@ -115,6 +123,11 @@ public final class AccountStore {
         profile = await session.currentProfile()
         switch outcome {
         case .succeeded(let userID):
+            // A deletion notice belongs to the account that was deleted. Once
+            // somebody has signed in, it is about an account this device has
+            // nothing to do with any more.
+            deletionState?.store(pendingDeletion: nil)
+            pendingDeletion = nil
             migration = await migrations.importGuestWork(into: userID)
             // The sync is what brings the account's history home; without
             // this, a fresh device showed nothing until the next foreground.

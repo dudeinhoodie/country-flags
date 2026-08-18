@@ -17,22 +17,27 @@ public struct SettingsScreen: View {
     @State private var clearProgress: ClearProgressStore?
     private let makeAccount: (() -> AccountStore)?
     private let makeClearProgress: (() -> ClearProgressStore)?
+    /// Opens the account screen. Absent when the composition has no such
+    /// screen to open, which is the same rule the other factories follow.
+    private let onOpenAccount: (() -> Void)?
 
     public init(
         store: SettingsStore,
         makeAccount: (() -> AccountStore)? = nil,
-        makeClearProgress: (() -> ClearProgressStore)? = nil
+        makeClearProgress: (() -> ClearProgressStore)? = nil,
+        onOpenAccount: (() -> Void)? = nil
     ) {
         _store = State(wrappedValue: store)
         self.makeAccount = makeAccount
         self.makeClearProgress = makeClearProgress
+        self.onOpenAccount = onOpenAccount
     }
 
     public var body: some View {
         List {
             // Who this progress belongs to, above the knobs that shape it.
             if let makeAccount {
-                AccountSection(store: makeAccount())
+                AccountSection(store: makeAccount(), onOpenAccount: onOpenAccount)
                     .listRowBackground(rowBackground)
             }
 
@@ -204,7 +209,8 @@ public struct SettingsScreen: View {
                     prepareNonce: { clearProgress.prepareNonce() },
                     rawNonce: { clearProgress.preparedNonce?.raw ?? "" },
                     google: clearProgress.google,
-                    fixtureCredential: nil,
+                    fixtureCredential: clearProgress.allowsFixtureProof
+                        ? ProviderSignInButtons.fixtureCredential : nil,
                     appleIdentifier: AccessibilityIdentifier.clearProgressProveApple,
                     googleIdentifier: AccessibilityIdentifier.clearProgressProveGoogle,
                     fixtureIdentifier: AccessibilityIdentifier.clearProgressProveFixture,

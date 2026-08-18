@@ -57,6 +57,9 @@ struct AppComposition: AppDependencies {
     let studySessions: StudySessionService
     let settingsSync: any SettingsSyncing
     let progressClearing: any ProgressClearing
+    /// Identities, devices, the export and the deletion: one service, and
+    /// the only caller is the account screen.
+    let accountService: AccountService
     let sync: SyncCenter
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
@@ -272,6 +275,11 @@ struct AppComposition: AppDependencies {
             studySessions: studySessions,
             settingsSync: progressService,
             progressClearing: progressService,
+            accountService: AccountService(
+                clientFactory: apiClientFactory,
+                archives: exportArchiveFetcher(for: configuration),
+                logger: logger
+            ),
             sync: SyncCenter(coordinator: syncCoordinator, scopes: sessions),
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
@@ -330,6 +338,7 @@ struct AppComposition: AppDependencies {
             outbox: store.makeOutboxRepository(),
             scopes: scopes,
             nonces: SystemNonceGenerator(),
+            deletionState: UserDefaultsAccountDeletionStateStore(),
             // No credentials, no button: an offer that cannot finish is worse
             // than no offer.
             google: configuration.googleClientID.map { clientID in
@@ -340,14 +349,39 @@ struct AppComposition: AppDependencies {
             },
             // Debug environments only, and only when the launch asked for it:
             // a fixture credential must never be one tap away in production.
-            allowsFakeSignIn: configuration.environment.allowsDebugAffordances
-                && ProcessInfo.processInfo.arguments.contains("-fake-signin"),
+            allowsFakeSignIn: Self.allowsFixtureCredentials(configuration),
             logger: logger
         )
         store.onSignedIn = { [sync] in
             await sync.synchronize(trigger: .signedIn)
         }
         return store
+    }
+
+    /// The account screen's dependencies. The session, the scope cleaner and
+    /// the deletion notice are wired together here because the order they
+    /// happen in — server first, then this device's data, then the tokens —
+    /// is the store's business and nobody else's.
+    func makeAccountLifecycleStore() -> AccountLifecycleStore {
+        let account = AccountLifecycleStore(
+            directory: accountService,
+            exporting: accountService,
+            deleting: accountService,
+            reauthentication: makeReauthenticationCoordinator(),
+            session: sessions,
+            scopes: scopes,
+            cleaner: store.makeAccountScopeCleaner(),
+            deletionState: UserDefaultsAccountDeletionStateStore(),
+            dates: dates,
+            logger: logger
+        )
+        account.onSignedOut = { [router] in
+            // Whatever ended the session — a deletion, or revoking this very
+            // device — the screen it happened on is about an account that is
+            // no longer there.
+            await MainActor.run { router.popToRoot() }
+        }
+        return account
     }
 
     func makeSettingsStore() -> SettingsStore {
@@ -363,16 +397,13 @@ struct AppComposition: AppDependencies {
         )
     }
 
-    /// Clearing progress is assembled per visit like every other store: it
-    /// holds a proof for the length of one attempt, and an object that
-    /// outlived the screen would be an object holding one for longer.
-    func makeClearProgressStore() -> ClearProgressStore {
-        let clearProgress = ClearProgressStore(
+    /// A coordinator per attempt, for the same reason the stores are built per
+    /// visit: it holds a fresh proof for the length of one operation, and an
+    /// object that outlived the screen would be an object holding one longer
+    /// than the contract intends.
+    private func makeReauthenticationCoordinator() -> ReauthenticationCoordinator {
+        ReauthenticationCoordinator(
             auth: authentication,
-            clearing: progressClearing,
-            learning: store.makeLearningRepository(),
-            outbox: store.makeOutboxRepository(),
-            scopes: scopes,
             nonces: SystemNonceGenerator(),
             google: configuration.googleClientID.map { clientID in
                 GoogleSignInAdapter(
@@ -380,7 +411,28 @@ struct AppComposition: AppDependencies {
                     serverClientID: configuration.googleServerClientID
                 )
             },
+            // The same gate the fixture sign-in uses: debug environments only,
+            // and only when the launch asked for it.
+            allowsFixtureProof: Self.allowsFixtureCredentials(configuration),
             dates: dates,
+            logger: logger
+        )
+    }
+
+    /// Whether this run may stand a fixture credential in for a provider sheet.
+    private static func allowsFixtureCredentials(_ configuration: RuntimeConfiguration) -> Bool {
+        configuration.environment.allowsDebugAffordances
+            && ProcessInfo.processInfo.arguments.contains("-fake-signin")
+    }
+
+    /// Clearing progress is assembled per visit like every other store.
+    func makeClearProgressStore() -> ClearProgressStore {
+        let clearProgress = ClearProgressStore(
+            reauthentication: makeReauthenticationCoordinator(),
+            clearing: progressClearing,
+            learning: store.makeLearningRepository(),
+            outbox: store.makeOutboxRepository(),
+            scopes: scopes,
             logger: logger
         )
         clearProgress.onCleared = { [sync] in
@@ -440,6 +492,18 @@ struct AppComposition: AppDependencies {
             "logoutAll": MockAuth.loggedOut,
             "createGuestImport": MockAuth.importResult(now: dates.now()),
             "getGuestImport": MockAuth.importResult(now: dates.now(), statusCode: 200),
+            // The account surface: its ways in, its devices, an export that is
+            // ready by the time it is asked about, and a deletion that is
+            // accepted. All of it offline.
+            "listIdentities": MockAccount.identities(now: dates.now()),
+            "unlinkIdentity": MockAccount.unlinked,
+            "listDevices": MockAccount.devices(now: dates.now()),
+            "deleteDevice": MockAccount.deviceRevoked,
+            "createDataExport": MockAccount.exportRequested(now: dates.now()),
+            "getDataExport": MockAccount.exportReady(now: dates.now()),
+            "deleteMe": MockAccount.deletionAccepted(now: dates.now()),
+            "reauthenticateApple": MockAuth.reauthenticationProof(now: dates.now()),
+            "reauthenticateGoogle": MockAuth.reauthenticationProof(now: dates.now()),
         ]
         var handlers: [String: MockClientTransport.Handler] = [:]
         // A UI test needs a launch where content requests fail while the store
@@ -492,6 +556,17 @@ struct AppComposition: AppDependencies {
         }
     #endif
 
+    /// Mock has no server to fetch an archive from, so it answers with one of
+    /// its own: the export flow is then walkable offline, end to end, which is
+    /// the only way a UI test can drive it at all.
+    private static func exportArchiveFetcher(
+        for configuration: RuntimeConfiguration
+    ) -> any DataExportArchiveFetching {
+        configuration.environment == .mock
+            ? MockExportArchiveFetcher()
+            : URLSessionArchiveFetcher()
+    }
+
     /// Mock ships the release it serves, so it hosts no assets at all and a
     /// download would mean the bundled baseline missed; every other environment
     /// downloads them.
@@ -519,6 +594,10 @@ struct AppComposition: AppDependencies {
             for url in LocalStore.fileURLs(forName: name) {
                 try? fileManager.removeItem(at: url)
             }
+            // The store is not the only thing a launch remembers: the deletion
+            // notice deliberately lives outside it, so a reset that left it
+            // standing would hand the next test somebody else's account state.
+            UserDefaultsAccountDeletionStateStore().store(pendingDeletion: nil)
         }
     #endif
 
