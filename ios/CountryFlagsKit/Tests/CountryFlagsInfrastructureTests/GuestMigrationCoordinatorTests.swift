@@ -234,6 +234,12 @@ private actor SeededLearningRepository: LearningRepository {
     func saveDeckProgress(_ progress: [DeckProgressRecord], for scope: AccountScope) async throws {}
     func achievements(for scope: AccountScope) async throws -> [AchievementRecord] { [] }
     func saveAchievements(_ achievements: [AchievementRecord], for scope: AccountScope) async throws {}
+    func dueSummary(for scope: AccountScope) async throws -> DueSummaryRecord? { nil }
+    func saveDueSummary(_ summary: DueSummaryRecord, for scope: AccountScope) async throws {}
+    func deleteAllProgress(for scope: AccountScope) async throws {
+        storedSessions = []
+        storedReviews = []
+    }
 }
 
 // MARK: - Fixtures

@@ -26,6 +26,7 @@ struct CountryFlagsApp: App {
                 makeProgressStore: { composition.makeProgressStore() },
                 makeSettingsStore: { composition.makeSettingsStore() },
                 makeAccountStore: { composition.makeAccountStore() },
+                makeClearProgressStore: { composition.makeClearProgressStore() },
                 featureFlags: composition.featureFlags,
                 sync: composition.sync
             )

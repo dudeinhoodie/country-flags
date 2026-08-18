@@ -17,6 +17,7 @@ public struct RootView: View {
     private let makeProgressStore: () -> ProgressStore
     private let makeSettingsStore: () -> SettingsStore
     private let makeAccountStore: (() -> AccountStore)?
+    private let makeClearProgressStore: (() -> ClearProgressStore)?
     private let featureFlags: FeatureFlagCenter
     private let sync: SyncCenter
 
@@ -32,6 +33,7 @@ public struct RootView: View {
         makeProgressStore: @escaping () -> ProgressStore,
         makeSettingsStore: @escaping () -> SettingsStore,
         makeAccountStore: (() -> AccountStore)? = nil,
+        makeClearProgressStore: (() -> ClearProgressStore)? = nil,
         featureFlags: FeatureFlagCenter,
         sync: SyncCenter
     ) {
@@ -44,6 +46,7 @@ public struct RootView: View {
         self.makeProgressStore = makeProgressStore
         self.makeSettingsStore = makeSettingsStore
         self.makeAccountStore = makeAccountStore
+        self.makeClearProgressStore = makeClearProgressStore
         self.featureFlags = featureFlags
         self.sync = sync
     }
@@ -221,7 +224,11 @@ public struct RootView: View {
                 }
             )
         case .settings:
-            SettingsScreen(store: makeSettingsStore(), makeAccount: makeAccountStore)
+            SettingsScreen(
+                store: makeSettingsStore(),
+                makeAccount: makeAccountStore,
+                makeClearProgress: makeClearProgressStore
+            )
         }
     }
 }
@@ -295,7 +302,16 @@ public enum AccessibilityIdentifier {
     public static let settingsSound = "settings.sound"
     public static let settingsHaptics = "settings.haptics"
     public static let settingsReminders = "settings.reminders"
+    public static let settingsRemindersTime = "settings.reminders.time"
+    public static let settingsRemindersAllow = "settings.reminders.allow"
+    public static let settingsRemindersOpenSystemSettings = "settings.reminders.openSystemSettings"
     public static let settingsConflict = "settings.conflict"
+    public static let settingsClearProgress = "settings.clearProgress"
+    public static let settingsClearProgressConfirm = "settings.clearProgress.confirm"
+    public static let settingsClearProgressStatus = "settings.clearProgress.status"
+    public static let clearProgressProveApple = "clearProgress.prove.apple"
+    public static let clearProgressProveGoogle = "clearProgress.prove.google"
+    public static let clearProgressProveFixture = "clearProgress.prove.fixture"
 
     public static func settingsSessionSize(_ size: Int) -> String {
         "settings.sessionSize.\(size)"

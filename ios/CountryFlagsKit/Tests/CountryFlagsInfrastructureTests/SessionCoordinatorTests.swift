@@ -42,6 +42,12 @@ private actor StubAuthService: AuthenticationService {
         }
     }
 
+    /// Never exercised here: a proof creates no session, so the coordinator
+    /// this file tests has no part in it.
+    func reauthenticate(with credential: ProviderCredential) async throws -> ReauthenticationProof {
+        ReauthenticationProof(token: "proof", expiresAt: instant)
+    }
+
     func refresh(refreshToken: String) async throws -> RefreshedSessionRecord {
         refreshCount += 1
         switch refreshBehaviour {

@@ -356,6 +356,90 @@ actor SwiftDataLearningRepository: LearningRepository {
         }
     }
 
+    func dueSummary(for scope: AccountScope) async throws -> DueSummaryRecord? {
+        let key = scope.key
+        var descriptor = FetchDescriptor<StoredDueSummary>(
+            predicate: #Predicate { $0.scopeKey == key }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first.map {
+            DueSummaryRecord(
+                overdue: $0.overdue,
+                learning: $0.learning,
+                relearning: $0.relearning,
+                review: $0.review,
+                newCards: $0.newCards,
+                totalDue: $0.totalDue,
+                serverTime: $0.serverTime
+            )
+        }
+    }
+
+    /// One row per account: the summary answers a single question — what is
+    /// waiting — so a newer answer replaces the older one rather than joining
+    /// it.
+    func saveDueSummary(_ summary: DueSummaryRecord, for scope: AccountScope) async throws {
+        let key = scope.key
+        try transaction {
+            var descriptor = FetchDescriptor<StoredDueSummary>(
+                predicate: #Predicate { $0.scopeKey == key }
+            )
+            descriptor.fetchLimit = 1
+            if let stored = try modelContext.fetch(descriptor).first {
+                stored.overdue = summary.overdue
+                stored.learning = summary.learning
+                stored.relearning = summary.relearning
+                stored.review = summary.review
+                stored.newCards = summary.newCards
+                stored.totalDue = summary.totalDue
+                stored.serverTime = summary.serverTime
+            } else {
+                modelContext.insert(
+                    StoredDueSummary(
+                        scopeKey: key,
+                        overdue: summary.overdue,
+                        learning: summary.learning,
+                        relearning: summary.relearning,
+                        review: summary.review,
+                        newCards: summary.newCards,
+                        totalDue: summary.totalDue,
+                        serverTime: summary.serverTime
+                    )
+                )
+            }
+        }
+    }
+
+    /// Everything the learner earned, in one transaction: a store left holding
+    /// half a wipe would show a progress screen built from card states that no
+    /// longer have sessions behind them.
+    ///
+    /// Settings are deliberately absent — clearing progress keeps the account,
+    /// and the session size is not progress — and so is content, which is
+    /// shared with every other account on the device.
+    func deleteAllProgress(for scope: AccountScope) async throws {
+        let key = scope.key
+        try transaction {
+            try deleteScoped(StoredCardState.self, key: key)
+            try deleteScoped(StoredDeckProgress.self, key: key)
+            try deleteScoped(StoredAchievement.self, key: key)
+            try deleteScoped(StoredDueSummary.self, key: key)
+            try deleteScoped(StoredReviewEvent.self, key: key)
+            // The snapshots a session was shown from cascade with it: they
+            // describe a run that no longer exists.
+            try deleteScoped(StoredStudySession.self, key: key)
+        }
+    }
+
+    private func deleteScoped<Model: PersistentModel & ScopedModel>(
+        _ type: Model.Type,
+        key: String
+    ) throws {
+        for stored in try modelContext.fetch(FetchDescriptor<Model>()) where stored.scopeKey == key {
+            modelContext.delete(stored)
+        }
+    }
+
     // MARK: - Test seam
 
     /// Injected by a test to fail a write after the inserts, which is how the

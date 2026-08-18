@@ -226,6 +226,8 @@ private struct StubOutbox: OutboxRepository {
     ) async throws -> SyncCursorRecord? { nil }
 
     func saveCursor(_ cursor: SyncCursorRecord, for scope: AccountScope) async throws {}
+
+    func discardQueuedWork(for scope: AccountScope) async throws {}
 }
 
 

@@ -9,15 +9,21 @@ public struct ProgressSnapshot: Sendable, Equatable {
     public let decks: [DeckProgressRecord]
     public let achievements: [AchievementRecord]
     public let settings: UserSettingsRecord?
+    /// What the server says is waiting right now, or nil when this release of
+    /// the backend did not answer. Optional rather than zeroed: a queue nobody
+    /// counted is not an empty queue.
+    public let dueSummary: DueSummaryRecord?
 
     public init(
         decks: [DeckProgressRecord],
         achievements: [AchievementRecord],
-        settings: UserSettingsRecord?
+        settings: UserSettingsRecord?,
+        dueSummary: DueSummaryRecord? = nil
     ) {
         self.decks = decks
         self.achievements = achievements
         self.settings = settings
+        self.dueSummary = dueSummary
     }
 }
 
@@ -41,6 +47,38 @@ public enum SettingsUpdateOutcome: Sendable, Equatable {
 /// on the rule without depending on the transport that carries it.
 public protocol SettingsSyncing: Sendable {
     func update(_ settings: UserSettingsRecord) async throws -> SettingsUpdateOutcome
+}
+
+/// What the backend did with a request to delete an account's progress.
+///
+/// The status is the contract's: the deletion may be finished by the time the
+/// call returns, or accepted and still running. Either way it has been decided
+/// — which is what lets the device clear its own copy.
+public struct ProgressDeletionOutcome: Hashable, Sendable {
+    public enum Status: String, Hashable, Sendable {
+        case pending = "PENDING"
+        case completed = "COMPLETED"
+    }
+
+    public let operationID: UUID
+    public let status: Status
+    public let requestedAt: Date
+
+    public init(operationID: UUID, status: Status, requestedAt: Date) {
+        self.operationID = operationID
+        self.status = status
+        self.requestedAt = requestedAt
+    }
+}
+
+/// Deletes an account's learning progress, keeping the account itself.
+///
+/// The proof is a parameter rather than something the implementation fetches:
+/// the contract requires a fresh one per operation, and a service that could
+/// obtain its own would be a service that could delete progress unprompted.
+public protocol ProgressClearing: Sendable {
+    func clearProgress(provingWith proof: ReauthenticationProof) async throws
+        -> ProgressDeletionOutcome
 }
 
 /// One account-scoped change from the backend's stream.

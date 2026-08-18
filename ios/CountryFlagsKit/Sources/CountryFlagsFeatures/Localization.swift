@@ -57,6 +57,21 @@ public enum L10n {
     public static var homeContinue: String { localized("home.continue") }
     public static var homeSessionInProgress: String { localized("home.session_in_progress") }
     public static var homeDueToday: String { localized("home.due_today") }
+
+    /// The backend's breakdown of the queue, one part each. They are joined by
+    /// the view rather than formatted as one string, so a part with nothing in
+    /// it is left out instead of being printed as a zero.
+    public static func homeDueOverdue(_ count: Int) -> String {
+        String(format: localized("home.due_overdue"), count)
+    }
+
+    public static func homeDueLearning(_ count: Int) -> String {
+        String(format: localized("home.due_learning"), count)
+    }
+
+    public static func homeDueNew(_ count: Int) -> String {
+        String(format: localized("home.due_new"), count)
+    }
     public static var homeReview: String { localized("home.review") }
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
@@ -124,7 +139,52 @@ public enum L10n {
     public static var settingsRemindersSection: String { localized("settings.reminders_section") }
     public static var settingsReminders: String { localized("settings.reminders") }
     public static var settingsRemindersFooter: String { localized("settings.reminders_footer") }
+    public static var settingsRemindersTime: String { localized("settings.reminders_time") }
+    /// Offered when the account wants reminders and this device has never been
+    /// asked — a setting that travelled here is not a permission.
+    public static var settingsRemindersAllow: String { localized("settings.reminders_allow") }
+    /// Shown when the system holds the permission and the app cannot ask
+    /// again: the only way back is System Settings.
+    public static var settingsRemindersDenied: String { localized("settings.reminders_denied") }
+    public static var settingsOpenSystemSettings: String {
+        localized("settings.open_system_settings")
+    }
     public static var settingsConflictReloaded: String { localized("settings.conflict_reloaded") }
+
+    /// What the daily reminder itself says. It belongs to this layer because
+    /// the notification is scheduled from here; the scheduler is handed the
+    /// finished strings rather than a bundle to look them up in.
+    public static var reminderTitle: String { localized("reminder.title") }
+    public static var reminderBody: String { localized("reminder.body") }
+
+    // MARK: - Clearing progress
+
+    public static var settingsProgressSection: String { localized("settings.progress_section") }
+    public static var settingsClearProgress: String { localized("settings.clear_progress") }
+    public static var settingsClearProgressTitle: String {
+        localized("settings.clear_progress.title")
+    }
+    public static var settingsClearProgressBody: String {
+        localized("settings.clear_progress.body")
+    }
+    public static var settingsClearProgressConfirm: String {
+        localized("settings.clear_progress.confirm")
+    }
+    public static var settingsClearProgressReauth: String {
+        localized("settings.clear_progress.reauth")
+    }
+    public static var settingsClearProgressWorking: String {
+        localized("settings.clear_progress.working")
+    }
+    public static var settingsClearProgressDone: String {
+        localized("settings.clear_progress.done")
+    }
+    public static var settingsClearProgressFailed: String {
+        localized("settings.clear_progress.failed")
+    }
+    public static var settingsClearProgressReauthFailed: String {
+        localized("settings.clear_progress.reauth_failed")
+    }
 
     // MARK: - Account
 

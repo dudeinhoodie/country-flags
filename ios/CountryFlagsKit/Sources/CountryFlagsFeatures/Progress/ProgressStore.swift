@@ -70,6 +70,11 @@ public final class ProgressStore {
     /// The unfinished session, when there is one: the screen that knows about
     /// it can offer to continue instead of silently starting over.
     public private(set) var continuable: ContinuableSession?
+    /// The backend's own breakdown of the queue, when one arrived recently
+    /// enough to still be about today. The counts beside it stay local: this
+    /// says what kind of work is waiting — overdue, still being learned, never
+    /// seen — which is the part the device cannot work out for itself.
+    public private(set) var dueSummary: DueSummaryRecord?
     public private(set) var isLoaded = false
 
     private let content: any ContentRepository
@@ -94,6 +99,12 @@ public final class ProgressStore {
         // is resolved here rather than captured when the screen was built.
         let scope = await scopes.currentScope()
         continuable = await continuableSession(for: scope)
+        // A summary that has aged out is dropped rather than shown: yesterday's
+        // queue presented as today's would be worse than no breakdown at all,
+        // and the count beside it is computed locally and stays right anyway.
+        let now = dates.now()
+        dueSummary = (try? await learning.dueSummary(for: scope))
+            .flatMap { $0.isFresh(at: now) ? $0 : nil }
         let states = (try? await learning.cardStates(for: scope)) ?? []
         achievements = ((try? await learning.achievements(for: scope)) ?? [])
             .filter { $0.earnedAt != nil }

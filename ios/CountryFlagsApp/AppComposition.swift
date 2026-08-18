@@ -49,9 +49,14 @@ struct AppComposition: AppDependencies {
     /// The session behind `scopes`, for the account surface that signs in
     /// and out of it.
     let sessions: SessionCoordinator
+    /// The exchange behind the session, kept because one operation needs it
+    /// directly: proving identity again for a sensitive request, which creates
+    /// no session and must not rotate the one there is.
+    let authentication: any AuthenticationService
     let guestMigrations: GuestMigrationCoordinator
     let studySessions: StudySessionService
     let settingsSync: any SettingsSyncing
+    let progressClearing: any ProgressClearing
     let sync: SyncCenter
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
@@ -118,15 +123,16 @@ struct AppComposition: AppDependencies {
             transport: transport,
             identifiers: identifiers
         )
+        let authService = AuthService(
+            clientFactory: authClientFactory,
+            devices: InstallationDeviceRegistration(
+                tokens: tokens,
+                identifiers: identifiers,
+                appVersion: Self.appVersion(from: bundle)
+            )
+        )
         let sessions = SessionCoordinator(
-            service: AuthService(
-                clientFactory: authClientFactory,
-                devices: InstallationDeviceRegistration(
-                    tokens: tokens,
-                    identifiers: identifiers,
-                    appVersion: Self.appVersion(from: bundle)
-                )
-            ),
+            service: authService,
             tokens: tokens,
             guestScopes: accountScopes,
             logger: logger
@@ -261,9 +267,11 @@ struct AppComposition: AppDependencies {
             // in, the guest otherwise. One answer for the whole app.
             scopes: sessions,
             sessions: sessions,
+            authentication: authService,
             guestMigrations: guestMigrations,
             studySessions: studySessions,
             settingsSync: progressService,
+            progressClearing: progressService,
             sync: SyncCenter(coordinator: syncCoordinator, scopes: sessions),
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
@@ -347,8 +355,41 @@ struct AppComposition: AppDependencies {
             learning: store.makeLearningRepository(),
             scopes: scopes,
             sync: settingsSync,
+            reminders: UserNotificationReminderScheduler(logger: logger),
+            // The hour lives beside the app's other device preferences: it is
+            // a property of this phone, not of the account.
+            reminderPreferences: UserDefaultsReminderPreferenceStore(),
             dates: dates
         )
+    }
+
+    /// Clearing progress is assembled per visit like every other store: it
+    /// holds a proof for the length of one attempt, and an object that
+    /// outlived the screen would be an object holding one for longer.
+    func makeClearProgressStore() -> ClearProgressStore {
+        let clearProgress = ClearProgressStore(
+            auth: authentication,
+            clearing: progressClearing,
+            learning: store.makeLearningRepository(),
+            outbox: store.makeOutboxRepository(),
+            scopes: scopes,
+            nonces: SystemNonceGenerator(),
+            google: configuration.googleClientID.map { clientID in
+                GoogleSignInAdapter(
+                    clientID: clientID,
+                    serverClientID: configuration.googleServerClientID
+                )
+            },
+            dates: dates,
+            logger: logger
+        )
+        clearProgress.onCleared = { [sync] in
+            // The account's stream was rotated by the deletion, so the next run
+            // reads it from the beginning: the device converges on the empty
+            // history rather than waiting for a foreground to find out.
+            await sync.synchronize(trigger: .pullToRefresh)
+        }
+        return clearProgress
     }
 
     func makeObjectiveSessionRunner() -> ObjectiveSessionRunner {

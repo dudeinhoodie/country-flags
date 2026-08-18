@@ -118,6 +118,20 @@ public protocol LearningRepository: Sendable {
     func saveDeckProgress(_ progress: [DeckProgressRecord], for scope: AccountScope) async throws
     func achievements(for scope: AccountScope) async throws -> [AchievementRecord]
     func saveAchievements(_ achievements: [AchievementRecord], for scope: AccountScope) async throws
+
+    /// The last due summary the backend answered with, whenever that was. A
+    /// reader decides for itself whether it is still worth showing.
+    func dueSummary(for scope: AccountScope) async throws -> DueSummaryRecord?
+    func saveDueSummary(_ summary: DueSummaryRecord, for scope: AccountScope) async throws
+
+    /// Removes everything the learner earned — card states, sessions, the
+    /// answers in them, deck mastery, achievements and the due summary — and
+    /// keeps the account: its settings, its identities and its devices stand.
+    ///
+    /// The one caller is the clear-progress flow, and it calls this only after
+    /// the backend accepted the deletion: a device that wiped itself on an
+    /// unanswered request would lose work the account still holds.
+    func deleteAllProgress(for scope: AccountScope) async throws
 }
 
 /// The queue of work waiting to reach the backend.
@@ -136,6 +150,13 @@ public protocol OutboxRepository: Sendable {
 
     func cursor(_ feed: SyncCursorRecord.Feed, for scope: AccountScope) async throws -> SyncCursorRecord?
     func saveCursor(_ cursor: SyncCursorRecord, for scope: AccountScope) async throws
+
+    /// Drops the queue and every feed cursor the scope owns.
+    ///
+    /// The other half of clearing progress: an unsent review is progress too,
+    /// and a cursor into a stream the account has rotated resolves to nothing.
+    /// Called only after the backend accepted the deletion.
+    func discardQueuedWork(for scope: AccountScope) async throws
 }
 
 /// Analytics, consent and diagnostics.
