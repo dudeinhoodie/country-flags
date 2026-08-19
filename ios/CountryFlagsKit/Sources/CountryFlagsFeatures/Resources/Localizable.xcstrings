@@ -2126,6 +2126,74 @@
         }
       }
     },
+    "privacy.diagnostics": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share crash diagnostics"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Делиться диагностикой сбоев"
+          }
+        }
+      }
+    },
+    "privacy.footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Both are off until you turn them on, and neither affects how the app works. Analytics counts what happens in the app — screens, sessions, outcomes — never your answers, your email or your sign-in. Diagnostics sends crash and performance reports. Turning one off also deletes what is still waiting to be sent."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оба выключены, пока вы их не включите, и ни один не влияет на работу приложения. Аналитика считает, что происходит в приложении — экраны, занятия, результаты — и никогда ваши ответы, почту или данные входа. Диагностика отправляет отчёты о сбоях и производительности. Выключение также удаляет то, что ещё не отправлено."
+          }
+        }
+      }
+    },
+    "privacy.product_analytics": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share product analytics"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Делиться продуктовой аналитикой"
+          }
+        }
+      }
+    },
+    "privacy.section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приватность"
+          }
+        }
+      }
+    },
     "progress.achievements": {
       "extractionState": "manual",
       "localizations": {

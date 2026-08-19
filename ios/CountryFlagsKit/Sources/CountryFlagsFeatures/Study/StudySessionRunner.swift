@@ -58,12 +58,19 @@ public final class StudySessionRunner {
     private let selection: (any StudySessionSelecting)?
     private let dates: any DateProviding
     private let identifiers: any IdentifierProviding
+    private let analytics: (any AnalyticsTracking)?
+    /// When the session on screen started, for the duration bucket the
+    /// completed event carries. Held here rather than read from the record so a
+    /// resumed session reports the sitting rather than the calendar time since
+    /// it was first opened.
+    private var startedAt: Date?
 
     public init(
         scopes: any AccountScopeResolving,
         content: any ContentRepository,
         learning: any LearningRepository,
         selection: (any StudySessionSelecting)? = nil,
+        analytics: (any AnalyticsTracking)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         identifiers: any IdentifierProviding = SystemIdentifierProvider()
     ) {
@@ -71,6 +78,7 @@ public final class StudySessionRunner {
         self.content = content
         self.learning = learning
         self.selection = selection
+        self.analytics = analytics
         self.dates = dates
         self.identifiers = identifiers
     }
@@ -98,8 +106,46 @@ public final class StudySessionRunner {
         composition: StudySessionComposition = .standard
     ) async {
         if scope == nil { scope = await scopes.currentScope() }
-        if await resume(deckID: deckID, composition: composition) { return }
+        startedAt = dates.now()
+        if await resume(deckID: deckID, composition: composition) {
+            await reportSessionStarted(requestedCardCount: state?.cards.count ?? 0)
+            return
+        }
         await start(deckID: deckID, size: size, composition: composition)
+        await reportSessionStarted(requestedCardCount: size.rawValue)
+    }
+
+    /// The session's shape, never its contents: the mode and how many cards
+    /// were asked for. Which countries they were is not a product question.
+    private func reportSessionStarted(requestedCardCount: Int) async {
+        guard let analytics, state != nil else { return }
+        await analytics.track(
+            .studySessionStarted(
+                mode: .selfRated,
+                requestedCardCount: requestedCardCount,
+                at: dates.now()
+            )
+        )
+    }
+
+    /// Reported when the learner leaves a session with cards still owed. The
+    /// bucket says how far they got; the answers themselves stay where they
+    /// are, in the store and in the outbox.
+    public func reportAbandonment() async {
+        guard let analytics, let session = state, summary == nil else { return }
+        // What was actually committed, which is also what the outbox holds:
+        // a card revealed but not rated is not an answer.
+        let answered = session.committed.count
+        await analytics.track(
+            .studySessionAbandoned(
+                mode: .selfRated,
+                progress: AnalyticsProgressBucket(
+                    answered: answered,
+                    planned: session.cards.count
+                ),
+                at: dates.now()
+            )
+        )
     }
 
     /// - Returns: whether an unfinished session was picked up.
@@ -443,6 +489,36 @@ public final class StudySessionRunner {
             await selection?.completeSession(id: session.sessionID)
         }
         await buildSummary()
+        await reportSessionCompleted()
+    }
+
+    /// The completed session as a shape: how many cards, how long, how well —
+    /// the last two as buckets, because the product question is "quick or
+    /// slow" and "well or badly", and a precise figure is one more thing that
+    /// can identify somebody.
+    private func reportSessionCompleted() async {
+        guard let analytics, let summary else { return }
+        let remembered = summary.ratings
+            .filter { $0.key != .again }
+            .reduce(0) { $0 + $1.value }
+        let answered = summary.ratings.values.reduce(0, +)
+        await analytics.track(
+            .studySessionCompleted(
+                mode: .selfRated,
+                // Every deck this build has comes from the published catalog;
+                // dynamic and custom decks are not a thing yet, and reporting
+                // one would be reporting something that does not exist.
+                deckType: .system,
+                requestedCardCount: summary.plannedCards,
+                uniqueCardCount: summary.answered.count,
+                reviewCount: answered,
+                duration: AnalyticsSessionDurationBucket(
+                    seconds: dates.now().timeIntervalSince(startedAt ?? dates.now())
+                ),
+                correctRate: AnalyticsCorrectRateBucket(correct: remembered, total: answered),
+                at: dates.now()
+            )
+        )
     }
 
     /// The result screen is built from what was actually saved, not from what

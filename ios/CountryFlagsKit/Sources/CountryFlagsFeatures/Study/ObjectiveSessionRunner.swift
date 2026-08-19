@@ -43,15 +43,22 @@ public final class ObjectiveSessionRunner {
         scopes: any AccountScopeResolving,
         content: any ContentRepository,
         learning: any LearningRepository,
+        analytics: (any AnalyticsTracking)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         identifiers: any IdentifierProviding = SystemIdentifierProvider()
     ) {
         self.scopes = scopes
         self.content = content
         self.learning = learning
+        self.analytics = analytics
         self.dates = dates
         self.identifiers = identifiers
     }
+
+    private let analytics: (any AnalyticsTracking)?
+    /// When the sitting started, for the duration bucket the completed event
+    /// carries.
+    private var startedAt: Date?
 
     private var resolvedScope: AccountScope {
         guard let scope else {
@@ -64,8 +71,41 @@ public final class ObjectiveSessionRunner {
 
     public func startOrResume(deckID: UUID, size: StudySessionSize) async {
         if scope == nil { scope = await scopes.currentScope() }
-        if await resume(deckID: deckID) { return }
+        startedAt = dates.now()
+        if await resume(deckID: deckID) {
+            await reportSessionStarted(requestedCardCount: state?.questions.count ?? 0)
+            return
+        }
         await start(deckID: deckID, size: size)
+        await reportSessionStarted(requestedCardCount: size.rawValue)
+    }
+
+    /// The session's shape and nothing else: the mode and how many questions
+    /// were asked for.
+    private func reportSessionStarted(requestedCardCount: Int) async {
+        guard let analytics, state != nil else { return }
+        await analytics.track(
+            .studySessionStarted(
+                mode: .multipleChoice,
+                requestedCardCount: requestedCardCount,
+                at: dates.now()
+            )
+        )
+    }
+
+    /// Reported when the learner leaves with questions still owed.
+    public func reportAbandonment() async {
+        guard let analytics, let session = state, summary == nil else { return }
+        await analytics.track(
+            .studySessionAbandoned(
+                mode: .multipleChoice,
+                progress: AnalyticsProgressBucket(
+                    answered: session.answers.count,
+                    planned: session.questions.count
+                ),
+                at: dates.now()
+            )
+        )
     }
 
     private func resume(deckID: UUID) async -> Bool {
@@ -364,6 +404,31 @@ public final class ObjectiveSessionRunner {
             )
         }
         await buildSummary()
+        await reportSessionCompleted()
+    }
+
+    /// The completed quiz as a shape: how many questions, how long, how well —
+    /// the last two as buckets, for the same reason the self-rated session
+    /// reports them that way.
+    private func reportSessionCompleted() async {
+        guard let analytics, let summary else { return }
+        await analytics.track(
+            .studySessionCompleted(
+                mode: .multipleChoice,
+                deckType: .system,
+                requestedCardCount: summary.plannedQuestions,
+                uniqueCardCount: summary.answeredQuestions,
+                reviewCount: summary.answeredQuestions,
+                duration: AnalyticsSessionDurationBucket(
+                    seconds: dates.now().timeIntervalSince(startedAt ?? dates.now())
+                ),
+                correctRate: AnalyticsCorrectRateBucket(
+                    correct: summary.correctAnswers,
+                    total: summary.answeredQuestions
+                ),
+                at: dates.now()
+            )
+        )
     }
 
     /// Counted from the stored reviews, so the result reports the answers that

@@ -63,6 +63,15 @@ struct AppComposition: AppDependencies {
     let sync: SyncCenter
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
+    /// The live analytics queue behind `analytics`, kept because the privacy
+    /// screen has to hand it a consent decision and the sync has to flush it.
+    let analyticsCoordinator: AnalyticsCoordinator
+    let diagnosticsCoordinator: DiagnosticsCoordinator
+    let telemetryContexts: TelemetryContextProvider
+    let privacySync: any PrivacySettingsSyncing
+    /// Held for the lifetime of the app: MetricKit keeps its subscribers
+    /// weakly, so nobody else holding this means nobody is listening.
+    let metricKitSubscriber: MetricKitSubscriber
     let errorReporter: any ErrorReporting
     let diagnostics: any DiagnosticsReporting
     let logger: any AppLogging
@@ -198,6 +207,43 @@ struct AppComposition: AppDependencies {
         // Settings are offered to the server under the version they were read
         // at. A guest never reaches it — the store checks the scope — but the
         // seam is wired now so signing in does not need a composition change.
+        // Telemetry is assembled before the services that report through it.
+        // Consent starts at "nobody has been asked", which collects nothing
+        // optional; the privacy screen loads the stored answer and applies it.
+        let telemetryService = TelemetryService(clientFactory: apiClientFactory, logger: logger)
+        let telemetryContexts = TelemetryContextProvider(
+            identityStore: UserDefaultsTelemetryIdentityStore(),
+            identifiers: identifiers,
+            appVersion: Self.appVersion(from: bundle),
+            build: Self.buildNumber(from: bundle),
+            locale: Self.locale()
+        )
+        let unaskedConsent = TelemetryConsent.unasked(
+            policyVersion: PrivacyStore.policyVersion,
+            now: dates.now()
+        )
+        let analyticsCoordinator = AnalyticsCoordinator(
+            repository: store.makeTelemetryRepository(),
+            scopes: sessions,
+            contexts: telemetryContexts,
+            sender: telemetryService,
+            consent: unaskedConsent,
+            identifiers: identifiers,
+            dates: dates,
+            logger: logger
+        )
+        let diagnosticsCoordinator = DiagnosticsCoordinator(
+            repository: store.makeTelemetryRepository(),
+            scopes: sessions,
+            uploader: telemetryService,
+            consent: unaskedConsent,
+            appVersion: Self.appVersion(from: bundle),
+            build: Self.buildNumber(from: bundle),
+            identifiers: identifiers,
+            dates: dates,
+            logger: logger
+        )
+
         let progressService = ProgressService(clientFactory: apiClientFactory, logger: logger)
         // The backend's half of session composition: server selection for a
         // signed-in learner, and the import that walks an offline session to
@@ -242,6 +288,7 @@ struct AppComposition: AppDependencies {
             content: ContentStore(
                 repository: contentRepository,
                 coordinator: coordinator,
+                analytics: analyticsCoordinator,
                 dates: dates,
                 // The bootstrap imports cards without their entities — only
                 // the change feed carries those — so the first ask for an
@@ -280,12 +327,25 @@ struct AppComposition: AppDependencies {
                 archives: exportArchiveFetcher(for: configuration),
                 logger: logger
             ),
-            sync: SyncCenter(coordinator: syncCoordinator, scopes: sessions),
+            sync: SyncCenter(
+                coordinator: syncCoordinator,
+                scopes: sessions,
+                analytics: analyticsCoordinator,
+                dates: dates
+            ),
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
             // composition change rather than a change to every screen.
             advertising: NoOpAdvertisingProvider(),
-            analytics: NoOpAnalyticsTracker(),
+            analytics: analyticsCoordinator,
+            analyticsCoordinator: analyticsCoordinator,
+            diagnosticsCoordinator: diagnosticsCoordinator,
+            telemetryContexts: telemetryContexts,
+            privacySync: telemetryService,
+            metricKitSubscriber: MetricKitSubscriber(
+                coordinator: diagnosticsCoordinator,
+                dates: dates
+            ),
             errorReporter: NoOpErrorReporter(),
             diagnostics: NoOpDiagnosticsReporter(),
             logger: logger,
@@ -350,6 +410,8 @@ struct AppComposition: AppDependencies {
             // Debug environments only, and only when the launch asked for it:
             // a fixture credential must never be one tap away in production.
             allowsFakeSignIn: Self.allowsFixtureCredentials(configuration),
+            analytics: analytics,
+            dates: dates,
             logger: logger
         )
         store.onSignedIn = { [sync] in
@@ -382,6 +444,18 @@ struct AppComposition: AppDependencies {
             await MainActor.run { router.popToRoot() }
         }
         return account
+    }
+
+    /// The privacy screen's dependencies. Both collectors are handed to it,
+    /// so one decision reaches everything that collects under it.
+    func makePrivacyStore() -> PrivacyStore {
+        PrivacyStore(
+            repository: store.makeTelemetryRepository(),
+            scopes: scopes,
+            collectors: [analyticsCoordinator, diagnosticsCoordinator],
+            sync: privacySync,
+            dates: dates
+        )
     }
 
     func makeSettingsStore() -> SettingsStore {
@@ -449,6 +523,7 @@ struct AppComposition: AppDependencies {
             scopes: scopes,
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
+            analytics: analytics,
             dates: dates,
             identifiers: identifiers
         )
@@ -465,6 +540,7 @@ struct AppComposition: AppDependencies {
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
             selection: studySessions,
+            analytics: analytics,
             dates: dates,
             identifiers: identifiers
         )
@@ -607,6 +683,11 @@ struct AppComposition: AppDependencies {
 
     private static func appVersion(from bundle: Bundle) -> String {
         bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+    }
+
+    /// The build the event envelope's context names, beside the version.
+    private static func buildNumber(from bundle: Bundle) -> String {
+        bundle.infoDictionary?["CFBundleVersion"] as? String ?? "0"
     }
 
     /// BCP 47, which is what the contract validates. The system identifier uses

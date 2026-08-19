@@ -15,8 +15,10 @@ public struct SettingsScreen: View {
     /// Owned for the same reason the progress screen owns its own.
     @State private var store: SettingsStore
     @State private var clearProgress: ClearProgressStore?
+    @State private var privacy: PrivacyStore?
     private let makeAccount: (() -> AccountStore)?
     private let makeClearProgress: (() -> ClearProgressStore)?
+    private let makePrivacy: (() -> PrivacyStore)?
     /// Opens the account screen. Absent when the composition has no such
     /// screen to open, which is the same rule the other factories follow.
     private let onOpenAccount: (() -> Void)?
@@ -25,11 +27,13 @@ public struct SettingsScreen: View {
         store: SettingsStore,
         makeAccount: (() -> AccountStore)? = nil,
         makeClearProgress: (() -> ClearProgressStore)? = nil,
+        makePrivacy: (() -> PrivacyStore)? = nil,
         onOpenAccount: (() -> Void)? = nil
     ) {
         _store = State(wrappedValue: store)
         self.makeAccount = makeAccount
         self.makeClearProgress = makeClearProgress
+        self.makePrivacy = makePrivacy
         self.onOpenAccount = onOpenAccount
     }
 
@@ -130,6 +134,8 @@ public struct SettingsScreen: View {
             }
             .listRowBackground(rowBackground)
 
+            privacySection
+
             clearProgressSection
         }
         .scrollContentBackground(.hidden)
@@ -139,6 +145,8 @@ public struct SettingsScreen: View {
             await store.load()
             if clearProgress == nil { clearProgress = makeClearProgress?() }
             await clearProgress?.load()
+            if privacy == nil { privacy = makePrivacy?() }
+            await privacy?.load()
         }
         .confirmationDialog(
             L10n.settingsClearProgressTitle,
@@ -158,6 +166,52 @@ public struct SettingsScreen: View {
         .sheet(isPresented: clearProgressProof) {
             clearProgressProofSheet
         }
+    }
+
+    /// What is collected, and what is not.
+    ///
+    /// Two switches rather than one: crash diagnostics and product analytics
+    /// are different questions, and a single "telemetry" toggle would answer
+    /// both with whichever one the person cared about more. Both start off —
+    /// nothing optional is collected until somebody says so — and studying
+    /// works identically either way.
+    @ViewBuilder
+    private var privacySection: some View {
+        if let privacy {
+            Section {
+                Toggle(L10n.privacyProductAnalytics, isOn: productAnalyticsBinding(privacy))
+                    .accessibilityIdentifier(AccessibilityIdentifier.privacyProductAnalytics)
+                Toggle(L10n.privacyDiagnostics, isOn: diagnosticsBinding(privacy))
+                    .accessibilityIdentifier(AccessibilityIdentifier.privacyDiagnostics)
+
+                if privacy.didReloadAfterConflict {
+                    Text(L10n.settingsConflictReloaded)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.7))
+                        .accessibilityIdentifier(AccessibilityIdentifier.privacyConflict)
+                }
+            } header: {
+                SectionLabel(L10n.privacySection)
+            } footer: {
+                Text(L10n.privacyFooter)
+                    .foregroundStyle(.white.opacity(0.5))
+            }
+            .listRowBackground(rowBackground)
+        }
+    }
+
+    private func productAnalyticsBinding(_ privacy: PrivacyStore) -> Binding<Bool> {
+        Binding(
+            get: { privacy.consent.productAnalytics == .granted },
+            set: { isOn in Task { await privacy.setProductAnalytics(granted: isOn) } }
+        )
+    }
+
+    private func diagnosticsBinding(_ privacy: PrivacyStore) -> Binding<Bool> {
+        Binding(
+            get: { privacy.consent.diagnostics == .granted },
+            set: { isOn in Task { await privacy.setDiagnostics(granted: isOn) } }
+        )
     }
 
     /// The one destructive thing this screen can do, and only for an account:

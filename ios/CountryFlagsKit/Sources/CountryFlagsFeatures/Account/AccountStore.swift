@@ -44,6 +44,8 @@ public final class AccountStore {
     private let scopes: any AccountScopeResolving
     private let nonces: any NonceGenerating
     private let deletionState: (any AccountDeletionStateStoring)?
+    private let analytics: (any AnalyticsTracking)?
+    private let dates: any DateProviding
     private let logger: any AppLogging
     private var pendingNonce: SignInNonce?
 
@@ -56,6 +58,8 @@ public final class AccountStore {
         deletionState: (any AccountDeletionStateStoring)? = nil,
         google: (any GoogleSignInPresenting)? = nil,
         allowsFakeSignIn: Bool = false,
+        analytics: (any AnalyticsTracking)? = nil,
+        dates: any DateProviding = SystemDateProvider(),
         logger: any AppLogging = NoOpLogger()
     ) {
         self.logger = logger
@@ -65,6 +69,8 @@ public final class AccountStore {
         self.scopes = scopes
         self.nonces = nonces
         self.deletionState = deletionState
+        self.analytics = analytics
+        self.dates = dates
         self.google = google
         self.allowsFakeSignIn = allowsFakeSignIn
     }
@@ -121,6 +127,7 @@ public final class AccountStore {
             )
         }
         profile = await session.currentProfile()
+        await reportAuthOutcome(credential.provider, outcome)
         switch outcome {
         case .succeeded(let userID):
             // A deletion notice belongs to the account that was deleted. Once
@@ -137,6 +144,23 @@ public final class AccountStore {
         case .failed(let failure):
             lastFailure = failure
         }
+    }
+
+    /// The provider and how it ended — success, cancelled or failed — and
+    /// nothing else. The provider's own subject, the account identifier and the
+    /// tokens are all deliberately absent: an analytics backend has no use for
+    /// any of them.
+    private func reportAuthOutcome(_ provider: AuthProvider, _ outcome: SignInOutcome) async {
+        guard let analytics else { return }
+        let result: AnalyticsAuthResult =
+            switch outcome {
+            case .succeeded: .success
+            case .cancelled: .cancelled
+            case .failed: .failed
+            }
+        await analytics.track(
+            .authCompleted(provider: provider, result: result, at: dates.now())
+        )
     }
 
     /// The person closed the provider's sheet. Nothing failed; the button is
@@ -176,6 +200,8 @@ public final class AccountStore {
     public func confirmSignOut(everywhere: Bool) async {
         signOutAssessment = nil
         await session.signOut(everywhere: everywhere)
+        // The trail that was being attributed to whoever just left ends here.
+        await analytics?.setIdentity(nil)
         state = await session.currentState()
         profile = nil
         migration = nil

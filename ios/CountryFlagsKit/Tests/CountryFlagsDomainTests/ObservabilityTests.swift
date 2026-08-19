@@ -103,9 +103,9 @@ final class FeatureExposureRecorderTests: XCTestCase {
         let analytics = RecordingAnalyticsTracker()
         let recorder = FeatureExposureRecorder(analytics: analytics, dates: dates)
 
-        let first = await recorder.recordExposure(of: resolution())
-        let second = await recorder.recordExposure(of: resolution())
-        let third = await recorder.recordExposure(of: resolution())
+        let first = await recorder.recordExposure(of: resolution(), surface: "deck_details")
+        let second = await recorder.recordExposure(of: resolution(), surface: "deck_details")
+        let third = await recorder.recordExposure(of: resolution(), surface: "deck_details")
 
         XCTAssertTrue(first)
         XCTAssertFalse(second)
@@ -115,11 +115,11 @@ final class FeatureExposureRecorderTests: XCTestCase {
         let event = try? XCTUnwrap(analytics.events.first)
         XCTAssertEqual(event?.name, .featureExposed)
         XCTAssertEqual(
-            event?.parameters["flag_key"],
+            event?.properties["flagKey"],
             .string(BooleanFeatureFlag.studyMultipleChoiceEnabled.rawValue)
         )
-        XCTAssertEqual(event?.parameters["variant"], .string("enabled"))
-        XCTAssertEqual(event?.parameters["config_version"], .string("config-1"))
+        XCTAssertEqual(event?.properties["variant"], .string("enabled"))
+        XCTAssertEqual(event?.properties["surface"], .string("deck_details"))
     }
 
     /// A new assignment is a new exposure: an experiment whose variant changed
@@ -128,9 +128,12 @@ final class FeatureExposureRecorderTests: XCTestCase {
         let analytics = RecordingAnalyticsTracker()
         let recorder = FeatureExposureRecorder(analytics: analytics, dates: dates)
 
-        await recorder.recordExposure(of: resolution(variant: "enabled"))
-        await recorder.recordExposure(of: resolution(variant: "disabled"))
-        await recorder.recordExposure(of: resolution(configVersion: "config-2"))
+        await recorder.recordExposure(of: resolution(variant: "enabled"), surface: "deck_details")
+        await recorder.recordExposure(of: resolution(variant: "disabled"), surface: "deck_details")
+        await recorder.recordExposure(
+            of: resolution(configVersion: "config-2"),
+            surface: "deck_details"
+        )
 
         XCTAssertEqual(analytics.events.count, 3)
     }
@@ -141,10 +144,16 @@ final class FeatureExposureRecorderTests: XCTestCase {
         let analytics = RecordingAnalyticsTracker()
         let recorder = FeatureExposureRecorder(analytics: analytics, dates: dates)
 
-        await recorder.recordExposure(of: resolution())
+        await recorder.recordExposure(of: resolution(), surface: "deck_details")
 
-        let parameters = analytics.events.first?.parameters ?? [:]
-        XCTAssertEqual(Set(parameters.keys), ["flag_key", "variant", "source", "config_version"])
+        // Exactly the registry's four properties, and nothing that identifies
+        // a person. The configuration the assignment came from rides in the
+        // envelope's context rather than here.
+        let properties = analytics.events.first?.properties ?? [:]
+        XCTAssertEqual(
+            Set(properties.keys),
+            ["flagKey", "variant", "experimentId", "surface"]
+        )
     }
 }
 

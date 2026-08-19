@@ -16,10 +16,19 @@ public final class SyncCenter {
 
     private let coordinator: any SyncCoordinating
     private let scopes: any AccountScopeResolving
+    private let analytics: (any AnalyticsTracking)?
+    private let dates: any DateProviding
 
-    public init(coordinator: any SyncCoordinating, scopes: any AccountScopeResolving) {
+    public init(
+        coordinator: any SyncCoordinating,
+        scopes: any AccountScopeResolving,
+        analytics: (any AnalyticsTracking)? = nil,
+        dates: any DateProviding = SystemDateProvider()
+    ) {
         self.coordinator = coordinator
         self.scopes = scopes
+        self.analytics = analytics
+        self.dates = dates
     }
 
     /// Puts work claimed by a run that died back in the queue, then syncs.
@@ -36,7 +45,38 @@ public final class SyncCenter {
 
     public func synchronize(trigger: SyncTrigger) async {
         let scope = await resolvedScope()
+        let startedAt = dates.now()
         status = await coordinator.synchronize(scope: scope, trigger: trigger)
+        await reportCompletion(startedAt: startedAt)
+    }
+
+    /// An operational event: how a sync that keeps failing becomes visible to
+    /// the people who have to fix it. It carries an outcome and a duration
+    /// bucket and nothing about the person or their answers, which is why it
+    /// is collected without asking — see `AnalyticsConsentCategory`.
+    ///
+    /// The flush rides on the same moment: a sync that just finished is the
+    /// one time the network is known to have worked.
+    private func reportCompletion(startedAt: Date) async {
+        guard let analytics else { return }
+        let result: AnalyticsSyncResult =
+            switch status.lastFailure {
+            case .none: .success
+            // Work still waiting after a run that did not fail outright is a
+            // partial delivery rather than a failure: some of it landed.
+            case .some where status.pendingCount > 0: .partial
+            default: .failed
+            }
+        await analytics.track(
+            .syncCompleted(
+                result: result,
+                duration: AnalyticsSyncDurationBucket(
+                    seconds: dates.now().timeIntervalSince(startedAt)
+                ),
+                at: dates.now()
+            )
+        )
+        await analytics.flush()
     }
 
     /// Re-reads the status without asking for a sync, for a screen that appears
