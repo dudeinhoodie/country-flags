@@ -97,13 +97,23 @@ final class AccountLifecycleUITests: XCTestCase {
 
     private func signIn(in app: XCUIApplication) {
         openSettings(in: app)
+        // The settings screen is assembled while the launch is still importing
+        // content, and the account section rebuilds itself once its own state
+        // has been read. A tap that lands in that moment is dropped, so the
+        // wait is for a settled screen and the tap is offered twice before the
+        // test calls it a failure.
+        let sessionSize = app.buttons["settings.sessionSize.10"]
+        XCTAssertTrue(sessionSize.waitForExistence(timeout: 30), app.debugDescription)
+
         let fixture = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()
-        XCTAssertTrue(
-            app.buttons["account.open"].waitForExistence(timeout: 30),
-            app.debugDescription
-        )
+
+        let account = app.buttons["account.open"]
+        if !account.waitForExistence(timeout: 15), fixture.exists {
+            fixture.tap()
+        }
+        XCTAssertTrue(account.waitForExistence(timeout: 30), app.debugDescription)
     }
 
     private func openSettings(in app: XCUIApplication) {
