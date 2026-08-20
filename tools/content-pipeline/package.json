@@ -20,7 +20,7 @@
     "globals": "16.3.0",
     "prettier": "3.6.2",
     "typescript": "5.8.3",
-    "typescript-eslint": "8.38.0"
+    "typescript-eslint": "8.67.0"
   },
   "dependencies": {
     "@resvg/resvg-js": "2.6.2",
