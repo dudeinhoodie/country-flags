@@ -104,16 +104,16 @@ public struct DeckProgressDetailsView: View {
         // hundred flags: this screen is scrolled, and a button that scrolls
         // away is a button you have to go back for.
         //
-        // Glass on nothing: the button is its own material, and the strip of
-        // frosted backing it sat on drew a horizontal seam across the scene
-        // that belonged to no part of the layout. The flags simply pass
-        // behind it.
+        // Glass on nothing, but lit: the strip of frosted backing drew a seam
+        // across the scene that belonged to no part of the layout, and plain
+        // glass over a shelf of flags took their colour and disappeared. A
+        // tinted pane keeps both — the flags pass behind, the button stays.
         .safeAreaInset(edge: .bottom) {
             if let onStartStudy {
                 Button(L10n.studyStart) {
                     onStartStudy(deckID, sessionSize)
                 }
-                .buttonStyle(GlassActionStyle())
+                .buttonStyle(GlassProminentActionStyle())
                 .padding(.horizontal, DesignTokens.Spacing.medium)
                 // Twice the gap it had: sitting one notch above the tab bar,
                 // the two glass surfaces read as one bar with a seam in it.

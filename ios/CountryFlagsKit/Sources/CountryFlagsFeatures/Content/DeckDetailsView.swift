@@ -154,7 +154,7 @@ public struct DeckDetailsView: View {
                         onStartStudy(deckID, sessionSize, mode)
                     }
                 }
-                .buttonStyle(GlassActionStyle())
+                .buttonStyle(GlassProminentActionStyle())
                 .disabled(cardCount(of: details) == 0)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
                 .padding(.horizontal, DesignTokens.Spacing.medium)

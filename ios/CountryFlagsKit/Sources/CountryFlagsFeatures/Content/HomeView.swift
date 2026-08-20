@@ -165,20 +165,16 @@ public struct HomeView: View {
         let due = totalDue(sections)
         let continuable = progress?.continuable
 
-        // Its own pane, above the day's: an unfinished sitting is a different
-        // thing from a queue — one is a place to go back to, the other is work
-        // to start — and folding it into the bottom of the due pane made the
-        // way back a footnote to a number it has nothing to do with.
+        // Its own row, above the day's pane: an unfinished sitting is a
+        // different thing from a queue — one is a place to go back to, the
+        // other is work to start. As a second full pane it competed with the
+        // day; as a line with a bar it is a door, which is all it ever was.
         if let continuable {
-            pane(
-                label: L10n.homeSessionInProgress,
-                count: continuable.answeredCards,
+            ResumeTrainingRow(
+                deckName: deckName(continuable.deckID, in: sections) ?? "",
+                answered: continuable.answeredCards,
                 total: continuable.totalCards,
-                caption: deckName(continuable.deckID, in: sections),
-                action: L10n.homeContinue,
-                identifier: AccessibilityIdentifier.homeContinue,
-                run: { onContinueSession?(continuable) },
-                showsFan: false
+                action: { onContinueSession?(continuable) }
             )
         }
 

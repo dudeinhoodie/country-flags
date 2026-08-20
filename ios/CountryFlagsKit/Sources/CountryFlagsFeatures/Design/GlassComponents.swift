@@ -88,6 +88,39 @@ struct GlassActionStyle: ButtonStyle {
     }
 }
 
+/// The action a screen is built around, when it has to hold its own over
+/// moving content.
+///
+/// Plain glass took the colour of whatever passed behind it, and on a shelf of
+/// two hundred flags that is every colour — the button stopped being findable.
+/// This one is lit from inside: the same material, tinted white and stroked, so
+/// it stays the brightest thing on the screen without becoming a white slab
+/// that hides what it floats over.
+struct GlassProminentActionStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.displayScale) private var displayScale
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(DesignTokens.Typography.body.weight(.semibold))
+            .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.4))
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: DesignTokens.Layout.actionHeight)
+            .glassEffect(
+                .regular.tint(.white.opacity(isEnabled ? 0.22 : 0.08)).interactive(),
+                in: Capsule(style: .continuous)
+            )
+            .overlay {
+                Capsule(style: .continuous)
+                    .strokeBorder(.white.opacity(0.28), lineWidth: 1 / displayScale)
+            }
+            .shadow(color: .black.opacity(0.28), radius: 18, y: 8)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
+            .animation(reduceMotion ? nil : .snappy(duration: 0.2), value: configuration.isPressed)
+    }
+}
+
 /// One segmented control for the whole app: the system's, dressed for this
 /// scene.
 ///

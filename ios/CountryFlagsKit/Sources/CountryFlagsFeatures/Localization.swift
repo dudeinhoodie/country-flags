@@ -48,7 +48,6 @@ public enum L10n {
     /// The label over the number the first screen is built around, in each of
     /// its two cases, and the action underneath it.
     public static var homeDue: String { localized("home.due") }
-    public static var homeDueEmpty: String { localized("home.due_empty") }
     /// The cleared-day card: a learner who finished everything is told so,
     /// shown what it added up to, and offered somewhere to go next.
     public static var homeClearedTitle: String { localized("home.cleared.title") }
@@ -64,6 +63,9 @@ public enum L10n {
     public static var homeDeckSize: String { localized("home.deck_size") }
     public static var homeContinue: String { localized("home.continue") }
     public static var homeSessionInProgress: String { localized("home.session_in_progress") }
+    public static func homeSessionLeft(_ count: Int) -> String {
+        String(format: localized("home.session_left"), count)
+    }
     public static var homeDueToday: String { localized("home.due_today") }
 
     /// The backend's breakdown of the queue, one part each. They are joined by
@@ -146,8 +148,6 @@ public enum L10n {
     public static var settingsHaptics: String { localized("settings.haptics") }
     public static var settingsRemindersSection: String { localized("settings.reminders_section") }
     public static var settingsReminders: String { localized("settings.reminders") }
-    public static var settingsRemindersFooter: String { localized("settings.reminders_footer") }
-    public static var settingsRemindersTime: String { localized("settings.reminders_time") }
     /// Offered when the account wants reminders and this device has never been
     /// asked — a setting that travelled here is not a permission.
     public static var settingsRemindersAllow: String { localized("settings.reminders_allow") }
@@ -384,7 +384,6 @@ public enum L10n {
     }
 
     public static var syncOffline: String { localized("sync.offline") }
-    public static var syncRetryLater: String { localized("sync.retry_later") }
     public static var syncSignInRequired: String { localized("sync.sign_in_required") }
 
     public static func syncPending(_ count: Int) -> String {

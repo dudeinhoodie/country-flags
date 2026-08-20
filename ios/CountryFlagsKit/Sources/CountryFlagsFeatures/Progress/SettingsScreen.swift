@@ -120,14 +120,14 @@ public struct SettingsScreen: View {
             } header: {
                 SectionLabel(L10n.settingsRemindersSection)
             } footer: {
-                // iOS decides when a local notification is actually delivered,
-                // so the screen records the wish without promising a time.
-                Text(
-                    store.reminderAuthorization == .denied
-                        ? L10n.settingsRemindersDenied
-                        : L10n.settingsRemindersFooter
-                )
-                .foregroundStyle(.white.opacity(0.5))
+                // A footer only when there is something the switch cannot say
+                // on its own: the system has the last word here, and that is
+                // worth a line. "The system decides when it arrives" was not —
+                // nobody read it, and nobody could act on it.
+                if store.reminderAuthorization == .denied {
+                    Text(L10n.settingsRemindersDenied)
+                        .foregroundStyle(.white.opacity(0.5))
+                }
             }
             .listRowBackground(rowBackground)
 
