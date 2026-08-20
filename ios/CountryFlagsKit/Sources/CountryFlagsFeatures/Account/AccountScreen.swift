@@ -16,13 +16,18 @@ public struct AccountScreen: View {
     /// offer, the same rule the Google button follows.
     private let privacyPolicyURL: URL?
     private let termsURL: URL?
+    /// Who is signed in, and the way in or out. It used to live in the
+    /// settings; it belongs with the account it is about.
+    private let makeAccount: (() -> AccountStore)?
 
     public init(
         store: AccountLifecycleStore,
+        makeAccount: (() -> AccountStore)? = nil,
         privacyPolicyURL: URL? = nil,
         termsURL: URL? = nil
     ) {
         _store = State(wrappedValue: store)
+        self.makeAccount = makeAccount
         self.privacyPolicyURL = privacyPolicyURL
         self.termsURL = termsURL
     }
@@ -31,6 +36,10 @@ public struct AccountScreen: View {
         List {
             if let deletion = store.pendingDeletion {
                 deletionNotice(deletion)
+            }
+            if let makeAccount {
+                AccountSection(store: makeAccount())
+                    .listRowBackground(rowBackground)
             }
             identitiesSection
             devicesSection

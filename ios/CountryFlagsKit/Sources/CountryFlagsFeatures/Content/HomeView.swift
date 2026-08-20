@@ -16,6 +16,9 @@ public struct HomeView: View {
     private let assets: (any AssetLoading)?
     private let onOpenDeck: (UUID) -> Void
     private let onContinueSession: ((ContinuableSession) -> Void)?
+    /// The way to the catalog, for the screen that has nothing to review: the
+    /// offer to pick a new set of countries has to lead somewhere.
+    private let onOpenCatalog: (() -> Void)?
     private let onStartStudy:
         ((UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void)?
     /// The stored session size, read when a due session starts: the cap on
@@ -42,6 +45,7 @@ public struct HomeView: View {
         makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
+        onOpenCatalog: (() -> Void)? = nil,
         onStartStudy: (
             (UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void
         )? = nil
@@ -53,6 +57,7 @@ public struct HomeView: View {
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
+        self.onOpenCatalog = onOpenCatalog
         self.onStartStudy = onStartStudy
     }
 
@@ -183,15 +188,17 @@ public struct HomeView: View {
                 continuable: nil
             )
         } else if let deck = recommended(sections) {
-            // A day already finished says so in words — a learner with real
-            // progress who cleared the queue must not see the fresh-install
-            // pane and wonder where their day went.
+            // A day already finished says so — a learner with real progress
+            // who cleared the queue must not see the fresh-install pane and
+            // wonder where their day went. Clearing the queue is the whole
+            // point of the app, so the screen says it like something that was
+            // achieved, and shows what it added up to.
             if hasAnyProgress {
-                Text(L10n.homeDueEmpty)
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.65))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeDueEmpty)
+                DayClearedCard(
+                    learned: learnedCountries,
+                    inProgress: countriesInProgress,
+                    onOpenCatalog: onOpenCatalog
+                )
             }
             // A fresh install, or a day already finished: a deck worth opening
             // instead of a zero, which says nothing and looks like a screen
@@ -213,6 +220,24 @@ public struct HomeView: View {
     /// cleared queue from a fresh install.
     private var hasAnyProgress: Bool {
         progress?.decks.contains { $0.startedCards > 0 } ?? false
+    }
+
+    /// Countries carried all the way to learned, and countries under way.
+    ///
+    /// Summed over the curated decks alone: those partition the world once,
+    /// while a country can also sit in any number of themed decks, and adding
+    /// those in would count the same flag several times and show a learner
+    /// more countries than there are.
+    private var learnedCountries: Int {
+        curatedDecks.reduce(0) { $0 + $1.learnedCards }
+    }
+
+    private var countriesInProgress: Int {
+        curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
+    }
+
+    private var curatedDecks: [DeckProgressRow] {
+        (progress?.decks ?? []).filter(\.isCurated)
     }
 
     /// What kind of work the number above is: overdue, still being learned,

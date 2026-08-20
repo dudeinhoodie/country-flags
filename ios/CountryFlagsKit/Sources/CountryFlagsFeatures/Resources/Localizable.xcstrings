@@ -1786,6 +1786,108 @@
         }
       }
     },
+    "home.cleared.in_progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In progress"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В работе"
+          }
+        }
+      }
+    },
+    "home.cleared.learned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Countries learned"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стран выучено"
+          }
+        }
+      }
+    },
+    "home.cleared.next": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meanwhile"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "А пока"
+          }
+        }
+      }
+    },
+    "home.cleared.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every card the schedule asked for today has been answered. The rest come back when they fall due."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы ответили на все карточки, которые расписание просило сегодня. Остальные вернутся, когда подойдёт срок."
+          }
+        }
+      }
+    },
+    "home.cleared.suggestion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take on a new set of countries — nothing stops you learning ahead."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возьмите новый набор стран — учить наперёд никто не запрещает."
+          }
+        }
+      }
+    },
+    "home.cleared.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today is done"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На сегодня всё"
+          }
+        }
+      }
+    },
     "home.continue": {
       "extractionState": "manual",
       "localizations": {

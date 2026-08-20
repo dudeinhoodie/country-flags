@@ -15,6 +15,10 @@ public struct SettingsScreen: View {
     /// Owned for the same reason the progress screen owns its own.
     @State private var store: SettingsStore
     @State private var clearProgress: ClearProgressStore?
+    /// The chosen session size, held here so the control answers the tap
+    /// rather than the round trip behind it. The store is written through and
+    /// stays the source of truth; this is what the finger is promised.
+    @State private var chosenSessionSize: Int?
     @State private var privacy: PrivacyStore?
     private let makeAccount: (() -> AccountStore)?
     private let makeClearProgress: (() -> ClearProgressStore)?
@@ -39,12 +43,6 @@ public struct SettingsScreen: View {
 
     public var body: some View {
         List {
-            // Who this progress belongs to, above the knobs that shape it.
-            if let makeAccount {
-                AccountSection(store: makeAccount(), onOpenAccount: onOpenAccount)
-                    .listRowBackground(rowBackground)
-            }
-
             if store.didReloadAfterConflict {
                 Section {
                     Text(L10n.settingsConflictReloaded)
@@ -56,16 +54,29 @@ public struct SettingsScreen: View {
             }
 
             Section {
-                Picker(L10n.studySessionSize, selection: sessionSize) {
-                    ForEach(SettingsStore.sessionSizes, id: \.self) { size in
-                        Text(verbatim: "\(size)")
-                            .tag(size)
-                            .accessibilityIdentifier(
-                                AccessibilityIdentifier.settingsSessionSize(size)
-                            )
+                // The same shape the deck screen uses: the choice spans the
+                // row under its own label, rather than being squeezed beside
+                // one. A segmented control that is three narrow slots on one
+                // screen and full width on another is two controls as far as
+                // a person's hands are concerned.
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                    SectionLabel(L10n.studySessionSize)
+                    Picker(L10n.studySessionSize, selection: sessionSize) {
+                        ForEach(SettingsStore.sessionSizes, id: \.self) { size in
+                            Text(verbatim: "\(size)")
+                                .tag(size)
+                                .accessibilityIdentifier(
+                                    AccessibilityIdentifier.settingsSessionSize(size)
+                                )
+                        }
                     }
+                    .pickerStyle(.segmented)
+                    // The label is spoken, not drawn: the line above already
+                    // says what the choice is, and the row is the control.
+                    .labelsHidden()
+                    .accessibilityLabel(L10n.studySessionSize)
                 }
-                .pickerStyle(.segmented)
+                .padding(.vertical, DesignTokens.Spacing.extraSmall)
             } header: {
                 SectionLabel(L10n.settingsSessionSection)
             }
@@ -141,8 +152,12 @@ public struct SettingsScreen: View {
         .scrollContentBackground(.hidden)
         .navigationTitle(L10n.settingsTitle)
         .sceneChrome()
+        .onChange(of: store.settings.sessionSize) { _, stored in
+            chosenSessionSize = stored
+        }
         .task {
             await store.load()
+            chosenSessionSize = store.settings.sessionSize
             if clearProgress == nil { clearProgress = makeClearProgress?() }
             await clearProgress?.load()
             if privacy == nil { privacy = makePrivacy?() }
@@ -326,8 +341,11 @@ public struct SettingsScreen: View {
 
     private var sessionSize: Binding<Int> {
         Binding(
-            get: { store.settings.sessionSize },
-            set: { size in Task { await store.setSessionSize(size) } }
+            get: { chosenSessionSize ?? store.settings.sessionSize },
+            set: { size in
+                chosenSessionSize = size
+                Task { await store.setSessionSize(size) }
+            }
         )
     }
 

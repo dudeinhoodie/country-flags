@@ -44,7 +44,10 @@ struct ContentStatusBanner: View {
 /// What synchronisation is doing, when it is worth saying at all.
 ///
 /// A healthy device that is up to date shows nothing. A guest is told their
-/// work is saved rather than that something failed, because nothing has.
+/// work is saved rather than that something failed, because nothing has. A
+/// failure is shown only when there is something to do about it: the line is
+/// for the learner, and a retry the app is already making is not their
+/// business.
 struct SyncStatusLine: View {
     let status: SyncStatus
 
@@ -63,9 +66,16 @@ struct SyncStatusLine: View {
             return L10n.syncSavedOnDevice(status.pendingCount)
         }
         switch status.lastFailure {
+        // Both of these are things a person can act on — wait for a signal,
+        // or sign in — so they are worth the line.
         case .offline: return L10n.syncOffline
         case .unauthorized: return L10n.syncSignInRequired
-        case .throttled, .recoverable: return L10n.syncRetryLater
+        // A refusal or a throttle is neither. The next run retries on its own,
+        // the answers are already durable, and saying "could not sync" on the
+        // first screen turns a moment the app is handling into a worry the
+        // learner has to carry — with nothing they could do about it. It stays
+        // in the log, where whoever is fixing it will look.
+        case .throttled, .recoverable: return nil
         case nil: return status.pendingCount > 0 ? L10n.syncPending(status.pendingCount) : nil
         }
     }

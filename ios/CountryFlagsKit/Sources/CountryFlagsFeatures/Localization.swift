@@ -49,6 +49,14 @@ public enum L10n {
     /// its two cases, and the action underneath it.
     public static var homeDue: String { localized("home.due") }
     public static var homeDueEmpty: String { localized("home.due_empty") }
+    /// The cleared-day card: a learner who finished everything is told so,
+    /// shown what it added up to, and offered somewhere to go next.
+    public static var homeClearedTitle: String { localized("home.cleared.title") }
+    public static var homeClearedSubtitle: String { localized("home.cleared.subtitle") }
+    public static var homeClearedLearned: String { localized("home.cleared.learned") }
+    public static var homeClearedInProgress: String { localized("home.cleared.in_progress") }
+    public static var homeClearedNext: String { localized("home.cleared.next") }
+    public static var homeClearedSuggestion: String { localized("home.cleared.suggestion") }
 
     public static func homeDueCount(_ count: Int) -> String {
         String(format: localized("home.due_count"), count)

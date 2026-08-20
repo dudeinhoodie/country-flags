@@ -280,3 +280,50 @@ struct GoogleLogoMark: View {
             .stroke(color, lineWidth: line)
     }
 }
+
+/// The person in the top corner: the way into the account from anywhere.
+///
+/// It draws whatever the account already knows — the provider's picture, else
+/// the initial of the name, else a neutral glyph — inside the same glass
+/// circle the rest of the chrome uses, so it reads as part of the bar rather
+/// than as an avatar dropped on top of it.
+struct AccountAvatarButtonLabel: View {
+    let profile: AccountProfile?
+    /// Shown when there is no account yet. Debug builds put the environment's
+    /// letter here, which is what the old badge was for.
+    let fallbackInitial: String?
+
+    var body: some View {
+        ZStack {
+            Circle().fill(.ultraThinMaterial)
+
+            if let url = profile?.avatarURL {
+                AsyncImage(url: url) { image in
+                    image.resizable().scaledToFill()
+                } placeholder: {
+                    initialOrGlyph
+                }
+            } else {
+                initialOrGlyph
+            }
+        }
+        .frame(width: 30, height: 30)
+        .clipShape(Circle())
+        .overlay {
+            Circle().strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
+        }
+    }
+
+    @ViewBuilder
+    private var initialOrGlyph: some View {
+        if let initial = profile?.displayName?.first.map(String.init) ?? fallbackInitial {
+            Text(initial.uppercased())
+                .font(DesignTokens.Typography.caption.weight(.semibold))
+                .foregroundStyle(.white)
+        } else {
+            Image(systemName: "person.fill")
+                .font(DesignTokens.Typography.caption)
+                .foregroundStyle(.white.opacity(0.8))
+        }
+    }
+}

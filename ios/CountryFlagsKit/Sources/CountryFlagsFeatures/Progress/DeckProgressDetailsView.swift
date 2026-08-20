@@ -96,20 +96,25 @@ public struct DeckProgressDetailsView: View {
     private func loaded(_ details: DeckDetails) -> some View {
         let groups = grouped(details.cards)
         return SceneScrollView {
-            // The action leads, the evidence follows: the screen answers
-            // "where does this deck stand" and the very next thought is
-            // "keep going" — so the button stands above the shelves rather
-            // than after two hundred flags.
+            shelf(L10n.progressLearnedLabel, cards: groups.learned, dimmed: false)
+            shelf(L10n.progressInProgressLabel, cards: groups.inProgress, dimmed: false)
+            shelf(L10n.progressNotStartedLabel, cards: groups.untouched, dimmed: true)
+        }
+        // The action rides with the thumb rather than at the top of two
+        // hundred flags: this screen is scrolled, and a button that scrolls
+        // away is a button you have to go back for. It floats on glass so the
+        // shelves stay readable underneath it.
+        .safeAreaInset(edge: .bottom) {
             if let onStartStudy {
                 Button(L10n.studyStart) {
                     onStartStudy(deckID, sessionSize)
                 }
                 .buttonStyle(PrimaryActionStyle())
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .padding(.top, DesignTokens.Spacing.small)
+                .padding(.bottom, DesignTokens.Spacing.small)
+                .background(.ultraThinMaterial)
             }
-
-            shelf(L10n.progressLearnedLabel, cards: groups.learned, dimmed: false)
-            shelf(L10n.progressInProgressLabel, cards: groups.inProgress, dimmed: false)
-            shelf(L10n.progressNotStartedLabel, cards: groups.untouched, dimmed: true)
         }
     }
 

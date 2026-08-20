@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The pieces every screen is built out of.
 ///
@@ -84,6 +85,53 @@ struct GlassActionStyle: ButtonStyle {
             .glassEffect(.regular.interactive(), in: Capsule(style: .continuous))
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
             .animation(reduceMotion ? nil : .snappy(duration: 0.2), value: configuration.isPressed)
+    }
+}
+
+/// One segmented control for the whole app: the system's, dressed for this
+/// scene.
+///
+/// The control itself is `Picker(.segmented)` everywhere — the platform draws
+/// it, so VoiceOver, Dynamic Type, Increase Contrast and the drag-between-
+/// segments gesture are the ones a person already knows. What this adds is the
+/// only part the system gets wrong here: on a dark glass scene its default
+/// track and tint disappear into the material. The appearance proxy is applied
+/// once, at the root, so the settings and a deck cannot drift apart — there is
+/// no per-screen styling to forget.
+enum SegmentedControlAppearance {
+    /// Applied once from `RootView`. A proxy is global state, which is exactly
+    /// why it is set in one place and never from a screen.
+    static func apply() {
+        let control = UISegmentedControl.appearance()
+        // The track: barely there, the way the glass cards are.
+        control.backgroundColor = UIColor.white.withAlphaComponent(0.08)
+        // The thumb: the same white the primary action uses, so "chosen" reads
+        // the same everywhere in the app.
+        control.selectedSegmentTintColor = .white
+        control.setTitleTextAttributes(
+            [
+                .foregroundColor: UIColor.black,
+                .font: UIFont.preferredFont(forTextStyle: .subheadline).semibold,
+            ],
+            for: .selected
+        )
+        control.setTitleTextAttributes(
+            [
+                .foregroundColor: UIColor.white.withAlphaComponent(0.85),
+                .font: UIFont.preferredFont(forTextStyle: .subheadline),
+            ],
+            for: .normal
+        )
+    }
+}
+
+extension UIFont {
+    /// The semibold companion of a Dynamic Type font, which is the weight the
+    /// chosen segment wears. Built from the descriptor so the size still
+    /// follows the text style.
+    fileprivate var semibold: UIFont {
+        guard let descriptor = fontDescriptor.withSymbolicTraits(.traitBold) else { return self }
+        return UIFont(descriptor: descriptor, size: 0)
     }
 }
 
