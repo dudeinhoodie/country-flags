@@ -2948,8 +2948,5 @@
     "wikidata:XK": "country.kosovo",
     "wikidata:country.kosovo": "country.kosovo"
   },
-  "supportedLocales": [
-    "ru",
-    "en"
-  ]
+  "supportedLocales": ["ru", "en"]
 }
