@@ -179,21 +179,23 @@ final class ClearProgressStoreTests: XCTestCase {
         scope: AccountScope? = nil
     ) -> ClearProgressStore {
         ClearProgressStore(
-            auth: auth
-                ?? StubReauthentication(
-                    result: .success(
-                        ReauthenticationProof(
-                            token: "proof-1",
-                            expiresAt: now.addingTimeInterval(300)
+            reauthentication: ReauthenticationCoordinator(
+                auth: auth
+                    ?? StubReauthentication(
+                        result: .success(
+                            ReauthenticationProof(
+                                token: "proof-1",
+                                expiresAt: now.addingTimeInterval(300)
+                            )
                         )
-                    )
-                ),
+                    ),
+                nonces: FixedNonces(),
+                dates: FixedDateProvider(instant: now)
+            ),
             clearing: clearing,
             learning: learning,
             outbox: outbox,
-            scopes: FixedScopeResolver(scope: scope ?? account),
-            nonces: FixedNonces(),
-            dates: FixedDateProvider(instant: now)
+            scopes: FixedScopeResolver(scope: scope ?? account)
         )
     }
 

@@ -28,18 +28,27 @@ public struct RuntimeConfiguration: Hashable, Sendable {
     /// The backend's own client, which the identity token is minted for: the
     /// backend verifies the audience, and the audience is the backend.
     public let googleServerClientID: String?
+    /// The published legal documents, absent until they exist. An absent
+    /// address hides its link rather than opening a page that is not there:
+    /// the same rule the Google button follows.
+    public let privacyPolicyURL: URL?
+    public let termsURL: URL?
 
     public init(
         environment: AppEnvironment,
         apiBaseURL: URL?,
         deepLinkScheme: String,
         googleClientID: String? = nil,
-        googleServerClientID: String? = nil
+        googleServerClientID: String? = nil,
+        privacyPolicyURL: URL? = nil,
+        termsURL: URL? = nil
     ) {
         self.environment = environment
         self.apiBaseURL = apiBaseURL
         self.deepLinkScheme = deepLinkScheme
         self.googleClientID = googleClientID
         self.googleServerClientID = googleServerClientID
+        self.privacyPolicyURL = privacyPolicyURL
+        self.termsURL = termsURL
     }
 }

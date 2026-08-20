@@ -18,6 +18,12 @@ CF_GOOGLE_SERVER_CLIENT_ID =
 CF_GOOGLE_URL_SCHEME = 
 PRODUCT_BUNDLE_IDENTIFIER = $(CF_BUNDLE_ID_BASE)$(CF_BUNDLE_ID_SUFFIX)
 
+// The published legal documents. Empty until the texts exist, which they do
+// not yet: an empty value hides the link, and a link to a page that is not
+// there would be worse than none. Neither is a secret.
+CF_PRIVACY_POLICY_URL =
+CF_TERMS_URL =
+
 // iOS 26: the first release whose material system draws the glass this
 // design is built on. Raising the floor is ADR-012's decision — the app has
 // not shipped, so the floor costs nobody an update.

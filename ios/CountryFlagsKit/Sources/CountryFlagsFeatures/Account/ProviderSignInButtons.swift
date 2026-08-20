@@ -11,6 +11,16 @@ import CountryFlagsDomain
 /// what differs is what the caller does with the credential, which is the
 /// closure it passes.
 struct ProviderSignInButtons: View {
+    /// The credential a debug build offers instead of a provider sheet, which
+    /// is the only way a UI test can drive a flow that starts with one. It is
+    /// offered solely where the composition allows it — debug environments,
+    /// and only when the launch asked — so a release build never sees it.
+    static let fixtureCredential = ProviderCredential.apple(
+        identityToken: "fixture-identity-token",
+        authorizationCode: "fixture-authorization-code",
+        rawNonce: "fixture-nonce"
+    )
+
     /// Drawn for the request and held by the caller until the provider
     /// answers: the raw value has to accompany the exchange.
     let prepareNonce: () -> SignInNonce

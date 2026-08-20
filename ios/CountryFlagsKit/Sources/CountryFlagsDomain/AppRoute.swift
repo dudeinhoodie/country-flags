@@ -21,6 +21,11 @@ public enum AppRoute: Hashable, Sendable {
     /// One deck's progress, country by country.
     case deckProgress(deckID: UUID)
     case settings
+    /// The account itself: its ways in, its devices, its export and its
+    /// deletion. A screen of its own rather than more sections under the
+    /// settings, because everything on it is about one account rather than
+    /// about how this device behaves.
+    case account
 }
 
 /// Parses an incoming URL into a route. It lives in Domain because it depends

@@ -12,6 +12,25 @@ public protocol IdentifierProviding: Sendable {
     func next() -> UUID
 }
 
+/// A pause between two attempts at the same question.
+///
+/// Declared as a dependency rather than called inline so a state machine that
+/// polls — the data export is the one that does — can be driven through every
+/// state in a test without spending the seconds.
+public protocol Waiting: Sendable {
+    func wait(seconds: TimeInterval) async
+}
+
+public struct TaskWaiter: Waiting {
+    public init() {}
+
+    public func wait(seconds: TimeInterval) async {
+        // A cancelled wait simply returns: the caller checks cancellation for
+        // itself, and a throw here would turn "stop polling" into an error.
+        try? await Task.sleep(for: .seconds(seconds))
+    }
+}
+
 public struct SystemDateProvider: DateProviding {
     public init() {}
 

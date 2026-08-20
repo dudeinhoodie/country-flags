@@ -204,6 +204,72 @@ public enum L10n {
     public static var accountSignInGoogle: String { localized("account.sign_in_google") }
     public static var accountFallbackName: String { localized("account.fallback_name") }
 
+    // MARK: - The account screen
+
+    public static var accountTitle: String { localized("account.title") }
+    public static var accountOpen: String { localized("account.open") }
+    public static var accountIdentitiesSection: String { localized("account.identities_section") }
+    public static var accountIdentitiesFooter: String { localized("account.identities_footer") }
+    public static var accountUnlink: String { localized("account.unlink") }
+    public static var accountProviderApple: String { localized("account.provider_apple") }
+    public static var accountProviderGoogle: String { localized("account.provider_google") }
+    public static var accountDevicesSection: String { localized("account.devices_section") }
+    public static var accountDevicesFooter: String { localized("account.devices_footer") }
+    public static var accountThisDevice: String { localized("account.this_device") }
+    public static var accountRevokeDevice: String { localized("account.revoke_device") }
+    public static var accountExportSection: String { localized("account.export_section") }
+    public static var accountExportFooter: String { localized("account.export_footer") }
+    public static var accountExportRequest: String { localized("account.export_request") }
+    public static var accountExportPreparing: String { localized("account.export_preparing") }
+    public static var accountExportShare: String { localized("account.export_share") }
+    public static var accountExportFailed: String { localized("account.export_failed") }
+    public static var accountLegalSection: String { localized("account.legal_section") }
+    public static var accountPrivacyPolicy: String { localized("account.privacy_policy") }
+    public static var accountTerms: String { localized("account.terms") }
+    public static var accountDangerSection: String { localized("account.danger_section") }
+    public static var accountDelete: String { localized("account.delete") }
+    public static var accountDeleteTitle: String { localized("account.delete.title") }
+    public static var accountDeleteBody: String { localized("account.delete.body") }
+    public static var accountDeleteConfirm: String { localized("account.delete.confirm") }
+    public static var accountDeleteWorking: String { localized("account.delete.working") }
+    public static var accountDeleteFailed: String { localized("account.delete.failed") }
+    public static var accountDeletionPendingTitle: String {
+        localized("account.deletion_pending.title")
+    }
+    public static var accountProveTitle: String { localized("account.prove.title") }
+    public static var accountProveBody: String { localized("account.prove.body") }
+    public static var accountProveFailed: String { localized("account.prove.failed") }
+    public static var accountIdentityTakenTitle: String {
+        localized("account.identity_taken.title")
+    }
+    public static var accountIdentityTakenBody: String { localized("account.identity_taken.body") }
+    public static var accountIdentityFailedTitle: String {
+        localized("account.identity_failed.title")
+    }
+    public static var accountIdentityDuplicateBody: String {
+        localized("account.identity_duplicate.body")
+    }
+    public static var accountIdentityLastBody: String { localized("account.identity_last.body") }
+    public static var accountIdentityOfflineBody: String {
+        localized("account.identity_offline.body")
+    }
+    public static var accountIdentityRefusedBody: String {
+        localized("account.identity_refused.body")
+    }
+    public static var accountSwitchAccounts: String { localized("account.switch_accounts") }
+
+    public static func accountIdentityLastUsed(_ day: String) -> String {
+        String(format: localized("account.identity_last_used"), day)
+    }
+
+    public static func accountDeviceDetails(_ version: String, _ day: String) -> String {
+        String(format: localized("account.device_details"), version, day)
+    }
+
+    public static func accountDeletionPendingBody(_ day: String) -> String {
+        String(format: localized("account.deletion_pending.body"), day)
+    }
+
     public static func accountSignOutWarning(_ count: Int) -> String {
         String(format: localized("account.sign_out_warning"), count)
     }

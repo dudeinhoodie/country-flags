@@ -18,6 +18,7 @@ public struct RootView: View {
     private let makeSettingsStore: () -> SettingsStore
     private let makeAccountStore: (() -> AccountStore)?
     private let makeClearProgressStore: (() -> ClearProgressStore)?
+    private let makeAccountLifecycleStore: (() -> AccountLifecycleStore)?
     private let featureFlags: FeatureFlagCenter
     private let sync: SyncCenter
 
@@ -34,6 +35,7 @@ public struct RootView: View {
         makeSettingsStore: @escaping () -> SettingsStore,
         makeAccountStore: (() -> AccountStore)? = nil,
         makeClearProgressStore: (() -> ClearProgressStore)? = nil,
+        makeAccountLifecycleStore: (() -> AccountLifecycleStore)? = nil,
         featureFlags: FeatureFlagCenter,
         sync: SyncCenter
     ) {
@@ -47,6 +49,7 @@ public struct RootView: View {
         self.makeSettingsStore = makeSettingsStore
         self.makeAccountStore = makeAccountStore
         self.makeClearProgressStore = makeClearProgressStore
+        self.makeAccountLifecycleStore = makeAccountLifecycleStore
         self.featureFlags = featureFlags
         self.sync = sync
     }
@@ -227,8 +230,20 @@ public struct RootView: View {
             SettingsScreen(
                 store: makeSettingsStore(),
                 makeAccount: makeAccountStore,
-                makeClearProgress: makeClearProgressStore
+                makeClearProgress: makeClearProgressStore,
+                // The row is offered only when the screen behind it exists,
+                // which is the same rule every other optional factory follows.
+                onOpenAccount: makeAccountLifecycleStore == nil
+                    ? nil : { router.push(.account) }
             )
+        case .account:
+            if let makeAccountLifecycleStore {
+                AccountScreen(
+                    store: makeAccountLifecycleStore(),
+                    privacyPolicyURL: configuration.privacyPolicyURL,
+                    termsURL: configuration.termsURL
+                )
+            }
         }
     }
 }
@@ -309,6 +324,40 @@ public enum AccessibilityIdentifier {
     public static let settingsClearProgress = "settings.clearProgress"
     public static let settingsClearProgressConfirm = "settings.clearProgress.confirm"
     public static let settingsClearProgressStatus = "settings.clearProgress.status"
+    public static let accountOpen = "account.open"
+    public static let settingsDeletionPending = "settings.account.deletionPending"
+    public static let accountDeletionPending = "account.deletionPending"
+    public static let accountLinkApple = "account.link.apple"
+    public static let accountLinkGoogle = "account.link.google"
+    public static let accountLinkFixture = "account.link.fixture"
+    public static let accountSwitchAccounts = "account.switchAccounts"
+    public static let accountExportRequest = "account.export.request"
+    public static let accountExportPreparing = "account.export.preparing"
+    public static let accountExportShare = "account.export.share"
+    public static let accountExportFailed = "account.export.failed"
+    public static let accountPrivacyPolicy = "account.privacyPolicy"
+    public static let accountTerms = "account.terms"
+    public static let accountDelete = "account.delete"
+    public static let accountDeleteConfirm = "account.delete.confirm"
+    public static let accountDeleteStatus = "account.delete.status"
+    public static let accountProveApple = "account.prove.apple"
+    public static let accountProveGoogle = "account.prove.google"
+    public static let accountProveFixture = "account.prove.fixture"
+
+    /// Rows are addressed by what they are about — a provider, a device — so a
+    /// test does not depend on the order the backend listed them in.
+    public static func accountIdentityRow(_ provider: String) -> String {
+        "account.identity.\(provider)"
+    }
+
+    public static func accountUnlink(_ provider: String) -> String {
+        "account.unlink.\(provider)"
+    }
+
+    public static func accountRevokeDevice(_ deviceID: UUID) -> String {
+        "account.revokeDevice.\(deviceID.uuidString)"
+    }
+
     public static let clearProgressProveApple = "clearProgress.prove.apple"
     public static let clearProgressProveGoogle = "clearProgress.prove.google"
     public static let clearProgressProveFixture = "clearProgress.prove.fixture"

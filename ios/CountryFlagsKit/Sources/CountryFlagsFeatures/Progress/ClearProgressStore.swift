@@ -11,9 +11,9 @@ import CountryFlagsDomain
 /// on the device after it agreed. A device that wiped itself first would turn
 /// a dropped connection into lost work with nothing to restore it from.
 ///
-/// The proof lives in this object for the length of one attempt and is never
-/// written down. That is what "fresh" means: it cannot be reused later, by
-/// this app or by anything that reads its storage.
+/// The proof itself is the coordinator's business: it is obtained per attempt,
+/// spent at once and never written down, which is the same rule the export and
+/// the account deletion follow.
 @MainActor
 @Observable
 public final class ClearProgressStore {
@@ -39,48 +39,53 @@ public final class ClearProgressStore {
         case deletion
     }
 
-    public private(set) var phase: Phase = .idle
     /// Whether the entry point is shown at all. A guest has no account-side
     /// progress to delete and no identity to prove; offering the row would be
     /// offering a button that cannot work.
     public private(set) var isOffered = false
+    /// Set while the consequences are on screen. Everything after it is the
+    /// coordinator's phase, which is why this is the only step held here.
+    private var isConfirming = false
 
-    /// Present when the build carries Google credentials, so the sheet can
-    /// offer the same two ways in as signing in does.
-    public let google: (any GoogleSignInPresenting)?
+    public var phase: Phase {
+        if isConfirming { return .confirming }
+        switch reauthentication.phase {
+        case .idle: return .idle
+        case .provingIdentity: return .provingIdentity
+        case .working: return .clearing
+        case .done: return .cleared
+        case .failed(.identity): return .failed(.identity)
+        case .failed(.operation): return .failed(.deletion)
+        }
+    }
+
+    /// Present when the build carries Google credentials.
+    public var google: (any GoogleSignInPresenting)? { reauthentication.google }
+    public var allowsFixtureProof: Bool { reauthentication.allowsFixtureProof }
     /// Called once the deletion landed and the device was cleared, so the
     /// composition can put the screens that read the store back in step.
     public var onCleared: (@Sendable () async -> Void)?
 
-    private let auth: any AuthenticationService
+    private let reauthentication: ReauthenticationCoordinator
     private let clearing: any ProgressClearing
     private let learning: any LearningRepository
     private let outbox: any OutboxRepository
     private let scopes: any AccountScopeResolving
-    private let nonces: any NonceGenerating
-    private let dates: any DateProviding
     private let logger: any AppLogging
-    private var pendingNonce: SignInNonce?
 
     public init(
-        auth: any AuthenticationService,
+        reauthentication: ReauthenticationCoordinator,
         clearing: any ProgressClearing,
         learning: any LearningRepository,
         outbox: any OutboxRepository,
         scopes: any AccountScopeResolving,
-        nonces: any NonceGenerating,
-        google: (any GoogleSignInPresenting)? = nil,
-        dates: any DateProviding = SystemDateProvider(),
         logger: any AppLogging = NoOpLogger()
     ) {
-        self.auth = auth
+        self.reauthentication = reauthentication
         self.clearing = clearing
         self.learning = learning
         self.outbox = outbox
         self.scopes = scopes
-        self.nonces = nonces
-        self.google = google
-        self.dates = dates
         self.logger = logger
     }
 
@@ -93,86 +98,48 @@ public final class ClearProgressStore {
     /// Puts the consequences to the learner. Nothing is deleted here.
     public func request() {
         guard isOffered else { return }
-        phase = .confirming
+        reauthentication.reset()
+        isConfirming = true
     }
 
-    /// Accepting the consequences moves to the proof, not to the deletion:
-    /// a confirmation is a statement of intent, and the contract asks for
+    /// Accepting the consequences asks for the proof, not for the deletion: a
+    /// confirmation is a statement of intent, and the contract asks for
     /// evidence of identity on top of it.
     public func confirm() {
-        guard phase == .confirming else { return }
-        phase = .provingIdentity
+        guard isConfirming else { return }
+        isConfirming = false
+        reauthentication.request { [weak self] proof in
+            guard let self else { return }
+            _ = try await self.clearing.clearProgress(provingWith: proof)
+            await self.eraseLocalProgress()
+            await self.onCleared?()
+        }
     }
 
     public func cancel() {
-        pendingNonce = nil
-        phase = .idle
+        isConfirming = false
+        reauthentication.noteCancelled()
     }
 
     /// Drawn for the request being built, and held until the provider answers.
-    public func prepareNonce() -> SignInNonce {
-        let nonce = nonces.makeNonce()
-        pendingNonce = nonce
-        return nonce
-    }
+    public func prepareNonce() -> SignInNonce { reauthentication.prepareNonce() }
 
-    public var preparedNonce: SignInNonce? { pendingNonce }
+    public var preparedNonce: SignInNonce? { reauthentication.preparedNonce }
 
-    /// The credential the provider handed back, turned into a proof and spent
-    /// immediately on the one operation it was drawn for.
     public func prove(with credential: ProviderCredential) async {
-        guard phase == .provingIdentity else { return }
-        pendingNonce = nil
-        phase = .clearing
-
-        let proof: ReauthenticationProof
-        do {
-            proof = try await auth.reauthenticate(with: credential)
-        } catch {
-            // Nothing has been asked of the progress endpoint yet, so nothing
-            // can have been deleted.
-            logger.log(.error, .auth, "A reauthentication for clearing progress failed")
-            phase = .failed(.identity)
-            return
-        }
-        // The backend enforces the window; the device checks it too so an
-        // expired proof is not sent as if it might work.
-        guard proof.isValid(at: dates.now()) else {
-            phase = .failed(.identity)
-            return
-        }
-
-        do {
-            _ = try await clearing.clearProgress(provingWith: proof)
-        } catch {
-            logger.log(.error, .sync, "The backend refused to clear the progress")
-            phase = .failed(.deletion)
-            return
-        }
-
-        await eraseLocalProgress()
-        phase = .cleared
-        await onCleared?()
+        await reauthentication.prove(with: credential)
     }
 
     /// The provider sheet was dismissed. Nothing failed; the confirmation
     /// simply goes away.
     public func noteCancelledProof() {
-        pendingNonce = nil
-        phase = .idle
+        isConfirming = false
+        reauthentication.noteCancelled()
     }
 
     public func noteProviderFailure(_ failure: SignInFailure) {
-        pendingNonce = nil
-        // The kind alone: a failed sign-in must be visible in a log without a
-        // credential ever being.
-        logger.log(
-            .error,
-            .auth,
-            "A provider refused to prove identity for clearing progress",
-            ["failure": .safe(String(describing: failure))]
-        )
-        phase = .failed(.identity)
+        isConfirming = false
+        reauthentication.noteProviderFailure(failure)
     }
 
     /// Only ever reached after the backend accepted the deletion.

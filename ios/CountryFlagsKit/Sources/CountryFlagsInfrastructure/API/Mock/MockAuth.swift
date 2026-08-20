@@ -53,6 +53,18 @@ public enum MockAuth {
         )
     }
 
+    /// `POST /v1/auth/reauth/apple` and `/google`: the short-lived proof a
+    /// sensitive operation carries. Long enough that a person can finish the
+    /// flow, short enough to still be a proof.
+    public static func reauthenticationProof(now: Date) -> MockClientTransport.Response {
+        .json(
+            """
+            {"reauthenticationToken":"mock-reauthentication-token-0123456789ab",\
+            "expiresAt":"\(timestamp(now.addingTimeInterval(300)))"}
+            """
+        )
+    }
+
     /// `POST /v1/me/guest-imports`: the archive is taken whole.
     public static func importResult(
         now: Date,
