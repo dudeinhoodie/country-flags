@@ -771,7 +771,7 @@ __metadata:
     globals: "npm:16.3.0"
     helmet: "npm:^8.3.0"
     jest: "npm:29.7.0"
-    jose: "npm:6.2.4"
+    jose: "npm:6.2.9"
     prettier: "npm:3.6.2"
     prisma: "npm:6.13.0"
     reflect-metadata: "npm:0.2.2"
@@ -6693,10 +6693,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:6.2.4":
-  version: 6.2.4
-  resolution: "jose@npm:6.2.4"
-  checksum: 10c0/aaba866d71a8cd5bfd7c2c228367318df99f36318d7c6f1e7bca835c3bdd74ea3fe38783277f7bf7c9703ae24338bb3642a6ccdef6aa54c006d29a9711e6f782
+"jose@npm:6.2.9":
+  version: 6.2.9
+  resolution: "jose@npm:6.2.9"
+  checksum: 10c0/fc6d79b11fdd5cc1393bccd644533b3e2445fd8eb2468066eb23c01ed7f6b41deca710e8aabe9379a382cca7920740900c7f610bdf0be4ff5e7ee44412730d4c
   languageName: node
   linkType: hard
 
