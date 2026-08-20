@@ -67,6 +67,62 @@ final class LocalProgressProjectionTests: XCTestCase {
         XCTAssertEqual(progress[0].dueCards, 1)
     }
 
+    /// The complaint this rule answers: a session of ten new cards used to put
+    /// ten cards back in the day's queue a minute later, and ten again ten
+    /// minutes after that. Those returns belong to the sitting, not to the day.
+    func testCardsStillInTheLearningStepsAreNotTheDaysQueue() {
+        let cards = [UUID(), UUID()]
+        let states = [
+            // Answered a minute ago; the scheduler's first step has just come
+            // round, which is what used to make the queue refill.
+            state(cards[0], state: "LEARNING", dueAt: now.addingTimeInterval(-60)),
+            // Got wrong a few minutes ago and waiting out the relearning step.
+            state(cards[1], state: "RELEARNING", dueAt: now.addingTimeInterval(-300)),
+        ]
+
+        let progress = LocalProgressProjection.progress(
+            cardsByDeck: [deck: cards],
+            states: states,
+            now: now
+        )
+
+        XCTAssertEqual(progress[0].dueCards, 0)
+        // They are still started — the count that says "touched" is unchanged.
+        XCTAssertEqual(progress[0].startedCards, 2)
+    }
+
+    /// A card left behind by a session somebody walked away from is genuinely
+    /// owed, and hiding it forever would be worse than the churn.
+    func testALearningCardAbandonedLongAgoIsOwedAgain() {
+        let card = UUID()
+        let states = [
+            state(card, state: "LEARNING", dueAt: now.addingTimeInterval(-2 * 3600))
+        ]
+
+        let progress = LocalProgressProjection.progress(
+            cardsByDeck: [deck: [card]],
+            states: states,
+            now: now
+        )
+
+        XCTAssertEqual(progress[0].dueCards, 1)
+    }
+
+    /// A repetition is due the moment it comes round: its interval is measured
+    /// in days, so there is nothing to settle.
+    func testARepetitionIsDueAsSoonAsItComesRound() {
+        let card = UUID()
+        let states = [state(card, state: "REVIEW", dueAt: now.addingTimeInterval(-1))]
+
+        let progress = LocalProgressProjection.progress(
+            cardsByDeck: [deck: [card]],
+            states: states,
+            now: now
+        )
+
+        XCTAssertEqual(progress[0].dueCards, 1)
+    }
+
     func testADeckNobodyHasStartedReportsItself() {
         let progress = LocalProgressProjection.progress(
             cardsByDeck: [deck: [UUID(), UUID()]],

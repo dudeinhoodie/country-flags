@@ -86,12 +86,16 @@ public enum LocalCardSelection {
     /// product rule: a learner who opens a session expects the cards they owe
     /// before the ones they have never met.
     ///
-    /// "Due" is the same rule the progress projection counts by — a state
-    /// past its date that is not NEW — so the number a screen advertises and
-    /// the cards a session deals can never disagree about what is owed.
+    /// "Due" is the rule the progress projection counts by, asked through the
+    /// same function — so the number a screen advertises and the cards a
+    /// session deals can never disagree about what is owed. A card still
+    /// working through its learning steps is therefore filler here rather than
+    /// a debt: it comes back inside the session on its own, and a session
+    /// composed of nothing else would be one that deals a learner the cards
+    /// they answered a minute ago.
     private static func rank(of card: LearningCardRecord, state: CardStateRecord?, now: Date) -> Int {
         guard let state, state.state != "NEW" else { return 1 }
-        return state.dueAt <= now ? 0 : 2
+        return LocalProgressProjection.isOwed(state, at: now) ? 0 : 2
     }
 
     private static func reason(
@@ -100,7 +104,7 @@ public enum LocalCardSelection {
         now: Date
     ) -> SelectionReason {
         guard let state, state.state != "NEW" else { return .new }
-        return state.dueAt <= now ? .due : .filler
+        return LocalProgressProjection.isOwed(state, at: now) ? .due : .filler
     }
 }
 
