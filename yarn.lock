@@ -747,7 +747,7 @@ __metadata:
     "@nestjs/common": "npm:11.1.6"
     "@nestjs/config": "npm:4.0.2"
     "@nestjs/core": "npm:11.1.29"
-    "@nestjs/platform-express": "npm:11.1.6"
+    "@nestjs/platform-express": "npm:11.1.29"
     "@nestjs/testing": "npm:11.1.6"
     "@openfeature/core": "npm:^1.12.0"
     "@openfeature/server-sdk": "npm:^1.23.0"
@@ -1746,19 +1746,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:11.1.6":
-  version: 11.1.6
-  resolution: "@nestjs/platform-express@npm:11.1.6"
+"@nestjs/platform-express@npm:11.1.29":
+  version: 11.1.29
+  resolution: "@nestjs/platform-express@npm:11.1.29"
   dependencies:
-    cors: "npm:2.8.5"
-    express: "npm:5.1.0"
-    multer: "npm:2.0.2"
-    path-to-regexp: "npm:8.2.0"
+    cors: "npm:2.8.6"
+    express: "npm:5.2.1"
+    multer: "npm:2.2.0"
+    path-to-regexp: "npm:8.4.2"
     tslib: "npm:2.8.1"
   peerDependencies:
     "@nestjs/common": ^11.0.0
     "@nestjs/core": ^11.0.0
-  checksum: 10c0/6f0fa048ce3034e143bcc9951d8e9d163f65e31ee181065b955578288166f6c4a8a4ed641f3345ff39c36b0e83f969d2473da2f3f12a1af309571976ddc11f3d
+  checksum: 10c0/9cd265f7dcce27f2099928b72842b5b8e63457f38bfa02f3967f3bc68819922c97696f79c228c245aae6ac3adffaff52fec5868985589c4af7c358cc881a104e
   languageName: node
   linkType: hard
 
@@ -3998,7 +3998,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:^2.2.0":
+"body-parser@npm:^2.2.1":
   version: 2.3.0
   resolution: "body-parser@npm:2.3.0"
   dependencies:
@@ -4576,13 +4576,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cors@npm:2.8.5":
-  version: 2.8.5
-  resolution: "cors@npm:2.8.5"
+"cors@npm:2.8.6":
+  version: 2.8.6
+  resolution: "cors@npm:2.8.6"
   dependencies:
     object-assign: "npm:^4"
     vary: "npm:^1"
-  checksum: 10c0/373702b7999409922da80de4a61938aabba6929aea5b6fd9096fefb9e8342f626c0ebd7507b0e8b0b311380744cc985f27edebc0a26e0ddb784b54e1085de761
+  checksum: 10c0/ab2bc57b8af8ef8476682a59647f7c55c1a7d406b559ac06119aa1c5f70b96d35036864d197b24cf86e228e4547231088f1f94ca05061dbb14d89cc0bc9d4cab
   languageName: node
   linkType: hard
 
@@ -5261,17 +5261,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:5.1.0":
-  version: 5.1.0
-  resolution: "express@npm:5.1.0"
+"express@npm:5.2.1":
+  version: 5.2.1
+  resolution: "express@npm:5.2.1"
   dependencies:
     accepts: "npm:^2.0.0"
-    body-parser: "npm:^2.2.0"
+    body-parser: "npm:^2.2.1"
     content-disposition: "npm:^1.0.0"
     content-type: "npm:^1.0.5"
     cookie: "npm:^0.7.1"
     cookie-signature: "npm:^1.2.1"
     debug: "npm:^4.4.0"
+    depd: "npm:^2.0.0"
     encodeurl: "npm:^2.0.0"
     escape-html: "npm:^1.0.3"
     etag: "npm:^1.8.1"
@@ -5292,7 +5293,7 @@ __metadata:
     statuses: "npm:^2.0.1"
     type-is: "npm:^2.0.1"
     vary: "npm:^1.1.2"
-  checksum: 10c0/80ce7c53c5f56887d759b94c3f2283e2e51066c98d4b72a4cc1338e832b77f1e54f30d0239cc10815a0f849bdb753e6a284d2fa48d4ab56faf9c501f55d751d6
+  checksum: 10c0/45e8c841ad188a41402ddcd1294901e861ee0819f632fb494f2ed344ef9c43315d294d443fb48d594e6586a3b779785120f43321417adaef8567316a55072949
   languageName: node
   linkType: hard
 
