@@ -151,6 +151,13 @@ public enum L10n {
     }
     public static var settingsConflictReloaded: String { localized("settings.conflict_reloaded") }
 
+    // MARK: - Privacy
+
+    public static var privacySection: String { localized("privacy.section") }
+    public static var privacyProductAnalytics: String { localized("privacy.product_analytics") }
+    public static var privacyDiagnostics: String { localized("privacy.diagnostics") }
+    public static var privacyFooter: String { localized("privacy.footer") }
+
     /// What the daily reminder itself says. It belongs to this layer because
     /// the notification is scheduled from here; the scheduler is handed the
     /// finished strings rather than a bundle to look them up in.

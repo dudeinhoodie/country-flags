@@ -18,6 +18,7 @@ public struct RootView: View {
     private let makeSettingsStore: () -> SettingsStore
     private let makeAccountStore: (() -> AccountStore)?
     private let makeClearProgressStore: (() -> ClearProgressStore)?
+    private let makePrivacyStore: (() -> PrivacyStore)?
     private let makeAccountLifecycleStore: (() -> AccountLifecycleStore)?
     private let featureFlags: FeatureFlagCenter
     private let sync: SyncCenter
@@ -36,6 +37,7 @@ public struct RootView: View {
         makeAccountStore: (() -> AccountStore)? = nil,
         makeClearProgressStore: (() -> ClearProgressStore)? = nil,
         makeAccountLifecycleStore: (() -> AccountLifecycleStore)? = nil,
+        makePrivacyStore: (() -> PrivacyStore)? = nil,
         featureFlags: FeatureFlagCenter,
         sync: SyncCenter
     ) {
@@ -49,6 +51,7 @@ public struct RootView: View {
         self.makeSettingsStore = makeSettingsStore
         self.makeAccountStore = makeAccountStore
         self.makeClearProgressStore = makeClearProgressStore
+        self.makePrivacyStore = makePrivacyStore
         self.makeAccountLifecycleStore = makeAccountLifecycleStore
         self.featureFlags = featureFlags
         self.sync = sync
@@ -231,6 +234,7 @@ public struct RootView: View {
                 store: makeSettingsStore(),
                 makeAccount: makeAccountStore,
                 makeClearProgress: makeClearProgressStore,
+                makePrivacy: makePrivacyStore,
                 // The row is offered only when the screen behind it exists,
                 // which is the same rule every other optional factory follows.
                 onOpenAccount: makeAccountLifecycleStore == nil
@@ -321,6 +325,9 @@ public enum AccessibilityIdentifier {
     public static let settingsRemindersAllow = "settings.reminders.allow"
     public static let settingsRemindersOpenSystemSettings = "settings.reminders.openSystemSettings"
     public static let settingsConflict = "settings.conflict"
+    public static let privacyProductAnalytics = "settings.privacy.productAnalytics"
+    public static let privacyDiagnostics = "settings.privacy.diagnostics"
+    public static let privacyConflict = "settings.privacy.conflict"
     public static let settingsClearProgress = "settings.clearProgress"
     public static let settingsClearProgressConfirm = "settings.clearProgress.confirm"
     public static let settingsClearProgressStatus = "settings.clearProgress.status"

@@ -1,6 +1,10 @@
 import Foundation
-import OpenAPIRuntime
 import OpenAPIURLSession
+
+// The same import the generated client uses: `UniversalClient` — the layer the
+// generated operations are built on — lives behind this SPI, and one endpoint
+// here has to reach it. See `makeUniversalClient()` for why.
+@_spi(Generated) import OpenAPIRuntime
 
 import CountryFlagsDomain
 
@@ -65,6 +69,25 @@ public struct APIClientFactory: Sendable {
     /// this client; nothing outside the module can reach the DTOs.
     func makeClient() -> Client {
         Client(
+            serverURL: configuration.baseURL,
+            configuration: Configuration(dateTranscoder: FractionalSecondsDateTranscoder()),
+            transport: transport,
+            middlewares: middlewares
+        )
+    }
+
+    /// The same transport, middlewares and configuration, addressed one level
+    /// lower than the generated operations.
+    ///
+    /// One endpoint needs it: the analytics batch. Its canonical schema types a
+    /// property as any of string, number, integer or boolean, and the generator
+    /// cannot express that union — it emits `[String: String]`, which would
+    /// send `10` as `"10"` and be refused by the backend's own registry check.
+    /// The body is therefore serialized from the domain envelope, which mirrors
+    /// `contracts/schemas/analytics/batch.v1.schema.json` exactly, and still
+    /// travels through authentication, logging, retry and error mapping.
+    func makeUniversalClient() -> UniversalClient {
+        UniversalClient(
             serverURL: configuration.baseURL,
             configuration: Configuration(dateTranscoder: FractionalSecondsDateTranscoder()),
             transport: transport,

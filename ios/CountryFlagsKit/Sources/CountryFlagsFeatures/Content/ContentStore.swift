@@ -29,16 +29,19 @@ public final class ContentStore {
     /// content service and persists what it fetched; nil leaves the store's
     /// answer final.
     private let fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)?
+    private let analytics: (any AnalyticsTracking)?
 
     public init(
         repository: any ContentRepository,
         coordinator: any ContentSynchronizing,
+        analytics: (any AnalyticsTracking)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         preferredLanguages: [String] = Locale.preferredLanguages,
         fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)? = nil
     ) {
         self.repository = repository
         self.coordinator = coordinator
+        self.analytics = analytics
         self.dates = dates
         self.preferredLanguages = preferredLanguages
         self.fetchEntity = fetchEntity
@@ -64,6 +67,15 @@ public final class ContentStore {
     private func synchronize() async {
         status = await coordinator.synchronize(locale: await requestLocale())
         await reload()
+        // Operational, like the sync event: whether the catalog could be
+        // brought up to date is how a broken release becomes visible, and it
+        // says nothing about the person looking at it.
+        await analytics?.track(
+            .contentUpdateCompleted(
+                result: status.lastFailure == nil ? .success : .failed,
+                at: dates.now()
+            )
+        )
     }
 
     /// Re-reads the store and recomputes what the catalog screen shows.

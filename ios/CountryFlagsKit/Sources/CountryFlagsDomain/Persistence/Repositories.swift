@@ -173,6 +173,9 @@ public protocol TelemetryRepository: Sendable {
 
     func enqueueDiagnosticReport(_ report: PendingDiagnosticReportRecord, for scope: AccountScope) async throws
     func pendingDiagnosticReports(for scope: AccountScope) async throws -> [PendingDiagnosticReportRecord]
+    /// Clears reports that have been delivered, or that consent no longer
+    /// allows to be delivered at all.
+    func removeDiagnosticReports(ids: [UUID], for scope: AccountScope) async throws
 }
 
 /// Answers which account the device is acting as.

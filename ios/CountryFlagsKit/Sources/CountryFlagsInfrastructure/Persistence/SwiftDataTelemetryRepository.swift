@@ -159,6 +159,20 @@ actor SwiftDataTelemetryRepository: TelemetryRepository {
             )
         }
     }
+
+    func removeDiagnosticReports(ids: [UUID], for scope: AccountScope) async throws {
+        guard !ids.isEmpty else { return }
+        let key = scope.key
+        let doomed = Set(ids)
+        try transaction {
+            let descriptor = FetchDescriptor<StoredPendingDiagnosticReport>(
+                predicate: #Predicate { $0.scopeKey == key }
+            )
+            for stored in try modelContext.fetch(descriptor) where doomed.contains(stored.id) {
+                modelContext.delete(stored)
+            }
+        }
+    }
 }
 
 /// Deletes one account and leaves everything else alone.
