@@ -225,11 +225,11 @@ struct WorldMapView: View {
     /// is drawn to fit inside its own.
     private static let placements:
         [(code: String, x: Double, y: Double, width: Double, height: Double)] = [
-            ("AMERICAS", 0.02, 0.06, 0.26, 0.86),
-            ("EUROPE", 0.38, 0.04, 0.15, 0.30),
-            ("AFRICA", 0.40, 0.40, 0.17, 0.54),
-            ("ASIA", 0.60, 0.02, 0.30, 0.54),
-            ("OCEANIA", 0.79, 0.62, 0.17, 0.30),
+            ("AMERICAS", 0.03, 0.06, 0.29, 0.86),
+            ("EUROPE", 0.33, 0.04, 0.17, 0.32),
+            ("AFRICA", 0.35, 0.38, 0.19, 0.56),
+            ("ASIA", 0.52, 0.02, 0.33, 0.56),
+            ("OCEANIA", 0.75, 0.58, 0.19, 0.32),
         ]
 
     var body: some View {

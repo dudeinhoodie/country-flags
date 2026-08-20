@@ -283,47 +283,33 @@ struct GoogleLogoMark: View {
 
 /// The person in the top corner: the way into the account from anywhere.
 ///
-/// It draws whatever the account already knows — the provider's picture, else
-/// the initial of the name, else a neutral glyph — inside the same glass
-/// circle the rest of the chrome uses, so it reads as part of the bar rather
-/// than as an avatar dropped on top of it.
+/// A plain symbol, the same weight and treatment as the gear across the bar
+/// from it — the two are a pair, and a frosted disc on one side against a bare
+/// glyph on the other made them look like two different kinds of control. The
+/// provider's picture takes its place once there is one: a face is worth more
+/// than a symbol, and only then is the disc earned.
 struct AccountAvatarButtonLabel: View {
     let profile: AccountProfile?
-    /// Shown when there is no account yet. Debug builds put the environment's
-    /// letter here, which is what the old badge was for.
-    let fallbackInitial: String?
 
     var body: some View {
-        ZStack {
-            Circle().fill(.ultraThinMaterial)
-
-            if let url = profile?.avatarURL {
-                AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill()
-                } placeholder: {
-                    initialOrGlyph
-                }
-            } else {
-                initialOrGlyph
+        if let url = profile?.avatarURL {
+            AsyncImage(url: url) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                glyph
             }
-        }
-        .frame(width: 30, height: 30)
-        .clipShape(Circle())
-        .overlay {
-            Circle().strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
+            .frame(width: 28, height: 28)
+            .clipShape(Circle())
+            .overlay {
+                Circle()
+                    .strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
+            }
+        } else {
+            glyph
         }
     }
 
-    @ViewBuilder
-    private var initialOrGlyph: some View {
-        if let initial = profile?.displayName?.first.map(String.init) ?? fallbackInitial {
-            Text(initial.uppercased())
-                .font(DesignTokens.Typography.caption.weight(.semibold))
-                .foregroundStyle(.white)
-        } else {
-            Image(systemName: "person.fill")
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.white.opacity(0.8))
-        }
+    private var glyph: some View {
+        Image(systemName: "person.crop.circle")
     }
 }

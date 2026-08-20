@@ -122,18 +122,7 @@ public struct RootView: View {
                             Button {
                                 router.push(.account)
                             } label: {
-                                AccountAvatarButtonLabel(
-                                    profile: accountToolbar?.profile,
-                                    // Debug builds keep the environment
-                                    // legible: the letter in the circle is the
-                                    // environment's rather than a person's
-                                    // until somebody signs in.
-                                    fallbackInitial: configuration.environment
-                                        .allowsDebugAffordances
-                                        ? String(configuration.environment.rawValue.prefix(1))
-                                            .uppercased()
-                                        : nil
-                                )
+                                AccountAvatarButtonLabel(profile: accountToolbar?.profile)
                             }
                             .accessibilityLabel(L10n.accountOpen)
                             .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
@@ -253,21 +242,23 @@ public struct RootView: View {
                 }
             )
         case .settings:
+            // No account block here any more: it lives behind the avatar,
+            // with the screen it is about. Two entrances to one place is one
+            // entrance too many.
             SettingsScreen(
                 store: makeSettingsStore(),
-                makeAccount: makeAccountStore,
                 makeClearProgress: makeClearProgressStore,
                 makePrivacy: makePrivacyStore,
-                // The row is offered only when the screen behind it exists,
-                // which is the same rule every other optional factory follows.
-                onOpenAccount: makeAccountLifecycleStore == nil
-                    ? nil : { router.push(.account) }
+                environmentBadge: configuration.environment.allowsDebugAffordances
+                    ? configuration.environment.rawValue.uppercased()
+                    : nil
             )
         case .account:
             if let makeAccountLifecycleStore {
                 AccountScreen(
                     store: makeAccountLifecycleStore(),
                     makeAccount: makeAccountStore,
+                    makeClearProgress: makeClearProgressStore,
                     privacyPolicyURL: configuration.privacyPolicyURL,
                     termsURL: configuration.termsURL
                 )
@@ -314,6 +305,9 @@ public enum AccessibilityIdentifier {
     }
 
     public static let homeDueEmpty = "home.due.empty"
+    /// The day's queue, which is a different button from the way back into an
+    /// unfinished sitting — they can now stand on the screen together.
+    public static let homeReview = "home.review"
     public static let achievementsEmpty = "achievements.empty"
     public static let studyDeckName = "study.deckName"
 

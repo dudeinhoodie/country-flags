@@ -20,25 +20,24 @@ public struct SettingsScreen: View {
     /// stays the source of truth; this is what the finger is promised.
     @State private var chosenSessionSize: Int?
     @State private var privacy: PrivacyStore?
-    private let makeAccount: (() -> AccountStore)?
     private let makeClearProgress: (() -> ClearProgressStore)?
     private let makePrivacy: (() -> PrivacyStore)?
-    /// Opens the account screen. Absent when the composition has no such
-    /// screen to open, which is the same rule the other factories follow.
-    private let onOpenAccount: (() -> Void)?
+    /// Which build this is, for the builds that are not production. It used to
+    /// be a badge in the corner of the first screen; the avatar has that corner
+    /// now, and a tester still has to be able to tell dev from the real thing —
+    /// so it says so here, where somebody looking for it will look.
+    private let environmentBadge: String?
 
     public init(
         store: SettingsStore,
-        makeAccount: (() -> AccountStore)? = nil,
         makeClearProgress: (() -> ClearProgressStore)? = nil,
         makePrivacy: (() -> PrivacyStore)? = nil,
-        onOpenAccount: (() -> Void)? = nil
+        environmentBadge: String? = nil
     ) {
         _store = State(wrappedValue: store)
-        self.makeAccount = makeAccount
         self.makeClearProgress = makeClearProgress
         self.makePrivacy = makePrivacy
-        self.onOpenAccount = onOpenAccount
+        self.environmentBadge = environmentBadge
     }
 
     public var body: some View {
@@ -96,19 +95,6 @@ public struct SettingsScreen: View {
                 Toggle(L10n.settingsReminders, isOn: remindersEnabled)
                     .accessibilityIdentifier(AccessibilityIdentifier.settingsReminders)
 
-                // The hour is offered only once there is something to schedule:
-                // a picker above a switch that is off sets a time for nothing.
-                if store.settings.remindersEnabled,
-                    store.reminderAuthorization == .authorized
-                {
-                    DatePicker(
-                        L10n.settingsRemindersTime,
-                        selection: reminderTime,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .accessibilityIdentifier(AccessibilityIdentifier.settingsRemindersTime)
-                }
-
                 // The preference arrived from another device: the account
                 // wants reminders and this phone has never been asked. The ask
                 // stays an action someone takes.
@@ -147,7 +133,20 @@ public struct SettingsScreen: View {
 
             privacySection
 
-            clearProgressSection
+            if let clearProgress {
+                ClearProgressSection(store: clearProgress)
+            }
+
+            if let environmentBadge {
+                Section {
+                    Text(environmentBadge)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
+                }
+                .listRowBackground(Color.clear)
+            }
         }
         .scrollContentBackground(.hidden)
         .navigationTitle(L10n.settingsTitle)
@@ -159,27 +158,8 @@ public struct SettingsScreen: View {
             await store.load()
             chosenSessionSize = store.settings.sessionSize
             if clearProgress == nil { clearProgress = makeClearProgress?() }
-            await clearProgress?.load()
             if privacy == nil { privacy = makePrivacy?() }
             await privacy?.load()
-        }
-        .confirmationDialog(
-            L10n.settingsClearProgressTitle,
-            isPresented: clearProgressConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(L10n.settingsClearProgressConfirm, role: .destructive) {
-                clearProgress?.confirm()
-            }
-            .accessibilityIdentifier(AccessibilityIdentifier.settingsClearProgressConfirm)
-            Button(L10n.accountCancel, role: .cancel) {
-                clearProgress?.cancel()
-            }
-        } message: {
-            Text(L10n.settingsClearProgressBody)
-        }
-        .sheet(isPresented: clearProgressProof) {
-            clearProgressProofSheet
         }
     }
 
@@ -229,106 +209,6 @@ public struct SettingsScreen: View {
         )
     }
 
-    /// The one destructive thing this screen can do, and only for an account:
-    /// a guest has no server-side history to delete and nobody to prove they
-    /// are, so the section is simply absent.
-    @ViewBuilder
-    private var clearProgressSection: some View {
-        if let clearProgress, clearProgress.isOffered {
-            Section {
-                Button(L10n.settingsClearProgress, role: .destructive) {
-                    clearProgress.request()
-                }
-                .accessibilityIdentifier(AccessibilityIdentifier.settingsClearProgress)
-
-                // What happened last, said plainly: both failures leave the
-                // progress standing, and saying so is the point.
-                if let status = clearProgressStatus {
-                    Text(status)
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .accessibilityIdentifier(
-                            AccessibilityIdentifier.settingsClearProgressStatus
-                        )
-                }
-            } header: {
-                SectionLabel(L10n.settingsProgressSection)
-            }
-            .listRowBackground(rowBackground)
-        }
-    }
-
-    /// Proving identity, as a sheet with the same two buttons signing in uses.
-    /// It cannot be dismissed into a half-finished state: nothing has been
-    /// deleted until the sheet's work returns.
-    @ViewBuilder
-    private var clearProgressProofSheet: some View {
-        if let clearProgress {
-            VStack(spacing: DesignTokens.Spacing.large) {
-                VStack(spacing: DesignTokens.Spacing.small) {
-                    Text(L10n.settingsClearProgressTitle)
-                        .font(DesignTokens.Typography.sectionTitle)
-                    Text(L10n.settingsClearProgressReauth)
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                }
-
-                ProviderSignInButtons(
-                    prepareNonce: { clearProgress.prepareNonce() },
-                    rawNonce: { clearProgress.preparedNonce?.raw ?? "" },
-                    google: clearProgress.google,
-                    fixtureCredential: clearProgress.allowsFixtureProof
-                        ? ProviderSignInButtons.fixtureCredential : nil,
-                    appleIdentifier: AccessibilityIdentifier.clearProgressProveApple,
-                    googleIdentifier: AccessibilityIdentifier.clearProgressProveGoogle,
-                    fixtureIdentifier: AccessibilityIdentifier.clearProgressProveFixture,
-                    onCredential: { credential, _ in
-                        Task { await clearProgress.prove(with: credential) }
-                    },
-                    onCancelled: { clearProgress.noteCancelledProof() },
-                    onFailure: { clearProgress.noteProviderFailure($0) }
-                )
-
-                Button(L10n.accountCancel) { clearProgress.cancel() }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.white.opacity(0.7))
-            }
-            .padding(DesignTokens.Spacing.large)
-            .presentationDetents([.medium])
-        }
-    }
-
-    private var clearProgressStatus: String? {
-        switch clearProgress?.phase {
-        case .clearing: L10n.settingsClearProgressWorking
-        case .cleared: L10n.settingsClearProgressDone
-        case .failed(.identity): L10n.settingsClearProgressReauthFailed
-        case .failed(.deletion): L10n.settingsClearProgressFailed
-        default: nil
-        }
-    }
-
-    private var clearProgressConfirmation: Binding<Bool> {
-        Binding(
-            get: { clearProgress?.phase == .confirming },
-            set: { isPresented in
-                if !isPresented, clearProgress?.phase == .confirming { clearProgress?.cancel() }
-            }
-        )
-    }
-
-    private var clearProgressProof: Binding<Bool> {
-        Binding(
-            get: { clearProgress?.phase == .provingIdentity },
-            set: { isPresented in
-                if !isPresented, clearProgress?.phase == .provingIdentity {
-                    clearProgress?.noteCancelledProof()
-                }
-            }
-        )
-    }
-
     /// Glass rather than the system's grouped background, which on this scene
     /// would be a flat grey slab with no relationship to anything under it.
     ///
@@ -367,34 +247,6 @@ public struct SettingsScreen: View {
         Binding(
             get: { store.settings.remindersEnabled },
             set: { isOn in Task { await store.setRemindersEnabled(isOn) } }
-        )
-    }
-
-    /// `DatePicker` speaks in dates; the schedule is an hour and a minute. The
-    /// day the picker is anchored to is never used — only the two components
-    /// are read back — so any day serves, and today's keeps the wheel showing
-    /// a sensible date to a reader who somehow sees one.
-    private var reminderTime: Binding<Date> {
-        Binding(
-            get: {
-                Calendar.current.date(
-                    bySettingHour: store.reminderTime.hour,
-                    minute: store.reminderTime.minute,
-                    second: 0,
-                    of: Date()
-                ) ?? Date()
-            },
-            set: { date in
-                let components = Calendar.current.dateComponents(
-                    [.hour, .minute], from: date
-                )
-                guard let hour = components.hour, let minute = components.minute else { return }
-                Task {
-                    await store.setReminderTime(
-                        ReminderSchedule(hour: hour, minute: minute)
-                    )
-                }
-            }
         )
     }
 }

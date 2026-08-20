@@ -165,18 +165,11 @@ public struct HomeView: View {
         let due = totalDue(sections)
         let continuable = progress?.continuable
 
-        if due > 0, let deckID = dueLaunchDeckID(sections) {
-            pane(
-                label: L10n.homeDueToday,
-                count: due,
-                total: nil,
-                caption: dueBreakdown,
-                action: L10n.homeReview,
-                identifier: AccessibilityIdentifier.homeContinue,
-                run: { startDueSession(deckID: deckID) },
-                continuable: continuable
-            )
-        } else if let continuable {
+        // Its own pane, above the day's: an unfinished sitting is a different
+        // thing from a queue — one is a place to go back to, the other is work
+        // to start — and folding it into the bottom of the due pane made the
+        // way back a footnote to a number it has nothing to do with.
+        if let continuable {
             pane(
                 label: L10n.homeSessionInProgress,
                 count: continuable.answeredCards,
@@ -185,8 +178,24 @@ public struct HomeView: View {
                 action: L10n.homeContinue,
                 identifier: AccessibilityIdentifier.homeContinue,
                 run: { onContinueSession?(continuable) },
-                continuable: nil
+                showsFan: false
             )
+        }
+
+        if due > 0, let deckID = dueLaunchDeckID(sections) {
+            pane(
+                label: L10n.homeDueToday,
+                count: due,
+                total: nil,
+                caption: dueBreakdown,
+                action: L10n.homeReview,
+                identifier: AccessibilityIdentifier.homeReview,
+                run: { startDueSession(deckID: deckID) }
+            )
+        } else if continuable != nil {
+            // The queue is empty and the sitting above is the whole of today:
+            // neither the celebration nor a deck to start belongs under it.
+            EmptyView()
         } else if let deck = recommended(sections) {
             // A day already finished says so — a learner with real progress
             // who cleared the queue must not see the fresh-install pane and
@@ -210,8 +219,7 @@ public struct HomeView: View {
                 caption: deck.name,
                 action: L10n.studyStart,
                 identifier: AccessibilityIdentifier.homeDeckRow(deck.code),
-                run: { onOpenDeck(deck.id) },
-                continuable: nil
+                run: { onOpenDeck(deck.id) }
             )
         }
     }
@@ -268,7 +276,7 @@ public struct HomeView: View {
         action: String,
         identifier: String,
         run: @escaping () -> Void,
-        continuable: ContinuableSession?
+        showsFan: Bool = true
     ) -> some View {
         GlassCard(padding: DesignTokens.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
@@ -297,8 +305,10 @@ public struct HomeView: View {
                         Spacer(minLength: 0)
 
                         // The cards the number is counting, as a small pile of
-                        // themselves.
-                        if !fanCards.isEmpty {
+                        // themselves. Only where the number is the queue: the
+                        // fan is drawn from the due cards and would be a lie
+                        // beside a session's answered count.
+                        if showsFan, !fanCards.isEmpty {
                             FlagFanView(cards: fanCards, store: store, assets: assets)
                         }
                     }
@@ -315,39 +325,6 @@ public struct HomeView: View {
                     .buttonStyle(PrimaryActionStyle())
                     .accessibilityIdentifier(identifier)
 
-                if let continuable {
-                    Button {
-                        onContinueSession?(continuable)
-                    } label: {
-                        HStack(spacing: DesignTokens.Spacing.extraSmall) {
-                            Text(L10n.homeSessionInProgress)
-                                .foregroundStyle(.white.opacity(0.65))
-                            Text(
-                                verbatim:
-                                    "\(continuable.answeredCards) / \(continuable.totalCards)"
-                            )
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                            Spacer(minLength: DesignTokens.Spacing.small)
-                            Text(L10n.homeContinue)
-                                .foregroundStyle(.white)
-                                .fontWeight(.semibold)
-                            Image(systemName: "chevron.right")
-                                .foregroundStyle(.white.opacity(0.5))
-                        }
-                        .font(DesignTokens.Typography.caption)
-                        .padding(.horizontal, DesignTokens.Spacing.medium)
-                        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.85)
-                        .background(
-                            .white.opacity(0.06),
-                            in: RoundedRectangle(
-                                cornerRadius: DesignTokens.Radius.medium, style: .continuous
-                            )
-                        )
-                        .contentShape(.rect)
-                    }
-                    .buttonStyle(.plain)
-                }
             }
         }
     }

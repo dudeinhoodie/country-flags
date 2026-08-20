@@ -131,12 +131,40 @@ public struct DeckDetailsView: View {
 
             header(details)
 
-            if let onStartStudy {
-                startCard(details, onStartStudy: onStartStudy)
+            // Only when it has something to say: with the action at the
+            // bottom and the size in the settings, the card is the unfinished
+            // session and the mode — and an empty pane above a country list is
+            // a shape the eye has to decode for nothing.
+            if onStartStudy != nil, continuable != nil || isObjectiveModeEnabled {
+                startCard()
             }
 
             countries(details)
         }
+        // The same bar as the region's progress screen, in the same place with
+        // the same gaps: both screens are a long list of countries with one
+        // thing to do about them, and a person should not have to find the
+        // button twice.
+        .safeAreaInset(edge: .bottom) {
+            if let onStartStudy {
+                Button(continuable == nil ? L10n.studyStart : L10n.homeContinue) {
+                    if let continuable {
+                        onStartStudy(deckID, continuable.size, continuable.mode)
+                    } else {
+                        onStartStudy(deckID, sessionSize, mode)
+                    }
+                }
+                .buttonStyle(GlassActionStyle())
+                .disabled(cardCount(of: details) == 0)
+                .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .padding(.bottom, DesignTokens.Spacing.medium)
+            }
+        }
+    }
+
+    private func cardCount(of details: DeckDetails) -> Int {
+        details.deck.cardCount
     }
 
     private func header(_ details: DeckDetails) -> some View {
@@ -159,10 +187,7 @@ public struct DeckDetailsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func startCard(
-        _ details: DeckDetails,
-        onStartStudy: @escaping (UUID, StudySessionSize, StudyAnswerMode) -> Void
-    ) -> some View {
+    private func startCard() -> some View {
         GlassCard(padding: DesignTokens.Spacing.medium) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 if let continuable {
@@ -181,24 +206,15 @@ public struct DeckDetailsView: View {
                         }
                         .foregroundStyle(.white)
                     }
-
-                    Button(L10n.homeContinue) {
-                        onStartStudy(deckID, continuable.size, continuable.mode)
-                    }
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
                 } else {
-                    startControls(details, onStartStudy: onStartStudy)
+                    modePicker
                 }
             }
         }
     }
 
     @ViewBuilder
-    private func startControls(
-        _ details: DeckDetails,
-        onStartStudy: @escaping (UUID, StudySessionSize, StudyAnswerMode) -> Void
-    ) -> some View {
+    private var modePicker: some View {
         // The quiz is a released feature rather than a permanent one:
         // the flag is server-enforced and defaults to off, so the mode
         // is simply absent until it is turned on.
@@ -217,29 +233,10 @@ public struct DeckDetailsView: View {
             }
         }
 
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-            SectionLabel(L10n.studySessionSize)
-            // The system's own control, here and in the settings alike: one
-            // segmented control across the app behaves one way, and a person
-            // who has met it anywhere else in iOS already knows this one.
-            Picker(L10n.studySessionSize, selection: $sessionSize) {
-                ForEach(StudySessionSize.allCases, id: \.self) { size in
-                    Text(verbatim: "\(size.rawValue)")
-                        .tag(size)
-                        .accessibilityIdentifier(AccessibilityIdentifier.studySizeOption(size))
-                }
-            }
-            .pickerStyle(.segmented)
-        }
-
-        // A session can start with no network at all: the cards and
-        // their flags are already on the device.
-        Button(L10n.studyStart) {
-            onStartStudy(deckID, sessionSize, mode)
-        }
-        .buttonStyle(PrimaryActionStyle())
-        .disabled(details.deck.cardCount == 0)
-        .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+        // The size is not asked for here. It is one setting, in the settings,
+        // and a deck that asked again made it two — with the screen's answer
+        // silently winning over the one the learner had already given. The
+        // action is not here either: it waits at the bottom of the screen.
     }
 
     private func countries(_ details: DeckDetails) -> some View {

@@ -18,16 +18,24 @@ public struct AccountScreen: View {
     private let termsURL: URL?
     /// Who is signed in, and the way in or out. It used to live in the
     /// settings; it belongs with the account it is about.
+    @State private var account: AccountStore?
     private let makeAccount: (() -> AccountStore)?
+    /// Erasing the answers without erasing the account — the one destructive
+    /// thing that is about progress rather than identity, offered here as well
+    /// as in the settings.
+    @State private var clearProgress: ClearProgressStore?
+    private let makeClearProgress: (() -> ClearProgressStore)?
 
     public init(
         store: AccountLifecycleStore,
         makeAccount: (() -> AccountStore)? = nil,
+        makeClearProgress: (() -> ClearProgressStore)? = nil,
         privacyPolicyURL: URL? = nil,
         termsURL: URL? = nil
     ) {
         _store = State(wrappedValue: store)
         self.makeAccount = makeAccount
+        self.makeClearProgress = makeClearProgress
         self.privacyPolicyURL = privacyPolicyURL
         self.termsURL = termsURL
     }
@@ -37,20 +45,31 @@ public struct AccountScreen: View {
             if let deletion = store.pendingDeletion {
                 deletionNotice(deletion)
             }
-            if let makeAccount {
-                AccountSection(store: makeAccount())
+            if let account {
+                AccountSection(store: account)
                     .listRowBackground(rowBackground)
             }
             identitiesSection
             devicesSection
             exportSection
+            if let clearProgress {
+                ClearProgressSection(store: clearProgress)
+            }
             legalSection
             deletionSection
         }
         .scrollContentBackground(.hidden)
         .navigationTitle(L10n.accountTitle)
         .sceneChrome()
-        .task { await store.load() }
+        .onAppear {
+            if account == nil { account = makeAccount?() }
+            if clearProgress == nil { clearProgress = makeClearProgress?() }
+        }
+        // Keyed on who is signed in, not on appearance alone: signing in now
+        // happens on this screen, and the logins and devices belong to the
+        // account that was not there a moment ago. Without the key the screen
+        // kept the guest's empty answer until it was left and reopened.
+        .task(id: account?.state) { await store.load() }
         .onDisappear { store.discardExportArchive() }
         .confirmationDialog(
             L10n.accountDeleteTitle,
@@ -138,24 +157,6 @@ public struct AccountScreen: View {
                 )
             }
 
-            if !missingProviders.isEmpty {
-                ProviderSignInButtons(
-                    prepareNonce: { store.prepareNonce() },
-                    rawNonce: { store.preparedNonce?.raw ?? "" },
-                    google: missingProviders.contains(.google) ? store.google : nil,
-                    fixtureCredential: store.allowsFixtureProof
-                        ? ProviderSignInButtons.fixtureCredential : nil,
-                    appleIdentifier: AccessibilityIdentifier.accountLinkApple,
-                    googleIdentifier: AccessibilityIdentifier.accountLinkGoogle,
-                    fixtureIdentifier: AccessibilityIdentifier.accountLinkFixture,
-                    onCredential: { credential, _ in
-                        Task { await store.link(with: credential) }
-                    },
-                    onCancelled: {},
-                    onFailure: { _ in }
-                )
-                .disabled(store.isChangingIdentities)
-            }
         } header: {
             SectionLabel(L10n.accountIdentitiesSection)
         } footer: {
@@ -163,12 +164,6 @@ public struct AccountScreen: View {
                 .foregroundStyle(.white.opacity(0.5))
         }
         .listRowBackground(rowBackground)
-    }
-
-    /// Which providers this account has no identity for. Apple's button is
-    /// always available; Google's needs the build to carry its credentials.
-    private var missingProviders: Set<AuthProvider> {
-        Set(AuthProvider.allCases).subtracting(store.identities.map(\.provider))
     }
 
     // MARK: - Devices
@@ -233,16 +228,42 @@ public struct AccountScreen: View {
                 }
                 .accessibilityIdentifier(AccessibilityIdentifier.accountExportPreparing)
                 .task { await store.followExport() }
+            } else if store.isPreparingExport {
+                // The gap this fills: between tapping and the backend
+                // answering there is a proof sheet and a request, and while
+                // both were in flight the row still read "request a copy" —
+                // so a person who came back from the provider saw a screen
+                // that looked like nothing had happened.
+                HStack(spacing: DesignTokens.Spacing.small) {
+                    ProgressView()
+                    Text(L10n.accountExportPreparing)
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+                .accessibilityIdentifier(AccessibilityIdentifier.accountExportPreparing)
             } else {
                 Button(L10n.accountExportRequest) { store.requestExport() }
                     .accessibilityIdentifier(AccessibilityIdentifier.accountExportRequest)
             }
 
-            if store.exportFailure {
-                Text(L10n.accountExportFailed)
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .accessibilityIdentifier(AccessibilityIdentifier.accountExportFailed)
+            if store.exportFailure || store.didExportProofFail {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                    Text(L10n.accountExportFailed)
+                    // What actually went wrong, when the backend said: a
+                    // rate limit and a dead network are different problems
+                    // and only one of them is worth waiting out.
+                    if let reason = store.exportError {
+                        Text(L10n.errorMessage(for: reason.kind))
+                            .foregroundStyle(.white.opacity(0.55))
+                        if let reference = reason.supportRequestID {
+                            Text(L10n.errorSupportReference(reference))
+                                .foregroundStyle(.white.opacity(0.4))
+                        }
+                    }
+                }
+                .font(DesignTokens.Typography.caption)
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier(AccessibilityIdentifier.accountExportFailed)
             }
         } header: {
             SectionLabel(L10n.accountExportSection)
