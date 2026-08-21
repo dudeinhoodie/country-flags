@@ -50,12 +50,21 @@ public enum L10n {
     public static var homeDue: String { localized("home.due") }
     /// The cleared-day card: a learner who finished everything is told so,
     /// shown what it added up to, and offered somewhere to go next.
-    public static var homeClearedTitle: String { localized("home.cleared.title") }
     public static var homeClearedSubtitle: String { localized("home.cleared.subtitle") }
     public static var homeClearedLearned: String { localized("home.cleared.learned") }
     public static var homeClearedInProgress: String { localized("home.cleared.in_progress") }
-    public static var homeClearedNext: String { localized("home.cleared.next") }
-    public static var homeClearedSuggestion: String { localized("home.cleared.suggestion") }
+    /// Declined by the count, which is why it goes through the catalogue's own
+    /// plural machinery rather than a format string: "1 страна", "2 страны",
+    /// "12 стран" are three different words.
+    public static func homeClearedInProgressCount(_ count: Int) -> String {
+        // `NSLocalizedString` returns the plural rule itself; only
+        // `localizedStringWithFormat` applies it. `String(localized:)` would
+        // hand back one arbitrary variant and format the number into it.
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.cleared.in_progress_count", bundle: bundle, comment: ""),
+            count
+        )
+    }
 
     public static func homeDueCount(_ count: Int) -> String {
         String(format: localized("home.due_count"), count)

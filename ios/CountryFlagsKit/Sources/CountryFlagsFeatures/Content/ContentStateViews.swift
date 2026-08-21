@@ -166,10 +166,23 @@ struct ContentUnavailableStateView: View {
 struct ContentLoadingStateView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.large) {
+            // The shape of what is coming, not a stack of anonymous bars: a
+            // pane with a heading and a number, then a shelf of flags. A
+            // placeholder that matches the layout it will become is the one
+            // thing that stops the screen jumping when it does.
             SkeletonBlock(height: DesignTokens.Layout.actionHeight * 2.5)
 
+            HStack(spacing: DesignTokens.Spacing.small) {
+                ForEach(0..<4, id: \.self) { _ in
+                    SkeletonBlock(
+                        height: DesignTokens.Layout.rowFlagWidth * 0.75,
+                        radius: DesignTokens.Radius.small
+                    )
+                }
+            }
+
             VStack(spacing: DesignTokens.Spacing.small) {
-                ForEach(0..<3, id: \.self) { _ in
+                ForEach(0..<2, id: \.self) { _ in
                     SkeletonBlock(height: DesignTokens.Layout.actionHeight * 1.4)
                 }
             }

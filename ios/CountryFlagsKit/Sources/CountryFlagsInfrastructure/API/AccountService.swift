@@ -106,11 +106,13 @@ public struct AccountService: AccountDirectory, DataExporting, AccountDeleting {
     // MARK: - Export
 
     public func requestExport(
-        provingWith proof: ReauthenticationProof
+        provingWith proof: ReauthenticationProof?
     ) async throws -> DataExportRecord {
         let output: Operations.createDataExport.Output
         do {
-            output = try await clientFactory.makeClient(proving: proof).createDataExport()
+            let client = proof.map { clientFactory.makeClient(proving: $0) }
+                ?? clientFactory.makeClient()
+            output = try await client.createDataExport()
         } catch {
             throw APIError.from(error).presentable
         }

@@ -171,10 +171,15 @@ public protocol AccountDirectory: Sendable {
 
 /// Asking for the account's data and fetching it once it is ready.
 ///
-/// The request needs a fresh proof; reading the status does not, because a
-/// status carries nothing the account holder has not already been shown.
+/// The proof is optional because a sign-in a minute old is already a proof:
+/// the backend accepts a session that was authenticated inside the same window
+/// a minted proof would live for, and only refuses — `REAUTHENTICATION_REQUIRED`
+/// — when the sign-in is older than that. Asking first and proving on refusal
+/// means nobody is sent through a provider twice in the same minute. Reading a
+/// status needs nothing either way: it carries nothing the account holder has
+/// not already been shown.
 public protocol DataExporting: Sendable {
-    func requestExport(provingWith proof: ReauthenticationProof) async throws -> DataExportRecord
+    func requestExport(provingWith proof: ReauthenticationProof?) async throws -> DataExportRecord
     func exportStatus(id: UUID) async throws -> DataExportRecord
     /// Fetches the archive itself. Separated from the status calls because the
     /// URL is the backend's to hand out and carries its own short-lived proof.

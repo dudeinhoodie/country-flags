@@ -65,6 +65,10 @@ struct PrimaryActionStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .frame(minHeight: DesignTokens.Layout.actionHeight)
             .background(.white.opacity(isEnabled ? 1 : 0.4), in: Capsule(style: .continuous))
+            // Without this the button is only its words. A frame makes room; it
+            // does not make a target — so a person aiming at the middle of a
+            // wide capsule was pressing the gap beside the label.
+            .contentShape(Capsule(style: .continuous))
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
             .animation(reduceMotion ? nil : .snappy(duration: 0.2), value: configuration.isPressed)
     }
@@ -83,6 +87,7 @@ struct GlassActionStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .frame(minHeight: DesignTokens.Layout.actionHeight)
             .glassEffect(.regular.interactive(), in: Capsule(style: .continuous))
+            .contentShape(Capsule(style: .continuous))
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
             .animation(reduceMotion ? nil : .snappy(duration: 0.2), value: configuration.isPressed)
     }
@@ -116,6 +121,7 @@ struct GlassProminentActionStyle: ButtonStyle {
                     .strokeBorder(.white.opacity(0.28), lineWidth: 1 / displayScale)
             }
             .shadow(color: .black.opacity(0.28), radius: 18, y: 8)
+            .contentShape(Capsule(style: .continuous))
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
             .animation(reduceMotion ? nil : .snappy(duration: 0.2), value: configuration.isPressed)
     }
@@ -229,9 +235,65 @@ struct SkeletonBlock: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: radius, style: .continuous)
-            .fill(.ultraThinMaterial)
+            .fill(.white.opacity(0.06))
             .frame(height: height)
-            .skeletonPulse()
+            .overlay {
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
+            }
+            .sheen(radius: radius)
+    }
+}
+
+/// Light travelling across a pane of glass, for the moment before content
+/// arrives.
+///
+/// The placeholder used to be a slab of material dimming and brightening on
+/// the spot, which is the house style of every loading screen and none of this
+/// app's: the scene here is dark and lit from behind, and things in it catch
+/// light rather than pulse. A sheen crossing the pane says the same thing —
+/// this is coming — in the language the rest of the app is written in, and it
+/// travels one way, so it reads as progress rather than as a heartbeat.
+private struct Sheen: ViewModifier {
+    let radius: CGFloat
+    @State private var phase: CGFloat = -1
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                GeometryReader { proxy in
+                    let width = proxy.size.width
+                    LinearGradient(
+                        colors: [
+                            .white.opacity(0),
+                            .white.opacity(0.16),
+                            .white.opacity(0),
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: width * 0.55)
+                    .offset(x: phase * width)
+                    .blur(radius: 8)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+                .allowsHitTesting(false)
+            }
+            .onAppear {
+                // Still with reduced motion: the pane keeps its own faint fill,
+                // which is enough to read as "not content yet".
+                guard !reduceMotion else { return }
+                withAnimation(.linear(duration: 1.6).repeatForever(autoreverses: false)) {
+                    phase = 1.6
+                }
+            }
+    }
+}
+
+extension View {
+    fileprivate func sheen(radius: CGFloat) -> some View {
+        modifier(Sheen(radius: radius))
     }
 }
 

@@ -36,6 +36,16 @@ public struct HomeView: View {
     /// rows should show the cards they are talking about.
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
+    @Environment(\.scenePhase) private var scenePhase
+
+    /// How old the catalogue may be before coming back to the app refreshes it.
+    ///
+    /// Ten minutes is short enough that an hour away never shows yesterday's
+    /// queue, and long enough that putting the phone down to answer the door
+    /// costs nothing. The counts themselves are recomputed on every return
+    /// whatever this says — they are local arithmetic over a clock that has
+    /// moved, and cards fall due while nobody is looking.
+    private static let staleAfter: TimeInterval = 600
 
     public init(
         store: ContentStore,
@@ -103,6 +113,20 @@ public struct HomeView: View {
                     await reloadPreviews()
                 }
             }
+            // Coming back from the background is the third moment the numbers
+            // change, and the only one nothing was watching. A view that never
+            // disappeared gets no `onAppear`, and a sync that finishes in the
+            // same state it started in changes no value to key a task on — so
+            // an hour in a pocket used to leave yesterday's queue on screen.
+            .onChange(of: scenePhase) { _, phase in
+                guard phase == .active else { return }
+                Task {
+                    await store.refreshIfStale(olderThan: Self.staleAfter)
+                    await sync.refreshStatus()
+                    await progress?.load()
+                    await reloadPreviews()
+                }
+            }
     }
 
     @ViewBuilder
@@ -148,11 +172,21 @@ public struct HomeView: View {
         }
     }
 
-    /// Whether the pane's numbers are still being read. Without a factory
-    /// there will never be numbers, and waiting for them would hold the
-    /// skeleton forever.
+    /// Whether the pane's numbers are still being read.
+    ///
+    /// Two things have to land before a number is worth showing: the local
+    /// counts, and the first catalogue sync of the launch. The stored
+    /// catalogue answers instantly and can be a day old, so painting its
+    /// numbers first and correcting them a second later is exactly the flicker
+    /// this screen is read through — the reader sees a figure, believes it,
+    /// and watches it change.
+    ///
+    /// Neither wait is unbounded. Without a progress factory there will never
+    /// be counts, and a sync that fails or finds no network settles into a
+    /// phase that is not `syncing`, so the screen always arrives somewhere.
     private var isAwaitingProgress: Bool {
-        makeProgress != nil && !(progress?.isLoaded ?? false)
+        if makeProgress != nil, !(progress?.isLoaded ?? false) { return true }
+        return store.lastSyncedAt == nil && store.status.phase != .idle
     }
 
     // MARK: - Today

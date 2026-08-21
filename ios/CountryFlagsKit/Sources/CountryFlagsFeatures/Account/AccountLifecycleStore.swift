@@ -215,11 +215,32 @@ public final class AccountLifecycleStore {
 
     /// Asks for the archive, proving identity first, and then follows the
     /// request until the backend settles it.
-    public func requestExport() {
+    /// Asks for the archive, and only asks the person to prove themselves if
+    /// the backend says it needs proof.
+    ///
+    /// A sign-in a minute old already proves who is holding the phone, and the
+    /// backend accepts it for as long as a minted proof would have lived. So
+    /// the first attempt goes without one: somebody who has just signed in
+    /// gets their archive, and only a session old enough to have gone cold is
+    /// sent through the provider — once.
+    public func requestExport() async {
         exportFailure = false
         exportError = nil
         exportArchive = nil
         isExportAttempt = true
+        do {
+            let requested = try await exporting.requestExport(provingWith: nil)
+            await adopt(requested)
+        } catch let error as PresentableError where error.kind == .unauthorized {
+            // The session is too old to speak for itself. This is the one case
+            // that is worth sending somebody through a provider.
+            requestExportWithProof()
+        } catch {
+            noteExportFailure(error)
+        }
+    }
+
+    private func requestExportWithProof() {
         reauthentication.request { [weak self] proof in
             guard let self else { return }
             do {

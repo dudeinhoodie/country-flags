@@ -1803,6 +1803,71 @@
         }
       }
     },
+    "home.cleared.in_progress_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld countries still settling"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld countries still settling"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld country still settling"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld countries still settling"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "В работе %lld страны"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "В работе %lld стран"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "В работе %lld страна"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "В работе %lld страны"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "home.cleared.learned": {
       "extractionState": "manual",
       "localizations": {
@@ -1820,70 +1885,19 @@
         }
       }
     },
-    "home.cleared.next": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "If you cannot wait"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Если не терпится"
-          }
-        }
-      }
-    },
     "home.cleared.subtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today's cards are done. New ones come back when they are due."
+            "value": "The cards come back when they are due. You could take a new deck — nobody said you cannot learn ahead."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Карточки на сегодня закончились. Новые вернутся, когда придёт их срок."
-          }
-        }
-      }
-    },
-    "home.cleared.suggestion": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Take a new deck — nobody said you cannot learn ahead."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Возьми новую колоду — учить наперёд никто не запрещал."
-          }
-        }
-      }
-    },
-    "home.cleared.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All caught up"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Всё повторено"
+            "value": "Карточки вернутся, когда придёт их срок. Можно взять новую колоду — учить наперёд никто не запрещал."
           }
         }
       }
