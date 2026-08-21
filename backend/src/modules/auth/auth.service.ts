@@ -12,6 +12,7 @@ import {
 import { ApiException } from "../../common/http/api.exception";
 import type { EnvironmentVariables } from "../../config/environment.validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
 import { AccessTokenService } from "./access-token.service";
 import type { DeviceRegistration } from "./auth.request";
 import type { VerifiedProviderIdentity } from "./provider-identity-verifier";
@@ -461,9 +462,41 @@ export class AuthService {
     device: DeviceRegistration,
     context: RequestContext,
   ): Promise<SessionRecord> {
-    return this.database.$transaction(
-      async (transaction) => {
-        let linked = await transaction.authIdentity.findUnique({
+    return inSerializableTransaction(this.database, async (transaction) => {
+      let linked = await transaction.authIdentity.findUnique({
+        where: {
+          provider_providerSubject: {
+            provider: identity.provider,
+            providerSubject: identity.subject,
+          },
+        },
+        include: { user: true },
+      });
+      let user: User;
+      let accountCreated = false;
+      if (linked === null) {
+        accountCreated = true;
+        user = await transaction.user.create({
+          data: {
+            preferredLocale: device.locale,
+            settings: {
+              create: {
+                contentLocale: device.locale,
+                timezone: device.timezone,
+              },
+            },
+            authIdentities: {
+              create: {
+                provider: identity.provider,
+                providerSubject: identity.subject,
+                email: identity.email,
+                emailVerified: identity.emailVerified,
+                isPrivateEmail: identity.isPrivateEmail,
+              },
+            },
+          },
+        });
+        linked = await transaction.authIdentity.findUniqueOrThrow({
           where: {
             provider_providerSubject: {
               provider: identity.provider,
@@ -472,119 +505,84 @@ export class AuthService {
           },
           include: { user: true },
         });
-        let user: User;
-        let accountCreated = false;
-        if (linked === null) {
-          accountCreated = true;
-          user = await transaction.user.create({
-            data: {
-              preferredLocale: device.locale,
-              settings: {
-                create: {
-                  contentLocale: device.locale,
-                  timezone: device.timezone,
-                },
-              },
-              authIdentities: {
-                create: {
-                  provider: identity.provider,
-                  providerSubject: identity.subject,
-                  email: identity.email,
-                  emailVerified: identity.emailVerified,
-                  isPrivateEmail: identity.isPrivateEmail,
-                },
-              },
-            },
-          });
-          linked = await transaction.authIdentity.findUniqueOrThrow({
-            where: {
-              provider_providerSubject: {
-                provider: identity.provider,
-                providerSubject: identity.subject,
-              },
-            },
-            include: { user: true },
-          });
-        } else {
-          user = linked.user;
-          if (user.status !== "ACTIVE") {
-            typedError(
-              HttpStatus.UNAUTHORIZED,
-              "ACCOUNT_UNAVAILABLE",
-              "The account is not available for authentication",
-            );
-          }
-          await transaction.authIdentity.update({
-            where: { id: linked.id },
-            data: {
-              lastLoginAt: new Date(),
-              email: identity.email,
-              emailVerified: identity.emailVerified,
-              isPrivateEmail: identity.isPrivateEmail,
-            },
-          });
+      } else {
+        user = linked.user;
+        if (user.status !== "ACTIVE") {
+          typedError(
+            HttpStatus.UNAUTHORIZED,
+            "ACCOUNT_UNAVAILABLE",
+            "The account is not available for authentication",
+          );
         }
-
-        const registeredDevice = await transaction.device.upsert({
-          where: {
-            userId_clientGeneratedId: {
-              userId: user.id,
-              clientGeneratedId: device.clientGeneratedId,
-            },
+        await transaction.authIdentity.update({
+          where: { id: linked.id },
+          data: {
+            lastLoginAt: new Date(),
+            email: identity.email,
+            emailVerified: identity.emailVerified,
+            isPrivateEmail: identity.isPrivateEmail,
           },
-          create: {
+        });
+      }
+
+      const registeredDevice = await transaction.device.upsert({
+        where: {
+          userId_clientGeneratedId: {
             userId: user.id,
             clientGeneratedId: device.clientGeneratedId,
-            platform: device.platform,
-            appVersion: device.appVersion,
-            locale: device.locale,
-            timezone: device.timezone,
           },
-          update: {
-            platform: device.platform,
-            appVersion: device.appVersion,
-            locale: device.locale,
-            timezone: device.timezone,
-            lastSeenAt: new Date(),
-          },
-        });
-        const settings = await transaction.userSettings.upsert({
-          where: { userId: user.id },
-          create: {
-            userId: user.id,
-            contentLocale: device.locale,
-            timezone: device.timezone,
-          },
-          update: {},
-        });
-        const refresh = this.createRefreshMaterial();
-        const session = await transaction.refreshSession.create({
-          data: {
-            userId: user.id,
-            deviceId: registeredDevice.id,
-            tokenHash: refresh.tokenHash,
-            tokenFamilyId: randomUUID(),
-            expiresAt: refresh.expiresAt,
-            ipHash: this.hashIp(context.ipAddress),
-            userAgent: this.safeUserAgent(context.userAgent),
-          },
-          select: { id: true },
-        });
-        await this.audit(transaction, {
-          actorUserId: user.id,
-          action: "AUTH_LOGIN_SUCCEEDED",
-          targetType: "REFRESH_SESSION",
-          targetId: session.id,
-          requestId: context.requestId,
-          metadata: {
-            provider: identity.provider,
-            accountCreated,
-          },
-        });
-        return { id: session.id, user, settings, refresh };
-      },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
-    );
+        },
+        create: {
+          userId: user.id,
+          clientGeneratedId: device.clientGeneratedId,
+          platform: device.platform,
+          appVersion: device.appVersion,
+          locale: device.locale,
+          timezone: device.timezone,
+        },
+        update: {
+          platform: device.platform,
+          appVersion: device.appVersion,
+          locale: device.locale,
+          timezone: device.timezone,
+          lastSeenAt: new Date(),
+        },
+      });
+      const settings = await transaction.userSettings.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          contentLocale: device.locale,
+          timezone: device.timezone,
+        },
+        update: {},
+      });
+      const refresh = this.createRefreshMaterial();
+      const session = await transaction.refreshSession.create({
+        data: {
+          userId: user.id,
+          deviceId: registeredDevice.id,
+          tokenHash: refresh.tokenHash,
+          tokenFamilyId: randomUUID(),
+          expiresAt: refresh.expiresAt,
+          ipHash: this.hashIp(context.ipAddress),
+          userAgent: this.safeUserAgent(context.userAgent),
+        },
+        select: { id: true },
+      });
+      await this.audit(transaction, {
+        actorUserId: user.id,
+        action: "AUTH_LOGIN_SUCCEEDED",
+        targetType: "REFRESH_SESSION",
+        targetId: session.id,
+        requestId: context.requestId,
+        metadata: {
+          provider: identity.provider,
+          accountCreated,
+        },
+      });
+      return { id: session.id, user, settings, refresh };
+    });
   }
 
   private createRefreshMaterial(now = new Date()): RefreshMaterial {
