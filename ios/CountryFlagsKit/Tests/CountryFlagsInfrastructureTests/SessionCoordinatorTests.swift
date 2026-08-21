@@ -182,6 +182,50 @@ final class SessionCoordinatorTests: XCTestCase {
         XCTAssertEqual(scope, guestScope)
     }
 
+    /// A tunnel, a lift, hotel wifi: the request fails, the session does not.
+    /// Deleting the refresh token here is what signed people out for going
+    /// underground — and once it is gone, no amount of signal brings it back.
+    func testARefreshThatNeverReachedTheBackendKeepsTheSessionAndItsToken() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        let session = makeCoordinator(service: service, tokens: tokens)
+        _ = await session.signIn(with: .google(idToken: "t"))
+        await service.setRefresh(.refuses(.transport("-1009")))
+
+        do {
+            _ = try await session.refreshAccessToken()
+            XCTFail("the request still has to fail")
+        } catch {
+            XCTAssertEqual(APIError.from(error), .transport("-1009"))
+        }
+
+        let state = await session.currentState()
+        XCTAssertEqual(state, .authenticated(userID: service.userID))
+        let stored = try await tokens.value(for: .refreshToken)
+        XCTAssertEqual(stored, "refresh-1", "the token was never refused, so it stays")
+        let scope = await session.currentScope()
+        XCTAssertEqual(scope, .authenticated(userID: service.userID))
+    }
+
+    /// A backend having a bad day is not a refusal either.
+    func testAServerErrorDuringRefreshDoesNotEndTheSession() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        let session = makeCoordinator(service: service, tokens: tokens)
+        _ = await session.signIn(with: .google(idToken: "t"))
+        let outage = APIError.server(
+            APIErrorDetails(statusCode: 503, code: "UNAVAILABLE", message: "no", requestID: nil)
+        )
+        await service.setRefresh(.refuses(outage))
+
+        _ = try? await session.refreshAccessToken()
+
+        let state = await session.currentState()
+        XCTAssertEqual(state, .authenticated(userID: service.userID))
+        let stored = try await tokens.value(for: .refreshToken)
+        XCTAssertEqual(stored, "refresh-1")
+    }
+
     func testThereIsNothingToRefreshWithoutASession() async {
         let session = makeCoordinator(service: StubAuthService())
 
@@ -223,7 +267,29 @@ final class SessionCoordinatorTests: XCTestCase {
         await session.restore()
 
         let state = await session.currentState()
-        XCTAssertEqual(state, .authenticationExpired(userID: nil))
+        XCTAssertEqual(
+            state,
+            .authenticationExpired(userID: service.userID),
+            "the identifier stored beside the token says who has to sign in again"
+        )
+    }
+
+    /// The bug this pair of tests exists for: a launch with no network is not
+    /// a revoked token, and the app used to treat it as one — reporting an
+    /// expired session to somebody whose session was perfectly good.
+    func testARelaunchWithNoNetworkStaysSignedIn() async throws {
+        let service = StubAuthService(refresh: .refuses(.transport("-1009")))
+        let tokens = InMemoryTokenStore()
+        try await tokens.setValue("refresh-stored", for: .refreshToken)
+        try await tokens.setValue(service.userID.uuidString, for: .accountUserID)
+        let session = makeCoordinator(service: service, tokens: tokens)
+
+        await session.restore()
+
+        let state = await session.currentState()
+        XCTAssertEqual(state, .authenticated(userID: service.userID))
+        let stored = try await tokens.value(for: .refreshToken)
+        XCTAssertEqual(stored, "refresh-stored", "nothing was refused, so nothing was spent")
     }
 
     func testARelaunchWithNoStoredTokenIsSimplyAGuest() async {

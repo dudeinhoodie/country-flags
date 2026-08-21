@@ -339,7 +339,6 @@ public enum AccessibilityIdentifier {
     public static let settingsSound = "settings.sound"
     public static let settingsHaptics = "settings.haptics"
     public static let settingsReminders = "settings.reminders"
-    public static let settingsRemindersTime = "settings.reminders.time"
     public static let settingsRemindersAllow = "settings.reminders.allow"
     public static let settingsRemindersOpenSystemSettings = "settings.reminders.openSystemSettings"
     public static let settingsConflict = "settings.conflict"
@@ -432,10 +431,6 @@ public enum AccessibilityIdentifier {
     /// tap without knowing which country the seed put there.
     public static func studyOption(_ position: Int) -> String {
         "study.option.\(position)"
-    }
-
-    public static func studySizeOption(_ size: StudySessionSize) -> String {
-        "study.size.\(size.rawValue)"
     }
 
     /// Present only when a placement really draws something, so a UI test can

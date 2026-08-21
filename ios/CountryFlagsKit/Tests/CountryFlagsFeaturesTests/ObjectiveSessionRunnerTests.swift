@@ -70,7 +70,9 @@ final class ObjectiveSessionRunnerTests: XCTestCase {
 
         await learning.armGate()
         async let a: Void = runner.choose(optionID: first.id)
-        await Task.yield()
+        // Deterministic: the first tap is now suspended inside the
+        // write, so it has already passed the reducer and won.
+        await learning.waitUntilGateIsHolding()
         async let b: Void = runner.choose(optionID: second.id)
         await Task.yield()
         await learning.openGate()

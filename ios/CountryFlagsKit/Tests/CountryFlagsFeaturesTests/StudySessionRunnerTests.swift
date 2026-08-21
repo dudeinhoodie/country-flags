@@ -94,7 +94,10 @@ final class StudySessionRunnerTests: XCTestCase {
         // flight — which is exactly when a real double tap arrives.
         await learning.armGate()
         async let first: Void = runner.rate(.good)
-        await Task.yield()
+        // Deterministic: the first rating is now suspended inside the write,
+        // so it has already passed the reducer and won. Yielding instead
+        // asserted the order two child tasks happened to start in.
+        await learning.waitUntilGateIsHolding()
         async let second: Void = runner.rate(.easy)
         await Task.yield()
         await learning.openGate()

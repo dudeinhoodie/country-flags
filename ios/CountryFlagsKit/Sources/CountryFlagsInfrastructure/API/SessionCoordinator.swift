@@ -79,18 +79,27 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         else {
             return
         }
-        guard let session = try? await service.refresh(refreshToken: refreshToken) else {
+        do {
+            let session = try await service.refresh(refreshToken: refreshToken)
+            await adopt(session)
+            // The rotation says nothing about whose account it is; the
+            // identifier stored beside the token does, which is why a relaunch
+            // needs no call to find out who it is.
+            state = .authenticated(userID: userID)
+        } catch {
+            guard Self.endsTheSession(error) else {
+                // Launched underground, or on hotel wifi that resolves nothing.
+                // The token is as good as it was yesterday — nobody refused it
+                // — so the app stays signed in and the first request that
+                // reaches the backend refreshes for real.
+                state = .authenticated(userID: userID)
+                return
+            }
             // The stored token is spent or revoked. The account is known to
             // have existed, so this is an expired session rather than a guest,
             // and nothing of the guest's own data is touched by saying so.
-            state = .authenticationExpired(userID: nil)
-            return
+            state = .authenticationExpired(userID: userID)
         }
-        await adopt(session)
-        // The rotation says nothing about whose account it is; the identifier
-        // stored beside the token does, which is why a relaunch needs no call
-        // to find out who it is.
-        state = .authenticated(userID: userID)
     }
 
     // MARK: - Signing in
@@ -144,6 +153,17 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
             await adopt(session)
             return session.accessToken
         } catch {
+            guard Self.endsTheSession(error) else {
+                // This request failed; the session did not. Deleting the
+                // refresh token here is what signed people out for going into
+                // a tunnel — the token was never refused, so it stays, the
+                // state stays, and the next attempt picks up where this one
+                // stopped.
+                logger.log(
+                    .info, .sync, "A session refresh did not reach the backend and will be retried"
+                )
+                throw APIError.from(error)
+            }
             // A refused refresh ends the session rather than retrying: the
             // token has rotated or been revoked, and presenting it again would
             // only be refused again.
@@ -155,6 +175,20 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
             try? await tokens.setValue(nil, for: .refreshToken)
             logger.log(.info, .sync, "The session expired and the app is signed out")
             throw APIError.from(error)
+        }
+    }
+
+    /// Whether a failed refresh means the session is over.
+    ///
+    /// Only the backend refusing the token does: it answers 401 to a token that
+    /// is spent, reused or revoked, and 403 if the account may no longer use
+    /// it. A dead network, a timeout, a 500 or a body that would not decode say
+    /// nothing whatsoever about the token — and treating them as a refusal is
+    /// how a person ends up signed out for riding a lift.
+    private static func endsTheSession(_ error: Error) -> Bool {
+        switch APIError.from(error) {
+        case .unauthorized, .forbidden: true
+        default: false
         }
     }
 

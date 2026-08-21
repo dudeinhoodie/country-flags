@@ -42,6 +42,16 @@ actor RecordingLearningRepository: LearningRepository {
     /// When set, `recordReview` waits here until the test releases it.
     private var gate: CheckedContinuation<Void, Never>?
     private var gateIsArmed = false
+    /// Whether a call is suspended on the gate right now, and whoever is
+    /// waiting to be told that it is.
+    ///
+    /// A double-tap test needs the first tap to have *entered* the write
+    /// before the second one is made — otherwise it is asserting the order in
+    /// which the runtime happened to start two child tasks, which is not a
+    /// promise anybody makes. `Task.yield()` was standing in for this and got
+    /// it right most of the time.
+    private var isHolding = false
+    private var arrivals: [CheckedContinuation<Void, Never>] = []
 
     init(states: [CardStateRecord] = [], failReviews: Bool = false) {
         self.states = states
@@ -56,6 +66,13 @@ actor RecordingLearningRepository: LearningRepository {
         gateIsArmed = false
         gate?.resume()
         gate = nil
+        isHolding = false
+    }
+
+    /// Returns once a call is actually suspended inside `recordReview`.
+    func waitUntilGateIsHolding() async {
+        guard !isHolding else { return }
+        await withCheckedContinuation { arrivals.append($0) }
     }
 
     func recordedReviews() -> [ReviewEventRecord] { reviews }
@@ -116,6 +133,11 @@ actor RecordingLearningRepository: LearningRepository {
         if gateIsArmed {
             await withCheckedContinuation { continuation in
                 gate = continuation
+                isHolding = true
+                for arrival in arrivals {
+                    arrival.resume()
+                }
+                arrivals.removeAll()
             }
         }
         guard !failReviews else {
