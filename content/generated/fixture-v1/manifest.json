@@ -7,10 +7,10 @@
   "defaultLocale": "ru",
   "files": [
     {
-      "bytes": 342905,
+      "bytes": 302065,
       "path": "assets/assets.json",
       "schemaId": "https://country-flags.app/content/v1/asset-registry.schema.json",
-      "sha256": "02d71b991dd1177982b92411af6c7cf2108a74d2146f09ad06a8b1d0323387bd"
+      "sha256": "6f7c69611cbdf3368ad1e5c0625ad9743f45be44611c16014c9b88a7897e0d18"
     },
     {
       "bytes": 547,

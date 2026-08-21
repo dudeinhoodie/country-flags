@@ -24,9 +24,6 @@
           "asset": {
             "id": "40000000-0000-4000-8000-000000000005",
             "type": "FLAG",
-            "url": "https://cdn.country-flags.test/test-only-fixture-v1/flags/kosovo.svg",
-            "mimeType": "image/svg+xml",
-            "sha256": "3f786850e387550fdab836ed7e6dc881de23001b8b9f4e0bd6c1b0aa5c0ba9b1",
             "representations": [
               {
                 "url": "https://cdn.country-flags.test/test-only-fixture-v1/flags/kosovo.svg",

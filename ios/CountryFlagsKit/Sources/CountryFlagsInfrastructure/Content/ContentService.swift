@@ -446,17 +446,22 @@ public struct ContentService: Sendable {
     /// a store restored from a phone of another scale simply misses and
     /// downloads, rather than finding a file that disagrees with its record.
     ///
-    /// - Returns: nil when the identifier or the URL is unusable. A release
-    ///   that offers nothing renderable still yields a record, built from the
-    ///   asset's own vector, and the placeholder is what it draws.
+    /// - Returns: nil when the identifier or the URL is unusable, and when a
+    ///   release offers nothing this platform can draw — a card with no
+    ///   drawable prompt is reported as unsupported rather than shown as an
+    ///   empty frame.
     private static func assetRecord(
         _ asset: Components.Schemas.Asset,
         contentVersion: String,
         displayScale: Double
     ) -> AssetRecord? {
-        let representations = asset.representations ?? []
+        // `representations` is the only place an encoding is described in v2.
+        // Until v1 was retired the asset repeated its vector in fields of its
+        // own, and this fell back to them; there is nothing to fall back to
+        // now, and nothing that would have used it — every release the app can
+        // read publishes the list.
         let index = RenderableRepresentation.choose(
-            from: representations.map {
+            from: asset.representations.map {
                 RenderableRepresentation.Candidate(
                     // The contract types the scale as an integer — 2 and 3 are
                     // what the pipeline publishes — while a display scale is a
@@ -467,12 +472,10 @@ public struct ContentService: Sendable {
             },
             displayScale: displayScale
         )
-        let chosen = index.map { representations[$0] }
-        // A release published before representations existed describes only the
-        // vector, on the asset itself.
         guard
+            let chosen = index.map({ asset.representations[$0] }),
             let id = UUID(uuidString: asset.id),
-            let url = URL(string: chosen?.url ?? asset.url)
+            let url = URL(string: chosen.url)
         else {
             return nil
         }
@@ -480,8 +483,8 @@ public struct ContentService: Sendable {
             id: id,
             type: asset._type,
             url: url,
-            mimeType: chosen?.mimeType.rawValue ?? asset.mimeType.rawValue,
-            sha256: chosen?.sha256 ?? asset.sha256,
+            mimeType: chosen.mimeType.rawValue,
+            sha256: chosen.sha256,
             contentVersion: contentVersion
         )
     }

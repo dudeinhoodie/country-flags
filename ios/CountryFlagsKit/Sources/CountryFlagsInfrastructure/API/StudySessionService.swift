@@ -181,10 +181,18 @@ public struct StudySessionService: StudySessionSelecting, StudySessionImporting 
                 asset: .init(
                     id: asset.id.uuidString.lowercased(),
                     _type: asset.type,
-                    url: asset.url.absoluteString,
-                    mimeType: Components.Schemas.Asset.mimeTypePayload(rawValue: asset.mimeType)
-                        ?? .image_sol_svg_plus_xml,
-                    sha256: asset.sha256.lowercased(),
+                    // The one encoding this device actually has. The snapshot
+                    // describes what was studied, and what was studied is the
+                    // file that was drawn — the device stores no other.
+                    representations: [
+                        .init(
+                            url: asset.url.absoluteString,
+                            mimeType: Components.Schemas.AssetRepresentation
+                                .mimeTypePayload(rawValue: asset.mimeType)
+                                ?? .image_sol_svg_plus_xml,
+                            sha256: asset.sha256.lowercased()
+                        )
+                    ],
                     // Not stored on the device: the licence belongs to the
                     // asset pipeline, and the snapshot is read for identity
                     // alone. An honest placeholder beats an invented licence.

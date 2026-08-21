@@ -450,12 +450,16 @@ describe("offline study session import (integration)", () => {
       include: {
         revisions: {
           where: { retiredAt: null },
-          include: { promptAsset: true },
+          include: { promptAsset: { include: { representations: true } } },
         },
       },
     });
     const revision = foreign.revisions[0];
-    if (revision === undefined || revision.promptAsset === null) {
+    if (
+      revision === undefined ||
+      revision.promptAsset === null ||
+      revision.promptAsset.representations[0] === undefined
+    ) {
       throw new Error("Fixture card outside the deck has no prompt asset");
     }
 
@@ -466,7 +470,10 @@ describe("offline study session import (integration)", () => {
           {
             learningCardId: foreign.id,
             learningCardRevision: revision.revision,
-            assetSha256: revision.promptAsset.sha256,
+            // Whatever encoding a client would have cached: the check is
+            // about the picture the release publishes, not about which of its
+            // forms this test happened to pick.
+            assetSha256: revision.promptAsset.representations[0].sha256,
             randomSeed: "offline-seed-foreign",
             distractorPolicyVersion: null,
             snapshot: { id: foreign.id, revision: revision.revision },
