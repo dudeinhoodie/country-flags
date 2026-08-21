@@ -149,11 +149,9 @@ public struct HomeView: View {
         failure: ContentSyncFailure?
     ) -> some View {
         SceneScrollView {
-            // Both explain themselves only when they have something to say; a
-            // healthy device up to date shows neither.
-            if sync.status.isWorthReporting {
-                SyncStatusLine(status: sync.status)
-            }
+            // The sync state moved to the header, where it sits between the
+            // avatar and the gear; this one explains itself only when it has
+            // something to say.
             if isStale || failure != nil {
                 ContentStatusBanner(isStale: isStale, failure: failure)
             }

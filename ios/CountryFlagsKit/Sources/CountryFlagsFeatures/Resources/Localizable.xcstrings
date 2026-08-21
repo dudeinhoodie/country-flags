@@ -3551,6 +3551,23 @@
         }
       }
     },
+    "sync.offline_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No network"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет сети"
+          }
+        }
+      }
+    },
     "sync.pending": {
       "extractionState": "manual",
       "localizations": {

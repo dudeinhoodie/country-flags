@@ -41,43 +41,65 @@ struct ContentStatusBanner: View {
     }
 }
 
-/// What synchronisation is doing, when it is worth saying at all.
+/// What synchronisation is doing, in the header beside the avatar and the
+/// gear.
 ///
-/// A healthy device that is up to date shows nothing. A guest is told their
-/// work is saved rather than that something failed, because nothing has. A
-/// failure is shown only when there is something to do about it: the line is
-/// for the learner, and a retry the app is already making is not their
-/// business.
-struct SyncStatusLine: View {
+/// A healthy device that is up to date shows nothing. Of the two things worth
+/// a place up there, unsent answers come first: they are the concrete thing —
+/// a number the learner recognises as their own work — and no signal is
+/// merely one of the reasons they are still here.
+///
+/// The chip is small, so the sentence moves to its label rather than
+/// disappearing: a guest is still told that signing in is what carries the
+/// answers over, and VoiceOver reads that instead of a bare number.
+struct SyncStatusChip: View {
     let status: SyncStatus
 
     var body: some View {
-        if let message {
-            Text(message)
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.white.opacity(0.6))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier(AccessibilityIdentifier.syncStatus)
+        if let state {
+            HStack(spacing: DesignTokens.Spacing.extraSmall) {
+                Image(systemName: state.symbol)
+                    .accessibilityHidden(true)
+                Text(state.title)
+                    .accessibilityIdentifier(AccessibilityIdentifier.syncStatus)
+                    .accessibilityLabel(state.spoken)
+            }
+            .font(DesignTokens.Typography.caption)
+            .monospacedDigit()
         }
     }
 
-    private var message: String? {
-        if status.isHeldForGuest, status.pendingCount > 0 {
-            return L10n.syncSavedOnDevice(status.pendingCount)
+    private struct State {
+        let symbol: String
+        let title: String
+        /// What the chip would have said if it had room. Also the line the
+        /// UI tests read, so the meaning stays checkable after the number
+        /// stopped being a sentence.
+        let spoken: String
+    }
+
+    /// Unsent answers win over a missing signal; a device with neither says
+    /// nothing at all.
+    private var state: State? {
+        if status.pendingCount > 0 {
+            return State(
+                symbol: "arrow.up.circle",
+                title: status.pendingCount.formatted(),
+                spoken: status.isHeldForGuest
+                    ? L10n.syncSavedOnDevice(status.pendingCount)
+                    : L10n.syncPending(status.pendingCount)
+            )
         }
-        switch status.lastFailure {
-        // Both of these are things a person can act on — wait for a signal,
-        // or sign in — so they are worth the line.
-        case .offline: return L10n.syncOffline
-        case .unauthorized: return L10n.syncSignInRequired
-        // A refusal or a throttle is neither. The next run retries on its own,
-        // the answers are already durable, and saying "could not sync" on the
-        // first screen turns a moment the app is handling into a worry the
-        // learner has to carry — with nothing they could do about it. It stays
-        // in the log, where whoever is fixing it will look.
-        case .throttled, .recoverable: return nil
-        case nil: return status.pendingCount > 0 ? L10n.syncPending(status.pendingCount) : nil
+        // Without a queue there is nothing waiting, but a learner about to
+        // answer still wants to know the answers will not leave yet.
+        if status.lastFailure == .offline {
+            return State(
+                symbol: "wifi.slash",
+                title: L10n.syncOfflineShort,
+                spoken: L10n.syncOffline
+            )
         }
+        return nil
     }
 }
 

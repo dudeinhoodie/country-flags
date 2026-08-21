@@ -108,6 +108,11 @@ public struct RootView: View {
                     }
                 )
                 .toolbar {
+                    // Between the avatar and the gear, which is where a
+                    // learner already looks for the state of their account.
+                    ToolbarItem(placement: .principal) {
+                        SyncStatusChip(status: sync.status)
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             router.push(.settings)

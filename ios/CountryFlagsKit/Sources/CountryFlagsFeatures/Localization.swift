@@ -399,6 +399,10 @@ public enum L10n {
         String(format: localized("sync.pending"), count)
     }
 
+    /// The header has room for two words, not a sentence. The sentence is
+    /// still what the chip says to VoiceOver.
+    public static var syncOfflineShort: String { localized("sync.offline_short") }
+
     /// A guest's work is saved and simply not sent yet. Saying it failed would
     /// be false and would invite them to retry something that is not broken.
     ///
