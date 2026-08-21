@@ -110,7 +110,15 @@ final class ServerSelectionTests: XCTestCase {
         let selection = ScriptedSelection(
             result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
         )
-        let runner = makeRunner(learning: learning, selection: selection, authenticated: true)
+        // Answers this device has not sent: the backend is counting an older
+        // world, and this is the only thing that says so.
+        let outbox = PendingOutbox(count: 2)
+        let runner = makeRunner(
+            learning: learning,
+            selection: selection,
+            authenticated: true,
+            outbox: outbox
+        )
 
         await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
 
@@ -124,8 +132,28 @@ final class ServerSelectionTests: XCTestCase {
         XCTAssertEqual(completed.count, 1)
     }
 
-    /// And when the device agrees, the answer stands: an empty queue is good
-    /// news, not a broken deck.
+    /// Nothing waiting to be sent means the backend has seen every answer from
+    /// every device, so its "nothing is due" is the truth — even here, where
+    /// this device happens to hold cards whose time has come. They are cards
+    /// the backend has already accounted for.
+    func testAnEmptyDueOnlyAnswerStandsWhenNothingIsWaitingToBeSent() async {
+        let learning = RecordingLearningRepository(states: Fixtures.dueStates(deckID: deckID))
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
+        )
+        let runner = makeRunner(
+            learning: learning,
+            selection: selection,
+            authenticated: true,
+            outbox: PendingOutbox(count: 0)
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
+
+        XCTAssertEqual(runner.startFailure, .nothingDue)
+    }
+
+    /// And with no outbox to ask at all, nothing is known to be waiting.
     func testAnEmptyDueOnlyAnswerStandsWhenTheDeviceAgrees() async {
         let selection = ScriptedSelection(
             result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
@@ -146,7 +174,8 @@ final class ServerSelectionTests: XCTestCase {
     private func makeRunner(
         learning: RecordingLearningRepository,
         selection: ScriptedSelection,
-        authenticated: Bool
+        authenticated: Bool,
+        outbox: (any OutboxRepository)? = nil
     ) -> StudySessionRunner {
         StudySessionRunner(
             scopes: SelectableScopeResolver(
@@ -198,6 +227,52 @@ private actor ScriptedSelection: StudySessionSelecting {
     func completeSession(id: UUID) async {
         completedSessions.append(id)
     }
+}
+
+/// An outbox with a known number of unsent answers, which is the one thing the
+/// runner asks it for.
+private actor PendingOutbox: OutboxRepository {
+    private let count: Int
+
+    init(count: Int) {
+        self.count = count
+    }
+
+    func enqueue(_ operation: OutboxOperationRecord, for scope: AccountScope) async throws {}
+
+    func pendingOperations(for scope: AccountScope) async throws -> [OutboxOperationRecord] {
+        (0..<count).map { index in
+            OutboxOperationRecord(
+                id: UUID(uuidString: String(format: "90000000-0000-4000-8000-%012d", index))!,
+                kind: .reviewBatch,
+                dependencyID: nil,
+                payload: Data(),
+                state: .pending,
+                attemptCount: 0,
+                lastFailureCode: nil,
+                createdAt: Date(timeIntervalSince1970: 1_800_000_000),
+                updatedAt: Date(timeIntervalSince1970: 1_800_000_000)
+            )
+        }
+    }
+
+    func updateState(
+        of operationID: UUID,
+        to state: OutboxState,
+        failureCode: String?,
+        for scope: AccountScope
+    ) async throws {}
+
+    func requeueInterruptedOperations(for scope: AccountScope) async throws -> Int { 0 }
+
+    func cursor(
+        _ feed: SyncCursorRecord.Feed,
+        for scope: AccountScope
+    ) async throws -> SyncCursorRecord? { nil }
+
+    func saveCursor(_ cursor: SyncCursorRecord, for scope: AccountScope) async throws {}
+
+    func discardQueuedWork(for scope: AccountScope) async throws {}
 }
 
 private enum Fixtures {
