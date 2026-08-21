@@ -146,6 +146,10 @@ public struct DeckProgressRecord: Hashable, Sendable {
     public let totalCards: Int
     public let learnedCards: Int
     public let dueCards: Int
+    /// Cards the backend counts as still settling — learning and relearning
+    /// together. Optional in the contract, so a release that stops sending
+    /// them leaves this at zero rather than failing the download.
+    public let inProgressCards: Int
     public let currentMasteryTier: String
     public let highestAchievementTier: String
     public let updatedAt: Date
@@ -155,6 +159,7 @@ public struct DeckProgressRecord: Hashable, Sendable {
         totalCards: Int,
         learnedCards: Int,
         dueCards: Int,
+        inProgressCards: Int = 0,
         currentMasteryTier: String,
         highestAchievementTier: String,
         updatedAt: Date
@@ -163,6 +168,7 @@ public struct DeckProgressRecord: Hashable, Sendable {
         self.totalCards = totalCards
         self.learnedCards = learnedCards
         self.dueCards = dueCards
+        self.inProgressCards = inProgressCards
         self.currentMasteryTier = currentMasteryTier
         self.highestAchievementTier = highestAchievementTier
         self.updatedAt = updatedAt

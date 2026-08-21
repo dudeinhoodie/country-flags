@@ -79,6 +79,9 @@ public final class ProgressStore {
 
     private let content: any ContentRepository
     private let learning: any LearningRepository
+    /// What has not reached the backend yet, read for one question: whether
+    /// the backend's counts are complete enough to be the ones shown.
+    private let outbox: (any OutboxRepository)?
     private let scopes: any AccountScopeResolving
     private let dates: any DateProviding
 
@@ -86,12 +89,21 @@ public final class ProgressStore {
         content: any ContentRepository,
         learning: any LearningRepository,
         scopes: any AccountScopeResolving,
+        outbox: (any OutboxRepository)? = nil,
         dates: any DateProviding = SystemDateProvider()
     ) {
         self.content = content
         self.learning = learning
         self.scopes = scopes
+        self.outbox = outbox
         self.dates = dates
+    }
+
+    /// What this device is still holding for the backend. No outbox to ask
+    /// means nothing is known to be waiting.
+    private func unsentAnswers(for scope: AccountScope) async -> [OutboxOperationRecord] {
+        guard let outbox else { return [] }
+        return (try? await outbox.pendingOperations(for: scope)) ?? []
     }
 
     public func load() async {
@@ -149,25 +161,44 @@ public final class ProgressStore {
             counted.map { ($0.deckID, $0) },
             uniquingKeysWith: { first, _ in first }
         )
-        // Whatever the server has said about mastery, keyed so a deck it has
-        // not ranked simply has no tier rather than a made-up one.
+        // What the backend last said about every deck: the mastery tier, and —
+        // when this device is not ahead of it — the counts themselves.
+        let serverProgress = (try? await learning.deckProgress(for: scope)) ?? []
         let tiersByDeck = Dictionary(
-            ((try? await learning.deckProgress(for: scope)) ?? [])
-                .map { ($0.deckID, MasteryTier(rawValue: $0.currentMasteryTier)) },
+            serverProgress.map { ($0.deckID, MasteryTier(rawValue: $0.currentMasteryTier)) },
             uniquingKeysWith: { first, _ in first }
         )
+        // One authority at a time, decided by one question: is this device
+        // holding answers the backend has not received? While something waits
+        // in the outbox the backend is counting an older world; once it is
+        // empty the backend has seen every answer from every device, including
+        // ones this phone never made, so its counts are the only ones that can
+        // be right — and every screen reads them from here.
+        let unsent = await unsentAnswers(for: scope)
+        let isAheadOfBackend = !unsent.isEmpty
+        let serverByDeck = isAheadOfBackend
+            ? [:]
+            : Dictionary(
+                serverProgress.map { ($0.deckID, $0) },
+                uniquingKeysWith: { first, _ in first }
+            )
 
         self.decks = decks.map { deck in
             let counts = countsByDeck[deck.id]
+            let server = serverByDeck[deck.id]
             return DeckProgressRow(
                 id: deck.id,
                 code: deck.code,
                 name: deck.name,
                 isCurated: DeckKind(rawValue: deck.kind) == .curated,
-                totalCards: counts?.totalCards ?? deck.cardCount,
-                startedCards: counts?.startedCards ?? 0,
-                learnedCards: counts?.learnedCards ?? 0,
-                dueCards: counts?.dueCards ?? 0,
+                totalCards: server?.totalCards ?? counts?.totalCards ?? deck.cardCount,
+                // Started is learned plus what is still settling: the backend
+                // publishes those two rather than a total, and adding them is
+                // the same question asked in its vocabulary.
+                startedCards: server.map { $0.learnedCards + $0.inProgressCards }
+                    ?? counts?.startedCards ?? 0,
+                learnedCards: server?.learnedCards ?? counts?.learnedCards ?? 0,
+                dueCards: server?.dueCards ?? counts?.dueCards ?? 0,
                 masteryTier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
             )
         }

@@ -11,7 +11,7 @@ import CountryFlagsDomain
 /// because an unsynchronized outbox lives in it.
 enum LocalStoreMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [LocalSchemaV1.self, LocalSchemaV2.self, LocalSchemaV3.self]
+        [LocalSchemaV1.self, LocalSchemaV2.self, LocalSchemaV3.self, LocalSchemaV4.self]
     }
 
     static var stages: [MigrationStage] {
@@ -23,6 +23,10 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             // Adding the stored due summary: a new model, so nothing existing
             // is rewritten and the outbox crosses the update intact.
             .lightweight(fromVersion: LocalSchemaV2.self, toVersion: LocalSchemaV3.self),
+            // Adding the backend's count of cards in flight: a property with a
+            // default on an existing model, which SwiftData fills without
+            // rewriting anything a device has not uploaded.
+            .lightweight(fromVersion: LocalSchemaV3.self, toVersion: LocalSchemaV4.self),
         ]
     }
 }
@@ -41,7 +45,7 @@ public struct LocalStore: Sendable {
     public let container: ModelContainer
 
     public init(location: Location = .onDisk(name: "CountryFlags")) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV3.self)
+        let schema = Schema(versionedSchema: LocalSchemaV4.self)
         let configuration: ModelConfiguration
         switch location {
         case .inMemory:
@@ -73,7 +77,7 @@ public struct LocalStore: Sendable {
     /// Builds a store at an explicit file URL, which is what a migration or a
     /// relaunch test needs.
     public init(fileURL: URL) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV3.self)
+        let schema = Schema(versionedSchema: LocalSchemaV4.self)
         do {
             container = try ModelContainer(
                 for: schema,
@@ -113,7 +117,7 @@ public struct LocalStore: Sendable {
     /// which only needs to know which files to remove before the store is
     /// opened.
     public static func fileURLs(forName name: String) -> [URL] {
-        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV3.self))
+        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV4.self))
             .url
         // SQLite keeps its write-ahead log and shared memory next to the store.
         return [base]

@@ -274,6 +274,10 @@ public struct HomeView: View {
         curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
     }
 
+    // Both read the deck rows, and the rows are the backend's own counts
+    // whenever the backend has the facts — `ProgressStore` decides that once,
+    // for every screen, rather than each of them deciding again.
+
     private var curatedDecks: [DeckProgressRow] {
         (progress?.decks ?? []).filter(\.isCurated)
     }

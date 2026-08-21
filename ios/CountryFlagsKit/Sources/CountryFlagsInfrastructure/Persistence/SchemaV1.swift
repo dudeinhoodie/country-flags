@@ -450,6 +450,11 @@ final class StoredDeckProgress {
     var totalCards: Int = 0
     var learnedCards: Int = 0
     var dueCards: Int = 0
+    /// Added in version 4: the backend's own count of cards still settling.
+    /// A default is what makes the stage lightweight — a device that updates
+    /// carries its unsent outbox across, and the number is filled by the next
+    /// sync.
+    var inProgressCards: Int = 0
     var currentMasteryTier: String = ""
     var highestAchievementTier: String = ""
     var updatedAt: Date = Date.distantPast
@@ -460,6 +465,7 @@ final class StoredDeckProgress {
         totalCards: Int,
         learnedCards: Int,
         dueCards: Int,
+        inProgressCards: Int = 0,
         currentMasteryTier: String,
         highestAchievementTier: String,
         updatedAt: Date
@@ -469,6 +475,7 @@ final class StoredDeckProgress {
         self.totalCards = totalCards
         self.learnedCards = learnedCards
         self.dueCards = dueCards
+        self.inProgressCards = inProgressCards
         self.currentMasteryTier = currentMasteryTier
         self.highestAchievementTier = highestAchievementTier
         self.updatedAt = updatedAt

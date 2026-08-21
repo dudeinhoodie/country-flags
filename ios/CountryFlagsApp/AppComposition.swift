@@ -409,6 +409,7 @@ struct AppComposition: AppDependencies {
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
             scopes: scopes,
+            outbox: store.makeOutboxRepository(),
             dates: dates
         )
     }
