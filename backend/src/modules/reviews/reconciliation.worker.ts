@@ -64,10 +64,10 @@ export class ReconciliationWorker implements OnModuleInit, OnModuleDestroy {
     if (this.activeDrain !== undefined) return this.activeDrain;
     const activeDrain = this.drainClaimed(limit);
     this.activeDrain = activeDrain;
-    let processed = 0;
     try {
-      processed = await activeDrain;
-      return processed;
+      // Awaited rather than returned bare, so the cleanup below runs after the
+      // drain rather than while it is still going.
+      return await activeDrain;
     } finally {
       if (this.activeDrain === activeDrain) this.activeDrain = undefined;
     }
