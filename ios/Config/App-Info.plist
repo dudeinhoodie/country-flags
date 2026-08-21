@@ -41,6 +41,13 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!--
+	  The app talks HTTPS and nothing else: no cryptography beyond what the
+	  system provides for the connection, which is exempt. Declaring it here
+	  answers the export-compliance question once instead of on every upload.
+	-->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchScreen</key>

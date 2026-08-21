@@ -1,6 +1,7 @@
 import XCTest
 
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 final class APIRetryTests: XCTestCase {
     func testIdempotentRequestIsRetriedUntilItSucceeds() async throws {

@@ -3,6 +3,7 @@ import XCTest
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 final class AssetCacheTests: XCTestCase {
     private var directory: URL!

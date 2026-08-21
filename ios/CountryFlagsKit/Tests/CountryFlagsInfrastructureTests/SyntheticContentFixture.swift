@@ -4,6 +4,7 @@ import UIKit
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// A small content release invented for the tests, with flags whose bytes exist.
 ///

@@ -2,6 +2,7 @@ import XCTest
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// The bootstrap as a whole: manifest, paged decks, paged cards, tombstones and
 /// what survives an interruption.

@@ -2,6 +2,7 @@ import XCTest
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// The flag client end to end: transport, mapping, cache and evaluation.
 final class FeatureFlagClientTests: XCTestCase {

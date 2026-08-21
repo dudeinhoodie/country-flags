@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import CountryFlagsInfrastructure
 
 /// The content the Mock build answers with: one published release, served whole.
 ///

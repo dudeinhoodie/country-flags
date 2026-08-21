@@ -122,6 +122,7 @@
 				CF0000000000000000000081 /* CountryFlagsDomain */,
 				CF0000000000000000000082 /* CountryFlagsInfrastructure */,
 				CF0000000000000000000083 /* CountryFlagsFeatures */,
+				CF0000000000000000000089 /* CountryFlagsMockBackend */,
 			);
 			productName = CountryFlags;
 			productReference = CF0000000000000000000020 /* CountryFlags.app */;
@@ -377,6 +378,10 @@
 		CF0000000000000000000083 /* CountryFlagsFeatures */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CountryFlagsFeatures;
+		};
+		CF0000000000000000000089 /* CountryFlagsMockBackend */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CountryFlagsMockBackend;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

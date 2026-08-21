@@ -2,6 +2,7 @@ import XCTest
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 final class ContentServiceTests: XCTestCase {
     private let locale = "ru"

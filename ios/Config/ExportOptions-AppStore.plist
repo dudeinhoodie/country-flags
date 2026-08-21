@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  How the archive becomes something App Store Connect accepts.
+
+  Symbols are uploaded: without them a crash report is a list of addresses, and
+  the diagnostics this app collects (with consent) would arrive unreadable.
+  Bitcode is gone from the toolchain and is not mentioned. The team is not
+  written here — it comes from the workflow, so this file carries no account
+  detail at all.
+-->
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>destination</key>
+	<string>export</string>
+	<key>uploadSymbols</key>
+	<true/>
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+	<key>signingStyle</key>
+	<string>automatic</string>
+</dict>
+</plist>

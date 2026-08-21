@@ -1,6 +1,7 @@
 import XCTest
 
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// The client has to survive a backend that ships before it does.
 final class APIForwardCompatibilityTests: XCTestCase {

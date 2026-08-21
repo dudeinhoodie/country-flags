@@ -441,5 +441,57 @@ Google Sign-In arrives with IOS-009.
 [`.github/workflows/ios-ci.yml`](../.github/workflows/ios-ci.yml) runs on changes
 under `ios/**`: it checks the Xcode version, verifies that the contract mirror
 matches the canonical bundle, checks the advertising policy, selects a simulator,
-runs the package unit tests, builds and tests Mock, then builds Dev. A failing
-run uploads the `.xcresult` bundles as artifacts.
+runs the package unit tests, builds Mock and walks a guest smoke through it,
+builds Dev, and archives the release configuration unsigned to check what that
+build carries. A failing run uploads the `.xcresult` bundles as artifacts.
+
+The rest of the UI suite runs in
+[`ios-nightly.yml`](../.github/workflows/ios-nightly.yml), together with the
+accessibility pass. It is where it is because the whole suite takes about
+thirty-five minutes: a check that outlasts the review it belongs to stops being
+read, so the pull request keeps what catches a broken change and the night has
+the rest. The nightly keeps its results whether it passed or not.
+
+## Releasing
+
+[`ios-release.yml`](../.github/workflows/ios-release.yml) archives the
+production configuration, exports it and uploads the build to TestFlight. It is
+started by hand from the Actions tab with the next build number — App Store
+Connect refuses one it has seen before — and can stop after the export if you
+only want the `.ipa`.
+
+It signs and uploads with an App Store Connect API key rather than a stored
+certificate, so the repository holds four secrets and no key material of its
+own:
+
+| Secret | What it is |
+| --- | --- |
+| `APP_STORE_CONNECT_KEY_ID` | The key's ten-character identifier |
+| `APP_STORE_CONNECT_ISSUER_ID` | The issuer UUID from App Store Connect |
+| `APP_STORE_CONNECT_PRIVATE_KEY` | The contents of the `.p8` file |
+| `APPLE_TEAM_ID` | The ten-character team identifier |
+
+The key needs the App Manager role — it both fetches the signing profile and
+uploads the build. The workflow writes it into the runner's temporary directory
+and deletes it in a step that runs even when the build fails.
+
+Two artifacts outlive the run: the `.ipa` for thirty days, and the `dSYMs` for
+ninety. Keep the symbols. A crash report from a build whose symbols are gone is
+a list of addresses.
+
+What each build is checked for, what a person still has to check on a real
+device, and how the App Store privacy labels map to what the app collects are
+in [`docs/ios/release-checklist.md`](../docs/ios/release-checklist.md).
+
+### What a release build may not contain
+
+[`Scripts/check-release-app.sh`](Scripts/check-release-app.sh) reads a built
+`.app` rather than the source that produced it, because what ships is a binary.
+It fails when the bundle carries a launch argument the UI tests use, points at
+anything but a production HTTPS endpoint, links a symbol from the mock backend,
+or is missing the privacy manifest or the export-compliance answer. Run it
+against any build:
+
+```bash
+ios/Scripts/check-release-app.sh path/to/CountryFlags.app
+```

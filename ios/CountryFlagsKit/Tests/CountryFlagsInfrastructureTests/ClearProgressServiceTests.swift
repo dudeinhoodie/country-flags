@@ -2,6 +2,7 @@ import XCTest
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// Deleting an account's progress is the one request that carries a fresh
 /// proof. These pin what goes on the wire, and what the device deletes when

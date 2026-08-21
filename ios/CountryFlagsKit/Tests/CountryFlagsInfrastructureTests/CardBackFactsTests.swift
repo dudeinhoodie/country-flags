@@ -3,6 +3,7 @@ import XCTest
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// The facts a release prints on the back of a card have to survive being
 /// stored, or the screen that shows them would need the network the rest of the

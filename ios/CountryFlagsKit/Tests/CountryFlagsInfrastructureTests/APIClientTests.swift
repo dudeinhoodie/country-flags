@@ -1,6 +1,7 @@
 import XCTest
 
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 final class APIClientHeaderTests: XCTestCase {
     func testEveryRequestCarriesTheClientContext() async throws {
