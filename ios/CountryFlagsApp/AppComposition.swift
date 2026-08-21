@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UIKit
 
 import CountryFlagsDomain
 import CountryFlagsFeatures
@@ -194,7 +195,14 @@ struct AppComposition: AppDependencies {
             logger: logger
         )
         let contentRepository = store.makeContentRepository()
-        let contentService = ContentService(clientFactory: apiClientFactory, dates: dates)
+        // The scale of the screen this app is running on, read once at
+        // assembly: it decides which raster every asset record points at, and
+        // it cannot change under a running app.
+        let contentService = ContentService(
+            clientFactory: apiClientFactory,
+            dates: dates,
+            displayScale: Double(UITraitCollection.current.displayScale)
+        )
         let coordinator = ContentBootstrapCoordinator(
             service: contentService,
             repository: contentRepository,

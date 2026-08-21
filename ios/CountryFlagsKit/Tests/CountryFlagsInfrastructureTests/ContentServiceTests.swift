@@ -108,6 +108,57 @@ final class ContentServiceTests: XCTestCase {
         XCTAssertTrue(page.unsupportedCardIDs.isEmpty)
     }
 
+    /// The point of choosing at all: the same release, read by two phones.
+    ///
+    /// Both files are published; before this, both phones stored the `@2x`
+    /// one, and the 3x screen drew every flag from less than half the pixels
+    /// it has — most visibly on the study prompt, where a flag is 120 points
+    /// wide.
+    func testAThreeTimesScreenStoresTheThreeTimesRaster() async throws {
+        let transport = MockClientTransport()
+        await transport.always(try ContractFixture.response("deck-cards.json"), for: "listDeckCards")
+
+        let page = try await ContentTestClient.makeService(transport: transport, displayScale: 3)
+            .cards(inDeck: UUID(), locale: locale, supportedTemplateSchemaVersions: [1])
+
+        XCTAssertEqual(page.assets.first?.url.lastPathComponent, "kosovo@3x.png")
+        // The checksum travels with the choice: the cache keys files by it, so
+        // a record that pointed at the 3x file with the 2x checksum would fail
+        // verification on every download.
+        XCTAssertEqual(
+            page.assets.first?.sha256,
+            "4c6e4d07049ca2d1bcf31e1e4df1e9db54af4ce5472c56cf60275729e95b1c6c"
+        )
+    }
+
+    func testATwoTimesScreenStoresTheTwoTimesRaster() async throws {
+        let transport = MockClientTransport()
+        await transport.always(try ContractFixture.response("deck-cards.json"), for: "listDeckCards")
+
+        let page = try await ContentTestClient.makeService(transport: transport, displayScale: 2)
+            .cards(inDeck: UUID(), locale: locale, supportedTemplateSchemaVersions: [1])
+
+        XCTAssertEqual(page.assets.first?.url.lastPathComponent, "kosovo@2x.png")
+        XCTAssertEqual(
+            page.assets.first?.sha256,
+            "537351eac826c7634b0074ca701b400423f88114a0fa8b9028d467d5973846f2"
+        )
+    }
+
+    /// No such device ships any more, but the rule has to answer for it: with
+    /// nothing at or below the screen's scale, the smallest published raster is
+    /// better than the vector this platform cannot draw at all.
+    func testAScreenBelowEveryPublishedScaleStillGetsARaster() async throws {
+        let transport = MockClientTransport()
+        await transport.always(try ContractFixture.response("deck-cards.json"), for: "listDeckCards")
+
+        let page = try await ContentTestClient.makeService(transport: transport, displayScale: 1)
+            .cards(inDeck: UUID(), locale: locale, supportedTemplateSchemaVersions: [1])
+
+        XCTAssertEqual(page.assets.first?.mimeType, "image/png")
+        XCTAssertEqual(page.assets.first?.url.lastPathComponent, "kosovo@2x.png")
+    }
+
     /// A release that offers nothing this platform can draw still fills the
     /// catalogue. The card stays, and the placeholder is what it shows —
     /// dropping it would empty the deck over a content problem.

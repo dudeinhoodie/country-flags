@@ -87,10 +87,19 @@ public struct ContentChangeBatch: Sendable {
 public struct ContentService: Sendable {
     private let clientFactory: APIClientFactory
     private let dates: any DateProviding
+    /// The screen this build draws on, which decides which raster is stored
+    /// for every asset. Injected rather than read here: this type is used off
+    /// the main actor, and a trait collection is not ours to touch from there.
+    private let displayScale: Double
 
-    public init(clientFactory: APIClientFactory, dates: any DateProviding = SystemDateProvider()) {
+    public init(
+        clientFactory: APIClientFactory,
+        dates: any DateProviding = SystemDateProvider(),
+        displayScale: Double = 2
+    ) {
         self.clientFactory = clientFactory
         self.dates = dates
+        self.displayScale = displayScale
     }
 
     // MARK: - Manifest
@@ -239,7 +248,8 @@ public struct ContentService: Sendable {
                 guard
                     let asset = Self.assetRecord(
                         card.prompt.asset,
-                        contentVersion: card.contentVersion
+                        contentVersion: card.contentVersion,
+                        displayScale: displayScale
                     )
                 else {
                     // A prompt with no usable URL is a card that would draw an
@@ -402,7 +412,11 @@ public struct ContentService: Sendable {
                 contentVersion: payload.contentVersion,
                 names: names,
                 assets: payload.assets.compactMap {
-                    Self.assetRecord($0, contentVersion: payload.contentVersion)
+                    Self.assetRecord(
+                        $0,
+                        contentVersion: payload.contentVersion,
+                        displayScale: displayScale
+                    )
                 },
                 facts: payload.facts.map {
                     FactRecord(
@@ -421,23 +435,39 @@ public struct ContentService: Sendable {
 
     // MARK: - Helpers
 
-    /// The asset as this build will draw it: the first representation it can
-    /// decode, carrying the checksum of those bytes rather than of the vector.
+    /// The asset as this build will draw it: the representation that matches
+    /// this screen's scale, carrying the checksum of those bytes rather than of
+    /// the vector.
     ///
     /// The cache verifies and stores what it downloaded, so the record has to
     /// describe one encoding end to end — a vector URL paired with a raster
-    /// checksum would fail every verification.
+    /// checksum would fail every verification. It also keys files by that
+    /// checksum, which is why changing the preferred scale needs nothing else:
+    /// a store restored from a phone of another scale simply misses and
+    /// downloads, rather than finding a file that disagrees with its record.
     ///
     /// - Returns: nil when the identifier or the URL is unusable. A release
     ///   that offers nothing renderable still yields a record, built from the
     ///   asset's own vector, and the placeholder is what it draws.
     private static func assetRecord(
         _ asset: Components.Schemas.Asset,
-        contentVersion: String
+        contentVersion: String,
+        displayScale: Double
     ) -> AssetRecord? {
-        let chosen = asset.representations?.first {
-            RenderableRepresentation.canRender($0.mimeType.rawValue)
-        }
+        let representations = asset.representations ?? []
+        let index = RenderableRepresentation.choose(
+            from: representations.map {
+                RenderableRepresentation.Candidate(
+                    // The contract types the scale as an integer — 2 and 3 are
+                    // what the pipeline publishes — while a display scale is a
+                    // fraction on paper.
+                    mimeType: $0.mimeType.rawValue,
+                    scale: $0.scale.map(Double.init)
+                )
+            },
+            displayScale: displayScale
+        )
+        let chosen = index.map { representations[$0] }
         // A release published before representations existed describes only the
         // vector, on the asset itself.
         guard
