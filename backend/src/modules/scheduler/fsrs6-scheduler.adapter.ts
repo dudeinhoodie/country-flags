@@ -11,7 +11,14 @@ import {
 export const FSRS_PACKAGE_NAME = "ts-fsrs";
 export const FSRS_PACKAGE_VERSION = "5.4.1";
 export const FSRS_ALGORITHM_MAJOR = 6;
+/// The parameters every review before 2026-08-21 was scheduled with. Kept
+/// because history is replayed with the definition it was accepted under: a
+/// card answered under v1 keeps its v1 timings until it is answered again.
 export const FSRS_PARAMETERS_VERSION = "fsrs-6-default-21-v1";
+export const FSRS_PARAMETERS_VERSION_V2 = "fsrs-6-default-21-v2";
+/// The definition row the migration installs. Named by the day it became
+/// active, because that is the question anybody debugging a due date asks.
+export const FSRS_ACTIVE_DEFINITION_VERSION = "fsrs-6-2026-08-21";
 
 type FsrsState = 0 | 1 | 2 | 3;
 type FsrsRating = 1 | 2 | 3 | 4;
@@ -61,6 +68,24 @@ export const FSRS6_DEFAULT_PARAMETERS = {
   enable_short_term: true,
   learning_steps: ["1m", "10m"],
   relearning_steps: ["10m"],
+} as const;
+
+/// The same algorithm and the same weights, with a slower ladder at the start.
+///
+/// A card used to come back a minute after "again" and ten minutes after that,
+/// which is not a review: the answer is still in the reader's head, getting it
+/// right proves nothing, and the queue refills as fast as it drains. The steps
+/// are an hour, three hours and a day now, so the first real recall attempt
+/// happens after the answer has had a chance to fade. Everything else — the
+/// weights, the retention target, the fuzz — is untouched, so this changes when
+/// a card is asked, not how the algorithm thinks.
+///
+/// A lapse follows the same floor: a forgotten card comes back in an hour
+/// rather than ten minutes.
+export const FSRS6_PARAMETERS_V2 = {
+  ...FSRS6_DEFAULT_PARAMETERS,
+  learning_steps: ["1h", "3h", "1d"],
+  relearning_steps: ["1h"],
 } as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -18,7 +18,8 @@ Canonical adapter использует:
 - package version: `5.4.1`;
 - license: MIT;
 - Node.js requirement: `>=20`;
-- parameters version: `fsrs-6-default-21-v1`;
+- parameters version: `fsrs-6-default-21-v1` — активной с 2026-08-21 является
+  `fsrs-6-default-21-v2`, см. ADR-013; v1 остаётся ради replay истории;
 - desired retention: `0.90`;
 - 21 default FSRS-6 weights из pinned package;
 - fuzz: disabled для deterministic server projection.

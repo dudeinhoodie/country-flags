@@ -287,6 +287,16 @@ final class LocalSchedulerProjectionTests: XCTestCase {
         XCTAssertLessThan(hard, good)
         XCTAssertLessThan(good, easy)
         XCTAssertLessThanOrEqual(easy, 3 * 24 * 60 * 60)
+        // The floor the backend's ladder sets: nothing offline may promise a
+        // card sooner than the server would ask for it.
+        XCTAssertGreaterThanOrEqual(again, 60 * 60)
+        for rating in StudyRating.allCases {
+            XCTAssertGreaterThanOrEqual(
+                LocalSchedulerProjection.interval(base: nil, rating: rating),
+                60 * 60,
+                "a first answer must not come back inside the hour either"
+            )
+        }
     }
 
     /// The state version moves so a later canonical state can be recognised as
