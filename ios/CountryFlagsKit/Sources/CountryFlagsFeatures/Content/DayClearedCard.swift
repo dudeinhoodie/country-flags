@@ -4,12 +4,23 @@ import CountryFlagsDomain
 
 /// The day's queue, cleared.
 ///
-/// The screen that says "nothing to review" is saying the learner did the
-/// thing the app exists for, and a grey caption says that the way an empty
-/// mailbox says it. So the pane keeps the shape of the one it replaces — a
-/// label, a number, an action — and fills it with what was actually achieved:
-/// the seal, the countries carried to learned, and somewhere to go for a
-/// person who wants to keep going anyway.
+/// The same pane as the day's queue, in its other state — a label, one number,
+/// a caption, an action — because it stands in the same place and answers the
+/// same question. The label names the figure, the way it does on every other
+/// pane in the app; there is no separate "всё повторено" headline, because it
+/// said what the seal already says in colour and left the number unnamed.
+///
+/// The seal sits beside the figure rather than beside the words. Beside the
+/// words it took fifty-odd points of width from the longest line on the card —
+/// the one that wraps — and on a narrow screen the two collided. Beside the
+/// number it takes width from nothing: digits do not wrap, and the mark and the
+/// figure read as one object rather than as two columns.
+///
+/// There used to be two numbers of the same size side by side, and they were
+/// not the same kind of thing: how many countries you know is the whole
+/// journey, how many are still settling is today's draft. Two heroes on one
+/// card means neither is read, so the total is the only large number and the
+/// draft is a quiet line under it.
 ///
 /// The number is the whole world's total rather than today's tally: a day's
 /// count drops back to zero tomorrow, and this pane is read on exactly the
@@ -22,90 +33,70 @@ struct DayClearedCard: View {
     var body: some View {
         GlassCard(padding: DesignTokens.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.large) {
-                headline
-                if learned > 0 || inProgress > 0 { tally }
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                    SectionLabel(L10n.homeClearedLearned)
+                    total
+                }
+                .accessibilityElement(children: .combine)
+
                 if let onOpenCatalog { next(onOpenCatalog) }
             }
         }
-        // One pane, one announcement: VoiceOver reads the achievement and the
-        // numbers as a sentence rather than as six separate stops — the way a
-        // sighted reader takes it in.
-        .accessibilityElement(children: .contain)
         .accessibilityIdentifier(AccessibilityIdentifier.homeDueEmpty)
     }
 
-    private var headline: some View {
-        HStack(alignment: .top, spacing: DesignTokens.Spacing.medium) {
-            // The one spot of colour on the screen, spent on the one moment
-            // that deserves it. Palette rendering keeps the tick readable
-            // against the seal rather than tinting the whole glyph flat.
-            Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 36))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(.black.opacity(0.75), Color.green)
-                .accessibilityHidden(true)
+    /// The mark and the figure on one line, the draft under them.
+    private var total: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+            HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
+                seal
 
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                Text(L10n.homeClearedTitle)
-                    .font(DesignTokens.Typography.sectionTitle)
+                Text("\(learned)")
+                    .font(DesignTokens.Typography.heroNumber)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
                     .foregroundStyle(.white)
+            }
 
-                Text(L10n.homeClearedSubtitle)
+            if inProgress > 0 {
+                Text(L10n.homeClearedInProgressCount(inProgress))
                     .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.65))
+                    .foregroundStyle(.white.opacity(0.55))
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
 
-    private var tally: some View {
-        HStack(alignment: .top, spacing: DesignTokens.Spacing.large) {
-            stat(learned, label: L10n.homeClearedLearned)
-
-            if inProgress > 0 {
-                // A hairline rather than a full divider: the two numbers are
-                // one thought — where the learner stands — not two sections.
-                Rectangle()
-                    .fill(.white.opacity(DesignTokens.Card.borderOpacity))
-                    .frame(width: 1)
-                    .frame(maxHeight: .infinity)
-
-                stat(inProgress, label: L10n.homeClearedInProgress)
-            }
-
-            Spacer(minLength: 0)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private func stat(_ value: Int, label: String) -> some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-            Text("\(value)")
-                .font(DesignTokens.Typography.heroNumber)
-                .monospacedDigit()
-                .foregroundStyle(.white)
-
-            Text(label)
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.white.opacity(0.55))
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
+    /// The one spot of colour in the app, spent on the one moment that earns
+    /// it. Palette rendering keeps the tick readable against the seal rather
+    /// than flattening the whole glyph to green.
+    private var seal: some View {
+        Image(systemName: "checkmark.seal.fill")
+            .font(.system(size: 34))
+            .symbolRenderingMode(.palette)
+            .foregroundStyle(.black.opacity(0.75), Color.green)
+            // Sat on the number's own baseline rather than on the glyph's box,
+            // which is taller than the digits beside it. Written as a guide so
+            // it holds when Dynamic Type resizes both.
+            .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 4 }
+            .accessibilityHidden(true)
     }
 
     private func next(_ openCatalog: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-            SectionLabel(L10n.homeClearedNext)
-
-            Text(L10n.homeClearedSuggestion)
-                .font(DesignTokens.Typography.body)
-                .foregroundStyle(.white.opacity(0.8))
+            // The reassurance and the offer in one breath. They used to be a
+            // section label, a sentence and a button — three weights for one
+            // quiet thought at the bottom of a card about being finished.
+            Text(L10n.homeClearedSubtitle)
+                .font(DesignTokens.Typography.caption)
+                .foregroundStyle(.white.opacity(0.55))
                 .fixedSize(horizontal: false, vertical: true)
 
-            // Glass, not white: the day's work is done, so this is an offer
-            // rather than the thing the screen is asking for.
+            // The same lit glass a deck's "start training" wears: this is the
+            // one thing the screen is offering, and on a day with nothing due
+            // it is the only thing there is to do.
             Button(L10n.homeOpenCatalog, action: openCatalog)
-                .buttonStyle(GlassActionStyle())
+                .buttonStyle(GlassProminentActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.homeOpenCatalog)
         }
     }

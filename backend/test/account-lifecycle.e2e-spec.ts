@@ -442,7 +442,33 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
     ).resolves.toEqual({ rating: "GOOD", isCorrect: true });
   });
 
+  /// Ages the session so it no longer counts as freshly authenticated.
+  ///
+  /// A sign-in younger than `AUTH_REAUTH_TOKEN_TTL_SECONDS` is itself the proof
+  /// a sensitive operation asks for — nobody is sent through a provider twice
+  /// in the same minute. Everything in this file signs in during setup, so a
+  /// test that wants to see the refusal has to let the session go cold first.
+  async function ageTheSignIn(): Promise<void> {
+    await database.refreshSession.updateMany({
+      where: { userId: account.user.id },
+      data: { createdAt: new Date(Date.now() - 60 * 60_000) },
+    });
+  }
+
+  it("takes a fresh sign-in as its own proof", async () => {
+    // Signing in *is* proving who you are. The session here is seconds old, so
+    // asking for a copy of the account's data must not send anybody back
+    // through a provider.
+    const created = await request(httpServer)
+      .post("/v1/me/data-exports")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(202);
+    expect((created.body as unknown as { id: string }).id).toBeDefined();
+  });
+
   it("requires fresh reauthentication and expires signed export URLs", async () => {
+    await ageTheSignIn();
+
     const withoutProof = await request(httpServer)
       .post("/v1/me/data-exports")
       .set("Authorization", `Bearer ${account.tokens.accessToken}`)
@@ -526,6 +552,7 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
       changesBefore.body as unknown as { nextCursor: string }
     ).nextCursor;
 
+    await ageTheSignIn();
     const withoutProof = await request(httpServer)
       .delete("/v1/me/progress")
       .set("Authorization", `Bearer ${account.tokens.accessToken}`)
