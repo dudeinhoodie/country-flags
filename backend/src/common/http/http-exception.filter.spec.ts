@@ -45,10 +45,9 @@ describe("HttpExceptionFilter", () => {
   it("does not report a deliberately-thrown ApiException, and returns its own code/message", () => {
     const report = jest.fn();
     const recordError = jest.fn();
-    const filter = new HttpExceptionFilter(
-      { report } as never,
-      { recordError } as never,
-    );
+    const filter = new HttpExceptionFilter({ report }, {
+      recordError,
+    } as never);
     const request = { requestId: "req-1", method: "GET", originalUrl: "/v1/x" };
     const response = mockResponse();
 
@@ -71,10 +70,9 @@ describe("HttpExceptionFilter", () => {
 
   it("maps a built-in HttpException to the canonical envelope", () => {
     const report = jest.fn();
-    const filter = new HttpExceptionFilter(
-      { report } as never,
-      { recordError: jest.fn() } as never,
-    );
+    const filter = new HttpExceptionFilter({ report }, {
+      recordError: jest.fn(),
+    } as never);
     const request = { requestId: "req-2", method: "GET", originalUrl: "/v1/x" };
     const response = mockResponse();
 
@@ -90,10 +88,9 @@ describe("HttpExceptionFilter", () => {
   it("maps a body-parser payload-too-large error to 413 without reporting it as a bug", () => {
     const report = jest.fn();
     const recordError = jest.fn();
-    const filter = new HttpExceptionFilter(
-      { report } as never,
-      { recordError } as never,
-    );
+    const filter = new HttpExceptionFilter({ report }, {
+      recordError,
+    } as never);
     const request = {
       requestId: "req-4",
       method: "POST",
@@ -122,10 +119,9 @@ describe("HttpExceptionFilter", () => {
   it("reports an uncaught exception and never leaks its raw message to the client", () => {
     const report = jest.fn();
     const recordError = jest.fn();
-    const filter = new HttpExceptionFilter(
-      { report } as never,
-      { recordError } as never,
-    );
+    const filter = new HttpExceptionFilter({ report }, {
+      recordError,
+    } as never);
     const request = {
       requestId: "req-3",
       method: "POST",

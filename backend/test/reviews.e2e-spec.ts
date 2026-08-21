@@ -29,6 +29,7 @@ import {
   TEST_STUDY_USER_ID,
 } from "../src/modules/study-sessions/fixtures/test-study.fixture";
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
+import { bodyOf } from "./response-body";
 
 interface SessionBody {
   cards: Array<{
@@ -216,7 +217,7 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ payloadVersion: 1, events: [event] })
       .expect(200);
-    return response.body as unknown as ReviewBatchBody;
+    return bodyOf(response);
   }
 
   it("atomically persists immutable event, projection and outbox", async () => {
@@ -860,7 +861,7 @@ describe("mixed-mode study flow (integration)", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ payloadVersion: 1, events: [event] })
       .expect(200);
-    return response.body as unknown as ReviewBatchBody;
+    return bodyOf(response);
   }
 
   async function newCardIn(
@@ -902,9 +903,7 @@ describe("mixed-mode study flow (integration)", () => {
         selectionOrigin: "SERVER",
       })
       .expect(201);
-    const selfRatedCard = await newCardIn(
-      selfRatedSession.body as unknown as SessionBody,
-    );
+    const selfRatedCard = await newCardIn(bodyOf(selfRatedSession));
 
     const selfRatedResult = await sendMixedFlowEvent({
       id: "96000000-0000-4000-8000-000000000001",
@@ -943,9 +942,7 @@ describe("mixed-mode study flow (integration)", () => {
         locale: "en",
       })
       .expect(201);
-    const multipleChoiceCard = await newCardIn(
-      multipleChoiceSession.body as unknown as SessionBody,
-    );
+    const multipleChoiceCard = await newCardIn(bodyOf(multipleChoiceSession));
     if (multipleChoiceCard.options?.length !== 4) {
       throw new Error(
         "Mixed-flow test has no complete MULTIPLE_CHOICE option set",

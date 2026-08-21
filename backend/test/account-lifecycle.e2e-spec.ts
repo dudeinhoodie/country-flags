@@ -16,6 +16,7 @@ import { TestProviderTokenSigner } from "../src/modules/auth/testing/test-provid
 import { TEST_CONTENT_FIXTURE } from "../src/modules/content/fixtures/test-content.fixture";
 import { importTestContent } from "../src/modules/content/import/test-content-importer";
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
+import { bodyOf } from "./response-body";
 
 interface AuthBody {
   tokens: { accessToken: string };
@@ -89,7 +90,7 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
       .post("/v1/auth/google")
       .send({ idToken, device: device(deviceId) })
       .expect(200);
-    return response.body as unknown as AuthBody;
+    return bodyOf(response);
   }
 
   async function reauthenticate(): Promise<string> {
@@ -505,7 +506,7 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
         .get(`/v1/me/data-exports/${dataExport.id}`)
         .set("Authorization", `Bearer ${account.tokens.accessToken}`)
         .expect(200);
-      dataExport = status.body as unknown as DataExportBody;
+      dataExport = bodyOf(status);
       if (dataExport.status === "READY") {
         break;
       }
