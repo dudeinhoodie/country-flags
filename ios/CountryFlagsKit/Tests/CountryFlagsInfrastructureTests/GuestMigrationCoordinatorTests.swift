@@ -42,6 +42,45 @@ final class GuestMigrationCoordinatorTests: XCTestCase {
         XCTAssertNotNil(record?.acknowledgedAt)
     }
 
+    /// The retry that never ran.
+    ///
+    /// An import interrupted mid-flight is meant to be finished on the next
+    /// launch — and that launch is a signed-in one, because the account is
+    /// what it is being imported into. Asking for the current scope then
+    /// answers "the account", so the archive could not be named and the
+    /// attempt refused itself every time. The record said `inProgress` for
+    /// as long as the app stayed installed, and the guest's answers were
+    /// unreachable for just as long.
+    func testAnInterruptedImportIsFinishedOnceTheDeviceIsSignedIn() async {
+        let harness = Harness(installationID: installationID)
+        await harness.learning.seed(
+            sessions: [Fixtures.session()],
+            reviews: [Fixtures.review(sequence: 1)]
+        )
+        await harness.importer.answer(.failure(APIError.transport("offline")))
+        let interrupted = await harness.coordinator.importGuestWork(into: userID)
+        XCTAssertEqual(interrupted, .unavailable)
+
+        // The device is no longer a guest, which is the only state this retry
+        // is ever called in.
+        await harness.importer.answer(.success(Fixtures.result(.applied)))
+        let signedIn = harness.coordinator(seeing: .authenticated(userID: userID))
+
+        let outcome = await signedIn.importGuestWork(into: userID)
+
+        guard case .imported = outcome else {
+            return XCTFail("Expected the interrupted import to finish, got \(outcome)")
+        }
+        // The archive that moved is the guest's, named by the record rather
+        // than by the scope the device happens to be in now.
+        let erased = await harness.cleaner.erasedScopes
+        XCTAssertEqual(erased, [.guest(installationID: installationID)])
+        let record = await harness.records.record(
+            forScopeKey: AccountScope.guest(installationID: installationID).key
+        )
+        XCTAssertEqual(record?.state, .completed)
+    }
+
     /// A network failure repeats the same request later — same archive, same
     /// migration identifier — and touches nothing local in the meantime.
     func testARetryAfterANetworkFailureReusesTheMigrationIdentifier() async {
@@ -143,6 +182,19 @@ private struct Harness {
             logger: NoOpLogger()
         )
     }
+
+    /// Another coordinator over the same stores, for the launch that happens
+    /// after signing in.
+    func coordinator(seeing scope: AccountScope) -> GuestMigrationCoordinator {
+        GuestMigrationCoordinator(
+            guestScopes: FixedScopeResolver(scope: scope),
+            learning: learning,
+            importer: importer,
+            records: records,
+            cleaner: cleaner,
+            logger: NoOpLogger()
+        )
+    }
 }
 
 private struct FixedScopeResolver: AccountScopeResolving {
@@ -175,6 +227,10 @@ private actor InMemoryMigrationRecords: GuestMigrationRecordStoring {
 
     func record(forScopeKey scopeKey: String) async -> GuestMigrationRecord? {
         records[scopeKey]
+    }
+
+    func unsettledRecord() async -> GuestMigrationRecord? {
+        records.values.filter { !$0.isSettled }.min { $0.startedAt < $1.startedAt }
     }
 
     func save(_ record: GuestMigrationRecord) async {

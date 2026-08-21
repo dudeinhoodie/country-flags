@@ -51,10 +51,9 @@ public actor GuestMigrationCoordinator: GuestMigrationRunning {
     }
 
     public func importGuestWork(into userID: UUID) async -> GuestMigrationOutcome {
-        let scope = await guestScopes.currentScope()
+        guard let (scope, stored) = await archiveToImport() else { return .refused }
         guard case .guest(let installationID) = scope else { return .refused }
 
-        let stored = await records.record(forScopeKey: scope.key)
         if let stored, stored.mayArchiveSourceScope, stored.targetUserID == userID {
             // Already imported and acknowledged; there is nothing left to do
             // and nothing left to send.
@@ -137,6 +136,33 @@ public actor GuestMigrationCoordinator: GuestMigrationRunning {
             // the next sign-in or launch. Nothing local has been touched.
             return .unavailable
         }
+    }
+
+    /// Which archive this attempt is about, and what is already known about
+    /// it.
+    ///
+    /// While the device is still a guest, that is simply the scope it studies
+    /// under. Once it has signed in it is not — and signing in is exactly
+    /// when a half-finished import is supposed to be picked up again. Asking
+    /// for the current scope then answers "the account", which is not an
+    /// archive, and the retry refused itself on the only path that ever
+    /// reaches it: the record went on saying `inProgress` for as long as the
+    /// app was installed, and the answers under the guest scope were
+    /// unreachable for just as long.
+    ///
+    /// The record is the one thing that still knows, so it is what gets
+    /// asked.
+    private func archiveToImport() async -> (AccountScope, GuestMigrationRecord?)? {
+        let current = await guestScopes.currentScope()
+        if current.isGuest {
+            return (current, await records.record(forScopeKey: current.key))
+        }
+        guard
+            let unsettled = await records.unsettledRecord(),
+            let recovered = AccountScope(key: unsettled.sourceScopeKey),
+            recovered.isGuest
+        else { return nil }
+        return (recovered, unsettled)
     }
 
     private func settle(
