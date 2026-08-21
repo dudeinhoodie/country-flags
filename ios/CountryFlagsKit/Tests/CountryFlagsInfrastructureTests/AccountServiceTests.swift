@@ -2,6 +2,7 @@ import XCTest
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// The account's endpoints as they go on the wire: what is sent, what is
 /// carried with it, and what a refusal turns into by the time a screen sees it.

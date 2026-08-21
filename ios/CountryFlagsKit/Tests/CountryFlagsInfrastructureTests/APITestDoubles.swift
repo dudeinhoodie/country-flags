@@ -3,6 +3,7 @@ import OpenAPIRuntime
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// Records the requested delays instead of spending them, so a backoff test
 /// runs in microseconds and asserts on the schedule itself.

@@ -1,0 +1,196 @@
+name: iOS release to TestFlight
+
+# Shipping is a decision somebody makes, so this runs from the Actions tab and
+# never from a merge. It archives the production configuration, exports it with
+# the App Store Connect API key, and — unless asked not to — uploads the build
+# to TestFlight.
+#
+# What it needs, once, as repository secrets:
+#
+#   APP_STORE_CONNECT_KEY_ID       the key's ten-character identifier
+#   APP_STORE_CONNECT_ISSUER_ID    the issuer UUID from App Store Connect
+#   APP_STORE_CONNECT_PRIVATE_KEY  the .p8 file's contents, newlines and all
+#   APPLE_TEAM_ID                  the ten-character team identifier
+#
+# The key needs the App Manager role: it both signs (automatic signing fetches
+# the profile) and uploads. Nothing else is stored — no certificate, no
+# profile, no password — and the key is written to a file only inside the
+# runner's own temporary directory.
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: >-
+          The build number to stamp. App Store Connect refuses a build number
+          it has already seen for this version, so it goes up every time.
+        required: true
+      upload:
+        description: Upload to TestFlight, or stop after exporting the .ipa
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  # Two releases at once would race for the same build number.
+  group: ios-release
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: ios
+
+jobs:
+  archive:
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    env:
+      PROJECT: CountryFlags.xcodeproj
+      ARCHIVE: build/CountryFlags.xcarchive
+      EXPORT: build/export
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          version_output="$(xcodebuild -version)"
+          printf '%s\n' "${version_output}" | sed -n '1p'
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install repository dependencies
+        working-directory: ${{ github.workspace }}
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      # The same drift checks the pull request runs. A release built from a
+      # stale mirror would ship a contract nobody reviewed.
+      - name: Check the contract mirror
+        run: ./Scripts/sync-openapi.sh --check
+
+      - name: Check the bundled flag set
+        run: node Scripts/sync-flag-assets.mjs --check
+
+      - name: Check the advertising policy
+        run: ./Scripts/check-advertising-policy.sh
+
+      - name: Write the App Store Connect key
+        id: key
+        env:
+          PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${PRIVATE_KEY}" || -z "${KEY_ID}" ]]; then
+            echo "::error::The App Store Connect key secrets are not set."
+            exit 1
+          fi
+          directory="${RUNNER_TEMP}/private_keys"
+          mkdir -p "${directory}"
+          # The name matters: xcodebuild looks the key up by it.
+          printf '%s\n' "${PRIVATE_KEY}" > "${directory}/AuthKey_${KEY_ID}.p8"
+          chmod 600 "${directory}/AuthKey_${KEY_ID}.p8"
+          echo "directory=${directory}" >> "$GITHUB_OUTPUT"
+
+      - name: Archive
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme CountryFlags-Prod \
+            -destination 'generic/platform=iOS' \
+            -archivePath "${ARCHIVE}" \
+            -skipPackagePluginValidation \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "${{ steps.key.outputs.directory }}/AuthKey_${KEY_ID}.p8" \
+            -authenticationKeyID "${KEY_ID}" \
+            -authenticationKeyIssuerID "${ISSUER_ID}" \
+            DEVELOPMENT_TEAM="${TEAM_ID}" \
+            CURRENT_PROJECT_VERSION="${{ inputs.build_number }}" \
+            archive
+
+      # The same check the nightly and the pull request run, against the thing
+      # that is actually about to be uploaded.
+      - name: Check what the release build carries
+        run: ./Scripts/check-release-app.sh "${ARCHIVE}/Products/Applications/CountryFlags.app"
+
+      - name: Export the .ipa
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          # The team is injected here rather than committed to the export
+          # options, so the repository carries no account detail.
+          options="${RUNNER_TEMP}/ExportOptions.plist"
+          cp Config/ExportOptions-AppStore.plist "${options}"
+          /usr/libexec/PlistBuddy -c "Add :teamID string ${TEAM_ID}" "${options}"
+          xcodebuild \
+            -exportArchive \
+            -archivePath "${ARCHIVE}" \
+            -exportPath "${EXPORT}" \
+            -exportOptionsPlist "${options}" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "${{ steps.key.outputs.directory }}/AuthKey_${KEY_ID}.p8" \
+            -authenticationKeyID "${KEY_ID}" \
+            -authenticationKeyIssuerID "${ISSUER_ID}"
+
+      - name: Upload to TestFlight
+        if: ${{ inputs.upload }}
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          ipa="$(find "${EXPORT}" -name '*.ipa' -maxdepth 1 | head -1)"
+          if [[ -z "${ipa}" ]]; then
+            echo "::error::The export produced no .ipa"
+            exit 1
+          fi
+          # API_PRIVATE_KEYS_DIR is where altool looks for AuthKey_<id>.p8.
+          API_PRIVATE_KEYS_DIR="${{ steps.key.outputs.directory }}" \
+            xcrun altool --upload-app \
+              --type ios \
+              --file "${ipa}" \
+              --apiKey "${KEY_ID}" \
+              --apiIssuer "${ISSUER_ID}"
+
+      # The symbols outlive the runner: a crash report from this build is
+      # unreadable without them, and TestFlight keeps only what it was given.
+      - name: Keep the archive's symbols
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsyms-${{ inputs.build_number }}
+          path: ios/build/CountryFlags.xcarchive/dSYMs
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Keep the .ipa
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa-${{ inputs.build_number }}
+          path: ios/build/export/*.ipa
+          retention-days: 30
+          if-no-files-found: warn
+
+      # A key on disk outlives the step that wrote it, and the runner is not
+      # ours to trust with it a moment longer than necessary.
+      - name: Remove the key
+        if: always()
+        run: rm -rf "${RUNNER_TEMP}/private_keys"

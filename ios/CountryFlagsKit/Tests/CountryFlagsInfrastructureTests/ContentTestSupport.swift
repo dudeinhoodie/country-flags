@@ -2,6 +2,7 @@ import Foundation
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// Builds a content service wired to the mock transport.
 enum ContentTestClient {

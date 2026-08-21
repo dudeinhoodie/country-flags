@@ -1,6 +1,7 @@
 import XCTest
 
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 final class APIAuthenticationTests: XCTestCase {
     func testAuthenticatedRequestCarriesTheBearerToken() async throws {

@@ -115,7 +115,11 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test
 
-      - name: Build and test Mock
+      # A guest smoke rather than the whole suite: the launch, the catalogue,
+      # a session answered end to end and the sync line. The rest of the suite
+      # runs nightly — thirty-five minutes is too long to hold a review, and a
+      # check nobody waits for is a check nobody reads.
+      - name: Build and smoke-test Mock
         run: |
           set -o pipefail
           xcodebuild \
@@ -123,6 +127,9 @@ jobs:
             -scheme CountryFlags-Mock \
             -destination '${{ steps.simulator.outputs.destination }}' \
             -skipPackagePluginValidation \
+            -only-testing:CountryFlagsUITests/LaunchSmokeUITests \
+            -only-testing:CountryFlagsUITests/StudySessionUITests \
+            -only-testing:CountryFlagsUITests/SyncStatusUITests \
             -resultBundlePath build/CountryFlags-Mock.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test
@@ -140,6 +147,26 @@ jobs:
             -resultBundlePath build/CountryFlags-Dev.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      # The build that would go to the store, and what it carries. Unsigned,
+      # because a pull request has no business holding a signing identity —
+      # what is being proved here is that the release configuration compiles,
+      # archives, and contains no debug affordance.
+      - name: Archive the release build, unsigned
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme CountryFlags-Prod \
+            -destination 'generic/platform=iOS' \
+            -skipPackagePluginValidation \
+            -archivePath build/CountryFlags.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            archive
+
+      - name: Check what the release build carries
+        run: ./Scripts/check-release-app.sh build/CountryFlags.xcarchive/Products/Applications/CountryFlags.app
 
       - name: Upload xcresult
         if: failure()

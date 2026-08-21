@@ -1,6 +1,7 @@
 import Foundation
 
 import CountryFlagsDomain
+import CountryFlagsInfrastructure
 
 /// The account surface of the Mock build.
 ///

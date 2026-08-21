@@ -1,0 +1,126 @@
+name: iOS nightly
+
+# The whole UI suite, once a night.
+#
+# It moved here from the pull request check for a plain reason: it takes about
+# thirty-five minutes, and a reviewer waiting on it stops reading the diff. The
+# pull request keeps what catches a broken change — the unit tests, both
+# builds, and a guest smoke that walks the app end to end — and everything else
+# runs while nobody is waiting.
+on:
+  schedule:
+    # 03:00 UTC. Late enough that the day's merges are in, early enough that
+    # the result is waiting in the morning.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ios
+
+jobs:
+  full-ui-suite:
+    runs-on: macos-26
+    timeout-minutes: 90
+
+    env:
+      PROJECT: CountryFlags.xcodeproj
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          minimum=26
+          version_output="$(xcodebuild -version)"
+          selected="$(printf '%s\n' "${version_output}" | sed -n '1p')"
+          major="$(printf '%s\n' "${selected}" | sed -E 's/Xcode ([0-9]+).*/\1/')"
+          if [[ "${major}" -lt "${minimum}" ]]; then
+            echo "::error::${selected} is older than the required Xcode ${minimum}"
+            exit 1
+          fi
+          echo "${selected}"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install repository dependencies
+        working-directory: ${{ github.workspace }}
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      - name: Select simulator
+        id: simulator
+        run: echo "destination=$(./Scripts/select-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve packages
+        run: xcodebuild -project "${PROJECT}" -resolvePackageDependencies
+
+      # Everything: self-rated and multiple-choice sessions, the auth mocks,
+      # the guest migration, offline sync, the card back, progress, settings
+      # and the account deletion.
+      - name: The whole UI suite
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme CountryFlags-Mock \
+            -destination '${{ steps.simulator.outputs.destination }}' \
+            -skipPackagePluginValidation \
+            -resultBundlePath build/CountryFlags-Mock-nightly.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      # The suite is run a second time under the accessibility settings a
+      # person may actually have on. It is the same app, and it has to survive
+      # the largest text, the reduced motion and the other language.
+      - name: The suite under accessibility settings
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme CountryFlags-Mock \
+            -destination '${{ steps.simulator.outputs.destination }}' \
+            -skipPackagePluginValidation \
+            -only-testing:CountryFlagsUITests/AccessibilityUITests \
+            -resultBundlePath build/CountryFlags-Accessibility.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      # A nightly is also the cheapest place to notice that the thing cannot be
+      # archived at all — a broken release build is otherwise found on the day
+      # somebody tries to ship.
+      - name: Archive the release build, unsigned
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme CountryFlags-Prod \
+            -destination 'generic/platform=iOS' \
+            -skipPackagePluginValidation \
+            -archivePath build/CountryFlags-nightly.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            archive
+
+      - name: Check what the release build carries
+        run: ./Scripts/check-release-app.sh build/CountryFlags-nightly.xcarchive/Products/Applications/CountryFlags.app
+
+      # Kept whether it passed or not: a green nightly is evidence too, and the
+      # release checklist asks for it by name.
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-${{ github.run_id }}
+          path: ios/build/*.xcresult
+          retention-days: 14
+          if-no-files-found: warn

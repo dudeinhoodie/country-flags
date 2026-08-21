@@ -4,6 +4,15 @@ import SwiftUI
 import CountryFlagsDomain
 import CountryFlagsFeatures
 import CountryFlagsInfrastructure
+// For the one type the release build has to name where the mock transport
+// would otherwise stand: the absence of a transport.
+import OpenAPIRuntime
+
+#if DEBUG
+    // The canned backend, linked only where it is used. A release build
+    // never names it, so the linker never pulls the module in.
+    import CountryFlagsMockBackend
+#endif
 
 /// The dependency set of the app.
 ///
@@ -114,15 +123,20 @@ struct AppComposition: AppDependencies {
         }
 
         let apiConfiguration = APIClientConfiguration(
-            baseURL: configuration.apiBaseURL ?? Self.mockBaseURL,
+            baseURL: Self.baseURL(for: configuration),
             appVersion: Self.appVersion(from: bundle),
             locale: Self.locale()
         )
         // Mock answers registered payloads only and never opens a socket, so
         // that configuration is reproducible offline. One transport serves
         // both factories below: the Mock one records requests, and two
-        // recorders would each see half a conversation.
-        let transport = mockTransport(for: configuration, dates: dates)
+        // recorders would each see half a conversation. A release build has no
+        // mock transport to ask for, and therefore no mock backend linked in.
+        #if DEBUG
+            let transport = mockTransport(for: configuration, dates: dates)
+        #else
+            let transport: (any ClientTransport)? = nil
+        #endif
 
         let tokens = KeychainTokenStore()
         let accountScopes = accountScopes(tokens: tokens, identifiers: identifiers, logger: logger)
@@ -552,46 +566,53 @@ struct AppComposition: AppDependencies {
         "CountryFlags-\(configuration.environment.rawValue)"
     }
 
-    private static func mockTransport(
-        for configuration: RuntimeConfiguration,
-        dates: any DateProviding
-    ) -> MockClientTransport? {
-        guard configuration.environment == .mock else { return nil }
-        var fallbacks: [String: MockClientTransport.Response] = [
-            "getAppConfig": MockAppConfig.response(now: dates.now()),
-            // The account surface, offline: exchange, rotation, sign-out and
-            // the guest import all answer deterministically.
-            "authenticateWithApple": MockAuth.session(now: dates.now()),
-            "authenticateWithGoogle": MockAuth.session(now: dates.now()),
-            "refreshSession": MockAuth.refreshedTokens(now: dates.now()),
-            "logout": MockAuth.loggedOut,
-            "logoutAll": MockAuth.loggedOut,
-            "createGuestImport": MockAuth.importResult(now: dates.now()),
-            "getGuestImport": MockAuth.importResult(now: dates.now(), statusCode: 200),
-            // The account surface: its ways in, its devices, an export that is
-            // ready by the time it is asked about, and a deletion that is
-            // accepted. All of it offline.
-            "listIdentities": MockAccount.identities(now: dates.now()),
-            "unlinkIdentity": MockAccount.unlinked,
-            "listDevices": MockAccount.devices(now: dates.now()),
-            "deleteDevice": MockAccount.deviceRevoked,
-            "createDataExport": MockAccount.exportRequested(now: dates.now()),
-            "getDataExport": MockAccount.exportReady(now: dates.now()),
-            "deleteMe": MockAccount.deletionAccepted(now: dates.now()),
-            "reauthenticateApple": MockAuth.reauthenticationProof(now: dates.now()),
-            "reauthenticateGoogle": MockAuth.reauthenticationProof(now: dates.now()),
-        ]
-        var handlers: [String: MockClientTransport.Handler] = [:]
-        // A UI test needs a launch where content requests fail while the store
-        // is intact, which is the only way to prove that a relaunch without a
-        // network still shows what was downloaded. An unregistered operation
-        // fails loudly, so this is a refusal rather than an empty success.
-        if !ProcessInfo.processInfo.arguments.contains(offlineContentArgument) {
-            fallbacks.merge(MockContent.responses()) { current, _ in current }
-            handlers = MockContent.handlers()
+    /// The mock backend, wrapped in `#if DEBUG` for a reason the App Store
+    /// cares about: the package it lives in is built in release for every
+    /// configuration, so a reference from here is what decides whether the
+    /// linker pulls its canned payloads — and the string "mock.invalid" —
+    /// into the binary that ships. Mock and Dev define DEBUG; Prod does not.
+    #if DEBUG
+        private static func mockTransport(
+            for configuration: RuntimeConfiguration,
+            dates: any DateProviding
+        ) -> MockClientTransport? {
+            guard configuration.environment == .mock else { return nil }
+            var fallbacks: [String: MockClientTransport.Response] = [
+                "getAppConfig": MockAppConfig.response(now: dates.now()),
+                // The account surface, offline: exchange, rotation, sign-out and
+                // the guest import all answer deterministically.
+                "authenticateWithApple": MockAuth.session(now: dates.now()),
+                "authenticateWithGoogle": MockAuth.session(now: dates.now()),
+                "refreshSession": MockAuth.refreshedTokens(now: dates.now()),
+                "logout": MockAuth.loggedOut,
+                "logoutAll": MockAuth.loggedOut,
+                "createGuestImport": MockAuth.importResult(now: dates.now()),
+                "getGuestImport": MockAuth.importResult(now: dates.now(), statusCode: 200),
+                // The account surface: its ways in, its devices, an export that is
+                // ready by the time it is asked about, and a deletion that is
+                // accepted. All of it offline.
+                "listIdentities": MockAccount.identities(now: dates.now()),
+                "unlinkIdentity": MockAccount.unlinked,
+                "listDevices": MockAccount.devices(now: dates.now()),
+                "deleteDevice": MockAccount.deviceRevoked,
+                "createDataExport": MockAccount.exportRequested(now: dates.now()),
+                "getDataExport": MockAccount.exportReady(now: dates.now()),
+                "deleteMe": MockAccount.deletionAccepted(now: dates.now()),
+                "reauthenticateApple": MockAuth.reauthenticationProof(now: dates.now()),
+                "reauthenticateGoogle": MockAuth.reauthenticationProof(now: dates.now()),
+            ]
+            var handlers: [String: MockClientTransport.Handler] = [:]
+            // A UI test needs a launch where content requests fail while the store
+            // is intact, which is the only way to prove that a relaunch without a
+            // network still shows what was downloaded. An unregistered operation
+            // fails loudly, so this is a refusal rather than an empty success.
+            if !ProcessInfo.processInfo.arguments.contains(offlineContentArgument) {
+                fallbacks.merge(MockContent.responses()) { current, _ in current }
+                handlers = MockContent.handlers()
+            }
+            return MockClientTransport(fallbacks: fallbacks, handlers: handlers)
         }
-        return MockClientTransport(fallbacks: fallbacks, handlers: handlers)
-    }
+    #endif
 
     /// Simulates a launch with no reachable backend. Mock only: every other
     /// configuration talks to a real one.
@@ -634,13 +655,17 @@ struct AppComposition: AppDependencies {
 
     /// Mock has no server to fetch an archive from, so it answers with one of
     /// its own: the export flow is then walkable offline, end to end, which is
-    /// the only way a UI test can drive it at all.
+    /// the only way a UI test can drive it at all. A release build downloads,
+    /// full stop — there is no mock module in it to ask.
     private static func exportArchiveFetcher(
         for configuration: RuntimeConfiguration
     ) -> any DataExportArchiveFetching {
-        configuration.environment == .mock
-            ? MockExportArchiveFetcher()
-            : URLSessionArchiveFetcher()
+        #if DEBUG
+            if configuration.environment == .mock {
+                return MockExportArchiveFetcher()
+            }
+        #endif
+        return URLSessionArchiveFetcher()
     }
 
     /// Mock ships the release it serves, so it hosts no assets at all and a
@@ -649,7 +674,12 @@ struct AppComposition: AppDependencies {
     private static func assetFetcher(
         for configuration: RuntimeConfiguration
     ) -> any AssetDataFetching {
-        configuration.environment == .mock ? MockAssetFetcher() : URLSessionAssetFetcher()
+        #if DEBUG
+            if configuration.environment == .mock {
+                return MockAssetFetcher()
+            }
+        #endif
+        return URLSessionAssetFetcher()
     }
 
     #if DEBUG
@@ -677,9 +707,29 @@ struct AppComposition: AppDependencies {
         }
     #endif
 
-    /// The Mock configuration has no backend. The URL is never dialed; it only
-    /// satisfies the client, which requires a server URL.
-    private static let mockBaseURL = URL(string: "https://mock.invalid")!
+    #if DEBUG
+        /// The Mock configuration has no backend. The URL is never dialed; it
+        /// only satisfies the client, which requires a server URL.
+        private static let mockBaseURL = URL(string: "https://mock.invalid")!
+    #endif
+
+    /// Where this build talks to.
+    ///
+    /// The placeholder is a debug-only thing now. It used to be the fallback in
+    /// every configuration, which put the string "mock.invalid" inside the
+    /// binary that goes to the App Store — and, worse, gave a release build
+    /// with a missing endpoint somewhere harmless-looking to point at instead
+    /// of failing. A release build without an endpoint is a broken build.
+    private static func baseURL(for configuration: RuntimeConfiguration) -> URL {
+        if let url = configuration.apiBaseURL {
+            return url
+        }
+        #if DEBUG
+            return mockBaseURL
+        #else
+            fatalError("CFAPIBaseURL is missing from the Info.plist of a release build")
+        #endif
+    }
 
     private static func appVersion(from bundle: Bundle) -> String {
         bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"

@@ -38,7 +38,7 @@ const ALIAS_LOCALE = "ru";
 const bundleDirectory = join(repositoryRoot, "content/generated", CONTENT_VERSION);
 const outputDirectory = join(
   repositoryRoot,
-  "ios/CountryFlagsKit/Sources/CountryFlagsInfrastructure/Resources/MockContent",
+  "ios/CountryFlagsKit/Sources/CountryFlagsMockBackend/Resources/MockContent",
 );
 
 function stableJson(value) {

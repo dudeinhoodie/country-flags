@@ -2,6 +2,7 @@ import XCTest
 
 import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
+import CountryFlagsMockBackend
 
 /// The queue as the backend counts it: read on the sync run, stored beside the
 /// rest of the canon, and never allowed to fail the run it rode home on.
