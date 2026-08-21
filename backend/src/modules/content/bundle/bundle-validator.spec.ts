@@ -93,9 +93,6 @@ function assetsFixture(
       {
         key: "flag.testland.current",
         entityKey: "country.testland",
-        path: "assets/svg/testland.svg",
-        sha256: sha256("<svg>flag</svg>"),
-        mimeType: "image/svg+xml",
         representations: overrides.representations ?? representationsFixture(),
         aspectRatio: 1.5,
         sourcePath: "flags/4x3/tl.svg",
@@ -419,14 +416,14 @@ describe("validateBundle", () => {
     ).rejects.toThrow(/no raster representation/);
   });
 
-  it("rejects an asset whose first representation is not the one its url describes", async () => {
+  it("rejects an asset that does not lead with its vector original", async () => {
     const [vector, raster] = representationsFixture();
     buildBundle(dir, {
       assets: assetsFixture({ representations: [raster!, vector!] }),
     });
     await expect(
       validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
-    ).rejects.toThrow(/does not lead with the representation/);
+    ).rejects.toThrow(/does not lead with its vector original/);
   });
 
   it("rejects raster representations that are not ordered by ascending scale", async () => {

@@ -83,13 +83,23 @@ export async function validateBundle(
     );
   }
 
+  // Every published encoding, not just the vector. The registry used to name
+  // one file on the asset itself and the rest in `representations`, so this
+  // checked the vector and took the rasters on trust — which is half of what a
+  // client actually downloads.
   const assetRegistry = await readJson<{
-    assets: { path: string; sha256: string }[];
+    assets: { representations: { path: string; sha256: string }[] }[];
   }>(join(outputDirectory, "assets/assets.json"));
   for (const asset of assetRegistry.assets) {
-    const content = await readFile(join(outputDirectory, asset.path));
-    if (sha256(content) !== asset.sha256) {
-      throw new Error(`${asset.path} checksum does not match asset registry`);
+    for (const representation of asset.representations) {
+      const content = await readFile(
+        join(outputDirectory, representation.path),
+      );
+      if (sha256(content) !== representation.sha256) {
+        throw new Error(
+          `${representation.path} checksum does not match asset registry`,
+        );
+      }
     }
   }
 }

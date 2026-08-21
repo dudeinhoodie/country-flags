@@ -20,6 +20,21 @@ export interface LearningContent {
  * asset registry. Runs inside `content build`, so the generated bundle always
  * carries these files and stays byte-identical across offline rebuilds.
  */
+/// The checksum of the asset's vector original.
+///
+/// Chosen by media type rather than by position: the list is ordered vector
+/// first today, and a fingerprint that silently followed the order would give
+/// every card a new revision the day that changed.
+function vectorChecksum(asset: BuiltAsset): string {
+  const vector = asset.representations.find(
+    (representation) => representation.mimeType === "image/svg+xml",
+  );
+  if (vector === undefined) {
+    throw new Error(`${asset.key} publishes no vector representation`);
+  }
+  return vector.sha256;
+}
+
 export function buildLearningContent(
   decks: CatalogDeck[],
   assets: BuiltAsset[],
@@ -58,8 +73,13 @@ export function buildLearningContent(
           {
             revision: 1,
             promptAssetKey: promptAsset.key,
+            // The vector's checksum, which is what this fingerprint has
+            // always been built on. It used to sit on the asset itself; it now
+            // lives in the representation that carries the vector, and the
+            // value is the same one — so no card gains a revision for a field
+            // moving.
             promptFingerprint: sha256(
-              `${entityKey}:${TEMPLATE_CODE}:1:${promptAsset.sha256}`,
+              `${entityKey}:${TEMPLATE_CODE}:1:${vectorChecksum(promptAsset)}`,
             ),
             changeClassification: "technical",
             progressPolicy: "preserve",
