@@ -3551,6 +3551,23 @@
         }
       }
     },
+    "sync.offline_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No network"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет сети"
+          }
+        }
+      }
+    },
     "sync.pending": {
       "extractionState": "manual",
       "localizations": {
@@ -3572,15 +3589,51 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld answers saved on this device"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld answer saved here — it goes to your account when you sign in."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld answers saved here — they go to your account when you sign in."
+                }
+              }
+            }
           }
         },
         "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сохранено на устройстве: %lld"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ответа сохранены — улетят в аккаунт, когда войдёшь."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ответов сохранены — улетят в аккаунт, когда войдёшь."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ответ сохранён — улетит в аккаунт, когда войдёшь."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ответов сохранены — улетят в аккаунт, когда войдёшь."
+                }
+              }
+            }
           }
         }
       }

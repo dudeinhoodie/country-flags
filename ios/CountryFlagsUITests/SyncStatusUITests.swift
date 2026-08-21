@@ -11,7 +11,7 @@ final class SyncStatusUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["home.deck.ALL"].waitForExistence(timeout: 60))
         // Nothing queued yet, so a healthy device says nothing at all.
-        XCTAssertFalse(app.staticTexts["sync.status"].exists)
+        XCTAssertFalse(syncStatus(in: app).exists)
 
         app.buttons["home.deck.ALL"].tap()
         XCTAssertTrue(app.buttons["study.start"].waitForExistence(timeout: 15))
@@ -41,10 +41,18 @@ final class SyncStatusUITests: XCTestCase {
         // seconds is what the rest of this suite gives a cold launch; the line
         // is late here rather than absent, and what makes it late is the size
         // of the release rather than anything about the queue.
-        let line = app.staticTexts["sync.status"]
-        XCTAssertTrue(line.waitForExistence(timeout: 30), app.debugDescription)
-        XCTAssertFalse(line.label.isEmpty)
+        let chip = syncStatus(in: app)
+        XCTAssertTrue(chip.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertFalse(chip.label.isEmpty)
         // A guest is told their work is saved, not that something failed.
-        XCTAssertFalse(line.label.contains("sync."))
+        XCTAssertFalse(chip.label.contains("sync."))
+    }
+
+    /// The chip lives in the navigation bar now, and how SwiftUI renders a
+    /// small stack up there is its own business: asking for any descendant
+    /// keeps this about the state being reported rather than the element kind
+    /// it happens to be reported as.
+    private func syncStatus(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any)["sync.status"]
     }
 }

@@ -399,10 +399,24 @@ public enum L10n {
         String(format: localized("sync.pending"), count)
     }
 
+    /// The header has room for two words, not a sentence. The sentence is
+    /// still what the chip says to VoiceOver.
+    public static var syncOfflineShort: String { localized("sync.offline_short") }
+
     /// A guest's work is saved and simply not sent yet. Saying it failed would
     /// be false and would invite them to retry something that is not broken.
+    ///
+    /// It does name the way out, though. "Saved on this device" is a true
+    /// sentence that leaves the reader with nothing to do about it, and a
+    /// person who has answered two hundred cards deserves to know what carries
+    /// them over: signing in, and nothing else.
     public static func syncSavedOnDevice(_ count: Int) -> String {
-        String(format: localized("sync.saved_on_device"), count)
+        // The plural rule lives in the catalog; only `localizedStringWithFormat`
+        // applies it.
+        String.localizedStringWithFormat(
+            NSLocalizedString("sync.saved_on_device", bundle: bundle, comment: ""),
+            count
+        )
     }
 
     /// The copy a failure is allowed to show.

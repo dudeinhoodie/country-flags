@@ -149,11 +149,9 @@ public struct HomeView: View {
         failure: ContentSyncFailure?
     ) -> some View {
         SceneScrollView {
-            // Both explain themselves only when they have something to say; a
-            // healthy device up to date shows neither.
-            if sync.status.isWorthReporting {
-                SyncStatusLine(status: sync.status)
-            }
+            // The sync state moved to the header, where it sits between the
+            // avatar and the gear; this one explains itself only when it has
+            // something to say.
             if isStale || failure != nil {
                 ContentStatusBanner(isStale: isStale, failure: failure)
             }
@@ -174,18 +172,24 @@ public struct HomeView: View {
 
     /// Whether the pane's numbers are still being read.
     ///
-    /// Two things have to land before a number is worth showing: the local
-    /// counts, and the first catalogue sync of the launch. The stored
-    /// catalogue answers instantly and can be a day old, so painting its
-    /// numbers first and correcting them a second later is exactly the flicker
-    /// this screen is read through — the reader sees a figure, believes it,
-    /// and watches it change.
+    /// Three things have to land before a number is worth showing: the local
+    /// counts, the run that fetches the canonical ones, and the first
+    /// catalogue sync of the launch. The stored counts answer instantly and
+    /// are the previous launch's — painting them first and correcting them a
+    /// second later is exactly the flicker this screen is read through: the
+    /// reader sees a figure, believes it, and watches it change.
     ///
-    /// Neither wait is unbounded. Without a progress factory there will never
-    /// be counts, and a sync that fails or finds no network settles into a
-    /// phase that is not `syncing`, so the screen always arrives somewhere.
+    /// That is why a run in flight counts as waiting, not only the first one.
+    /// Every run exists because something changed; showing the number it is
+    /// about to replace, for as long as it takes to replace it, is the
+    /// behaviour being fixed rather than a different case of it.
+    ///
+    /// None of the waits is unbounded. Without a progress factory there will
+    /// never be counts, and a run that fails or finds no network settles back
+    /// into `idle` like any other, so the screen always arrives somewhere.
     private var isAwaitingProgress: Bool {
         if makeProgress != nil, !(progress?.isLoaded ?? false) { return true }
+        if sync.status.phase == .syncing { return true }
         return store.lastSyncedAt == nil && store.status.phase != .idle
     }
 
