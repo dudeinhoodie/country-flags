@@ -96,9 +96,9 @@ function buildAsset(asset, assetBaseUrl) {
   return {
     id: deterministicUuid(`content-asset:${asset.key}`),
     type: "FLAG",
-    url: `${assetBaseUrl}${asset.path}`,
-    mimeType: asset.mimeType,
-    sha256: asset.sha256,
+    // Contract v2: an encoding is described in `representations` and nowhere
+    // else. The asset used to repeat its vector here, and the release stopped
+    // publishing the fields that came from.
     representations: asset.representations.map((representation) => ({
       url: `${assetBaseUrl}${representation.path}`,
       mimeType: representation.mimeType,

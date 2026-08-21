@@ -11,7 +11,6 @@
         "asset": {
           "id": "8c425368-7598-5b0b-94d5-771923e46165",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/afghanistan.svg",
@@ -103,7 +102,6 @@
         "asset": {
           "id": "ae91d081-578c-5728-8903-434470a5eaa6",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/armenia.svg",
@@ -195,7 +193,6 @@
         "asset": {
           "id": "372f823c-dcf3-5583-beca-bf7424af229a",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/azerbaijan.svg",
@@ -287,7 +284,6 @@
         "asset": {
           "id": "d9291c71-2860-50f9-bbb1-1ad67b331c04",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/bahrain.svg",
@@ -379,7 +375,6 @@
         "asset": {
           "id": "c1fe8a7a-f4f2-537e-b99e-4896a188c1cf",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/bangladesh.svg",
@@ -471,7 +466,6 @@
         "asset": {
           "id": "4b127485-d9ec-5b7d-ae15-17a344c760c1",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/bhutan.svg",
@@ -563,7 +557,6 @@
         "asset": {
           "id": "ad1cb729-dd9f-5f27-aa11-2956101cf409",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/brunei-darussalam.svg",
@@ -655,7 +648,6 @@
         "asset": {
           "id": "78f7023b-9219-56e9-955c-d873fcb573ec",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cambodia.svg",
@@ -747,7 +739,6 @@
         "asset": {
           "id": "b1b8dd3c-cc51-5ab0-96f7-e552bc19712e",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/china.svg",
@@ -839,7 +830,6 @@
         "asset": {
           "id": "a6127868-dc8a-525e-a411-08e26b88bf23",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cyprus.svg",
@@ -931,7 +921,6 @@
         "asset": {
           "id": "64aef82d-5635-5473-b54b-a6b0d0a95d9d",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/democratic-people-s-republic-of-korea.svg",
@@ -1023,7 +1012,6 @@
         "asset": {
           "id": "0a4ca637-6fd8-55f3-abbd-3c73624c54cc",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/georgia.svg",
@@ -1115,7 +1103,6 @@
         "asset": {
           "id": "9f788ac2-8ac3-5f75-995e-e009d7444b20",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/india.svg",
@@ -1207,7 +1194,6 @@
         "asset": {
           "id": "891645e0-3cb9-5058-98db-1f61c89f620b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/indonesia.svg",
@@ -1299,7 +1285,6 @@
         "asset": {
           "id": "0b024fd6-df4e-59d4-8fc6-9fd7cd6e0451",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/iran-islamic-republic-of.svg",
@@ -1391,7 +1376,6 @@
         "asset": {
           "id": "4506c7a4-d485-5137-a041-d1c03d2197c3",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/iraq.svg",
@@ -1483,7 +1467,6 @@
         "asset": {
           "id": "cd164320-9528-5e4e-89ec-b6c1b4017cea",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/israel.svg",
@@ -1575,7 +1558,6 @@
         "asset": {
           "id": "d21fd8ef-89cd-52b0-8171-dea4479b9965",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/japan.svg",
@@ -1667,7 +1649,6 @@
         "asset": {
           "id": "32124a57-bc85-5e14-b4e5-749dbeeb188b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/jordan.svg",
@@ -1759,7 +1740,6 @@
         "asset": {
           "id": "1bdd1765-347b-5beb-8ba9-378d1e613676",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kazakhstan.svg",
@@ -1851,7 +1831,6 @@
         "asset": {
           "id": "03fae37d-af9a-5358-9727-2e167d721537",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kuwait.svg",
@@ -1943,7 +1922,6 @@
         "asset": {
           "id": "06173639-bbb9-54df-bd8c-e56df5cf50b7",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kyrgyzstan.svg",
@@ -2035,7 +2013,6 @@
         "asset": {
           "id": "03e9d660-68e3-5f80-b807-1ec1c7e8fbbc",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/lao-people-s-democratic-republic.svg",
@@ -2127,7 +2104,6 @@
         "asset": {
           "id": "343b8827-9bd2-517b-ba9a-7232576aa300",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/lebanon.svg",
@@ -2219,7 +2195,6 @@
         "asset": {
           "id": "7017f1ca-a73b-5c09-8448-4a1dcfbf1d48",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/malaysia.svg",
@@ -2311,7 +2286,6 @@
         "asset": {
           "id": "a941c0c3-a7f9-5c59-9a04-ad391feb76ae",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/maldives.svg",
@@ -2403,7 +2377,6 @@
         "asset": {
           "id": "7128a8cb-084f-5f42-97b5-5d98a18768ed",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/mongolia.svg",
@@ -2495,7 +2468,6 @@
         "asset": {
           "id": "d70bc39b-4c04-55cd-86c6-fc148a512d58",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/myanmar.svg",
@@ -2587,7 +2559,6 @@
         "asset": {
           "id": "2d832552-24fc-5926-868c-f8cffd3afeba",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/nepal.svg",
@@ -2679,7 +2650,6 @@
         "asset": {
           "id": "c362d3b0-8a2f-587b-b3f0-856d98859d47",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/oman.svg",
@@ -2771,7 +2741,6 @@
         "asset": {
           "id": "271bca77-50df-5e81-82da-cedcf2b72437",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/pakistan.svg",
@@ -2863,7 +2832,6 @@
         "asset": {
           "id": "0cc42502-7ae3-590a-b6b1-c3703d7af50a",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/philippines.svg",
@@ -2955,7 +2923,6 @@
         "asset": {
           "id": "aadff257-f9e7-5327-91ee-f7adc4dd11b5",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/qatar.svg",
@@ -3047,7 +3014,6 @@
         "asset": {
           "id": "b77db21d-e756-5c20-b07b-1ee00113388b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/republic-of-korea.svg",
@@ -3139,7 +3105,6 @@
         "asset": {
           "id": "383d60f8-bea9-5ff8-b8da-308af728408e",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/saudi-arabia.svg",
@@ -3231,7 +3196,6 @@
         "asset": {
           "id": "8d508478-7e33-5497-bb40-745f95f7a494",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/singapore.svg",
@@ -3323,7 +3287,6 @@
         "asset": {
           "id": "7baa041b-812a-5848-b223-f386e1fd775d",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sri-lanka.svg",
@@ -3415,7 +3378,6 @@
         "asset": {
           "id": "87cb9e40-7f38-54fb-9005-deebd4c6bba0",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/state-of-palestine.svg",
@@ -3507,7 +3469,6 @@
         "asset": {
           "id": "7a64293c-de8e-5820-8307-4edd5d30e66c",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/syrian-arab-republic.svg",
@@ -3599,7 +3560,6 @@
         "asset": {
           "id": "4725676b-dc1e-5245-bb91-9aff7f69a2fe",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/taiwan.svg",
@@ -3682,7 +3642,6 @@
         "asset": {
           "id": "e02dfae1-ae6d-54d1-af01-897ced9098fb",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/tajikistan.svg",
@@ -3774,7 +3733,6 @@
         "asset": {
           "id": "63abc419-1c0b-59fb-bb25-0ead02764763",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/thailand.svg",
@@ -3866,7 +3824,6 @@
         "asset": {
           "id": "95aa89ce-393c-5f4d-b986-970fec5eb3fb",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/timor-leste.svg",
@@ -3958,7 +3915,6 @@
         "asset": {
           "id": "ff3bbcb1-39c8-5fba-a5cd-da3f59393b99",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/turkiye.svg",
@@ -4050,7 +4006,6 @@
         "asset": {
           "id": "fe2c5b27-092d-5b2b-9c3a-ba23364b71ef",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/turkmenistan.svg",
@@ -4142,7 +4097,6 @@
         "asset": {
           "id": "dcbf7506-3a6f-5fce-90f5-b090cd33d126",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/united-arab-emirates.svg",
@@ -4234,7 +4188,6 @@
         "asset": {
           "id": "e66bf25b-04f1-5143-b504-eb5903250026",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/uzbekistan.svg",
@@ -4326,7 +4279,6 @@
         "asset": {
           "id": "0b96bd86-be84-5399-bf89-5f307911a2ed",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/viet-nam.svg",
@@ -4418,7 +4370,6 @@
         "asset": {
           "id": "a41f24c7-2900-5d6a-a1e8-db042742cf19",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/yemen.svg",
@@ -4510,7 +4461,6 @@
         "asset": {
           "id": "813f0c56-519b-5f49-ae91-c355e0c892ec",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/china-hong-kong-special-administrative-region.svg",
@@ -4602,7 +4552,6 @@
         "asset": {
           "id": "2037cbb5-211d-534c-a219-b82814e8ef27",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/undefined",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/china-macao-special-administrative-region.svg",

@@ -272,9 +272,6 @@ const assets = countries.flatMap((country) => {
     assetType: AssetType.FLAG,
     variant: "current",
     objectKey: `${CONTENT_VERSION}/flags/${country.slug}.svg`,
-    publicUrl: currentUrl,
-    mimeType: "image/svg+xml",
-    sha256: currentSha256,
     representations: flagRepresentations(
       currentUrl,
       currentSha256,
@@ -310,8 +307,6 @@ const assets = countries.flatMap((country) => {
       id: assetId(country, 2),
       variant: replacementVariant,
       objectKey: `${CONTENT_VERSION}/flags/${country.slug}.${replacementVariant}.svg`,
-      publicUrl: replacementUrl,
-      sha256: replacementSha256,
       representations: flagRepresentations(
         replacementUrl,
         replacementSha256,

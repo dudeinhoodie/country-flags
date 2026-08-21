@@ -28,7 +28,7 @@ interface CardSnapshotBody {
   id: string;
   revision: number;
   answer: { displayName: string };
-  prompt: { asset: { sha256: string } };
+  prompt: { asset: { representations: { sha256: string }[] } };
 }
 
 interface StudyCardBody {
@@ -207,7 +207,9 @@ describe("offline study session import (integration)", () => {
     offlineCards = canonicalSnapshots.map((snapshot, index) => ({
       learningCardId: snapshot.id,
       learningCardRevision: snapshot.revision,
-      assetSha256: snapshot.prompt.asset.sha256,
+      // Whichever encoding a client cached; the API describes them all and
+      // the asset no longer repeats one of its own.
+      assetSha256: snapshot.prompt.asset.representations[0]!.sha256,
       randomSeed: `offline-seed-${index + 1}`,
       distractorPolicyVersion: null,
       snapshot,

@@ -78,9 +78,24 @@ enum TestFixtures {
           "asset": {
             "id": "40000000-0000-4000-8000-000000000005",
             "type": "FLAG",
-            "url": "https://cdn.country-flags.test/test-only-fixture-v1/flags/kosovo.svg",
-            "mimeType": "image/svg+xml",
-            "sha256": "3f786850e387550fdab836ed7e6dc881de23001b8b9f4e0bd6c1b0aa5c0ba9b1",
+            "representations": [
+              {
+                "url": "https://cdn.country-flags.test/test-only-fixture-v1/flags/kosovo.svg",
+                "mimeType": "image/svg+xml",
+                "sha256": "3f786850e387550fdab836ed7e6dc881de23001b8b9f4e0bd6c1b0aa5c0ba9b1",
+                "scale": null,
+                "widthPx": null,
+                "heightPx": null
+              },
+              {
+                "url": "https://cdn.country-flags.test/test-only-fixture-v1/flags/kosovo@2x.png",
+                "mimeType": "image/png",
+                "sha256": "537351eac826c7634b0074ca701b400423f88114a0fa8b9028d467d5973846f2",
+                "scale": 2,
+                "widthPx": 336,
+                "heightPx": 240
+              }
+            ],
             "width": 840,
             "height": 600,
             "aspectRatio": 1.4,
