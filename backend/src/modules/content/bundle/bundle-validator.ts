@@ -48,16 +48,12 @@ function representationIssues(asset: DomainAsset): string[] {
     issues.push(`asset ${asset.key} publishes no representation`);
     return issues;
   }
-  if (
-    vector.path !== asset.path ||
-    vector.mimeType !== asset.mimeType ||
-    vector.sha256 !== asset.sha256
-  ) {
-    // The asset still carries the vector for one release. A list that
-    // disagrees with it would serve two different pictures under one identity.
-    issues.push(
-      `asset ${asset.key} does not lead with the representation its own url describes`,
-    );
+  if (vector.mimeType !== "image/svg+xml") {
+    // The order is the contract: a client reads this list top down, and the
+    // vector is the original every raster was rendered from. It used to be
+    // checked by comparing against the copy the asset carried; the copy is
+    // gone, so the rule is stated directly.
+    issues.push(`asset ${asset.key} does not lead with its vector original`);
   }
   if (vector.scale !== undefined) {
     issues.push(`asset ${asset.key} gives its vector original a screen scale`);

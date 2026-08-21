@@ -15,9 +15,6 @@
         "required": [
           "key",
           "entityKey",
-          "path",
-          "mimeType",
-          "sha256",
           "representations",
           "aspectRatio",
           "sourcePath",
@@ -30,11 +27,8 @@
         "properties": {
           "key": { "type": "string", "minLength": 1 },
           "entityKey": { "type": "string", "minLength": 1 },
-          "path": { "type": "string", "pattern": "^assets/svg/.+\\.svg$" },
-          "mimeType": { "const": "image/svg+xml" },
-          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
           "representations": {
-            "description": "Every published encoding of this asset, in the order a client should prefer them: the vector original first, then raster by ascending scale. A client picks the first entry it can decode, so an encoding it does not understand is inert rather than fatal.",
+            "description": "Every published encoding of this asset, in the order a client should prefer them: the vector original first, then raster by ascending scale. This is the only place an encoding is described: the asset used to repeat the vector in its own path, mimeType and sha256 so a reader written before this field kept working, and those are gone.",
             "type": "array",
             "minItems": 1,
             "items": {

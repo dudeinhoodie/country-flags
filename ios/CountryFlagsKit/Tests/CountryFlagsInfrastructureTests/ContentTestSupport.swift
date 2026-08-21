@@ -43,28 +43,6 @@ enum ContractFixture {
         .json(try json(name), statusCode: statusCode)
     }
 
-    /// The same document as a release published before `representations`
-    /// existed, so a test can prove the client still reads one.
-    static func withoutRepresentations(_ name: String) throws -> String {
-        let stripped = strippingRepresentations(
-            from: try JSONSerialization.jsonObject(with: Data(try json(name).utf8))
-        )
-        return String(
-            decoding: try JSONSerialization.data(withJSONObject: stripped),
-            as: UTF8.self
-        )
-    }
-
-    private static func strippingRepresentations(from node: Any) -> Any {
-        if var object = node as? [String: Any] {
-            object.removeValue(forKey: "representations")
-            return object.mapValues(strippingRepresentations)
-        }
-        if let array = node as? [Any] {
-            return array.map(strippingRepresentations)
-        }
-        return node
-    }
 
     /// This file sits at `ios/CountryFlagsKit/Tests/CountryFlagsInfrastructureTests/`.
     private static let repositoryRoot: URL = URL(filePath: #filePath)

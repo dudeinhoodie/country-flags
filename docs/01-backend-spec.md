@@ -352,9 +352,12 @@ Unique `(parent_entity_id, child_entity_id, taxonomy_code, relation_type, valid_
 - `status`
 - `content_version`
 
-Unique `sha256` допускается для дедупликации бинарных объектов. SVG проходит санитизацию до публикации.
+SVG проходит санитизацию до публикации.
 
-`url`, `mime_type` и `sha256` описывают вектор и сохраняются один релиз ради клиентов, которые появились до `asset_representations`.
+Кодировку описывает только `asset_representations`. Колонки `url`, `mime_type`
+и `sha256` дублировали вектор ради клиентов, появившихся раньше этой таблицы;
+таких клиентов не выпустили, и колонки удалены вместе с индексом по `sha256`
+(миграция `20260821180000_asset_drops_its_duplicate_encoding`).
 
 #### `asset_representations`
 

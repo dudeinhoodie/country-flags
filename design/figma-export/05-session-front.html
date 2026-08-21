@@ -1,0 +1,65 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Сессия · Лицо</title><style>
+  * { box-sizing:border-box; margin:0; }
+  body { background:#0a0a0f; font:17px/1.4 -apple-system,'SF Pro Text',system-ui,sans-serif;
+    color:#fff; -webkit-font-smoothing:antialiased; width:393px; }
+  .phone { width:393px; height:852px; position:relative; overflow:hidden; background:#0a0a0f; }
+  .scene { position:absolute; inset:0;
+    background:
+      radial-gradient(420px 420px at 20% 12%, rgba(43,99,255,.21), transparent 70%),
+      radial-gradient(420px 420px at 85% 30%, rgba(224,16,47,.17), transparent 70%),
+      radial-gradient(380px 380px at 50% 100%, rgba(43,99,255,.11), transparent 70%); }
+  .content { position:relative; height:100%; padding:59px 24px 24px; display:flex;
+    flex-direction:column; gap:16px; }
+  .glass { background:rgba(255,255,255,.065); border:1px solid rgba(255,255,255,.13);
+    border-radius:20px; padding:16px; }
+  .cta { background:#fff; color:#000; border-radius:999px; height:56px; display:flex;
+    align-items:center; justify-content:center; font-weight:700; font-size:17px; }
+  .glassbtn { background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.16);
+    border-radius:999px; height:50px; display:flex; align-items:center; justify-content:center;
+    font-weight:600; font-size:16px; }
+  .label { font-size:12px; font-weight:650; letter-spacing:1.2px; text-transform:uppercase;
+    color:rgba(255,255,255,.5); }
+  .title { font-size:34px; font-weight:700; letter-spacing:-.4px; }
+  .section { font-size:17px; font-weight:600; }
+  .cap { font-size:13px; color:rgba(255,255,255,.55); }
+  .hero { font:900 34px/1 'SF Pro Rounded',-apple-system,system-ui; letter-spacing:-.5px;
+    font-variant-numeric:tabular-nums; }
+  .track { position:relative; height:6px; border-radius:4px; background:rgba(255,255,255,.15); }
+  .track i { position:absolute; inset:0 auto 0 0; border-radius:4px; }
+  .row { display:flex; align-items:center; gap:8px; min-height:44px; }
+  .chev { color:rgba(255,255,255,.4); font-size:14px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1;
+    font-size:10px; color:rgba(255,255,255,.55); }
+  .tab.on { color:#fff; }
+  .tabbar { position:absolute; left:16px; right:16px; bottom:20px; height:64px;
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+    border-radius:999px; display:flex; align-items:center; padding:0 10px;
+    backdrop-filter:blur(20px); }
+  .flag { border-radius:5px; line-height:1; display:flex; align-items:center;
+    justify-content:center; }
+</style></head><body><div class="phone"><div class="scene" style="background:
+    radial-gradient(420px 420px at 20% 12%, rgba(0,85,164,.5), transparent 70%),
+    radial-gradient(420px 420px at 85% 30%, rgba(239,65,53,.42), transparent 70%),
+    radial-gradient(380px 380px at 50% 100%, rgba(0,85,164,.26), transparent 70%)"></div>
+  <div class="content" style="align-items:center;justify-content:center;gap:20px">
+    <div style="position:absolute;top:59px;left:24px;right:24px;display:flex;align-items:center">
+      <div class="glassbtn" style="width:40px;height:40px;border-radius:50%;font-size:15px">✕</div>
+      <span class="cap" style="flex:1;text-align:center">Африка · 3 / 10</span>
+      <div style="width:40px"></div>
+    </div>
+    <div style="position:relative;width:329px;height:247px">
+      <div style="position:absolute;inset:0;transform:translateY(28px) scale(.92) rotate(3deg);
+        background:#141322;border:1px solid rgba(255,255,255,.12);border-radius:20px"></div>
+      <div style="position:absolute;inset:0;transform:translateY(14px) scale(.96) rotate(-2deg);
+        background:#181628;border:1px solid rgba(255,255,255,.12);border-radius:20px"></div>
+      <div class="flag" style="position:absolute;inset:0;font-size:150px;border-radius:20px;
+        background:linear-gradient(160deg,rgba(255,255,255,.1),transparent 40%,rgba(0,0,0,.12));
+        border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 24px rgba(0,0,0,.35)">🇫🇷</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;color:rgba(255,255,255,.5);font-size:13px">
+      <span style="color:#FF7D75">‹ не помню</span><span style="font-size:20px">✋</span>
+      <span style="color:#6EDF8A">помню ›</span>
+    </div>
+    <div class="glassbtn" style="align-self:stretch;position:absolute;bottom:24px;left:24px;right:24px">
+      ⟲&nbsp; Показать ответ</div>
+  </div></div></body></html>

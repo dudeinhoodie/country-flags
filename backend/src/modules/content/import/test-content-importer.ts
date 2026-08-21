@@ -39,10 +39,15 @@ function validateFixture(): void {
   }
 
   for (const asset of TEST_CONTENT_FIXTURE.assets) {
+    // Every encoding, not the asset's own copy of one: the copy is gone, and
+    // what a client fetches is a representation.
     if (
       asset.licenseName.length === 0 ||
       asset.licenseUrl.length === 0 ||
-      !/^https:\/\//u.test(asset.publicUrl)
+      asset.representations.length === 0 ||
+      !asset.representations.every(({ publicUrl }) =>
+        /^https:\/\//u.test(publicUrl),
+      )
     ) {
       throw new Error(`Asset ${asset.id} has invalid source/license metadata`);
     }
@@ -170,9 +175,6 @@ async function importTransaction(
       assetType: asset.assetType,
       variant: asset.variant,
       objectKey: asset.objectKey,
-      publicUrl: asset.publicUrl,
-      mimeType: asset.mimeType,
-      sha256: asset.sha256,
       width: asset.width,
       height: asset.height,
       aspectRatio: asset.aspectRatio,

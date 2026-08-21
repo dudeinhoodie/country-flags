@@ -668,9 +668,6 @@ model Asset {
   assetType       AssetType              @map("asset_type")
   variant         String
   objectKey       String                 @unique @map("object_key")
-  publicUrl       String                 @map("public_url")
-  mimeType        String                 @map("mime_type")
-  sha256          String                 @db.Char(64)
   width           Int?
   height          Int?
   aspectRatio     Decimal?               @map("aspect_ratio") @db.Decimal(12, 6)
@@ -691,7 +688,6 @@ model Asset {
   representations AssetRepresentation[]
 
   @@index([geoEntityId, assetType, status])
-  @@index([sha256])
   @@index([contentVersion])
   @@map("assets")
 }

@@ -61,12 +61,13 @@ export interface DomainAssetRepresentation {
 export interface DomainAsset {
   key: string;
   entityKey: string;
-  path: string;
-  sha256: string;
-  mimeType: string;
   /**
    * Every published encoding, in the order a client should prefer them: the
    * vector original first, then raster by ascending scale.
+   *
+   * The only place an encoding is described. The asset used to repeat the
+   * vector's path, media type and checksum beside this list for the benefit of
+   * readers written before it existed; there are none.
    */
   representations: DomainAssetRepresentation[];
   aspectRatio?: number;

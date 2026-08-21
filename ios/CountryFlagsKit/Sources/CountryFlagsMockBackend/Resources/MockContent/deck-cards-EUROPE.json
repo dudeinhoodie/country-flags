@@ -11,9 +11,6 @@
         "asset": {
           "id": "20b43d7e-0743-5380-9bd7-48d9c54d5b4c",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/albania.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "0b0eb85abf8b1e7dd5a74598e1a6cda5bb6402d2c0ac6de93e15b6286e3b5037",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/albania.svg",
@@ -105,9 +102,6 @@
         "asset": {
           "id": "0fdfe0e0-c195-556c-a5f1-e38b4b4c78aa",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/andorra.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "cc0ce6e6f3556f986b2ed66ad3b00dc15e65ebff856949049dcb4f629c35eeb0",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/andorra.svg",
@@ -199,9 +193,6 @@
         "asset": {
           "id": "73bbc288-f059-52df-9d0b-dd0628bad7fb",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/austria.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "66dcab2dc39082d731631d08e0319c92a020d2d195b2af26fd035ef0360f9312",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/austria.svg",
@@ -293,9 +284,6 @@
         "asset": {
           "id": "9e9459a0-4860-5646-badc-0cf9f631e106",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/belarus.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "2942479c12991ba9d2ca0882fc7f5993ea97388d6cffad8919e79e85a62e8fcc",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/belarus.svg",
@@ -387,9 +375,6 @@
         "asset": {
           "id": "709c5889-51bd-5b47-af45-0f65d15ef643",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/belgium.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "0982ac6cf0bdd59ef20e49bebd1e001dcdd8bd6b9f317b87fdd7a7a67905dd43",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/belgium.svg",
@@ -481,9 +466,6 @@
         "asset": {
           "id": "756f6916-a47e-5661-bf2f-81cdd24bba67",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/bosnia-and-herzegovina.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "f22e30ec446cb823ede48af519a77285a5e9cd258b75e0e39a77cb91a37b764a",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/bosnia-and-herzegovina.svg",
@@ -575,9 +557,6 @@
         "asset": {
           "id": "2abe6a30-99ee-5930-9a67-c07e15133369",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/bulgaria.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "1b66faee04defb800dac5af82923213aad1418a9c651ef582f23c8777871be02",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/bulgaria.svg",
@@ -669,9 +648,6 @@
         "asset": {
           "id": "110b7e63-3710-5fe2-8592-0cc88584a731",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/croatia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "dd2eb69134d6e8ee2bbbe1e6c7446925865604aaa072644e3a2cebb73340637f",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/croatia.svg",
@@ -763,9 +739,6 @@
         "asset": {
           "id": "88d7072d-9776-5e07-80b1-4dc3419302fb",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/czechia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "d11357d35647229a51b6259068d9423b169372538209e9288f464cb10014d3b3",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/czechia.svg",
@@ -857,9 +830,6 @@
         "asset": {
           "id": "76f1b61a-7ce6-5bad-b688-139185442b40",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/denmark.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "09a16fd23284318d30db16203633ae0d1861cb62fca04011f885b9b0d209f660",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/denmark.svg",
@@ -951,9 +921,6 @@
         "asset": {
           "id": "0c1ef218-f3d9-5a3f-b13f-cb96b319d49c",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/estonia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "1367c5d9a2f385687fb5490018616659bde445f4d64c94fe9e1306d965aaaef0",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/estonia.svg",
@@ -1045,9 +1012,6 @@
         "asset": {
           "id": "5aa6fb4a-f3be-556b-97dd-bd039ba2377b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/finland.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "bc1056d8632e3dcbab4ccdcaab1293c16ee1edd34cbc3cec0c246ff3f2dd416f",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/finland.svg",
@@ -1139,9 +1103,6 @@
         "asset": {
           "id": "2821d3e8-61d9-58c2-9c39-1a77cdb13b32",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/france.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "f68d0c6b56e5b499023f0c1d0a4fd06cfcd9f4f8b16fa631dcfc5bded8daffad",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/france.svg",
@@ -1233,9 +1194,6 @@
         "asset": {
           "id": "5fac849e-ef1a-5752-a097-417338479582",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/germany.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "c116462ed848fc9faf708d01e30fb74c809779969288efc6593c77ead7d65ec3",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/germany.svg",
@@ -1327,9 +1285,6 @@
         "asset": {
           "id": "54166d1b-7a78-552c-a505-54764c67451b",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/greece.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "8904b187871016917bfb2cf6d36286f66ce46a89fcceda39d830bc47a20437d8",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/greece.svg",
@@ -1421,9 +1376,6 @@
         "asset": {
           "id": "1f8b6d97-42f6-5f29-a9b7-43b2453db9aa",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/holy-see.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "bf9826ddd1f5b8ad875322b761af6a736da4fcfda8007e2901401d37ab9f854e",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/holy-see.svg",
@@ -1506,9 +1458,6 @@
         "asset": {
           "id": "6f7695ed-f5fd-56d4-8427-000c90211774",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/hungary.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "04c3407d9090cd8ebcb80de60f72df781ac56b3a2ce0e81128c5f5d30016aeb7",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/hungary.svg",
@@ -1600,9 +1549,6 @@
         "asset": {
           "id": "820d69b0-d5db-533c-91d8-6fed93ec851c",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/iceland.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "0880405636db10aa3de6f9443152f75698c921c11cbf7a32fcb140cffc7c07e5",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/iceland.svg",
@@ -1694,9 +1640,6 @@
         "asset": {
           "id": "c606d5a9-d3d2-57a3-bcf8-d0a0d7de97b0",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/ireland.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "7db543048b63a457aba57e7d2ee9a0e85f383ed51de93294913576ab101a30a3",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/ireland.svg",
@@ -1788,9 +1731,6 @@
         "asset": {
           "id": "7f0dc1fe-0f82-5eba-9dc1-cbd6f1f2f043",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/italy.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "06b3de0223b42589c93149e9132df806dc297dedd7721a30c347e68faef80be8",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/italy.svg",
@@ -1882,9 +1822,6 @@
         "asset": {
           "id": "60b8922f-0836-59c8-a132-494bb42c524e",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kosovo.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "8edbe12599236bf3b950f3bc98da33ac5ddc26756c31857780ddedd95941bb98",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/kosovo.svg",
@@ -1967,9 +1904,6 @@
         "asset": {
           "id": "b7783711-d4b5-5c6c-8fbd-4c9c069e2506",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/latvia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "4ad78c9277aafb0121ecc4dfe708adc0a5ecc99ef375afb53de330f13c2a7954",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/latvia.svg",
@@ -2061,9 +1995,6 @@
         "asset": {
           "id": "aebc0efa-55af-5281-b9d1-7ec2d3012176",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/liechtenstein.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "3bc8090562195788e3acf5897117713606f1719b67cd3940807efc31243c070a",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/liechtenstein.svg",
@@ -2155,9 +2086,6 @@
         "asset": {
           "id": "7c20b2ee-4c4e-52e5-bd90-b328cbc4d3b5",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/lithuania.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "bd5326cedd78f106f52f392afc96c1a9f4301afd397569d4d5930211c77c8d94",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/lithuania.svg",
@@ -2249,9 +2177,6 @@
         "asset": {
           "id": "68a5f53c-755d-5c4e-8707-03d48fc1b05d",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/luxembourg.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "c354622d7f423c4872b7fa318365a8bbd0d3fd4c29b2e079a67756153bb5131e",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/luxembourg.svg",
@@ -2343,9 +2268,6 @@
         "asset": {
           "id": "0a08e33a-e15f-50db-99e9-49a979d04203",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/malta.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "45763763fc9b84aeee8f67993ed22c1d58d21765c6e188303b3e9204e717e677",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/malta.svg",
@@ -2437,9 +2359,6 @@
         "asset": {
           "id": "4b719c93-9f51-51b5-9d39-5e53768e13d3",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/monaco.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "b5877cbf5641739e02412c0bed4d74d096e033cf0d96d21e6725034ae5818422",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/monaco.svg",
@@ -2531,9 +2450,6 @@
         "asset": {
           "id": "81a181be-67e4-5cae-a77e-4d361f7a3c16",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/montenegro.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "669454daf14df8840966d414a9f6289a9179e7449ca9f6f03de5e803592cf103",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/montenegro.svg",
@@ -2625,9 +2541,6 @@
         "asset": {
           "id": "483fd5ab-e4a6-55cd-bf27-809767c307bb",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/netherlands-kingdom-of-the.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "32ca1a64bf86e06bcae82fa7ad290b1e974e46fed6e4c3b17f742879b52e2394",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/netherlands-kingdom-of-the.svg",
@@ -2719,9 +2632,6 @@
         "asset": {
           "id": "9c293067-20cb-50bd-ba92-7e81b8151a25",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/north-macedonia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "cae064dd05663083bafb8836c102aecfc8b6e24f4690e43204c5747bd1c647c3",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/north-macedonia.svg",
@@ -2813,9 +2723,6 @@
         "asset": {
           "id": "dc88ad52-367a-5902-b0e4-4540dab9d471",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/norway.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "099f2fed637c21d08c1803f392004255d9d117b15d70efa2ead8180ff7ecaa5e",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/norway.svg",
@@ -2907,9 +2814,6 @@
         "asset": {
           "id": "99d9db8b-acb4-548b-ab1d-fcff29449798",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/poland.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "c4ac006e0e41b7e50044aa0b9bda1b6ba0c3d7607bd428a47aacdfbd5d4e1b89",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/poland.svg",
@@ -3001,9 +2905,6 @@
         "asset": {
           "id": "e257befd-2ce5-5b11-aa4f-3815df7dacc8",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/portugal.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "068adfb4fa3e39ef15f44ec871ff2835fce343c9bfdbc74012a8967f5c5c2326",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/portugal.svg",
@@ -3095,9 +2996,6 @@
         "asset": {
           "id": "d7ef027b-8c0b-5d13-9f0d-2e45e507ed6d",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/republic-of-moldova.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "37905d5361fa17c1246342777a786438b3a77b2fe3e2fa39557c66bd923cbfd5",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/republic-of-moldova.svg",
@@ -3189,9 +3087,6 @@
         "asset": {
           "id": "dee1a78c-b108-52a5-8484-327c48379e6e",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/romania.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "2ce7ef720cdbd558146e8470d69a4aab5df021f95672a487c73aa36315ce898e",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/romania.svg",
@@ -3283,9 +3178,6 @@
         "asset": {
           "id": "ce4b739d-5d5f-550d-b812-7c10742aafbb",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/russia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "614699589fd86f07197520c0f156762babc4f864fb2dab66f2cf9a8dce649336",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/russia.svg",
@@ -3377,9 +3269,6 @@
         "asset": {
           "id": "a3e4ecc2-e058-560f-a6cb-da9413a33d31",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/san-marino.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "9fb89cd42f0dde20ac1bfee99c9e87586c17435860a371724f26f887012e36dd",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/san-marino.svg",
@@ -3471,9 +3360,6 @@
         "asset": {
           "id": "264a9b1e-8f62-5da6-b03d-0387ad97b313",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/serbia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "c5e8dafc5dbf7c9819add2f7f28802b9548a16412b9994f048079f45a12ebc61",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/serbia.svg",
@@ -3565,9 +3451,6 @@
         "asset": {
           "id": "572a2ca2-10c1-544a-816b-7c265cf20e20",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/slovakia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "23b23d8e8e1d646fbdfe50d0b9ae4d61f43f40a764521d55048497a37283a4b9",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/slovakia.svg",
@@ -3659,9 +3542,6 @@
         "asset": {
           "id": "a5355a24-8ee5-5618-888e-7a5f804ab51d",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/slovenia.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "9be4766718c3c80d78c483b3e5a50a06896e8fd8b08ab629fdadfde6425f2e29",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/slovenia.svg",
@@ -3753,9 +3633,6 @@
         "asset": {
           "id": "849192bd-cacb-5318-ae91-1e6b60c9eb70",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/spain.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "831906ce4ab54e085dad872e56524b2f68032c515b80b8dce1c530f27ae19d81",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/spain.svg",
@@ -3847,9 +3724,6 @@
         "asset": {
           "id": "08e269ad-603e-506f-b62c-b4677ca8ccef",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sweden.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "beef4fc41f8f8efd8cf5e652742e5439a1074acd0edffb31b0777490b62de210",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/sweden.svg",
@@ -3941,9 +3815,6 @@
         "asset": {
           "id": "909c42d6-64f9-5c33-830a-d770790cecc2",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/switzerland.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "5e02de47eda3b9d833823f988ef6c44358d67ed242bf1ed9309573cafc1bec6e",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/switzerland.svg",
@@ -4035,9 +3906,6 @@
         "asset": {
           "id": "91394dbd-582f-57eb-a35e-302bdf06e052",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/ukraine.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "61fbce01c4405a0bcbcdf40058e4b3fd12c62c37c60dafe0d4f0a2c1c74c3905",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/ukraine.svg",
@@ -4129,9 +3997,6 @@
         "asset": {
           "id": "1f544686-6c6f-57f2-876d-c71fa356dd37",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/united-kingdom-of-great-britain-and-northern-ireland.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "24f9b3b53b4936c85d19fae54cfd26d498a9e0b28864088aa84b2d300fcc4ffc",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/united-kingdom-of-great-britain-and-northern-ireland.svg",
@@ -4223,9 +4088,6 @@
         "asset": {
           "id": "af038089-6a43-5fe5-a1eb-4c115430ebe9",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/aland-islands.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "f6f18cc0192e6cb30f0082cacf45441d1f6ccb55282be6d15208069deaa3d3f0",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/aland-islands.svg",
@@ -4308,9 +4170,6 @@
         "asset": {
           "id": "5f744673-e750-5131-bf96-5135d55ccdd3",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/faroe-islands.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "106d728eb0580fa55b16b31e116894a7c33b615d0439aa3815f39ae822ca2ab0",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/faroe-islands.svg",
@@ -4402,9 +4261,6 @@
         "asset": {
           "id": "fa2fabae-f326-50e3-b2e8-579923361d42",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/gibraltar.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "76897905c1951585655395276b9a01bd06e3d347e940161cb7f03c74d24f6fed",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/gibraltar.svg",
@@ -4496,9 +4352,6 @@
         "asset": {
           "id": "12042287-6bae-5537-bd31-a413634bb71c",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/guernsey.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "56a78aaae4282c45a0f08f37ccfa96155bfea65d5e260999cdcdc7cc773a7199",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/guernsey.svg",
@@ -4581,9 +4434,6 @@
         "asset": {
           "id": "b289df06-7d70-56cf-a212-f01e6273222e",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/isle-of-man.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "9119e8a3aa000a35c5cecf6168487ec499718dda1a063c27246cba107dafa285",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/isle-of-man.svg",
@@ -4675,9 +4525,6 @@
         "asset": {
           "id": "db06713c-fb0e-5a4b-bb98-98d55507c76c",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/jersey.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "f3939b4fa8e5bc46450bb357b767b727c530ab5c19eaf4b65c8ce0ddb474dd00",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/jersey.svg",
@@ -4760,9 +4607,6 @@
         "asset": {
           "id": "ad6ecddf-d497-5c45-b831-3b7eadc87737",
           "type": "FLAG",
-          "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/svalbard-and-jan-mayen-islands.svg",
-          "mimeType": "image/svg+xml",
-          "sha256": "9855f56f1db7312165aa3d940e1a1893dedb51d4f52e73f76cd7ef8a6416d47d",
           "representations": [
             {
               "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/svalbard-and-jan-mayen-islands.svg",

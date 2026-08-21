@@ -254,9 +254,6 @@ async function upsertAssets(
         assetType: mapper.mapAssetType(),
         variant: "current",
         objectKey: asset.key,
-        publicUrl: `${assetBaseUrl}${asset.path}`,
-        mimeType: asset.mimeType,
-        sha256: asset.sha256,
         aspectRatio: asset.aspectRatio ?? null,
         sourceId,
         licenseName: asset.license,
@@ -267,8 +264,6 @@ async function upsertAssets(
       },
       update: {
         geoEntityId,
-        publicUrl: `${assetBaseUrl}${asset.path}`,
-        sha256: asset.sha256,
         aspectRatio: asset.aspectRatio ?? null,
         sourceId,
         licenseName: asset.license,

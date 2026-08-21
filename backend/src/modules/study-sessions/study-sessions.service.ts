@@ -446,7 +446,17 @@ export class StudySessionsService {
             });
             continue;
           }
-          if (revision.promptAsset?.sha256 !== declared.assetSha256) {
+          // Any encoding the release publishes, not the vector alone. The
+          // client caches whichever representation suits its screen — a raster
+          // — and declares the checksum of what it actually downloaded, so
+          // comparing against the vector's rejected every offline session with
+          // `ASSET_MISMATCH` for a picture that was perfectly correct.
+          const publishedChecksums = new Set(
+            revision.promptAsset?.representations.map(
+              (representation) => representation.sha256,
+            ) ?? [],
+          );
+          if (!publishedChecksums.has(declared.assetSha256)) {
             rejections.push({
               learningCardId: declared.learningCardId,
               reason: "ASSET_MISMATCH",

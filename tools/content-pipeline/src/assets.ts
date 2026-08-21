@@ -29,11 +29,13 @@ export interface AssetRepresentation {
 export interface BuiltAsset {
   key: string;
   entityKey: string;
-  path: string;
-  mimeType: "image/svg+xml";
-  sha256: string;
   /// Ordered by client preference: the vector original, then raster by
   /// ascending scale.
+  ///
+  /// The only place an encoding is described. The asset used to repeat the
+  /// vector's own path, media type and checksum beside this list, so that a
+  /// reader written before the list existed kept working; nothing reads them
+  /// any more.
   representations: AssetRepresentation[];
   aspectRatio: number;
   sourcePath: string;
@@ -129,9 +131,6 @@ export async function buildAsset(
   return {
     key: `flag.${slug}.current`,
     entityKey,
-    path: relativePath,
-    mimeType: "image/svg+xml",
-    sha256: sha256(svg),
     representations: [
       { path: relativePath, mimeType: "image/svg+xml", sha256: sha256(svg) },
       ...raster,

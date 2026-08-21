@@ -119,9 +119,6 @@ export function buildLearningCardSnapshot(
       asset: {
         id: asset.id,
         type: asset.assetType,
-        url: asset.publicUrl,
-        mimeType: asset.mimeType,
-        sha256: asset.sha256,
         representations: mapAssetRepresentations(asset),
         width: asset.width,
         height: asset.height,
