@@ -8,7 +8,8 @@ import CountryFlagsMockBackend
 enum ContentTestClient {
     static func makeService(
         transport: MockClientTransport,
-        dates: any DateProviding = FixedDateProvider(instant: ContentTestClient.now)
+        dates: any DateProviding = FixedDateProvider(instant: ContentTestClient.now),
+        displayScale: Double = 2
     ) -> ContentService {
         ContentService(
             clientFactory: APIClientFactory(
@@ -19,7 +20,8 @@ enum ContentTestClient {
                 scheduler: RecordingBackoffScheduler(),
                 jitter: ZeroJitterProvider()
             ),
-            dates: dates
+            dates: dates,
+            displayScale: displayScale
         )
     }
 
