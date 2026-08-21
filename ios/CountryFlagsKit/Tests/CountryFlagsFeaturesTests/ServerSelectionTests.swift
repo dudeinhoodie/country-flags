@@ -97,6 +97,50 @@ final class ServerSelectionTests: XCTestCase {
         XCTAssertEqual(runner.state?.cards.isEmpty, false)
     }
 
+    /// The bug this pins: the first screen advertised a queue, the session
+    /// opened empty, and the two disagreed because only one of them had seen
+    /// the answers still waiting in the outbox.
+    ///
+    /// The server is canonical about the cards it has received. It is not
+    /// canonical about the ones it has not, and the count on the first screen
+    /// is computed from those. So an empty due-only answer is a question put
+    /// to the device, not a verdict.
+    func testAnEmptyDueOnlyAnswerIsCheckedAgainstWhatTheDeviceKnows() async {
+        let learning = RecordingLearningRepository(states: Fixtures.dueStates(deckID: deckID))
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
+        )
+        let runner = makeRunner(learning: learning, selection: selection, authenticated: true)
+
+        await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
+
+        XCTAssertNil(runner.startFailure, "the device holds cards that are due")
+        XCTAssertEqual(runner.state?.cards.isEmpty, false)
+        let saved = await learning.sessions
+        XCTAssertEqual(saved.first?.selectionOrigin, "CLIENT_OFFLINE")
+        // The empty server session is still closed out rather than left
+        // hanging ACTIVE on the backend.
+        let completed = await selection.completedSessions
+        XCTAssertEqual(completed.count, 1)
+    }
+
+    /// And when the device agrees, the answer stands: an empty queue is good
+    /// news, not a broken deck.
+    func testAnEmptyDueOnlyAnswerStandsWhenTheDeviceAgrees() async {
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
+        )
+        let runner = makeRunner(
+            learning: RecordingLearningRepository(),
+            selection: selection,
+            authenticated: true
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
+
+        XCTAssertEqual(runner.startFailure, .nothingDue)
+    }
+
     // MARK: - Harness
 
     private func makeRunner(
@@ -189,6 +233,27 @@ private enum Fixtures {
             contentVersion: "fixture-v2",
             isRetired: false
         )
+    }
+
+    /// Cards this device has answered and that have come round, as the
+    /// device's own store sees them — the facts the first screen counts and
+    /// the server has not received.
+    static func dueStates(deckID: UUID) -> [CardStateRecord] {
+        (0..<3).map { index in
+            CardStateRecord(
+                learningCardID: card(index: index).id,
+                state: "REVIEW",
+                difficulty: 5,
+                stability: 10,
+                dueAt: Date(timeIntervalSince1970: 1_800_000_000).addingTimeInterval(-3600),
+                repetitions: 2,
+                lapses: 0,
+                schedulerVersion: "local-conservative-1",
+                stateVersion: 1,
+                updatedAt: Date(timeIntervalSince1970: 1_800_000_000),
+                isLocalProjection: true
+            )
+        }
     }
 
     static func serverSession(deckID: UUID, cardCount: Int = 2) -> StudySessionRecord {

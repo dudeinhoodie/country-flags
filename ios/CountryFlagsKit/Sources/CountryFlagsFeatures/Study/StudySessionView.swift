@@ -85,7 +85,18 @@ public struct StudySessionView: View {
                 summary: summary, store: store, assets: assets, onDone: onFinish
             )
         } else if let failure = runner.startFailure {
-            StudyUnavailableView(failure: failure, onDone: onFinish)
+            StudyUnavailableView(failure: failure, onDone: onFinish) {
+                // The same deck, without the queue's filter. Nothing is due,
+                // but the deck is still two hundred countries and the person
+                // is already here.
+                Task {
+                    await runner.startOrResume(
+                        deckID: deckID,
+                        size: size,
+                        composition: .standard
+                    )
+                }
+            }
         } else if let state = runner.state, let card = state.currentCard {
             cardView(state: state, card: card)
         } else if runner.state == nil {
@@ -579,6 +590,13 @@ struct ResultWaterView: View {
 struct StudyUnavailableView: View {
     let failure: StudySessionStartFailure
     let onDone: () -> Void
+    /// Studying the deck anyway, when the queue is what came up empty.
+    ///
+    /// An empty repeat queue is not a reason to send somebody back to the
+    /// first screen: they opened a deck meaning to study it, and the deck is
+    /// full of countries. Absent for the failures where there is nothing to
+    /// offer — a deck with no usable cards, or a store that will not open.
+    var onStudyAnyway: (() -> Void)?
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
@@ -597,8 +615,17 @@ struct StudyUnavailableView: View {
 
             Spacer(minLength: 0)
 
-            Button(L10n.studyResultDone, action: onDone)
-                .buttonStyle(PrimaryActionStyle())
+            if failure == .nothingDue, let onStudyAnyway {
+                Button(L10n.studyStart, action: onStudyAnyway)
+                    .buttonStyle(PrimaryActionStyle())
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+
+                Button(L10n.studyResultDone, action: onDone)
+                    .buttonStyle(GlassActionStyle())
+            } else {
+                Button(L10n.studyResultDone, action: onDone)
+                    .buttonStyle(PrimaryActionStyle())
+            }
         }
     }
 

@@ -236,15 +236,17 @@ public final class StudySessionRunner {
                     return
                 }
                 if composition == .dueOnly {
-                    // An empty due-only answer is the contract keeping its
-                    // word — the session "holds none when nothing is due" —
-                    // not a failure to route around. Composing locally here
-                    // would deal cards the server just said are not due. The
-                    // zero-card session is closed out, best effort, so it
+                    // The zero-card session is closed out, best effort, so it
                     // does not linger ACTIVE on the backend.
                     await selection.completeSession(id: record.id)
-                    startFailure = .nothingDue
-                    return
+                    // And then the device asks itself. The server is canonical
+                    // about the cards it has seen — but it has not seen the
+                    // answers still sitting in this device's outbox, and the
+                    // count on the first screen is computed from those. Taking
+                    // its "nothing is due" as final is what made the app open
+                    // an empty session under a screen advertising twelve
+                    // cards. If the device agrees there is nothing, the local
+                    // composition below says so too.
                 }
             } catch {
                 // Fall through: the device composes, the way it always could.
