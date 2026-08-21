@@ -5,6 +5,7 @@ import { Prisma, UserStatus } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
 
 export interface ProgressDeletionResult extends Record<string, unknown> {
   operationId: string;
@@ -23,7 +24,8 @@ export class ProgressDeletionService {
     const operationId = randomUUID();
     const requestedAt = new Date();
 
-    await this.database.$transaction(
+    await inSerializableTransaction(
+      this.database,
       async (transaction) => {
         const user = await transaction.user.findFirst({
           where: { id: userId, status: UserStatus.ACTIVE },
@@ -109,11 +111,7 @@ export class ProgressDeletionService {
           },
         });
       },
-      {
-        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-        maxWait: 10_000,
-        timeout: 30_000,
-      },
+      { maxWait: 10_000, timeout: 30_000 },
     );
 
     return {

@@ -3,6 +3,7 @@ import { Prisma, UserStatus } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
 
 interface DeletionResult extends Record<string, unknown> {
   status: "DELETION_PENDING";
@@ -15,7 +16,8 @@ export class AccountDeletionService {
   constructor(private readonly database: PrismaService) {}
 
   async delete(userId: string, requestId: string): Promise<DeletionResult> {
-    return this.database.$transaction(
+    return inSerializableTransaction(
+      this.database,
       async (transaction) => {
         const user = await transaction.user.findUnique({
           where: { id: userId },
@@ -150,11 +152,7 @@ export class AccountDeletionService {
         });
         return this.result(requestedAt, now);
       },
-      {
-        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-        maxWait: 10_000,
-        timeout: 30_000,
-      },
+      { maxWait: 10_000, timeout: 30_000 },
     );
   }
 
