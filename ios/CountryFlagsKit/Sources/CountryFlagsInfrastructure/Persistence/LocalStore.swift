@@ -5,6 +5,18 @@ import CountryFlagsDomain
 
 /// The registry of schema versions.
 ///
+/// A version must describe the store *as it was*, which the shared model types
+/// cannot do on their own: they are the store as it is now, and a version that
+/// lists one after it gains a property describes the newer shape instead of its
+/// own. Two versions that describe the same shape are rejected at container
+/// creation with "Duplicate version checksums detected", and a version that
+/// describes a shape no store was ever written in fails the other way, with
+/// "Cannot use staged migration with an unknown model version". Both are
+/// Objective-C exceptions thrown before anything below can catch them, so the
+/// app does not start at all. So: changing a model means freezing a copy of its
+/// previous shape beside the version that last described it, the way
+/// `LocalSchemaV1` holds the card and the deck progress.
+///
 /// Adding a version means appending it here together with its stage, which is
 /// the whole point of declaring a plan before there is anything to migrate: an
 /// app update must never resolve a schema change by discarding the store,
@@ -24,8 +36,8 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             // is rewritten and the outbox crosses the update intact.
             .lightweight(fromVersion: LocalSchemaV2.self, toVersion: LocalSchemaV3.self),
             // Adding the backend's count of cards in flight: a property with a
-            // default on an existing model, which SwiftData fills without
-            // rewriting anything a device has not uploaded.
+            // default on a model version 3 froze, so SwiftData widens the table
+            // and a device keeps what it has not uploaded yet.
             .lightweight(fromVersion: LocalSchemaV3.self, toVersion: LocalSchemaV4.self),
         ]
     }

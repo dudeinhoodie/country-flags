@@ -189,6 +189,7 @@ final class ServerSelectionTests: XCTestCase {
             ),
             learning: learning,
             selection: selection,
+            outbox: outbox,
             dates: FixedDates(instant: Date(timeIntervalSince1970: 1_800_000_000)),
             identifiers: SequentialUUIDProvider()
         )

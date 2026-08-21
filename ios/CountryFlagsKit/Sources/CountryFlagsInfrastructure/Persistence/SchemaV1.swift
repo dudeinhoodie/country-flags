@@ -67,6 +67,45 @@ enum LocalSchemaV1: VersionedSchema {
         }
     }
 
+    /// A deck's progress as versions 1 to 3 stored it: without the backend's
+    /// count of cards still settling, which version 4 adds.
+    ///
+    /// Frozen for the same reason as the card above. The live
+    /// `StoredDeckProgress` gained a property, and a version that listed it
+    /// would describe version 4's store rather than its own — leaving the two
+    /// indistinguishable and the migration impossible to stage.
+    @Model
+    final class StoredDeckProgress {
+        var scopeKey: String = ""
+        var deckID: UUID = UUID()
+        var totalCards: Int = 0
+        var learnedCards: Int = 0
+        var dueCards: Int = 0
+        var currentMasteryTier: String = ""
+        var highestAchievementTier: String = ""
+        var updatedAt: Date = Date.distantPast
+
+        init(
+            scopeKey: String,
+            deckID: UUID,
+            totalCards: Int,
+            learnedCards: Int,
+            dueCards: Int,
+            currentMasteryTier: String,
+            highestAchievementTier: String,
+            updatedAt: Date
+        ) {
+            self.scopeKey = scopeKey
+            self.deckID = deckID
+            self.totalCards = totalCards
+            self.learnedCards = learnedCards
+            self.dueCards = dueCards
+            self.currentMasteryTier = currentMasteryTier
+            self.highestAchievementTier = highestAchievementTier
+            self.updatedAt = updatedAt
+        }
+    }
+
     static var models: [any PersistentModel.Type] {
         [
             StoredContentManifest.self,
@@ -80,7 +119,7 @@ enum LocalSchemaV1: VersionedSchema {
             StoredDeckCard.self,
             StoredUserSettings.self,
             StoredCardState.self,
-            StoredDeckProgress.self,
+            LocalSchemaV1.StoredDeckProgress.self,
             StoredAchievement.self,
             StoredStudySession.self,
             StoredStudySessionCard.self,

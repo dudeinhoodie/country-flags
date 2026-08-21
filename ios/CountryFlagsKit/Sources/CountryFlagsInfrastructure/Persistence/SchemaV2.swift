@@ -32,7 +32,7 @@ enum LocalSchemaV2: VersionedSchema {
             StoredDeckCard.self,
             StoredUserSettings.self,
             StoredCardState.self,
-            StoredDeckProgress.self,
+            LocalSchemaV1.StoredDeckProgress.self,
             StoredAchievement.self,
             StoredStudySession.self,
             StoredStudySessionCard.self,

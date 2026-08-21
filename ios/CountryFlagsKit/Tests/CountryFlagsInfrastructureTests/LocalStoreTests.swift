@@ -273,6 +273,75 @@ final class StoreRelaunchTests: XCTestCase {
         XCTAssertEqual(card?.backSideFacts.count, 0)
     }
 
+    /// Both ways a version can be wrong, checked over the whole plan rather
+    /// than the one pair someone remembered to write a test for.
+    ///
+    /// A version that repeats the shape of the one before it is rejected as a
+    /// duplicate checksum; a version that describes a shape no store was
+    /// written in leaves a real store unrecognizable. Either way the container
+    /// throws an Objective-C exception on the launch that has a store to open,
+    /// which no `catch` in the app can reach.
+    func testEveryVersionInThePlanDescribesItsOwnStore() {
+        func fingerprint(_ version: any VersionedSchema.Type) -> Set<String> {
+            let schema = Schema(versionedSchema: version)
+            return Set(
+                schema.entities.flatMap { entity in
+                    entity.properties.map { "\(entity.name).\($0.name)" }
+                }
+            )
+        }
+
+        let described = LocalStoreMigrationPlan.schemas.map(fingerprint)
+        for (index, shape) in described.enumerated().dropFirst() {
+            XCTAssertNotEqual(
+                shape,
+                described[index - 1],
+                "versions \(index) and \(index + 1) describe the same store"
+            )
+        }
+    }
+
+    /// The upgrade that shipped broken: a store written before the deck's
+    /// progress gained the backend's in-flight count, opened by the plan that
+    /// adds it. The device that had one could not start the app at all.
+    func testAStoreWrittenByVersionThreeOpensAndKeepsItsProgress() async throws {
+        let temporary = TemporaryStore()
+        defer { temporary.remove() }
+        let deckID = UUID()
+
+        do {
+            let schema = Schema(versionedSchema: LocalSchemaV3.self)
+            let container = try ModelContainer(
+                for: schema,
+                configurations: ModelConfiguration(schema: schema, url: temporary.fileURL)
+            )
+            let context = ModelContext(container)
+            context.insert(
+                LocalSchemaV1.StoredDeckProgress(
+                    scopeKey: PersistenceFixtures.guestScope.key,
+                    deckID: deckID,
+                    totalCards: 12,
+                    learnedCards: 5,
+                    dueCards: 3,
+                    currentMasteryTier: "BRONZE",
+                    highestAchievementTier: "BRONZE",
+                    updatedAt: Date(timeIntervalSince1970: 1_800_000_000)
+                )
+            )
+            try context.save()
+        }
+
+        let migrated = try temporary.open()
+        let progress = try await migrated.makeLearningRepository()
+            .deckProgress(for: PersistenceFixtures.guestScope)
+
+        XCTAssertEqual(progress.first?.deckID, deckID)
+        XCTAssertEqual(progress.first?.learnedCards, 5)
+        // The property version 4 adds: a row written before it reads as zero
+        // rather than being dropped and rewritten.
+        XCTAssertEqual(progress.first?.inProgressCards, 0)
+    }
+
     /// A crash leaves operations claimed. They belong back in the queue rather
     /// than staying invisible forever.
     func testInterruptedOperationsAreRequeued() async throws {
