@@ -409,6 +409,7 @@ struct AppComposition: AppDependencies {
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
             scopes: scopes,
+            outbox: store.makeOutboxRepository(),
             dates: dates
         )
     }
@@ -562,6 +563,7 @@ struct AppComposition: AppDependencies {
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
             selection: studySessions,
+            outbox: store.makeOutboxRepository(),
             analytics: analytics,
             dates: dates,
             identifiers: identifiers

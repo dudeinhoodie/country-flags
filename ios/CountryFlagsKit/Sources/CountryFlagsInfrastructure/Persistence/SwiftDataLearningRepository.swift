@@ -266,6 +266,7 @@ actor SwiftDataLearningRepository: LearningRepository {
                 totalCards: $0.totalCards,
                 learnedCards: $0.learnedCards,
                 dueCards: $0.dueCards,
+                inProgressCards: $0.inProgressCards,
                 currentMasteryTier: $0.currentMasteryTier,
                 highestAchievementTier: $0.highestAchievementTier,
                 updatedAt: $0.updatedAt
@@ -286,6 +287,7 @@ actor SwiftDataLearningRepository: LearningRepository {
                     stored.totalCards = item.totalCards
                     stored.learnedCards = item.learnedCards
                     stored.dueCards = item.dueCards
+                    stored.inProgressCards = item.inProgressCards
                     stored.currentMasteryTier = item.currentMasteryTier
                     stored.highestAchievementTier = item.highestAchievementTier
                     stored.updatedAt = item.updatedAt
@@ -297,6 +299,7 @@ actor SwiftDataLearningRepository: LearningRepository {
                             totalCards: item.totalCards,
                             learnedCards: item.learnedCards,
                             dueCards: item.dueCards,
+                            inProgressCards: item.inProgressCards,
                             currentMasteryTier: item.currentMasteryTier,
                             highestAchievementTier: item.highestAchievementTier,
                             updatedAt: item.updatedAt

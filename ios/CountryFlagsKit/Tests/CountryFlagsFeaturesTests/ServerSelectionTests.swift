@@ -97,12 +97,85 @@ final class ServerSelectionTests: XCTestCase {
         XCTAssertEqual(runner.state?.cards.isEmpty, false)
     }
 
+    /// The bug this pins: the first screen advertised a queue, the session
+    /// opened empty, and the two disagreed because only one of them had seen
+    /// the answers still waiting in the outbox.
+    ///
+    /// The server is canonical about the cards it has received. It is not
+    /// canonical about the ones it has not, and the count on the first screen
+    /// is computed from those. So an empty due-only answer is a question put
+    /// to the device, not a verdict.
+    func testAnEmptyDueOnlyAnswerIsCheckedAgainstWhatTheDeviceKnows() async {
+        let learning = RecordingLearningRepository(states: Fixtures.dueStates(deckID: deckID))
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
+        )
+        // Answers this device has not sent: the backend is counting an older
+        // world, and this is the only thing that says so.
+        let outbox = PendingOutbox(count: 2)
+        let runner = makeRunner(
+            learning: learning,
+            selection: selection,
+            authenticated: true,
+            outbox: outbox
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
+
+        XCTAssertNil(runner.startFailure, "the device holds cards that are due")
+        XCTAssertEqual(runner.state?.cards.isEmpty, false)
+        let saved = await learning.sessions
+        XCTAssertEqual(saved.first?.selectionOrigin, "CLIENT_OFFLINE")
+        // The empty server session is still closed out rather than left
+        // hanging ACTIVE on the backend.
+        let completed = await selection.completedSessions
+        XCTAssertEqual(completed.count, 1)
+    }
+
+    /// Nothing waiting to be sent means the backend has seen every answer from
+    /// every device, so its "nothing is due" is the truth — even here, where
+    /// this device happens to hold cards whose time has come. They are cards
+    /// the backend has already accounted for.
+    func testAnEmptyDueOnlyAnswerStandsWhenNothingIsWaitingToBeSent() async {
+        let learning = RecordingLearningRepository(states: Fixtures.dueStates(deckID: deckID))
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
+        )
+        let runner = makeRunner(
+            learning: learning,
+            selection: selection,
+            authenticated: true,
+            outbox: PendingOutbox(count: 0)
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
+
+        XCTAssertEqual(runner.startFailure, .nothingDue)
+    }
+
+    /// And with no outbox to ask at all, nothing is known to be waiting.
+    func testAnEmptyDueOnlyAnswerStandsWhenTheDeviceAgrees() async {
+        let selection = ScriptedSelection(
+            result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
+        )
+        let runner = makeRunner(
+            learning: RecordingLearningRepository(),
+            selection: selection,
+            authenticated: true
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
+
+        XCTAssertEqual(runner.startFailure, .nothingDue)
+    }
+
     // MARK: - Harness
 
     private func makeRunner(
         learning: RecordingLearningRepository,
         selection: ScriptedSelection,
-        authenticated: Bool
+        authenticated: Bool,
+        outbox: (any OutboxRepository)? = nil
     ) -> StudySessionRunner {
         StudySessionRunner(
             scopes: SelectableScopeResolver(
@@ -116,6 +189,7 @@ final class ServerSelectionTests: XCTestCase {
             ),
             learning: learning,
             selection: selection,
+            outbox: outbox,
             dates: FixedDates(instant: Date(timeIntervalSince1970: 1_800_000_000)),
             identifiers: SequentialUUIDProvider()
         )
@@ -156,6 +230,52 @@ private actor ScriptedSelection: StudySessionSelecting {
     }
 }
 
+/// An outbox with a known number of unsent answers, which is the one thing the
+/// runner asks it for.
+private actor PendingOutbox: OutboxRepository {
+    private let count: Int
+
+    init(count: Int) {
+        self.count = count
+    }
+
+    func enqueue(_ operation: OutboxOperationRecord, for scope: AccountScope) async throws {}
+
+    func pendingOperations(for scope: AccountScope) async throws -> [OutboxOperationRecord] {
+        (0..<count).map { index in
+            OutboxOperationRecord(
+                id: UUID(uuidString: String(format: "90000000-0000-4000-8000-%012d", index))!,
+                kind: .reviewBatch,
+                dependencyID: nil,
+                payload: Data(),
+                state: .pending,
+                attemptCount: 0,
+                lastFailureCode: nil,
+                createdAt: Date(timeIntervalSince1970: 1_800_000_000),
+                updatedAt: Date(timeIntervalSince1970: 1_800_000_000)
+            )
+        }
+    }
+
+    func updateState(
+        of operationID: UUID,
+        to state: OutboxState,
+        failureCode: String?,
+        for scope: AccountScope
+    ) async throws {}
+
+    func requeueInterruptedOperations(for scope: AccountScope) async throws -> Int { 0 }
+
+    func cursor(
+        _ feed: SyncCursorRecord.Feed,
+        for scope: AccountScope
+    ) async throws -> SyncCursorRecord? { nil }
+
+    func saveCursor(_ cursor: SyncCursorRecord, for scope: AccountScope) async throws {}
+
+    func discardQueuedWork(for scope: AccountScope) async throws {}
+}
+
 private enum Fixtures {
     struct Offline: Error {}
 
@@ -189,6 +309,27 @@ private enum Fixtures {
             contentVersion: "fixture-v2",
             isRetired: false
         )
+    }
+
+    /// Cards this device has answered and that have come round, as the
+    /// device's own store sees them — the facts the first screen counts and
+    /// the server has not received.
+    static func dueStates(deckID: UUID) -> [CardStateRecord] {
+        (0..<3).map { index in
+            CardStateRecord(
+                learningCardID: card(index: index).id,
+                state: "REVIEW",
+                difficulty: 5,
+                stability: 10,
+                dueAt: Date(timeIntervalSince1970: 1_800_000_000).addingTimeInterval(-3600),
+                repetitions: 2,
+                lapses: 0,
+                schedulerVersion: "local-conservative-1",
+                stateVersion: 1,
+                updatedAt: Date(timeIntervalSince1970: 1_800_000_000),
+                isLocalProjection: true
+            )
+        }
     }
 
     static func serverSession(deckID: UUID, cardCount: Int = 2) -> StudySessionRecord {

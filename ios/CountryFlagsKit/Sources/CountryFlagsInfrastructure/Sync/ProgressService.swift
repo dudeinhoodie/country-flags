@@ -209,6 +209,11 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, ProgressCle
             totalCards: payload.totalCards,
             learnedCards: payload.learnedCards,
             dueCards: payload.dueCards,
+            // The two states that mean "started, not finished". Both are
+            // optional in the contract; a release that sends neither leaves
+            // the count at zero, which reads as "nothing in flight" rather
+            // than as a wrong number.
+            inProgressCards: (payload.learningCards ?? 0) + (payload.relearningCards ?? 0),
             currentMasteryTier: payload.currentMasteryTier,
             highestAchievementTier: payload.highestAchievementTier,
             updatedAt: payload.updatedAt

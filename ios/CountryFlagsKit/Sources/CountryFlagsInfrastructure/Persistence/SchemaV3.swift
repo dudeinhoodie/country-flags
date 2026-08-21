@@ -25,7 +25,7 @@ enum LocalSchemaV3: VersionedSchema {
             StoredDeckCard.self,
             StoredUserSettings.self,
             StoredCardState.self,
-            StoredDeckProgress.self,
+            LocalSchemaV1.StoredDeckProgress.self,
             StoredAchievement.self,
             // The one type this version adds; everything else is version 2's.
             StoredDueSummary.self,

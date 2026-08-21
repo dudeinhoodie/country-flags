@@ -103,9 +103,9 @@ final class LocalStoreMigrationTests: XCTestCase {
     func testTheCurrentSchemaIsTheLatestVersionThePlanKnows() {
         XCTAssertEqual(
             LocalStoreMigrationPlan.schemas.last?.versionIdentifier,
-            LocalSchemaV3.versionIdentifier
+            LocalSchemaV4.versionIdentifier
         )
-        XCTAssertEqual(LocalSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
+        XCTAssertEqual(LocalSchemaV4.versionIdentifier, Schema.Version(4, 0, 0))
     }
 
     /// Every version the plan lists has to be reachable from the one before it,

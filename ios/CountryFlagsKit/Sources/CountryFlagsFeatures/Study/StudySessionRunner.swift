@@ -53,6 +53,10 @@ public final class StudySessionRunner {
     private var scope: AccountScope?
     private let content: any ContentRepository
     private let learning: any LearningRepository
+    /// What has not reached the backend yet. Read for one question only:
+    /// whether the backend's view is complete enough to be believed when it
+    /// says nothing is due.
+    private let outbox: (any OutboxRepository)?
     /// The backend as composer, when the build carries one. The local
     /// selection below remains the offline half and the fallback.
     private let selection: (any StudySessionSelecting)?
@@ -70,6 +74,7 @@ public final class StudySessionRunner {
         content: any ContentRepository,
         learning: any LearningRepository,
         selection: (any StudySessionSelecting)? = nil,
+        outbox: (any OutboxRepository)? = nil,
         analytics: (any AnalyticsTracking)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         identifiers: any IdentifierProviding = SystemIdentifierProvider()
@@ -77,6 +82,7 @@ public final class StudySessionRunner {
         self.scopes = scopes
         self.content = content
         self.learning = learning
+        self.outbox = outbox
         self.selection = selection
         self.analytics = analytics
         self.dates = dates
@@ -199,6 +205,12 @@ public final class StudySessionRunner {
         return true
     }
 
+    /// What this device is still holding for the backend.
+    private func unsentAnswers() async -> [OutboxOperationRecord] {
+        guard let outbox else { return [] }
+        return (try? await outbox.pendingOperations(for: resolvedScope)) ?? []
+    }
+
     /// Whether a card snapshot belongs to the repeat queue. The reasons come
     /// from two vocabularies — the backend's and the local selector's — and
     /// the padding bands are what a due-only session must not contain.
@@ -236,15 +248,27 @@ public final class StudySessionRunner {
                     return
                 }
                 if composition == .dueOnly {
-                    // An empty due-only answer is the contract keeping its
-                    // word — the session "holds none when nothing is due" —
-                    // not a failure to route around. Composing locally here
-                    // would deal cards the server just said are not due. The
-                    // zero-card session is closed out, best effort, so it
+                    // The zero-card session is closed out, best effort, so it
                     // does not linger ACTIVE on the backend.
                     await selection.completeSession(id: record.id)
-                    startFailure = .nothingDue
-                    return
+
+                    // Whose answer counts is decided by one question: is this
+                    // device holding answers the backend has not received?
+                    //
+                    // If it is not, the backend has seen everything from every
+                    // device and its "nothing is due" is the truth — the first
+                    // screen shows the same number from the same place, so the
+                    // two cannot contradict each other. If it is, the backend
+                    // is counting an older world, and the device composes
+                    // below. That is the disagreement that used to open an
+                    // empty session under a pane advertising twelve cards.
+                    // No outbox to ask means nothing is known to be waiting,
+                    // and the backend's answer stands.
+                    let unsent = await unsentAnswers()
+                    if unsent.isEmpty {
+                        startFailure = .nothingDue
+                        return
+                    }
                 }
             } catch {
                 // Fall through: the device composes, the way it always could.

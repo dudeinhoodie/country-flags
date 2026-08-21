@@ -274,6 +274,10 @@ public struct HomeView: View {
         curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
     }
 
+    // Both read the deck rows, and the rows are the backend's own counts
+    // whenever the backend has the facts — `ProgressStore` decides that once,
+    // for every screen, rather than each of them deciding again.
+
     private var curatedDecks: [DeckProgressRow] {
         (progress?.decks ?? []).filter(\.isCurated)
     }
@@ -437,8 +441,24 @@ public struct HomeView: View {
     /// deck holds every card the regions hold — so summing rows double-counts;
     /// the curated deck's own queue is the whole queue, and without one the
     /// largest region stands in.
+    /// How many cards the day owes.
+    ///
+    /// The backend's number when the backend has the facts, and the device's
+    /// only when it does not. One authority at a time, decided by one
+    /// question: is this device holding answers it has not sent?
+    ///
+    /// That question is the whole of it. The backend counts what it has
+    /// received; while something waits in the outbox it is counting an older
+    /// world, and the device is the one that knows. Once the outbox is empty
+    /// the backend has seen every answer from every device — including the
+    /// ones this phone never made — so its number is the one that can be
+    /// right, and the session opened from this pane is composed from the same
+    /// place.
     private func totalDue(_ sections: [CatalogSection]) -> Int {
         guard let progress else { return 0 }
+        if let summary = progress.dueSummary, !hasUnsentAnswers {
+            return summary.totalDue
+        }
         if let all = recommended(sections),
             let row = progress.decks.first(where: { $0.id == all.id })
         {
@@ -446,6 +466,9 @@ public struct HomeView: View {
         }
         return progress.decks.map(\.dueCards).max() ?? 0
     }
+
+    /// Whether this device is ahead of the backend.
+    private var hasUnsentAnswers: Bool { sync.status.pendingCount > 0 }
 
     /// The deck a "review everything" tap studies: the curated deck holds
     /// every card, so its due queue is the whole queue. Without one, the deck
