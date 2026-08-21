@@ -463,19 +463,19 @@ describe("content fixture and read API (integration)", () => {
     ]);
     expect(body.assets.length).toBeGreaterThan(0);
     const asset = body.assets[0]!;
-    expect(asset).toMatchObject({ type: "FLAG", mimeType: "image/svg+xml" });
+    expect(asset).toMatchObject({ type: "FLAG" });
     // The vector alone is what issue #82 shipped, and no iOS build could draw
     // it. Every asset must offer an encoding a client can decode, and each
-    // representation must carry the checksum of its own bytes so the client
-    // verifies what it actually downloaded.
-    expect(asset.representations[0]).toEqual({
-      url: asset.url,
-      mimeType: asset.mimeType,
-      sha256: asset.sha256,
+    // representation carries the checksum of its own bytes so the client
+    // verifies what it actually downloaded. Since v2 the list is the only
+    // place any of that is described.
+    expect(asset).not.toHaveProperty("url");
+    expect(asset).not.toHaveProperty("sha256");
+    expect(asset.representations[0]).toMatchObject({
+      mimeType: "image/svg+xml",
       scale: null,
-      widthPx: null,
-      heightPx: null,
     });
+    expect(asset.representations[0]!.sha256).toMatch(/^[a-f0-9]{64}$/u);
     const raster = asset.representations.filter(
       ({ mimeType }) => mimeType === "image/png",
     );

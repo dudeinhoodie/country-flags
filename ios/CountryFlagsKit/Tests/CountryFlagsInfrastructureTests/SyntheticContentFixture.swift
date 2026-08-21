@@ -229,8 +229,6 @@ enum SyntheticContent {
             "templateSchemaVersion":1,"semanticVersion":1,"revision":1,\
             "answerMode":"SELF_RATED",\
             "prompt":{"asset":{"id":"\(flag.assetID)","type":"FLAG",\
-            "url":"\(flag.vectorURL.absoluteString)","mimeType":"image/svg+xml",\
-            "sha256":"\(flag.vectorSHA256)",\
             "representations":\(representations(of: flag)),\
             "width":90,"height":60,"aspectRatio":1.5,\
             "licenseName":"CC0-1.0","attribution":null}},\
