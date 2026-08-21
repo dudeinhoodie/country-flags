@@ -212,7 +212,7 @@ export class AnalyticsBatchService {
           occurredAt: new Date(event.occurredAt),
           analyticsSubjectId: authenticatedUserId ?? null,
           anonymousId: event.anonymousId,
-          properties: redact(event.properties) as Prisma.InputJsonValue,
+          properties: redact(event.properties),
           context: redact(event.context) as Prisma.InputJsonValue,
           consentCategory:
             definition.consentCategory === "essential_operations"

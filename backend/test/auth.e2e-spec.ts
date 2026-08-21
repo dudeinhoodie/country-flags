@@ -11,6 +11,7 @@ import request from "supertest";
 import { AppModule } from "../src/app/app.module";
 import { PrismaService } from "../src/infrastructure/database/prisma.service";
 import { TestProviderTokenSigner } from "../src/modules/auth/testing/test-provider-token-signer";
+import { bodyOf } from "./response-body";
 
 interface AuthBody {
   tokens: {
@@ -89,7 +90,7 @@ describe("Apple/Google authentication and backend sessions (integration)", () =>
       .post("/v1/auth/google")
       .send({ idToken, device: device(deviceId) })
       .expect(200);
-    return response.body as unknown as AuthBody;
+    return bodyOf(response);
   }
 
   async function appleLogin(
@@ -112,7 +113,7 @@ describe("Apple/Google authentication and backend sessions (integration)", () =>
         device: device(deviceId),
       })
       .expect(200);
-    return response.body as unknown as AuthBody;
+    return bodyOf(response);
   }
 
   beforeAll(async () => {

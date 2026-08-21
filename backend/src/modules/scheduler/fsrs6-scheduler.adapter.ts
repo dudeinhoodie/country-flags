@@ -149,11 +149,11 @@ function schedulerFor(definition: SchedulerDefinitionData): FsrsInstance {
     learning_steps: stringArray(
       parameters.learning_steps,
       "parameters.learning_steps",
-    ) as `${number}${"m" | "h" | "d"}`[],
+    ),
     relearning_steps: stringArray(
       parameters.relearning_steps,
       "parameters.relearning_steps",
-    ) as `${number}${"m" | "h" | "d"}`[],
+    ),
   });
 }
 
