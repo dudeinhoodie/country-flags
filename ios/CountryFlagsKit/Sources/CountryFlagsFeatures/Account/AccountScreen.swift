@@ -64,6 +64,9 @@ public struct AccountScreen: View {
         .onAppear {
             if account == nil { account = makeAccount?() }
             if clearProgress == nil { clearProgress = makeClearProgress?() }
+            // Whether the row exists is what this answers, so it cannot wait
+            // for the row to appear.
+            Task { await clearProgress?.load() }
         }
         // Keyed on who is signed in, not on appearance alone: signing in now
         // happens on this screen, and the logins and devices belong to the
@@ -241,7 +244,9 @@ public struct AccountScreen: View {
                 }
                 .accessibilityIdentifier(AccessibilityIdentifier.accountExportPreparing)
             } else {
-                Button(L10n.accountExportRequest) { store.requestExport() }
+                Button(L10n.accountExportRequest) {
+                    Task { await store.requestExport() }
+                }
                     .accessibilityIdentifier(AccessibilityIdentifier.accountExportRequest)
             }
 

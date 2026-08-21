@@ -11,7 +11,9 @@ import type { VerifiedProviderIdentity } from "./provider-identity-verifier";
 interface ReauthenticationClaims {
   subject: string;
   sessionId: string;
-  provider: "APPLE" | "GOOGLE";
+  /// Who vouched for the person. `SESSION` means the sign-in that created this
+  /// session was itself recent enough to count — nobody was asked twice.
+  provider: "APPLE" | "GOOGLE" | "SESSION";
   authenticatedAt: Date;
   expiresAt: Date;
 }
@@ -95,12 +97,61 @@ export class ReauthenticationTokenService {
     };
   }
 
+  /// Whether this session was created by a provider sign-in recently enough to
+  /// count as the fresh authentication a sensitive operation needs.
+  ///
+  /// Signing in *is* proving who you are. Asking somebody to do it twice inside
+  /// five minutes — once to get in, once to ask for their own data — is
+  /// ceremony, not security: the second round trip proves exactly what the
+  /// first one proved a moment earlier. The window is the same one a minted
+  /// proof lives for, so nothing is trusted for longer than a proof would be.
+  ///
+  /// The family's first row is when the person actually answered the provider;
+  /// rotations since then are the app refreshing its own token, which proves
+  /// nothing about who is holding the phone.
+  private async authenticatedAtIfRecent(
+    userId: string,
+    sessionId: string,
+  ): Promise<Date | null> {
+    const session = await this.database.refreshSession.findFirst({
+      where: { id: sessionId, userId, revokedAt: null },
+      select: { tokenFamilyId: true },
+    });
+    if (session === null) {
+      return null;
+    }
+    const origin = await this.database.refreshSession.findFirst({
+      where: { userId, tokenFamilyId: session.tokenFamilyId },
+      orderBy: { createdAt: "asc" },
+      select: { createdAt: true },
+    });
+    if (origin === null) {
+      return null;
+    }
+    const ttl = this.config.getOrThrow<number>("AUTH_REAUTH_TOKEN_TTL_SECONDS");
+    const age = Date.now() - origin.createdAt.getTime();
+    return age <= ttl * 1_000 ? origin.createdAt : null;
+  }
+
   async verify(
     token: string | undefined,
     userId: string,
     sessionId: string,
   ): Promise<ReauthenticationClaims> {
     if (token === undefined || token.length < 32 || token.length > 4_096) {
+      const recent = await this.authenticatedAtIfRecent(userId, sessionId);
+      if (recent !== null) {
+        const ttl = this.config.getOrThrow<number>(
+          "AUTH_REAUTH_TOKEN_TTL_SECONDS",
+        );
+        return {
+          subject: userId,
+          sessionId,
+          provider: "SESSION",
+          authenticatedAt: recent,
+          expiresAt: new Date(recent.getTime() + ttl * 1_000),
+        };
+      }
       unauthorized(
         "REAUTHENTICATION_REQUIRED",
         "Fresh provider reauthentication is required",

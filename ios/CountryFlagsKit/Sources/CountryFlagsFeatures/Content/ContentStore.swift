@@ -17,6 +17,9 @@ public final class ContentStore {
     /// The UI says so only when the user is not reading a language they asked
     /// for.
     public private(set) var localeResolution: ContentLocaleResolution?
+    /// When the catalogue was last brought up to date. What "stale" is measured
+    /// against when the app comes back to the foreground.
+    public private(set) var lastSyncedAt: Date?
 
     private let repository: any ContentRepository
     private let coordinator: any ContentSynchronizing
@@ -64,8 +67,24 @@ public final class ContentStore {
         await synchronize()
     }
 
+    /// Brings the catalogue up to date only if it has had time to go stale.
+    ///
+    /// Called when the app returns to the foreground. Coming back after two
+    /// minutes should cost nothing; coming back after an hour should not show
+    /// yesterday's shelf. The threshold is the caller's, because what counts as
+    /// stale is a property of the screen asking, not of the store.
+    public func refreshIfStale(olderThan age: TimeInterval) async {
+        guard let lastSyncedAt else {
+            await synchronize()
+            return
+        }
+        guard dates.now().timeIntervalSince(lastSyncedAt) >= age else { return }
+        await synchronize()
+    }
+
     private func synchronize() async {
         status = await coordinator.synchronize(locale: await requestLocale())
+        lastSyncedAt = dates.now()
         await reload()
         // Operational, like the sync event: whether the catalog could be
         // brought up to date is how a broken release becomes visible, and it

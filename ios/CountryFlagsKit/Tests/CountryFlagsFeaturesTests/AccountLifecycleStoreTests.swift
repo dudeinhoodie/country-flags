@@ -183,8 +183,7 @@ final class AccountLifecycleStoreTests: XCTestCase {
         let store = makeStore(exporting: exporting, archives: archives)
         await store.load()
 
-        store.requestExport()
-        await store.prove(with: .google(idToken: "google-token"))
+        await store.requestExport()
         await store.followExport()
 
         XCTAssertEqual(store.export?.status, .ready)
@@ -202,8 +201,7 @@ final class AccountLifecycleStoreTests: XCTestCase {
         let store = makeStore(exporting: exporting)
         await store.load()
 
-        store.requestExport()
-        await store.prove(with: .google(idToken: "google-token"))
+        await store.requestExport()
         await store.followExport()
 
         XCTAssertTrue(store.exportFailure)
@@ -222,8 +220,7 @@ final class AccountLifecycleStoreTests: XCTestCase {
         let store = makeStore(exporting: exporting)
         await store.load()
 
-        store.requestExport()
-        await store.prove(with: .google(idToken: "google-token"))
+        await store.requestExport()
 
         XCTAssertTrue(store.exportFailure)
         XCTAssertNil(store.exportArchive)
@@ -240,11 +237,49 @@ final class AccountLifecycleStoreTests: XCTestCase {
         let store = makeStore(exporting: exporting)
         await store.load()
 
-        store.requestExport()
-        await store.prove(with: .google(idToken: "google-token"))
+        await store.requestExport()
 
         XCTAssertTrue(store.exportFailure)
         XCTAssertNil(store.exportArchive)
+    }
+
+    /// The complaint this answers: signing in and then being sent through the
+    /// provider again, seconds later, to ask for your own data.
+    func testAFreshSessionGetsTheArchiveWithoutProvingItselfAgain() async throws {
+        let exporting = StubExporting(
+            requested: Fixtures.export(status: .ready, now: now),
+            statuses: []
+        )
+        let store = makeStore(exporting: exporting)
+        await store.load()
+
+        await store.requestExport()
+
+        let proved = await exporting.provedIdentity
+        XCTAssertEqual(proved, [false], "nobody should have been asked to sign in")
+        XCTAssertEqual(store.reauthenticationPhase, .idle, "no proof sheet was raised")
+        XCTAssertNotNil(store.exportArchive)
+    }
+
+    /// A session old enough to have gone cold is worth one round trip — and
+    /// exactly one.
+    func testAColdSessionIsAskedToProveItselfOnceAndThenSucceeds() async throws {
+        let exporting = StubExporting(
+            requested: Fixtures.export(status: .ready, now: now),
+            statuses: [],
+            refusesWithoutProof: true
+        )
+        let store = makeStore(exporting: exporting)
+        await store.load()
+
+        await store.requestExport()
+        XCTAssertEqual(store.reauthenticationPhase, .provingIdentity)
+        await store.prove(with: .google(idToken: "google-token"))
+
+        let proved = await exporting.provedIdentity
+        XCTAssertEqual(proved, [false, true])
+        XCTAssertNotNil(store.exportArchive)
+        XCTAssertFalse(store.exportFailure)
     }
 
     /// An export left in the caches is a copy of the whole account nobody asked
@@ -257,8 +292,7 @@ final class AccountLifecycleStoreTests: XCTestCase {
         let archives = RecordingArchiveStore()
         let store = makeStore(exporting: exporting, archives: archives)
         await store.load()
-        store.requestExport()
-        await store.prove(with: .google(idToken: "google-token"))
+        await store.requestExport()
 
         store.discardExportArchive()
 
@@ -511,20 +545,33 @@ private actor StubExporting: DataExporting {
     private var statuses: [DataExportRecord]
     private let downloadFails: Bool
     private var downloads = 0
+    /// What the backend answers a request that carries no proof. `nil` means
+    /// it accepts one — the session is fresh enough to speak for itself.
+    private let refusal: PresentableError?
 
     init(
         requested: DataExportRecord?,
         statuses: [DataExportRecord],
-        downloadFails: Bool = false
+        downloadFails: Bool = false,
+        refusesWithoutProof: Bool = false
     ) {
         self.requested = requested
         self.statuses = statuses
         self.downloadFails = downloadFails
+        refusal = refusesWithoutProof ? PresentableError(kind: .unauthorized) : nil
     }
 
     func downloadCount() -> Int { downloads }
 
-    func requestExport(provingWith proof: ReauthenticationProof) async throws -> DataExportRecord {
+    /// Records whether the caller offered a proof, which is the difference
+    /// between "asked politely first" and "sent somebody through a provider".
+    private(set) var provedIdentity: [Bool] = []
+
+    func requestExport(
+        provingWith proof: ReauthenticationProof?
+    ) async throws -> DataExportRecord {
+        provedIdentity.append(proof != nil)
+        if let refusal, proof == nil { throw refusal }
         guard let requested else { throw PresentableError(kind: .unexpected) }
         return requested
     }

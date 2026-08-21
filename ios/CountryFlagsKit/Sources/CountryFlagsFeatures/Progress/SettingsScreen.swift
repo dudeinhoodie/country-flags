@@ -158,6 +158,7 @@ public struct SettingsScreen: View {
             await store.load()
             chosenSessionSize = store.settings.sessionSize
             if clearProgress == nil { clearProgress = makeClearProgress?() }
+            await clearProgress?.load()
             if privacy == nil { privacy = makePrivacy?() }
             await privacy?.load()
         }

@@ -5,6 +5,11 @@ import CountryFlagsDomain
 /// Erasing every answer this account has ever given, as a section a form can
 /// drop in.
 ///
+/// The screen that shows it is the one that loads it. That is not ceremony:
+/// whether this section exists at all is what `load()` decides, so a `.task`
+/// hanging off the section itself could only run once the section was already
+/// on screen — which it never was.
+///
 /// It is one section rather than two copies because it is offered in two
 /// places — the settings and the account screen — and a destructive action
 /// that asks for a proof in one place and not the other is a bug waiting for
@@ -58,7 +63,6 @@ struct ClearProgressSection: View {
                 SectionLabel(L10n.settingsProgressSection)
             }
             .listRowBackground(Rectangle().fill(.ultraThinMaterial))
-            .task { await store.load() }
         }
     }
 
