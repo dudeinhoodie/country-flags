@@ -22,11 +22,11 @@
       "members": "all-current",
       "names": {
         "en": {
-          "description": "Approved development catalog",
+          "description": "Every flag, with no regions to lean on.",
           "name": "All countries"
         },
         "ru": {
-          "description": "Утверждённый каталог разработки",
+          "description": "Все флаги подряд, без разбивки по регионам.",
           "name": "Все страны"
         }
       }
@@ -39,11 +39,11 @@
       },
       "names": {
         "en": {
-          "description": "Flags of Europe",
+          "description": "Tricolour after tricolour — telling them apart is the whole job.",
           "name": "Europe"
         },
         "ru": {
-          "description": "Флаги Европы",
+          "description": "Сплошные триколоры — различать их и есть вся задача.",
           "name": "Европа"
         }
       }
@@ -56,11 +56,11 @@
       },
       "names": {
         "en": {
-          "description": "Flags of Africa",
+          "description": "Green, yellow and red almost everywhere. The difference is in the details.",
           "name": "Africa"
         },
         "ru": {
-          "description": "Флаги Африки",
+          "description": "Зелёный, жёлтый, красный почти у всех. Разница в деталях.",
           "name": "Африка"
         }
       }
@@ -73,11 +73,11 @@
       },
       "names": {
         "en": {
-          "description": "Flags of the Americas",
+          "description": "Both Americas at once: stars, stripes and a lot of blue.",
           "name": "Americas"
         },
         "ru": {
-          "description": "Флаги Америки",
+          "description": "Две Америки сразу: звёзды, полосы и очень много синего.",
           "name": "Америка"
         }
       }
@@ -90,11 +90,11 @@
       },
       "names": {
         "en": {
-          "description": "Flags of Asia",
+          "description": "Crescents, discs and dragons — no two alike.",
           "name": "Asia"
         },
         "ru": {
-          "description": "Флаги Азии",
+          "description": "Полумесяцы, круги и драконы — тут все разные.",
           "name": "Азия"
         }
       }
@@ -107,11 +107,11 @@
       },
       "names": {
         "en": {
-          "description": "Flags of Oceania",
+          "description": "The Southern Cross, and a Union Jack in the corner of most of them.",
           "name": "Oceania"
         },
         "ru": {
-          "description": "Флаги Океании",
+          "description": "Южный Крест и британский флаг в углу — почти у всех.",
           "name": "Океания"
         }
       }
@@ -2943,10 +2943,10 @@
   "sourceAliases": {
     "annexare:XK": "country.kosovo",
     "cldr:XK": "country.kosovo",
-    "flag-icons:country.kosovo": "country.kosovo",
     "flag-icons:XK": "country.kosovo",
-    "wikidata:country.kosovo": "country.kosovo",
-    "wikidata:XK": "country.kosovo"
+    "flag-icons:country.kosovo": "country.kosovo",
+    "wikidata:XK": "country.kosovo",
+    "wikidata:country.kosovo": "country.kosovo"
   },
   "supportedLocales": ["ru", "en"]
 }

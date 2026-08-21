@@ -215,13 +215,22 @@ struct WorldMapView: View {
     /// Deck code to learned fraction, 0...1.
     let brightness: [String: Double]
 
-    private static let placements: [(code: String, x: Double, y: Double, height: Double)] = [
-        ("AMERICAS", 0.00, 0.10, 0.78),
-        ("EUROPE", 0.40, 0.00, 0.36),
-        ("AFRICA", 0.42, 0.38, 0.58),
-        ("ASIA", 0.62, 0.04, 0.54),
-        ("OCEANIA", 0.80, 0.66, 0.30),
-    ]
+    /// Each continent's box as a fraction of the pane: where it starts and how
+    /// much room it gets.
+    ///
+    /// Boxes rather than a point and a height, because the previous layout
+    /// guessed each shape's width from its height and positioned by centre —
+    /// so neighbours crept over one another whenever the guess was off. A box
+    /// is checked by looking at it: none of these overlap, and each silhouette
+    /// is drawn to fit inside its own.
+    private static let placements:
+        [(code: String, x: Double, y: Double, width: Double, height: Double)] = [
+            ("AMERICAS", 0.03, 0.06, 0.29, 0.86),
+            ("EUROPE", 0.33, 0.04, 0.17, 0.32),
+            ("AFRICA", 0.35, 0.38, 0.19, 0.56),
+            ("ASIA", 0.52, 0.02, 0.33, 0.56),
+            ("OCEANIA", 0.75, 0.58, 0.19, 0.32),
+        ]
 
     var body: some View {
         GeometryReader { proxy in
@@ -230,10 +239,13 @@ struct WorldMapView: View {
                     code: placement.code,
                     opacity: 0.15 + 0.85 * (brightness[placement.code] ?? 0)
                 )
-                .frame(height: proxy.size.height * placement.height)
+                .frame(
+                    width: proxy.size.width * placement.width,
+                    height: proxy.size.height * placement.height
+                )
                 .position(
-                    x: proxy.size.width * placement.x + proxy.size.height * placement.height * 0.6,
-                    y: proxy.size.height * placement.y + proxy.size.height * placement.height / 2
+                    x: proxy.size.width * (placement.x + placement.width / 2),
+                    y: proxy.size.height * (placement.y + placement.height / 2)
                 )
             }
         }

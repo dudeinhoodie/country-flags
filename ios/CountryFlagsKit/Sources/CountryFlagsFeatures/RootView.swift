@@ -23,6 +23,11 @@ public struct RootView: View {
     private let featureFlags: FeatureFlagCenter
     private let sync: SyncCenter
 
+    /// The account the avatar draws. Held here rather than rebuilt in the
+    /// toolbar: a store made during a render would be thrown away by the next
+    /// one, and the picture would never arrive.
+    @State private var accountToolbar: AccountStore?
+
     @Environment(\.scenePhase) private var scenePhase
 
     public init(
@@ -55,6 +60,9 @@ public struct RootView: View {
         self.makeAccountLifecycleStore = makeAccountLifecycleStore
         self.featureFlags = featureFlags
         self.sync = sync
+        // Once, at the root: the segmented control is the system's everywhere,
+        // and this is the one place that says how it looks on this scene.
+        SegmentedControlAppearance.apply()
     }
 
     public var body: some View {
@@ -84,6 +92,10 @@ public struct RootView: View {
                             )
                         )
                     },
+                    // The catalog is a tab, not a push: sending the learner
+                    // there as a stacked screen would leave a back arrow over
+                    // a tab bar that already shows where they are.
+                    onOpenCatalog: { router.tab = .catalog },
                     onStartStudy: { deckID, size, mode, composition in
                         router.push(
                             .study(
@@ -105,11 +117,15 @@ public struct RootView: View {
                         .accessibilityLabel(L10n.shellOpenSettings)
                         .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
                     }
-                    if configuration.environment.allowsDebugAffordances {
+                    if makeAccountLifecycleStore != nil {
                         ToolbarItem(placement: .topBarLeading) {
-                            Text(verbatim: configuration.environment.rawValue.uppercased())
-                                .font(DesignTokens.Typography.caption)
-                                .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
+                            Button {
+                                router.push(.account)
+                            } label: {
+                                AccountAvatarButtonLabel(profile: accountToolbar?.profile)
+                            }
+                            .accessibilityLabel(L10n.accountOpen)
+                            .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
                         }
                     }
                 }
@@ -141,14 +157,6 @@ public struct RootView: View {
             .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
             .tag(AppTab.progress)
 
-            NavigationStack(path: $router.achievementsNavigationPath) {
-                AchievementsScreen(store: makeProgressStore())
-                    .navigationDestination(for: AppRoute.self) { route in
-                        destination(for: route)
-                    }
-            }
-            .tabItem { Label(L10n.achievementsTitle, systemImage: "rosette") }
-            .tag(AppTab.achievements)
         }
         // The scene is dark, so the app is: system controls, sheets and the
         // bars all take their colours from here rather than each screen
@@ -156,6 +164,10 @@ public struct RootView: View {
         .preferredColorScheme(.dark)
         // Recovery and the first sync happen once, after the first frame:
         // everything on screen already answers from the store.
+        .task {
+            if accountToolbar == nil { accountToolbar = makeAccountStore?() }
+            await accountToolbar?.start()
+        }
         .task { await sync.start() }
         .onChange(of: scenePhase) { _, phase in
             // Returning to the foreground is a trigger like any other, and the
@@ -230,20 +242,23 @@ public struct RootView: View {
                 }
             )
         case .settings:
+            // No account block here any more: it lives behind the avatar,
+            // with the screen it is about. Two entrances to one place is one
+            // entrance too many.
             SettingsScreen(
                 store: makeSettingsStore(),
-                makeAccount: makeAccountStore,
                 makeClearProgress: makeClearProgressStore,
                 makePrivacy: makePrivacyStore,
-                // The row is offered only when the screen behind it exists,
-                // which is the same rule every other optional factory follows.
-                onOpenAccount: makeAccountLifecycleStore == nil
-                    ? nil : { router.push(.account) }
+                environmentBadge: configuration.environment.allowsDebugAffordances
+                    ? configuration.environment.rawValue.uppercased()
+                    : nil
             )
         case .account:
             if let makeAccountLifecycleStore {
                 AccountScreen(
                     store: makeAccountLifecycleStore(),
+                    makeAccount: makeAccountStore,
+                    makeClearProgress: makeClearProgressStore,
                     privacyPolicyURL: configuration.privacyPolicyURL,
                     termsURL: configuration.termsURL
                 )
@@ -290,6 +305,9 @@ public enum AccessibilityIdentifier {
     }
 
     public static let homeDueEmpty = "home.due.empty"
+    /// The day's queue, which is a different button from the way back into an
+    /// unfinished sitting — they can now stand on the screen together.
+    public static let homeReview = "home.review"
     public static let achievementsEmpty = "achievements.empty"
     public static let studyDeckName = "study.deckName"
 

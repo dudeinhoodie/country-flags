@@ -29,9 +29,6 @@ final class LaunchSmokeUITests: XCTestCase {
         // label is its action title, so a broken catalog would surface the
         // raw "study." key there — never the identifier string.
         XCTAssertFalse(hero.label.contains("study."), app.debugDescription)
-
-        // The Mock build carries the environment badge; Prod must not.
-        XCTAssertTrue(app.staticTexts["root.shell.environmentBadge"].exists)
     }
 
     func testTypedRouteOpensAndReturns() {
@@ -51,6 +48,14 @@ final class LaunchSmokeUITests: XCTestCase {
         XCTAssertTrue(reminders.waitForExistence(timeout: 10), app.debugDescription)
         // A string catalog key must never reach the interface.
         XCTAssertFalse(reminders.label.contains("settings."), app.debugDescription)
+
+        // The Mock build says which build it is; Prod must not. It says it
+        // here rather than on the first screen, whose corner belongs to the
+        // account now.
+        XCTAssertTrue(
+            app.staticTexts["root.shell.environmentBadge"].waitForExistence(timeout: 10),
+            app.debugDescription
+        )
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["home.deck.ALL"].waitForExistence(timeout: 5))

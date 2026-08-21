@@ -20,7 +20,6 @@ final class AccountLifecycleUITests: XCTestCase {
     func testASignedInAccountListsItsLoginsAndDevices() {
         let app = launch(arguments: ["-reset-store"] + fixtures + identity)
         signIn(in: app)
-        openAccount(in: app)
 
         XCTAssertTrue(
             app.descendants(matching: .any)
@@ -44,9 +43,8 @@ final class AccountLifecycleUITests: XCTestCase {
     func testDeletingTheAccountLeavesAPendingNoticeThatSurvivesARelaunch() {
         let app = launch(arguments: ["-reset-store"] + fixtures + identity)
         signIn(in: app)
-        openAccount(in: app)
 
-        let delete = app.buttons["account.delete"]
+        let delete = scrollTo(app.buttons["account.delete"], in: app)
         XCTAssertTrue(delete.waitForExistence(timeout: 15), app.debugDescription)
         delete.tap()
 
@@ -69,7 +67,7 @@ final class AccountLifecycleUITests: XCTestCase {
             app.buttons["root.shell.openSettings"].waitForExistence(timeout: 20),
             app.debugDescription
         )
-        openSettings(in: app)
+        openAccount(in: app)
         XCTAssertTrue(
             app.buttons["settings.account.signInApple"].waitForExistence(timeout: 15),
             app.debugDescription
@@ -82,7 +80,7 @@ final class AccountLifecycleUITests: XCTestCase {
         // sign into.
         app.terminate()
         let relaunched = launch(arguments: fixtures + identity)
-        openSettings(in: relaunched)
+        openAccount(in: relaunched)
 
         XCTAssertTrue(
             relaunched.descendants(matching: .any)
@@ -95,36 +93,57 @@ final class AccountLifecycleUITests: XCTestCase {
 
     // MARK: - Helpers
 
+    /// Signs in and leaves the app on the account screen, which is where both
+    /// the offer and everything it unlocks now live.
     private func signIn(in app: XCUIApplication) {
-        openSettings(in: app)
-        // The settings screen is assembled while the launch is still importing
-        // content, and the account section rebuilds itself once its own state
-        // has been read. A tap that lands in that moment is dropped, so the
-        // wait is for a settled screen and the tap is offered twice before the
-        // test calls it a failure.
-        let sessionSize = app.buttons["settings.sessionSize.10"]
-        XCTAssertTrue(sessionSize.waitForExistence(timeout: 30), app.debugDescription)
+        openAccount(in: app)
 
+        let signedIn = app.descendants(matching: .any)
+            .matching(identifier: "settings.account.signedIn")
+            .firstMatch
+        // A session outlives the store the launch resets — it is in the
+        // keychain, which belongs to the device rather than to the app's
+        // documents — so a device that signed in for an earlier test arrives
+        // here already signed in. That is a legitimate starting state, not a
+        // failure: what this helper promises is an account, not a tap.
+        if signedIn.waitForExistence(timeout: 5) { return }
+
+        // The screen is assembled while the launch is still importing content,
+        // and the account section rebuilds itself once its own state has been
+        // read. A tap that lands in that moment is dropped, so the tap is
+        // offered twice before the test calls it a failure.
         let fixture = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()
 
-        let account = app.buttons["account.open"]
-        if !account.waitForExistence(timeout: 15), fixture.exists {
+        if !signedIn.waitForExistence(timeout: 15), fixture.exists {
             fixture.tap()
         }
-        XCTAssertTrue(account.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
     }
 
-    private func openSettings(in app: XCUIApplication) {
-        let settings = app.buttons["root.shell.openSettings"]
-        XCTAssertTrue(settings.waitForExistence(timeout: 30), app.debugDescription)
-        settings.tap()
+    /// Brings an element into the hierarchy by scrolling to it. A form's rows
+    /// are built as they come into view, so ending an account is not simply
+    /// waiting to be found — the screen has to be walked to the bottom first.
+    @discardableResult
+    private func scrollTo(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        swipes: Int = 6
+    ) -> XCUIElement {
+        var remaining = swipes
+        while !element.exists, remaining > 0 {
+            app.swipeUp()
+            remaining -= 1
+        }
+        return element
     }
 
+    /// The avatar in the corner of the first screen. It is the only way in,
+    /// so a test that is somewhere else has to come back first.
     private func openAccount(in app: XCUIApplication) {
         let account = app.buttons["account.open"]
-        XCTAssertTrue(account.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(account.waitForExistence(timeout: 30), app.debugDescription)
         account.tap()
     }
 

@@ -38,6 +38,11 @@ public final class AccountLifecycleStore {
     /// in memory because the only thing to do with it is hand it to the share
     /// sheet, which takes a URL.
     public private(set) var exportArchive: URL?
+    /// Whether the proof being asked for belongs to an export rather than to a
+    /// deletion: what lets the export section speak for the phase.
+    private var isExportAttempt = false
+    /// Why the last export attempt failed, when the backend said.
+    public private(set) var exportError: PresentableError?
     public private(set) var exportFailure: Bool = false
 
     /// The deletion the account is going through, if it is. Read from a store
@@ -212,12 +217,55 @@ public final class AccountLifecycleStore {
     /// request until the backend settles it.
     public func requestExport() {
         exportFailure = false
+        exportError = nil
         exportArchive = nil
+        isExportAttempt = true
         reauthentication.request { [weak self] proof in
             guard let self else { return }
-            let requested = try await self.exporting.requestExport(provingWith: proof)
-            await self.adopt(requested)
+            do {
+                let requested = try await self.exporting.requestExport(provingWith: proof)
+                await self.adopt(requested)
+            } catch {
+                // The refusal was invisible before this: the coordinator swallows
+                // what the operation throws, so a backend that would not start the
+                // export closed the proof sheet and left the screen exactly as it
+                // was — which reads as a button that does nothing.
+                await self.noteExportFailure(error)
+                throw error
+            }
         }
+    }
+
+    /// Whether an export is on its way, counting the proof it is waiting for.
+    /// The proof sheet is modal and one sensitive operation runs at a time, so
+    /// the phase belongs to whichever attempt is open.
+    public var isPreparingExport: Bool {
+        guard isExportAttempt else { return false }
+        switch reauthenticationPhase {
+        case .provingIdentity, .working: return true
+        default: return false
+        }
+    }
+
+    /// Whether the export attempt died at the proof rather than at the export.
+    public var didExportProofFail: Bool {
+        guard isExportAttempt else { return false }
+        if case .failed = reauthenticationPhase { return true }
+        return false
+    }
+
+    private func noteExportFailure(_ error: Error) {
+        exportFailure = true
+        // The kind, not the server's words: it turns "could not" into "too
+        // many requests" or "no connection", which is the difference between
+        // a person waiting and a person filing a bug.
+        exportError = error as? PresentableError
+        logger.log(
+            .error,
+            .auth,
+            "The account export could not be requested",
+            ["kind": .safe(exportError?.kind.rawValue ?? "unknown")]
+        )
     }
 
     /// Walks `PENDING`/`PROCESSING` to a settled state, then fetches the
@@ -252,6 +300,7 @@ public final class AccountLifecycleStore {
 
     private func adopt(_ record: DataExportRecord) async {
         export = record
+        isExportAttempt = false
         if record.status.isSettled, record.status == .ready {
             await downloadArchive(of: record)
         }
@@ -288,6 +337,7 @@ public final class AccountLifecycleStore {
     // MARK: - Deletion
 
     public func requestDeletion() {
+        isExportAttempt = false
         reauthentication.reset()
         isConfirmingDeletion = true
     }

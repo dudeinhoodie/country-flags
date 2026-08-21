@@ -16,6 +16,9 @@ public struct HomeView: View {
     private let assets: (any AssetLoading)?
     private let onOpenDeck: (UUID) -> Void
     private let onContinueSession: ((ContinuableSession) -> Void)?
+    /// The way to the catalog, for the screen that has nothing to review: the
+    /// offer to pick a new set of countries has to lead somewhere.
+    private let onOpenCatalog: (() -> Void)?
     private let onStartStudy:
         ((UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void)?
     /// The stored session size, read when a due session starts: the cap on
@@ -42,6 +45,7 @@ public struct HomeView: View {
         makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
+        onOpenCatalog: (() -> Void)? = nil,
         onStartStudy: (
             (UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void
         )? = nil
@@ -53,6 +57,7 @@ public struct HomeView: View {
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
+        self.onOpenCatalog = onOpenCatalog
         self.onStartStudy = onStartStudy
     }
 
@@ -160,6 +165,19 @@ public struct HomeView: View {
         let due = totalDue(sections)
         let continuable = progress?.continuable
 
+        // Its own row, above the day's pane: an unfinished sitting is a
+        // different thing from a queue — one is a place to go back to, the
+        // other is work to start. As a second full pane it competed with the
+        // day; as a line with a bar it is a door, which is all it ever was.
+        if let continuable {
+            ResumeTrainingRow(
+                deckName: deckName(continuable.deckID, in: sections) ?? "",
+                answered: continuable.answeredCards,
+                total: continuable.totalCards,
+                action: { onContinueSession?(continuable) }
+            )
+        }
+
         if due > 0, let deckID = dueLaunchDeckID(sections) {
             pane(
                 label: L10n.homeDueToday,
@@ -167,31 +185,25 @@ public struct HomeView: View {
                 total: nil,
                 caption: dueBreakdown,
                 action: L10n.homeReview,
-                identifier: AccessibilityIdentifier.homeContinue,
-                run: { startDueSession(deckID: deckID) },
-                continuable: continuable
+                identifier: AccessibilityIdentifier.homeReview,
+                run: { startDueSession(deckID: deckID) }
             )
-        } else if let continuable {
-            pane(
-                label: L10n.homeSessionInProgress,
-                count: continuable.answeredCards,
-                total: continuable.totalCards,
-                caption: deckName(continuable.deckID, in: sections),
-                action: L10n.homeContinue,
-                identifier: AccessibilityIdentifier.homeContinue,
-                run: { onContinueSession?(continuable) },
-                continuable: nil
-            )
+        } else if continuable != nil {
+            // The queue is empty and the sitting above is the whole of today:
+            // neither the celebration nor a deck to start belongs under it.
+            EmptyView()
         } else if let deck = recommended(sections) {
-            // A day already finished says so in words — a learner with real
-            // progress who cleared the queue must not see the fresh-install
-            // pane and wonder where their day went.
+            // A day already finished says so — a learner with real progress
+            // who cleared the queue must not see the fresh-install pane and
+            // wonder where their day went. Clearing the queue is the whole
+            // point of the app, so the screen says it like something that was
+            // achieved, and shows what it added up to.
             if hasAnyProgress {
-                Text(L10n.homeDueEmpty)
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.65))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeDueEmpty)
+                DayClearedCard(
+                    learned: learnedCountries,
+                    inProgress: countriesInProgress,
+                    onOpenCatalog: onOpenCatalog
+                )
             }
             // A fresh install, or a day already finished: a deck worth opening
             // instead of a zero, which says nothing and looks like a screen
@@ -203,8 +215,7 @@ public struct HomeView: View {
                 caption: deck.name,
                 action: L10n.studyStart,
                 identifier: AccessibilityIdentifier.homeDeckRow(deck.code),
-                run: { onOpenDeck(deck.id) },
-                continuable: nil
+                run: { onOpenDeck(deck.id) }
             )
         }
     }
@@ -213,6 +224,24 @@ public struct HomeView: View {
     /// cleared queue from a fresh install.
     private var hasAnyProgress: Bool {
         progress?.decks.contains { $0.startedCards > 0 } ?? false
+    }
+
+    /// Countries carried all the way to learned, and countries under way.
+    ///
+    /// Summed over the curated decks alone: those partition the world once,
+    /// while a country can also sit in any number of themed decks, and adding
+    /// those in would count the same flag several times and show a learner
+    /// more countries than there are.
+    private var learnedCountries: Int {
+        curatedDecks.reduce(0) { $0 + $1.learnedCards }
+    }
+
+    private var countriesInProgress: Int {
+        curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
+    }
+
+    private var curatedDecks: [DeckProgressRow] {
+        (progress?.decks ?? []).filter(\.isCurated)
     }
 
     /// What kind of work the number above is: overdue, still being learned,
@@ -243,7 +272,7 @@ public struct HomeView: View {
         action: String,
         identifier: String,
         run: @escaping () -> Void,
-        continuable: ContinuableSession?
+        showsFan: Bool = true
     ) -> some View {
         GlassCard(padding: DesignTokens.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
@@ -272,8 +301,10 @@ public struct HomeView: View {
                         Spacer(minLength: 0)
 
                         // The cards the number is counting, as a small pile of
-                        // themselves.
-                        if !fanCards.isEmpty {
+                        // themselves. Only where the number is the queue: the
+                        // fan is drawn from the due cards and would be a lie
+                        // beside a session's answered count.
+                        if showsFan, !fanCards.isEmpty {
                             FlagFanView(cards: fanCards, store: store, assets: assets)
                         }
                     }
@@ -290,39 +321,6 @@ public struct HomeView: View {
                     .buttonStyle(PrimaryActionStyle())
                     .accessibilityIdentifier(identifier)
 
-                if let continuable {
-                    Button {
-                        onContinueSession?(continuable)
-                    } label: {
-                        HStack(spacing: DesignTokens.Spacing.extraSmall) {
-                            Text(L10n.homeSessionInProgress)
-                                .foregroundStyle(.white.opacity(0.65))
-                            Text(
-                                verbatim:
-                                    "\(continuable.answeredCards) / \(continuable.totalCards)"
-                            )
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                            Spacer(minLength: DesignTokens.Spacing.small)
-                            Text(L10n.homeContinue)
-                                .foregroundStyle(.white)
-                                .fontWeight(.semibold)
-                            Image(systemName: "chevron.right")
-                                .foregroundStyle(.white.opacity(0.5))
-                        }
-                        .font(DesignTokens.Typography.caption)
-                        .padding(.horizontal, DesignTokens.Spacing.medium)
-                        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.85)
-                        .background(
-                            .white.opacity(0.06),
-                            in: RoundedRectangle(
-                                cornerRadius: DesignTokens.Radius.medium, style: .continuous
-                            )
-                        )
-                        .contentShape(.rect)
-                    }
-                    .buttonStyle(.plain)
-                }
             }
         }
     }

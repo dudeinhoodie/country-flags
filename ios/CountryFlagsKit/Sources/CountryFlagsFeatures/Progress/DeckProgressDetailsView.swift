@@ -96,20 +96,29 @@ public struct DeckProgressDetailsView: View {
     private func loaded(_ details: DeckDetails) -> some View {
         let groups = grouped(details.cards)
         return SceneScrollView {
-            // The action leads, the evidence follows: the screen answers
-            // "where does this deck stand" and the very next thought is
-            // "keep going" — so the button stands above the shelves rather
-            // than after two hundred flags.
+            shelf(L10n.progressLearnedLabel, cards: groups.learned, dimmed: false)
+            shelf(L10n.progressInProgressLabel, cards: groups.inProgress, dimmed: false)
+            shelf(L10n.progressNotStartedLabel, cards: groups.untouched, dimmed: true)
+        }
+        // The action rides with the thumb rather than at the top of two
+        // hundred flags: this screen is scrolled, and a button that scrolls
+        // away is a button you have to go back for.
+        //
+        // Glass on nothing, but lit: the strip of frosted backing drew a seam
+        // across the scene that belonged to no part of the layout, and plain
+        // glass over a shelf of flags took their colour and disappeared. A
+        // tinted pane keeps both — the flags pass behind, the button stays.
+        .safeAreaInset(edge: .bottom) {
             if let onStartStudy {
                 Button(L10n.studyStart) {
                     onStartStudy(deckID, sessionSize)
                 }
-                .buttonStyle(PrimaryActionStyle())
+                .buttonStyle(GlassProminentActionStyle())
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                // Twice the gap it had: sitting one notch above the tab bar,
+                // the two glass surfaces read as one bar with a seam in it.
+                .padding(.bottom, DesignTokens.Spacing.medium)
             }
-
-            shelf(L10n.progressLearnedLabel, cards: groups.learned, dimmed: false)
-            shelf(L10n.progressInProgressLabel, cards: groups.inProgress, dimmed: false)
-            shelf(L10n.progressNotStartedLabel, cards: groups.untouched, dimmed: true)
         }
     }
 

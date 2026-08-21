@@ -58,13 +58,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your progress, achievements, settings and every way of signing in are deleted. The app keeps working without an account, starting from nothing."
+            "value": "Your progress, awards, settings and every way in are gone. The app stays — you just start from nothing."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прогресс, достижения, настройки и все способы входа будут удалены. Приложение продолжит работать без аккаунта — с нуля."
+            "value": "Прогресс, награды, настройки и все способы входа исчезнут. Приложение останется — просто начнёшь с нуля."
           }
         }
       }
@@ -75,13 +75,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete account"
+            "value": "Delete"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Удалить аккаунт"
+            "value": "Удалить"
           }
         }
       }
@@ -92,13 +92,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The account was not deleted, so nothing was removed."
+            "value": "The account is still here — nothing was deleted."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Аккаунт не удалён, поэтому ничего не потеряно."
+            "value": "Аккаунт на месте — ничего не удалили."
           }
         }
       }
@@ -115,7 +115,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Удалить этот аккаунт?"
+            "value": "Удалить аккаунт?"
           }
         }
       }
@@ -143,13 +143,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It is expected to be gone by %@. You can keep studying as a guest."
+            "value": "Everything will be gone by %@. Until then you can keep studying as a guest."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ожидаемая дата завершения — %@. Заниматься можно как гость."
+            "value": "Всё сотрём до %@. До тех пор можно тренироваться как гость."
           }
         }
       }
@@ -177,13 +177,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Version %1$@ · seen %2$@"
+            "value": "Version %1$@ · last seen %2$@"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Версия %1$@ · был %2$@"
+            "value": "Версия %1$@ · заходил %2$@"
           }
         }
       }
@@ -194,13 +194,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Revoking a device signs it out. Revoking this one signs you out here."
+            "value": "Revoking a device signs it out. Revoke this one and you sign out here."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отзыв устройства завершает его сессии. Отзыв этого — выход на нём."
+            "value": "Отозвать устройство — значит выйти из аккаунта на нём."
           }
         }
       }
@@ -228,13 +228,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your session expired. Sign in again to continue syncing."
+            "value": "Your sign-in is stale. Sign in again and syncing picks up."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сессия истекла. Войдите снова, чтобы продолжить синхронизацию."
+            "value": "Вход устарел. Зайди заново — и прогресс снова синхронизируется."
           }
         }
       }
@@ -245,13 +245,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The archive could not be prepared. Ask for it again."
+            "value": "The archive did not come together. Try again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Архив подготовить не удалось. Запросите его ещё раз."
+            "value": "Архив не собрался. Попробуй ещё раз."
           }
         }
       }
@@ -262,13 +262,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The archive is prepared on the server and the link it comes back with is short-lived."
+            "value": "The link is short-lived, so save the file right away."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Архив готовится на сервере, а ссылка на него живёт недолго."
+            "value": "Ссылка на архив живёт недолго — сохрани файл сразу."
           }
         }
       }
@@ -302,7 +302,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Запросить копию моих данных"
+            "value": "Запросить копию данных"
           }
         }
       }
@@ -319,7 +319,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ваши данные"
+            "value": "Твои данные"
           }
         }
       }
@@ -353,7 +353,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ваша учётная запись"
+            "value": "Твой аккаунт"
           }
         }
       }
@@ -364,13 +364,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Signing in keeps your progress if this device is lost."
+            "value": "With an account your progress survives the phone."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вход сохранит прогресс, даже если это устройство потеряется."
+            "value": "С аккаунтом прогресс не пропадёт — даже если потеряешь телефон."
           }
         }
       }
@@ -381,13 +381,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Adding a second way in means you can still reach this account if you lose access to the first."
+            "value": "A second way in helps if you lose access to the first."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Второй способ входа — это возможность попасть в аккаунт, если доступ к первому потерян."
+            "value": "Второй способ входа выручит, если потеряешь доступ к первому."
           }
         }
       }
@@ -415,13 +415,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This account already has a login from that provider."
+            "value": "That login is already linked."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "У аккаунта уже есть вход через этого провайдера."
+            "value": "Такой вход уже привязан."
           }
         }
       }
@@ -432,13 +432,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "That did not work"
+            "value": "That did not take"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не получилось"
+            "value": "Что-то не срослось"
           }
         }
       }
@@ -449,13 +449,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This is the only way into the account, so it cannot be removed. Add another one first."
+            "value": "This is the only way into the account. Add another one first."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Это единственный способ войти в аккаунт, поэтому удалить его нельзя. Сначала добавьте другой."
+            "value": "Это единственный вход в аккаунт. Сначала добавь другой."
           }
         }
       }
@@ -483,13 +483,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The device is offline. Try again when it is back."
+            "value": "No connection. Try again when it is back."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нет сети. Попробуйте, когда связь вернётся."
+            "value": "Нет сети. Попробуй, когда вернётся связь."
           }
         }
       }
@@ -500,13 +500,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The change was refused. Try again later."
+            "value": "Give it another go a little later."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Изменение отклонено. Попробуйте позже."
+            "value": "Попробуй ещё раз чуть позже."
           }
         }
       }
@@ -517,13 +517,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign out and sign in with it to use that account. Two accounts cannot be joined."
+            "value": "Sign out and sign in with it — that is a different account. The two cannot be joined."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выйдите и войдите через него, чтобы пользоваться тем аккаунтом. Объединить два аккаунта нельзя."
+            "value": "Выйди и зайди через него — это другой аккаунт. Объединить их нельзя."
           }
         }
       }
@@ -540,7 +540,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Этот вход принадлежит другому аккаунту"
+            "value": "Этот вход — от другого аккаунта"
           }
         }
       }
@@ -557,7 +557,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Правовые документы"
+            "value": "Документы"
           }
         }
       }
@@ -568,13 +568,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The guest progress could not be imported."
+            "value": "The guest progress has not moved over yet."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось перенести гостевой прогресс."
+            "value": "Гостевой прогресс пока не переехал."
           }
         }
       }
@@ -585,13 +585,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Imported answers: %lld"
+            "value": "Answers imported: %lld"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перенесено ответов: %lld"
+            "value": "Перенесли ответов: %lld"
           }
         }
       }
@@ -602,13 +602,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your guest progress is on its way to the account."
+            "value": "Moving your guest progress into the account."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Гостевой прогресс переносится в учётную запись."
+            "value": "Переносим гостевой прогресс в аккаунт."
           }
         }
       }
@@ -619,13 +619,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage account"
+            "value": "Account"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Управление аккаунтом"
+            "value": "Аккаунт"
           }
         }
       }
@@ -653,13 +653,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in again to confirm this account is yours."
+            "value": "Sign in once more, so we know it is really you."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Войдите ещё раз, чтобы подтвердить, что аккаунт ваш."
+            "value": "Зайди ещё раз — так мы поймём, что это правда ты."
           }
         }
       }
@@ -670,13 +670,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The sign-in was not confirmed, so nothing was changed."
+            "value": "The sign-in was not confirmed, so nothing changed."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вход не подтверждён, поэтому ничего не изменилось."
+            "value": "Вход не подтвердился — ничего не изменилось."
           }
         }
       }
@@ -687,13 +687,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirm it is you"
+            "value": "Is this you?"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подтвердите, что это вы"
+            "value": "Это точно ты?"
           }
         }
       }
@@ -761,7 +761,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Учётная запись"
+            "value": "Аккаунт"
           }
         }
       }
@@ -772,13 +772,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not sign in. Try again."
+            "value": "Signing in did not work. Try again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось войти. Попробуйте ещё раз."
+            "value": "Войти не вышло. Попробуй ещё раз."
           }
         }
       }
@@ -812,7 +812,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нет сети. Попробуйте, когда появится соединение."
+            "value": "Нет сети. Попробуй, когда появится."
           }
         }
       }
@@ -840,13 +840,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Everything is synced."
+            "value": "Everything is synced — you can sign out safely."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Всё синхронизировано."
+            "value": "Всё синхронизировано, можно спокойно выходить."
           }
         }
       }
@@ -874,13 +874,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld answers have not reached the server yet. They will stay on this device and cannot sync until you sign in again."
+            "value": "%lld answers are not on the server yet. They will wait for you on this phone."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ответы, не дошедшие до сервера: %lld. Они останутся на устройстве и не синхронизируются, пока вы не войдёте снова."
+            "value": "%lld ответов ещё не на сервере. Они дождутся тебя на этом телефоне."
           }
         }
       }
@@ -897,7 +897,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прогресс сохраняется в этой учётной записи"
+            "value": "Прогресс сохраняется в аккаунте"
           }
         }
       }
@@ -993,13 +993,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove"
+            "value": "Unlink"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Удалить"
+            "value": "Отвязать"
           }
         }
       }
@@ -1027,13 +1027,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No awards yet — they arrive as you study"
+            "value": "No awards yet — they come with the sessions."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пока нет наград — они приходят за занятия"
+            "value": "Наград пока нет — они приходят за тренировки."
           }
         }
       }
@@ -1078,13 +1078,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shown in %@, the language this release publishes."
+            "value": "For now, only in %@."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Показано на языке «%@» — он опубликован в этой версии контента."
+            "value": "Пока только на языке «%@»."
           }
         }
       }
@@ -1095,13 +1095,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No decks match your search."
+            "value": "Nothing turned up."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ничего не найдено."
+            "value": "Ничего не нашлось."
           }
         }
       }
@@ -1112,13 +1112,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search decks"
+            "value": "Find a deck"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Поиск колод"
+            "value": "Найти колоду"
           }
         }
       }
@@ -1146,13 +1146,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Update the app to get the latest content."
+            "value": "Update the app, or the new countries will not arrive."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Обновите приложение, чтобы получить свежий контент."
+            "value": "Обнови приложение — иначе новые страны не приедут."
           }
         }
       }
@@ -1163,13 +1163,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This version of the app can no longer read the published content."
+            "value": "This version can no longer read the published catalog."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Эта версия приложения больше не может читать опубликованный контент."
+            "value": "Эта версия больше не понимает свежий каталог."
           }
         }
       }
@@ -1203,7 +1203,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "В этой версии контента нет колод."
+            "value": "В этой версии каталога колод нет."
           }
         }
       }
@@ -1231,13 +1231,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Something went wrong on our side. Please try again."
+            "value": "That one is on us — try again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Что-то пошло не так на нашей стороне. Попробуйте ещё раз."
+            "value": "Это на нашей стороне — попробуй ещё раз."
           }
         }
       }
@@ -1248,13 +1248,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not load the catalog"
+            "value": "The catalog did not arrive"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось загрузить каталог"
+            "value": "Каталог не доехал"
           }
         }
       }
@@ -1265,13 +1265,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Loading content…"
+            "value": "Loading the catalog…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Загружаем контент…"
+            "value": "Загружаем каталог…"
           }
         }
       }
@@ -1282,13 +1282,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You are offline. Showing what is already downloaded."
+            "value": "No connection — showing what is already downloaded."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нет сети. Показываем загруженное ранее."
+            "value": "Сети нет — показываем то, что уже скачано."
           }
         }
       }
@@ -1299,13 +1299,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect to the internet to download the catalog."
+            "value": "Get online to download the catalog."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подключитесь к интернету, чтобы загрузить каталог."
+            "value": "Подключись к сети, чтобы скачать каталог."
           }
         }
       }
@@ -1333,13 +1333,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not refresh. Showing what is already downloaded."
+            "value": "Could not refresh — showing what is already here."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось обновить. Показываем загруженное ранее."
+            "value": "Обновить не вышло — показываем скачанное."
           }
         }
       }
@@ -1356,7 +1356,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Повторить"
+            "value": "Ещё раз"
           }
         }
       }
@@ -1373,7 +1373,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Каталог может быть устаревшим."
+            "value": "Каталог может быть неактуальным."
           }
         }
       }
@@ -1418,13 +1418,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No countries match your search."
+            "value": "No country here goes by that."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ничего не найдено."
+            "value": "В этой колоде такой страны нет."
           }
         }
       }
@@ -1435,13 +1435,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search countries"
+            "value": "Find a country"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Поиск стран"
+            "value": "Найти страну"
           }
         }
       }
@@ -1475,7 +1475,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Также: %@"
+            "value": "Ещё называют: %@"
           }
         }
       }
@@ -1503,13 +1503,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This changed somewhere else. Reopen the screen and try again."
+            "value": "This has been updated since. Open the screen again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Данные изменились в другом месте. Откройте экран заново и повторите."
+            "value": "Данные успели обновиться. Открой экран заново."
           }
         }
       }
@@ -1520,13 +1520,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This feature is temporarily unavailable."
+            "value": "This feature is switched off for now."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Функция временно недоступна."
+            "value": "Функция пока выключена."
           }
         }
       }
@@ -1537,13 +1537,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This action is not available for your account."
+            "value": "Your account cannot do this."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Действие недоступно для вашего аккаунта."
+            "value": "Для твоего аккаунта это недоступно."
           }
         }
       }
@@ -1554,13 +1554,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check the entered data and try again."
+            "value": "Something here does not add up. Check it and try again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Проверьте введённые данные и повторите."
+            "value": "Что-то тут не сходится. Проверь и попробуй ещё раз."
           }
         }
       }
@@ -1571,13 +1571,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This is no longer available."
+            "value": "That is gone now."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Этого больше нет."
+            "value": "Такого больше нет."
           }
         }
       }
@@ -1588,13 +1588,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No connection. Your progress is saved on this device."
+            "value": "No connection, but your progress is on the phone. It goes out when the signal is back."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нет соединения. Прогресс сохранён на этом устройстве."
+            "value": "Сети нет, но прогресс уже на телефоне — дождётся связи и улетит."
           }
         }
       }
@@ -1605,13 +1605,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Too many attempts. Try again in a moment."
+            "value": "This needs a short pause. Try again in a minute."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Слишком много попыток. Повторите чуть позже."
+            "value": "Нужна небольшая пауза. Попробуй через минуту."
           }
         }
       }
@@ -1622,13 +1622,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Something went wrong on our side. Try again later."
+            "value": "Something broke on our side. Try again in a bit."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Что-то пошло не так на нашей стороне. Повторите позже."
+            "value": "Что-то сломалось у нас. Попробуй чуть позже."
           }
         }
       }
@@ -1645,7 +1645,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Код обращения в поддержку: %@"
+            "value": "Код для поддержки: %@"
           }
         }
       }
@@ -1656,13 +1656,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The request took too long. Try again."
+            "value": "The server is thinking. Try again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Запрос занял слишком много времени. Повторите."
+            "value": "Сервер задумался. Попробуй ещё раз."
           }
         }
       }
@@ -1679,7 +1679,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Войдите снова, чтобы продолжить."
+            "value": "Зайди заново, чтобы продолжить."
           }
         }
       }
@@ -1690,13 +1690,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Something went wrong. Try again."
+            "value": "That did not work. Try again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Что-то пошло не так. Повторите."
+            "value": "Не сработало. Попробуй ещё раз."
           }
         }
       }
@@ -1786,6 +1786,108 @@
         }
       }
     },
+    "home.cleared.in_progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still learning"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ещё учатся"
+          }
+        }
+      }
+    },
+    "home.cleared.learned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Countries learned"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стран выучено"
+          }
+        }
+      }
+    },
+    "home.cleared.next": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you cannot wait"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Если не терпится"
+          }
+        }
+      }
+    },
+    "home.cleared.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's cards are done. New ones come back when they are due."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Карточки на сегодня закончились. Новые вернутся, когда придёт их срок."
+          }
+        }
+      }
+    },
+    "home.cleared.suggestion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a new deck — nobody said you cannot learn ahead."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возьми новую колоду — учить наперёд никто не запрещал."
+          }
+        }
+      }
+    },
+    "home.cleared.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All caught up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всё повторено"
+          }
+        }
+      }
+    },
     "home.continue": {
       "extractionState": "manual",
       "localizations": {
@@ -1850,23 +1952,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld к повторению"
-          }
-        }
-      }
-    },
-    "home.due_empty": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing to review right now — come back later"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Пока нечего повторять — загляни позже"
           }
         }
       }
@@ -1968,7 +2053,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ваш прогресс"
+            "value": "Твой прогресс"
           }
         }
       }
@@ -2013,13 +2098,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session in progress"
+            "value": "A session is waiting"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Занятие в процессе"
+            "value": "Тренировка ждёт"
+          }
+        }
+      }
+    },
+    "home.session_left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld cards left"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "осталось карточек: %lld"
           }
         }
       }
@@ -2132,13 +2234,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Share crash diagnostics"
+            "value": "Send crash reports"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Делиться диагностикой сбоев"
+            "value": "Отправлять отчёты о сбоях"
           }
         }
       }
@@ -2149,13 +2251,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Both are off until you turn them on, and neither affects how the app works. Analytics counts what happens in the app — screens, sessions, outcomes — never your answers, your email or your sign-in. Diagnostics sends crash and performance reports. Turning one off also deletes what is still waiting to be sent."
+            "value": "Both are off until you turn them on. Analytics counts screens and sessions — not your answers, your email or your sign-in. Diagnostics sends crash reports. Turn one off and anything unsent is deleted."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Оба выключены, пока вы их не включите, и ни один не влияет на работу приложения. Аналитика считает, что происходит в приложении — экраны, занятия, результаты — и никогда ваши ответы, почту или данные входа. Диагностика отправляет отчёты о сбоях и производительности. Выключение также удаляет то, что ещё не отправлено."
+            "value": "Оба выключены, пока не включишь. Аналитика считает экраны и тренировки — не ответы, почту и данные входа. Диагностика шлёт отчёты о сбоях. Выключишь — неотправленное удалится."
           }
         }
       }
@@ -2166,13 +2268,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Share product analytics"
+            "value": "Send product analytics"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Делиться продуктовой аналитикой"
+            "value": "Отправлять аналитику"
           }
         }
       }
@@ -2200,13 +2302,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Achievements"
+            "value": "Awards"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Достижения"
+            "value": "Награды"
           }
         }
       }
@@ -2268,13 +2370,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open a deck and start a session. What you answer shows up here."
+            "value": "Open any deck and answer a couple of cards — the results land right here."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Откройте колоду и начните сессию. Здесь появится то, что вы ответили."
+            "value": "Открой любую колоду и ответь на пару карточек — результаты появятся здесь же."
           }
         }
       }
@@ -2285,13 +2387,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing studied yet"
+            "value": "Nothing here yet"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вы ещё не занимались"
+            "value": "Тут пока пусто"
           }
         }
       }
@@ -2325,7 +2427,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ярче — ближе к цели"
+            "value": "ярче — значит ближе к цели"
           }
         }
       }
@@ -2421,13 +2523,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your queue is waiting."
+            "value": "A couple of cards are due — it is a minute of your time."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вас ждёт очередь повторений."
+            "value": "Пара карточек ждёт повторения — это минута."
           }
         }
       }
@@ -2438,13 +2540,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Time to study"
+            "value": "The flags are waiting"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пора позаниматься"
+            "value": "Флаги заждались"
           }
         }
       }
@@ -2472,13 +2574,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Every answer, card state, session and achievement is deleted on all your devices. The account, its settings and the catalog stay."
+            "value": "Answers, cards, sessions and awards are deleted on every device. The account, its settings and the catalog stay."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Все ответы, состояния карточек, занятия и достижения будут удалены на всех ваших устройствах. Аккаунт, его настройки и каталог останутся."
+            "value": "Ответы, карточки, тренировки и награды исчезнут на всех устройствах. Аккаунт, настройки и каталог останутся."
           }
         }
       }
@@ -2489,13 +2591,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear progress"
+            "value": "Clear"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Очистить прогресс"
+            "value": "Очистить"
           }
         }
       }
@@ -2506,13 +2608,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Progress cleared."
+            "value": "Done — the progress is cleared."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прогресс очищен."
+            "value": "Готово, прогресс очищен."
           }
         }
       }
@@ -2523,13 +2625,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The progress was not cleared, so nothing was deleted."
+            "value": "The progress is still here — nothing was deleted."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прогресс не очищен, поэтому ничего не удалено."
+            "value": "Прогресс на месте — ничего не удалили."
           }
         }
       }
@@ -2540,13 +2642,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in again to confirm it is you."
+            "value": "Sign in once more, so we know it is really you."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Войдите ещё раз, чтобы подтвердить, что это вы."
+            "value": "Зайди ещё раз — так мы поймём, что это правда ты."
           }
         }
       }
@@ -2563,7 +2665,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вход не подтверждён, поэтому ничего не удалено."
+            "value": "Вход не подтвердился — ничего не удалили."
           }
         }
       }
@@ -2608,13 +2710,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your settings were changed on another device, so the ones shown here came from the server."
+            "value": "Your settings changed on another device, so these came from the server."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Настройки изменились на другом устройстве, поэтому здесь показаны серверные."
+            "value": "Настройки поменялись на другом устройстве — показываем их."
           }
         }
       }
@@ -2625,13 +2727,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feedback"
+            "value": "Sound and haptics"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отклик"
+            "value": "Звук и вибрация"
           }
         }
       }
@@ -2665,7 +2767,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Открыть настройки"
+            "value": "Открыть настройки системы"
           }
         }
       }
@@ -2699,7 +2801,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Напоминать о занятиях"
+            "value": "Напоминать о тренировках"
           }
         }
       }
@@ -2727,30 +2829,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notifications are turned off for Country Flags in System Settings."
+            "value": "Notifications are turned off in System Settings."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Уведомления для Country Flags выключены в настройках системы."
-          }
-        }
-      }
-    },
-    "settings.reminders_footer": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The system decides when a reminder is delivered, so it may not arrive at an exact time."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Система сама решает, когда доставить напоминание, поэтому точное время не гарантируется."
+            "value": "Уведомления выключены в настройках системы."
           }
         }
       }
@@ -2772,23 +2857,6 @@
         }
       }
     },
-    "settings.reminders_time": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reminder time"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Время напоминания"
-          }
-        }
-      }
-    },
     "settings.session": {
       "extractionState": "manual",
       "localizations": {
@@ -2801,7 +2869,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сессия"
+            "value": "Тренировка"
           }
         }
       }
@@ -2869,7 +2937,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Учите флаги стран мира"
+            "value": "Учи флаги стран мира"
           }
         }
       }
@@ -2920,7 +2988,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Закрыть занятие"
+            "value": "Закрыть тренировку"
           }
         }
       }
@@ -3067,7 +3135,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This deck has nothing to study yet."
+            "value": "This deck has nothing to learn yet."
           }
         },
         "ru": {
@@ -3084,13 +3152,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This deck cannot offer four different answers. Try the self-rated mode instead."
+            "value": "There are not four different answers here. Try the self-rated mode."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "В этой колоде не набирается четыре разных ответа. Попробуйте режим самооценки."
+            "value": "Здесь не наберётся четыре разных ответа. Попробуй самооценку."
           }
         }
       }
@@ -3118,13 +3186,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "That answer was not saved. Try rating it again."
+            "value": "That answer did not make it. Rate the card again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ответ не сохранён. Оцените карточку ещё раз."
+            "value": "Ответ не долетел. Оцени карточку ещё раз."
           }
         }
       }
@@ -3135,13 +3203,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing to review right now — come back when cards are due."
+            "value": "Nothing to review yet. The cards will let you know."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пока нечего повторять — возвращайся, когда подойдёт срок карточек."
+            "value": "Повторять пока нечего. Карточки сами напомнят о себе."
           }
         }
       }
@@ -3209,7 +3277,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, ваш ответ, неверно"
+            "value": "%@, твой ответ, неверно"
           }
         }
       }
@@ -3356,13 +3424,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session complete"
+            "value": "Session done"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сессия завершена"
+            "value": "Тренировка позади"
           }
         }
       }
@@ -3390,13 +3458,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session size"
+            "value": "Cards per session"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Размер сессии"
+            "value": "Карточек за тренировку"
           }
         }
       }
@@ -3424,13 +3492,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The session could not be started."
+            "value": "The session did not start. Try again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось начать сессию."
+            "value": "Тренировка не запустилась. Попробуй ещё раз."
           }
         }
       }
@@ -3458,13 +3526,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your answers are saved and will sync when you are back online."
+            "value": "Your answers are saved and go out when you are back online."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ответы сохранены и отправятся, когда появится сеть."
+            "value": "Ответы сохранены — улетят, когда появится сеть."
           }
         }
       }
@@ -3482,23 +3550,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ожидают отправки: %lld"
-          }
-        }
-      }
-    },
-    "sync.retry_later": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Could not sync just now. Your answers are saved."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не удалось синхронизировать. Ответы сохранены."
           }
         }
       }
@@ -3532,7 +3583,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Войдите, чтобы синхронизировать прогресс между устройствами."
+            "value": "Войди, чтобы прогресс синхронизировался между устройствами."
           }
         }
       }

@@ -5,7 +5,7 @@
       "code": "ALL",
       "kind": "CURATED",
       "name": "All countries",
-      "description": "Approved development catalog",
+      "description": "Every flag, with no regions to lean on.",
       "cardCount": 250,
       "dueCount": null,
       "contentVersion": "fixture-v1"
@@ -15,7 +15,7 @@
       "code": "EUROPE",
       "kind": "TAXONOMY",
       "name": "Europe",
-      "description": "Flags of Europe",
+      "description": "Tricolour after tricolour — telling them apart is the whole job.",
       "cardCount": 52,
       "dueCount": null,
       "contentVersion": "fixture-v1"
@@ -25,7 +25,7 @@
       "code": "AFRICA",
       "kind": "TAXONOMY",
       "name": "Africa",
-      "description": "Flags of Africa",
+      "description": "Green, yellow and red almost everywhere. The difference is in the details.",
       "cardCount": 60,
       "dueCount": null,
       "contentVersion": "fixture-v1"
@@ -35,7 +35,7 @@
       "code": "AMERICAS",
       "kind": "TAXONOMY",
       "name": "Americas",
-      "description": "Flags of the Americas",
+      "description": "Both Americas at once: stars, stripes and a lot of blue.",
       "cardCount": 57,
       "dueCount": null,
       "contentVersion": "fixture-v1"
@@ -45,7 +45,7 @@
       "code": "ASIA",
       "kind": "TAXONOMY",
       "name": "Asia",
-      "description": "Flags of Asia",
+      "description": "Crescents, discs and dragons — no two alike.",
       "cardCount": 51,
       "dueCount": null,
       "contentVersion": "fixture-v1"
@@ -55,7 +55,7 @@
       "code": "OCEANIA",
       "kind": "TAXONOMY",
       "name": "Oceania",
-      "description": "Flags of Oceania",
+      "description": "The Southern Cross, and a Union Jack in the corner of most of them.",
       "cardCount": 30,
       "dueCount": null,
       "contentVersion": "fixture-v1"

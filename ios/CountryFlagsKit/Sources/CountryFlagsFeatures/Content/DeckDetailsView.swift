@@ -19,6 +19,12 @@ public struct DeckDetailsView: View {
     /// exists, the pickers would lie — the runner resumes the stored session
     /// whatever they say — so the card offers the way back instead.
     @State private var continuable: ContinuableSession?
+    /// The country whose drawer is open. The same sheet the session shows on
+    /// the back of a card: a learner browsing a deck asks the same question
+    /// about a flag as a learner answering one, and should not get a second,
+    /// lesser answer for having asked it here.
+    @State private var selectedCountry: CountryDetailsSubject?
+    @Environment(\.displayScale) private var displayScale
     private let deckID: UUID
     private let store: ContentStore
     private let assets: any AssetLoading
@@ -52,6 +58,9 @@ public struct DeckDetailsView: View {
         content
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $selectedCountry) { subject in
+                CountryDetailsSheet(subject: subject, store: store, assets: assets)
+            }
             .searchable(text: searchBinding, prompt: L10n.deckSearchPrompt)
             .refreshable {
                 await store.refresh()
@@ -122,12 +131,40 @@ public struct DeckDetailsView: View {
 
             header(details)
 
-            if let onStartStudy {
-                startCard(details, onStartStudy: onStartStudy)
+            // Only when it has something to say: with the action at the
+            // bottom and the size in the settings, the card is the unfinished
+            // session and the mode — and an empty pane above a country list is
+            // a shape the eye has to decode for nothing.
+            if onStartStudy != nil, continuable != nil || isObjectiveModeEnabled {
+                startCard()
             }
 
             countries(details)
         }
+        // The same bar as the region's progress screen, in the same place with
+        // the same gaps: both screens are a long list of countries with one
+        // thing to do about them, and a person should not have to find the
+        // button twice.
+        .safeAreaInset(edge: .bottom) {
+            if let onStartStudy {
+                Button(continuable == nil ? L10n.studyStart : L10n.homeContinue) {
+                    if let continuable {
+                        onStartStudy(deckID, continuable.size, continuable.mode)
+                    } else {
+                        onStartStudy(deckID, sessionSize, mode)
+                    }
+                }
+                .buttonStyle(GlassProminentActionStyle())
+                .disabled(cardCount(of: details) == 0)
+                .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+                .padding(.horizontal, DesignTokens.Spacing.medium)
+                .padding(.bottom, DesignTokens.Spacing.medium)
+            }
+        }
+    }
+
+    private func cardCount(of details: DeckDetails) -> Int {
+        details.deck.cardCount
     }
 
     private func header(_ details: DeckDetails) -> some View {
@@ -150,10 +187,7 @@ public struct DeckDetailsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func startCard(
-        _ details: DeckDetails,
-        onStartStudy: @escaping (UUID, StudySessionSize, StudyAnswerMode) -> Void
-    ) -> some View {
+    private func startCard() -> some View {
         GlassCard(padding: DesignTokens.Spacing.medium) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 if let continuable {
@@ -172,24 +206,15 @@ public struct DeckDetailsView: View {
                         }
                         .foregroundStyle(.white)
                     }
-
-                    Button(L10n.homeContinue) {
-                        onStartStudy(deckID, continuable.size, continuable.mode)
-                    }
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
                 } else {
-                    startControls(details, onStartStudy: onStartStudy)
+                    modePicker
                 }
             }
         }
     }
 
     @ViewBuilder
-    private func startControls(
-        _ details: DeckDetails,
-        onStartStudy: @escaping (UUID, StudySessionSize, StudyAnswerMode) -> Void
-    ) -> some View {
+    private var modePicker: some View {
         // The quiz is a released feature rather than a permanent one:
         // the flag is server-enforced and defaults to off, so the mode
         // is simply absent until it is turned on.
@@ -208,29 +233,10 @@ public struct DeckDetailsView: View {
             }
         }
 
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-            SectionLabel(L10n.studySessionSize)
-            // The system's own control, here and in the settings alike: one
-            // segmented control across the app behaves one way, and a person
-            // who has met it anywhere else in iOS already knows this one.
-            Picker(L10n.studySessionSize, selection: $sessionSize) {
-                ForEach(StudySessionSize.allCases, id: \.self) { size in
-                    Text(verbatim: "\(size.rawValue)")
-                        .tag(size)
-                        .accessibilityIdentifier(AccessibilityIdentifier.studySizeOption(size))
-                }
-            }
-            .pickerStyle(.segmented)
-        }
-
-        // A session can start with no network at all: the cards and
-        // their flags are already on the device.
-        Button(L10n.studyStart) {
-            onStartStudy(deckID, sessionSize, mode)
-        }
-        .buttonStyle(PrimaryActionStyle())
-        .disabled(details.deck.cardCount == 0)
-        .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+        // The size is not asked for here. It is one setting, in the settings,
+        // and a deck that asked again made it two — with the screen's answer
+        // silently winning over the one the learner had already given. The
+        // action is not here either: it waits at the bottom of the screen.
     }
 
     private func countries(_ details: DeckDetails) -> some View {
@@ -246,28 +252,76 @@ public struct DeckDetailsView: View {
             } else {
                 // A deck can hold every country there is, so the rows are built
                 // as they come into view rather than all at once.
-                GlassCard(padding: DesignTokens.Spacing.small) {
-                    LazyVStack(spacing: 0) {
-                        ForEach(Array(details.cards.enumerated()), id: \.element.id) { index, card in
-                            if index > 0 {
-                                Divider()
-                                    .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
-                                    .padding(.leading, DesignTokens.Layout.rowFlagWidth)
-                            }
-                            CountryRow(card: card, store: store, assets: assets)
-                                .padding(.horizontal, DesignTokens.Spacing.small)
-                                .accessibilityIdentifier(
-                                    AccessibilityIdentifier.deckCountryRow(card.id)
-                                )
+                //
+                // Drawn rather than glassed: the live glass effect is sampled
+                // for what is on screen, and on a pane two hundred rows tall
+                // the edge simply stopped being drawn once it scrolled past
+                // the sample. A fill and a hairline are cheap, hold at any
+                // height, and look the same standing still.
+                LazyVStack(spacing: 0) {
+                    ForEach(Array(details.cards.enumerated()), id: \.element.id) { index, card in
+                        if index > 0 {
+                            Divider()
+                                .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
+                                .padding(.leading, DesignTokens.Layout.rowFlagWidth)
                         }
+                        Button {
+                            selectedCountry = CountryDetailsSubject(card: card)
+                        } label: {
+                            CountryRow(card: card, store: store, assets: assets)
+                        }
+                        .buttonStyle(CountryRowStyle())
+                        .accessibilityIdentifier(
+                            AccessibilityIdentifier.deckCountryRow(card.id)
+                        )
                     }
                 }
+                .padding(.vertical, DesignTokens.Spacing.small)
+                .background(
+                    RoundedRectangle(
+                        cornerRadius: DesignTokens.Radius.large,
+                        style: .continuous
+                    )
+                    .fill(.white.opacity(0.06))
+                )
+                .overlay(
+                    RoundedRectangle(
+                        cornerRadius: DesignTokens.Radius.large,
+                        style: .continuous
+                    )
+                    .strokeBorder(
+                        .white.opacity(DesignTokens.Card.borderOpacity),
+                        lineWidth: 1 / displayScale
+                    )
+                )
+                .clipShape(
+                    RoundedRectangle(
+                        cornerRadius: DesignTokens.Radius.large,
+                        style: .continuous
+                    )
+                )
             }
         }
     }
 
     private var searchBinding: Binding<String> {
         Binding(get: { model.searchText }, set: { model.searchText = $0 })
+    }
+}
+
+/// A row that is a button without looking like one.
+///
+/// The rows are a list, and a list that turned blue on touch would read as
+/// five hundred links; pressing dims the row the way a table cell highlights.
+private struct CountryRowStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(.horizontal, DesignTokens.Spacing.medium)
+            .contentShape(.rect)
+            .background(
+                configuration.isPressed ? Color.white.opacity(0.08) : Color.clear
+            )
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
@@ -305,6 +359,12 @@ struct CountryRow: View {
                 .foregroundStyle(.white)
 
             Spacer(minLength: 0)
+
+            // The row opens something; the mark that says so is the one every
+            // list on the platform uses.
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.35))
         }
         .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
         .padding(.vertical, DesignTokens.Spacing.extraSmall)

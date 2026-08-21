@@ -280,3 +280,36 @@ struct GoogleLogoMark: View {
             .stroke(color, lineWidth: line)
     }
 }
+
+/// The person in the top corner: the way into the account from anywhere.
+///
+/// A plain symbol, the same weight and treatment as the gear across the bar
+/// from it — the two are a pair, and a frosted disc on one side against a bare
+/// glyph on the other made them look like two different kinds of control. The
+/// provider's picture takes its place once there is one: a face is worth more
+/// than a symbol, and only then is the disc earned.
+struct AccountAvatarButtonLabel: View {
+    let profile: AccountProfile?
+
+    var body: some View {
+        if let url = profile?.avatarURL {
+            AsyncImage(url: url) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                glyph
+            }
+            .frame(width: 28, height: 28)
+            .clipShape(Circle())
+            .overlay {
+                Circle()
+                    .strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
+            }
+        } else {
+            glyph
+        }
+    }
+
+    private var glyph: some View {
+        Image(systemName: "person.crop.circle")
+    }
+}
