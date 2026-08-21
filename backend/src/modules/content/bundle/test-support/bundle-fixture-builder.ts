@@ -35,9 +35,6 @@ export function assetRecord(entity: FixtureEntity): Record<string, unknown> {
   return {
     key: `flag.${entity.slug}.current`,
     entityKey: entity.key,
-    path: `assets/svg/${entity.slug}.svg`,
-    sha256: sha256(svgContent),
-    mimeType: "image/svg+xml",
     representations: [
       {
         path: `assets/svg/${entity.slug}.svg`,
