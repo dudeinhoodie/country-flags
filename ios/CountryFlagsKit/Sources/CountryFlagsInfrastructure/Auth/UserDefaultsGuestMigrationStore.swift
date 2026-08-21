@@ -23,6 +23,21 @@ public struct UserDefaultsGuestMigrationStore: GuestMigrationRecordStoring {
         return try? Self.decoder.decode(GuestMigrationRecord.self, from: data)
     }
 
+    /// The oldest archive still waiting, read back out of the same
+    /// scope-keyed slots.
+    ///
+    /// Oldest rather than newest: if a device somehow left two behind, the
+    /// one that has been waiting longest is the one whose owner has been
+    /// missing their work for longest.
+    public func unsettledRecord() async -> GuestMigrationRecord? {
+        defaults.dictionaryRepresentation().keys
+            .filter { $0.hasPrefix(Self.keyPrefix) }
+            .compactMap { defaults.data(forKey: $0) }
+            .compactMap { try? Self.decoder.decode(GuestMigrationRecord.self, from: $0) }
+            .filter { !$0.isSettled }
+            .min { $0.startedAt < $1.startedAt }
+    }
+
     public func save(_ record: GuestMigrationRecord) async {
         guard let data = try? Self.encoder.encode(record) else { return }
         defaults.set(data, forKey: Self.key(record.sourceScopeKey))
@@ -32,8 +47,10 @@ public struct UserDefaultsGuestMigrationStore: GuestMigrationRecordStoring {
     /// guests keeps the history of both, which is exactly what the ownership
     /// check needs.
     private static func key(_ scopeKey: String) -> String {
-        "guest-migration.\(scopeKey)"
+        "\(keyPrefix)\(scopeKey)"
     }
+
+    private static let keyPrefix = "guest-migration." 
 
     private static let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
