@@ -41,10 +41,16 @@ export async function importTestStudySeed(
   if (existingScheduler === null) {
     const anotherActive = await prisma.schedulerDefinition.findFirst({
       where: { status: SchedulerDefinitionStatus.ACTIVE },
-      select: { version: true, packageName: true },
+      select: { version: true },
     });
     if (anotherActive !== null) {
-      if (anotherActive.packageName !== "TEST_ONLY") {
+      // The guard is about production, not about whether a real definition
+      // exists. It used to refuse whenever the active scheduler was not
+      // TEST_ONLY — which was every database with a real one, and since the
+      // migration that installs `fsrs-6-2026-08-21` that is all of them. A
+      // test database is disposable and the seed is what makes it usable;
+      // production is where displacing the scheduler must never happen.
+      if (process.env.NODE_ENV === "production") {
         throw new Error(
           `Cannot install TEST_ONLY scheduler while ${anotherActive.version} is active`,
         );

@@ -67,16 +67,18 @@ final class LocalProgressProjectionTests: XCTestCase {
         XCTAssertEqual(progress[0].dueCards, 1)
     }
 
-    /// The complaint this rule answers: a session of ten new cards used to put
-    /// ten cards back in the day's queue a minute later, and ten again ten
-    /// minutes after that. Those returns belong to the sitting, not to the day.
-    func testCardsStillInTheLearningStepsAreNotTheDaysQueue() {
+    /// A card that has come round is owed, whatever step it is on.
+    ///
+    /// This used to be the opposite: a learning card was hidden for an hour
+    /// after it came due, because the scheduler brought it back a minute after
+    /// "again" and the day's queue refilled inside the sitting the learner was
+    /// already in. The steps are an hour, three hours and a day now, so the
+    /// churn is gone at its source — and hiding a card that has genuinely come
+    /// round would now be hiding work.
+    func testACardWhoseTimeHasComeIsOwedWhateverStepItIsOn() {
         let cards = [UUID(), UUID()]
         let states = [
-            // Answered a minute ago; the scheduler's first step has just come
-            // round, which is what used to make the queue refill.
             state(cards[0], state: "LEARNING", dueAt: now.addingTimeInterval(-60)),
-            // Got wrong a few minutes ago and waiting out the relearning step.
             state(cards[1], state: "RELEARNING", dueAt: now.addingTimeInterval(-300)),
         ]
 
@@ -86,8 +88,26 @@ final class LocalProgressProjectionTests: XCTestCase {
             now: now
         )
 
+        XCTAssertEqual(progress[0].dueCards, 2)
+        XCTAssertEqual(progress[0].startedCards, 2)
+    }
+
+    /// A card that has not come round yet is nobody's work, whatever step it
+    /// is on — which is what keeps a finished sitting finished.
+    func testACardStillWaitingForItsStepIsNotOwed() {
+        let cards = [UUID(), UUID()]
+        let states = [
+            state(cards[0], state: "LEARNING", dueAt: now.addingTimeInterval(60 * 60)),
+            state(cards[1], state: "RELEARNING", dueAt: now.addingTimeInterval(30 * 60)),
+        ]
+
+        let progress = LocalProgressProjection.progress(
+            cardsByDeck: [deck: cards],
+            states: states,
+            now: now
+        )
+
         XCTAssertEqual(progress[0].dueCards, 0)
-        // They are still started — the count that says "touched" is unchanged.
         XCTAssertEqual(progress[0].startedCards, 2)
     }
 
