@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:22-bookworm-slim AS base
+FROM node:26-bookworm-slim AS base
 
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends openssl \
@@ -9,7 +9,11 @@ RUN apt-get update \
 FROM base AS dependencies
 
 WORKDIR /workspace
-RUN corepack enable
+# Node stopped shipping corepack with the runtime in 25, so the tool that
+# reads the pinned package manager has to be fetched before it can be
+# enabled. Everything below still goes through it, which is what keeps the
+# image building with the same yarn the lockfile was written by.
+RUN npm install --global corepack@latest && corepack enable
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY backend/package.json backend/package.json
@@ -32,10 +36,12 @@ RUN corepack yarn workspaces focus @country-flags/backend --production
 
 FROM base AS runner
 
-# The base Node image bundles a global npm/corepack install that the runtime
-# never invokes (CMD is a plain `node` call) — strip it so its own transitive
-# dependencies (e.g. tar, brace-expansion) can't show up as image CVEs that
-# have nothing to do with this application's actual dependency tree.
+# The base Node image bundles a global npm the runtime never invokes (CMD is a
+# plain `node` call) — strip it so its own transitive dependencies (e.g. tar,
+# brace-expansion) can't show up as image CVEs that have nothing to do with
+# this application's actual dependency tree. The corepack paths are listed too
+# and are simply absent since Node 25 stopped bundling it; naming them costs
+# nothing and keeps this working if a base image carries it again.
 RUN rm -rf \
   /usr/local/lib/node_modules/npm \
   /usr/local/lib/node_modules/corepack \

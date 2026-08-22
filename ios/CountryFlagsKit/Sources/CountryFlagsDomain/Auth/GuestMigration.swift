@@ -47,6 +47,17 @@ public struct GuestMigrationRecord: Hashable, Sendable, Codable {
     public var mayArchiveSourceScope: Bool {
         state == .completed && acknowledgedAt != nil
     }
+
+    /// Whether this archive still has somewhere to go.
+    ///
+    /// An import that stopped halfway is the case worth naming: the work is
+    /// on the device, the account it belongs to is written down, and nothing
+    /// about the situation resolves itself with time. A refusal is settled —
+    /// the same archive cannot get a different answer — and so is an import
+    /// the backend acknowledged.
+    public var isSettled: Bool {
+        mayArchiveSourceScope || state == .failed
+    }
 }
 
 public enum GuestMigrationRefusal: Error, Equatable, Sendable {

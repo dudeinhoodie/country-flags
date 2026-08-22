@@ -1,0 +1,538 @@
+<title>Ten Names, Ten Marks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Source+Serif+4:opsz,wght@8..60,400..600&display=swap">
+
+<style>
+  :root {
+    --ink: #15171c;
+    --ink-2: #464c58;
+    --ink-3: #6b7280;
+    --paper: #e9ebef;
+    --card: #ffffff;
+    --rule: #cfd3da;
+    --accent: #b3282d;
+    --shelf: #1a1d23;
+    --shelf-ink: #e8eaee;
+    --shelf-mute: #99a0ad;
+
+    --plate: clamp(96px, 14vw, 132px);
+    --measure: 64ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7e9ee;
+      --ink-2: #a7aebb;
+      --ink-3: #7e8695;
+      --paper: #0f1114;
+      --card: #181b21;
+      --rule: #2b2f37;
+      --accent: #e2635f;
+      --shelf: #05070a;
+      --shelf-ink: #e8eaee;
+      --shelf-mute: #8b93a1;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #e7e9ee;
+    --ink-2: #a7aebb;
+    --ink-3: #7e8695;
+    --paper: #0f1114;
+    --card: #181b21;
+    --rule: #2b2f37;
+    --accent: #e2635f;
+    --shelf: #05070a;
+    --shelf-ink: #e8eaee;
+    --shelf-mute: #8b93a1;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: clamp(28px, 6vw, 72px) clamp(20px, 5vw, 48px) 96px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(40px, 7vw, 76px);
+  }
+
+  .label {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 88, "wght" 600;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+
+  h1 {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 125, "wght" 700;
+    font-size: clamp(38px, 7vw, 68px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 10px 0 0;
+  }
+
+  .lede {
+    max-width: var(--measure);
+    color: var(--ink-2);
+    font-size: clamp(17px, 2vw, 19px);
+    margin: 18px 0 0;
+  }
+
+  h2 {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 112, "wght" 700;
+    font-size: clamp(19px, 2.4vw, 23px);
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .shelf {
+    background: var(--shelf);
+    border-radius: 20px;
+    padding: clamp(24px, 4vw, 40px) clamp(18px, 3vw, 36px) clamp(28px, 4vw, 44px);
+    color: var(--shelf-ink);
+  }
+
+  .shelf .label { color: var(--shelf-mute); }
+
+  .shelf-note {
+    font-size: 15px;
+    color: var(--shelf-mute);
+    margin: 10px 0 26px;
+    max-width: 56ch;
+  }
+
+  .home {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+    gap: clamp(18px, 3vw, 30px) 12px;
+  }
+
+  .home figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .home figcaption {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 92, "wght" 500;
+    font-size: 11px;
+    color: #dfe3e9;
+    text-align: center;
+  }
+
+  .mark {
+    width: var(--size, 60px);
+    height: var(--size, 60px);
+    border-radius: 22.4%;
+    display: block;
+    overflow: hidden;
+    flex: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  }
+
+  .mark svg { display: block; width: 100%; height: 100%; }
+
+  .plates {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(18px, 2.6vw, 26px);
+  }
+
+  .plate {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    padding: clamp(20px, 3.4vw, 34px);
+    display: grid;
+    grid-template-columns: var(--plate) minmax(0, 1fr);
+    gap: clamp(20px, 3.4vw, 36px);
+    align-items: start;
+  }
+
+  @media (max-width: 640px) {
+    .plate { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .plate-mark {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .sizes { display: flex; align-items: flex-end; gap: 10px; }
+
+  .plate-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .territory {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 88, "wght" 500;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+
+  .num {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 88, "wght" 700;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+
+  .wordmark {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 125, "wght" 700;
+    font-size: clamp(28px, 4.6vw, 42px);
+    line-height: 1;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+
+  .gloss {
+    font-style: italic;
+    color: var(--ink-2);
+    margin: 10px 0 0;
+    max-width: var(--measure);
+  }
+
+  .body { margin: 14px 0 0; max-width: var(--measure); }
+
+  .risk {
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-size: 15px;
+    color: var(--ink-2);
+    max-width: var(--measure);
+  }
+
+  .risk b {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 88, "wght" 600;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .close { border-top: 2px solid var(--ink); padding-top: 26px; }
+  .close p { max-width: var(--measure); }
+
+  .close strong {
+    font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+    font-variation-settings: "wdth" 112, "wght" 700;
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="label">Naming study &middot; second pass &middot; English only</p>
+    <h1>Ten Names, Ten Marks</h1>
+    <p class="lede">The first pass was one idea run ten times: insider terms from vexillology, most of which need explaining before they mean anything. This pass takes ten different territories instead &mdash; the world, collecting, the moment of recognition, plain speech &mdash; so the choice is between directions rather than between synonyms.</p>
+    <p class="lede">The marks vary with them. A meridian is a circle, a postmark is a ring, a tricolour is nothing but colour. Ten icons that share a system but not a shape, because ten rectangles told apart only by their diagonals is not a set, it is a sheet.</p>
+  </header>
+
+  <section class="shelf">
+    <p class="label">Contact sheet</p>
+    <p class="shelf-note">How they actually arrive: sixty pixels, on somebody&rsquo;s third home screen, next to a bank and a messenger. Judge them here first.</p>
+    <div class="home">
+      <figure>
+        <span class="mark" style="--size:62px;background:#123f5e" role="img" aria-label="Meridian icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#f1ece1" stroke-width="7"/><ellipse cx="50" cy="50" rx="13" ry="32" fill="none" stroke="#f1ece1" stroke-width="7"/></svg></span>
+        <figcaption>Meridian</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#e8e3d7" role="img" aria-label="Orbis icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="33" fill="#1a3a34"/><rect x="8" y="45" width="84" height="11" fill="#e8e3d7"/></svg></span>
+        <figcaption>Orbis</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#f1ece1" role="img" aria-label="Postmark icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="31" fill="none" stroke="#2b2f7a" stroke-width="6" stroke-dasharray="7 5"/><rect x="28" y="41" width="44" height="5" rx="2.5" fill="#2b2f7a"/><rect x="28" y="52" width="44" height="5" rx="2.5" fill="#2b2f7a"/></svg></span>
+        <figcaption>Postmark</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#1a1c20" role="img" aria-label="Onsight icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M24 34 V24 h10 M66 24 h10 v10 M76 66 v10 h-10 M34 76 H24 v-10" fill="none" stroke="#ff5a36" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="11" fill="#ff5a36"/></svg></span>
+        <figcaption>Onsight</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#d94f2b" role="img" aria-label="Bandera icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 30 q15 -10 30 0 t30 0 v34 q-15 10 -30 0 t-30 0 z" fill="#f7e7c8"/></svg></span>
+        <figcaption>Bandera</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#2f5d50" role="img" aria-label="Flagbook icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="20" width="56" height="60" rx="5" fill="#f1ece1"/><rect x="46" y="20" width="6" height="60" fill="#2f5d50"/><path d="M60 20 h12 v26 l-6 -7 -6 7 z" fill="#d9a441"/></svg></span>
+        <figcaption>Flagbook</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#f1ece1" role="img" aria-label="Tricolour icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="0" y="0" width="33.4" height="100" fill="#1c4e9c"/><rect x="66.6" y="0" width="33.4" height="100" fill="#d0342c"/></svg></span>
+        <figcaption>Tricolour</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#f1ece1" role="img" aria-label="Vane icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L58 26 v48 z" fill="#14161a"/><rect x="58" y="44" width="26" height="12" rx="4" fill="#c8102e"/></svg></span>
+        <figcaption>Vane</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#2a6f97" role="img" aria-label="Landfall icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="70" cy="34" r="12" fill="#f2c230"/><path d="M6 74 L34 48 L52 66 L72 52 L94 74 z" fill="#f1ece1"/></svg></span>
+        <figcaption>Landfall</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:62px;background:#14161a" role="img" aria-label="Colours icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="20" y="22" width="60" height="16" rx="8" fill="#e0453a"/><rect x="20" y="42" width="60" height="16" rx="8" fill="#f2b736"/><rect x="20" y="62" width="60" height="16" rx="8" fill="#3a9d78"/></svg></span>
+        <figcaption>Colours</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">The ten</p>
+    <div class="plates">
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#123f5e" role="img" aria-label="Meridian icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#f1ece1" stroke-width="7"/><ellipse cx="50" cy="50" rx="13" ry="32" fill="none" stroke="#f1ece1" stroke-width="7"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#123f5e" role="img" aria-label="Meridian icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#f1ece1" stroke-width="7"/><ellipse cx="50" cy="50" rx="13" ry="32" fill="none" stroke="#f1ece1" stroke-width="7"/></svg></span><span class="mark" style="--size:29px;background:#123f5e" role="img" aria-label="Meridian icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#f1ece1" stroke-width="7"/><ellipse cx="50" cy="50" rx="13" ry="32" fill="none" stroke="#f1ece1" stroke-width="7"/></svg></span><span class="mark" style="--size:20px;background:#123f5e" role="img" aria-label="Meridian icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#f1ece1" stroke-width="7"/><ellipse cx="50" cy="50" rx="13" ry="32" fill="none" stroke="#f1ece1" stroke-width="7"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">01</span>
+            <h2 class="wordmark">Meridian</h2>
+            <span class="territory">The world</span>
+          </div>
+          <p class="gloss">A line of longitude. Every country on earth sits on one.</p>
+          <p class="body">Puts the app where it actually lives — the whole globe — without saying globe. It is a grown-up word with no cartoon in it, it survives being said out loud in a room, and the mark is one arc: a sphere reduced to the single line that divides it.</p>
+          <p class="risk"><b>What it risks</b>Used by banks, a hotel chain and a hedge fund. Common in business names, though rare in learning apps.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#e8e3d7" role="img" aria-label="Orbis icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="33" fill="#1a3a34"/><rect x="8" y="45" width="84" height="11" fill="#e8e3d7"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#e8e3d7" role="img" aria-label="Orbis icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="33" fill="#1a3a34"/><rect x="8" y="45" width="84" height="11" fill="#e8e3d7"/></svg></span><span class="mark" style="--size:29px;background:#e8e3d7" role="img" aria-label="Orbis icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="33" fill="#1a3a34"/><rect x="8" y="45" width="84" height="11" fill="#e8e3d7"/></svg></span><span class="mark" style="--size:20px;background:#e8e3d7" role="img" aria-label="Orbis icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="33" fill="#1a3a34"/><rect x="8" y="45" width="84" height="11" fill="#e8e3d7"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">02</span>
+            <h2 class="wordmark">Orbis</h2>
+            <span class="territory">The world</span>
+          </div>
+          <p class="gloss">Latin for the world, and for the circle it is drawn as.</p>
+          <p class="body">Short, hard, two syllables, and it sounds like it has existed for a while. The Latin does the work that a made-up name cannot: it means something exact rather than being assembled from pleasant sounds.</p>
+          <p class="risk"><b>What it risks</b>Latin names can read cold and slightly corporate. Check it does not sound like an insurance product to you.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#f1ece1" role="img" aria-label="Postmark icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="31" fill="none" stroke="#2b2f7a" stroke-width="6" stroke-dasharray="7 5"/><rect x="28" y="41" width="44" height="5" rx="2.5" fill="#2b2f7a"/><rect x="28" y="52" width="44" height="5" rx="2.5" fill="#2b2f7a"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#f1ece1" role="img" aria-label="Postmark icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="31" fill="none" stroke="#2b2f7a" stroke-width="6" stroke-dasharray="7 5"/><rect x="28" y="41" width="44" height="5" rx="2.5" fill="#2b2f7a"/><rect x="28" y="52" width="44" height="5" rx="2.5" fill="#2b2f7a"/></svg></span><span class="mark" style="--size:29px;background:#f1ece1" role="img" aria-label="Postmark icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="31" fill="none" stroke="#2b2f7a" stroke-width="6" stroke-dasharray="7 5"/><rect x="28" y="41" width="44" height="5" rx="2.5" fill="#2b2f7a"/><rect x="28" y="52" width="44" height="5" rx="2.5" fill="#2b2f7a"/></svg></span><span class="mark" style="--size:20px;background:#f1ece1" role="img" aria-label="Postmark icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="31" fill="none" stroke="#2b2f7a" stroke-width="6" stroke-dasharray="7 5"/><rect x="28" y="41" width="44" height="5" rx="2.5" fill="#2b2f7a"/><rect x="28" y="52" width="44" height="5" rx="2.5" fill="#2b2f7a"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">03</span>
+            <h2 class="wordmark">Postmark</h2>
+            <span class="territory">Collecting countries</span>
+          </div>
+          <p class="gloss">The stamp a country puts on everything that leaves it.</p>
+          <p class="body">Reframes the app as a collection rather than a test, which is closer to why anyone does this for months. Every country you learn is one more mark in the book, and the icon is that mark — a cancellation ring, the most country-specific object there is.</p>
+          <p class="risk"><b>What it risks</b>Two syllables longer than the rest, and it points at post rather than at flags. Some will expect a mail app.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#1a1c20" role="img" aria-label="Onsight icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M24 34 V24 h10 M66 24 h10 v10 M76 66 v10 h-10 M34 76 H24 v-10" fill="none" stroke="#ff5a36" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="11" fill="#ff5a36"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#1a1c20" role="img" aria-label="Onsight icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M24 34 V24 h10 M66 24 h10 v10 M76 66 v10 h-10 M34 76 H24 v-10" fill="none" stroke="#ff5a36" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="11" fill="#ff5a36"/></svg></span><span class="mark" style="--size:29px;background:#1a1c20" role="img" aria-label="Onsight icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M24 34 V24 h10 M66 24 h10 v10 M76 66 v10 h-10 M34 76 H24 v-10" fill="none" stroke="#ff5a36" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="11" fill="#ff5a36"/></svg></span><span class="mark" style="--size:20px;background:#1a1c20" role="img" aria-label="Onsight icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M24 34 V24 h10 M66 24 h10 v10 M76 66 v10 h-10 M34 76 H24 v-10" fill="none" stroke="#ff5a36" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="11" fill="#ff5a36"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">04</span>
+            <h2 class="wordmark">Onsight</h2>
+            <span class="territory">The moment of knowing</span>
+          </div>
+          <p class="gloss">From climbing: getting it first try, with no practice run.</p>
+          <p class="body">Names the thing the app is actually training. You either know the flag the instant it appears or you do not, and that gap is the whole product. It is a real word from a real discipline, so it carries meaning rather than borrowing a vibe.</p>
+          <p class="risk"><b>What it risks</b>The climbing sense is invisible to most people; they will read it as on-sight and think of eyewear.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#d94f2b" role="img" aria-label="Bandera icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 30 q15 -10 30 0 t30 0 v34 q-15 10 -30 0 t-30 0 z" fill="#f7e7c8"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#d94f2b" role="img" aria-label="Bandera icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 30 q15 -10 30 0 t30 0 v34 q-15 10 -30 0 t-30 0 z" fill="#f7e7c8"/></svg></span><span class="mark" style="--size:29px;background:#d94f2b" role="img" aria-label="Bandera icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 30 q15 -10 30 0 t30 0 v34 q-15 10 -30 0 t-30 0 z" fill="#f7e7c8"/></svg></span><span class="mark" style="--size:20px;background:#d94f2b" role="img" aria-label="Bandera icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 30 q15 -10 30 0 t30 0 v34 q-15 10 -30 0 t-30 0 z" fill="#f7e7c8"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">05</span>
+            <h2 class="wordmark">Bandera</h2>
+            <span class="territory">Flag, in another language</span>
+          </div>
+          <p class="gloss">Flag &mdash; in Spanish, Italian and Portuguese.</p>
+          <p class="body">The one name here that says exactly what the app is while still sounding like a name. Half a billion people read it instantly and everyone else hears something warm and open. It also quietly promises that this is about the whole world, not one corner of it.</p>
+          <p class="risk"><b>What it risks</b>Politically loaded in Ukraine and Poland through the surname. That alone may rule it out.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#2f5d50" role="img" aria-label="Flagbook icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="20" width="56" height="60" rx="5" fill="#f1ece1"/><rect x="46" y="20" width="6" height="60" fill="#2f5d50"/><path d="M60 20 h12 v26 l-6 -7 -6 7 z" fill="#d9a441"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#2f5d50" role="img" aria-label="Flagbook icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="20" width="56" height="60" rx="5" fill="#f1ece1"/><rect x="46" y="20" width="6" height="60" fill="#2f5d50"/><path d="M60 20 h12 v26 l-6 -7 -6 7 z" fill="#d9a441"/></svg></span><span class="mark" style="--size:29px;background:#2f5d50" role="img" aria-label="Flagbook icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="20" width="56" height="60" rx="5" fill="#f1ece1"/><rect x="46" y="20" width="6" height="60" fill="#2f5d50"/><path d="M60 20 h12 v26 l-6 -7 -6 7 z" fill="#d9a441"/></svg></span><span class="mark" style="--size:20px;background:#2f5d50" role="img" aria-label="Flagbook icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="20" width="56" height="60" rx="5" fill="#f1ece1"/><rect x="46" y="20" width="6" height="60" fill="#2f5d50"/><path d="M60 20 h12 v26 l-6 -7 -6 7 z" fill="#d9a441"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">06</span>
+            <h2 class="wordmark">Flagbook</h2>
+            <span class="territory">Plain and findable</span>
+          </div>
+          <p class="gloss">A field guide to flags, named the way a field guide is named.</p>
+          <p class="body">The deliberate opposite of clever. Nobody needs it explained, it says flags in the first syllable, and it will be found by people typing what they want. Warm rather than technical, and it ages well because it never tried to be fashionable.</p>
+          <p class="risk"><b>What it risks</b>Plain to the point of forgettable, and close enough to Facebook&rsquo;s naming to feel dated to some ears.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#f1ece1" role="img" aria-label="Tricolour icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="0" y="0" width="33.4" height="100" fill="#1c4e9c"/><rect x="66.6" y="0" width="33.4" height="100" fill="#d0342c"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#f1ece1" role="img" aria-label="Tricolour icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="0" y="0" width="33.4" height="100" fill="#1c4e9c"/><rect x="66.6" y="0" width="33.4" height="100" fill="#d0342c"/></svg></span><span class="mark" style="--size:29px;background:#f1ece1" role="img" aria-label="Tricolour icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="0" y="0" width="33.4" height="100" fill="#1c4e9c"/><rect x="66.6" y="0" width="33.4" height="100" fill="#d0342c"/></svg></span><span class="mark" style="--size:20px;background:#f1ece1" role="img" aria-label="Tricolour icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="0" y="0" width="33.4" height="100" fill="#1c4e9c"/><rect x="66.6" y="0" width="33.4" height="100" fill="#d0342c"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">07</span>
+            <h2 class="wordmark">Tricolour</h2>
+            <span class="territory">How flags are built</span>
+          </div>
+          <p class="gloss">The three-band flag &mdash; the commonest design on earth.</p>
+          <p class="body">More flags are tricolours than are anything else, so the name is a quiet fact about the subject rather than a metaphor. It looks handsome set in type, it is unmistakably European in the best way, and the icon needs no drawing at all: it is the thing itself.</p>
+          <p class="risk"><b>What it risks</b>Long, and the British spelling splits from the American. Pick one and lose the other&rsquo;s search traffic.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#f1ece1" role="img" aria-label="Vane icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L58 26 v48 z" fill="#14161a"/><rect x="58" y="44" width="26" height="12" rx="4" fill="#c8102e"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#f1ece1" role="img" aria-label="Vane icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L58 26 v48 z" fill="#14161a"/><rect x="58" y="44" width="26" height="12" rx="4" fill="#c8102e"/></svg></span><span class="mark" style="--size:29px;background:#f1ece1" role="img" aria-label="Vane icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L58 26 v48 z" fill="#14161a"/><rect x="58" y="44" width="26" height="12" rx="4" fill="#c8102e"/></svg></span><span class="mark" style="--size:20px;background:#f1ece1" role="img" aria-label="Vane icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L58 26 v48 z" fill="#14161a"/><rect x="58" y="44" width="26" height="12" rx="4" fill="#c8102e"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">08</span>
+            <h2 class="wordmark">Vane</h2>
+            <span class="territory">Short and sharp</span>
+          </div>
+          <p class="gloss">The small flag on a roof that shows which way things are going.</p>
+          <p class="body">Four letters, one syllable, nothing to misspell. It is a flag that exists to be read at a distance, which is the skill, and it carries a second meaning about direction and progress without ever saying so.</p>
+          <p class="risk"><b>What it risks</b>A homophone of vain and vein, so it will be misheard and mistyped constantly.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#2a6f97" role="img" aria-label="Landfall icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="70" cy="34" r="12" fill="#f2c230"/><path d="M6 74 L34 48 L52 66 L72 52 L94 74 z" fill="#f1ece1"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#2a6f97" role="img" aria-label="Landfall icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="70" cy="34" r="12" fill="#f2c230"/><path d="M6 74 L34 48 L52 66 L72 52 L94 74 z" fill="#f1ece1"/></svg></span><span class="mark" style="--size:29px;background:#2a6f97" role="img" aria-label="Landfall icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="70" cy="34" r="12" fill="#f2c230"/><path d="M6 74 L34 48 L52 66 L72 52 L94 74 z" fill="#f1ece1"/></svg></span><span class="mark" style="--size:20px;background:#2a6f97" role="img" aria-label="Landfall icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="70" cy="34" r="12" fill="#f2c230"/><path d="M6 74 L34 48 L52 66 L72 52 L94 74 z" fill="#f1ece1"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">09</span>
+            <h2 class="wordmark">Landfall</h2>
+            <span class="territory">The moment of knowing</span>
+          </div>
+          <p class="gloss">The first sight of land after a long crossing.</p>
+          <p class="body">The feeling the app sells, named precisely: the second something unfamiliar resolves into somewhere you know. Nautical without being nautical-themed, and it has a shape to it &mdash; a beginning, not a category.</p>
+          <p class="risk"><b>What it risks</b>Also the word for where a hurricane hits, which is the first result you will fight in search.</p>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="plate-mark">
+          <span class="mark" style="--size:116px;background:#14161a" role="img" aria-label="Colours icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="20" y="22" width="60" height="16" rx="8" fill="#e0453a"/><rect x="20" y="42" width="60" height="16" rx="8" fill="#f2b736"/><rect x="20" y="62" width="60" height="16" rx="8" fill="#3a9d78"/></svg></span>
+          <div class="sizes"><span class="mark" style="--size:40px;background:#14161a" role="img" aria-label="Colours icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="20" y="22" width="60" height="16" rx="8" fill="#e0453a"/><rect x="20" y="42" width="60" height="16" rx="8" fill="#f2b736"/><rect x="20" y="62" width="60" height="16" rx="8" fill="#3a9d78"/></svg></span><span class="mark" style="--size:29px;background:#14161a" role="img" aria-label="Colours icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="20" y="22" width="60" height="16" rx="8" fill="#e0453a"/><rect x="20" y="42" width="60" height="16" rx="8" fill="#f2b736"/><rect x="20" y="62" width="60" height="16" rx="8" fill="#3a9d78"/></svg></span><span class="mark" style="--size:20px;background:#14161a" role="img" aria-label="Colours icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="20" y="22" width="60" height="16" rx="8" fill="#e0453a"/><rect x="20" y="42" width="60" height="16" rx="8" fill="#f2b736"/><rect x="20" y="62" width="60" height="16" rx="8" fill="#3a9d78"/></svg></span></div>
+        </div>
+        <div>
+          <div class="plate-head">
+            <span class="num">10</span>
+            <h2 class="wordmark">Colours</h2>
+            <span class="territory">How flags are built</span>
+          </div>
+          <p class="gloss">&ldquo;The colours&rdquo; has meant a nation&rsquo;s flag for four hundred years.</p>
+          <p class="body">An idiom rather than an object: to show your colours, to sail under false ones. It is the most human name on this list and the only one that could carry a brand beyond flags, into anything worth recognising at a glance.</p>
+          <p class="risk"><b>What it risks</b>A very common word, so the store listing and the domain will both be a fight. American spelling loses the elegance.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="shelf">
+    <p class="label">First pass, kept for comparison</p>
+    <p class="shelf-note">Canton, Halyard, Ensign and the rest. All real flag terminology, all one idea &mdash; and three of them (Ensign, Semaphore, Pennant) are already busy elsewhere. Useful mainly as the thing the second pass is not.</p>
+    <div class="home">
+      <figure>
+        <span class="mark" style="--size:44px;background:#c8102e" role="img" aria-label="Canton icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="0" y="0" width="44" height="42" fill="#f3efe3"/></svg></span>
+        <figcaption>Canton</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#1f3a5f" role="img" aria-label="Halyard icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="26" y="16" width="8" height="70" rx="4" fill="#f3efe3"/><path d="M30 76 L74 26" stroke="#e4b363" stroke-width="8" stroke-linecap="round" fill="none"/></svg></span>
+        <figcaption>Halyard</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#0b4f6c" role="img" aria-label="Ensign icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="16" y="26" width="68" height="48" rx="3" fill="#f3efe3"/><rect x="16" y="26" width="30" height="22" fill="#c8102e"/></svg></span>
+        <figcaption>Ensign</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#f3efe3" role="img" aria-label="Hoist icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="18" y="16" width="12" height="70" rx="3" fill="#15171c"/><rect x="36" y="26" width="48" height="14" rx="3" fill="#c8102e"/><rect x="36" y="50" width="34" height="14" rx="3" fill="#15171c"/></svg></span>
+        <figcaption>Hoist</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#6b1d26" role="img" aria-label="Vexil icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="20" y="22" width="60" height="9" rx="4" fill="#d9a441"/><path d="M32 34 h36 v30 l-18 12 -18 -12 z" fill="#d9a441"/></svg></span>
+        <figcaption>Vexil</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#0e7c7b" role="img" aria-label="Pennant icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="16" width="9" height="70" rx="4" fill="#f3efe3"/><path d="M34 24 L84 44 L34 64 z" fill="#f3efe3"/></svg></span>
+        <figcaption>Pennant</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#15171c" role="img" aria-label="Saltire icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 20 L80 80 M80 20 L20 80" stroke="#e3d34a" stroke-width="14" stroke-linecap="round"/></svg></span>
+        <figcaption>Saltire</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#f3efe3" role="img" aria-label="Bunting icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M12 30 Q50 46 88 30" stroke="#15171c" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M22 34 L38 38 L28 58 z" fill="#c8102e"/><path d="M42 40 L58 40 L50 62 z" fill="#0e7c7b"/><path d="M62 38 L78 33 L70 56 z" fill="#e4a13b"/></svg></span>
+        <figcaption>Bunting</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#1b1d22" role="img" aria-label="Semaphore icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M52 82 L24 30" stroke="#e03c31" stroke-width="13" stroke-linecap="round"/><path d="M52 82 L84 42" stroke="#f2c230" stroke-width="13" stroke-linecap="round"/></svg></span>
+        <figcaption>Semaphore</figcaption>
+      </figure>
+      <figure>
+        <span class="mark" style="--size:44px;background:#2e6f40" role="img" aria-label="Flagpost icon"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="30" y="18" width="9" height="64" rx="4" fill="#f3efe3"/><path d="M42 24 h34 l-9 13 9 13 h-34 z" fill="#f3efe3"/><circle cx="34" cy="84" r="9" fill="#f3efe3"/></svg></span>
+        <figcaption>Flagpost</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="close">
+    <h2>If you want one answer</h2>
+    <p class="body"><strong>Meridian</strong> is the one I would build. It puts the app on the whole globe without saying globe, it is a grown-up word that survives being said in a meeting, the mark is a single arc that stays legible at twenty pixels, and nothing about it has to be explained to anyone. Its cost is company: plenty of businesses use it, though almost none of them are learning apps.</p>
+    <p class="body"><strong>Postmark</strong> is the one I would build if the app is a collection rather than a test &mdash; and after a few months, it is. It reframes every country as a mark in a book instead of a question answered, which is a warmer promise and a longer one.</p>
+    <p class="body"><strong>Colours</strong> is the outside bet. It is the only name here that could outgrow flags entirely, and the only one a person might say without knowing it was a product. It is also the hardest to own.</p>
+    <p class="body">Still true from the first pass: none of this has been checked against the App Store or a trademark register, and that check is what turns a shortlist into a name.</p>
+  </section>
+
+</div>

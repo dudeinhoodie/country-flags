@@ -82,6 +82,12 @@ public protocol GuestImportSubmitting: Sendable {
 /// to somebody, so a second account cannot quietly inherit it.
 public protocol GuestMigrationRecordStoring: Sendable {
     func record(forScopeKey scopeKey: String) async -> GuestMigrationRecord?
+    /// Every archive this device has written down.
+    ///
+    /// Asked for by the retry, which runs while the device is signed in and
+    /// therefore cannot name the guest scope it is looking for — the records
+    /// are the only thing that still knows which guests studied here.
+    func all() async -> [GuestMigrationRecord]
     func save(_ record: GuestMigrationRecord) async
 }
 
