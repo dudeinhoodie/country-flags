@@ -463,7 +463,11 @@ export class AuthService {
     context: RequestContext,
   ): Promise<SessionRecord> {
     return inSerializableTransaction(this.database, async (transaction) => {
-      let linked = await transaction.authIdentity.findUnique({
+      // Read once. The branch below used to re-read the identity it had
+      // just created, in the same transaction, into a variable nothing
+      // downstream looks at — a round trip to the database for a value that
+      // was discarded.
+      const linked = await transaction.authIdentity.findUnique({
         where: {
           provider_providerSubject: {
             provider: identity.provider,
@@ -495,15 +499,6 @@ export class AuthService {
               },
             },
           },
-        });
-        linked = await transaction.authIdentity.findUniqueOrThrow({
-          where: {
-            provider_providerSubject: {
-              provider: identity.provider,
-              providerSubject: identity.subject,
-            },
-          },
-          include: { user: true },
         });
       } else {
         user = linked.user;
