@@ -81,6 +81,42 @@ final class GuestMigrationCoordinatorTests: XCTestCase {
         XCTAssertEqual(record?.state, .completed)
     }
 
+    /// The device goes back to being a guest — a launch that cannot restore
+    /// the session falls back to one — and the answers made then were queued
+    /// under a scope the acknowledged record had closed the door on. Nothing
+    /// looked at them again, so they waited forever under a line saying they
+    /// were saved on this device.
+    func testWorkDoneAfterACompletedImportIsStillAdopted() async {
+        let harness = Harness(installationID: installationID)
+        await harness.learning.seed(
+            sessions: [Fixtures.session()],
+            reviews: [Fixtures.review(sequence: 1)]
+        )
+        await harness.importer.answer(.success(Fixtures.result(.applied)))
+        guard case .imported = await harness.coordinator.importGuestWork(into: userID) else {
+            return XCTFail("Expected the first archive to move")
+        }
+
+        // Studied again as a guest, then signed in.
+        await harness.learning.seed(
+            sessions: [Fixtures.session()],
+            reviews: [Fixtures.review(sequence: 2)]
+        )
+        await harness.importer.answer(.success(Fixtures.result(.applied)))
+        let signedIn = harness.coordinator(seeing: .authenticated(userID: userID))
+
+        let outcome = await signedIn.importGuestWork(into: userID)
+
+        guard case .imported = outcome else {
+            return XCTFail("Expected the later work to move too, got \(outcome)")
+        }
+        let submitted = await harness.importer.submitted
+        XCTAssertEqual(submitted.count, 2)
+        // A fresh identifier, or the backend answers about the import that
+        // already finished instead of looking at this one.
+        XCTAssertNotEqual(submitted[0].migrationID, submitted[1].migrationID)
+    }
+
     /// A network failure repeats the same request later — same archive, same
     /// migration identifier — and touches nothing local in the meantime.
     func testARetryAfterANetworkFailureReusesTheMigrationIdentifier() async {
@@ -229,8 +265,8 @@ private actor InMemoryMigrationRecords: GuestMigrationRecordStoring {
         records[scopeKey]
     }
 
-    func unsettledRecord() async -> GuestMigrationRecord? {
-        records.values.filter { !$0.isSettled }.min { $0.startedAt < $1.startedAt }
+    func all() async -> [GuestMigrationRecord] {
+        Array(records.values)
     }
 
     func save(_ record: GuestMigrationRecord) async {
