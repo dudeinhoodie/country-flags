@@ -31,7 +31,7 @@ Baseline должен:
 - GHCR как registry release images;
 - Google Cloud Run как runtime target;
 - Neon PostgreSQL;
-- Cloudflare R2 через существующий S3 adapter;
+- S3-совместимое object storage через существующий adapter;
 - health checks, smoke tests, deployment records и rollback;
 - backup automation и регулярный restore drill.
 
@@ -57,13 +57,13 @@ flowchart LR
     GHCR --> MIGDEV["Dev migration"]
     MIGDEV --> DEV["Cloud Run dev"]
     DEV --> DEVDB["Neon dev"]
-    DEV --> DEVR2["R2 dev"]
+    DEV --> DEVSTORE["Object storage dev"]
     GHCR --> PROMOTE["Manual production promotion"]
     PROMOTE --> BACKUP["Pre-deploy backup"]
     BACKUP --> MIGPROD["Production migration"]
     MIGPROD --> PROD["Cloud Run production"]
     PROD --> PRODDB["Neon production"]
-    PROD --> PRODR2["R2 production"]
+    PROD --> PRODSTORE["Object storage production"]
 ~~~
 
 ## 4. Матрица окружений
@@ -122,7 +122,10 @@ Free plan допустим для dev и закрытой альфы. До зн�
 ### Object storage
 
 - Отдельные private buckets: country-flags-dev и country-flags-prod.
-- Используется существующая S3-compatible boundary и R2 endpoint.
+- Используется существующая S3-compatible boundary. Dev сегодня работает с
+  Google Cloud Storage в том же GCP-проекте (см. 6.1); провайдер для prod
+  выбирается тогда, когда цена исходящего трафика начнёт иметь значение, и
+  адаптер от этого выбора не зависит.
 - Credentials ограничиваются конкретным bucket и нужными actions.
 - Account exports и backups никогда не публикуются.
 - Backup bucket отделён от content bucket и имеет собственную retention policy.
@@ -135,7 +138,7 @@ GCP project: speedy-web-235610
 Artifact Registry: europe-west3-docker.pkg.dev/speedy-web-235610/country-flags
 Cloud Run services: api-dev, api-prod
 Neon projects: country-flags-dev, country-flags-prod
-R2 buckets: country-flags-dev, country-flags-prod, country-flags-prod-backups
+Object storage buckets: country-flags-dev, country-flags-prod, country-flags-prod-backups
 GitHub environments: dev, production
 ~~~
 
@@ -186,10 +189,10 @@ gcloud secrets add-iam-policy-binding dev-auth-access-token-secret \
 версия секрета и следующий deploy.
 
 Bucket для контента (нужен не ревизии, а publish — см. раздел 7). Dev использует
-Cloud Storage в том же GCP-проекте, а не R2: аккаунт, IAM и Secret Manager там
-уже есть, а S3-совместимый API GCS работает с существующим адаптером через
-HMAC-ключ. Раздел 5 всё ещё называет R2 — это расхождение закрывается вместе с
-prod, где цена исходящего трафика уже имеет значение.
+Cloud Storage в том же GCP-проекте: аккаунт, IAM и Secret Manager там уже
+есть, а S3-совместимый API GCS работает с существующим адаптером через
+HMAC-ключ. Для prod провайдер ещё не выбран — там цена исходящего трафика
+начнёт иметь значение, и решение принимается отдельно.
 
 ~~~text
 bucket: country-flags-dev, uniform access, europe-west3
@@ -311,7 +314,7 @@ PR workflow MUST:
 3. Выполнять Prisma generate, validation и migrate deploy.
 4. Запускать contracts, format, lint, typecheck, tests и deterministic content.
 5. Собирать production Docker image.
-6. Не обращаться к dev/prod PostgreSQL, R2 или deployment API.
+6. Не обращаться к dev/prod PostgreSQL, object storage или deployment API.
 7. Не получать production secrets.
 8. Уничтожать service containers после job.
 
@@ -469,7 +472,7 @@ provider logs.
 - Runtime container работает non-root.
 - Registry image private до отдельного решения.
 - Deployment token имеет минимальный provider scope.
-- R2 tokens ограничены bucket/environment.
+- Object storage credentials ограничены bucket/environment.
 - Fork/untrusted PR не получает secrets.
 - pull_request_target с checkout недоверенного кода запрещён.
 - Secrets маскируются и ротируются.
@@ -477,10 +480,10 @@ provider logs.
 
 ## 19. Стоимость и этапы
 
-До production: Cloud Run dev в пределах free tier, Neon/R2 free limits, prod service выключен.
+До production: Cloud Run dev в пределах free tier, Neon и object storage в пределах free tier, prod service выключен.
 
 Закрытая альфа: Cloud Run dev в пределах free tier, prod always-on несколько USD/month, Neon Free
-только вместе с собственной backup policy, R2 free limits.
+только вместе с собственной backup policy, object storage в пределах free tier.
 
 Public launch: always-on compute, PostgreSQL plan с подходящим PITR/monitoring,
 budget alerts и resize по p95 latency, memory, connections и worker lag.
@@ -503,7 +506,9 @@ budget alerts и resize по p95 latency, memory, connections и worker lag.
 - [Cloud Run deploying images](https://cloud.google.com/run/docs/deploying)
 - [Cloud Run health checks](https://cloud.google.com/run/docs/configuring/healthchecks)
 - [Neon pricing](https://neon.com/pricing)
-- [Cloudflare R2 pricing](https://developers.cloudflare.com/r2/pricing/)
+- [Cloud Storage pricing](https://cloud.google.com/storage/pricing)
+- [Cloud Storage S3-совместимый API](https://cloud.google.com/storage/docs/interoperability)
+- [Cloudflare R2 pricing](https://developers.cloudflare.com/r2/pricing/) — кандидат для prod
 - [Cloudflare R2 S3](https://developers.cloudflare.com/r2/get-started/s3/)
 - [GitHub environments](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)
 - [GitHub deployment control](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/control-deployments)
