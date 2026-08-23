@@ -23,12 +23,70 @@ tags:
       Admin identity and session lifecycle, separate from consumer
       authentication.
 paths:
+  /v1/admin/auth/google:
+    post:
+      tags: [AdminSession]
+      summary: Sign in with an allowlisted Google account
+      operationId: adminLoginWithGoogle
+      x-implementation-status: implemented
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminGoogleLoginRequest"
+      responses:
+        "200":
+          description: >-
+            Admin session established; the opaque session cookie is set on
+            the response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The account is not allowlisted, is disabled, or the request
+            origin is not an admin console origin. The response does not
+            reveal which.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "429":
+          $ref: ./openapi/components.yaml#/responses/RateLimitResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/auth/logout:
+    post:
+      tags: [AdminSession]
+      summary: Revoke the current admin session
+      operationId: adminLogout
+      x-implementation-status: implemented
+      responses:
+        "204":
+          description: Session revoked and the session cookie cleared.
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The request origin is not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/me:
     get:
       tags: [AdminSession]
       summary: Get the authenticated admin user
       operationId: getAdminMe
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: The admin user bound to the current session
@@ -58,6 +116,16 @@ components:
         reaches the API same-origin through the console's `/api` reverse
         proxy; the cookie is never exposed to scripts or stored elsewhere.
   schemas:
+    AdminGoogleLoginRequest:
+      type: object
+      additionalProperties: false
+      required: [idToken]
+      properties:
+        idToken:
+          type: string
+          minLength: 16
+          maxLength: 4096
+          description: Google ID token issued to the admin console's OAuth client.
     AdminRole:
       type: string
       description: >-

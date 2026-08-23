@@ -127,13 +127,29 @@ describe("OpenAPI implementation drift (e2e)", () => {
   });
 
   it("keeps runtime routes aligned with implemented OpenAPI operations", async () => {
-    const contractPath = resolve(__dirname, "../../contracts/openapi.yaml");
-    const source = await readFile(contractPath, "utf8");
-    const document = parse(source) as unknown as OpenApiDocument;
-    const contract = collectContractOperations(document);
+    // The API is described by two contract roots: the canonical client
+    // contract and the deliberately separate admin contract. The router
+    // serves both, so drift is measured against their union.
+    const contractRoots = [
+      resolve(__dirname, "../../contracts/openapi.yaml"),
+      resolve(__dirname, "../../contracts/admin-openapi.yaml"),
+    ];
+    const all = new Set<string>();
+    const implemented = new Set<string>();
+    for (const contractPath of contractRoots) {
+      const source = await readFile(contractPath, "utf8");
+      const document = parse(source) as unknown as OpenApiDocument;
+      const contract = collectContractOperations(document);
+      for (const key of contract.all) {
+        all.add(key);
+      }
+      for (const key of contract.implemented) {
+        implemented.add(key);
+      }
+    }
     const runtime = collectRuntimeOperations(app);
 
-    expect([...runtime].sort()).toEqual([...contract.implemented].sort());
-    expect([...runtime].every((route) => contract.all.has(route))).toBe(true);
+    expect([...runtime].sort()).toEqual([...implemented].sort());
+    expect([...runtime].every((route) => all.has(route))).toBe(true);
   });
 });

@@ -1224,3 +1224,68 @@ model AuthRateLimitBucket {
   @@index([scope, windowStartedAt])
   @@map("auth_rate_limit_buckets")
 }
+
+// Admin console identity. Deliberately separate from the consumer `User`,
+// `AuthIdentity` and `RefreshSession` models: administrators are never
+// consumer accounts, and disabling one must not touch product data
+// (docs/adr/ADR-014-admin-console-architecture.md).
+
+enum AdminRole {
+  VIEWER
+  EDITOR
+  PUBLISHER
+  ADMIN
+}
+
+enum AdminUserStatus {
+  ACTIVE
+  DISABLED
+}
+
+model AdminUser {
+  id          String          @id @default(uuid()) @db.Uuid
+  email       String          @unique
+  displayName String          @map("display_name")
+  role        AdminRole       @default(VIEWER)
+  status      AdminUserStatus @default(ACTIVE)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  identities  AdminIdentity[]
+  sessions    AdminSession[]
+
+  @@map("admin_users")
+}
+
+model AdminIdentity {
+  id              String       @id @default(uuid()) @db.Uuid
+  adminUserId     String       @map("admin_user_id") @db.Uuid
+  provider        AuthProvider
+  providerSubject String       @map("provider_subject")
+  email           String?
+  emailVerified   Boolean?     @map("email_verified")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastLoginAt     DateTime     @default(now()) @map("last_login_at") @db.Timestamptz(3)
+  adminUser       AdminUser    @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerSubject])
+  @@unique([adminUserId, provider])
+  @@index([adminUserId])
+  @@map("admin_identities")
+}
+
+model AdminSession {
+  id                String    @id @default(uuid()) @db.Uuid
+  adminUserId       String    @map("admin_user_id") @db.Uuid
+  tokenHash         String    @unique @map("token_hash")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastUsedAt        DateTime  @default(now()) @map("last_used_at") @db.Timestamptz(3)
+  idleExpiresAt     DateTime  @map("idle_expires_at") @db.Timestamptz(3)
+  absoluteExpiresAt DateTime  @map("absolute_expires_at") @db.Timestamptz(3)
+  revokedAt         DateTime? @map("revoked_at") @db.Timestamptz(3)
+  ipHash            String?   @map("ip_hash")
+  userAgent         String?   @map("user_agent")
+  adminUser         AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId, absoluteExpiresAt])
+  @@map("admin_sessions")
+}
