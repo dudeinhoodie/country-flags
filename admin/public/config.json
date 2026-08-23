@@ -1,0 +1,6 @@
+{
+  "environment": "local",
+  "apiBasePath": "/api",
+  "googleClientId": "",
+  "appVersion": "local-dev"
+}
