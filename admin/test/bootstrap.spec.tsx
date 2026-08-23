@@ -10,17 +10,35 @@ describe("Bootstrap", () => {
   it("starts the app once the runtime config loads", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            environment: "local",
-            apiBasePath: "/api",
-            googleClientId: "",
-            appVersion: "local-dev",
-          }),
-          { status: 200 },
-        ),
-      ),
+      vi.fn((input: Request | URL | string) => {
+        const url = input instanceof Request ? input.url : input.toString();
+        if (url.includes("/v1/admin/me")) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                id: "8f1f9f76-1f0a-4a2e-9a5e-2b8f4f1c9d10",
+                email: "editor@example.test",
+                displayName: "editor",
+                role: "VIEWER",
+                status: "ACTIVE",
+                createdAt: "2026-08-23T10:00:00Z",
+              }),
+              { status: 200, headers: { "Content-Type": "application/json" } },
+            ),
+          );
+        }
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              environment: "local",
+              apiBasePath: "/api",
+              googleClientId: "",
+              appVersion: "local-dev",
+            }),
+            { status: 200 },
+          ),
+        );
+      }),
     );
     render(<Bootstrap />);
     expect(

@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import type { AdminUser } from "@prisma/client";
 import type { Response } from "express";
 
 import type { RequestWithId } from "../../common/http/request-id.middleware";
@@ -23,22 +22,12 @@ import { AdminAuthService } from "./admin-auth.service";
 import { assertTrustedAdminOrigin } from "./admin-origin";
 import { AdminSessionService } from "./admin-session.service";
 import type { AdminSessionContext } from "./admin-session.service";
+import { toAdminUserResponse } from "./admin-user.response";
 
 function sessionContext(request: RequestWithId): AdminSessionContext {
   return {
     ipAddress: request.ip ?? request.socket.remoteAddress ?? "unknown-client",
     userAgent: request.header("user-agent"),
-  };
-}
-
-function toAdminUserResponse(user: AdminUser): Record<string, unknown> {
-  return {
-    id: user.id,
-    email: user.email,
-    displayName: user.displayName,
-    role: user.role,
-    status: user.status,
-    createdAt: user.createdAt.toISOString(),
   };
 }
 
@@ -70,6 +59,7 @@ export class AdminAuthController {
     const result = await this.auth.loginWithGoogle(
       parsed.idToken,
       sessionContext(request),
+      request.requestId,
     );
     this.sessions.attachCookie(
       response,

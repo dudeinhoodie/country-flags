@@ -1243,15 +1243,16 @@ enum AdminUserStatus {
 }
 
 model AdminUser {
-  id          String          @id @default(uuid()) @db.Uuid
-  email       String          @unique
-  displayName String          @map("display_name")
-  role        AdminRole       @default(VIEWER)
-  status      AdminUserStatus @default(ACTIVE)
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  id          String            @id @default(uuid()) @db.Uuid
+  email       String            @unique
+  displayName String            @map("display_name")
+  role        AdminRole         @default(VIEWER)
+  status      AdminUserStatus   @default(ACTIVE)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
   identities  AdminIdentity[]
   sessions    AdminSession[]
+  auditEvents AdminAuditEvent[]
 
   @@map("admin_users")
 }
@@ -1288,4 +1289,23 @@ model AdminSession {
 
   @@index([adminUserId, absoluteExpiresAt])
   @@map("admin_sessions")
+}
+
+// Access-management audit. The environment column from the product spec is
+// deliberately absent: dev and prod never share a database, so it would hold
+// one constant value per deployment.
+model AdminAuditEvent {
+  id               String     @id @default(uuid()) @db.Uuid
+  actorAdminUserId String?    @map("actor_admin_user_id") @db.Uuid
+  action           String
+  targetType       String     @map("target_type")
+  targetId         String?    @map("target_id")
+  requestId        String?    @map("request_id") @db.Uuid
+  metadata         Json       @db.JsonB
+  occurredAt       DateTime   @default(now()) @map("occurred_at") @db.Timestamptz(3)
+  actor            AdminUser? @relation(fields: [actorAdminUserId], references: [id], onDelete: SetNull)
+
+  @@index([targetType, targetId, occurredAt])
+  @@index([actorAdminUserId, occurredAt])
+  @@map("admin_audit_events")
 }

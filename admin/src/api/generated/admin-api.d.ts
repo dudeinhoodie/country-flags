@@ -35,6 +35,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List admin users */
+        get: operations["adminListUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/users/{adminUserId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                adminUserId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /** Get one admin user */
+        get: operations["adminGetUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change an admin user's role or status
+         * @description Any effective change revokes every active session of the target, so new privileges never ride on old sessions. An administrator cannot change their own role or status — the contour must not be able to lock itself out.
+         */
+        patch: operations["adminUpdateUser"];
+        trace?: never;
+    };
     "/v1/admin/me": {
         parameters: {
             query?: never;
@@ -78,6 +118,14 @@ export interface components {
             role: components["schemas"]["AdminRole"];
             status: components["schemas"]["AdminUserStatus"];
             createdAt: components["schemas"]["DateTime"];
+        };
+        AdminUserList: {
+            items: components["schemas"]["AdminUser"][];
+            total: number;
+        };
+        AdminUserUpdateRequest: {
+            role?: components["schemas"]["AdminRole"];
+            status?: components["schemas"]["AdminUserStatus"];
         };
         /** Format: uuid */
         Uuid: string;
@@ -157,6 +205,25 @@ export interface components {
                 "application/json": components["schemas"]["ErrorEnvelope"];
             };
         };
+        /** @description Requested resource does not exist in the authorized scope. */
+        NotFoundResponse: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": {
+                 *         "code": "RESOURCE_NOT_FOUND",
+                 *         "message": "The requested resource was not found",
+                 *         "requestId": "11bdc6ea-93e2-46e4-bd6c-5a14cec9f488",
+                 *         "details": {}
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["ErrorEnvelope"];
+            };
+        };
     };
     parameters: never;
     requestBodies: never;
@@ -228,6 +295,113 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListUsers: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of the admin roster, ordered by email. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller does not hold the ADMIN role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                adminUserId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The admin user. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller does not hold the ADMIN role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUpdateUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                adminUserId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUserUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description The updated admin user. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller does not hold the ADMIN role, targets themselves, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            422: components["responses"]["ValidationResponse"];
             default: components["responses"]["ErrorResponse"];
         };
     };

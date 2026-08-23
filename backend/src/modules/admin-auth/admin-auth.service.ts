@@ -8,6 +8,7 @@ import type { EnvironmentVariables } from "../../config/environment.validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { ProviderIdentityVerifier } from "../auth/provider-identity-verifier";
 import { isEmailAllowlisted, normalizeAdminEmail } from "./admin-allowlist";
+import { AdminAuditService } from "./admin-audit.service";
 import { AdminSessionService } from "./admin-session.service";
 import type { AdminSessionContext } from "./admin-session.service";
 
@@ -36,11 +37,13 @@ export class AdminAuthService {
     private readonly config: ConfigService<EnvironmentVariables>,
     private readonly verifier: ProviderIdentityVerifier,
     private readonly sessions: AdminSessionService,
+    private readonly audit: AdminAuditService,
   ) {}
 
   async loginWithGoogle(
     idToken: string,
     context: AdminSessionContext,
+    requestId: string,
   ): Promise<AdminLoginResult> {
     const identity = await this.verifier.verifyGoogle(
       idToken,
@@ -92,7 +95,7 @@ export class AdminAuthService {
       if (emailTaken !== null) {
         adminAccessDenied();
       }
-      return transaction.adminUser.create({
+      const created = await transaction.adminUser.create({
         data: {
           email,
           displayName: email.slice(0, email.lastIndexOf("@")),
@@ -106,6 +109,17 @@ export class AdminAuthService {
           },
         },
       });
+      // Bootstrapping is an access grant, so it enters the same audit
+      // trail as later role and status changes.
+      await this.audit.record(transaction, {
+        actorAdminUserId: created.id,
+        action: "admin.user.bootstrapped",
+        targetType: "admin_user",
+        targetId: created.id,
+        requestId,
+        metadata: { email: created.email, role: created.role },
+      });
+      return created;
     });
 
     if (user.status !== AdminUserStatus.ACTIVE) {
