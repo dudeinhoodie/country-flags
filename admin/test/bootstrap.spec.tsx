@@ -27,6 +27,20 @@ describe("Bootstrap", () => {
             ),
           );
         }
+        if (url.includes("/v1/admin/content/status")) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                activeVersion: null,
+                schemaVersion: null,
+                publishedAt: null,
+                entityCount: 0,
+                deckCount: 0,
+              }),
+              { status: 200, headers: { "Content-Type": "application/json" } },
+            ),
+          );
+        }
         return Promise.resolve(
           new Response(
             JSON.stringify({

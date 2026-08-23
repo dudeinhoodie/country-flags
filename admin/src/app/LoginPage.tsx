@@ -5,7 +5,7 @@ import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
-import { createAdminApiClient } from "../api/client";
+import { useAdminApiClient } from "../api/ApiClientContext";
 import { EnvironmentBadge } from "../components/EnvironmentBadge";
 import { useRuntimeConfig } from "../config/RuntimeConfigContext";
 
@@ -70,6 +70,7 @@ function loadGoogleIdentity(): Promise<GoogleIdApi> {
  */
 export function LoginPage() {
   const config = useRuntimeConfig();
+  const client = useAdminApiClient();
   const buttonRef = useRef<HTMLDivElement | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +85,6 @@ export function LoginPage() {
         setError("Google returned no credential");
         return;
       }
-      const client = createAdminApiClient(config.apiBasePath);
       const {
         data,
         response,
@@ -137,7 +137,7 @@ export function LoginPage() {
     return () => {
       cancelled = true;
     };
-  }, [config]);
+  }, [config, client]);
 
   return (
     <Box
