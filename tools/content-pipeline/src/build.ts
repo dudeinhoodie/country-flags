@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { normalizeSource } from "./adapters.js";
 import { buildLearningContent } from "./learning.js";
 import { createMatcher } from "./matching.js";
+import { loadAssetOverrides } from "./asset-overrides.js";
 import { mergeContent } from "./merge.js";
 import { loadRegistry, loadVerifiedSnapshot } from "./registry.js";
 import { readJson, sha256, writeJson } from "./stable-json.js";
@@ -126,6 +127,11 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     normalized,
     matcher,
     editorialProvenance,
+    await loadAssetOverrides(
+      options.root,
+      editorial.assetOverrides,
+      editorialProvenance,
+    ),
   );
   const files: { path: string; schemaId: string }[] = [];
   const add = async (
@@ -175,6 +181,7 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     ["missingTranslations", merged.reports.missingTranslations],
     ["missingAssets", merged.reports.missingAssets],
     ["licenseProblems", merged.reports.licenseProblems],
+    ["assetOverrides", merged.reports.assetOverrides],
   ];
   for (const [reportType, items] of reportEntries) {
     await add(`reports/${reportFileName(reportType)}.json`, SCHEMAS.report, {
@@ -244,6 +251,7 @@ export async function readReports(
     "missing-translations",
     "missing-assets",
     "license-problems",
+    "asset-overrides",
   ];
   return Object.fromEntries(
     await Promise.all(

@@ -61,6 +61,12 @@
       "sha256": "9f0761d121ba023aefdb7daeb15a21a2d1cfd08ee211c0a5d5a3edc9c8b585a7"
     },
     {
+      "bytes": 74,
+      "path": "reports/asset-overrides.json",
+      "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
+      "sha256": "f0b97ad615006fb82b2a4d26608655cd78a6540eb6c734f12ad267359c2c7427"
+    },
+    {
       "bytes": 326465,
       "path": "reports/field-conflicts.json",
       "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",

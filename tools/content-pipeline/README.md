@@ -119,3 +119,25 @@ manifest, catalog, typed fact collections, sanitized local SVG assets,
 field-level provenance, and diagnostic reports. Population gaps are explicit
 and never represented as zero. Capitals, currencies, and languages use arrays
 so multiple values, roles, and validity periods can be represented.
+
+## Editorial asset overrides
+
+Flags normally come from a pinned upstream project. When an editor supplies a
+drawing instead — a corrected shade, a flag no project draws — it goes in the
+editorial layer rather than on top of the build:
+
+- the drawing lives at `editorial/overrides/assets/<entityKey>.svg`;
+- its provenance (license, source, attribution, and the reason a human
+  replaced the upstream drawing) lives in `catalog.json` under
+  `assetOverrides`, validated by the editorial-catalog JSON Schema.
+
+An override outranks every adapter candidate for that entity, deterministically.
+Without this layer the next source refresh would silently overwrite the
+hand-picked flag; with it, `reports/asset-overrides.json` names every override,
+the sources it displaced and the checksum of the drawing it replaced, and the
+source-refresh pull request lists them so a changed upstream flag gets a second
+look rather than a silent win.
+
+Sanitizing, rasterizing and checksumming live in `@country-flags/asset-core`,
+which the backend's upload path uses as well: one sanitizer, one security
+boundary.
