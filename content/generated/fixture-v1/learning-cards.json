@@ -6,7 +6,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.antarctica.current",
           "promptFingerprint": "a1f92981cd2055fd0bc36a3f8e7de454a7996de53e0ea94d9cbeee44d4de8308",
@@ -25,7 +25,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bouvet-island.current",
           "promptFingerprint": "895bb7cfc3f48e75f31d58c0121f264fe28693d1068e536eba7a61ffb94c7a72",
@@ -44,7 +44,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cook-islands.current",
           "promptFingerprint": "29b1c20266e8439e0c3ed31a20bb28ab5a2578d5a696a1e990757e03f977f383",
@@ -63,7 +63,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.french-southern-territories.current",
           "promptFingerprint": "b1a4f464787883df5b70dd7234e054c545f09baf6ea637982c54bcf2066e6fe2",
@@ -82,7 +82,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.heard-island-and-mcdonald-islands.current",
           "promptFingerprint": "abc5a59e70cb54904817811cd1fd4769b7e6e9553ca6327fc98879c4d9265dad",
@@ -101,7 +101,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.niue.current",
           "promptFingerprint": "8960112a1b185bd3ce0a8314bbfead63d78647d25c4cfacf8a984573f66fa266",
@@ -120,7 +120,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.united-states-minor-outlying-islands.current",
           "promptFingerprint": "289eb60d419c6945bc7bbc0c7cc2b36499b18d61fce730f48fb2175013d3c3cd",
@@ -139,7 +139,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.afghanistan.current",
           "promptFingerprint": "a4e970e6bae82d49505456464a28904805e44fd6e1d3a185992002f4300cc83d",
@@ -158,7 +158,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.albania.current",
           "promptFingerprint": "4e0a42e569f06cb413679694c620e2df3455c86ce64e14767ebe729776c423e9",
@@ -177,7 +177,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.algeria.current",
           "promptFingerprint": "c05a89ee6ae4986aa9b979b36b55dcc390d59344d0c130db84fb2e3450039c2c",
@@ -196,7 +196,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.andorra.current",
           "promptFingerprint": "e29b3bad36caaefcd5c38740f99f091293e2c3039cad44327b0703f8bd0217bb",
@@ -215,7 +215,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.angola.current",
           "promptFingerprint": "0a4b3108305b4e86097c62fb5d35a6ef3ebed221d770610e18746b34ae41d787",
@@ -234,7 +234,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.antigua-and-barbuda.current",
           "promptFingerprint": "caaaf43315bb81955d78d78fe0cbb3f636cf7057da5a4a7bf9acca7ae4328e45",
@@ -253,7 +253,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.argentina.current",
           "promptFingerprint": "6f1b145148b4fd05aad04be1203136241447658c5c9e797094afd663de5c93d8",
@@ -272,7 +272,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.armenia.current",
           "promptFingerprint": "18988301167a94c69123e8b1867303756bd94c441b11e4aab4b65c7867658b2f",
@@ -291,7 +291,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.australia.current",
           "promptFingerprint": "70716c2a876ed41e9e64cf7e51e9703b705d5d6990d8d1d51e037b53d0ec39de",
@@ -310,7 +310,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.austria.current",
           "promptFingerprint": "4344380236e6f8f0bb61aee71bc341ee332d6c13ed5d27e5cf076e67adee7824",
@@ -329,7 +329,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.azerbaijan.current",
           "promptFingerprint": "55d920ceb2523a0e31051f38d65de8c27ac3cc58817834247ee1585a16ce0eeb",
@@ -348,7 +348,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bahamas.current",
           "promptFingerprint": "34ae90cd22746068e6cb3af3a4161a77fb5a3f8764b0a526f7c200dbd2966b8b",
@@ -367,7 +367,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bahrain.current",
           "promptFingerprint": "b21df316b81d4d89b28219176ad57a2aa7781b754497b8634a050aa103c18221",
@@ -386,7 +386,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bangladesh.current",
           "promptFingerprint": "cefadecb245e5547800552855e4769115882d1fda38f21e2ac6c501398494935",
@@ -405,7 +405,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.barbados.current",
           "promptFingerprint": "0886759be4ca7a10fd4dc34236970229a137726d84402967f4eeb967c4d8d2cf",
@@ -424,7 +424,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.belarus.current",
           "promptFingerprint": "99a1fba9def50639729102b1d8e533c6ec23e9e15f66d02a3bffe663fd25b373",
@@ -443,7 +443,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.belgium.current",
           "promptFingerprint": "9a80c341b44fe9cde8eba288e254a3431b27a4ffed4317da977e8cd6ff70815f",
@@ -462,7 +462,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.belize.current",
           "promptFingerprint": "554e373a7d922e56d0ed442ed8cbfd090c27fd021ff5cfdd2d4f0df3a2349d99",
@@ -481,7 +481,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.benin.current",
           "promptFingerprint": "d2a44a0129519a3f12bb6c98a71721583d89b889776fa80e6379b54a30e176a8",
@@ -500,7 +500,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bhutan.current",
           "promptFingerprint": "a6606716dd7a4d2c9fb4318e1fb1e6c19fdd2adbabc4ad2e282ac52a8b383e19",
@@ -519,7 +519,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bolivia-plurinational-state-of.current",
           "promptFingerprint": "d5d74a5e97251b90b0d19a5d5e44b525c4ae68ff65e26f513a139d8399bbfbb9",
@@ -538,7 +538,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bosnia-and-herzegovina.current",
           "promptFingerprint": "56a5e76b0861f214791c0261a438b08f9d167bf3daae66b450b4d6cabcd35377",
@@ -557,7 +557,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.botswana.current",
           "promptFingerprint": "7f1ae3ed31be4f522786f8ba519c825d207b11297b3dd073caeda022c5f81be2",
@@ -576,7 +576,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.brazil.current",
           "promptFingerprint": "03faae73053fd6ec86ca9f25a7739dc95edf78ecb08fa27fefbe6a883d0b5e22",
@@ -595,7 +595,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.brunei-darussalam.current",
           "promptFingerprint": "81e6791432a562bb2dbbfdbb20ba1737999ec09fc6f0fe888347e10114d8a29d",
@@ -614,7 +614,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bulgaria.current",
           "promptFingerprint": "21961f6806f5b068db7973c342a0dc5a3e7d7b5c329aeb878d2902836c83da29",
@@ -633,7 +633,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.burkina-faso.current",
           "promptFingerprint": "02652d3cc40833def0d37bf23736b987d45512ba9da2931f1a3f0e3cd3df839c",
@@ -652,7 +652,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.burundi.current",
           "promptFingerprint": "f002d9be8d47468ed12b27ae11b68ce560a9e0d96afc08497b2e3a6af3b2a226",
@@ -671,7 +671,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cabo-verde.current",
           "promptFingerprint": "7b3387c9c781cb3dc05069b7dca05fd0433b27b44404020b493e19e60416aff9",
@@ -690,7 +690,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cambodia.current",
           "promptFingerprint": "c258d311e60624a96902f8c834572b614fc6517ee7daa5b545ce73b64df77c08",
@@ -709,7 +709,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cameroon.current",
           "promptFingerprint": "c9ac64f3c82cf411cf4b71086a32b48da344ebb5e7919ac9fe3656752538d155",
@@ -728,7 +728,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.canada.current",
           "promptFingerprint": "0b381dd311350f417e77da02274402c774bc26b9ec4ea0d8caf69a553115f56b",
@@ -747,7 +747,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.central-african-republic.current",
           "promptFingerprint": "2e2075f73ff399d7154d0ba1536fc8c6e95bf7b8ce3299c33c04afa05edd5894",
@@ -766,7 +766,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.chad.current",
           "promptFingerprint": "bead5df3e22851ff3f425c52fd43de145c00f3df292ab8c8cc97ad7b087ae819",
@@ -785,7 +785,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.chile.current",
           "promptFingerprint": "9bd2aeb12d453b8c483a3ed62932c5c3108b088c7cf03deb8c6f5f56342826a0",
@@ -804,7 +804,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.china.current",
           "promptFingerprint": "c45d666865a1e26e1e8ab8f0784b44eaa8900d07763049d6d492832e26f15a3a",
@@ -823,7 +823,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.colombia.current",
           "promptFingerprint": "96ce19508bfe750b64b0f11c4cce3700bf99b50084f66d459afc5e936a781fee",
@@ -842,7 +842,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.comoros.current",
           "promptFingerprint": "0becba7e81c32ed18bb30c07946145f15656402154d6efa5f2d4398dfab23a5c",
@@ -861,7 +861,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.congo.current",
           "promptFingerprint": "76cc50c364e2f5325fdd829b4c34446c4047722b9c88fed520087fcf425d1ee2",
@@ -880,7 +880,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.costa-rica.current",
           "promptFingerprint": "c414a5cb978892b7454a9cf4c6db6bfe666815c903f89e7e829ba9bbace1ee2c",
@@ -899,7 +899,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cote-d-ivoire.current",
           "promptFingerprint": "717a0223310e9ebc200a4cd28dba0ee9e58a3dbf32b2ddcf85138250ec7e41a2",
@@ -918,7 +918,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.croatia.current",
           "promptFingerprint": "fe155bfe49fff0952b19f6b83590ad1cd9fb026a557f36dac07040531b74e7fd",
@@ -937,7 +937,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cuba.current",
           "promptFingerprint": "98ac5dc3be5a1cfba7244c49e4c4bb3c0df0a9bb1f3ffafe3ace013c8cd497aa",
@@ -956,7 +956,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cyprus.current",
           "promptFingerprint": "2a79307e096debaeddc531f5b684733d2797eaedaf131f9152375e8c9d408cb4",
@@ -975,7 +975,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.czechia.current",
           "promptFingerprint": "2a8eb66beca41463934b9b1821933acd6c7fcf674a19366809e8b314791dbb3a",
@@ -994,7 +994,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.democratic-people-s-republic-of-korea.current",
           "promptFingerprint": "b37f20677efd5c52b9d6079e1058bd7be6fd7cbeab70fdfeecfbc006ab07d7b4",
@@ -1013,7 +1013,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.democratic-republic-of-the-congo.current",
           "promptFingerprint": "c896ae0a4d6e9848ecfa93bc8d5c999e9096379d7fde0b8069fd47c62bbf5962",
@@ -1032,7 +1032,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.denmark.current",
           "promptFingerprint": "929ddb308f4bd607650b53bf76032fd832c459f44f2f4e0f61db825e7000c47e",
@@ -1051,7 +1051,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.djibouti.current",
           "promptFingerprint": "cc6c89dfb486281706bb3b2ce1459dfb62f0512ac8aded4777079128bf74652b",
@@ -1070,7 +1070,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.dominica.current",
           "promptFingerprint": "521a842b4973f900fecb5276e13df659f442cd937c0012d01edff6c1477d436b",
@@ -1089,7 +1089,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.dominican-republic.current",
           "promptFingerprint": "2a8c2c4b56b1477c7e5472d149278bcba7a21b6559e425f13a81882c333b37a6",
@@ -1108,7 +1108,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.ecuador.current",
           "promptFingerprint": "776ba8456edf64280fe668cab1ed8240e2b287df81009424f9fb1f23f229c323",
@@ -1127,7 +1127,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.egypt.current",
           "promptFingerprint": "6c6e3f4ccd0e1cd9172b4f4fe2215bb0bc8c68854e0d51d6d5c66832fed93b3a",
@@ -1146,7 +1146,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.el-salvador.current",
           "promptFingerprint": "6619d9b73ae59545af052628688f14cba2e123a60d0a04321b690ed88b4a3462",
@@ -1165,7 +1165,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.equatorial-guinea.current",
           "promptFingerprint": "f3c4ca8b150e24e3e81f00584c186cdfb1ad65f3a36f21317b71e8f87d562133",
@@ -1184,7 +1184,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.eritrea.current",
           "promptFingerprint": "608ec8354cb1cbe6e2a38e2e8ef90e4e8a496191d782c7cd59d7b44446d5be1b",
@@ -1203,7 +1203,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.estonia.current",
           "promptFingerprint": "8c1f2b04074d9d47a04f4d36b00589bee353b1e65ee5fc1c306f850a2011f7f1",
@@ -1222,7 +1222,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.eswatini.current",
           "promptFingerprint": "c8d1e3ecb9936cb8c5b5b9125430f1b706587c51a677748ae1c4e836d8b8e55c",
@@ -1241,7 +1241,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.ethiopia.current",
           "promptFingerprint": "aa66d0f75618a582a07c3797e921c22388bc81a95c4373a1bb5e4e919cf7be9e",
@@ -1260,7 +1260,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.fiji.current",
           "promptFingerprint": "5541fb131953963db71c2466c2840f43ad79e6ac211f8914569e1a1284780d26",
@@ -1279,7 +1279,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.finland.current",
           "promptFingerprint": "9da579344c970a0767dfdac319d73c1b924f7b94c64b21d809ebea6b37c5f8bc",
@@ -1298,7 +1298,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.france.current",
           "promptFingerprint": "0946d51dc4e43042fde2fdfbbb2adfeb5f6bbb7181433ae767cf4d46e32953df",
@@ -1317,7 +1317,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.gabon.current",
           "promptFingerprint": "d9e733ce3d75ee7422fd369bb8dbd2293ad4f68c1de222107b4dc679cafd2438",
@@ -1336,7 +1336,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.gambia.current",
           "promptFingerprint": "6b6d17b0eb2ba6f2583b2ba5126b5bb917943382b98c8e25ac0b9ab3874abd23",
@@ -1355,7 +1355,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.georgia.current",
           "promptFingerprint": "10f32d6f77ed156ba519d7cb3e3721f317985a253f3e75cd34c9051052eb19a0",
@@ -1374,7 +1374,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.germany.current",
           "promptFingerprint": "eb5fb396991d55f2510032eba88fa145b44345d3ed007f77dcc6f5f139640ddc",
@@ -1393,7 +1393,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.ghana.current",
           "promptFingerprint": "44158cf7bef0ff1ef7b79271b6e690702abb997337320f6b83762f0683d7d6f2",
@@ -1412,7 +1412,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.greece.current",
           "promptFingerprint": "244d241afbea90bc797a74b58cd6ead26468d06382938d3c41f133486e06ad15",
@@ -1431,7 +1431,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.grenada.current",
           "promptFingerprint": "8743f9351e9b3101c7f60e1b482eca46af7296552ef007190561d1fdd8d3474d",
@@ -1450,7 +1450,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.guatemala.current",
           "promptFingerprint": "74b9d2354186b14a4a013f0743f1e99485ca5d56a215512a482fe86066391b84",
@@ -1469,7 +1469,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.guinea.current",
           "promptFingerprint": "1b36c801f68d1910a851173b104b4db17fb58dc263c5e14339ced363db315738",
@@ -1488,7 +1488,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.guinea-bissau.current",
           "promptFingerprint": "699c5f5a936d6c56101141b0f97ba0039bf9592e5f935d3a6005029ee9e3c68c",
@@ -1507,7 +1507,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.guyana.current",
           "promptFingerprint": "42542a6e6b585f524469c851127303ff773d61ec2e417d429e5152c774bca7ef",
@@ -1526,7 +1526,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.haiti.current",
           "promptFingerprint": "7adf93ac2e3d61e70b2b0b9772f06b487d8955c31ede31b05c03a166c1d53ead",
@@ -1545,7 +1545,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.holy-see.current",
           "promptFingerprint": "95b2c6d56523123e63530c435ae77ec5b61144f71e1bae020754532b18f716da",
@@ -1564,7 +1564,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.honduras.current",
           "promptFingerprint": "737ff5311c15f2f6e9a847de4a1f0a685adf222746429250cae6931191c27adb",
@@ -1583,7 +1583,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.hungary.current",
           "promptFingerprint": "3808ca041bae6951dced0f09dd1d13f15ee5a1867d83b4141289cb073a3f2fbe",
@@ -1602,7 +1602,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.iceland.current",
           "promptFingerprint": "5f28ce98bd8ef76c3d4b40e455018d4c1373e4a3ce0051e8ab4755e49c714e9c",
@@ -1621,7 +1621,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.india.current",
           "promptFingerprint": "eda604d35385886751e61d7e03e3fb2a8a3443e6a7ae82f1b5d92b5b1aecbbf7",
@@ -1640,7 +1640,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.indonesia.current",
           "promptFingerprint": "4991a8ad952457334f22dfb8ec456e1e04a0fd813fdca1b748972c1d8770c30f",
@@ -1659,7 +1659,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.iran-islamic-republic-of.current",
           "promptFingerprint": "fc2fd6b9921bf8a05ca4e93e707fd24ed9562cdd58082398786ea51744f6cf5c",
@@ -1678,7 +1678,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.iraq.current",
           "promptFingerprint": "f59e00404eb3380060167a294d6a1eaab5baa25338ed6fc75506a720d4264898",
@@ -1697,7 +1697,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.ireland.current",
           "promptFingerprint": "9f74505fbeb9b890513f71ebda67df24a1572ab458c022d60ca4946370c2824f",
@@ -1716,7 +1716,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.israel.current",
           "promptFingerprint": "999fa8fa0ec026ab66823cf18bc091ba85e098237004b4d401a2bd743c777e6d",
@@ -1735,7 +1735,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.italy.current",
           "promptFingerprint": "99ae1e2576f32720516185d282c4ab98a785bd03510c36e1910e46ac58c9171e",
@@ -1754,7 +1754,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.jamaica.current",
           "promptFingerprint": "c89b52b5a0851ebe8b953259ab2e7b934b494278e9401ee412c22f6cf76561ac",
@@ -1773,7 +1773,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.japan.current",
           "promptFingerprint": "23a1cc7275f32eaf88e3c5c07fbd4173241048e875186f6c391dfc630e7d4382",
@@ -1792,7 +1792,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.jordan.current",
           "promptFingerprint": "4aeb24c0de516f8d3dbd588e2925b709f0f257d7b147747264433886b52584d2",
@@ -1811,7 +1811,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.kazakhstan.current",
           "promptFingerprint": "938f27ad883e715d4948b90e3f454afa21c0f7d92a54f7212865034f42b00bc9",
@@ -1830,7 +1830,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.kenya.current",
           "promptFingerprint": "73b3f54cc571458de8de59521e6afa01b6fa87ab03de4ac14007a399bd3371a2",
@@ -1849,7 +1849,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.kiribati.current",
           "promptFingerprint": "94d6f923f1feaffb5b9f8aa35d9e39ebec99e1a04a4e9548d00c1f18a4957fdc",
@@ -1868,7 +1868,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.kosovo.current",
           "promptFingerprint": "5d3ebe129937264f827c418f43139ccc7f84fcc765604708e3b9f6fe065c8ba7",
@@ -1887,7 +1887,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.kuwait.current",
           "promptFingerprint": "06ce069c8994e20bb87d4db034b462022479dfaac9ed0e8171b4ec58d77ebf65",
@@ -1906,7 +1906,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.kyrgyzstan.current",
           "promptFingerprint": "d54869ef612a0eca1ba970d777111b2c45ae27b8e10d339003ae1ef9ae37e51d",
@@ -1925,7 +1925,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.lao-people-s-democratic-republic.current",
           "promptFingerprint": "7bc4b80e38e537679e5743d431d731b12d51e064d849053eda2c44985cb5aaab",
@@ -1944,7 +1944,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.latvia.current",
           "promptFingerprint": "4a32aa147e00da5297003df89b52b6781720d4afe6634f2c56c799b7de27ee37",
@@ -1963,7 +1963,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.lebanon.current",
           "promptFingerprint": "a277a28cac676ed40c9804f8a0b5526dfcbd07ef5ab0d3307d34b368d3754279",
@@ -1982,7 +1982,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.lesotho.current",
           "promptFingerprint": "1a15134cd78e0e646eb6c4db64571b97329c969bb81d83dd5900784c67512372",
@@ -2001,7 +2001,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.liberia.current",
           "promptFingerprint": "144f398fe8d9f099206cb82810719f016b14a3cada3170035f732e8a401b989d",
@@ -2020,7 +2020,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.libya.current",
           "promptFingerprint": "c931b5bbdcf0a2362dc606cc43d5b1752b25dc61c0ec35939539855a9f7ff955",
@@ -2039,7 +2039,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.liechtenstein.current",
           "promptFingerprint": "aee112b24a13005212d0f55e09436027a63096ead2d23c6e5830521c36ff8a4a",
@@ -2058,7 +2058,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.lithuania.current",
           "promptFingerprint": "5a50835d3fac965eee89b84a12fcc75573e073b6aa5e66cba462221ffd4c8737",
@@ -2077,7 +2077,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.luxembourg.current",
           "promptFingerprint": "c32e8e6f9702683fdf081dfe2894e3be03c20bb4e02e975375b800a9fc79cb06",
@@ -2096,7 +2096,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.madagascar.current",
           "promptFingerprint": "eae29b3c335ef8e643b9db7dc60052522f92b6565cddbdc487012a8f73b29460",
@@ -2115,7 +2115,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.malawi.current",
           "promptFingerprint": "02ba10de8b1afcd6c8b2ed11ccd00a035223e020e28a640e80ce2021420cb3f4",
@@ -2134,7 +2134,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.malaysia.current",
           "promptFingerprint": "3e8733e143bed430431f9aedf8f698161bdfe6c37300a5d3d496a48fc44afcdf",
@@ -2153,7 +2153,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.maldives.current",
           "promptFingerprint": "218c8c961ed7b01200176f0753ddc826d791e49d0a3cfd7880afaf1cfa0a47c1",
@@ -2172,7 +2172,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.mali.current",
           "promptFingerprint": "79382dda1578de626f09480d339e5e7860f7f2a045dc246bc89ef9198df16242",
@@ -2191,7 +2191,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.malta.current",
           "promptFingerprint": "8511d4be9f4befb08288fa30ed9b4fe4ff1c33ec52d8163972e112f9339a92e3",
@@ -2210,7 +2210,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.marshall-islands.current",
           "promptFingerprint": "3559c7ddb5ee6286d877def16bb20bc9ba38f33084795372c2ecccec40fde467",
@@ -2229,7 +2229,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.mauritania.current",
           "promptFingerprint": "de48c06b2a4a70b8a09c46770b3d91655a70ee9059a56742f0497b7e97ce3f89",
@@ -2248,7 +2248,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.mauritius.current",
           "promptFingerprint": "8259279d9de8a51b752dbd816ccadfbd8993fdb5135c97048115e945f73b62a6",
@@ -2267,7 +2267,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.mexico.current",
           "promptFingerprint": "760e18028f30e6492e1cdd62acf44c96ea0267bb07d375057c011b83c84b7858",
@@ -2286,7 +2286,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.micronesia-federated-states-of.current",
           "promptFingerprint": "4c4f2d89394303a09e5461db17bddb491bc8b957c1c0193583cf1c7b7c3143b3",
@@ -2305,7 +2305,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.monaco.current",
           "promptFingerprint": "a9abda81417e085035f24214518e451b20f06a06645009bf7131f2d369cbdcb2",
@@ -2324,7 +2324,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.mongolia.current",
           "promptFingerprint": "424b4da7a55fdeeb7c37eb422d3a60d31745619bcb2ab86e96abcf7ef5490200",
@@ -2343,7 +2343,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.montenegro.current",
           "promptFingerprint": "7ddfbc5f05f47ca8446e2d6bad4ea6a4ca8b58cf38fe3ee28a8509e214571cc0",
@@ -2362,7 +2362,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.morocco.current",
           "promptFingerprint": "fc3207e6605d18e885cc1e31d668336f3a3e947aa2215b27334f50b4452f70a6",
@@ -2381,7 +2381,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.mozambique.current",
           "promptFingerprint": "c23369bd3a5604e9b0beb23440c5a1922b4e40431ce528dae38773006fba51bb",
@@ -2400,7 +2400,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.myanmar.current",
           "promptFingerprint": "3b1d058a78ef660a1a76d3a52e993d963505913beab3ccf7a745b886891bceea",
@@ -2419,7 +2419,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.namibia.current",
           "promptFingerprint": "600ecbe54c5aa8352be629d9d67c991455c0f2d80cfc13cc8cba6c3b44d3b431",
@@ -2438,7 +2438,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.nauru.current",
           "promptFingerprint": "96a01096ae4d53eea832390fa799faf6c9c61efe3e51833e0af7e6a065ffc65f",
@@ -2457,7 +2457,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.nepal.current",
           "promptFingerprint": "f62e1a9cf683217cdb9239681c36f76013c06c982f72f72f4d5d03eb51fb2831",
@@ -2476,7 +2476,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.netherlands-kingdom-of-the.current",
           "promptFingerprint": "c76805ff092976304ab6e7862a8a4c845996abaaa6a442416218b6ff49d6b455",
@@ -2495,7 +2495,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.new-zealand.current",
           "promptFingerprint": "86420afcd82bcd3f29ec5b3aa11aa5363e880ceb764d508e10005998a1dacf49",
@@ -2514,7 +2514,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.nicaragua.current",
           "promptFingerprint": "16d68d3646a26d9e6b198af1256902b5ee4673f1fd8a9a934096874117e0ae7b",
@@ -2533,7 +2533,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.niger.current",
           "promptFingerprint": "fb5da5b67dc70c4e5b5f15a6614bbc46eb0f6d739a4ff5a68918567787702540",
@@ -2552,7 +2552,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.nigeria.current",
           "promptFingerprint": "91ce5bad5cb56f123831cda886c52f699402ef06195e5b6c3ada93804102d068",
@@ -2571,7 +2571,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.north-macedonia.current",
           "promptFingerprint": "faec152a7f6b60356391ea07dc699f0cb53737c9b3c452ffedd74bdbe3a75e9a",
@@ -2590,7 +2590,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.norway.current",
           "promptFingerprint": "392ab87036bf3d830d28ded1ee7e57deba91557d540478e5391e86312aa12dac",
@@ -2609,7 +2609,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.oman.current",
           "promptFingerprint": "ebc13109ff8871a7bb6852d7219df8125aeb6c44bdac1649801485250ed6d34c",
@@ -2628,7 +2628,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.pakistan.current",
           "promptFingerprint": "72a26cfa2a9ee2acf3d8aa387eb9950f7c8531790aeb42a52414892b3be063e4",
@@ -2647,7 +2647,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.palau.current",
           "promptFingerprint": "b91f4cbf8767455b797e03d0e0ee94c0d80f12b325dc4d25401d8b95bf505484",
@@ -2666,7 +2666,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.panama.current",
           "promptFingerprint": "17f26695f1745a651240e9d562a59af61c9ca4e073d4baddbcfc737a1da5101c",
@@ -2685,7 +2685,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.papua-new-guinea.current",
           "promptFingerprint": "7ddb64669ce2c1515399050f1d7f6cf3ddd3bc8f530836839d7239c438b126a8",
@@ -2704,7 +2704,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.paraguay.current",
           "promptFingerprint": "3e2e6ad9e3fce1e31e5264e2ce866b8726920bc593a5822eac0b37eaf3a079c2",
@@ -2723,7 +2723,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.peru.current",
           "promptFingerprint": "3b219886ed6f2c92707f9719454fed701d2d909d9ad9eb751daa2389e81be180",
@@ -2742,7 +2742,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.philippines.current",
           "promptFingerprint": "b84b7546f8b9a1cfc1858fb7c7d97add4a41034c65e4aefe2d9e7726e925a45d",
@@ -2761,7 +2761,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.poland.current",
           "promptFingerprint": "ba4f3d8607855e7f942fabcedf0c661105faabdc3e341d94c01aeae94906c72e",
@@ -2780,7 +2780,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.portugal.current",
           "promptFingerprint": "e050e013a7adee612e0ffdb85e0d5ff80257456de37661abcc60c16210efd7c6",
@@ -2799,7 +2799,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.qatar.current",
           "promptFingerprint": "4cb862e3fd1ce46f3b3843bd1b57c3f2dd5b48a3e48f1877aac6de37c94a7189",
@@ -2818,7 +2818,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.republic-of-korea.current",
           "promptFingerprint": "5a667a9677bc1474b57909face32b199fb9cd296180978f9dc193debd9db5991",
@@ -2837,7 +2837,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.republic-of-moldova.current",
           "promptFingerprint": "91f1efe9b53109b08efb7ef22a41a53979cc8d195e0e488bbabeb7e8e3d391f0",
@@ -2856,7 +2856,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.romania.current",
           "promptFingerprint": "677ab7e366509840413107b6693af530f09bd30daeef5b13bf888bd35fac6275",
@@ -2875,7 +2875,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.russia.current",
           "promptFingerprint": "fa37bf4dff5e67c72919d057c55eab323cedfe68dce20f94691756111ffe23b3",
@@ -2894,7 +2894,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.rwanda.current",
           "promptFingerprint": "92de12bcc7241d75af8fafbd1b48aba2664354f34f07c21b2a61ad8edbc5c81c",
@@ -2913,7 +2913,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.saint-kitts-and-nevis.current",
           "promptFingerprint": "ca451ca5872922cb602769a9bca74329182b3b7d9fc3ded553c3f71189830ea9",
@@ -2932,7 +2932,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.saint-lucia.current",
           "promptFingerprint": "264361ed70ad57238ef419a8bc95a05030d038f136f1accb9820dbaeaa6cd31d",
@@ -2951,7 +2951,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.saint-vincent-and-the-grenadines.current",
           "promptFingerprint": "d34634bcf973d2ff08ed072fd1b61c6f5826145e002c0d6f0e6943541652b517",
@@ -2970,7 +2970,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.samoa.current",
           "promptFingerprint": "cc34c5c3da522adf69a83330e864ea73df3b5b5b31f23c033a16d0f47fd08e38",
@@ -2989,7 +2989,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.san-marino.current",
           "promptFingerprint": "8caddc5d70994279190674041a5742cc4257400e5a58411ca00cfc9a2b6bf0a6",
@@ -3008,7 +3008,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.sao-tome-and-principe.current",
           "promptFingerprint": "b8ac3f6542b9ec268f5be4d2740fbcbae2d50f354a18c871d33fcf9b8ca791ca",
@@ -3027,7 +3027,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.saudi-arabia.current",
           "promptFingerprint": "637b74f475be4dab255437d3dde203f75559b9523b6d7005ca4d4092ace92e98",
@@ -3046,7 +3046,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.senegal.current",
           "promptFingerprint": "3a5cf035ba746ebfd0bc7e2d192be823dcb3cacdebc3da45777ae2a93cb0eb2e",
@@ -3065,7 +3065,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.serbia.current",
           "promptFingerprint": "e23417f6b27d2d537b70c3afdd0a564c09290045d83e3d2c4d0dd0b3392fc1c0",
@@ -3084,7 +3084,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.seychelles.current",
           "promptFingerprint": "c40026ddf279111acb97a71f2e7a7c1c3666531f9dbec9ba86987f36879df3ea",
@@ -3103,7 +3103,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.sierra-leone.current",
           "promptFingerprint": "dfe6ade88320ff446304b36caf3ad73b68b1fb1649dcbec67bc838a3b42cc630",
@@ -3122,7 +3122,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.singapore.current",
           "promptFingerprint": "4e8867b0fdd0ce13e625bd4522e75f23f75b5f6b941323a8f89fc94000f87116",
@@ -3141,7 +3141,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.slovakia.current",
           "promptFingerprint": "e6e29fecf32168aeff0395ef1da4b38acf158942a8ebbb4beaad2784dbb47fc2",
@@ -3160,7 +3160,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.slovenia.current",
           "promptFingerprint": "5ac70a3d9216ddb39f138fcd6af81619e7c8d146e46d85e948e2ef3cb957cec5",
@@ -3179,7 +3179,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.solomon-islands.current",
           "promptFingerprint": "91f84b2fcf1339eb3de64d6a6e40b716f983e68e9088755454d04554ba779f6e",
@@ -3198,7 +3198,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.somalia.current",
           "promptFingerprint": "09fd485f4d4023880ae711c3a71195d4e0362220a52bd8f1a865d0522f8c947d",
@@ -3217,7 +3217,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.south-africa.current",
           "promptFingerprint": "506eceaa461d5c6e9e5c1aea44b0eda537025c1b3915149d5b7af3c7947533c2",
@@ -3236,7 +3236,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.south-sudan.current",
           "promptFingerprint": "297671ade276d625b96f7516884c7d8a3e882ec4893b64f6005bd59fa4ed33ff",
@@ -3255,7 +3255,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.spain.current",
           "promptFingerprint": "8fc8bd47ad12a3bd6b2f3faceb76565b04d0f680bbd4a9009402dd8b074040b5",
@@ -3274,7 +3274,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.sri-lanka.current",
           "promptFingerprint": "bcd9e015de6476373a9687004f2bf6d2e0bb813e1b22a9e729bdfd431fd9f213",
@@ -3293,7 +3293,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.state-of-palestine.current",
           "promptFingerprint": "37b19dca86449c37a8420d02cb5f472e853751d2f223a02350d4eb30460357ad",
@@ -3312,7 +3312,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.sudan.current",
           "promptFingerprint": "7ba03869bc1b729abbe40f803bbc9a091831c4fa86736e8ffc8ffefd3bd3cafd",
@@ -3331,7 +3331,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.suriname.current",
           "promptFingerprint": "bf8312e4d92f0086ad6a690de631296a26b3be6b0d494055bc7d039404c2dd6b",
@@ -3350,7 +3350,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.sweden.current",
           "promptFingerprint": "95a36b0a7ada47b75dbeaf940c66bc9ec4c35cb430d8d6caa02be16c0be3d2c1",
@@ -3369,7 +3369,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.switzerland.current",
           "promptFingerprint": "0ba7e22bd4f499baf45ccb21dc9b64b584a952f0ae2489a1c788625f50f5979e",
@@ -3388,7 +3388,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.syrian-arab-republic.current",
           "promptFingerprint": "33becd630ac4e8e98097436d120101338f03eb9e5d9eed6003872c3b28027d2b",
@@ -3407,7 +3407,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.taiwan.current",
           "promptFingerprint": "84a178f3ceb794fb70032c9b31a21d23dc60be8ffee8b9b2b3a6c691ff1e1164",
@@ -3426,7 +3426,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.tajikistan.current",
           "promptFingerprint": "06a88c9cdcc30cde69117b0c5739a4dca3f90872d9b787f69b7f65394762bd7b",
@@ -3445,7 +3445,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.thailand.current",
           "promptFingerprint": "7f559221d052537700bf3b3bf827dbe91a365bd604607aeb5467a8b71122fe84",
@@ -3464,7 +3464,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.timor-leste.current",
           "promptFingerprint": "09229bb26fa396cdc57d640bc115f01691235b142abd80328b364fe49fb920ef",
@@ -3483,7 +3483,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.togo.current",
           "promptFingerprint": "bcf804553db7dc80f412bc7a664d13ddad775654c7434a76e6143c18fe10055b",
@@ -3502,7 +3502,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.tonga.current",
           "promptFingerprint": "ef022a294a9e1ff6fb4fd5104f96f386faeae97906d9c5a8ccbdee07af7d4b21",
@@ -3521,7 +3521,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.trinidad-and-tobago.current",
           "promptFingerprint": "e246a539e8a473c541df99f0ba74e3e545fad82eb7061721de6ec2a2b6aee5b8",
@@ -3540,7 +3540,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.tunisia.current",
           "promptFingerprint": "68e2e5e68cdc7472ed1e7820a53df4dfe7af01b8ca83379ef98478f3c1eaccd8",
@@ -3559,7 +3559,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.turkiye.current",
           "promptFingerprint": "afb7f23c36b080ef50bf1a39054510c50410997dbf54d8c64824f1995c08c63a",
@@ -3578,7 +3578,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.turkmenistan.current",
           "promptFingerprint": "a251ae2503020f192d9fb76e95e70621aa5873e5154b8e6a1f2f2607dc1a5520",
@@ -3597,7 +3597,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.tuvalu.current",
           "promptFingerprint": "da8f60543dee40a9f4a1938d202c273c8b621bd73bbed39d3bc59f1ff0f4e4b2",
@@ -3616,7 +3616,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.uganda.current",
           "promptFingerprint": "77a6791587b87020af321eb265ab0d2b9e99a6b786b87e9585aabb2652132414",
@@ -3635,7 +3635,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.ukraine.current",
           "promptFingerprint": "0ada88ee3e0ee039c5bf8d25a696ebadf354391028ef198ca20a5cc48251ab36",
@@ -3654,7 +3654,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.united_states.current",
           "promptFingerprint": "4618ed803c8ada16fb37f20b47f65120875e53064233f28e2f935563afb5e691",
@@ -3673,7 +3673,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.united-arab-emirates.current",
           "promptFingerprint": "075e71f22c5ac4b39584897a1fb23e5c1eee370592d61c9a7087f697f9c5f9be",
@@ -3692,7 +3692,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.united-kingdom-of-great-britain-and-northern-ireland.current",
           "promptFingerprint": "d2b0f9dc15e8f4bac7b21f2bc6cea22f3e533752fb4edca6db2175ee4c6982f0",
@@ -3711,7 +3711,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.united-republic-of-tanzania.current",
           "promptFingerprint": "2632c7d8440e7975ba5e8aabf2358076ae8044b8a0d7cbefeb069faa62bd6a3d",
@@ -3730,7 +3730,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.uruguay.current",
           "promptFingerprint": "ca39f30d93484931473983eee566ac359caef171d019ff4f6403353d9acb56dc",
@@ -3749,7 +3749,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.uzbekistan.current",
           "promptFingerprint": "a4ac180d77a5046503e1e758e01b7660186891c65b8690e12549627a8be05ab9",
@@ -3768,7 +3768,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.vanuatu.current",
           "promptFingerprint": "dad5841badc23778d0328c6251a50592c791b3b57f6b19004d8f114ed6af68ed",
@@ -3787,7 +3787,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.venezuela-bolivarian-republic-of.current",
           "promptFingerprint": "0842c0d15948230f7d80cd4d311c780903bcf265932e4d1e95db823a613c060a",
@@ -3806,7 +3806,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.viet-nam.current",
           "promptFingerprint": "1680fb3259d27f5c221dbd1c64b934152949b0b8df1d80a95ce1e521ce4b7bf9",
@@ -3825,7 +3825,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.western-sahara.current",
           "promptFingerprint": "3685847c7be827fcdb6b3997e6a8d3a30c56367b4a85f58e98d538005360b1ef",
@@ -3844,7 +3844,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.yemen.current",
           "promptFingerprint": "a6ad2fe60ac0440bf0b358c17982f7f76b9e83d9678cf19799b34451a75f3a79",
@@ -3863,7 +3863,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.zambia.current",
           "promptFingerprint": "491e6fcaf9317a7eaba9d436113fcb6bf8ab7dcff61d041efe7cc41cbce4232c",
@@ -3882,7 +3882,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.zimbabwe.current",
           "promptFingerprint": "65920433385b558d7947b216c9252f3ac3cf5983b2c356143c5fdb26f9ee8272",
@@ -3901,7 +3901,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.aland-islands.current",
           "promptFingerprint": "5cd17143309c30cef881e9f3cb3564d7a33b7c523979992bdc28a27baf12da3d",
@@ -3920,7 +3920,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.american-samoa.current",
           "promptFingerprint": "bdd4ada1529f1355594645baf4d8a944ab8732acf3d9ca22f8607950248b94dd",
@@ -3939,7 +3939,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.anguilla.current",
           "promptFingerprint": "d9292ad37d5cc4b63c199f156627a3f5c53db78c49159a46aca4335e08b7779f",
@@ -3958,7 +3958,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.aruba.current",
           "promptFingerprint": "cc5c9a6739edc147bc8554252f0a5179352f7dfc10d0b40b0949e82405bd3219",
@@ -3977,7 +3977,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bermuda.current",
           "promptFingerprint": "570a95cf51854c1c754650a0b0a04cd0a84adfa3f03a4353674820af610be899",
@@ -3996,7 +3996,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.bonaire-sint-eustatius-and-saba.current",
           "promptFingerprint": "9bae99274ec925685f21f09e648b99caab884e5b5cc95cbb67242c968d11b065",
@@ -4015,7 +4015,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.british-indian-ocean-territory.current",
           "promptFingerprint": "17c979124915b1eacba308b7ceaf947850d9b510c2738c953bf22c877bc05814",
@@ -4034,7 +4034,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.british-virgin-islands.current",
           "promptFingerprint": "8db5cdd8c60d367fd9a9ca65dd59fbe03f5ce33f7360c108c65ef351723830b8",
@@ -4053,7 +4053,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cayman-islands.current",
           "promptFingerprint": "f787bbd3945f2abb256fa41c6bec43d41e1a02d859e321b194f43bf1630d09b4",
@@ -4072,7 +4072,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.china-hong-kong-special-administrative-region.current",
           "promptFingerprint": "3896764b3392c1dfb7cf4400ac91c0230577f3e4cc0022b05b17a5e271066cc7",
@@ -4091,7 +4091,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.china-macao-special-administrative-region.current",
           "promptFingerprint": "d70f129089a1e188ecbfeaeb4ad59da072de2d070c491e1d9684ed1e2ba326b9",
@@ -4110,7 +4110,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.christmas-island.current",
           "promptFingerprint": "7f2b226d4485dfe7401304d64eb6c416d52ec44f3054d59cf3cd15ba0b6bc46d",
@@ -4129,7 +4129,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.cocos-keeling-islands.current",
           "promptFingerprint": "287058f7df67e93a2c5fb060cd808fd2b3c548969edc9fe49bf4662fca5c6e80",
@@ -4148,7 +4148,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.curacao.current",
           "promptFingerprint": "b9188c0198ad64ff71d3a99112e2ceac7f3206c2fdfed0d92214019193783f32",
@@ -4167,7 +4167,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.falkland-islands-malvinas.current",
           "promptFingerprint": "0ed7f604f8c3f5e97e78d16211d209f70ece098a1359f81c49bf2dc58ea51fac",
@@ -4186,7 +4186,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.faroe-islands.current",
           "promptFingerprint": "fd92c01fd7ea0776090b0944cced0d0a1e12e4ad7b1a0b54a94c3153b2e69e7c",
@@ -4205,7 +4205,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.french-guiana.current",
           "promptFingerprint": "1707491a6ef4e856ab3aae6c7ac0b76476086987272edbc41c70629de9ae2f6f",
@@ -4224,7 +4224,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.french-polynesia.current",
           "promptFingerprint": "8790828a4d06de23834ed5ef06993d6e0bc3b6d8276016962b4d586cf4fe2003",
@@ -4243,7 +4243,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.gibraltar.current",
           "promptFingerprint": "36a4033d4474ab90461fe8f23a3a1cd1ef3813470ff24d2561d781656c79e5aa",
@@ -4262,7 +4262,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.greenland.current",
           "promptFingerprint": "b785e68cebae9d6138dbf48396842704b230e56535eea369b6f1adc5ba540e0c",
@@ -4281,7 +4281,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.guadeloupe.current",
           "promptFingerprint": "e085018ca5fda67259707e8bd30568d15c63c6bf0fb295fbc7f1c464d5e833d6",
@@ -4300,7 +4300,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.guam.current",
           "promptFingerprint": "2641235b50d305f17c17aff28bf356b67b6ae02260dbf231a3c129991b93ec7e",
@@ -4319,7 +4319,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.guernsey.current",
           "promptFingerprint": "35534f656eb341169e05268f70cf91bf27791f7e6920617ef84a9bd7123f07f2",
@@ -4338,7 +4338,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.isle-of-man.current",
           "promptFingerprint": "1b99631b6d11a1397380411790c573a9997a9c548a0b273d0a7074b4521db6e5",
@@ -4357,7 +4357,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.jersey.current",
           "promptFingerprint": "a2e246c2d3b96d649a1079e0531aa836b8b79965cdf4c5f39f94628e4c8f626d",
@@ -4376,7 +4376,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.martinique.current",
           "promptFingerprint": "09562f43d6dbb7c1b93a4687ab51779c6f5ca899ee423b6df9e4f82263b5e2a9",
@@ -4395,7 +4395,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.mayotte.current",
           "promptFingerprint": "c2079aaec4529c27fd5eed888f69648fe91a75340125ef3bac36718cbc00b08b",
@@ -4414,7 +4414,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.montserrat.current",
           "promptFingerprint": "ce0164aa9fe60ae9bc72ba03f69e6b56b52b960ca9d90ec8b81583fb38f6405e",
@@ -4433,7 +4433,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.new-caledonia.current",
           "promptFingerprint": "0a330221b2736ab96b708b3fec59a33cb84d154a4812736afd385ee60596d038",
@@ -4452,7 +4452,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.norfolk-island.current",
           "promptFingerprint": "ff09531d14eb8f9015e0fe758fc635377119fd87ac795e025d09ff7593551eb7",
@@ -4471,7 +4471,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.northern-mariana-islands.current",
           "promptFingerprint": "605ae62ba97cd50fde07ac022927bfd3b3f9bc21668bda77e4716b1294bd9c0a",
@@ -4490,7 +4490,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.pitcairn.current",
           "promptFingerprint": "c8ef05b77a3631ca111b71a92ff217d01de97f7445ff9805c9eaa395e51ef84d",
@@ -4509,7 +4509,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.puerto-rico.current",
           "promptFingerprint": "82b29e56cc8a5ba2becf6c16e47503f4413e28840ccd78fa50959a2ce7b7a0fb",
@@ -4528,7 +4528,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.reunion.current",
           "promptFingerprint": "12924194913fd03ee0d353c53d28b04db5c2d0648c242609d7585ab4fdc1f9c1",
@@ -4547,7 +4547,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.saint-barthelemy.current",
           "promptFingerprint": "2818e8bbe0d6c2445ad6308d688ddb0229fc72f00a9b51cff352ad2b083d02e3",
@@ -4566,7 +4566,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.saint-helena.current",
           "promptFingerprint": "ca1fb90b50b286e12f38d8005531df04f15b4f496c6bd91f00b4a4ef35f16709",
@@ -4585,7 +4585,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.saint-martin-french-part.current",
           "promptFingerprint": "bd3883ef2cdd416e0075027441a0e81c18126435e0d4499b16d1864e1a3d1be7",
@@ -4604,7 +4604,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.saint-pierre-and-miquelon.current",
           "promptFingerprint": "dd4cfb53cc32d503e8684c44255efd8cc4299b5eb041a8e7f60f8308c5f6292c",
@@ -4623,7 +4623,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.sint-maarten-dutch-part.current",
           "promptFingerprint": "68cc306cd795abe1b180140633d046d254a16cf4036bcdff68940078f1191630",
@@ -4642,7 +4642,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.south-georgia-and-the-south-sandwich-islands.current",
           "promptFingerprint": "8a01e53675f2aefe7726c7091a99e4002b189bc9e706261c734066432ccaf69c",
@@ -4661,7 +4661,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.svalbard-and-jan-mayen-islands.current",
           "promptFingerprint": "aa819130f931f318ee2320af137db201504017e1b67551acffa7ae68611ec4fa",
@@ -4680,7 +4680,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.tokelau.current",
           "promptFingerprint": "5b3e9381e121640e63cc0353b24acd3ff3b496a9d83c965576ed81bf2362f79a",
@@ -4699,7 +4699,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.turks-and-caicos-islands.current",
           "promptFingerprint": "30d414e145fbca62a9ec18799fac0cb4339cd8eb8e10f0766ba72644dd09c329",
@@ -4718,7 +4718,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.united-states-virgin-islands.current",
           "promptFingerprint": "da02ac8227788404736950205e765039ac8026ea4dc8d66f5dcf9b46b3cc0120",
@@ -4737,7 +4737,7 @@
       "revisions": [
         {
           "changeClassification": "technical",
-          "effectiveFrom": "2026-08-20T00:00:00.000Z",
+          "effectiveFrom": "2026-08-23T00:00:00.000Z",
           "progressPolicy": "preserve",
           "promptAssetKey": "flag.wallis-and-futuna-islands.current",
           "promptFingerprint": "25776f9494fac566faa31f39d85ef7df8516a63a665339beb1d4933e2327824e",
