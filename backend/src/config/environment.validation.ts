@@ -37,6 +37,11 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   APPLE_CLIENT_IDS: string[];
   GOOGLE_CLIENT_IDS: string[];
   CORS_ALLOWED_ORIGINS: string[];
+  ADMIN_GOOGLE_CLIENT_IDS: string[];
+  ADMIN_EMAIL_ALLOWLIST: string[];
+  ADMIN_ALLOWED_ORIGINS: string[];
+  ADMIN_SESSION_IDLE_TTL_SECONDS: number;
+  ADMIN_SESSION_ABSOLUTE_TTL_SECONDS: number;
   SHUTDOWN_DRAIN_MS: number;
 }
 
@@ -343,6 +348,26 @@ export function validateEnvironment(
     nodeEnvironment === "production" ? [] : ["http://localhost:5173"],
     "CORS_ALLOWED_ORIGINS",
   );
+
+  // The admin console is a separate Google OAuth client; falling back to the
+  // consumer client ids keeps local and test setups to one configuration.
+  const adminGoogleClientIds = commaSeparated(
+    config.ADMIN_GOOGLE_CLIENT_IDS,
+    googleClientIds,
+    "ADMIN_GOOGLE_CLIENT_IDS",
+  );
+  // Empty by default: nobody can bootstrap admin access until the deployment
+  // provides the allowlist (from Secret Manager in hosted environments).
+  const adminEmailAllowlist = commaSeparated(
+    config.ADMIN_EMAIL_ALLOWLIST,
+    [],
+    "ADMIN_EMAIL_ALLOWLIST",
+  );
+  const adminAllowedOrigins = commaSeparated(
+    config.ADMIN_ALLOWED_ORIGINS,
+    nodeEnvironment === "production" ? [] : ["http://localhost:5173"],
+    "ADMIN_ALLOWED_ORIGINS",
+  );
   if (corsAllowedOrigins.includes("*")) {
     throw new Error(
       "Environment variable CORS_ALLOWED_ORIGINS must not contain a wildcard",
@@ -466,6 +491,23 @@ export function validateEnvironment(
     APPLE_CLIENT_IDS: appleClientIds,
     GOOGLE_CLIENT_IDS: googleClientIds,
     CORS_ALLOWED_ORIGINS: corsAllowedOrigins,
+    ADMIN_GOOGLE_CLIENT_IDS: adminGoogleClientIds,
+    ADMIN_EMAIL_ALLOWLIST: adminEmailAllowlist,
+    ADMIN_ALLOWED_ORIGINS: adminAllowedOrigins,
+    ADMIN_SESSION_IDLE_TTL_SECONDS: parseInteger(
+      config.ADMIN_SESSION_IDLE_TTL_SECONDS,
+      3_600,
+      "ADMIN_SESSION_IDLE_TTL_SECONDS",
+      300,
+      86_400,
+    ),
+    ADMIN_SESSION_ABSOLUTE_TTL_SECONDS: parseInteger(
+      config.ADMIN_SESSION_ABSOLUTE_TTL_SECONDS,
+      43_200,
+      "ADMIN_SESSION_ABSOLUTE_TTL_SECONDS",
+      3_600,
+      604_800,
+    ),
     SHUTDOWN_DRAIN_MS: parseInteger(
       config.SHUTDOWN_DRAIN_MS,
       5_000,

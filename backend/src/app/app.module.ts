@@ -11,6 +11,7 @@ import { TelemetryModule } from "../common/telemetry/telemetry.module";
 import { validateEnvironment } from "../config/environment.validation";
 import { DatabaseModule } from "../infrastructure/database/database.module";
 import { AuthModule } from "../modules/auth/auth.module";
+import { AdminAuthModule } from "../modules/admin-auth/admin-auth.module";
 import { AccountLifecycleModule } from "../modules/account-lifecycle/account-lifecycle.module";
 import { AdvertisingPolicyModule } from "../modules/advertising/advertising-policy.module";
 import { AnalyticsModule } from "../modules/analytics/analytics.module";
@@ -39,6 +40,7 @@ import { UsersModule } from "../modules/users/users.module";
     RateLimiterModule,
     DatabaseModule,
     AuthModule,
+    AdminAuthModule,
     AccountLifecycleModule,
     AnalyticsModule,
     FeatureFlagsModule,

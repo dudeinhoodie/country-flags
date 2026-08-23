@@ -89,12 +89,17 @@ export class ProviderIdentityVerifier {
     return this.toIdentity("APPLE", payload);
   }
 
-  async verifyGoogle(idToken: string): Promise<VerifiedProviderIdentity> {
+  async verifyGoogle(
+    idToken: string,
+    // The admin console signs in with its own OAuth client; everything else
+    // about Google token verification is shared.
+    audience?: string[],
+  ): Promise<VerifiedProviderIdentity> {
     const payload = await this.verify(
       "GOOGLE",
       idToken,
       [...GOOGLE_ISSUERS],
-      this.config.getOrThrow<string[]>("GOOGLE_CLIENT_IDS"),
+      audience ?? this.config.getOrThrow<string[]>("GOOGLE_CLIENT_IDS"),
     );
     return this.toIdentity("GOOGLE", payload);
   }
