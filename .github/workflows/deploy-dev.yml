@@ -152,7 +152,7 @@ jobs:
             --region "${REGION}" \
             --image "${{ steps.image.outputs.reference }}" \
             --service-account "api-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
-            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS}" \
+            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_EMAIL_ALLOWLIST=${ADMIN_EMAIL_ALLOWLIST};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS}" \
             --set-secrets "DATABASE_URL=dev-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,AUTH_ACCESS_TOKEN_SECRET=dev-auth-access-token-secret:latest,AUTH_RATE_LIMIT_SECRET=dev-auth-rate-limit-secret:latest,ACCOUNT_DATA_HASH_SECRET=dev-account-data-hash-secret:latest" \
             --quiet
         env:
@@ -165,6 +165,17 @@ jobs:
           # The backend's own OAuth client: the audience Google mints the
           # app's identity tokens for. A public identifier, not a secret.
           GOOGLE_CLIENT_IDS: 337239833704-r2eed1a28ggnmri1md2hqp2hgm11236h.apps.googleusercontent.com
+          # Who may bootstrap admin-console access in dev. The product spec
+          # wants this in Secret Manager for prod; the dev list is one known
+          # address and the next deploy deliberately overwrites console edits.
+          ADMIN_EMAIL_ALLOWLIST: slmyskov@gmail.com
+          # Where the deployed admin console is served from. Until the
+          # admin-dev service exists (ADM-012), the console runs locally via
+          # `yarn admin:dev`, which proxies /api to this backend.
+          ADMIN_ALLOWED_ORIGINS: http://localhost:5173
+          # ADMIN_GOOGLE_CLIENT_IDS is not set: it falls back to
+          # GOOGLE_CLIENT_IDS. Add it here if the console gets its own
+          # OAuth client instead of reusing the backend's.
 
       # Deployed is not the same as working. The revision has to answer before
       # the run is called a success, or a broken image would be reported green.
