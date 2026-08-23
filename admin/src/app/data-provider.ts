@@ -69,6 +69,16 @@ export function createAdminDataProvider(client: AdminApiClient): DataProvider {
         }
         return { data: data.items, total: data.total };
       }
+      if (resource === "drafts") {
+        const { data, response, error } = await client.GET(
+          "/v1/admin/content/drafts",
+          { params: { query: pagination } },
+        );
+        if (data === undefined) {
+          throw toHttpError(response.status, error);
+        }
+        return { data: data.items, total: data.total };
+      }
       throw unsupported(resource, "getList");
     },
     async getOne(resource: string, params: { id: string | number }) {
@@ -97,6 +107,16 @@ export function createAdminDataProvider(client: AdminApiClient): DataProvider {
         const { data, response, error } = await client.GET(
           "/v1/admin/content/decks/{deckId}",
           { params: { path: { deckId: id } } },
+        );
+        if (data === undefined) {
+          throw toHttpError(response.status, error);
+        }
+        return { data };
+      }
+      if (resource === "drafts") {
+        const { data, response, error } = await client.GET(
+          "/v1/admin/content/drafts/{draftId}",
+          { params: { path: { draftId: id } } },
         );
         if (data === undefined) {
           throw toHttpError(response.status, error);
@@ -134,8 +154,20 @@ export function createAdminDataProvider(client: AdminApiClient): DataProvider {
     getManyReference(resource: string) {
       return Promise.reject(unsupported(resource, "getManyReference"));
     },
-    create(resource: string) {
-      return Promise.reject(unsupported(resource, "create"));
+    async create(resource: string) {
+      if (resource !== "drafts") {
+        throw unsupported(resource, "create");
+      }
+      // A draft is imported from the catalog rather than composed by the
+      // client, so creation carries no body.
+      const { data, response, error } = await client.POST(
+        "/v1/admin/content/drafts",
+        {},
+      );
+      if (data === undefined) {
+        throw toHttpError(response.status, error);
+      }
+      return { data };
     },
     updateMany(resource: string) {
       return Promise.reject(unsupported(resource, "updateMany"));

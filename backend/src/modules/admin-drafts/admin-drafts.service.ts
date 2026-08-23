@@ -103,11 +103,41 @@ export class AdminDraftsService {
     requestId: string,
   ): Promise<ContentDraft> {
     const document = this.documents.assertValid(documentInput);
+    return this.applyDocumentChange(
+      actor,
+      draftId,
+      expectedRevision,
+      () => document,
+      {
+        action: "admin.draft.document_updated",
+        metadata: {
+          fromRevision: expectedRevision,
+          toRevision: expectedRevision + 1,
+        },
+      },
+      requestId,
+    );
+  }
 
+  /**
+   * The one write path for a draft document: read under the expected
+   * revision, let the caller derive the next document, then update with the
+   * revision in the WHERE clause so two racing writers cannot both win.
+   * Every editorial mutation (documents, decks, later assets) goes through
+   * here, which is what keeps optimistic concurrency in one place.
+   */
+  async applyDocumentChange(
+    actor: AdminUser,
+    draftId: string,
+    expectedRevision: number,
+    mutate: (current: Record<string, unknown>) => Record<string, unknown>,
+    audit: { action: string; metadata: Prisma.InputJsonObject },
+    requestId: string,
+  ): Promise<ContentDraft> {
     return this.database.$transaction(async (transaction) => {
       const draft = await transaction.contentDraft.findUnique({
         where: { id: draftId },
-        select: { id: true, revision: true, status: true },
+        select: { id: true, revision: true, status: true, document: true },
       });
       if (draft === null) {
         draftNotFound();
@@ -128,13 +158,14 @@ export class AdminDraftsService {
         );
       }
 
-      // The revision is part of the WHERE clause, so two concurrent writers
-      // cannot both succeed even if they raced past the read above.
+      const next = this.documents.assertValid(
+        mutate(draft.document as Record<string, unknown>),
+      );
       const updated = await transaction.contentDraft.updateMany({
         where: { id: draftId, revision: expectedRevision },
         data: {
-          document: document as Prisma.InputJsonValue,
-          schemaVersion: document.schemaVersion,
+          document: next as Prisma.InputJsonValue,
+          schemaVersion: next.schemaVersion,
           revision: expectedRevision + 1,
           status: ContentDraftStatus.DRAFT,
           validationReport: Prisma.DbNull,
@@ -150,14 +181,11 @@ export class AdminDraftsService {
       }
       await this.audit.record(transaction, {
         actorAdminUserId: actor.id,
-        action: "admin.draft.document_updated",
+        action: audit.action,
         targetType: "content_draft",
         targetId: draftId,
         requestId,
-        metadata: {
-          fromRevision: expectedRevision,
-          toRevision: expectedRevision + 1,
-        },
+        metadata: audit.metadata,
       });
       const result = await transaction.contentDraft.findUnique({
         where: { id: draftId },

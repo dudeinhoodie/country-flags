@@ -143,10 +143,27 @@ describe("createAdminDataProvider", () => {
     expect(request.url).toContain("limit=10");
   });
 
+  it("maps the drafts resource onto the drafts API", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementation(() =>
+        Promise.resolve(jsonResponse({ items: [], total: 0 })),
+      );
+    const provider = buildProvider(fetchMock);
+    await provider.getList("drafts", listParams);
+    const listRequest = fetchMock.mock.calls[0]?.[0] as Request;
+    expect(listRequest.url).toContain("/v1/admin/content/drafts");
+
+    await provider.create("drafts", { data: {} });
+    const createRequest = fetchMock.mock.calls[1]?.[0] as Request;
+    expect(createRequest.method).toBe("POST");
+    expect(createRequest.url).toContain("/v1/admin/content/drafts");
+  });
+
   it("fails loudly for resources without endpoints", async () => {
     const provider = buildProvider(vi.fn());
-    await expect(provider.getList("drafts", listParams)).rejects.toThrow(
-      'Resource "drafts" does not support getList',
+    await expect(provider.getList("assets", listParams)).rejects.toThrow(
+      'Resource "assets" does not support getList',
     );
   });
 });
