@@ -26,6 +26,7 @@ import { TestProviderTokenSigner } from "./testing/test-provider-token-signer";
     AccessTokenService,
     AuthGuard,
     OptionalAuthGuard,
+    ProviderIdentityVerifier,
     ReauthenticationTokenService,
     TestJwtSigner,
     TestProviderTokenSigner,
