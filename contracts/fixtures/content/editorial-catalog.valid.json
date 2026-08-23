@@ -1,0 +1,92 @@
+{
+  "additionalRelations": [
+    {
+      "childKey": "country.kosovo",
+      "parentKey": "region.europe",
+      "primary": true,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
+    }
+  ],
+  "decks": [
+    {
+      "key": "deck.all",
+      "kind": "curated",
+      "members": "all-current",
+      "names": {
+        "en": {
+          "description": "Every flag, with no regions to lean on.",
+          "name": "All countries"
+        },
+        "ru": {
+          "description": "Все флаги подряд, без разбивки по регионам.",
+          "name": "Все страны"
+        }
+      }
+    },
+    {
+      "key": "deck.europe",
+      "kind": "taxonomy",
+      "members": {
+        "taxonomy": "region.europe"
+      },
+      "names": {
+        "en": {
+          "description": "European flags.",
+          "name": "Europe"
+        },
+        "ru": {
+          "description": "Флаги Европы.",
+          "name": "Европа"
+        }
+      }
+    },
+    {
+      "key": "deck.editorial-picks",
+      "kind": "curated",
+      "members": ["country.france", "country.japan"],
+      "names": {
+        "en": {
+          "description": "A hand-picked pair.",
+          "name": "Picks"
+        }
+      }
+    }
+  ],
+  "defaultLocale": "ru",
+  "entities": [
+    {
+      "identifiers": {
+        "isoAlpha2": "FR",
+        "isoAlpha3": "FRA"
+      },
+      "includeInCountryCatalog": true,
+      "key": "country.france",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "includeInCountryCatalog": true,
+      "key": "country.japan",
+      "overrides": {
+        "names.ru.short": "Япония"
+      },
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "includeInCountryCatalog": false,
+      "key": "region.europe",
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "region"
+    }
+  ],
+  "schemaVersion": 1,
+  "sourceAliases": {
+    "flagcdn": "flag-icons"
+  },
+  "supportedLocales": ["ru", "en"]
+}

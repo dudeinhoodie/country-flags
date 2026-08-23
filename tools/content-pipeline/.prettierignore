@@ -1,0 +1,5 @@
+# catalog.json is kept in the canonical stable-json form (code-unit-sorted
+# keys, two-space indent): the admin console's draft export must reproduce
+# it byte for byte, and prettier's array collapsing would break that
+# identity. See backend/src/modules/admin-drafts/stable-json.ts.
+editorial/catalog.json

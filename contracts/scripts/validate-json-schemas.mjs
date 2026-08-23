@@ -36,6 +36,16 @@ const validationTargets = [
     schema: "schemas/security/guest-import.v1.schema.json",
     data: ["fixtures/security/guest-import.valid.json"],
   },
+  {
+    schema: "schemas/content/editorial-catalog.v1.schema.json",
+    // The real editorial catalog is validated alongside the fixture: the
+    // admin console saves drafts against this schema, so the schema must
+    // keep describing the document the pipeline actually maintains.
+    data: [
+      "fixtures/content/editorial-catalog.valid.json",
+      "../tools/content-pipeline/editorial/catalog.json",
+    ],
+  },
 ];
 
 async function listJsonFiles(directory) {

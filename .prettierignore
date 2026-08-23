@@ -3,3 +3,7 @@
 # bytes without updating the recorded checksum, which breaks validation.
 content/generated/
 tools/content-pipeline/sources/snapshots/
+
+# Kept in canonical stable-json form so the admin console's draft export
+# reproduces it byte for byte; prettier would collapse short arrays.
+tools/content-pipeline/editorial/catalog.json

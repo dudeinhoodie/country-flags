@@ -1243,16 +1243,18 @@ enum AdminUserStatus {
 }
 
 model AdminUser {
-  id          String            @id @default(uuid()) @db.Uuid
-  email       String            @unique
-  displayName String            @map("display_name")
-  role        AdminRole         @default(VIEWER)
-  status      AdminUserStatus   @default(ACTIVE)
-  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  identities  AdminIdentity[]
-  sessions    AdminSession[]
-  auditEvents AdminAuditEvent[]
+  id            String            @id @default(uuid()) @db.Uuid
+  email         String            @unique
+  displayName   String            @map("display_name")
+  role          AdminRole         @default(VIEWER)
+  status        AdminUserStatus   @default(ACTIVE)
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  identities    AdminIdentity[]
+  sessions      AdminSession[]
+  auditEvents   AdminAuditEvent[]
+  createdDrafts ContentDraft[]    @relation("ContentDraftCreatedBy")
+  updatedDrafts ContentDraft[]    @relation("ContentDraftUpdatedBy")
 
   @@map("admin_users")
 }
@@ -1308,4 +1310,75 @@ model AdminAuditEvent {
   @@index([targetType, targetId, occurredAt])
   @@index([actorAdminUserId, occurredAt])
   @@map("admin_audit_events")
+}
+
+// Editorial drafts (ADR-014 §6). The catalog's editorial layer is edited as
+// a versioned JSONB document validated by the editorial-catalog JSON Schema;
+// published tables are never written by the console — a draft leaves the
+// database only as a deterministic export headed for a pull request.
+
+enum ContentDraftStatus {
+  DRAFT
+  VALIDATING
+  READY
+  PROPOSED
+  MERGED
+  FAILED
+}
+
+enum DraftAssetValidationStatus {
+  PENDING
+  VALID
+  INVALID
+}
+
+model ContentDraft {
+  id                   String             @id @default(uuid()) @db.Uuid
+  baseContentVersion   String             @map("base_content_version")
+  baseCatalogCommit    String             @map("base_catalog_commit")
+  schemaVersion        Int                @map("schema_version")
+  revision             Int                @default(1)
+  status               ContentDraftStatus @default(DRAFT)
+  document             Json               @db.JsonB
+  validationReport     Json?              @map("validation_report") @db.JsonB
+  proposalUrl          String?            @map("proposal_url")
+  createdByAdminUserId String             @map("created_by_admin_user_id") @db.Uuid
+  updatedByAdminUserId String             @map("updated_by_admin_user_id") @db.Uuid
+  createdAt            DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy            AdminUser          @relation("ContentDraftCreatedBy", fields: [createdByAdminUserId], references: [id], onDelete: Restrict)
+  updatedBy            AdminUser          @relation("ContentDraftUpdatedBy", fields: [updatedByAdminUserId], references: [id], onDelete: Restrict)
+  assets               DraftAsset[]
+
+  @@index([status, updatedAt])
+  @@map("content_drafts")
+}
+
+model DraftAsset {
+  id                  String                     @id @default(uuid()) @db.Uuid
+  draftId             String                     @map("draft_id") @db.Uuid
+  entityContentKey    String                     @map("entity_content_key")
+  assetType           AssetType                  @map("asset_type")
+  variant             String
+  objectKey           String                     @unique @map("object_key")
+  mimeType            String                     @map("mime_type")
+  sha256              String                     @db.Char(64)
+  width               Int?
+  height              Int?
+  aspectRatio         Decimal?                   @map("aspect_ratio") @db.Decimal(12, 6)
+  sourceUrl           String?                    @map("source_url")
+  licenseName         String?                    @map("license_name")
+  licenseUrl          String?                    @map("license_url")
+  attribution         String?
+  replacementReason   String?                    @map("replacement_reason")
+  supersedesSourceKey String?                    @map("supersedes_source_key")
+  validationStatus    DraftAssetValidationStatus @default(PENDING) @map("validation_status")
+  validationErrors    Json?                      @map("validation_errors") @db.JsonB
+  createdAt           DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  draft               ContentDraft               @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@unique([draftId, entityContentKey, assetType, variant])
+  @@index([draftId])
+  @@map("draft_assets")
 }

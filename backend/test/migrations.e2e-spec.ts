@@ -17,6 +17,8 @@ const REQUIRED_TABLES = [
   "admin_sessions",
   "admin_users",
   "analytics_outbox",
+  "content_drafts",
+  "draft_assets",
   "audit_events",
   "auth_rate_limit_buckets",
   "auth_identities",
