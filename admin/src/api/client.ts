@@ -7,8 +7,13 @@ import type { paths } from "./generated/admin-api";
  * session cookie travels automatically.
  */
 export function createAdminApiClient(apiBasePath: string) {
+  // A relative base path ("/api") must become absolute: the fetch Request
+  // constructor outside a document context rejects relative URLs.
+  const baseUrl = new URL(apiBasePath, window.location.origin)
+    .toString()
+    .replace(/\/+$/, "");
   return createClient<paths>({
-    baseUrl: apiBasePath,
+    baseUrl,
     credentials: "include",
   });
 }

@@ -12,6 +12,7 @@ interface CountRow {
 }
 
 const REQUIRED_TABLES = [
+  "admin_audit_events",
   "admin_identities",
   "admin_sessions",
   "admin_users",

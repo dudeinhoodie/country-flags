@@ -22,6 +22,10 @@ tags:
     description: >-
       Admin identity and session lifecycle, separate from consumer
       authentication.
+  - name: AdminAccess
+    description: >-
+      Admin roster and role management. Every operation requires the ADMIN
+      role; hiding a button in the UI is not access control.
 paths:
   /v1/admin/auth/google:
     post:
@@ -79,6 +83,116 @@ paths:
             application/json:
               schema:
                 $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/users:
+    get:
+      tags: [AdminAccess]
+      summary: List admin users
+      operationId: adminListUsers
+      x-implementation-status: implemented
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1000000
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 25
+      responses:
+        "200":
+          description: One page of the admin roster, ordered by email.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserList"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller does not hold the ADMIN role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/users/{adminUserId}:
+    parameters:
+      - name: adminUserId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    get:
+      tags: [AdminAccess]
+      summary: Get one admin user
+      operationId: adminGetUser
+      x-implementation-status: implemented
+      responses:
+        "200":
+          description: The admin user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller does not hold the ADMIN role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    patch:
+      tags: [AdminAccess]
+      summary: Change an admin user's role or status
+      operationId: adminUpdateUser
+      x-implementation-status: implemented
+      description: >-
+        Any effective change revokes every active session of the target, so
+        new privileges never ride on old sessions. An administrator cannot
+        change their own role or status — the contour must not be able to
+        lock itself out.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUserUpdateRequest"
+      responses:
+        "200":
+          description: The updated admin user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller does not hold the ADMIN role, targets themselves, or
+            the request origin is not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/me:
@@ -157,5 +271,25 @@ components:
           $ref: "#/components/schemas/AdminUserStatus"
         createdAt:
           $ref: ./openapi/components.yaml#/schemas/DateTime
+    AdminUserList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUser"
+        total:
+          type: integer
+          minimum: 0
+    AdminUserUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        role:
+          $ref: "#/components/schemas/AdminRole"
+        status:
+          $ref: "#/components/schemas/AdminUserStatus"
 security:
   - AdminSessionCookie: []
