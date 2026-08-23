@@ -164,6 +164,54 @@ export interface paths {
         patch: operations["adminUpdateDraft"];
         trace?: never;
     };
+    "/v1/admin/content/drafts/{draftId}/decks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /**
+         * List the decks a draft holds
+         * @description Each deck reports its membership mode and the number of entities it resolves to, following the same rules the release build follows.
+         */
+        get: operations["adminListDraftDecks"];
+        put?: never;
+        /** Add a deck to a draft */
+        post: operations["adminCreateDraftDeck"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/drafts/{draftId}/decks/{deckKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                deckKey: string;
+            };
+            cookie?: never;
+        };
+        /** Get one draft deck with its resolved members */
+        get: operations["adminGetDraftDeck"];
+        put?: never;
+        post?: never;
+        /** Remove a deck from a draft */
+        delete: operations["adminDeleteDraftDeck"];
+        options?: never;
+        head?: never;
+        /**
+         * Change a draft deck
+         * @description Only the fields present in the request are replaced, so renaming a deck cannot silently rewrite an `all-current` membership into a list.
+         */
+        patch: operations["adminUpdateDraftDeck"];
+        trace?: never;
+    };
     "/v1/admin/content/drafts/{draftId}/export": {
         parameters: {
             query?: never;
@@ -307,6 +355,57 @@ export interface components {
             /** @description Full replacement of the editorial document; must conform to the editorial-catalog JSON Schema or the request is refused. */
             document: Record<string, never>;
         };
+        AdminDraftStamp: {
+            draftId: components["schemas"]["Uuid"];
+            revision: number;
+            status: components["schemas"]["AdminDraftStatus"];
+            updatedAt: components["schemas"]["DateTime"];
+        };
+        AdminDeckLocalizedText: {
+            name: string;
+            description: string;
+        };
+        /** @description The three shapes the editorial model supports: the whole approved catalog, an explicit list of entity keys, or a taxonomy node whose descendants form the deck. */
+        AdminDeckMembers: "all-current" | string[] | {
+            taxonomy: string;
+        };
+        AdminDraftDeck: {
+            key: string;
+            /** @enum {string} */
+            kind: "curated" | "taxonomy";
+            names: {
+                [key: string]: components["schemas"]["AdminDeckLocalizedText"];
+            };
+            /** @enum {string} */
+            membersMode: "all-current" | "explicit" | "taxonomy";
+            members: components["schemas"]["AdminDeckMembers"];
+            memberCount: number;
+        };
+        AdminDraftDeckList: {
+            items: components["schemas"]["AdminDraftDeck"][];
+            total: number;
+        };
+        AdminDraftDeckDetail: components["schemas"]["AdminDraftDeck"] & {
+            /** @description The entity keys the deck resolves to right now, sorted the way the release build sorts them. */
+            memberKeys: string[];
+        };
+        AdminDraftDeckCreateRequest: {
+            key: string;
+            /** @enum {string} */
+            kind: "curated" | "taxonomy";
+            names: {
+                [key: string]: components["schemas"]["AdminDeckLocalizedText"];
+            };
+            members: components["schemas"]["AdminDeckMembers"];
+        };
+        AdminDraftDeckUpdateRequest: {
+            /** @enum {string} */
+            kind?: "curated" | "taxonomy";
+            names?: {
+                [key: string]: components["schemas"]["AdminDeckLocalizedText"];
+            };
+            members?: components["schemas"]["AdminDeckMembers"];
+        };
         AdminContentStatus: {
             activeVersion: string | null;
             schemaVersion: number | null;
@@ -416,6 +515,15 @@ export interface components {
         DateTime: string;
     };
     responses: {
+        /** @description The If-Match header with the draft revision is missing. */
+        DraftIfMatchRequired: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorEnvelope"];
+            };
+        };
         /** @description Request failed with a typed error. */
         ErrorResponse: {
             headers: {
@@ -519,6 +627,8 @@ export interface components {
     };
     parameters: {
         AdminOffset: number;
+        /** @description The draft revision the editor read, for optimistic concurrency. */
+        DraftIfMatch: string;
         AdminLimit: number;
     };
     requestBodies: never;
@@ -856,6 +966,194 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListDraftDecks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The draft's decks in document order. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftDeckList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminCreateDraftDeck: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The draft revision the editor read, for optimistic concurrency. */
+                "If-Match": components["parameters"]["DraftIfMatch"];
+            };
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminDraftDeckCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description The deck was added; the draft's revision moved on. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftStamp"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            409: components["responses"]["ConflictResponse"];
+            422: components["responses"]["ValidationResponse"];
+            428: components["responses"]["DraftIfMatchRequired"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetDraftDeck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                deckKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The deck and the entity keys it currently resolves to. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftDeckDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminDeleteDraftDeck: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The draft revision the editor read, for optimistic concurrency. */
+                "If-Match": components["parameters"]["DraftIfMatch"];
+            };
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                deckKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The deck was removed; the draft's revision moved on. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftStamp"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            /** @description The draft moved on, or this is the catalog's last deck. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            428: components["responses"]["DraftIfMatchRequired"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUpdateDraftDeck: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The draft revision the editor read, for optimistic concurrency. */
+                "If-Match": components["parameters"]["DraftIfMatch"];
+            };
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                deckKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminDraftDeckUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description The deck was changed; the draft's revision moved on. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftStamp"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            409: components["responses"]["ConflictResponse"];
+            422: components["responses"]["ValidationResponse"];
+            428: components["responses"]["DraftIfMatchRequired"];
             default: components["responses"]["ErrorResponse"];
         };
     };

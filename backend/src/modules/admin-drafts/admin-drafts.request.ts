@@ -4,6 +4,7 @@ import { ApiException } from "../../common/http/api.exception";
 import {
   exactRequestKeys,
   requestRecord,
+  requiredString,
   validationError,
 } from "../../common/http/request-validation";
 
@@ -42,4 +43,103 @@ export function parseIfMatchRevision(header: string | undefined): number {
     validationError("If-Match", "must be a draft revision number");
   }
   return Number(raw);
+}
+
+const DECK_KEY_PATTERN = /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
+const DECK_KINDS = ["curated", "taxonomy"] as const;
+
+export interface DeckLocalizationInput {
+  name: string;
+  description: string;
+}
+
+export interface DeckInput {
+  key: string;
+  kind: (typeof DECK_KINDS)[number];
+  names: Record<string, DeckLocalizationInput>;
+  members: "all-current" | string[] | { taxonomy: string };
+}
+
+function parseDeckNames(
+  value: unknown,
+  field: string,
+): Record<string, DeckLocalizationInput> {
+  const record = requestRecord(value, field);
+  const names: Record<string, DeckLocalizationInput> = {};
+  for (const [locale, localized] of Object.entries(record)) {
+    if (!/^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/.test(locale)) {
+      validationError(`${field}.${locale}`, "is not a valid locale");
+    }
+    const entry = requestRecord(localized, `${field}.${locale}`);
+    exactRequestKeys(entry, ["name", "description"], `${field}.${locale}`);
+    names[locale] = {
+      name: requiredString(entry.name, `${field}.${locale}.name`, 1, 200),
+      description: requiredString(
+        entry.description,
+        `${field}.${locale}.description`,
+        1,
+        2000,
+      ),
+    };
+  }
+  if (Object.keys(names).length === 0) {
+    validationError(field, "must contain at least one locale");
+  }
+  return names;
+}
+
+function parseDeckMembers(value: unknown, field: string): DeckInput["members"] {
+  if (value === "all-current") {
+    return "all-current";
+  }
+  if (Array.isArray(value)) {
+    return value.map((entry, index) =>
+      requiredString(entry, `${field}[${String(index)}]`, 1, 200),
+    );
+  }
+  const record = requestRecord(value, field);
+  exactRequestKeys(record, ["taxonomy"], field);
+  return {
+    taxonomy: requiredString(record.taxonomy, `${field}.taxonomy`, 1, 200),
+  };
+}
+
+export function parseDeckCreateRequest(body: unknown): DeckInput {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(root, ["key", "kind", "names", "members"], "body");
+  const kind = root.kind;
+  if (typeof kind !== "string" || !DECK_KINDS.includes(kind as never)) {
+    validationError("kind", `must be one of: ${DECK_KINDS.join(", ")}`);
+  }
+  return {
+    key: requiredString(root.key, "key", 1, 200, DECK_KEY_PATTERN),
+    kind: kind as DeckInput["kind"],
+    names: parseDeckNames(root.names, "names"),
+    members: parseDeckMembers(root.members, "members"),
+  };
+}
+
+export function parseDeckUpdateRequest(
+  body: unknown,
+): Partial<Omit<DeckInput, "key">> {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(root, ["kind", "names", "members"], "body");
+  const changes: Partial<Omit<DeckInput, "key">> = {};
+  if (root.kind !== undefined) {
+    const kind = root.kind;
+    if (typeof kind !== "string" || !DECK_KINDS.includes(kind as never)) {
+      validationError("kind", `must be one of: ${DECK_KINDS.join(", ")}`);
+    }
+    changes.kind = kind as DeckInput["kind"];
+  }
+  if (root.names !== undefined) {
+    changes.names = parseDeckNames(root.names, "names");
+  }
+  if (root.members !== undefined) {
+    changes.members = parseDeckMembers(root.members, "members");
+  }
+  if (Object.keys(changes).length === 0) {
+    validationError("body", "must contain kind, names or members");
+  }
+  return changes;
 }
