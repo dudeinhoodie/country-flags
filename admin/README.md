@@ -53,6 +53,22 @@ missing or invalid:
 During local development Vite serves the mock config from
 `public/config.json`; no backend is required.
 
+To develop against a real backend (for example the dev contour), point the
+dev server's `/api` proxy at its origin and supply the console's Google
+client id:
+
+```bash
+ADMIN_DEV_PROXY=https://<backend-dev>.run.app \
+ADMIN_DEV_GOOGLE_CLIENT_ID=<public-client-id> \
+ADMIN_DEV_ENVIRONMENT=dev \
+corepack yarn admin:dev
+```
+
+Open http://localhost:5173 (the hostname matters: browsers accept the
+backend's Secure session cookie on `localhost`, not on `127.0.0.1`). The
+backend must list `http://localhost:5173` in `ADMIN_ALLOWED_ORIGINS` and
+your email in `ADMIN_EMAIL_ALLOWLIST`.
+
 ## Container
 
 `admin/Dockerfile` builds the SPA and serves it with nginx. The stock nginx
