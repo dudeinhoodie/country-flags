@@ -857,7 +857,6 @@ __metadata:
   resolution: "@country-flags/backend@workspace:backend"
   dependencies:
     "@aws-sdk/client-s3": "npm:3.1107.0"
-    "@country-flags/asset-core": "workspace:*"
     "@eslint/js": "npm:10.0.1"
     "@nestjs/cli": "npm:11.0.10"
     "@nestjs/common": "npm:11.1.6"
