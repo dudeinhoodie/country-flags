@@ -1,0 +1,93 @@
+openapi: 3.1.0
+info:
+  title: Country Flags Admin API
+  version: 1.0.0
+  summary: Contract for the internal catalog administration console
+  description: |
+    Contract-first REST API for the internal admin console: catalog drafts,
+    asset overrides and release proposals. It lives in a separate root on
+    purpose: the canonical client contract (`openapi.yaml`) is mirrored
+    byte-for-byte into the iOS client generator, so admin operations must
+    never appear there (docs/adr/ADR-014-admin-console-architecture.md).
+    Operations marked `planned` define the stable contract before their
+    NestJS implementation lands.
+  license:
+    name: UNLICENSED
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: http://localhost:3000
+    description: Local development backend
+tags:
+  - name: AdminSession
+    description: >-
+      Admin identity and session lifecycle, separate from consumer
+      authentication.
+paths:
+  /v1/admin/me:
+    get:
+      tags: [AdminSession]
+      summary: Get the authenticated admin user
+      operationId: getAdminMe
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: The admin user bound to the current session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+              example:
+                id: 8f1f9f76-1f0a-4a2e-9a5e-2b8f4f1c9d10
+                email: editor@example.com
+                displayName: Content Editor
+                role: VIEWER
+                status: ACTIVE
+                createdAt: 2026-08-23T10:00:00Z
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+components:
+  securitySchemes:
+    AdminSessionCookie:
+      type: apiKey
+      in: cookie
+      name: cf_admin_session
+      description: >-
+        Opaque, HttpOnly, server-side admin session cookie. The browser
+        reaches the API same-origin through the console's `/api` reverse
+        proxy; the cookie is never exposed to scripts or stored elsewhere.
+  schemas:
+    AdminRole:
+      type: string
+      description: >-
+        Closed protocol enum (ADR-009): roles drive the console state
+        machine, so adding one is a breaking change of the admin contract.
+      enum: [VIEWER, EDITOR, PUBLISHER, ADMIN]
+    AdminUserStatus:
+      type: string
+      description: >-
+        Closed protocol enum (ADR-009). A disabled admin loses access
+        immediately, including active sessions.
+      enum: [ACTIVE, DISABLED]
+    AdminUser:
+      type: object
+      required: [id, email, displayName, role, status, createdAt]
+      properties:
+        id:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        displayName:
+          type: string
+          maxLength: 200
+        role:
+          $ref: "#/components/schemas/AdminRole"
+        status:
+          $ref: "#/components/schemas/AdminUserStatus"
+        createdAt:
+          $ref: ./openapi/components.yaml#/schemas/DateTime
+security:
+  - AdminSessionCookie: []

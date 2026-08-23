@@ -25,6 +25,6 @@ export default tseslint.config(
   },
   prettier,
   {
-    ignores: ["dist/**"],
+    ignores: ["dist/**", "src/api/generated/**"],
   },
 );

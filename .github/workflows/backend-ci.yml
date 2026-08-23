@@ -68,6 +68,11 @@ jobs:
       - name: Validate API and JSON Schema contracts
         run: corepack yarn contracts:check
 
+      # The committed TypeScript surface of the admin console must match the
+      # bundled admin contract, or the console compiles against a stale API.
+      - name: Check the generated admin API client
+        run: corepack yarn admin:api:check
+
       - name: Check formatting
         run: corepack yarn format:check
 

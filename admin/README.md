@@ -13,9 +13,16 @@ Run from the repository root:
 corepack yarn admin:dev      # Vite dev server with the mock config in public/config.json
 corepack yarn admin:build    # production build into admin/dist
 corepack yarn admin:test     # Vitest unit tests
+corepack yarn admin:api:generate  # regenerate src/api/generated from the admin contract
+corepack yarn admin:api:check     # fail when the generated API surface drifted
 corepack yarn workspace @country-flags/admin lint
 corepack yarn workspace @country-flags/admin typecheck
 ```
+
+The typed API client (`src/api/client.ts`) is generated from the separate
+admin contract root `contracts/admin-openapi.yaml` (see the "Admin contract
+root" section of `contracts/README.md`); the generated file under
+`src/api/generated/` is committed and checked for drift in CI.
 
 The root `build`, `format`, `format:check`, `lint`, `typecheck`, `test` and
 `test:ci` scripts include this workspace, so backend CI checks it on every

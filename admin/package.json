@@ -11,13 +11,16 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"test/**/*.{ts,tsx}\" \"*.{json,mjs,ts}\" \"public/**/*.json\" index.html",
     "lint": "eslint \"src/**/*.{ts,tsx}\" \"test/**/*.{ts,tsx}\"",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "api:generate": "node scripts/generate-api-types.mjs",
+    "api:check": "node scripts/generate-api-types.mjs --check"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@mui/icons-material": "9.3.1",
     "@mui/material": "9.3.1",
+    "openapi-fetch": "0.17.0",
     "react": "19.2.8",
     "react-admin": "5.15.1",
     "react-dom": "19.2.8",
@@ -37,6 +40,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "16.3.0",
     "jsdom": "30.0.1",
+    "openapi-typescript": "7.13.0",
     "prettier": "3.6.2",
     "typescript": "5.8.3",
     "typescript-eslint": "8.67.0",
