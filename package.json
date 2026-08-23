@@ -30,6 +30,8 @@
     "admin:dev": "yarn workspace @country-flags/admin dev",
     "admin:build": "yarn workspace @country-flags/admin build",
     "admin:test": "yarn workspace @country-flags/admin test",
+    "admin:api:generate": "yarn contracts:bundle && yarn workspace @country-flags/admin api:generate",
+    "admin:api:check": "yarn contracts:bundle && yarn workspace @country-flags/admin api:check",
     "content": "yarn workspace @country-flags/content-pipeline content",
     "content:import:test": "yarn workspace @country-flags/backend content:import:test",
     "content:bundle:validate": "yarn workspace @country-flags/backend content:bundle:validate",

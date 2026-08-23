@@ -1,0 +1,3 @@
+# Generated from the bundled admin contract; its bytes must match the
+# generator output exactly or api:check reports false drift.
+src/api/generated/

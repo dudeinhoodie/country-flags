@@ -6,11 +6,12 @@
   "scripts": {
     "format": "prettier --write \"**/*.{json,mjs,yaml}\"",
     "format:check": "prettier --check \"**/*.{json,mjs,yaml}\"",
-    "lint": "redocly check-config && redocly lint country-flags@v1",
-    "bundle": "redocly bundle country-flags@v1 --output dist/openapi.bundle.yaml",
+    "lint": "redocly check-config && redocly lint country-flags@v1 country-flags-admin@v1",
+    "bundle": "redocly bundle country-flags@v1 --output dist/openapi.bundle.yaml && redocly bundle country-flags-admin@v1 --output dist/admin-openapi.bundle.yaml",
     "schemas": "node scripts/validate-json-schemas.mjs",
     "compatibility": "node scripts/check-compatibility.mjs",
-    "check": "yarn lint && yarn bundle && yarn schemas && yarn fixtures && yarn compatibility",
+    "isolation": "node scripts/check-admin-isolation.mjs",
+    "check": "yarn lint && yarn bundle && yarn schemas && yarn fixtures && yarn compatibility && yarn isolation",
     "fixtures": "node scripts/validate-openapi-fixtures.mjs"
   },
   "devDependencies": {

@@ -4,6 +4,10 @@ extends:
 apis:
   country-flags@v1:
     root: ./openapi.yaml
+  # Separate root on purpose: the client bundle is mirrored into the iOS
+  # generator byte-for-byte, so admin operations must never join it.
+  country-flags-admin@v1:
+    root: ./admin-openapi.yaml
 
 rules:
   no-server-example.com: off

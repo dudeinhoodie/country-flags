@@ -108,3 +108,23 @@ Compatibility validation compares against `CONTRACT_BASE_REF`, or
 version bump. Breaking JSON Schema changes require a new versioned `$id`, and
 breaking registry changes require `schemaVersion` increment. Existing versioned
 schema files cannot be deleted.
+
+## Admin contract root
+
+`admin-openapi.yaml` is a second, deliberately separate root
+(`country-flags-admin@v1` in `redocly.yaml`) describing the internal admin
+console API under `/v1/admin`. It shares domain schemas with the client
+contract through `$ref`s into `openapi/components.yaml` and follows the same
+enum rules, but it bundles into its own artifact
+(`dist/admin-openapi.bundle.yaml`) and never joins the client bundle, which
+is mirrored byte-for-byte into the iOS generator.
+
+`scripts/check-admin-isolation.mjs` (part of `yarn check`) fails when an
+admin path leaks into the client bundle or the iOS mirror, or when the admin
+root leaves the `/v1/admin` namespace. `check-compatibility.mjs` reads only
+the client root, so the admin contract carries its own versioning policy:
+while the console is pre-release it may change without a major version bump.
+
+The admin console's TypeScript API surface is generated from the admin
+bundle with `corepack yarn admin:api:generate`; CI fails on drift through
+`corepack yarn admin:api:check`.
