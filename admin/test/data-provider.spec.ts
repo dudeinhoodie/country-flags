@@ -109,10 +109,44 @@ describe("createAdminDataProvider", () => {
     });
   });
 
+  it("maps the entities resource with search onto the content API", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementation(() =>
+        Promise.resolve(jsonResponse({ items: [], total: 0 })),
+      );
+    const provider = buildProvider(fetchMock);
+    await provider.getList("entities", {
+      ...listParams,
+      filter: { q: "france" },
+    });
+    const request = fetchMock.mock.calls[0]?.[0] as Request;
+    expect(request.url).toContain("/v1/admin/content/entities");
+    expect(request.url).toContain("q=france");
+    expect(request.url).toContain("offset=10");
+
+    await provider.getOne("entities", { id: viewer.id });
+    const detailRequest = fetchMock.mock.calls[1]?.[0] as Request;
+    expect(detailRequest.url).toContain(
+      `/v1/admin/content/entities/${viewer.id}`,
+    );
+  });
+
+  it("maps the decks resource onto the content API", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ items: [], total: 0 }));
+    const provider = buildProvider(fetchMock);
+    await provider.getList("decks", listParams);
+    const request = fetchMock.mock.calls[0]?.[0] as Request;
+    expect(request.url).toContain("/v1/admin/content/decks");
+    expect(request.url).toContain("limit=10");
+  });
+
   it("fails loudly for resources without endpoints", async () => {
     const provider = buildProvider(vi.fn());
-    await expect(provider.getList("decks", listParams)).rejects.toThrow(
-      'Resource "decks" does not support getList',
+    await expect(provider.getList("drafts", listParams)).rejects.toThrow(
+      'Resource "drafts" does not support getList',
     );
   });
 });

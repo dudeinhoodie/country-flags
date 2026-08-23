@@ -22,35 +22,88 @@ export function createAdminDataProvider(client: AdminApiClient): DataProvider {
   const provider = {
     async getList(
       resource: string,
-      params: { pagination?: { page: number; perPage: number } },
+      params: {
+        pagination?: { page: number; perPage: number };
+        filter?: Record<string, unknown>;
+      },
     ) {
-      if (resource !== "users") {
-        throw unsupported(resource, "getList");
-      }
       const page = params.pagination?.page ?? 1;
       const perPage = Math.min(params.pagination?.perPage ?? 25, 100);
-      const { data, response, error } = await client.GET("/v1/admin/users", {
-        params: {
-          query: { offset: (page - 1) * perPage, limit: perPage },
-        },
-      });
-      if (data === undefined) {
-        throw toHttpError(response.status, error);
+      const pagination = { offset: (page - 1) * perPage, limit: perPage };
+      if (resource === "users") {
+        const { data, response, error } = await client.GET("/v1/admin/users", {
+          params: { query: pagination },
+        });
+        if (data === undefined) {
+          throw toHttpError(response.status, error);
+        }
+        return { data: data.items, total: data.total };
       }
-      return { data: data.items, total: data.total };
+      if (resource === "entities") {
+        const search = params.filter?.q;
+        const { data, response, error } = await client.GET(
+          "/v1/admin/content/entities",
+          {
+            params: {
+              query: {
+                ...pagination,
+                ...(typeof search === "string" && search.length > 0
+                  ? { q: search }
+                  : {}),
+              },
+            },
+          },
+        );
+        if (data === undefined) {
+          throw toHttpError(response.status, error);
+        }
+        return { data: data.items, total: data.total };
+      }
+      if (resource === "decks") {
+        const { data, response, error } = await client.GET(
+          "/v1/admin/content/decks",
+          { params: { query: pagination } },
+        );
+        if (data === undefined) {
+          throw toHttpError(response.status, error);
+        }
+        return { data: data.items, total: data.total };
+      }
+      throw unsupported(resource, "getList");
     },
     async getOne(resource: string, params: { id: string | number }) {
-      if (resource !== "users") {
-        throw unsupported(resource, "getOne");
+      const id = String(params.id);
+      if (resource === "users") {
+        const { data, response, error } = await client.GET(
+          "/v1/admin/users/{adminUserId}",
+          { params: { path: { adminUserId: id } } },
+        );
+        if (data === undefined) {
+          throw toHttpError(response.status, error);
+        }
+        return { data };
       }
-      const { data, response, error } = await client.GET(
-        "/v1/admin/users/{adminUserId}",
-        { params: { path: { adminUserId: String(params.id) } } },
-      );
-      if (data === undefined) {
-        throw toHttpError(response.status, error);
+      if (resource === "entities") {
+        const { data, response, error } = await client.GET(
+          "/v1/admin/content/entities/{entityId}",
+          { params: { path: { entityId: id } } },
+        );
+        if (data === undefined) {
+          throw toHttpError(response.status, error);
+        }
+        return { data };
       }
-      return { data };
+      if (resource === "decks") {
+        const { data, response, error } = await client.GET(
+          "/v1/admin/content/decks/{deckId}",
+          { params: { path: { deckId: id } } },
+        );
+        if (data === undefined) {
+          throw toHttpError(response.status, error);
+        }
+        return { data };
+      }
+      throw unsupported(resource, "getOne");
     },
     async update(
       resource: string,

@@ -32,6 +32,20 @@ function stubAdminApi(): void {
           }),
         );
       }
+      if (url.includes("/v1/admin/content/status")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              activeVersion: "2026.08.20",
+              schemaVersion: 1,
+              publishedAt: "2026-08-20T10:00:00Z",
+              entityCount: 278,
+              deckCount: 6,
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        );
+      }
       return Promise.resolve(
         new Response(
           JSON.stringify({
@@ -62,6 +76,7 @@ describe("AdminApp", () => {
       await screen.findByText("Catalog administration"),
     ).toBeInTheDocument();
     expect(screen.getByText("DEV")).toBeInTheDocument();
+    expect(await screen.findByText("2026.08.20")).toBeInTheDocument();
   });
 
   it("marks prod so it cannot be mistaken for dev", async () => {

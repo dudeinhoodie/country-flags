@@ -1,6 +1,91 @@
 // Generated from contracts/dist/admin-openapi.bundle.yaml.
 // Do not edit by hand: run `corepack yarn admin:api:generate` at the repository root.
 export interface paths {
+    "/v1/admin/content/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the active release status */
+        get: operations["adminGetContentStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List published entities */
+        get: operations["adminListEntities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/entities/{entityId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one published entity */
+        get: operations["adminGetEntity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/decks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List published decks */
+        get: operations["adminListDecks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/decks/{deckId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one published deck */
+        get: operations["adminGetDeck"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/auth/google": {
         parameters: {
             query?: never;
@@ -127,6 +212,98 @@ export interface components {
             role?: components["schemas"]["AdminRole"];
             status?: components["schemas"]["AdminUserStatus"];
         };
+        AdminContentStatus: {
+            activeVersion: string | null;
+            schemaVersion: number | null;
+            /** Format: date-time */
+            publishedAt: string | null;
+            entityCount: number;
+            deckCount: number;
+        };
+        AdminAssetRepresentation: {
+            /** Format: uri */
+            url: string;
+            mimeType: string;
+            sha256: string;
+            scale: number | null;
+            widthPx: number | null;
+            heightPx: number | null;
+        };
+        AdminAsset: {
+            id: components["schemas"]["Uuid"];
+            type: string;
+            variant: string;
+            width: number | null;
+            height: number | null;
+            aspectRatio: number | null;
+            licenseName: string;
+            licenseUrl: string | null;
+            attribution: string | null;
+            source: {
+                name: string;
+                /** Format: uri */
+                url: string;
+            };
+            representations: components["schemas"]["AdminAssetRepresentation"][];
+        };
+        AdminEntityName: {
+            locale: components["schemas"]["Locale"];
+            nameType: string;
+            value: string;
+            isPrimary: boolean;
+        };
+        AdminEntitySummary: {
+            id: components["schemas"]["Uuid"];
+            contentKey: string;
+            slug: string;
+            kind: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "HISTORICAL" | "HIDDEN";
+            recognitionStatus: string;
+            isoAlpha2: string | null;
+            isoAlpha3: string | null;
+            nameRu: string | null;
+            nameEn: string | null;
+            flag: components["schemas"]["AdminAsset"] | null;
+            contentVersion: string;
+        };
+        AdminEntityList: {
+            items: components["schemas"]["AdminEntitySummary"][];
+            total: number;
+        };
+        AdminEntityDetail: components["schemas"]["AdminEntitySummary"] & {
+            names: components["schemas"]["AdminEntityName"][];
+            assets: components["schemas"]["AdminAsset"][];
+            includeInCountryCatalog: boolean;
+            /** Format: date-time */
+            validFrom: string | null;
+            /** Format: date-time */
+            validTo: string | null;
+        };
+        AdminDeckSummary: {
+            id: components["schemas"]["Uuid"];
+            code: string;
+            kind: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PUBLISHED" | "RETIRED";
+            cardCount: number;
+            nameRu: string | null;
+            nameEn: string | null;
+            contentVersion: string;
+        };
+        AdminDeckList: {
+            items: components["schemas"]["AdminDeckSummary"][];
+            total: number;
+        };
+        AdminDeckLocalization: {
+            locale: components["schemas"]["Locale"];
+            name: string;
+            description: string;
+        };
+        AdminDeckDetail: components["schemas"]["AdminDeckSummary"] & {
+            localizations: components["schemas"]["AdminDeckLocalization"][];
+            ruleSpec: Record<string, never> | null;
+        };
         /** Format: uuid */
         Uuid: string;
         ErrorEnvelope: {
@@ -139,6 +316,7 @@ export interface components {
                 };
             };
         };
+        Locale: string;
         /** Format: date-time */
         DateTime: string;
     };
@@ -194,17 +372,6 @@ export interface components {
                 "application/json": components["schemas"]["ErrorEnvelope"];
             };
         };
-        /** @description Request rate limit was exceeded. */
-        RateLimitResponse: {
-            headers: {
-                /** @description Seconds until the client may retry. */
-                "Retry-After"?: number;
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ErrorEnvelope"];
-            };
-        };
         /** @description Requested resource does not exist in the authorized scope. */
         NotFoundResponse: {
             headers: {
@@ -224,14 +391,153 @@ export interface components {
                 "application/json": components["schemas"]["ErrorEnvelope"];
             };
         };
+        /** @description Request rate limit was exceeded. */
+        RateLimitResponse: {
+            headers: {
+                /** @description Seconds until the client may retry. */
+                "Retry-After"?: number;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorEnvelope"];
+            };
+        };
     };
-    parameters: never;
+    parameters: {
+        AdminOffset: number;
+        AdminLimit: number;
+    };
     requestBodies: never;
     headers: never;
     pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    adminGetContentStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The active content version and catalog counts; nulls when no release has ever been published. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContentStatus"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListEntities: {
+        parameters: {
+            query?: {
+                offset?: components["parameters"]["AdminOffset"];
+                limit?: components["parameters"]["AdminLimit"];
+                /** @description Case-insensitive search over names, slug, content key and ISO codes. */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of published entities, ordered by slug. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEntityList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetEntity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entityId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The entity with all names and published assets. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEntityDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListDecks: {
+        parameters: {
+            query?: {
+                offset?: components["parameters"]["AdminOffset"];
+                limit?: components["parameters"]["AdminLimit"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of published decks, ordered by code. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDeckList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetDeck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deckId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The deck with all localizations and its rule spec. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDeckDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
     adminLoginWithGoogle: {
         parameters: {
             query?: never;
@@ -301,8 +607,8 @@ export interface operations {
     adminListUsers: {
         parameters: {
             query?: {
-                offset?: number;
-                limit?: number;
+                offset?: components["parameters"]["AdminOffset"];
+                limit?: components["parameters"]["AdminLimit"];
             };
             header?: never;
             path?: never;
