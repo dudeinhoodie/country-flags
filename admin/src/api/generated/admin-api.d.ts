@@ -120,6 +120,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/content/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List editorial drafts */
+        get: operations["adminListDrafts"];
+        put?: never;
+        /**
+         * Create a draft from the current editorial catalog
+         * @description Imports the editorial catalog this deployment carries and records the catalog commit (`baseCatalogCommit`) and the active content version the draft starts from.
+         */
+        post: operations["adminCreateDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/drafts/{draftId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /** Get one draft with its document */
+        get: operations["adminGetDraft"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Replace the draft document
+         * @description Optimistic concurrency: `If-Match` carries the revision the client edited. A stale revision gets 409 instead of silently overwriting a colleague's work; a missing header gets 428. The document must conform to the versioned editorial-catalog JSON Schema.
+         */
+        patch: operations["adminUpdateDraft"];
+        trace?: never;
+    };
+    "/v1/admin/content/drafts/{draftId}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download the deterministic export of a draft
+         * @description The canonical serialization of the draft document — the exact bytes a proposal will commit as `editorial/catalog.json`. An unedited draft exports byte-identically to the file it was imported from.
+         */
+        get: operations["adminExportDraft"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/users": {
         parameters: {
             query?: never;
@@ -211,6 +275,37 @@ export interface components {
         AdminUserUpdateRequest: {
             role?: components["schemas"]["AdminRole"];
             status?: components["schemas"]["AdminUserStatus"];
+        };
+        /**
+         * @description Closed protocol enum (ADR-009): the console's editorial state machine depends on these values.
+         * @enum {string}
+         */
+        AdminDraftStatus: "DRAFT" | "VALIDATING" | "READY" | "PROPOSED" | "MERGED" | "FAILED";
+        AdminDraftSummary: {
+            id: components["schemas"]["Uuid"];
+            baseContentVersion: string;
+            baseCatalogCommit: string;
+            schemaVersion: number;
+            revision: number;
+            status: components["schemas"]["AdminDraftStatus"];
+            proposalUrl: string | null;
+            createdByAdminUserId: components["schemas"]["Uuid"];
+            updatedByAdminUserId: components["schemas"]["Uuid"];
+            createdAt: components["schemas"]["DateTime"];
+            updatedAt: components["schemas"]["DateTime"];
+        };
+        AdminDraftList: {
+            items: components["schemas"]["AdminDraftSummary"][];
+            total: number;
+        };
+        AdminDraftDetail: components["schemas"]["AdminDraftSummary"] & {
+            /** @description The editorial catalog document, validated server-side against the versioned editorial-catalog JSON Schema. */
+            document: Record<string, never>;
+            validationReport: Record<string, never> | null;
+        };
+        AdminDraftUpdateRequest: {
+            /** @description Full replacement of the editorial document; must conform to the editorial-catalog JSON Schema or the request is refused. */
+            document: Record<string, never>;
         };
         AdminContentStatus: {
             activeVersion: string | null;
@@ -399,6 +494,25 @@ export interface components {
                 [name: string]: unknown;
             };
             content: {
+                "application/json": components["schemas"]["ErrorEnvelope"];
+            };
+        };
+        /** @description Request conflicts with current state or idempotency history. */
+        ConflictResponse: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": {
+                 *         "code": "IDEMPOTENCY_CONFLICT",
+                 *         "message": "The identifier was already used with another payload",
+                 *         "requestId": "11bdc6ea-93e2-46e4-bd6c-5a14cec9f488",
+                 *         "details": {}
+                 *       }
+                 *     }
+                 */
                 "application/json": components["schemas"]["ErrorEnvelope"];
             };
         };
@@ -601,6 +715,172 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListDrafts: {
+        parameters: {
+            query?: {
+                offset?: components["parameters"]["AdminOffset"];
+                limit?: components["parameters"]["AdminLimit"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of drafts, most recently updated first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminCreateDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The imported draft. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description No active content release exists to start from. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The draft, including its editorial document. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUpdateDraft: {
+        parameters: {
+            query?: never;
+            header: {
+                "If-Match": string;
+            };
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminDraftUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description The updated draft with a bumped revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            409: components["responses"]["ConflictResponse"];
+            422: components["responses"]["ValidationResponse"];
+            /** @description The If-Match header with the draft revision is missing. */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminExportDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The canonical catalog.json file. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
             default: components["responses"]["ErrorResponse"];
         };
     };

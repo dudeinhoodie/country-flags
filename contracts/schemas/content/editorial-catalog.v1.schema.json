@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://country-flags.app/contracts/content/v1/editorial-catalog.schema.json",
+  "title": "Editorial catalog document",
+  "description": "The editorial layer of the content catalog: decks, localized names, membership, relations and per-entity overrides. This is the exact document tools/content-pipeline/editorial/catalog.json holds; an admin console draft must conform to it before it can be saved.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "defaultLocale",
+    "supportedLocales",
+    "entities",
+    "sourceAliases",
+    "additionalRelations",
+    "decks"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultLocale": { "$ref": "#/$defs/locale" },
+    "supportedLocales": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/locale" }
+    },
+    "entities": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entity" }
+    },
+    "sourceAliases": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "additionalRelations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/relation" }
+    },
+    "decks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/deck" }
+    }
+  },
+  "$defs": {
+    "locale": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+    },
+    "entityKey": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "isoDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "type",
+        "status",
+        "includeInCountryCatalog",
+        "recognitionStatus"
+      ],
+      "properties": {
+        "key": { "$ref": "#/$defs/entityKey" },
+        "type": {
+          "enum": ["country", "territory", "area", "region", "subregion"]
+        },
+        "status": { "enum": ["active", "historical", "retired", "hidden"] },
+        "includeInCountryCatalog": { "type": "boolean" },
+        "recognitionStatus": { "type": "string", "minLength": 1 },
+        "recognitionAsOf": { "$ref": "#/$defs/isoDate" },
+        "validFrom": { "$ref": "#/$defs/isoDate" },
+        "validTo": { "$ref": "#/$defs/isoDate" },
+        "identifiers": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "isoAlpha2": { "type": "string", "pattern": "^[A-Za-z]{2}$" },
+            "isoAlpha3": { "type": "string", "pattern": "^[A-Za-z]{3}$" },
+            "m49": { "type": "string", "pattern": "^[0-9]{3}$" },
+            "wikidataId": { "type": "string", "minLength": 1 },
+            "editorialKey": { "type": "string", "minLength": 1 },
+            "customCode": { "type": "string", "minLength": 1 }
+          }
+        },
+        "overrides": {
+          "type": "object",
+          "minProperties": 1
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parentKey",
+        "childKey",
+        "taxonomyKey",
+        "relationType",
+        "primary"
+      ],
+      "properties": {
+        "parentKey": { "$ref": "#/$defs/entityKey" },
+        "childKey": { "$ref": "#/$defs/entityKey" },
+        "taxonomyKey": { "type": "string", "minLength": 1 },
+        "relationType": { "enum": ["contains", "associated_with"] },
+        "primary": { "type": "boolean" }
+      }
+    },
+    "deckName": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 2000 }
+      }
+    },
+    "deck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "kind", "names", "members"],
+      "properties": {
+        "key": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "kind": { "enum": ["curated", "taxonomy"] },
+        "names": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$" },
+          "additionalProperties": { "$ref": "#/$defs/deckName" }
+        },
+        "members": {
+          "oneOf": [
+            { "const": "all-current" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/$defs/entityKey" }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["taxonomy"],
+              "properties": {
+                "taxonomy": { "type": "string", "minLength": 1 }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

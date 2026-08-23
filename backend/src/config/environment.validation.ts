@@ -42,6 +42,8 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   ADMIN_ALLOWED_ORIGINS: string[];
   ADMIN_SESSION_IDLE_TTL_SECONDS: number;
   ADMIN_SESSION_ABSOLUTE_TTL_SECONDS: number;
+  ADMIN_CATALOG_PATH: string;
+  ADMIN_EDITORIAL_SCHEMA_PATH: string;
   SHUTDOWN_DRAIN_MS: number;
 }
 
@@ -507,6 +509,18 @@ export function validateEnvironment(
       "ADMIN_SESSION_ABSOLUTE_TTL_SECONDS",
       3_600,
       604_800,
+    ),
+    // Resolved against the working directory: the monorepo layout by
+    // default, the baked-in image paths in a container (backend/Dockerfile).
+    ADMIN_CATALOG_PATH: optionalString(
+      config.ADMIN_CATALOG_PATH,
+      "../tools/content-pipeline/editorial/catalog.json",
+      "ADMIN_CATALOG_PATH",
+    ),
+    ADMIN_EDITORIAL_SCHEMA_PATH: optionalString(
+      config.ADMIN_EDITORIAL_SCHEMA_PATH,
+      "../contracts/schemas/content/editorial-catalog.v1.schema.json",
+      "ADMIN_EDITORIAL_SCHEMA_PATH",
     ),
     SHUTDOWN_DRAIN_MS: parseInteger(
       config.SHUTDOWN_DRAIN_MS,

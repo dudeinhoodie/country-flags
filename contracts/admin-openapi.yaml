@@ -31,6 +31,11 @@ tags:
       Read-only view over the active published release, exactly what
       clients can see plus provenance metadata. Open to every
       authenticated admin.
+  - name: AdminDrafts
+    description: >-
+      Versioned editorial drafts. A draft never touches published tables:
+      it leaves the database only as a deterministic export headed for a
+      pull request. Reads for every admin, mutations for EDITOR and above.
 paths:
   /v1/admin/content/status:
     get:
@@ -209,6 +214,168 @@ paths:
             application/json:
               schema:
                 $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts:
+    get:
+      tags: [AdminDrafts]
+      summary: List editorial drafts
+      operationId: adminListDrafts
+      x-implementation-status: implemented
+      parameters:
+        - $ref: "#/components/parameters/AdminOffset"
+        - $ref: "#/components/parameters/AdminLimit"
+      responses:
+        "200":
+          description: One page of drafts, most recently updated first.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftList"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    post:
+      tags: [AdminDrafts]
+      summary: Create a draft from the current editorial catalog
+      operationId: adminCreateDraft
+      x-implementation-status: implemented
+      description: >-
+        Imports the editorial catalog this deployment carries and records
+        the catalog commit (`baseCatalogCommit`) and the active content
+        version the draft starts from.
+      responses:
+        "201":
+          description: The imported draft.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftDetail"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the EDITOR role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "409":
+          description: No active content release exists to start from.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    get:
+      tags: [AdminDrafts]
+      summary: Get one draft with its document
+      operationId: adminGetDraft
+      x-implementation-status: implemented
+      responses:
+        "200":
+          description: The draft, including its editorial document.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftDetail"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    patch:
+      tags: [AdminDrafts]
+      summary: Replace the draft document
+      operationId: adminUpdateDraft
+      x-implementation-status: implemented
+      description: >-
+        Optimistic concurrency: `If-Match` carries the revision the client
+        edited. A stale revision gets 409 instead of silently overwriting a
+        colleague's work; a missing header gets 428. The document must
+        conform to the versioned editorial-catalog JSON Schema.
+      parameters:
+        - name: If-Match
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: ^"?[0-9]+"?$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminDraftUpdateRequest"
+      responses:
+        "200":
+          description: The updated draft with a bumped revision.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftDetail"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the EDITOR role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "428":
+          description: The If-Match header with the draft revision is missing.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/export:
+    get:
+      tags: [AdminDrafts]
+      summary: Download the deterministic export of a draft
+      operationId: adminExportDraft
+      x-implementation-status: implemented
+      description: >-
+        The canonical serialization of the draft document — the exact bytes
+        a proposal will commit as `editorial/catalog.json`. An unedited
+        draft exports byte-identically to the file it was imported from.
+      parameters:
+        - name: draftId
+          in: path
+          required: true
+          schema:
+            $ref: ./openapi/components.yaml#/schemas/Uuid
+      responses:
+        "200":
+          description: The canonical catalog.json file.
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/users:
@@ -422,6 +589,85 @@ components:
           $ref: "#/components/schemas/AdminRole"
         status:
           $ref: "#/components/schemas/AdminUserStatus"
+    AdminDraftStatus:
+      type: string
+      description: >-
+        Closed protocol enum (ADR-009): the console's editorial state
+        machine depends on these values.
+      enum: [DRAFT, VALIDATING, READY, PROPOSED, MERGED, FAILED]
+    AdminDraftSummary:
+      type: object
+      required:
+        - id
+        - baseContentVersion
+        - baseCatalogCommit
+        - schemaVersion
+        - revision
+        - status
+        - proposalUrl
+        - createdByAdminUserId
+        - updatedByAdminUserId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        baseContentVersion:
+          type: string
+        baseCatalogCommit:
+          type: string
+        schemaVersion:
+          type: integer
+          minimum: 1
+        revision:
+          type: integer
+          minimum: 1
+        status:
+          $ref: "#/components/schemas/AdminDraftStatus"
+        proposalUrl:
+          type: [string, "null"]
+        createdByAdminUserId:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        updatedByAdminUserId:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        createdAt:
+          $ref: ./openapi/components.yaml#/schemas/DateTime
+        updatedAt:
+          $ref: ./openapi/components.yaml#/schemas/DateTime
+    AdminDraftList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminDraftSummary"
+        total:
+          type: integer
+          minimum: 0
+    AdminDraftDetail:
+      allOf:
+        - $ref: "#/components/schemas/AdminDraftSummary"
+        - type: object
+          required: [document, validationReport]
+          properties:
+            document:
+              type: object
+              description: >-
+                The editorial catalog document, validated server-side
+                against the versioned editorial-catalog JSON Schema.
+            validationReport:
+              type: [object, "null"]
+    AdminDraftUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [document]
+      properties:
+        document:
+          type: object
+          description: >-
+            Full replacement of the editorial document; must conform to the
+            editorial-catalog JSON Schema or the request is refused.
     AdminContentStatus:
       type: object
       required:
