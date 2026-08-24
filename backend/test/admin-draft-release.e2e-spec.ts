@@ -88,6 +88,7 @@ describe("Admin draft validation and diff (integration)", () => {
   let editorCookie: string;
   let viewerCookie: string;
   let draftId: string;
+  let fixtureVersion: string;
 
   async function currentDraft(): Promise<DraftBody> {
     const response = await request(httpServer)
@@ -160,7 +161,7 @@ describe("Admin draft validation and diff (integration)", () => {
     });
     viewerCookie = await login("release-viewer", "viewer5@country-flags.test");
 
-    await importTestContent(database);
+    fixtureVersion = (await importTestContent(database)).version;
     const created = await request(httpServer)
       .post("/v1/admin/content/drafts")
       .set("Cookie", editorCookie)
@@ -212,7 +213,7 @@ describe("Admin draft validation and diff (integration)", () => {
       .set("Cookie", viewerCookie);
     expect(diff.status).toBe(200);
     const diffBody = bodyOf<Diff>(diff);
-    expect(diffBody.baseContentVersion).toBe("fixture-v1");
+    expect(diffBody.baseContentVersion).toBe(fixtureVersion);
     // The draft carries the whole editorial catalog while the fixture
     // release publishes a subset of it, so every deck the fixture does not
     // publish is legitimately an addition. Nothing here is "changed":
