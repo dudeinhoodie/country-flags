@@ -19,6 +19,7 @@ COPY package.json yarn.lock .yarnrc.yml ./
 COPY admin/package.json admin/package.json
 COPY backend/package.json backend/package.json
 COPY contracts/package.json contracts/package.json
+COPY tools/asset-core/package.json tools/asset-core/package.json
 COPY tools/content-pipeline/package.json tools/content-pipeline/package.json
 COPY backend/prisma/schema.prisma backend/prisma/schema.prisma
 
