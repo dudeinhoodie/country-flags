@@ -252,6 +252,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/content/drafts/{draftId}/proposal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Open a pull request from a validated draft
+         * @description Commits the deterministic export to `admin/draft-<id>` and opens a draft pull request whose body carries the diff and the validation verdict. The console never writes to the base branch: review is the single merge point between it and the source-refresh bot. Repeating the call returns the existing pull request rather than opening a second one, and every expectation in the request must still hold or the call is refused.
+         */
+        post: operations["adminProposeDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/content/drafts/{draftId}/export": {
         parameters: {
             query?: never;
@@ -266,6 +286,27 @@ export interface paths {
         get: operations["adminExportDraft"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/releases/publish-run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the active version and the last publish run */
+        get: operations["adminGetPublishRun"];
+        put?: never;
+        /**
+         * Start a dev publish run
+         * @description Dispatches the existing publish workflow. The console never publishes itself: the signing key stays in CI and the long serializable transaction stays on a direct database connection. Re-publishing the active version is refused, because the publisher would answer `alreadyPublished` and that reads as success.
+         */
+        post: operations["adminStartPublishRun"];
         delete?: never;
         options?: never;
         head?: never;
@@ -483,6 +524,38 @@ export interface components {
             isEmpty: boolean;
             decks: components["schemas"]["AdminDeckDiffEntry"][];
             assets: components["schemas"]["AdminAssetDiffEntry"][];
+        };
+        /** @description What the client believed when it decided to propose. Any disagreement is refused rather than resolved silently. */
+        AdminProposalRequest: {
+            draftRevision: number;
+            baseContentVersion: string;
+            baseCatalogCommit: string;
+        };
+        AdminProposalResult: {
+            draftId: components["schemas"]["Uuid"];
+            status: components["schemas"]["AdminDraftStatus"];
+            /** Format: uri */
+            proposalUrl: string;
+            pullRequestNumber: number;
+        };
+        AdminWorkflowRun: {
+            id: number;
+            status: string;
+            conclusion: string | null;
+            /** Format: uri */
+            url: string;
+            createdAt: components["schemas"]["DateTime"];
+        };
+        AdminPublishRunStatus: {
+            /** @description False when this deployment has no GitHub credential, in which case a release is started by hand. */
+            configured: boolean;
+            activeVersion: string | null;
+            lastRun: components["schemas"]["AdminWorkflowRun"] | null;
+        };
+        AdminPublishRunRequest: {
+            contentVersion: string;
+            /** @description The oldest client this release lets read it; a client below it gets an update screen instead of a catalog, so this is a product decision rather than a formatting detail. */
+            minimumClientVersion: string;
         };
         AdminContentStatus: {
             activeVersion: string | null;
@@ -1294,6 +1367,63 @@ export interface operations {
             default: components["responses"]["ErrorResponse"];
         };
     };
+    adminProposeDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description The draft is proposed. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminProposalResult"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            /** @description The draft moved on, the catalog moved on, the draft is not validated, it still has blocking findings, or it would change nothing. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            422: components["responses"]["ValidationResponse"];
+            /** @description This deployment has no GitHub credential; download the export and open the pull request by hand. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
     adminExportDraft: {
         parameters: {
             query?: never;
@@ -1316,6 +1446,82 @@ export interface operations {
             };
             401: components["responses"]["UnauthorizedResponse"];
             404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetPublishRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The publish state this deployment can see. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPublishRunStatus"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminStartPublishRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPublishRunRequest"];
+            };
+        };
+        responses: {
+            /** @description The run was requested. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPublishRunStatus"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description That version is already the active release. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            422: components["responses"]["ValidationResponse"];
+            /** @description This deployment cannot reach GitHub. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
             default: components["responses"]["ErrorResponse"];
         };
     };

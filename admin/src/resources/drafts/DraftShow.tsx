@@ -159,6 +159,11 @@ export function DraftShow() {
 
           <ReleasePanel
             draftId={draft.id}
+            draftRevision={draft.revision}
+            baseContentVersion={draft.baseContentVersion}
+            baseCatalogCommit={draft.baseCatalogCommit}
+            proposalUrl={draft.proposalUrl}
+            canPublish={permissions === "PUBLISHER" || permissions === "ADMIN"}
             storedReport={
               (draft.validationReport ?? null) as Parameters<
                 typeof ReleasePanel
