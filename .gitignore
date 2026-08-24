@@ -33,3 +33,7 @@ ios/CountryFlags.xcodeproj/project.xcworkspace/xcuserdata/
 ios/CountryFlags.xcodeproj/xcuserdata/
 xcuserdata/
 DerivedData/
+
+# Playwright output
+admin/test-results/
+admin/playwright-report/

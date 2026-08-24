@@ -55,7 +55,8 @@
     "db:up": "docker compose -f infrastructure/compose.yaml up -d",
     "db:down": "docker compose -f infrastructure/compose.yaml down",
     "app:up": "docker compose -f infrastructure/compose.yaml --profile app up --build -d",
-    "app:down": "docker compose -f infrastructure/compose.yaml --profile app down"
+    "app:down": "docker compose -f infrastructure/compose.yaml --profile app down",
+    "admin:e2e": "yarn workspace @country-flags/admin e2e"
   },
   "dependencies": {
     "@resvg/resvg-js": "2.6.2"

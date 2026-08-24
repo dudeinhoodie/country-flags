@@ -54,6 +54,8 @@ export default defineConfig({
         },
   test: {
     environment: "jsdom",
+    // Playwright owns e2e/; vitest would try to run it as a unit suite.
+    exclude: ["e2e/**", "node_modules/**", "dist/**"],
     setupFiles: ["./test/setup.ts"],
     css: false,
   },
