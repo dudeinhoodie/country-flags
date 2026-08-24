@@ -864,7 +864,7 @@ __metadata:
     "@nestjs/config": "npm:4.0.2"
     "@nestjs/core": "npm:11.1.29"
     "@nestjs/platform-express": "npm:11.1.29"
-    "@nestjs/testing": "npm:11.1.6"
+    "@nestjs/testing": "npm:11.2.1"
     "@openfeature/core": "npm:^1.12.0"
     "@openfeature/server-sdk": "npm:^1.23.0"
     "@opentelemetry/api": "npm:1.9.1"
@@ -2318,9 +2318,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:11.1.6":
-  version: 11.1.6
-  resolution: "@nestjs/testing@npm:11.1.6"
+"@nestjs/testing@npm:11.2.1":
+  version: 11.2.1
+  resolution: "@nestjs/testing@npm:11.2.1"
   dependencies:
     tslib: "npm:2.8.1"
   peerDependencies:
@@ -2333,7 +2333,7 @@ __metadata:
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: 10c0/55475ccf5a2576f6281bb8423912ef705db254eb63f72e7b9167e73dca291579bbfb57756bc2a234cd8f370baa9ed28adfa855aff602dbf95437f6c02ee55b57
+  checksum: 10c0/82b51534de1b3e8f2121bbd324e16774502b95a708837a06a038a7c0085d2e547df70d75afa641bebca71b575824c38d9e8491f56515ba813e1115b3d0b342d4
   languageName: node
   linkType: hard
 
