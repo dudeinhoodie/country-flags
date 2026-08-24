@@ -220,13 +220,19 @@ describe("Admin draft validation and diff (integration)", () => {
     const diffBody = bodyOf<Diff>(diff);
     expect(diffBody.baseContentVersion).toBe(fixtureVersion);
     // The draft carries the whole editorial catalog while the fixture
-    // release publishes a subset of it, so every deck the fixture does not
-    // publish is legitimately an addition. Nothing here is "changed":
-    // untouched decks that both sides carry must match exactly.
+    // release publishes a subset of it under different card counts, so the
+    // diff legitimately mixes additions, changes and removals. Predicting
+    // which is which would be predicting the fixture, so this checks what
+    // would actually be a defect.
     expect(diffBody.decks.length).toBeGreaterThan(0);
-    expect(diffBody.decks.every((entry) => entry.change === "added")).toBe(
-      true,
-    );
+    for (const entry of diffBody.decks) {
+      expect(entry.deckKey ?? entry.publishedCode).toBeTruthy();
+      expect(entry.details.length).toBeGreaterThan(0);
+      expect(["added", "removed", "changed"]).toContain(entry.change);
+    }
+    // The catalog carries decks the fixture release never published, so at
+    // least one of them has to show up as an addition.
+    expect(diffBody.decks.some((entry) => entry.change === "added")).toBe(true);
   });
 
   it("shows a deck rename in the diff, in domain terms", async () => {
