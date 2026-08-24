@@ -115,6 +115,30 @@
           "name": "Океания"
         }
       }
+    },
+    {
+      "key": "colonies",
+      "kind": "curated",
+      "members": [
+        "country.australia",
+        "country.new-zealand",
+        "country.united_states",
+        "country.canada",
+        "country.jamaica",
+        "country.barbados",
+        "country.trinidad-and-tobago",
+        "country.nigeria"
+      ],
+      "names": {
+        "en": {
+          "description": "List of countries colonised by England",
+          "name": "English Colonies"
+        },
+        "ru": {
+          "description": "Список стран, колонизированных Англией",
+          "name": "Английские Колонии"
+        }
+      }
     }
   ],
   "defaultLocale": "ru",
