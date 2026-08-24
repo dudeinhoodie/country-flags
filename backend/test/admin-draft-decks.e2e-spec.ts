@@ -19,6 +19,7 @@ import { AppModule } from "../src/app/app.module";
 import { PrismaService } from "../src/infrastructure/database/prisma.service";
 import { importTestContent } from "../src/modules/content/import/test-content-importer";
 import { TestProviderTokenSigner } from "../src/modules/auth/testing/test-provider-token-signer";
+import { deckCodeFromKey } from "../src/modules/content/bundle/bundle-mapper";
 import { bodyOf } from "./response-body";
 
 interface DeckView {
@@ -238,12 +239,14 @@ describe("Admin draft deck editor (integration)", () => {
     const publishedDecks = bodyOf<{
       items: { code: string; cardCount: number }[];
     }>(published).items;
+    // An editorial key and a published code are two namespaces; the release
+    // build derives one from the other, so the lookup has to as well.
+    const expectedCode = deckCodeFromKey(taxonomyDeck.key);
     const counterpart = publishedDecks.find(
-      (deck) => deck.code === taxonomyDeck.key,
+      (deck) => deck.code === expectedCode,
     );
-    if (counterpart !== undefined) {
-      expect(taxonomyDeck.memberCount).toBe(counterpart.cardCount);
-    }
+    expect(counterpart).toBeDefined();
+    expect(taxonomyDeck.memberCount).toBe(counterpart?.cardCount);
   });
 
   it("refuses deck writes below EDITOR and without a trusted origin", async () => {
