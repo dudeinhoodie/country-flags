@@ -173,7 +173,7 @@ jobs:
           # Origins the console is served from. The deployed console keeps
           # localhost beside it, because running the console locally against
           # dev is how a screen gets built.
-          ADMIN_ALLOWED_ORIGINS: https://admin-dev.country-flags.app,http://localhost:5173
+          ADMIN_ALLOWED_ORIGINS: https://admin-dev-6vgdmsupva-ey.a.run.app,https://admin-dev-337239833704.europe-west3.run.app,http://localhost:5173
           # ADMIN_GOOGLE_CLIENT_IDS is not set: it falls back to
           # GOOGLE_CLIENT_IDS. Add it here if the console gets its own
           # OAuth client instead of reusing the backend's.
