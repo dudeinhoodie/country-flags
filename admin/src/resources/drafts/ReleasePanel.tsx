@@ -283,9 +283,12 @@ export function ReleasePanel({
         {diff !== null && !diff.isEmpty && (
           <List dense>
             {diff.decks.map((entry) => (
-              <ListItem key={entry.deckKey} disableGutters>
+              <ListItem
+                key={entry.deckKey ?? entry.publishedCode}
+                disableGutters
+              >
                 <ListItemText
-                  primary={`Deck ${entry.deckKey} ${CHANGE_LABEL[entry.change] ?? entry.change}`}
+                  primary={`Deck ${entry.deckKey ?? entry.publishedCode ?? ""} ${CHANGE_LABEL[entry.change] ?? entry.change}`}
                   secondary={entry.details.join(" · ")}
                 />
               </ListItem>

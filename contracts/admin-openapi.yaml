@@ -1239,11 +1239,18 @@ components:
         report:
           $ref: "#/components/schemas/AdminValidationReport"
     AdminDeckDiffEntry:
+      description: >-
+        An editorial key and a published code are two namespaces, so an entry
+        names both: a deck the draft adds has no published code yet, and one
+        it drops has no editorial key any more. At least one is always
+        present.
       type: object
-      required: [deckKey, change, details]
+      required: [deckKey, publishedCode, change, details]
       properties:
         deckKey:
-          type: string
+          type: [string, "null"]
+        publishedCode:
+          type: [string, "null"]
         change:
           type: string
           enum: [added, removed, changed]
