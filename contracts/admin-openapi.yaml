@@ -533,6 +533,115 @@ paths:
           $ref: "#/components/responses/DraftIfMatchRequired"
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/entities:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    get:
+      tags: [AdminDrafts]
+      summary: List the editorial entities a draft holds
+      operationId: adminListDraftEntities
+      x-implementation-status: implemented
+      description: >-
+        The editorial record of every entity — the selection and the
+        overrides, never the merged build result — beside the short name the
+        active release serves, so the list is readable by a human.
+      responses:
+        "200":
+          description: The draft's entities in document order.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftEntityList"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/entities/{entityKey}:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+      - name: entityKey
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 200
+    get:
+      tags: [AdminDrafts]
+      summary: Get one editorial entity with its published context
+      operationId: adminGetDraftEntity
+      x-implementation-status: implemented
+      responses:
+        "200":
+          description: >-
+            The editorial record and the names the active release currently
+            serves, which are what an override falls back to.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftEntityDetail"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    patch:
+      tags: [AdminDrafts]
+      summary: Change an editorial entity
+      operationId: adminUpdateDraftEntity
+      x-implementation-status: implemented
+      description: >-
+        Each field present in the request replaces the entity's field
+        outright; `identifiers` and `overrides` replace as whole maps, and an
+        empty map removes the field. There is no POST and no DELETE: an
+        entity exists because upstream sources describe it, so the console
+        edits the selection but never invents a country.
+      parameters:
+        - $ref: "#/components/parameters/DraftIfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminDraftEntityUpdateRequest"
+      responses:
+        "200":
+          description: The entity was changed; the draft's revision moved on.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftStamp"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the EDITOR role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "428":
+          $ref: "#/components/responses/DraftIfMatchRequired"
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/content/drafts/{draftId}/assets:
     parameters:
       - name: draftId
@@ -1341,6 +1450,151 @@ components:
             $ref: "#/components/schemas/AdminDeckLocalizedText"
         members:
           $ref: "#/components/schemas/AdminDeckMembers"
+    AdminEntityType:
+      type: string
+      enum: [country, territory, area, region, subregion]
+    AdminEntityStatus:
+      type: string
+      enum: [active, historical, retired, hidden]
+    AdminEntityIdentifiers:
+      type: object
+      additionalProperties: false
+      properties:
+        isoAlpha2:
+          type: string
+          pattern: ^[A-Za-z]{2}$
+        isoAlpha3:
+          type: string
+          pattern: ^[A-Za-z]{3}$
+        m49:
+          type: string
+          pattern: ^[0-9]{3}$
+        wikidataId:
+          type: string
+          minLength: 1
+        editorialKey:
+          type: string
+          minLength: 1
+        customCode:
+          type: string
+          minLength: 1
+    AdminEntityOverrides:
+      type: object
+      description: >-
+        Dotted-path patches the editorial layer pins on purpose
+        (`names.ru.short` → value), applied with the pipeline's highest
+        priority. Absence of the field means no overrides; an empty object
+        is never stored.
+      additionalProperties: true
+    AdminDraftEntityListItem:
+      type: object
+      required:
+        - key
+        - type
+        - status
+        - includeInCountryCatalog
+        - recognitionStatus
+        - identifiers
+        - overrideCount
+        - publishedName
+      properties:
+        key:
+          type: string
+        type:
+          $ref: "#/components/schemas/AdminEntityType"
+        status:
+          $ref: "#/components/schemas/AdminEntityStatus"
+        includeInCountryCatalog:
+          type: boolean
+        recognitionStatus:
+          type: string
+        identifiers:
+          $ref: "#/components/schemas/AdminEntityIdentifiers"
+        overrideCount:
+          type: integer
+          minimum: 0
+        publishedName:
+          type: [string, "null"]
+          description: >-
+            The short name the active release serves, null when the release
+            does not carry the entity yet.
+    AdminDraftEntityList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminDraftEntityListItem"
+        total:
+          type: integer
+          minimum: 0
+    AdminDraftEntity:
+      type: object
+      required: [key, type, status, includeInCountryCatalog, recognitionStatus]
+      properties:
+        key:
+          type: string
+        type:
+          $ref: "#/components/schemas/AdminEntityType"
+        status:
+          $ref: "#/components/schemas/AdminEntityStatus"
+        includeInCountryCatalog:
+          type: boolean
+        recognitionStatus:
+          type: string
+        recognitionAsOf:
+          type: string
+          format: date
+        validFrom:
+          type: string
+          format: date
+        validTo:
+          type: string
+          format: date
+        identifiers:
+          $ref: "#/components/schemas/AdminEntityIdentifiers"
+        overrides:
+          $ref: "#/components/schemas/AdminEntityOverrides"
+    AdminDraftEntityDetail:
+      type: object
+      required: [entity, publishedNames]
+      properties:
+        entity:
+          $ref: "#/components/schemas/AdminDraftEntity"
+        publishedNames:
+          type: object
+          description: >-
+            Locale → the short name the active release serves; what an
+            override the entity does not carry falls back to at build time.
+          additionalProperties:
+            type: string
+    AdminDraftEntityUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        type:
+          $ref: "#/components/schemas/AdminEntityType"
+        status:
+          $ref: "#/components/schemas/AdminEntityStatus"
+        includeInCountryCatalog:
+          type: boolean
+        recognitionStatus:
+          type: string
+          minLength: 1
+          maxLength: 100
+        recognitionAsOf:
+          type: [string, "null"]
+          description: An ISO date, or null to clear the field.
+        validFrom:
+          type: [string, "null"]
+        validTo:
+          type: [string, "null"]
+        identifiers:
+          $ref: "#/components/schemas/AdminEntityIdentifiers"
+        overrides:
+          $ref: "#/components/schemas/AdminEntityOverrides"
     AdminDraftAsset:
       type: object
       required:
@@ -1540,9 +1794,23 @@ components:
           enum: [added, replaced]
         reason:
           type: [string, "null"]
+    AdminEntityDiffEntry:
+      description: >-
+        What the draft changed about one editorial entity, against the
+        catalog this deployment was built from. Entities cannot be created
+        or deleted editorially, so every entry is a change.
+      type: object
+      required: [entityKey, details]
+      properties:
+        entityKey:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
     AdminDraftDiff:
       type: object
-      required: [baseContentVersion, isEmpty, decks, assets]
+      required: [baseContentVersion, isEmpty, decks, assets, entities]
       properties:
         baseContentVersion:
           type: string
@@ -1557,6 +1825,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AdminAssetDiffEntry"
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminEntityDiffEntry"
     AdminProposalRequest:
       type: object
       additionalProperties: false

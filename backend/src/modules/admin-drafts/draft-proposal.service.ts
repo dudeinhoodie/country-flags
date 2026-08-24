@@ -203,6 +203,12 @@ export class DraftProposalService {
         lines.push(`  - ${detail}`);
       }
     }
+    for (const entity of diff.entities) {
+      lines.push(`- Entity \`${entity.entityKey}\` changed`);
+      for (const detail of entity.details) {
+        lines.push(`  - ${detail}`);
+      }
+    }
     for (const asset of diff.assets) {
       lines.push(
         `- ${asset.assetType} replaced for \`${asset.entityContentKey}\`${
