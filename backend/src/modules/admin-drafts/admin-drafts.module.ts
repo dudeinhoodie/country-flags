@@ -6,6 +6,8 @@ import { AdminDraftsService } from "./admin-drafts.service";
 import { CatalogSourceService } from "./catalog-source.service";
 import { DraftDecksController } from "./draft-decks.controller";
 import { DraftDecksService } from "./draft-decks.service";
+import { DraftDiffService } from "./draft-diff.service";
+import { DraftValidationService } from "./draft-validation.service";
 import { EditorialDocumentService } from "./editorial-document.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
 
@@ -18,6 +20,8 @@ import { TaxonomySourceService } from "./taxonomy-source.service";
     DraftDecksService,
     EditorialDocumentService,
     TaxonomySourceService,
+    DraftDiffService,
+    DraftValidationService,
   ],
 })
 export class AdminDraftsModule {}

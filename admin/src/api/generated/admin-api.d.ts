@@ -212,6 +212,46 @@ export interface paths {
         patch: operations["adminUpdateDraftDeck"];
         trace?: never;
     };
+    "/v1/admin/content/drafts/{draftId}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate a draft against the editorial rules
+         * @description Applies the editorial rules a release build applies and stores the verdict on the draft: READY when nothing blocks, FAILED otherwise. Rules that need the pinned upstream snapshots stay with the build, which is the only place that has them.
+         */
+        post: operations["adminValidateDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/drafts/{draftId}/diff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare a draft with the active release
+         * @description What a release built from this draft would change, in the domain's own words. Entity facts derived from upstream sources are absent on purpose: the console does not own them.
+         */
+        get: operations["adminDiffDraft"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/content/drafts/{draftId}/export": {
         parameters: {
             query?: never;
@@ -405,6 +445,44 @@ export interface components {
                 [key: string]: components["schemas"]["AdminDeckLocalizedText"];
             };
             members?: components["schemas"]["AdminDeckMembers"];
+        };
+        AdminValidationFinding: {
+            /** @enum {string} */
+            level: "blocking" | "warning";
+            code: string;
+            subject: string;
+            message: string;
+        };
+        AdminValidationReport: {
+            validatedAt: components["schemas"]["DateTime"];
+            blocking: number;
+            warnings: number;
+            findings: components["schemas"]["AdminValidationFinding"][];
+        };
+        AdminDraftValidationResult: {
+            status: components["schemas"]["AdminDraftStatus"];
+            revision: number;
+            report: components["schemas"]["AdminValidationReport"];
+        };
+        AdminDeckDiffEntry: {
+            deckKey: string;
+            /** @enum {string} */
+            change: "added" | "removed" | "changed";
+            details: string[];
+        };
+        AdminAssetDiffEntry: {
+            entityContentKey: string;
+            assetType: string;
+            /** @enum {string} */
+            change: "added" | "replaced";
+            reason: string | null;
+        };
+        AdminDraftDiff: {
+            baseContentVersion: string;
+            /** @description True when a release from this draft would change nothing. */
+            isEmpty: boolean;
+            decks: components["schemas"]["AdminDeckDiffEntry"][];
+            assets: components["schemas"]["AdminAssetDiffEntry"][];
         };
         AdminContentStatus: {
             activeVersion: string | null;
@@ -1154,6 +1232,65 @@ export interface operations {
             409: components["responses"]["ConflictResponse"];
             422: components["responses"]["ValidationResponse"];
             428: components["responses"]["DraftIfMatchRequired"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminValidateDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The stored verdict. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftValidationResult"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminDiffDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The domain diff against the active release. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftDiff"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
             default: components["responses"]["ErrorResponse"];
         };
     };

@@ -529,6 +529,73 @@ paths:
           $ref: "#/components/responses/DraftIfMatchRequired"
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/validate:
+    post:
+      tags: [AdminDrafts]
+      summary: Validate a draft against the editorial rules
+      operationId: adminValidateDraft
+      x-implementation-status: implemented
+      description: >-
+        Applies the editorial rules a release build applies and stores the
+        verdict on the draft: READY when nothing blocks, FAILED otherwise.
+        Rules that need the pinned upstream snapshots stay with the build,
+        which is the only place that has them.
+      parameters:
+        - name: draftId
+          in: path
+          required: true
+          schema:
+            $ref: ./openapi/components.yaml#/schemas/Uuid
+      responses:
+        "200":
+          description: The stored verdict.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftValidationResult"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the EDITOR role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/diff:
+    get:
+      tags: [AdminDrafts]
+      summary: Compare a draft with the active release
+      operationId: adminDiffDraft
+      x-implementation-status: implemented
+      description: >-
+        What a release built from this draft would change, in the domain's
+        own words. Entity facts derived from upstream sources are absent on
+        purpose: the console does not own them.
+      parameters:
+        - name: draftId
+          in: path
+          required: true
+          schema:
+            $ref: ./openapi/components.yaml#/schemas/Uuid
+      responses:
+        "200":
+          description: The domain diff against the active release.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftDiff"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/content/drafts/{draftId}/export:
     get:
       tags: [AdminDrafts]
@@ -993,6 +1060,92 @@ components:
             $ref: "#/components/schemas/AdminDeckLocalizedText"
         members:
           $ref: "#/components/schemas/AdminDeckMembers"
+    AdminValidationFinding:
+      type: object
+      required: [level, code, subject, message]
+      properties:
+        level:
+          type: string
+          enum: [blocking, warning]
+        code:
+          type: string
+          minLength: 1
+        subject:
+          type: string
+        message:
+          type: string
+    AdminValidationReport:
+      type: object
+      required: [validatedAt, blocking, warnings, findings]
+      properties:
+        validatedAt:
+          $ref: ./openapi/components.yaml#/schemas/DateTime
+        blocking:
+          type: integer
+          minimum: 0
+        warnings:
+          type: integer
+          minimum: 0
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminValidationFinding"
+    AdminDraftValidationResult:
+      type: object
+      required: [status, revision, report]
+      properties:
+        status:
+          $ref: "#/components/schemas/AdminDraftStatus"
+        revision:
+          type: integer
+          minimum: 1
+        report:
+          $ref: "#/components/schemas/AdminValidationReport"
+    AdminDeckDiffEntry:
+      type: object
+      required: [deckKey, change, details]
+      properties:
+        deckKey:
+          type: string
+        change:
+          type: string
+          enum: [added, removed, changed]
+        details:
+          type: array
+          items:
+            type: string
+    AdminAssetDiffEntry:
+      type: object
+      required: [entityContentKey, assetType, change, reason]
+      properties:
+        entityContentKey:
+          type: string
+        assetType:
+          type: string
+          minLength: 1
+          x-extensible-enum: [FLAG, COAT_OF_ARMS, MAP, OTHER]
+        change:
+          type: string
+          enum: [added, replaced]
+        reason:
+          type: [string, "null"]
+    AdminDraftDiff:
+      type: object
+      required: [baseContentVersion, isEmpty, decks, assets]
+      properties:
+        baseContentVersion:
+          type: string
+        isEmpty:
+          type: boolean
+          description: True when a release from this draft would change nothing.
+        decks:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminDeckDiffEntry"
+        assets:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminAssetDiffEntry"
     AdminContentStatus:
       type: object
       required:

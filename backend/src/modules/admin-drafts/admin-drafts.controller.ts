@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { AdminRole } from "@prisma/client";
+import { AdminRole, Prisma } from "@prisma/client";
 import type { ContentDraft } from "@prisma/client";
 import type { Response } from "express";
 
@@ -30,6 +30,9 @@ import {
   parseIfMatchRevision,
 } from "./admin-drafts.request";
 import { AdminDraftsService } from "./admin-drafts.service";
+import { DraftDiffService } from "./draft-diff.service";
+import { DraftValidationService } from "./draft-validation.service";
+import { TaxonomySourceService } from "./taxonomy-source.service";
 
 function toDraftSummary(draft: ContentDraft): Record<string, unknown> {
   return {
@@ -61,6 +64,9 @@ export class AdminDraftsController {
   constructor(
     private readonly drafts: AdminDraftsService,
     private readonly config: ConfigService<EnvironmentVariables>,
+    private readonly validation: DraftValidationService,
+    private readonly diffs: DraftDiffService,
+    private readonly taxonomy: TaxonomySourceService,
   ) {}
 
   @Get()
@@ -115,6 +121,40 @@ export class AdminDraftsController {
     return toDraftDetail(draft);
   }
 
+  @Post(":draftId/validate")
+  @RequireAdminRole(AdminRole.EDITOR)
+  @HttpCode(HttpStatus.OK)
+  async validate(
+    @Req() request: AdminAuthenticatedRequest,
+    @Param("draftId") rawDraftId: string,
+  ): Promise<Record<string, unknown>> {
+    this.assertTrustedOrigin(request);
+    const draftId = uuid(rawDraftId, "draftId");
+    const draft = await this.drafts.get(draftId);
+    const report = this.validation.validate(
+      draft.document,
+      await this.membershipContext(draft.document),
+      await this.drafts.draftAssetsOf(draftId),
+    );
+    const stored = await this.drafts.storeValidationReport(
+      draftId,
+      report as unknown as Prisma.InputJsonValue,
+      report.blocking,
+    );
+    return { status: stored.status, revision: stored.revision, report };
+  }
+
+  @Get(":draftId/diff")
+  async diff(
+    @Param("draftId") rawDraftId: string,
+  ): Promise<Record<string, unknown>> {
+    const draft = await this.drafts.get(uuid(rawDraftId, "draftId"));
+    return this.diffs.diff(
+      draft,
+      await this.membershipContext(draft.document),
+    ) as unknown as Record<string, unknown>;
+  }
+
   @Get(":draftId/export")
   async export(
     @Param("draftId") rawDraftId: string,
@@ -129,6 +169,22 @@ export class AdminDraftsController {
       `attachment; filename="${filename}"`,
     );
     return content;
+  }
+
+  private async membershipContext(
+    document: unknown,
+  ): Promise<{ entities: never[]; relations: never[] }> {
+    const catalog = document as {
+      entities: never[];
+      additionalRelations?: unknown;
+    };
+    return {
+      entities: catalog.entities,
+      relations: this.taxonomy.merge(
+        await this.taxonomy.publishedRelations(),
+        catalog.additionalRelations,
+      ) as never[],
+    };
   }
 
   private assertTrustedOrigin(request: AdminAuthenticatedRequest): void {
