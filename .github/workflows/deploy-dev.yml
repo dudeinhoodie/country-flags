@@ -69,7 +69,7 @@ jobs:
           service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
 
       - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
 
       # Cloud Run serves images from Artifact Registry rather than from an
       # arbitrary registry, so the published image is copied rather than
