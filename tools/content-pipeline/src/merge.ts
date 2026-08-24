@@ -1,8 +1,11 @@
 import { isDeepStrictEqual } from "node:util";
 
+import { sha256 } from "@country-flags/asset-core";
+
 import { buildAsset, type BuiltAsset } from "./assets.js";
 import { editorialPatches, type EntityMatcher } from "./matching.js";
 import type {
+  AssetCandidate,
   Conflict,
   EditorialCatalog,
   EditorialDeck,
@@ -11,6 +14,13 @@ import type {
   PipelineReports,
   Provenance,
 } from "./types.js";
+
+/** An editorial override paired with the candidate built from its file. */
+export interface EditorialAssetOverrideCandidate {
+  entityKey: string;
+  reason: string;
+  candidate: AssetCandidate;
+}
 
 type MutableRecord = Record<string, unknown>;
 
@@ -190,6 +200,12 @@ export async function mergeContent(
   normalized: NormalizedSource[],
   matcher: EntityMatcher,
   editorialProvenance: Provenance,
+  /**
+   * Editorial asset overrides, already read from disk by the caller. They
+   * outrank every adapter candidate: a human picked this drawing on purpose,
+   * and the next source refresh must not undo that silently.
+   */
+  assetOverrides: EditorialAssetOverrideCandidate[] = [],
 ): Promise<MergedContent> {
   const reports: PipelineReports = {
     unresolvedEntities: [],
@@ -197,6 +213,7 @@ export async function mergeContent(
     missingTranslations: [],
     missingAssets: [],
     licenseProblems: [],
+    assetOverrides: [],
   };
   const provenanceMap: Record<string, Provenance> = {};
   const byEntity = new Map<string, MutableRecord>();
@@ -265,7 +282,11 @@ export async function mergeContent(
     }
   }
 
-  const assets: BuiltAsset[] = [];
+  // Adapter candidates are collected per entity rather than written as they
+  // arrive: an entity can be described by several sources, and which drawing
+  // wins has to be a decision that gets reported rather than whichever one
+  // happened to be last.
+  const adapterCandidatesByEntity = new Map<string, AssetCandidate[]>();
   for (const candidate of normalized.flatMap(({ assets }) => assets)) {
     const entityKey = matcher.resolve(
       candidate.entity,
@@ -277,8 +298,39 @@ export async function mergeContent(
       );
       continue;
     }
+    const existing = adapterCandidatesByEntity.get(entityKey) ?? [];
+    existing.push(candidate);
+    adapterCandidatesByEntity.set(entityKey, existing);
+  }
+
+  const overrideByEntity = new Map(
+    assetOverrides.map((override) => [override.entityKey, override]),
+  );
+  const assets: BuiltAsset[] = [];
+  for (const entityKey of new Set([
+    ...adapterCandidatesByEntity.keys(),
+    ...overrideByEntity.keys(),
+  ])) {
+    const adapters = adapterCandidatesByEntity.get(entityKey) ?? [];
+    const override = overrideByEntity.get(entityKey);
+    const bestAdapter = adapters.at(-1);
+    const winner = override?.candidate ?? bestAdapter;
+    if (winner === undefined) {
+      continue;
+    }
+    if (override !== undefined) {
+      reports.assetOverrides.push({
+        entityKey,
+        reason: override.reason,
+        shadowedSourceKeys: [
+          ...new Set(adapters.map(({ provenance }) => provenance.sourceKey)),
+        ].sort(),
+        shadowedSha256:
+          bestAdapter === undefined ? null : sha256(bestAdapter.svg),
+      });
+    }
     try {
-      assets.push(await buildAsset(outputDirectory, entityKey, candidate));
+      assets.push(await buildAsset(outputDirectory, entityKey, winner));
     } catch (error) {
       reports.licenseProblems.push({
         entityKey,

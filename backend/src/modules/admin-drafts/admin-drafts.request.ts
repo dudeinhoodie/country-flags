@@ -143,3 +143,78 @@ export function parseDeckUpdateRequest(
   }
   return changes;
 }
+
+export interface DraftAssetUploadInput {
+  entityContentKey: string;
+  assetType: "FLAG" | "COAT_OF_ARMS";
+  variant: string;
+  sourceUrl: string;
+  licenseName: string;
+  licenseUrl?: string;
+  attribution?: string;
+  replacementReason: string;
+}
+
+const UPLOADABLE_ASSET_TYPES = ["FLAG", "COAT_OF_ARMS"] as const;
+
+/**
+ * Multipart fields arrive as strings. Source, license and the reason a human
+ * replaced the drawing are required rather than optional: a published asset
+ * nobody can account for is worse than no asset.
+ */
+export function parseDraftAssetUpload(body: unknown): DraftAssetUploadInput {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(
+    root,
+    [
+      "entityContentKey",
+      "assetType",
+      "variant",
+      "sourceUrl",
+      "licenseName",
+      "licenseUrl",
+      "attribution",
+      "replacementReason",
+    ],
+    "body",
+  );
+  const assetType = root.assetType;
+  if (
+    typeof assetType !== "string" ||
+    !UPLOADABLE_ASSET_TYPES.includes(assetType as never)
+  ) {
+    validationError(
+      "assetType",
+      `must be one of: ${UPLOADABLE_ASSET_TYPES.join(", ")}`,
+    );
+  }
+  return {
+    entityContentKey: requiredString(
+      root.entityContentKey,
+      "entityContentKey",
+      1,
+      200,
+    ),
+    assetType: assetType as DraftAssetUploadInput["assetType"],
+    variant:
+      root.variant === undefined
+        ? "default"
+        : requiredString(root.variant, "variant", 1, 50),
+    sourceUrl: requiredString(root.sourceUrl, "sourceUrl", 1, 2000),
+    licenseName: requiredString(root.licenseName, "licenseName", 1, 200),
+    ...(root.licenseUrl === undefined
+      ? {}
+      : { licenseUrl: requiredString(root.licenseUrl, "licenseUrl", 1, 2000) }),
+    ...(root.attribution === undefined
+      ? {}
+      : {
+          attribution: requiredString(root.attribution, "attribution", 1, 500),
+        }),
+    replacementReason: requiredString(
+      root.replacementReason,
+      "replacementReason",
+      1,
+      2000,
+    ),
+  };
+}
