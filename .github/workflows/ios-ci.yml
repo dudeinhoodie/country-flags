@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # The Swift 6 language mode needs Xcode 16 or newer. The exact version is
       # printed so a mismatch with a local machine is visible.
