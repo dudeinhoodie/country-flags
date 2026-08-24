@@ -152,8 +152,8 @@ jobs:
             --region "${REGION}" \
             --image "${{ steps.image.outputs.reference }}" \
             --service-account "api-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
-            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_EMAIL_ALLOWLIST=${ADMIN_EMAIL_ALLOWLIST};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS};ADMIN_DRAFT_OBJECT_STORAGE_PROVIDER=s3;ADMIN_DRAFT_OBJECT_STORAGE_BUCKET=${DRAFT_BUCKET};ADMIN_DRAFT_OBJECT_STORAGE_REGION=${REGION};ADMIN_DRAFT_OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;ADMIN_DRAFT_OBJECT_STORAGE_FORCE_PATH_STYLE=true;ADMIN_DRAFT_OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${DRAFT_BUCKET}" \
-            --set-secrets "DATABASE_URL=dev-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,AUTH_ACCESS_TOKEN_SECRET=dev-auth-access-token-secret:latest,AUTH_RATE_LIMIT_SECRET=dev-auth-rate-limit-secret:latest,ACCOUNT_DATA_HASH_SECRET=dev-account-data-hash-secret:latest" \
+            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS};ADMIN_DRAFT_OBJECT_STORAGE_PROVIDER=s3;ADMIN_DRAFT_OBJECT_STORAGE_BUCKET=${DRAFT_BUCKET};ADMIN_DRAFT_OBJECT_STORAGE_REGION=${REGION};ADMIN_DRAFT_OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;ADMIN_DRAFT_OBJECT_STORAGE_FORCE_PATH_STYLE=true;ADMIN_DRAFT_OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${DRAFT_BUCKET}" \
+            --set-secrets "DATABASE_URL=dev-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,AUTH_ACCESS_TOKEN_SECRET=dev-auth-access-token-secret:latest,AUTH_RATE_LIMIT_SECRET=dev-auth-rate-limit-secret:latest,ACCOUNT_DATA_HASH_SECRET=dev-account-data-hash-secret:latest,ADMIN_EMAIL_ALLOWLIST=dev-admin-email-allowlist:latest" \
             --quiet
         env:
           # Apple's client id for a native app is its bundle id, and the Dev
@@ -165,18 +165,19 @@ jobs:
           # The backend's own OAuth client: the audience Google mints the
           # app's identity tokens for. A public identifier, not a secret.
           GOOGLE_CLIENT_IDS: 337239833704-r2eed1a28ggnmri1md2hqp2hgm11236h.apps.googleusercontent.com
-          # Who may bootstrap admin-console access in dev. The product spec
-          # wants this in Secret Manager for prod; the dev list is one known
-          # address and the next deploy deliberately overwrites console edits.
-          ADMIN_EMAIL_ALLOWLIST: slmyskov@gmail.com
-          # Where the deployed admin console is served from. Until the
-          # admin-dev service exists (ADM-012), the console runs locally via
-          # `yarn admin:dev`, which proxies /api to this backend.
+          # Who may bootstrap admin-console access now lives in Secret
+          # Manager (dev-admin-email-allowlist) rather than in this file: an
+          # allowlist decides who reaches the catalog, so reading it should
+          # take the same permission as reading any other credential.
+          #
           # Draft uploads land in their own bucket, which has public access
           # prevention enforced: the console reads them back through the API,
           # never by URL, so nothing depends on it being reachable.
           DRAFT_BUCKET: country-flags-dev-drafts
-          ADMIN_ALLOWED_ORIGINS: http://localhost:5173
+          # Origins the console is served from. The deployed console keeps
+          # localhost beside it, because running the console locally against
+          # dev is how a screen gets built.
+          ADMIN_ALLOWED_ORIGINS: https://admin-dev-6vgdmsupva-ey.a.run.app,https://admin-dev-337239833704.europe-west3.run.app,http://localhost:5173
           # ADMIN_GOOGLE_CLIENT_IDS is not set: it falls back to
           # GOOGLE_CLIENT_IDS. Add it here if the console gets its own
           # OAuth client instead of reusing the backend's.

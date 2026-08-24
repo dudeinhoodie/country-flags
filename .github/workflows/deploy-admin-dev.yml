@@ -1,0 +1,159 @@
+name: Deploy admin dev
+
+# Hangs off a successful Admin CI run on master rather than off the push:
+# chaining on the push would race the image publish and deploy a tag that
+# does not exist yet. Deploying the console and publishing content stay two
+# separate, explicit actions (ADR-014).
+on:
+  workflow_run:
+    workflows: ["Admin CI"]
+    branches: [master]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Commit SHA already published to GHCR
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+  packages: read
+  deployments: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  REGION: europe-west3
+  SERVICE: admin-dev
+  API_SERVICE: api-dev
+  REPOSITORY: country-flags
+  SOURCE_IMAGE: ghcr.io/dudeinhoodie/country-flags-admin
+
+concurrency:
+  group: deploy-admin-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Resolve the commit
+        id: commit
+        run: |
+          set -euo pipefail
+          sha="${{ github.event.inputs.sha || github.event.workflow_run.head_sha }}"
+          echo "sha=${sha}" >> "$GITHUB_OUTPUT"
+          echo "Deploying ${sha}"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.commit.outputs.sha }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # Cloud Run serves images from Artifact Registry, so the published
+      # image is copied rather than rebuilt: rebuilding would deploy bytes
+      # CI never tested.
+      - name: Copy the console image into Artifact Registry
+        id: image
+        run: |
+          set -euo pipefail
+          target="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/admin"
+          tag="sha-${{ steps.commit.outputs.sha }}"
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker pull "${SOURCE_IMAGE}:${tag}"
+          docker tag "${SOURCE_IMAGE}:${tag}" "${target}:${tag}"
+          docker push "${target}:${tag}"
+          digest="$(gcloud artifacts docker images describe "${target}:${tag}" --format='value(image_summary.digest)')"
+          echo "reference=${target}@${digest}" >> "$GITHUB_OUTPUT"
+
+      # The console proxies /api to the backend, so it has to be told where
+      # that backend actually answers rather than assuming an address.
+      - name: Resolve the backend address
+        id: api
+        run: |
+          set -euo pipefail
+          url="$(gcloud run services describe "${API_SERVICE}" --region "${REGION}" --format='value(status.url)' 2>/dev/null || true)"
+          if [ -z "${url}" ]; then
+            echo "::error::Cloud Run service ${API_SERVICE} does not exist in ${REGION}"
+            exit 1
+          fi
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve the console address
+        id: service
+        run: |
+          set -euo pipefail
+          url="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.url)' 2>/dev/null || true)"
+          if [ -z "${url}" ]; then
+            echo "::error::Cloud Run service ${SERVICE} does not exist in ${REGION}"
+            echo "See docs/13-deployment-environments.md for the one-time provisioning."
+            exit 1
+          fi
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      # The whole configuration is set on every deploy rather than updated
+      # in place, so what the service runs with is readable here instead of
+      # being whatever a console session last left on it.
+      - name: Deploy the revision
+        run: |
+          set -euo pipefail
+          gcloud run deploy "${SERVICE}" \
+            --region "${REGION}" \
+            --image "${{ steps.image.outputs.reference }}" \
+            --service-account "admin-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
+            --set-env-vars "^;^ADMIN_ENVIRONMENT=dev;ADMIN_API_UPSTREAM=${{ steps.api.outputs.url }};ADMIN_APP_VERSION=${{ steps.commit.outputs.sha }};ADMIN_GOOGLE_CLIENT_ID=${ADMIN_GOOGLE_CLIENT_ID}" \
+            --quiet
+        env:
+          # Public identifier, not a secret: it is the audience Google mints
+          # the console's identity tokens for.
+          ADMIN_GOOGLE_CLIENT_ID: 337239833704-r2eed1a28ggnmri1md2hqp2hgm11236h.apps.googleusercontent.com
+
+      # Deployed is not the same as working: a revision that cannot serve
+      # its own runtime config would be reported green otherwise.
+      - name: Smoke-test the revision
+        run: |
+          set -euo pipefail
+          url="${{ steps.service.outputs.url }}"
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent --show-error "${url}/config.json" | tee /tmp/config.json; then
+              break
+            fi
+            if [ "${attempt}" = "5" ]; then
+              echo "::error::${url}/config.json never answered"
+              exit 1
+            fi
+            sleep 5
+          done
+          # An image that reports the wrong environment is the one mistake
+          # this whole runtime-config design exists to prevent.
+          grep -q '"environment": "dev"' /tmp/config.json
+
+      - name: Roll back on failure
+        if: failure()
+        run: |
+          set -euo pipefail
+          previous="$(gcloud run revisions list --service "${SERVICE}" --region "${REGION}" \
+            --format='value(name)' --sort-by='~metadata.creationTimestamp' | sed -n 2p)"
+          if [ -n "${previous}" ]; then
+            echo "Routing traffic back to ${previous}"
+            gcloud run services update-traffic "${SERVICE}" --region "${REGION}" \
+              --to-revisions "${previous}=100" --quiet
+          else
+            echo "::warning::No previous revision to roll back to"
+          fi

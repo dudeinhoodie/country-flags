@@ -10,7 +10,7 @@ export default tseslint.config(
   ...tseslint.configs.stylisticTypeChecked,
   reactHooks.configs.flat["recommended-latest"],
   {
-    files: ["src/**/*.{ts,tsx}", "test/**/*.{ts,tsx}"],
+    files: ["src/**/*.{ts,tsx}", "test/**/*.{ts,tsx}", "e2e/**/*.ts"],
     languageOptions: {
       globals: globals.browser,
       parserOptions: {

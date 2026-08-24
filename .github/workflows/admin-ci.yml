@@ -1,0 +1,165 @@
+name: Admin CI
+
+# The console has its own workflow rather than another job in Backend CI:
+# it needs no database, and a browser suite that waits behind PostgreSQL
+# tells an editor nothing about why their screen broke.
+on:
+  pull_request:
+    paths:
+      - admin/**
+      - contracts/admin-openapi.yaml
+      - .github/workflows/admin-ci.yml
+      - package.json
+      - yarn.lock
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: admin-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Console checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: corepack yarn install --immutable
+
+      # The console compiles against the admin contract, so a drifted client
+      # is caught before anything else runs.
+      - name: Check the generated admin API client
+        run: corepack yarn admin:api:check
+
+      - name: Check formatting
+        run: corepack yarn workspace @country-flags/admin format:check
+
+      - name: Lint
+        run: corepack yarn workspace @country-flags/admin lint
+
+      - name: Typecheck
+        run: corepack yarn workspace @country-flags/admin typecheck
+
+      - name: Unit tests
+        run: corepack yarn admin:test
+
+      - name: Build
+        run: corepack yarn admin:build
+
+      - name: Install the browser
+        run: corepack yarn workspace @country-flags/admin e2e:install
+
+      # Drives the built bundle, which is what the image serves; the admin
+      # API is stubbed per test, so a failure names a console problem.
+      - name: End-to-end tests
+        run: corepack yarn admin:e2e
+
+      - name: Upload the failure trace
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-playwright-${{ github.run_id }}
+          if-no-files-found: ignore
+          path: admin/test-results
+          retention-days: 7
+
+  publish:
+    name: Publish console image
+    needs: quality
+    # A pull request must never produce a release artifact.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      reference: ${{ steps.digest.outputs.reference }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release coordinates
+        id: release
+        run: |
+          owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          {
+            echo "image=ghcr.io/${owner}/country-flags-admin"
+            echo "tag=sha-${GITHUB_SHA}"
+            echo "created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | docker login ghcr.io \
+            --username "${GITHUB_ACTOR}" --password-stdin
+
+      - name: Check whether this commit was already released
+        id: existing
+        env:
+          REFERENCE: ${{ steps.release.outputs.image }}:${{ steps.release.outputs.tag }}
+        run: |
+          # Re-running for a SHA must not replace the artifact already
+          # verified in dev, so an existing tag is reused rather than rebuilt.
+          if docker buildx imagetools inspect "$REFERENCE" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Buildx
+        if: steps.existing.outputs.exists == 'false'
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Build and push the console image
+        if: steps.existing.outputs.exists == 'false'
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: .
+          file: admin/Dockerfile
+          platforms: linux/amd64
+          push: true
+          # Only the immutable sha- tag: promotion and rollback must name an
+          # exact commit, never a moving pointer.
+          tags: ${{ steps.release.outputs.image }}:${{ steps.release.outputs.tag }}
+          labels: |
+            org.opencontainers.image.title=country-flags-admin
+            org.opencontainers.image.description=Country Flags admin console
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.release.outputs.created }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
+
+      - name: Record the digest
+        id: digest
+        env:
+          REFERENCE: ${{ steps.release.outputs.image }}:${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          digest="$(docker buildx imagetools inspect "$REFERENCE" --format '{{ .Manifest.Digest }}')"
+          echo "reference=${{ steps.release.outputs.image }}@${digest}" >> "$GITHUB_OUTPUT"
+          echo "Console image: ${{ steps.release.outputs.image }}@${digest}" >> "$GITHUB_STEP_SUMMARY"

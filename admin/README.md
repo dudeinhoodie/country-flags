@@ -85,3 +85,55 @@ entrypoint renders `nginx.conf.template` and runs
 `/api/*` is proxied to `ADMIN_API_UPSTREAM` with the `/api` prefix stripped:
 `/api/v1/admin/me` reaches the backend as `/v1/admin/me`. Secrets never
 appear in the Vite bundle, `config.json` or this image.
+
+## Deployment
+
+`Admin CI` checks the console on every pull request that touches it — the
+generated API client, formatting, lint, typecheck, unit tests, the build and
+a Playwright suite that drives the **built bundle** with a stubbed admin API.
+On `master` it publishes an immutable `sha-<commit>` image to GHCR; there is
+no `latest`, because promotion and rollback must name an exact commit.
+
+`Deploy admin dev` hangs off a successful Admin CI run, copies that image
+into Artifact Registry, and deploys it to Cloud Run `admin-dev`. The whole
+runtime configuration is set on every deploy, so what the service runs with
+is readable in the workflow rather than being whatever a console session last
+left on it. The deploy smoke-tests `/config.json` and, if anything fails,
+routes traffic back to the previous revision.
+
+Deploying the console and publishing content stay two separate, explicit
+actions: a console deploy changes the tool, a publish run changes what every
+client reads.
+
+### One-time provisioning
+
+Already done in `speedy-web-235610` (europe-west3):
+
+- Cloud Run service `admin-dev` — https://admin-dev-6vgdmsupva-ey.a.run.app,
+  running the placeholder image until the first real deploy replaces it;
+- service account `admin-dev-runtime`, which `github-deployer` may act as;
+- secret `dev-admin-email-allowlist`, readable by `api-dev-runtime`;
+- bucket `country-flags-dev-drafts` with **public access prevention
+  enforced**, so a draft object cannot be exposed even by mistake, plus
+  HMAC credentials for `api-dev-runtime` in
+  `dev-admin-draft-storage-access-key-id` / `-secret-access-key`.
+
+What still needs a human:
+
+- add the console's origin to the OAuth client's authorized JavaScript
+  origins, beside `http://localhost:5173`;
+- decide how published content becomes readable by clients — see the note
+  below.
+
+### The content bucket is private today
+
+`country-flags-dev` has no `allUsers` binding: an anonymous request for a
+published asset answers **403**, while the manifest hands clients exactly
+such URLs. Dev clients therefore cannot load a flag, and that is true
+independently of the console. Making the bucket publicly readable is the
+obvious fix, but it is a deliberate exposure decision rather than a
+detail — which is why nothing here does it silently.
+
+The draft bucket stays separate regardless: least privilege, and a cleanup
+job scoped to a different bucket cannot reach a published bundle no matter
+what it is told to delete.
