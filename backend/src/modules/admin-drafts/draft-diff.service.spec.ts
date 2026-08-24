@@ -10,7 +10,9 @@ const context: MembershipContext = {
   relations: [],
 };
 
-function deck(overrides: Record<string, unknown> = {}) {
+function deck(
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
   return {
     key: "deck.all",
     kind: "curated",
@@ -23,7 +25,11 @@ function deck(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function publishedDeck(overrides: Record<string, unknown> = {}) {
+function publishedDeck(overrides: Record<string, unknown> = {}): {
+  code: string;
+  localizations: { locale: string; name: string; description: string }[];
+  _count: { cards: number };
+} {
   return {
     code: "ALL",
     localizations: [
