@@ -196,7 +196,9 @@ export class DraftProposalService {
       "",
     ];
     for (const deck of diff.decks) {
-      lines.push(`- Deck \`${deck.deckKey}\` ${deck.change}`);
+      lines.push(
+        `- Deck \`${deck.deckKey ?? deck.publishedCode ?? "unknown"}\` ${deck.change}`,
+      );
       for (const detail of deck.details) {
         lines.push(`  - ${detail}`);
       }
