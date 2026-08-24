@@ -19,6 +19,7 @@ COPY package.json yarn.lock .yarnrc.yml ./
 COPY admin/package.json admin/package.json
 COPY backend/package.json backend/package.json
 COPY contracts/package.json contracts/package.json
+COPY tools/asset-core/package.json tools/asset-core/package.json
 COPY tools/content-pipeline/package.json tools/content-pipeline/package.json
 COPY backend/prisma/schema.prisma backend/prisma/schema.prisma
 
@@ -30,6 +31,11 @@ ENV DATABASE_URL=postgresql://build:build@localhost:5432/build?schema=public
 
 COPY backend backend
 COPY contracts contracts
+# The shared asset core is a workspace dependency of the runtime, so its
+# compiled output has to exist in the image, not only on a developer machine.
+COPY tools/asset-core tools/asset-core
+
+RUN corepack yarn workspace @country-flags/asset-core build
 
 RUN corepack yarn prisma:generate
 RUN corepack yarn workspace @country-flags/backend build
@@ -59,6 +65,10 @@ COPY --from=builder --chown=node:node /workspace/node_modules ./node_modules
 COPY --from=builder --chown=node:node /workspace/backend/package.json ./backend/package.json
 COPY --from=builder --chown=node:node /workspace/backend/dist ./backend/dist
 COPY --from=builder --chown=node:node /workspace/backend/prisma ./backend/prisma
+# node_modules links the workspace by relative path, so the package has to
+# sit where that link points.
+COPY --from=builder --chown=node:node /workspace/tools/asset-core/package.json ./tools/asset-core/package.json
+COPY --from=builder --chown=node:node /workspace/tools/asset-core/dist ./tools/asset-core/dist
 # The admin console imports drafts from the editorial catalog, and the
 # runtime has no git checkout: the catalog and its schema ride in the image,
 # belonging to exactly the commit this image was built from (SERVICE_RELEASE).

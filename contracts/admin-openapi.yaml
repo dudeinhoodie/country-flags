@@ -533,6 +533,150 @@ paths:
           $ref: "#/components/responses/DraftIfMatchRequired"
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/assets:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    get:
+      tags: [AdminDrafts]
+      summary: List the assets uploaded into a draft
+      operationId: adminListDraftAssets
+      x-implementation-status: implemented
+      responses:
+        "200":
+          description: The draft's uploaded assets.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftAssetList"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    post:
+      tags: [AdminDrafts]
+      summary: Upload a replacement asset into a draft
+      operationId: adminUploadDraftAsset
+      x-implementation-status: implemented
+      description: >-
+        Multipart upload. The bytes decide what the file is — the filename
+        and the declared media type are ignored — and only SVG or PNG is
+        accepted. SVG is sanitized before storage, the checksum, dimensions
+        and aspect ratio are computed server-side, and the object lands in a
+        non-public bucket that is only ever read back through the preview
+        endpoint. Re-uploading identical bytes returns the existing asset
+        rather than creating a second one.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/AdminDraftAssetUploadRequest"
+      responses:
+        "201":
+          description: The stored draft asset.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftAsset"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the EDITOR role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "422":
+          description: >-
+            The file is empty, too large, not an SVG or PNG, unsafe, or the
+            required provenance fields are missing.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/assets/{assetId}:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+      - name: assetId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    delete:
+      tags: [AdminDrafts]
+      summary: Remove an uploaded asset from a draft
+      operationId: adminDeleteDraftAsset
+      x-implementation-status: implemented
+      responses:
+        "204":
+          description: The asset is no longer part of the draft.
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the EDITOR role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/assets/{assetId}/preview:
+    get:
+      tags: [AdminDrafts]
+      summary: Read the bytes of a draft asset
+      operationId: adminPreviewDraftAsset
+      x-implementation-status: implemented
+      description: >-
+        Draft objects live in a non-public bucket, so the console reads them
+        back through the API rather than linking at storage.
+      parameters:
+        - name: draftId
+          in: path
+          required: true
+          schema:
+            $ref: ./openapi/components.yaml#/schemas/Uuid
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            $ref: ./openapi/components.yaml#/schemas/Uuid
+      responses:
+        "200":
+          description: The stored drawing.
+          content:
+            image/svg+xml:
+              schema:
+                type: string
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/content/drafts/{draftId}/validate:
     post:
       tags: [AdminDrafts]
@@ -1197,6 +1341,129 @@ components:
             $ref: "#/components/schemas/AdminDeckLocalizedText"
         members:
           $ref: "#/components/schemas/AdminDeckMembers"
+    AdminDraftAsset:
+      type: object
+      required:
+        - id
+        - draftId
+        - entityContentKey
+        - assetType
+        - variant
+        - mimeType
+        - sha256
+        - width
+        - height
+        - aspectRatio
+        - sourceUrl
+        - licenseName
+        - licenseUrl
+        - attribution
+        - replacementReason
+        - validationStatus
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        draftId:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        entityContentKey:
+          type: string
+        assetType:
+          type: string
+          minLength: 1
+          x-extensible-enum: [FLAG, COAT_OF_ARMS, MAP, OTHER]
+        variant:
+          type: string
+        mimeType:
+          type: string
+          enum: [image/svg+xml, image/png]
+        sha256:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        width:
+          type: [integer, "null"]
+        height:
+          type: [integer, "null"]
+        aspectRatio:
+          type: [number, "null"]
+        sourceUrl:
+          type: [string, "null"]
+        licenseName:
+          type: [string, "null"]
+        licenseUrl:
+          type: [string, "null"]
+        attribution:
+          type: [string, "null"]
+        replacementReason:
+          type: [string, "null"]
+        validationStatus:
+          type: string
+          enum: [PENDING, VALID, INVALID]
+        createdAt:
+          $ref: ./openapi/components.yaml#/schemas/DateTime
+        updatedAt:
+          $ref: ./openapi/components.yaml#/schemas/DateTime
+    AdminDraftAssetList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminDraftAsset"
+        total:
+          type: integer
+          minimum: 0
+    AdminDraftAssetUploadRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - file
+        - entityContentKey
+        - assetType
+        - sourceUrl
+        - licenseName
+        - replacementReason
+      properties:
+        file:
+          type: string
+          format: binary
+        entityContentKey:
+          type: string
+          minLength: 1
+          maxLength: 200
+        assetType:
+          type: string
+          enum: [FLAG, COAT_OF_ARMS]
+        variant:
+          type: string
+          minLength: 1
+          maxLength: 50
+          default: default
+        sourceUrl:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        licenseName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        licenseUrl:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        attribution:
+          type: string
+          minLength: 1
+          maxLength: 500
+        replacementReason:
+          description: >-
+            Why a human replaced the upstream drawing. Required: it travels
+            into the proposal and the audit trail.
+          type: string
+          minLength: 1
+          maxLength: 2000
     AdminValidationFinding:
       type: object
       required: [level, code, subject, message]
