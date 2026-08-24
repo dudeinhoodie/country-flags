@@ -28,9 +28,11 @@ import { parseAdminListQuery } from "../admin-auth/admin-users.request";
 import {
   parseDraftUpdateRequest,
   parseIfMatchRevision,
+  parseProposalRequest,
 } from "./admin-drafts.request";
 import { AdminDraftsService } from "./admin-drafts.service";
 import { DraftDiffService } from "./draft-diff.service";
+import { DraftProposalService } from "./draft-proposal.service";
 import { DraftValidationService } from "./draft-validation.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
 
@@ -67,6 +69,7 @@ export class AdminDraftsController {
     private readonly validation: DraftValidationService,
     private readonly diffs: DraftDiffService,
     private readonly taxonomy: TaxonomySourceService,
+    private readonly proposals: DraftProposalService,
   ) {}
 
   @Get()
@@ -153,6 +156,31 @@ export class AdminDraftsController {
       draft,
       await this.membershipContext(draft.document),
     ) as unknown as Record<string, unknown>;
+  }
+
+  @Post(":draftId/proposal")
+  @RequireAdminRole(AdminRole.PUBLISHER)
+  @HttpCode(HttpStatus.CREATED)
+  async propose(
+    @Req() request: AdminAuthenticatedRequest,
+    @Param("draftId") rawDraftId: string,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    this.assertTrustedOrigin(request);
+    const draftId = uuid(rawDraftId, "draftId");
+    const draft = await this.drafts.get(draftId);
+    const diff = await this.diffs.diff(
+      draft,
+      await this.membershipContext(draft.document),
+    );
+    const result = await this.proposals.propose(
+      request.adminUser,
+      draftId,
+      parseProposalRequest(body),
+      diff,
+      request.requestId,
+    );
+    return result as unknown as Record<string, unknown>;
   }
 
   @Get(":draftId/export")

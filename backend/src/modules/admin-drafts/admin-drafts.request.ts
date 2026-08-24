@@ -144,6 +144,80 @@ export function parseDeckUpdateRequest(
   return changes;
 }
 
+const VERSION_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+const SEMVER_PATTERN = /^\d+\.\d+\.\d+$/;
+
+export interface ProposalRequestInput {
+  draftRevision: number;
+  baseContentVersion: string;
+  baseCatalogCommit: string;
+}
+
+/**
+ * The client states what it believed when it decided to propose. Any
+ * disagreement is a 409 rather than a pull request on top of somebody
+ * else's change.
+ */
+export function parseProposalRequest(body: unknown): ProposalRequestInput {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(
+    root,
+    ["draftRevision", "baseContentVersion", "baseCatalogCommit"],
+    "body",
+  );
+  const revision = root.draftRevision;
+  if (
+    typeof revision !== "number" ||
+    !Number.isInteger(revision) ||
+    revision < 1
+  ) {
+    validationError("draftRevision", "must be a positive integer");
+  }
+  return {
+    draftRevision: revision,
+    baseContentVersion: requiredString(
+      root.baseContentVersion,
+      "baseContentVersion",
+      1,
+      64,
+    ),
+    baseCatalogCommit: requiredString(
+      root.baseCatalogCommit,
+      "baseCatalogCommit",
+      1,
+      200,
+    ),
+  };
+}
+
+export interface PublishRunInput {
+  contentVersion: string;
+  minimumClientVersion: string;
+}
+
+export function parsePublishRunRequest(body: unknown): PublishRunInput {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(root, ["contentVersion", "minimumClientVersion"], "body");
+  return {
+    contentVersion: requiredString(
+      root.contentVersion,
+      "contentVersion",
+      1,
+      64,
+      VERSION_PATTERN,
+    ),
+    // A client below this gets an update screen instead of a catalog, so a
+    // typo here is a product decision, not a formatting slip.
+    minimumClientVersion: requiredString(
+      root.minimumClientVersion,
+      "minimumClientVersion",
+      5,
+      32,
+      SEMVER_PATTERN,
+    ),
+  };
+}
+
 export interface DraftAssetUploadInput {
   entityContentKey: string;
   assetType: "FLAG" | "COAT_OF_ARMS";

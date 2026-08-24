@@ -31,6 +31,10 @@ tags:
       Read-only view over the active published release, exactly what
       clients can see plus provenance metadata. Open to every
       authenticated admin.
+  - name: AdminReleases
+    description: >-
+      Starting and watching the publish workflow. The console requests a
+      release; CI performs it.
   - name: AdminDrafts
     description: >-
       Versioned editorial drafts. A draft never touches published tables:
@@ -740,6 +744,72 @@ paths:
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/proposal:
+    post:
+      tags: [AdminDrafts]
+      summary: Open a pull request from a validated draft
+      operationId: adminProposeDraft
+      x-implementation-status: implemented
+      description: >-
+        Commits the deterministic export to `admin/draft-<id>` and opens a
+        draft pull request whose body carries the diff and the validation
+        verdict. The console never writes to the base branch: review is the
+        single merge point between it and the source-refresh bot. Repeating
+        the call returns the existing pull request rather than opening a
+        second one, and every expectation in the request must still hold or
+        the call is refused.
+      parameters:
+        - name: draftId
+          in: path
+          required: true
+          schema:
+            $ref: ./openapi/components.yaml#/schemas/Uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminProposalRequest"
+      responses:
+        "201":
+          description: The draft is proposed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminProposalResult"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the PUBLISHER role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "409":
+          description: >-
+            The draft moved on, the catalog moved on, the draft is not
+            validated, it still has blocking findings, or it would change
+            nothing.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "503":
+          description: >-
+            This deployment has no GitHub credential; download the export
+            and open the pull request by hand.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/content/drafts/{draftId}/export:
     get:
       tags: [AdminDrafts]
@@ -767,6 +837,73 @@ paths:
           $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/releases/publish-run:
+    get:
+      tags: [AdminReleases]
+      summary: Read the active version and the last publish run
+      operationId: adminGetPublishRun
+      x-implementation-status: implemented
+      responses:
+        "200":
+          description: The publish state this deployment can see.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminPublishRunStatus"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    post:
+      tags: [AdminReleases]
+      summary: Start a dev publish run
+      operationId: adminStartPublishRun
+      x-implementation-status: implemented
+      description: >-
+        Dispatches the existing publish workflow. The console never
+        publishes itself: the signing key stays in CI and the long
+        serializable transaction stays on a direct database connection.
+        Re-publishing the active version is refused, because the publisher
+        would answer `alreadyPublished` and that reads as success.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminPublishRunRequest"
+      responses:
+        "202":
+          description: The run was requested.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminPublishRunStatus"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the PUBLISHER role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "409":
+          description: That version is already the active release.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "503":
+          description: This deployment cannot reach GitHub.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/users:
@@ -1420,6 +1557,84 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AdminAssetDiffEntry"
+    AdminProposalRequest:
+      type: object
+      additionalProperties: false
+      required: [draftRevision, baseContentVersion, baseCatalogCommit]
+      description: >-
+        What the client believed when it decided to propose. Any
+        disagreement is refused rather than resolved silently.
+      properties:
+        draftRevision:
+          type: integer
+          minimum: 1
+        baseContentVersion:
+          type: string
+          minLength: 1
+        baseCatalogCommit:
+          type: string
+          minLength: 1
+    AdminProposalResult:
+      type: object
+      required: [draftId, status, proposalUrl, pullRequestNumber]
+      properties:
+        draftId:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        status:
+          $ref: "#/components/schemas/AdminDraftStatus"
+        proposalUrl:
+          type: string
+          format: uri
+        pullRequestNumber:
+          type: integer
+          minimum: 0
+    AdminWorkflowRun:
+      type: object
+      required: [id, status, conclusion, url, createdAt]
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        conclusion:
+          type: [string, "null"]
+        url:
+          type: string
+          format: uri
+        createdAt:
+          $ref: ./openapi/components.yaml#/schemas/DateTime
+    AdminPublishRunStatus:
+      type: object
+      required: [configured, activeVersion, lastRun]
+      properties:
+        configured:
+          type: boolean
+          description: >-
+            False when this deployment has no GitHub credential, in which
+            case a release is started by hand.
+        activeVersion:
+          type: [string, "null"]
+        lastRun:
+          anyOf:
+            - $ref: "#/components/schemas/AdminWorkflowRun"
+            - type: "null"
+    AdminPublishRunRequest:
+      type: object
+      additionalProperties: false
+      required: [contentVersion, minimumClientVersion]
+      properties:
+        contentVersion:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$
+        minimumClientVersion:
+          description: >-
+            The oldest client this release lets read it; a client below it
+            gets an update screen instead of a catalog, so this is a product
+            decision rather than a formatting detail.
+          type: string
+          pattern: ^\d+\.\d+\.\d+$
     AdminContentStatus:
       type: object
       required:
