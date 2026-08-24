@@ -4,6 +4,7 @@ import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
+import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -14,6 +15,7 @@ import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { Link, useParams } from "react-router-dom";
+import { ReleasePanel } from "./ReleasePanel";
 import { useDeckWriter, useDraftWithDecks } from "./useDraftDecks";
 
 const MEMBERS_MODE_LABEL: Record<string, string> = {
@@ -152,6 +154,19 @@ export function DraftShow() {
               ))}
             </TableBody>
           </Table>
+
+          <Divider />
+
+          <ReleasePanel
+            draftId={draft.id}
+            storedReport={
+              (draft.validationReport ?? null) as Parameters<
+                typeof ReleasePanel
+              >[0]["storedReport"]
+            }
+            editable={editable}
+            onValidated={reload}
+          />
         </Stack>
       </CardContent>
     </Card>

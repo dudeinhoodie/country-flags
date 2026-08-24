@@ -197,6 +197,48 @@ export class AdminDraftsService {
     });
   }
 
+  /** What the draft would replace, for validation and for the diff. */
+  async draftAssetsOf(draftId: string): Promise<
+    {
+      entityContentKey: string;
+      licenseName: string | null;
+      sourceUrl: string | null;
+      replacementReason: string | null;
+    }[]
+  > {
+    return this.database.draftAsset.findMany({
+      where: { draftId },
+      select: {
+        entityContentKey: true,
+        licenseName: true,
+        sourceUrl: true,
+        replacementReason: true,
+      },
+      orderBy: { entityContentKey: "asc" },
+    });
+  }
+
+  /**
+   * The validation report is stored on the draft rather than only returned:
+   * the release screen, the proposal check and the audit trail all read the
+   * same verdict instead of three re-runs that could disagree.
+   */
+  async storeValidationReport(
+    draftId: string,
+    report: Prisma.InputJsonValue,
+    blocking: number,
+  ): Promise<ContentDraft> {
+    await this.database.contentDraft.updateMany({
+      where: { id: draftId },
+      data: {
+        validationReport: report,
+        status:
+          blocking === 0 ? ContentDraftStatus.READY : ContentDraftStatus.FAILED,
+      },
+    });
+    return this.get(draftId);
+  }
+
   async exportDocument(
     draftId: string,
   ): Promise<{ content: string; filename: string }> {

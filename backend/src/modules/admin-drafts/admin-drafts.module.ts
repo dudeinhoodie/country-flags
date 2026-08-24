@@ -19,6 +19,8 @@ import {
   DraftObjectStore,
 } from "./draft-object-storage";
 import { DraftDecksService } from "./draft-decks.service";
+import { DraftDiffService } from "./draft-diff.service";
+import { DraftValidationService } from "./draft-validation.service";
 import { EditorialDocumentService } from "./editorial-document.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
 
@@ -35,6 +37,8 @@ import { TaxonomySourceService } from "./taxonomy-source.service";
     DraftDecksService,
     EditorialDocumentService,
     TaxonomySourceService,
+    DraftDiffService,
+    DraftValidationService,
     DraftAssetCleanupService,
     DraftObjectStore,
     {
