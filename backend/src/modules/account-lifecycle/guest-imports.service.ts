@@ -210,6 +210,22 @@ export class GuestImportsService {
           where: { id: request.migrationId },
         });
       if (
+        existing.userId === userId &&
+        existing.sourceInstallIdHash === sourceInstallIdHash &&
+        existing.requestHash !== requestHash &&
+        existing.status === GuestImportStatus.PENDING
+      ) {
+        // The same install retrying an import that never completed, with a
+        // payload that moved on since — the guest kept studying while the
+        // first attempt hung. A PENDING claim recorded nothing, so replacing
+        // it resumes the import instead of dead-ending it in 409s forever;
+        // a completed operation stays immutable below.
+        return this.database.guestImportOperation.update({
+          where: { id: request.migrationId },
+          data: { requestHash },
+        });
+      }
+      if (
         existing.userId !== userId ||
         existing.requestHash !== requestHash ||
         existing.sourceInstallIdHash !== sourceInstallIdHash

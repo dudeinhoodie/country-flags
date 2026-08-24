@@ -1,10 +1,6 @@
 import { createHash } from "node:crypto";
 
-import {
-  ConflictException,
-  Injectable,
-  ServiceUnavailableException,
-} from "@nestjs/common";
+import { Injectable, ServiceUnavailableException } from "@nestjs/common";
 import {
   AnswerMode,
   CardLearningState,
@@ -369,9 +365,10 @@ export class ReviewsService {
     });
     if (existing !== null) {
       if (existing.payloadHash !== payloadHash) {
-        throw new ConflictException(
-          "Review event ID was already used with another payload",
-        );
+        // One poisoned event must not hold the rest of the outbox hostage:
+        // a refusal that came back once will come back on every retry, so
+        // the client parks the event and the queue keeps draining.
+        throw new RejectedReviewError("PAYLOAD_MISMATCH");
       }
       const state = projectionFromDatabase(
         await transaction.userCardState.findUnique({
@@ -419,9 +416,12 @@ export class ReviewsService {
       select: { id: true },
     });
     if (sequenceOwner !== null) {
-      throw new ConflictException(
-        "clientSequence was already used by another review event",
-      );
+      // A device whose store was reset resumes numbering from one while the
+      // backend still holds its old sequences (issue #216). As a batch-wide
+      // 409 this deadlocked the outbox forever — the same batch retried for
+      // days. As a per-event rejection the client parks the collided event
+      // and everything behind it still delivers.
+      throw new RejectedReviewError("SEQUENCE_CONFLICT");
     }
 
     const session = await transaction.studySession.findFirst({
