@@ -292,14 +292,16 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
       status: "DUPLICATE",
       cardState: { stateVersion: 1 },
     });
-    await request(httpServer)
-      .post("/v1/reviews/batch")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        payloadVersion: 1,
-        events: [selfRatedEvent({ rating: ReviewRating.EASY })],
-      })
-      .expect(409);
+    // Reusing the id with a different payload parks that one event; it must
+    // not fail the batch, or a single poisoned event deadlocks the outbox.
+    const reused = await sendEvent(
+      selfRatedEvent({ rating: ReviewRating.EASY }),
+    );
+    expect(reused.results[0]).toMatchObject({
+      eventId,
+      status: "REJECTED",
+      rejectionCode: "PAYLOAD_MISMATCH",
+    });
     const after = await database.userCardState.findUniqueOrThrow({
       where: {
         userId_learningCardId: {
@@ -314,6 +316,23 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
         where: { userId: TEST_STUDY_USER_ID, learningCardId },
       }),
     ).resolves.toBe(1);
+  });
+
+  it("parks a fresh event whose sequence the device already spent", async () => {
+    // A reset store resumes numbering from one while the backend still holds
+    // the old sequence (issue #216). The collided event is rejected on its
+    // own; a batch-wide 409 here once deadlocked a device's outbox for days.
+    const collided = await sendEvent(
+      selfRatedEvent({
+        id: "3d1a2b3c-4d5e-4f60-8a9b-0c1d2e3f4a5b",
+        clientSequence: 1,
+      }),
+    );
+    expect(collided.results[0]).toMatchObject({
+      eventId: "3d1a2b3c-4d5e-4f60-8a9b-0c1d2e3f4a5b",
+      status: "REJECTED",
+      rejectionCode: "SEQUENCE_CONFLICT",
+    });
   });
 
   it("replays a late predecessor deterministically and survives restart", async () => {
