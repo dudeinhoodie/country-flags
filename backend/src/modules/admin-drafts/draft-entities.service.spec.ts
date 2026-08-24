@@ -131,6 +131,8 @@ describe("DraftEntitiesService", () => {
         { status: "hidden" },
         "req-1",
       ),
-    ).rejects.toMatchObject({ code: "RESOURCE_NOT_FOUND" });
+    ).rejects.toMatchObject({
+      response: { error: { code: "RESOURCE_NOT_FOUND" } },
+    });
   });
 });
