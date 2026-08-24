@@ -80,7 +80,7 @@ describe("DraftValidationService", () => {
     ).toBe(true);
   });
 
-  it("blocks a deck that would publish empty", () => {
+  it("warns rather than blocks when only the build can resolve a node", () => {
     const report = service.validate(
       document({
         decks: [
@@ -99,9 +99,14 @@ describe("DraftValidationService", () => {
       [],
     );
     expect(
-      report.findings.some((finding) => finding.code === "DECK_UNRESOLVABLE"),
+      report.findings.some(
+        (finding) => finding.code === "DECK_UNRESOLVABLE_HERE",
+      ),
     ).toBe(true);
-    expect(report.blocking).toBeGreaterThan(0);
+    // The release build classifies against freshly merged sources, so a
+    // node this preview cannot walk must not stop legitimate work.
+    expect(report.blocking).toBe(0);
+    expect(report.warnings).toBeGreaterThan(0);
   });
 
   it("blocks duplicate entities and duplicate decks", () => {
