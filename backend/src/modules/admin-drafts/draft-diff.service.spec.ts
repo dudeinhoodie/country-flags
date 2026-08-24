@@ -100,10 +100,15 @@ describe("DraftDiffService", () => {
       publishedDeck({ code: "EUROPE", _count: { cards: 1 } }),
     ]).diff(draft, context);
     const removed = diff.decks.find((entry) => entry.change === "removed");
-    expect(removed?.deckKey).toBe("EUROPE");
+    // A deck the draft no longer carries has no editorial key left, only
+    // the code the release published it under.
+    expect(removed?.publishedCode).toBe("EUROPE");
+    expect(removed?.deckKey).toBeNull();
 
     const added = await serviceWith([]).diff(draft, context);
     expect(added.decks[0]?.change).toBe("added");
+    expect(added.decks[0]?.deckKey).toBe("deck.all");
+    expect(added.decks[0]?.publishedCode).toBeNull();
   });
 
   it("lists replaced drawings with the reason a human gave", async () => {

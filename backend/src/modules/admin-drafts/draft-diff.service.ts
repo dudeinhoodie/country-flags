@@ -11,7 +11,10 @@ import type {
 } from "./deck-membership";
 
 export interface DeckDiffEntry {
-  deckKey: string;
+  /** Editorial key, absent for a deck only the release still carries. */
+  deckKey: string | null;
+  /** Published code, absent for a deck the release does not carry yet. */
+  publishedCode: string | null;
   change: "added" | "removed" | "changed";
   details: string[];
 }
@@ -36,7 +39,12 @@ interface EditorialCatalogDocument {
 }
 
 /**
- * An editorial deck key and a published deck code are two namespaces: the
+ * An editorial deck key and a published deck code are two namespaces, and a
+ * diff entry names both rather than one field that silently switches between
+ * them: a deck the draft adds has no published code yet, and a deck the draft
+ * drops has no editorial key any more.
+ *
+ * The release build derives one from the other: the
  * release build derives `Deck.code` from `deck.key`, so comparing them
  * directly would report every deck as new. The diff maps through the
  * publisher's own derivation, which is the only thing guaranteed to agree
@@ -83,6 +91,7 @@ export class DraftDiffService {
       if (counterpart === undefined) {
         decks.push({
           deckKey: deck.key,
+          publishedCode: null,
           change: "added",
           details: [
             `New ${membersMode(deck.members)} deck holding ${String(
@@ -124,7 +133,12 @@ export class DraftDiffService {
         }
       }
       if (details.length > 0) {
-        decks.push({ deckKey: deck.key, change: "changed", details });
+        decks.push({
+          deckKey: deck.key,
+          publishedCode: counterpart.code,
+          change: "changed",
+          details,
+        });
       }
     }
 
@@ -134,7 +148,8 @@ export class DraftDiffService {
     for (const deck of published) {
       if (!draftDeckCodes.has(deck.code)) {
         decks.push({
-          deckKey: deck.code,
+          deckKey: null,
+          publishedCode: deck.code,
           change: "removed",
           details: [`Was publishing ${String(deck._count.cards)} countries`],
         });
@@ -156,7 +171,9 @@ export class DraftDiffService {
       baseContentVersion: draft.baseContentVersion,
       isEmpty: decks.length === 0 && assets.length === 0,
       decks: decks.sort((left, right) =>
-        left.deckKey.localeCompare(right.deckKey),
+        (left.deckKey ?? left.publishedCode ?? "").localeCompare(
+          right.deckKey ?? right.publishedCode ?? "",
+        ),
       ),
       assets,
     };

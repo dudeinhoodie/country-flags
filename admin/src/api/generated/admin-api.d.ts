@@ -464,8 +464,10 @@ export interface components {
             revision: number;
             report: components["schemas"]["AdminValidationReport"];
         };
+        /** @description An editorial key and a published code are two namespaces, so an entry names both: a deck the draft adds has no published code yet, and one it drops has no editorial key any more. At least one is always present. */
         AdminDeckDiffEntry: {
-            deckKey: string;
+            deckKey: string | null;
+            publishedCode: string | null;
             /** @enum {string} */
             change: "added" | "removed" | "changed";
             details: string[];

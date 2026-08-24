@@ -35,7 +35,12 @@ interface ValidationResult {
 interface Diff {
   baseContentVersion: string;
   isEmpty: boolean;
-  decks: { deckKey: string; change: string; details: string[] }[];
+  decks: {
+    deckKey: string | null;
+    publishedCode: string | null;
+    change: string;
+    details: string[];
+  }[];
   assets: unknown[];
 }
 
