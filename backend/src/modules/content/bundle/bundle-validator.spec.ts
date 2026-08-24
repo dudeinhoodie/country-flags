@@ -416,6 +416,30 @@ describe("validateBundle", () => {
     ).rejects.toThrow(/no raster representation/);
   });
 
+  // An editorial override may supply a drawing that never had a vector;
+  // refusing it would keep a wrong flag published. The client's fallback
+  // rule draws the lone raster whatever its scale says.
+  it("accepts an asset that publishes only a raster", async () => {
+    const [, raster] = representationsFixture();
+    buildBundle(dir, {
+      assets: assetsFixture({ representations: [raster!] }),
+    });
+    const result = await validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM });
+    expect(result.domain.assets[0]?.representations).toHaveLength(1);
+  });
+
+  it("accepts a lone raster that declares no screen scale", async () => {
+    const [, raster] = representationsFixture();
+    buildBundle(dir, {
+      assets: assetsFixture({
+        representations: [{ ...raster!, scale: undefined }],
+      }),
+    });
+    await expect(
+      validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+    ).resolves.toBeDefined();
+  });
+
   it("rejects an asset that does not lead with its vector original", async () => {
     const [vector, raster] = representationsFixture();
     buildBundle(dir, {

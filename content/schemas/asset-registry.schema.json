@@ -28,13 +28,14 @@
           "key": { "type": "string", "minLength": 1 },
           "entityKey": { "type": "string", "minLength": 1 },
           "representations": {
-            "description": "Every published encoding of this asset, in the order a client should prefer them: the vector original first, then raster by ascending scale. This is the only place an encoding is described: the asset used to repeat the vector in its own path, mimeType and sha256 so a reader written before this field kept working, and those are gone.",
+            "description": "Every published encoding of this asset, in the order a client should prefer them: the vector original first when one exists, then raster by ascending scale. An editorial override may supply a drawing that never had a vector; it publishes a single raster original instead. This is the only place an encoding is described: the asset used to repeat the vector in its own path, mimeType and sha256 so a reader written before this field kept working, and those are gone.",
             "type": "array",
             "minItems": 1,
             "items": {
               "oneOf": [
                 { "$ref": "#/$defs/vectorRepresentation" },
-                { "$ref": "#/$defs/rasterRepresentation" }
+                { "$ref": "#/$defs/rasterRepresentation" },
+                { "$ref": "#/$defs/rasterOriginalRepresentation" }
               ]
             }
           },
@@ -100,6 +101,22 @@
           "type": "integer",
           "enum": [2, 3]
         },
+        "widthPx": { "type": "integer", "minimum": 1 },
+        "heightPx": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "rasterOriginalRepresentation": {
+      "description": "A raster that IS the original: an editorially supplied PNG with no vector behind it. It declares no screen scale — it was not rendered for one — and is published at the file's own pixel size, so it carries no @Nx suffix.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mimeType", "sha256", "widthPx", "heightPx"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^assets/png/[^/]+\\.png$"
+        },
+        "mimeType": { "const": "image/png" },
+        "sha256": { "$ref": "#/$defs/sha256" },
         "widthPx": { "type": "integer", "minimum": 1 },
         "heightPx": { "type": "integer", "minimum": 1 }
       }

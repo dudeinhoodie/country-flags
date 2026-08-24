@@ -303,3 +303,121 @@ void test("an unsafe override drawing is refused", async () => {
     /Unsafe SVG/u,
   );
 });
+
+/** A minimal real PNG: signature + IHDR, which is all inspection reads. */
+function pngBytes(widthPx: number, heightPx: number): Buffer {
+  const bytes = Buffer.alloc(33);
+  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(bytes, 0);
+  bytes.writeUInt32BE(13, 8);
+  bytes.write("IHDR", 12, "ascii");
+  bytes.writeUInt32BE(widthPx, 16);
+  bytes.writeUInt32BE(heightPx, 20);
+  return bytes;
+}
+
+void test("a PNG override publishes a raster original and no invented vector", async () => {
+  const root = await temporaryRoot();
+  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await writeFile(
+    join(root, "editorial/overrides/assets/country.alpha.png"),
+    pngBytes(300, 200),
+  );
+
+  const merged = await build(
+    catalog([
+      {
+        entityKey: "country.alpha",
+        assetType: "flag",
+        aspectRatio: 1.5,
+        license: "CC-BY-4.0",
+        sourceUrl: "https://commons.example.test/alpha.png",
+        attribution: "An editor",
+        reason: "Only a raster of this flag exists.",
+      },
+    ]),
+    root,
+  );
+
+  const overridden = merged.assets.find(
+    ({ entityKey }) => entityKey === "country.alpha",
+  );
+  assert.ok(overridden);
+  assert.equal(overridden.representations.length, 1);
+  const [raster] = overridden.representations;
+  assert.ok(raster);
+  assert.equal(raster.mimeType, "image/png");
+  assert.equal(raster.path, "assets/png/alpha.png");
+  assert.equal(raster.scale, undefined);
+  assert.equal(raster.widthPx, 300);
+  assert.equal(raster.heightPx, 200);
+  assert.equal(
+    overridden.sourcePath,
+    "editorial/overrides/assets/country.alpha.png",
+  );
+});
+
+void test("a PNG override whose declared ratio lies is refused", async () => {
+  const root = await temporaryRoot();
+  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await writeFile(
+    join(root, "editorial/overrides/assets/country.alpha.png"),
+    pngBytes(300, 300),
+  );
+
+  const merged = await build(
+    catalog([
+      {
+        entityKey: "country.alpha",
+        assetType: "flag",
+        aspectRatio: 1.5,
+        license: "CC-BY-4.0",
+        sourceUrl: "https://commons.example.test/alpha.png",
+        reason: "Only a raster of this flag exists.",
+      },
+    ]),
+    root,
+  );
+
+  // The build reports the mismatch instead of publishing a distorted flag.
+  assert.equal(
+    merged.assets.some(({ entityKey }) => entityKey === "country.alpha"),
+    false,
+  );
+  assert.ok(
+    merged.reports.licenseProblems.some(({ reason }) =>
+      reason.includes("does not match the PNG"),
+    ),
+  );
+});
+
+void test("an override with both an svg and a png file is refused outright", async () => {
+  const root = await temporaryRoot();
+  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await writeFile(
+    join(root, "editorial/overrides/assets/country.alpha.svg"),
+    OVERRIDE_SVG,
+    "utf8",
+  );
+  await writeFile(
+    join(root, "editorial/overrides/assets/country.alpha.png"),
+    pngBytes(300, 200),
+  );
+
+  await assert.rejects(
+    loadAssetOverrides(
+      root,
+      [
+        {
+          entityKey: "country.alpha",
+          assetType: "flag",
+          aspectRatio: 1.5,
+          license: "CC-BY-4.0",
+          sourceUrl: "https://commons.example.test/alpha.svg",
+          reason: "Two files, one override.",
+        },
+      ],
+      editorialProvenance,
+    ),
+    /keep exactly one/u,
+  );
+});

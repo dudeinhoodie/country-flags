@@ -39,47 +39,64 @@ function cardKey(
  * SVG only until issue #82, which downloaded and verified perfectly and never
  * rendered on iOS, so the raster is checked here rather than discovered on a
  * device.
+ *
+ * A vector is optional: an editorial override may supply a drawing that
+ * never had one, and inventing a vector would be worse than not publishing
+ * it. When a vector is present it leads and carries no scale — the order is
+ * the contract, a client reads this list top down.
  */
 function representationIssues(asset: DomainAsset): string[] {
   const issues: string[] = [];
-  const [vector, ...rest] = asset.representations;
+  const [first, ...rest] = asset.representations;
 
-  if (vector === undefined) {
+  if (first === undefined) {
     issues.push(`asset ${asset.key} publishes no representation`);
     return issues;
   }
-  if (vector.mimeType !== "image/svg+xml") {
-    // The order is the contract: a client reads this list top down, and the
-    // vector is the original every raster was rendered from. It used to be
-    // checked by comparing against the copy the asset carried; the copy is
-    // gone, so the rule is stated directly.
-    issues.push(`asset ${asset.key} does not lead with its vector original`);
+
+  const hasVector = asset.representations.some(
+    ({ mimeType }) => mimeType === "image/svg+xml",
+  );
+  if (hasVector) {
+    if (first.mimeType !== "image/svg+xml") {
+      issues.push(`asset ${asset.key} does not lead with its vector original`);
+    }
+    if (rest.some(({ mimeType }) => mimeType === "image/svg+xml")) {
+      issues.push(`asset ${asset.key} publishes more than one vector`);
+    }
   }
-  if (vector.scale !== undefined) {
+  if (first.mimeType === "image/svg+xml" && first.scale !== undefined) {
     issues.push(`asset ${asset.key} gives its vector original a screen scale`);
   }
 
-  const raster = rest.filter(({ mimeType }) => mimeType !== "image/svg+xml");
+  const raster = asset.representations.filter(
+    ({ mimeType }) => mimeType !== "image/svg+xml",
+  );
   if (raster.length === 0) {
     issues.push(
       `asset ${asset.key} publishes no raster representation, so a client that cannot render vectors has nothing to draw`,
     );
   }
 
-  let previousScale = 0;
-  for (const representation of rest) {
-    if (representation.scale === undefined) {
-      issues.push(
-        `asset ${asset.key} publishes a second representation without a screen scale`,
-      );
-      continue;
+  // A lone raster needs no scale — the client's fallback draws it anyway.
+  // Two rasters without scales are indistinguishable, so from the second
+  // raster on, every one must say what screen it was rendered for.
+  if (raster.length > 1) {
+    let previousScale = 0;
+    for (const representation of raster) {
+      if (representation.scale === undefined) {
+        issues.push(
+          `asset ${asset.key} publishes several rasters and one has no screen scale`,
+        );
+        continue;
+      }
+      if (representation.scale <= previousScale) {
+        issues.push(
+          `asset ${asset.key} does not order its raster representations by ascending scale`,
+        );
+      }
+      previousScale = representation.scale;
     }
-    if (representation.scale <= previousScale) {
-      issues.push(
-        `asset ${asset.key} does not order its raster representations by ascending scale`,
-      );
-    }
-    previousScale = representation.scale;
   }
 
   const paths = new Set(asset.representations.map(({ path }) => path));

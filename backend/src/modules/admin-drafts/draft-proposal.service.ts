@@ -1,12 +1,13 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
-import { ContentDraftStatus } from "@prisma/client";
-import type { AdminUser, ContentDraft } from "@prisma/client";
+import { AssetType, ContentDraftStatus } from "@prisma/client";
+import type { AdminUser, ContentDraft, DraftAsset } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AdminAuditService } from "../admin-auth/admin-audit.service";
 import { AdminDraftsService } from "./admin-drafts.service";
 import { CatalogSourceService } from "./catalog-source.service";
+import { DraftObjectStore } from "./draft-object-storage";
 import { GitHubClient } from "./github-client";
 import type { CommittedFile } from "./github-client";
 import { stableJson } from "./stable-json";
@@ -27,9 +28,20 @@ export interface ProposalResult {
 }
 
 const CATALOG_PATH = "tools/content-pipeline/editorial/catalog.json";
+const OVERRIDE_DIRECTORY = "tools/content-pipeline/editorial/overrides/assets";
 
 function conflict(code: string, message: string, details = {}): never {
   throw new ApiException(HttpStatus.CONFLICT, code, message, details);
+}
+
+interface EditorialAssetOverrideEntry extends Record<string, unknown> {
+  entityKey: string;
+  assetType: "flag";
+  aspectRatio: number;
+  license: string;
+  sourceUrl: string;
+  attribution?: string;
+  reason: string;
 }
 
 /**
@@ -49,6 +61,7 @@ export class DraftProposalService {
     private readonly catalog: CatalogSourceService,
     private readonly github: GitHubClient,
     private readonly audit: AdminAuditService,
+    private readonly objects: DraftObjectStore,
   ) {}
 
   async propose(
@@ -85,12 +98,7 @@ export class DraftProposalService {
     }
 
     const branch = `admin/draft-${draft.id}`;
-    const files: CommittedFile[] = [
-      {
-        path: CATALOG_PATH,
-        content: Buffer.from(stableJson(draft.document), "utf8"),
-      },
-    ];
+    const files = await this.committedFiles(draft);
     await this.github.commitFiles(
       branch,
       `chore(content): editorial changes from draft ${draft.id}`,
@@ -130,6 +138,90 @@ export class DraftProposalService {
       status: updated.status,
       proposalUrl: pull.url,
       pullRequestNumber: pull.number,
+    };
+  }
+
+  /**
+   * The catalog document and, beside it, every uploaded drawing: an override
+   * whose bytes stayed in the draft bucket would be a catalog claiming a
+   * replacement the build cannot find. The `assetOverrides` entries carry
+   * the provenance the upload collected, merged over whatever the catalog
+   * already declared for the same entity.
+   */
+  private async committedFiles(draft: ContentDraft): Promise<CommittedFile[]> {
+    const uploaded = await this.database.draftAsset.findMany({
+      where: { draftId: draft.id },
+      orderBy: [{ entityContentKey: "asc" }],
+    });
+
+    const document = draft.document as Record<string, unknown>;
+    const files: CommittedFile[] = [];
+    const entries: EditorialAssetOverrideEntry[] = [];
+    for (const asset of uploaded) {
+      entries.push(this.overrideEntry(asset));
+      const bytes = await this.objects.get(asset.objectKey);
+      if (bytes === null) {
+        conflict(
+          "DRAFT_ASSET_BYTES_MISSING",
+          `The uploaded file for ${asset.entityContentKey} is no longer in the draft store; upload it again`,
+        );
+      }
+      const extension = asset.mimeType === "image/png" ? "png" : "svg";
+      files.push({
+        path: `${OVERRIDE_DIRECTORY}/${asset.entityContentKey}.${extension}`,
+        content: bytes,
+      });
+    }
+
+    const existing = (
+      Array.isArray(document.assetOverrides) ? document.assetOverrides : []
+    ) as EditorialAssetOverrideEntry[];
+    const replaced = new Set(entries.map((entry) => entry.entityKey));
+    const merged = [
+      ...existing.filter((entry) => !replaced.has(entry.entityKey)),
+      ...entries,
+    ].sort((left, right) => left.entityKey.localeCompare(right.entityKey));
+
+    const committedDocument =
+      merged.length === 0 ? document : { ...document, assetOverrides: merged };
+    files.unshift({
+      path: CATALOG_PATH,
+      content: Buffer.from(stableJson(committedDocument), "utf8"),
+    });
+    return files;
+  }
+
+  private overrideEntry(asset: DraftAsset): EditorialAssetOverrideEntry {
+    if (asset.assetType !== AssetType.FLAG) {
+      conflict(
+        "DRAFT_ASSET_NOT_EXPRESSIBLE",
+        `The editorial override layer only carries flags; remove the ${asset.assetType} upload for ${asset.entityContentKey}`,
+      );
+    }
+    const aspectRatio =
+      asset.aspectRatio === null ? null : Number(asset.aspectRatio);
+    if (
+      aspectRatio === null ||
+      asset.licenseName === null ||
+      asset.sourceUrl === null ||
+      asset.replacementReason === null
+    ) {
+      // The upload path requires all of these today; a row without them
+      // predates that rule, and a release must not publish an image nobody
+      // can account for.
+      conflict(
+        "DRAFT_ASSET_PROVENANCE_MISSING",
+        `The upload for ${asset.entityContentKey} is missing its provenance; upload it again with a license, a source and a reason`,
+      );
+    }
+    return {
+      entityKey: asset.entityContentKey,
+      assetType: "flag",
+      aspectRatio,
+      license: asset.licenseName,
+      sourceUrl: asset.sourceUrl,
+      ...(asset.attribution === null ? {} : { attribution: asset.attribution }),
+      reason: asset.replacementReason,
     };
   }
 

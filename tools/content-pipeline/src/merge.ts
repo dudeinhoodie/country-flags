@@ -326,7 +326,9 @@ export async function mergeContent(
           ...new Set(adapters.map(({ provenance }) => provenance.sourceKey)),
         ].sort(),
         shadowedSha256:
-          bestAdapter === undefined ? null : sha256(bestAdapter.svg),
+          bestAdapter === undefined
+            ? null
+            : sha256(bestAdapter.svg ?? bestAdapter.png ?? ""),
       });
     }
     try {
