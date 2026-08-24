@@ -20,6 +20,8 @@ import {
 } from "./draft-object-storage";
 import { DraftDecksService } from "./draft-decks.service";
 import { DraftDiffService } from "./draft-diff.service";
+import { DraftEntitiesController } from "./draft-entities.controller";
+import { DraftEntitiesService } from "./draft-entities.service";
 import { DraftProposalService } from "./draft-proposal.service";
 import { DraftValidationService } from "./draft-validation.service";
 import { EditorialDocumentService } from "./editorial-document.service";
@@ -34,12 +36,14 @@ import { TaxonomySourceService } from "./taxonomy-source.service";
     AdminDraftsController,
     DraftAssetsController,
     DraftDecksController,
+    DraftEntitiesController,
     ReleaseRunController,
   ],
   providers: [
     AdminDraftsService,
     CatalogSourceService,
     DraftDecksService,
+    DraftEntitiesService,
     EditorialDocumentService,
     TaxonomySourceService,
     DraftDiffService,

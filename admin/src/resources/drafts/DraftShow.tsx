@@ -61,6 +61,22 @@ export function DraftShow() {
             />
             <Box sx={{ flexGrow: 1 }} />
             <Button
+              component={Link}
+              to={`/drafts/${draft.id}/entities`}
+              size="small"
+              variant="outlined"
+            >
+              Countries
+            </Button>
+            <Button
+              component={Link}
+              to={`/drafts/${draft.id}/assets`}
+              size="small"
+              variant="outlined"
+            >
+              Flags
+            </Button>
+            <Button
               component="a"
               href={`/api/v1/admin/content/drafts/${draft.id}/export`}
               size="small"

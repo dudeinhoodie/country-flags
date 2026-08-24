@@ -293,6 +293,14 @@ export function ReleasePanel({
                 />
               </ListItem>
             ))}
+            {diff.entities.map((entry) => (
+              <ListItem key={entry.entityKey} disableGutters>
+                <ListItemText
+                  primary={`Entity ${entry.entityKey} changed`}
+                  secondary={entry.details.join(" · ")}
+                />
+              </ListItem>
+            ))}
             {diff.assets.map((entry) => (
               <ListItem
                 key={`${entry.entityContentKey}-${entry.assetType}`}

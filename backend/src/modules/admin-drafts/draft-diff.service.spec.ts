@@ -1,4 +1,5 @@
 import { DraftDiffService } from "./draft-diff.service";
+import type { CatalogSourceService } from "./catalog-source.service";
 import type { MembershipContext } from "./deck-membership";
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
 
@@ -44,12 +45,19 @@ function publishedDeck(overrides: Record<string, unknown> = {}): {
 function serviceWith(
   published: ReturnType<typeof publishedDeck>[],
   assets: unknown[] = [],
+  baseEntities: Record<
+    string,
+    unknown
+  >[] = context.entities as unknown as Record<string, unknown>[],
 ): DraftDiffService {
   const database = {
     deck: { findMany: () => Promise.resolve(published) },
     draftAsset: { findMany: () => Promise.resolve(assets) },
   } as unknown as PrismaService;
-  return new DraftDiffService(database);
+  const catalogSource = {
+    read: () => ({ document: { entities: baseEntities }, commit: "base" }),
+  } as unknown as CatalogSourceService;
+  return new DraftDiffService(database, catalogSource);
 }
 
 const draft = {
@@ -109,6 +117,68 @@ describe("DraftDiffService", () => {
     expect(added.decks[0]?.change).toBe("added");
     expect(added.decks[0]?.deckKey).toBe("deck.all");
     expect(added.decks[0]?.publishedCode).toBeNull();
+  });
+
+  it("says what an entity edit changed, override by override", async () => {
+    const edited = {
+      ...draft,
+      document: {
+        entities: [
+          {
+            key: "country.france",
+            status: "hidden",
+            includeInCountryCatalog: true,
+            overrides: { "names.ru.short": "Франция (ред.)" },
+          },
+          context.entities[1],
+        ],
+        decks: [deck()],
+      },
+    };
+    const diff = await serviceWith([publishedDeck()]).diff(edited, context);
+    expect(diff.isEmpty).toBe(false);
+    const entry = diff.entities.find(
+      (item) => item.entityKey === "country.france",
+    );
+    expect(entry?.details.join(" ")).toContain("status: active → hidden");
+    expect(entry?.details.join(" ")).toContain(
+      'override names.ru.short set to "Франция (ред.)"',
+    );
+    // The untouched entity stays out of the report.
+    expect(diff.entities).toHaveLength(1);
+  });
+
+  it("reports a removed override rather than hiding the rollback", async () => {
+    const base = [
+      {
+        key: "country.france",
+        status: "active",
+        includeInCountryCatalog: true,
+        overrides: { "names.en.short": "Pinned" },
+      },
+      context.entities[1] as unknown as Record<string, unknown>,
+    ];
+    const reverted = {
+      ...draft,
+      document: {
+        entities: [
+          {
+            key: "country.france",
+            status: "active",
+            includeInCountryCatalog: true,
+          },
+          context.entities[1],
+        ],
+        decks: [deck()],
+      },
+    };
+    const diff = await serviceWith([publishedDeck()], [], base).diff(
+      reverted,
+      context,
+    );
+    expect(diff.entities[0]?.details.join(" ")).toContain(
+      "override names.en.short removed",
+    );
   });
 
   it("lists replaced drawings with the reason a human gave", async () => {

@@ -3,6 +3,7 @@ import { CardStatus, DeckStatus } from "@prisma/client";
 
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { deckCodeFromKey } from "../content/bundle/bundle-mapper";
+import { CatalogSourceService } from "./catalog-source.service";
 import { membersMode, resolveDeckMembers } from "./deck-membership";
 import type {
   EditorialDeck,
@@ -26,16 +27,45 @@ export interface AssetDiffEntry {
   reason: string | null;
 }
 
+export interface EntityDiffEntry {
+  entityKey: string;
+  details: string[];
+}
+
 export interface DraftDiff {
   baseContentVersion: string;
   isEmpty: boolean;
   decks: DeckDiffEntry[];
   assets: AssetDiffEntry[];
+  entities: EntityDiffEntry[];
 }
 
 interface EditorialCatalogDocument {
   entities: EditorialEntity[];
   decks: EditorialDeck[];
+}
+
+/** The full editorial record, as far as the diff needs to read it. */
+interface EditorialEntityDocument extends Record<string, unknown> {
+  key: string;
+  overrides?: Record<string, unknown>;
+}
+
+const ENTITY_SCALAR_FIELDS = [
+  "type",
+  "status",
+  "includeInCountryCatalog",
+  "recognitionStatus",
+  "recognitionAsOf",
+  "validFrom",
+  "validTo",
+] as const;
+
+function scalarText(value: unknown): string {
+  if (value === undefined) {
+    return "—";
+  }
+  return typeof value === "string" ? value : JSON.stringify(value);
 }
 
 /**
@@ -61,7 +91,10 @@ interface EditorialCatalogDocument {
  */
 @Injectable()
 export class DraftDiffService {
-  constructor(private readonly database: PrismaService) {}
+  constructor(
+    private readonly database: PrismaService,
+    private readonly catalogSource: CatalogSourceService,
+  ) {}
 
   async diff(
     draft: {
@@ -167,16 +200,104 @@ export class DraftDiffService {
       reason: asset.replacementReason,
     }));
 
+    const entities = this.entityDiff(catalog);
+
     return {
       baseContentVersion: draft.baseContentVersion,
-      isEmpty: decks.length === 0 && assets.length === 0,
+      isEmpty:
+        decks.length === 0 && assets.length === 0 && entities.length === 0,
       decks: decks.sort((left, right) =>
         (left.deckKey ?? left.publishedCode ?? "").localeCompare(
           right.deckKey ?? right.publishedCode ?? "",
         ),
       ),
       assets,
+      entities,
     };
+  }
+
+  /**
+   * What the draft changed about the editorial entities, against the catalog
+   * this deployment was built from — the same base a proposal will refuse to
+   * leave (`CATALOG_MOVED_ON`), so the comparison cannot silently drift.
+   * Entities cannot be created or deleted editorially, so every entry is a
+   * change of an existing record.
+   */
+  private entityDiff(catalog: EditorialCatalogDocument): EntityDiffEntry[] {
+    let baseEntities: EditorialEntityDocument[];
+    try {
+      baseEntities = (
+        this.catalogSource.read().document as EditorialCatalogDocument
+      ).entities as unknown as EditorialEntityDocument[];
+    } catch {
+      // A deployment without its catalog file cannot say what changed; the
+      // proposal path reports that loudly, a diff must not hide the deck and
+      // asset entries behind it.
+      return [];
+    }
+    const baseByKey = new Map(baseEntities.map((entry) => [entry.key, entry]));
+    const entries: EntityDiffEntry[] = [];
+    for (const entity of catalog.entities as unknown as EditorialEntityDocument[]) {
+      const base = baseByKey.get(entity.key);
+      if (base === undefined) {
+        continue;
+      }
+      const details: string[] = [];
+      for (const field of ENTITY_SCALAR_FIELDS) {
+        if (scalarText(base[field]) !== scalarText(entity[field])) {
+          details.push(
+            `${field}: ${scalarText(base[field])} → ${scalarText(entity[field])}`,
+          );
+        }
+      }
+      const baseIdentifiers = (base.identifiers ?? {}) as Record<
+        string,
+        string
+      >;
+      const nextIdentifiers = (entity.identifiers ?? {}) as Record<
+        string,
+        string
+      >;
+      for (const key of new Set([
+        ...Object.keys(baseIdentifiers),
+        ...Object.keys(nextIdentifiers),
+      ])) {
+        if (baseIdentifiers[key] !== nextIdentifiers[key]) {
+          details.push(
+            `identifiers.${key}: ${scalarText(baseIdentifiers[key])} → ${scalarText(nextIdentifiers[key])}`,
+          );
+        }
+      }
+      const baseOverrides = base.overrides ?? {};
+      const nextOverrides = entity.overrides ?? {};
+      for (const path of new Set([
+        ...Object.keys(baseOverrides),
+        ...Object.keys(nextOverrides),
+      ])) {
+        const before = baseOverrides[path];
+        const after = nextOverrides[path];
+        if (JSON.stringify(before) === JSON.stringify(after)) {
+          continue;
+        }
+        if (before === undefined) {
+          details.push(`override ${path} set to ${JSON.stringify(after)}`);
+        } else if (after === undefined) {
+          details.push(
+            `override ${path} removed (was ${JSON.stringify(before)})`,
+          );
+        } else {
+          details.push(
+            `override ${path}: ${JSON.stringify(before)} → ${JSON.stringify(after)}`,
+          );
+        }
+      }
+      if (details.length > 0) {
+        entries.push({ entityKey: entity.key, details });
+      }
+    }
+    return entries.sort((left, right) =>
+      left.entityKey.localeCompare(right.entityKey),
+    );
   }
 
   /**

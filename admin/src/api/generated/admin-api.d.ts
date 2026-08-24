@@ -212,6 +212,52 @@ export interface paths {
         patch: operations["adminUpdateDraftDeck"];
         trace?: never;
     };
+    "/v1/admin/content/drafts/{draftId}/entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /**
+         * List the editorial entities a draft holds
+         * @description The editorial record of every entity — the selection and the overrides, never the merged build result — beside the short name the active release serves, so the list is readable by a human.
+         */
+        get: operations["adminListDraftEntities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/drafts/{draftId}/entities/{entityKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                entityKey: string;
+            };
+            cookie?: never;
+        };
+        /** Get one editorial entity with its published context */
+        get: operations["adminGetDraftEntity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change an editorial entity
+         * @description Each field present in the request replaces the entity's field outright; `identifiers` and `overrides` replace as whole maps, and an empty map removes the field. There is no POST and no DELETE: an entity exists because upstream sources describe it, so the console edits the selection but never invents a country.
+         */
+        patch: operations["adminUpdateDraftEntity"];
+        trace?: never;
+    };
     "/v1/admin/content/drafts/{draftId}/assets": {
         parameters: {
             query?: never;
@@ -550,6 +596,71 @@ export interface components {
             };
             members?: components["schemas"]["AdminDeckMembers"];
         };
+        /** @enum {string} */
+        AdminEntityType: "country" | "territory" | "area" | "region" | "subregion";
+        /** @enum {string} */
+        AdminEntityStatus: "active" | "historical" | "retired" | "hidden";
+        AdminEntityIdentifiers: {
+            isoAlpha2?: string;
+            isoAlpha3?: string;
+            m49?: string;
+            wikidataId?: string;
+            editorialKey?: string;
+            customCode?: string;
+        };
+        /** @description Dotted-path patches the editorial layer pins on purpose (`names.ru.short` → value), applied with the pipeline's highest priority. Absence of the field means no overrides; an empty object is never stored. */
+        AdminEntityOverrides: {
+            [key: string]: unknown;
+        };
+        AdminDraftEntityListItem: {
+            key: string;
+            type: components["schemas"]["AdminEntityType"];
+            status: components["schemas"]["AdminEntityStatus"];
+            includeInCountryCatalog: boolean;
+            recognitionStatus: string;
+            identifiers: components["schemas"]["AdminEntityIdentifiers"];
+            overrideCount: number;
+            /** @description The short name the active release serves, null when the release does not carry the entity yet. */
+            publishedName: string | null;
+        };
+        AdminDraftEntityList: {
+            items: components["schemas"]["AdminDraftEntityListItem"][];
+            total: number;
+        };
+        AdminDraftEntity: {
+            key: string;
+            type: components["schemas"]["AdminEntityType"];
+            status: components["schemas"]["AdminEntityStatus"];
+            includeInCountryCatalog: boolean;
+            recognitionStatus: string;
+            /** Format: date */
+            recognitionAsOf?: string;
+            /** Format: date */
+            validFrom?: string;
+            /** Format: date */
+            validTo?: string;
+            identifiers?: components["schemas"]["AdminEntityIdentifiers"];
+            overrides?: components["schemas"]["AdminEntityOverrides"];
+        };
+        AdminDraftEntityDetail: {
+            entity: components["schemas"]["AdminDraftEntity"];
+            /** @description Locale → the short name the active release serves; what an override the entity does not carry falls back to at build time. */
+            publishedNames: {
+                [key: string]: string;
+            };
+        };
+        AdminDraftEntityUpdateRequest: {
+            type?: components["schemas"]["AdminEntityType"];
+            status?: components["schemas"]["AdminEntityStatus"];
+            includeInCountryCatalog?: boolean;
+            recognitionStatus?: string;
+            /** @description An ISO date, or null to clear the field. */
+            recognitionAsOf?: string | null;
+            validFrom?: string | null;
+            validTo?: string | null;
+            identifiers?: components["schemas"]["AdminEntityIdentifiers"];
+            overrides?: components["schemas"]["AdminEntityOverrides"];
+        };
         AdminDraftAsset: {
             id: components["schemas"]["Uuid"];
             draftId: components["schemas"]["Uuid"];
@@ -624,12 +735,18 @@ export interface components {
             change: "added" | "replaced";
             reason: string | null;
         };
+        /** @description What the draft changed about one editorial entity, against the catalog this deployment was built from. Entities cannot be created or deleted editorially, so every entry is a change. */
+        AdminEntityDiffEntry: {
+            entityKey: string;
+            details: string[];
+        };
         AdminDraftDiff: {
             baseContentVersion: string;
             /** @description True when a release from this draft would change nothing. */
             isEmpty: boolean;
             decks: components["schemas"]["AdminDeckDiffEntry"][];
             assets: components["schemas"]["AdminAssetDiffEntry"][];
+            entities: components["schemas"]["AdminEntityDiffEntry"][];
         };
         /** @description What the client believed when it decided to propose. Any disagreement is refused rather than resolved silently. */
         AdminProposalRequest: {
@@ -1389,6 +1506,102 @@ export interface operations {
         };
         responses: {
             /** @description The deck was changed; the draft's revision moved on. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftStamp"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            409: components["responses"]["ConflictResponse"];
+            422: components["responses"]["ValidationResponse"];
+            428: components["responses"]["DraftIfMatchRequired"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListDraftEntities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The draft's entities in document order. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftEntityList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetDraftEntity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                entityKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The editorial record and the names the active release currently serves, which are what an override falls back to. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftEntityDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUpdateDraftEntity: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The draft revision the editor read, for optimistic concurrency. */
+                "If-Match": components["parameters"]["DraftIfMatch"];
+            };
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                entityKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminDraftEntityUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description The entity was changed; the draft's revision moved on. */
             200: {
                 headers: {
                     [name: string]: unknown;

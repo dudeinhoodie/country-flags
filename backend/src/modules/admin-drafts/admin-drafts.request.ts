@@ -144,6 +144,166 @@ export function parseDeckUpdateRequest(
   return changes;
 }
 
+const ENTITY_TYPES = [
+  "country",
+  "territory",
+  "area",
+  "region",
+  "subregion",
+] as const;
+const ENTITY_STATUSES = ["active", "historical", "retired", "hidden"] as const;
+const ENTITY_IDENTIFIER_KEYS = [
+  "isoAlpha2",
+  "isoAlpha3",
+  "m49",
+  "wikidataId",
+  "editorialKey",
+  "customCode",
+] as const;
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+/** Same shape the editorial schema allows for an override path. */
+const OVERRIDE_PATH_PATTERN = /^[A-Za-z0-9]+(?:\.[A-Za-z0-9_-]+)*$/;
+
+export interface EntityUpdateInput {
+  type?: (typeof ENTITY_TYPES)[number];
+  status?: (typeof ENTITY_STATUSES)[number];
+  includeInCountryCatalog?: boolean;
+  recognitionStatus?: string;
+  /** `null` clears the date; the document simply drops the field. */
+  recognitionAsOf?: string | null;
+  validFrom?: string | null;
+  validTo?: string | null;
+  identifiers?: Record<string, string>;
+  overrides?: Record<string, unknown>;
+}
+
+function parseIsoDate(value: unknown, field: string): string {
+  const raw = requiredString(value, field, 10, 10);
+  if (!ISO_DATE_PATTERN.test(raw)) {
+    validationError(field, "must be an ISO date (YYYY-MM-DD)");
+  }
+  return raw;
+}
+
+function parseEntityIdentifiers(
+  value: unknown,
+  field: string,
+): Record<string, string> {
+  const record = requestRecord(value, field);
+  exactRequestKeys(record, [...ENTITY_IDENTIFIER_KEYS], field);
+  const identifiers: Record<string, string> = {};
+  for (const [key, raw] of Object.entries(record)) {
+    identifiers[key] = requiredString(raw, `${field}.${key}`, 1, 100);
+  }
+  return identifiers;
+}
+
+/**
+ * Overrides are dotted-path patches (`names.ru.short` → value) with the
+ * pipeline's highest priority. The paths are open by design — the editorial
+ * layer may pin any merged field — so only their shape is checked here; the
+ * document schema and the build decide what a path may carry.
+ */
+function parseEntityOverrides(
+  value: unknown,
+  field: string,
+): Record<string, unknown> {
+  const record = requestRecord(value, field);
+  for (const [path, override] of Object.entries(record)) {
+    if (path.length > 200 || !OVERRIDE_PATH_PATTERN.test(path)) {
+      validationError(`${field}.${path}`, "is not a valid override path");
+    }
+    if (override === undefined) {
+      validationError(`${field}.${path}`, "must carry a value");
+    }
+  }
+  return record;
+}
+
+export function parseEntityUpdateRequest(body: unknown): EntityUpdateInput {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(
+    root,
+    [
+      "type",
+      "status",
+      "includeInCountryCatalog",
+      "recognitionStatus",
+      "recognitionAsOf",
+      "validFrom",
+      "validTo",
+      "identifiers",
+      "overrides",
+    ],
+    "body",
+  );
+  const changes: EntityUpdateInput = {};
+  if (root.type !== undefined) {
+    if (
+      typeof root.type !== "string" ||
+      !ENTITY_TYPES.includes(root.type as never)
+    ) {
+      validationError("type", `must be one of: ${ENTITY_TYPES.join(", ")}`);
+    }
+    changes.type = root.type as (typeof ENTITY_TYPES)[number];
+  }
+  if (root.status !== undefined) {
+    if (
+      typeof root.status !== "string" ||
+      !ENTITY_STATUSES.includes(root.status as never)
+    ) {
+      validationError(
+        "status",
+        `must be one of: ${ENTITY_STATUSES.join(", ")}`,
+      );
+    }
+    changes.status = root.status as (typeof ENTITY_STATUSES)[number];
+  }
+  if (root.includeInCountryCatalog !== undefined) {
+    if (typeof root.includeInCountryCatalog !== "boolean") {
+      validationError("includeInCountryCatalog", "must be a boolean");
+    }
+    changes.includeInCountryCatalog = root.includeInCountryCatalog;
+  }
+  if (root.recognitionStatus !== undefined) {
+    changes.recognitionStatus = requiredString(
+      root.recognitionStatus,
+      "recognitionStatus",
+      1,
+      100,
+    );
+  }
+  if (root.recognitionAsOf !== undefined) {
+    changes.recognitionAsOf =
+      root.recognitionAsOf === null
+        ? null
+        : parseIsoDate(root.recognitionAsOf, "recognitionAsOf");
+  }
+  if (root.validFrom !== undefined) {
+    changes.validFrom =
+      root.validFrom === null
+        ? null
+        : parseIsoDate(root.validFrom, "validFrom");
+  }
+  if (root.validTo !== undefined) {
+    changes.validTo =
+      root.validTo === null ? null : parseIsoDate(root.validTo, "validTo");
+  }
+  if (root.identifiers !== undefined) {
+    changes.identifiers = parseEntityIdentifiers(
+      root.identifiers,
+      "identifiers",
+    );
+  }
+  if (root.overrides !== undefined) {
+    changes.overrides = parseEntityOverrides(root.overrides, "overrides");
+  }
+  if (Object.keys(changes).length === 0) {
+    validationError("body", "must change at least one field");
+  }
+  return changes;
+}
+
 const VERSION_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
 const SEMVER_PATTERN = /^\d+\.\d+\.\d+$/;
 

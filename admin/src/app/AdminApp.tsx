@@ -8,6 +8,8 @@ import { RuntimeConfigProvider } from "../config/RuntimeConfigContext";
 import { AccessEdit } from "../resources/access/AccessEdit";
 import { AccessList } from "../resources/access/AccessList";
 import { DeckEditor } from "../resources/drafts/DeckEditor";
+import { DraftEntities } from "../resources/drafts/DraftEntities";
+import { EntityEditor } from "../resources/drafts/EntityEditor";
 import { DeckList } from "../resources/decks/DeckList";
 import { DeckShow } from "../resources/decks/DeckShow";
 import { EntityList } from "../resources/entities/EntityList";
@@ -56,6 +58,14 @@ export function AdminApp({ config }: { config: RuntimeConfig }) {
                 <Route
                   path="/drafts/:draftId/assets"
                   element={<DraftAssetsPage />}
+                />
+                <Route
+                  path="/drafts/:draftId/entities"
+                  element={<DraftEntities />}
+                />
+                <Route
+                  path="/drafts/:draftId/entities/:entityKey"
+                  element={<EntityEditor />}
                 />
               </CustomRoutes>
               <Resource
