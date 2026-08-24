@@ -98,3 +98,62 @@ export function renderRaster(
 export function sha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
 }
+
+export interface ImageInspection {
+  mimeType: "image/svg+xml" | "image/png";
+  widthPx: number | null;
+  heightPx: number | null;
+  aspectRatio: number | null;
+  /** Sanitized SVG text; absent for raster input, which is published as-is. */
+  svg?: string;
+}
+
+const PNG_SIGNATURE = Buffer.from([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+]);
+
+/**
+ * Reads a PNG's declared size from its IHDR chunk, which the signature
+ * guarantees comes first. A file whose bytes do not say PNG is not treated
+ * as one no matter what the upload claimed: extension and client-supplied
+ * media type are attacker-controlled, the bytes are not.
+ */
+export function inspectPng(bytes: Buffer): ImageInspection {
+  if (
+    bytes.length < 24 ||
+    !bytes.subarray(0, 8).equals(PNG_SIGNATURE) ||
+    bytes.subarray(12, 16).toString("ascii") !== "IHDR"
+  ) {
+    throw new UnsafeAssetError("The file is not a PNG image");
+  }
+  const widthPx = bytes.readUInt32BE(16);
+  const heightPx = bytes.readUInt32BE(20);
+  if (widthPx === 0 || heightPx === 0) {
+    throw new UnsafeAssetError("The PNG declares an empty canvas");
+  }
+  return {
+    mimeType: "image/png",
+    widthPx,
+    heightPx,
+    aspectRatio: widthPx / heightPx,
+  };
+}
+
+/**
+ * The single entry point an upload path should use: decide what the bytes
+ * actually are, refuse anything else, and return only vetted output.
+ */
+export function inspectImage(bytes: Buffer): ImageInspection {
+  if (bytes.subarray(0, 8).equals(PNG_SIGNATURE)) {
+    return inspectPng(bytes);
+  }
+  const text = bytes.toString("utf8");
+  const svg = sanitizeSvg(text);
+  return {
+    mimeType: "image/svg+xml",
+    widthPx: null,
+    heightPx: null,
+    aspectRatio: svgViewBoxRatio(svg),
+    svg,
+  };
+}

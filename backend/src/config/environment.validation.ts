@@ -44,6 +44,7 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   ADMIN_SESSION_ABSOLUTE_TTL_SECONDS: number;
   ADMIN_CATALOG_PATH: string;
   ADMIN_EDITORIAL_SCHEMA_PATH: string;
+  ADMIN_ASSET_MAX_BYTES: number;
   SHUTDOWN_DRAIN_MS: number;
 }
 
@@ -521,6 +522,15 @@ export function validateEnvironment(
       config.ADMIN_EDITORIAL_SCHEMA_PATH,
       "../contracts/schemas/content/editorial-catalog.v1.schema.json",
       "ADMIN_EDITORIAL_SCHEMA_PATH",
+    ),
+    // Flags and coats of arms are small; the limit exists to stop a
+    // pathological upload rather than to size a real one.
+    ADMIN_ASSET_MAX_BYTES: parseInteger(
+      config.ADMIN_ASSET_MAX_BYTES,
+      2 * 1024 * 1024,
+      "ADMIN_ASSET_MAX_BYTES",
+      1024,
+      50 * 1024 * 1024,
     ),
     SHUTDOWN_DRAIN_MS: parseInteger(
       config.SHUTDOWN_DRAIN_MS,
