@@ -836,6 +836,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@country-flags/asset-core@workspace:*, @country-flags/asset-core@workspace:tools/asset-core":
+  version: 0.0.0-use.local
+  resolution: "@country-flags/asset-core@workspace:tools/asset-core"
+  dependencies:
+    "@eslint/js": "npm:10.0.1"
+    "@resvg/resvg-js": "npm:2.6.2"
+    "@types/node": "npm:22.17.0"
+    eslint: "npm:10.8.1"
+    eslint-config-prettier: "npm:10.1.8"
+    globals: "npm:16.3.0"
+    prettier: "npm:3.6.2"
+    typescript: "npm:5.8.3"
+    typescript-eslint: "npm:8.67.0"
+  languageName: unknown
+  linkType: soft
+
 "@country-flags/backend@workspace:backend":
   version: 0.0.0-use.local
   resolution: "@country-flags/backend@workspace:backend"
@@ -889,6 +905,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@country-flags/content-pipeline@workspace:tools/content-pipeline"
   dependencies:
+    "@country-flags/asset-core": "workspace:*"
     "@eslint/js": "npm:9.32.0"
     "@resvg/resvg-js": "npm:2.6.2"
     "@types/node": "npm:22.17.0"

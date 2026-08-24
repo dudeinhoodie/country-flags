@@ -148,6 +148,22 @@ jobs:
             cat content-refresh-diff.json
             echo '```'
             echo
+            echo "### Editorial asset overrides"
+            echo
+            # An override outranks whatever the upstream project draws, so a
+            # refresh that changes the drawing underneath one has to be seen
+            # by a human: the flag is not lost, but the reason for keeping it
+            # may have just expired.
+            overrides_file="content/generated/${CONTENT_VERSION}/reports/asset-overrides.json"
+            if [ -f "$overrides_file" ] && jq -e '.items | length > 0' "$overrides_file" > /dev/null; then
+              echo "These entities publish an editorially supplied drawing rather than the upstream one."
+              echo "If this refresh changed the upstream flag, check whether the override is still warranted."
+              echo
+              jq -r '.items[] | "- `\(.entityKey)`: \(.reason) (displaces: \(if (.shadowedSourceKeys | length) > 0 then (.shadowedSourceKeys | join(", ")) else "nothing" end))"' "$overrides_file"
+            else
+              echo "None."
+            fi
+            echo
             echo "### Reports"
             echo
             echo '```json'
