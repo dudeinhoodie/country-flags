@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { CardStatus, DeckStatus } from "@prisma/client";
 
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { deckCodeFromKey } from "../content/bundle/bundle-mapper";
 import { membersMode, resolveDeckMembers } from "./deck-membership";
 import type {
   EditorialDeck,
@@ -35,6 +36,12 @@ interface EditorialCatalogDocument {
 }
 
 /**
+ * An editorial deck key and a published deck code are two namespaces: the
+ * release build derives `Deck.code` from `deck.key`, so comparing them
+ * directly would report every deck as new. The diff maps through the
+ * publisher's own derivation, which is the only thing guaranteed to agree
+ * with what a release actually produces.
+ *
  * What a release built from this draft would change, said in the domain's
  * own words — decks, membership and replaced drawings — rather than as a
  * JSON patch. An editor decides whether to propose from this, and a JSON
@@ -72,7 +79,7 @@ export class DraftDiffService {
 
     const decks: DeckDiffEntry[] = [];
     for (const deck of catalog.decks) {
-      const counterpart = publishedByCode.get(deck.key);
+      const counterpart = publishedByCode.get(deckCodeFromKey(deck.key));
       if (counterpart === undefined) {
         decks.push({
           deckKey: deck.key,
@@ -121,9 +128,11 @@ export class DraftDiffService {
       }
     }
 
-    const draftDeckKeys = new Set(catalog.decks.map((deck) => deck.key));
+    const draftDeckCodes = new Set(
+      catalog.decks.map((deck) => deckCodeFromKey(deck.key)),
+    );
     for (const deck of published) {
-      if (!draftDeckKeys.has(deck.code)) {
+      if (!draftDeckCodes.has(deck.code)) {
         decks.push({
           deckKey: deck.code,
           change: "removed",
