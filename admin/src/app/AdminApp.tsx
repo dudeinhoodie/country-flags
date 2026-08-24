@@ -11,6 +11,7 @@ import { DeckEditor } from "../resources/drafts/DeckEditor";
 import { DeckList } from "../resources/decks/DeckList";
 import { DeckShow } from "../resources/decks/DeckShow";
 import { EntityList } from "../resources/entities/EntityList";
+import { DraftAssetsPage } from "../resources/drafts/DraftAssetsPage";
 import { DraftList } from "../resources/drafts/DraftList";
 import { DraftShow } from "../resources/drafts/DraftShow";
 import { EntityShow } from "../resources/entities/EntityShow";
@@ -51,6 +52,10 @@ export function AdminApp({ config }: { config: RuntimeConfig }) {
                 <Route
                   path="/drafts/:draftId/decks/:deckKey"
                   element={<DeckEditor />}
+                />
+                <Route
+                  path="/drafts/:draftId/assets"
+                  element={<DraftAssetsPage />}
                 />
               </CustomRoutes>
               <Resource

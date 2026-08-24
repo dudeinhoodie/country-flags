@@ -3,6 +3,8 @@ import { test } from "node:test";
 
 import {
   assertAspectRatioMatchesViewBox,
+  inspectImage,
+  inspectPng,
   renderRaster,
   sanitizeSvg,
   sha256,
@@ -64,4 +66,38 @@ void test("raster rendering is deterministic and scales by height", () => {
 void test("sha256 hashes both text and bytes", () => {
   assert.equal(sha256("a"), sha256(Buffer.from("a")));
   assert.match(sha256("a"), /^[0-9a-f]{64}$/);
+});
+
+void test("PNG bytes are recognized and measured, other bytes are not", () => {
+  const png = renderRaster(sanitizeSvg(FLAG), 2).png;
+  const inspected = inspectPng(png);
+  assert.equal(inspected.mimeType, "image/png");
+  assert.equal(inspected.heightPx, 240);
+  assert.equal(inspected.widthPx, 360);
+  assert.equal(inspected.aspectRatio, 1.5);
+  assert.throws(
+    () => inspectPng(Buffer.from("GIF89a and then some")),
+    UnsafeAssetError,
+  );
+});
+
+void test("image inspection trusts bytes, never the claimed type", () => {
+  const png = renderRaster(sanitizeSvg(FLAG), 2).png;
+  assert.equal(inspectImage(png).mimeType, "image/png");
+
+  const svg = inspectImage(Buffer.from(FLAG, "utf8"));
+  assert.equal(svg.mimeType, "image/svg+xml");
+  assert.equal(svg.aspectRatio, 1.5);
+  assert.ok(svg.svg?.startsWith("<svg"));
+
+  // A hostile drawing renamed to look like a flag is still refused.
+  assert.throws(
+    () =>
+      inspectImage(Buffer.from('<svg onload="steal()"><rect/></svg>', "utf8")),
+    UnsafeAssetError,
+  );
+  assert.throws(
+    () => inspectImage(Buffer.from("just text", "utf8")),
+    UnsafeAssetError,
+  );
 });
