@@ -195,8 +195,14 @@ describe("Admin draft validation and diff (integration)", () => {
       .set("Origin", TRUSTED_ORIGIN);
     expect(validated.status).toBe(200);
     const result = bodyOf<ValidationResult>(validated);
+    // The fixture release carries a small taxonomy, so decks built from
+    // nodes it does not classify warn here; only the release build sees the
+    // merged sources that resolve them.
     expect(result.report.blocking).toBe(0);
     expect(result.status).toBe("READY");
+    expect(
+      result.report.findings.every((finding) => finding.level === "warning"),
+    ).toBe(true);
 
     // The verdict is stored, not just returned.
     expect((await currentDraft()).validationReport?.blocking).toBe(0);

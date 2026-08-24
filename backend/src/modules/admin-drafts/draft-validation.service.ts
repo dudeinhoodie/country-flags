@@ -185,14 +185,18 @@ export class DraftValidationService {
             ),
           );
         }
-      } catch (error) {
+      } catch {
+        // Only the release build classifies against freshly merged sources;
+        // this preview sees the active release's taxonomy, which is one
+        // refresh behind. A node the preview cannot walk may well resolve at
+        // build time, so this warns rather than blocking legitimate work —
+        // an explicit list, which needs no taxonomy at all, is checked
+        // above and does block.
         findings.push(
-          blocking(
-            "DECK_UNRESOLVABLE",
+          warning(
+            "DECK_UNRESOLVABLE_HERE",
             deck.key,
-            error instanceof Error
-              ? "The deck cannot be resolved against this catalog"
-              : "The deck cannot be resolved",
+            "This preview cannot resolve the deck against the active release's taxonomy; the release build resolves it against freshly merged sources",
           ),
         );
       }
