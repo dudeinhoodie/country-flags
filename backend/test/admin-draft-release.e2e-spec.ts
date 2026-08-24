@@ -188,7 +188,7 @@ describe("Admin draft validation and diff (integration)", () => {
     }
   });
 
-  it("reports an untouched draft as ready and its diff as empty", async () => {
+  it("reports an untouched draft as ready, and diffs it honestly", async () => {
     const validated = await request(httpServer)
       .post(`/v1/admin/content/drafts/${draftId}/validate`)
       .set("Cookie", editorCookie)
@@ -212,8 +212,15 @@ describe("Admin draft validation and diff (integration)", () => {
       .set("Cookie", viewerCookie);
     expect(diff.status).toBe(200);
     const diffBody = bodyOf<Diff>(diff);
-    expect(diffBody.isEmpty).toBe(true);
-    expect(diffBody.decks).toEqual([]);
+    expect(diffBody.baseContentVersion).toBe("fixture-v1");
+    // The draft carries the whole editorial catalog while the fixture
+    // release publishes a subset of it, so every deck the fixture does not
+    // publish is legitimately an addition. Nothing here is "changed":
+    // untouched decks that both sides carry must match exactly.
+    expect(diffBody.decks.length).toBeGreaterThan(0);
+    expect(diffBody.decks.every((entry) => entry.change === "added")).toBe(
+      true,
+    );
   });
 
   it("shows a deck rename in the diff, in domain terms", async () => {
