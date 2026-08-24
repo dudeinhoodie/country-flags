@@ -212,6 +212,69 @@ export interface paths {
         patch: operations["adminUpdateDraftDeck"];
         trace?: never;
     };
+    "/v1/admin/content/drafts/{draftId}/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /** List the assets uploaded into a draft */
+        get: operations["adminListDraftAssets"];
+        put?: never;
+        /**
+         * Upload a replacement asset into a draft
+         * @description Multipart upload. The bytes decide what the file is — the filename and the declared media type are ignored — and only SVG or PNG is accepted. SVG is sanitized before storage, the checksum, dimensions and aspect ratio are computed server-side, and the object lands in a non-public bucket that is only ever read back through the preview endpoint. Re-uploading identical bytes returns the existing asset rather than creating a second one.
+         */
+        post: operations["adminUploadDraftAsset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/drafts/{draftId}/assets/{assetId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                assetId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an uploaded asset from a draft */
+        delete: operations["adminDeleteDraftAsset"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/drafts/{draftId}/assets/{assetId}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the bytes of a draft asset
+         * @description Draft objects live in a non-public bucket, so the console reads them back through the API rather than linking at storage.
+         */
+        get: operations["adminPreviewDraftAsset"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/content/drafts/{draftId}/validate": {
         parameters: {
             query?: never;
@@ -445,6 +508,47 @@ export interface components {
                 [key: string]: components["schemas"]["AdminDeckLocalizedText"];
             };
             members?: components["schemas"]["AdminDeckMembers"];
+        };
+        AdminDraftAsset: {
+            id: components["schemas"]["Uuid"];
+            draftId: components["schemas"]["Uuid"];
+            entityContentKey: string;
+            assetType: string;
+            variant: string;
+            /** @enum {string} */
+            mimeType: "image/svg+xml" | "image/png";
+            sha256: string;
+            width: number | null;
+            height: number | null;
+            aspectRatio: number | null;
+            sourceUrl: string | null;
+            licenseName: string | null;
+            licenseUrl: string | null;
+            attribution: string | null;
+            replacementReason: string | null;
+            /** @enum {string} */
+            validationStatus: "PENDING" | "VALID" | "INVALID";
+            createdAt: components["schemas"]["DateTime"];
+            updatedAt: components["schemas"]["DateTime"];
+        };
+        AdminDraftAssetList: {
+            items: components["schemas"]["AdminDraftAsset"][];
+            total: number;
+        };
+        AdminDraftAssetUploadRequest: {
+            /** Format: binary */
+            file: string;
+            entityContentKey: string;
+            /** @enum {string} */
+            assetType: "FLAG" | "COAT_OF_ARMS";
+            /** @default default */
+            variant: string;
+            sourceUrl: string;
+            licenseName: string;
+            licenseUrl?: string;
+            attribution?: string;
+            /** @description Why a human replaced the upstream drawing. Required: it travels into the proposal and the audit trail. */
+            replacementReason: string;
         };
         AdminValidationFinding: {
             /** @enum {string} */
@@ -1234,6 +1338,138 @@ export interface operations {
             409: components["responses"]["ConflictResponse"];
             422: components["responses"]["ValidationResponse"];
             428: components["responses"]["DraftIfMatchRequired"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListDraftAssets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The draft's uploaded assets. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftAssetList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUploadDraftAsset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["AdminDraftAssetUploadRequest"];
+            };
+        };
+        responses: {
+            /** @description The stored draft asset. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftAsset"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            /** @description The file is empty, too large, not an SVG or PNG, unsafe, or the required provenance fields are missing. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminDeleteDraftAsset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                assetId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The asset is no longer part of the draft. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminPreviewDraftAsset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                assetId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The stored drawing. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/svg+xml": string;
+                    "image/png": string;
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
             default: components["responses"]["ErrorResponse"];
         };
     };

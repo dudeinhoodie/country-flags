@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --project tsconfig.build.json",
+    "build": "yarn workspace @country-flags/asset-core build && tsc --project tsconfig.build.json",
     "content": "yarn build && node dist/src/cli.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"*.{json,mjs}\" \"editorial/**/*.json\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"*.{json,mjs}\" \"editorial/**/*.json\"",
@@ -23,6 +23,7 @@
     "typescript-eslint": "8.38.0"
   },
   "dependencies": {
+    "@country-flags/asset-core": "workspace:*",
     "@resvg/resvg-js": "2.6.2",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1"

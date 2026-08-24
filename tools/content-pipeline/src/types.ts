@@ -82,6 +82,35 @@ export interface AssetCandidate {
   aspectRatio: number;
   provenance: Provenance;
   license: string;
+  /**
+   * Who must be credited for this drawing. Adapters default to their
+   * upstream project; an editorial override names whoever supplied it,
+   * because crediting flag-icons for a drawing it did not make is wrong.
+   */
+  attribution?: string;
+  validFrom?: string;
+  validTo?: string;
+}
+
+/**
+ * An editorially supplied asset that outranks every adapter candidate.
+ *
+ * The drawing itself lives beside the catalog at
+ * `editorial/overrides/assets/<entityKey>.svg`; this record carries the
+ * provenance a published asset must have. Without an explicit layer the next
+ * source refresh would silently overwrite a hand-picked flag, so the
+ * override is a first-class part of the editorial document rather than a
+ * patch applied after the fact.
+ */
+export interface EditorialAssetOverride {
+  entityKey: string;
+  assetType: "flag";
+  aspectRatio: number;
+  license: string;
+  sourceUrl: string;
+  attribution?: string;
+  /** Why a human replaced the upstream drawing; it travels into review. */
+  reason: string;
   validFrom?: string;
   validTo?: string;
 }
@@ -134,6 +163,7 @@ export interface EditorialCatalog {
     primary: boolean;
   }[];
   decks: EditorialDeck[];
+  assetOverrides?: EditorialAssetOverride[];
 }
 
 export interface Conflict {
@@ -162,6 +192,25 @@ export interface PipelineReports {
   missingTranslations: { entityKey: string; locale: string }[];
   missingAssets: { entityKey: string }[];
   licenseProblems: { entityKey: string; reason: string }[];
+  /**
+   * An editorial override that displaced adapter candidates. Reported for
+   * the same reason field conflicts are: a silent win is a decision nobody
+   * can review, and a source refresh that changes the upstream drawing under
+   * an active override has to be visible in the refresh pull request.
+   */
+  assetOverrides: AssetOverrideReport[];
+}
+
+export interface AssetOverrideReport {
+  entityKey: string;
+  reason: string;
+  /** Adapter candidates the override displaced, by source key. */
+  shadowedSourceKeys: string[];
+  /**
+   * Checksum of the upstream drawing this override replaced, when there was
+   * one. A refresh that changes it flags the override for a second look.
+   */
+  shadowedSha256: string | null;
 }
 
 export interface BuildOptions {
