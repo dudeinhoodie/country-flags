@@ -57,7 +57,7 @@
     },
     "assetOverrides": {
       "type": "array",
-      "description": "Editorially supplied drawings that outrank every adapter candidate. The file itself lives at editorial/overrides/assets/<entityKey>.svg; without this layer the next source refresh would silently overwrite a hand-picked flag.",
+      "description": "Editorially supplied drawings that outrank every adapter candidate. The file itself lives at editorial/overrides/assets/<entityKey>.svg, or .png for a drawing that never had a vector; without this layer the next source refresh would silently overwrite a hand-picked flag.",
       "items": {
         "$ref": "#/$defs/assetOverride"
       }

@@ -718,10 +718,11 @@ schemas:
       representations:
         description: >-
           Every published encoding of this asset, in the order a client should
-          prefer them: the vector original first, then raster by ascending
-          scale. A client picks the encoding that suits its screen and can fall
-          back down the list, so an encoding it cannot render is inert rather
-          than fatal.
+          prefer them: the vector original first when one exists, then raster
+          by ascending scale. An editorially supplied drawing may never have
+          had a vector and publishes a single raster instead. A client picks
+          the encoding that suits its screen and can fall back down the list,
+          so an encoding it cannot render is inert rather than fatal.
 
           This is the only place an encoding is described. The asset used to
           carry the vector a second time, in its own `url`, `mimeType` and

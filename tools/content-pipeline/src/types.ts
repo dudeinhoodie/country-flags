@@ -78,7 +78,14 @@ export interface RelationCandidate {
 export interface AssetCandidate {
   entity: EntityReference;
   upstreamPath: string;
-  svg: string;
+  /**
+   * The vector original. Absent only for a raster-only editorial override,
+   * which then carries `png` instead: an editor may supply a drawing that
+   * never had a vector, and pretending otherwise would publish a fake one.
+   */
+  svg?: string;
+  /** Raster original bytes; present exactly when `svg` is absent. */
+  png?: Buffer;
   aspectRatio: number;
   provenance: Provenance;
   license: string;
@@ -96,11 +103,12 @@ export interface AssetCandidate {
  * An editorially supplied asset that outranks every adapter candidate.
  *
  * The drawing itself lives beside the catalog at
- * `editorial/overrides/assets/<entityKey>.svg`; this record carries the
- * provenance a published asset must have. Without an explicit layer the next
- * source refresh would silently overwrite a hand-picked flag, so the
- * override is a first-class part of the editorial document rather than a
- * patch applied after the fact.
+ * `editorial/overrides/assets/<entityKey>.svg` (or `.png` for a drawing
+ * that never had a vector); this record carries the provenance a published
+ * asset must have. Without an explicit layer the next source refresh would
+ * silently overwrite a hand-picked flag, so the override is a first-class
+ * part of the editorial document rather than a patch applied after the
+ * fact.
  */
 export interface EditorialAssetOverride {
   entityKey: string;

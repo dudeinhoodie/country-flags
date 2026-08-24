@@ -3,6 +3,7 @@ import { join } from "node:path";
 
 import {
   assertAspectRatioMatchesViewBox,
+  inspectPng,
   RASTER_SCALES,
   renderRaster,
   sanitizeSvg,
@@ -56,6 +57,9 @@ export async function buildAsset(
   if (candidate.license.trim().length === 0) {
     throw new Error(`${entityKey} asset has no approved license`);
   }
+  if (candidate.svg === undefined) {
+    return buildRasterOnlyAsset(outputDirectory, entityKey, candidate);
+  }
   const svg = sanitizeSvg(candidate.svg);
   assertAspectRatioMatchesViewBox(
     svg,
@@ -91,6 +95,57 @@ export async function buildAsset(
     representations: [
       { path: relativePath, mimeType: "image/svg+xml", sha256: sha256(svg) },
       ...raster,
+    ],
+    aspectRatio: candidate.aspectRatio,
+    sourcePath: candidate.upstreamPath,
+    license: candidate.license,
+    attribution: candidate.attribution ?? "lipis/flag-icons contributors",
+    provenance: candidate.provenance,
+    validFrom: candidate.validFrom ?? null,
+    validTo: candidate.validTo ?? null,
+  };
+}
+
+/**
+ * A raster-only editorial override: the editor supplied a PNG and no vector
+ * exists, so none is invented. One representation, published at the file's
+ * own pixel size and no declared screen scale — the client's fallback rule
+ * ("whatever decodes at all") is exactly the case this shape exists for.
+ */
+async function buildRasterOnlyAsset(
+  outputDirectory: string,
+  entityKey: string,
+  candidate: AssetCandidate,
+): Promise<BuiltAsset> {
+  const png = candidate.png;
+  if (png === undefined) {
+    throw new Error(`${entityKey} asset carries neither a vector nor a raster`);
+  }
+  const { widthPx, heightPx } = inspectPng(png);
+  if (widthPx === null || heightPx === null) {
+    throw new Error(`${entityKey} asset PNG declares no size`);
+  }
+  const actualRatio = widthPx / heightPx;
+  if (Math.abs(actualRatio - candidate.aspectRatio) > 0.01) {
+    throw new Error(
+      `${entityKey} asset aspectRatio ${String(candidate.aspectRatio)} does not match the PNG's ${String(actualRatio)}`,
+    );
+  }
+  const slug = entityKey.replace(/^(?:area|country|territory)\./u, "");
+  const relativePath = `assets/png/${slug}.png`;
+  await mkdir(join(outputDirectory, "assets/png"), { recursive: true });
+  await writeFile(join(outputDirectory, relativePath), png);
+  return {
+    key: `flag.${slug}.current`,
+    entityKey,
+    representations: [
+      {
+        path: relativePath,
+        mimeType: "image/png",
+        sha256: sha256(png),
+        widthPx,
+        heightPx,
+      },
     ],
     aspectRatio: candidate.aspectRatio,
     sourcePath: candidate.upstreamPath,
