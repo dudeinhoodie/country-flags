@@ -220,6 +220,17 @@ private struct StubOutbox: OutboxRepository {
 
     func requeueInterruptedOperations(for scope: AccountScope) async throws -> Int { 0 }
 
+    func operations(
+        failedWith code: String,
+        for scope: AccountScope
+    ) async throws -> [OutboxOperationRecord] { [] }
+
+    func requeue(
+        _ operationID: UUID,
+        withPayload payload: Data,
+        for scope: AccountScope
+    ) async throws {}
+
     func cursor(
         _ feed: SyncCursorRecord.Feed,
         for scope: AccountScope

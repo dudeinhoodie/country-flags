@@ -148,6 +148,26 @@ public protocol OutboxRepository: Sendable {
     /// queue on the next launch rather than staying invisible forever.
     func requeueInterruptedOperations(for scope: AccountScope) async throws -> Int
 
+    /// The operations the backend refused with one particular code, oldest
+    /// first. Most refusals are final, but not every one is about the
+    /// operation itself; the caller decides which codes it knows how to cure.
+    func operations(
+        failedWith code: String,
+        for scope: AccountScope
+    ) async throws -> [OutboxOperationRecord]
+
+    /// Replaces an operation's payload and returns it to the queue.
+    ///
+    /// The payload is otherwise immutable — stored encoded, so a later build
+    /// cannot change what an earlier one promised to send. The one exception
+    /// is a corrected resend: when the backend refused a field, rewriting that
+    /// field is the only way the promise can still be kept.
+    func requeue(
+        _ operationID: UUID,
+        withPayload payload: Data,
+        for scope: AccountScope
+    ) async throws
+
     func cursor(_ feed: SyncCursorRecord.Feed, for scope: AccountScope) async throws -> SyncCursorRecord?
     func saveCursor(_ cursor: SyncCursorRecord, for scope: AccountScope) async throws
 
