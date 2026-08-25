@@ -54,46 +54,86 @@ struct ContentStatusBanner: View {
 /// answers over, and VoiceOver reads that instead of a bare number.
 struct SyncStatusChip: View {
     let status: SyncStatus
+    /// The queue just drained: the chip says so before it says nothing.
+    @State private var showsSynced = false
+
+    init(status: SyncStatus) {
+        self.status = status
+    }
+    /// Which drain the fade-out belongs to, so a new success restarts the
+    /// three seconds instead of being cut short by the previous timer.
+    @State private var successGeneration = 0
 
     var body: some View {
-        if let state {
-            HStack(spacing: DesignTokens.Spacing.extraSmall) {
-                Image(systemName: state.symbol)
-                    .accessibilityHidden(true)
-                Text(state.title)
-                    .accessibilityIdentifier(AccessibilityIdentifier.syncStatus)
-                    .accessibilityLabel(state.spoken)
+        Group {
+            if let state {
+                HStack(spacing: DesignTokens.Spacing.extraSmall) {
+                    Image(systemName: state.symbol)
+                        .accessibilityHidden(true)
+                    Text(state.title)
+                        .accessibilityIdentifier(AccessibilityIdentifier.syncStatus)
+                        .accessibilityLabel(state.spoken)
+                }
+                .font(DesignTokens.Typography.caption)
+                .monospacedDigit()
+                // The whole chip turns green for the made-it moment — the
+                // colour change is the celebration, animated so it arrives
+                // rather than snaps — and white otherwise.
+                .foregroundStyle(showsSynced ? Color.green : .white)
+                .transition(.opacity)
             }
-            .font(DesignTokens.Typography.caption)
-            .monospacedDigit()
+        }
+        .animation(.easeInOut(duration: 0.45), value: showsSynced)
+        .animation(.easeInOut(duration: 0.35), value: status.pendingCount)
+        // The moment the queue empties is worth a word of its own: a counter
+        // that silently vanishes reads as "gave up", not "made it". The word
+        // holds for three seconds and fades on its own.
+        .onChange(of: status.pendingCount) { previous, current in
+            guard previous > 0, current == 0, status.lastFailure == nil else { return }
+            showsSynced = true
+            successGeneration += 1
+            let generation = successGeneration
+            Task {
+                try? await Task.sleep(for: .seconds(3))
+                if generation == successGeneration {
+                    showsSynced = false
+                }
+            }
         }
     }
 
-    private struct State {
+    private struct Presentation {
         let symbol: String
         let title: String
         /// What the chip would have said if it had room. Also the line the
-        /// UI tests read, so the meaning stays checkable after the number
-        /// stopped being a sentence.
+        /// UI tests read, so the meaning stays checkable in one place.
         let spoken: String
     }
 
-    /// Unsent answers win over a missing signal; a device with neither says
-    /// nothing at all.
-    private var state: State? {
+    /// Unsent answers win over everything; the success word holds the spot
+    /// they just left; a missing signal comes after; a healthy, empty queue
+    /// says nothing at all.
+    private var state: Presentation? {
         if status.pendingCount > 0 {
-            return State(
+            return Presentation(
                 symbol: "arrow.up.circle",
-                title: status.pendingCount.formatted(),
+                title: L10n.syncPendingChip(status.pendingCount),
                 spoken: status.isHeldForGuest
                     ? L10n.syncSavedOnDevice(status.pendingCount)
                     : L10n.syncPending(status.pendingCount)
             )
         }
+        if showsSynced {
+            return Presentation(
+                symbol: "checkmark.circle",
+                title: L10n.syncSynced,
+                spoken: L10n.syncSynced
+            )
+        }
         // Without a queue there is nothing waiting, but a learner about to
         // answer still wants to know the answers will not leave yet.
         if status.lastFailure == .offline {
-            return State(
+            return Presentation(
                 symbol: "wifi.slash",
                 title: L10n.syncOfflineShort,
                 spoken: L10n.syncOffline

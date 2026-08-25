@@ -3602,6 +3602,23 @@
         }
       }
     },
+    "sync.pending.chip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To sync: %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "К отправке: %lld"
+          }
+        }
+      }
+    },
     "sync.saved_on_device": {
       "extractionState": "manual",
       "localizations": {
@@ -3668,6 +3685,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Войди, чтобы прогресс синхронизировался между устройствами."
+          }
+        }
+      }
+    },
+    "sync.synced": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synced"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронизировано"
           }
         }
       }
