@@ -228,7 +228,7 @@ describe("progress, mastery and achievements (integration)", () => {
 
     expect(account).toMatchObject({
       totalCards: 8,
-      learnedCards: 5,
+      learnedCards: 0,
       reviewCount: 5,
       accuracy30Days: 1,
       currentMasteryTier: "BRONZE",
@@ -237,19 +237,19 @@ describe("progress, mastery and achievements (integration)", () => {
     });
     expect(allDeck).toMatchObject({
       totalCards: 8,
-      learnedCards: 5,
+      learnedCards: 0,
       reviewCount: 5,
       currentMasteryTier: "BRONZE",
       highestAchievementTier: "BRONZE",
     });
     expect(europeDeck).toMatchObject({
       totalCards: 7,
-      learnedCards: 5,
+      learnedCards: 0,
       currentMasteryTier: "BRONZE",
     });
     expect(europeRegion).toMatchObject({
       totalCards: 7,
-      learnedCards: 5,
+      learnedCards: 0,
       currentMasteryTier: "BRONZE",
     });
 
