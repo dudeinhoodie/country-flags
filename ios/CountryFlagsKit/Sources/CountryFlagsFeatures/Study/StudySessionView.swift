@@ -222,12 +222,14 @@ public struct StudySessionView: View {
                 .buttonStyle(GlassActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
         }
-        // A tap that lands beside the card turns it like a tap on it would:
-        // the whole scene is the card's ground, and aiming at the exact
-        // rectangle is a precision nobody owes. The gesture sits behind the
-        // interactive children, so buttons and swipes keep winning.
+        // A tap that lands beside the card closes it, and only closes: the
+        // back is often read at arm's length and dismissed with whatever
+        // finger is free, while revealing stays a deliberate act on the card
+        // or its button — a stray touch must not spend the reveal. The
+        // gesture sits behind the interactive children, so buttons and
+        // swipes keep winning.
         .contentShape(Rectangle())
-        .onTapGesture { toggleCard() }
+        .onTapGesture { if isShowingBack { toggleCard() } }
         .animation(reduceMotion ? nil : .default, value: state.isAnswerRevealed)
         // The one this moment is given in docs/16, §6.
         .sensoryFeedback(.impact(flexibility: .soft), trigger: state.isAnswerRevealed) { _, revealed in
