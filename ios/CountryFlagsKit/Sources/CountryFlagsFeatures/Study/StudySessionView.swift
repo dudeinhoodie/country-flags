@@ -165,6 +165,18 @@ public struct StudySessionView: View {
                 swipeProgress: $swipeProgress,
                 commandedThrow: $commandedThrow
             )
+            // The rating bar that used to sit under a revealed card is gone —
+            // the swipe is the answer, and the hints below say where each one
+            // leads. VoiceOver cannot swipe a throw, so the four ratings ride
+            // on the card as actions instead of as buttons everyone else must
+            // scroll past.
+            .accessibilityActions {
+                if state.isAnswerRevealed {
+                    ForEach(StudyRating.allCases, id: \.self) { rating in
+                        Button(L10n.studyRating(rating)) { commandedThrow = rating }
+                    }
+                }
+            }
 
             // Where each throw leads, said before the first one is made. The
             // side the throw is heading for lights up as it goes.
@@ -179,19 +191,16 @@ public struct StudySessionView: View {
                     .accessibilityIdentifier(AccessibilityIdentifier.studyNotSaved)
             }
 
-            if state.isAnswerRevealed {
-                // The swipe reaches two of the four ratings; these reach all of
-                // them, and they are the only way in for VoiceOver.
-                ratingButtons(disabled: state.isCommitting)
-            } else {
+            if !state.isAnswerRevealed {
                 // The button says it will show the answer, so it turns the
-                // card over. Unlocking the ratings without turning it left the
-                // learner looking at the same flag and no answer anywhere.
+                // card over. Once it has, nothing replaces it: the swipe is
+                // the answer, the hints above say where each one leads, and a
+                // second row of the same choices below was noise.
                 //
                 // Glass, not the white capsule: white is the scene's loudest
                 // voice and belongs to the one action a screen recommends —
                 // here that is answering the card, and this button is the way
-                // to peek, sitting where the rating pane is about to appear.
+                // to peek.
                 Button {
                     runner.revealAnswer()
                     isShowingBack = true
@@ -272,59 +281,6 @@ public struct StudySessionView: View {
         palette = await FlagPaletteReader.palette(for: record, assets: assets) ?? .neutral
     }
 
-    /// One pane of glass holding four targets rather than four floating
-    /// buttons: the row is a single object the thumb learns the position of,
-    /// and the material behind it belongs to the scene rather than to each
-    /// button separately.
-    private func ratingButtons(disabled: Bool) -> some View {
-        // One bar, four words: separate glass buttons read as four floating
-        // pills and broke the row into confetti — one pane holding four
-        // targets is the object the thumb learns the position of.
-        HStack(spacing: DesignTokens.Spacing.extraSmall) {
-            ForEach(StudyRating.allCases, id: \.self) { rating in
-                // The button does not rate directly: it asks the stack to
-                // throw, and the throw rates — one path, so the card always
-                // visibly takes the answer with it.
-                Button {
-                    commandedThrow = rating
-                } label: {
-                    Text(L10n.studyRating(rating))
-                        .font(DesignTokens.Typography.body.weight(rating == .good ? .semibold : .medium))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: DesignTokens.Layout.actionHeight)
-                        .foregroundStyle(tint(for: rating))
-                        // "Good" is the answer most cards get, so it is the
-                        // one the thumb finds without aiming.
-                        .background {
-                            if rating == .good {
-                                Capsule(style: .continuous).fill(.white)
-                            }
-                        }
-                        .contentShape(Capsule(style: .continuous))
-                }
-                // The buttons are disabled rather than hidden while a rating is
-                // written, so a second tap lands on nothing and the layout does
-                // not jump under the learner's finger.
-                .disabled(disabled)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyRating(rating))
-            }
-        }
-        .padding(DesignTokens.Spacing.extraSmall)
-        .glassEffect(.regular, in: Capsule(style: .continuous))
-    }
-
-    /// The rating's lean, worn quietly. Whitened well past pastel so the row
-    /// stays one calm object; the word, not the colour, is the carrier.
-    private func tint(for rating: StudyRating) -> Color {
-        switch rating {
-        case .again: Color.red.mix(with: .white, by: 0.55)
-        case .hard: Color.orange.mix(with: .white, by: 0.6)
-        case .good: .black
-        case .easy: Color.green.mix(with: .white, by: 0.6)
-        }
-    }
 }
 
 /// The session's verdict, read off the waterline.

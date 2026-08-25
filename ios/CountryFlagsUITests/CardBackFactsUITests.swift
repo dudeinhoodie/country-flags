@@ -50,7 +50,8 @@ final class CardBackFactsUITests: XCTestCase {
             // of latency is theirs to take.
             isCapitalShown = capital.waitForExistence(timeout: 3)
             if !isCapitalShown {
-                app.buttons["study.rating.GOOD"].tap()
+                app.descendants(matching: .any).matching(identifier: "study.card")
+                    .firstMatch.swipeRight()
             }
         }
 

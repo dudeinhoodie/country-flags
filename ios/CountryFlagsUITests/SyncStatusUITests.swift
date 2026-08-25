@@ -21,7 +21,8 @@ final class SyncStatusUITests: XCTestCase {
             XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 15))
             app.buttons["study.reveal"].tap()
             XCTAssertTrue(app.staticTexts["study.answer"].waitForExistence(timeout: 10))
-            app.buttons["study.rating.GOOD"].tap()
+            app.descendants(matching: .any).matching(identifier: "study.card")
+                .firstMatch.swipeRight()
         }
 
         // The session screen has no navigation bar any more: the flag is the
