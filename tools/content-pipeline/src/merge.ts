@@ -153,6 +153,10 @@ function nameFactValue(
   if (!Array.isArray(value) || value.length === 0) {
     return value;
   }
+  // `Array.isArray` narrows an unknown to `any[]`, and every element read out
+  // of it would be an `any` this function then hands back. Naming the element
+  // type keeps what leaves here as unexamined as what came in.
+  const entries: unknown[] = value;
   const report = (names: Record<string, string>, detail?: string): void => {
     for (const locale of locales) {
       if (typeof names[locale] !== "string") {
@@ -171,12 +175,12 @@ function nameFactValue(
     // gets nothing: which seat a single name belongs to is exactly what is
     // unknown, and a name on the wrong seat is worse than an absent one.
     const offered =
-      value.length === 1
+      entries.length === 1
         ? ((entity.localizedNames as MutableRecord | undefined)?.capitals as
             | Record<string, string>
             | undefined)
         : undefined;
-    return value.map((seat) => {
+    return entries.map((seat) => {
       if (!isRecord(seat)) {
         return seat;
       }
@@ -191,7 +195,7 @@ function nameFactValue(
 
   if (factType === "languages") {
     const table = lexicon.languages ?? {};
-    return value.map((entry) => {
+    return entries.map((entry) => {
       if (!isRecord(entry) || typeof entry.code !== "string") {
         return entry;
       }
