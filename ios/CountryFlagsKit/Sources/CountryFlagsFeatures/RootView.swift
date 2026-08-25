@@ -418,6 +418,7 @@ public enum AccessibilityIdentifier {
     public static let studyResultDone = "study.result.done"
     /// The one action the first screen recommends.
     public static let homeContinue = "home.continue"
+    public static let homeLoading = "home.loading"
 
     public static func studyRating(_ rating: StudyRating) -> String {
         "study.rating.\(rating.rawValue)"
