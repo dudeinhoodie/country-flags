@@ -59,10 +59,6 @@ struct AppComposition: AppDependencies {
     /// The session behind `scopes`, for the account surface that signs in
     /// and out of it.
     let sessions: SessionCoordinator
-    /// The exchange behind the session, kept because one operation needs it
-    /// directly: proving identity again for a sensitive request, which creates
-    /// no session and must not rotate the one there is.
-    let authentication: any AuthenticationService
     let guestMigrations: GuestMigrationCoordinator
     let studySessions: StudySessionService
     let settingsSync: any SettingsSyncing
@@ -339,7 +335,6 @@ struct AppComposition: AppDependencies {
             // in, the guest otherwise. One answer for the whole app.
             scopes: sessions,
             sessions: sessions,
-            authentication: authService,
             guestMigrations: guestMigrations,
             studySessions: studySessions,
             settingsSync: progressService,
@@ -449,21 +444,16 @@ struct AppComposition: AppDependencies {
     /// is the store's business and nobody else's.
     func makeAccountLifecycleStore() -> AccountLifecycleStore {
         let account = AccountLifecycleStore(
-            directory: accountService,
-            exporting: accountService,
             deleting: accountService,
-            reauthentication: makeReauthenticationCoordinator(),
             session: sessions,
             scopes: scopes,
             cleaner: store.makeAccountScopeCleaner(),
             deletionState: UserDefaultsAccountDeletionStateStore(),
-            dates: dates,
             logger: logger
         )
         account.onSignedOut = { [router] in
-            // Whatever ended the session — a deletion, or revoking this very
-            // device — the screen it happened on is about an account that is
-            // no longer there.
+            // A deletion ended the session; the screen it happened on is
+            // about an account that is no longer there.
             await MainActor.run { router.popToRoot() }
         }
         return account
@@ -494,28 +484,6 @@ struct AppComposition: AppDependencies {
         )
     }
 
-    /// A coordinator per attempt, for the same reason the stores are built per
-    /// visit: it holds a fresh proof for the length of one operation, and an
-    /// object that outlived the screen would be an object holding one longer
-    /// than the contract intends.
-    private func makeReauthenticationCoordinator() -> ReauthenticationCoordinator {
-        ReauthenticationCoordinator(
-            auth: authentication,
-            nonces: SystemNonceGenerator(),
-            google: configuration.googleClientID.map { clientID in
-                GoogleSignInAdapter(
-                    clientID: clientID,
-                    serverClientID: configuration.googleServerClientID
-                )
-            },
-            // The same gate the fixture sign-in uses: debug environments only,
-            // and only when the launch asked for it.
-            allowsFixtureProof: Self.allowsFixtureCredentials(configuration),
-            dates: dates,
-            logger: logger
-        )
-    }
-
     /// Whether this run may stand a fixture credential in for a provider sheet.
     private static func allowsFixtureCredentials(_ configuration: RuntimeConfiguration) -> Bool {
         configuration.environment.allowsDebugAffordances
@@ -525,7 +493,6 @@ struct AppComposition: AppDependencies {
     /// Clearing progress is assembled per visit like every other store.
     func makeClearProgressStore() -> ClearProgressStore {
         let clearProgress = ClearProgressStore(
-            reauthentication: makeReauthenticationCoordinator(),
             clearing: progressClearing,
             learning: store.makeLearningRepository(),
             outbox: store.makeOutboxRepository(),

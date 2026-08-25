@@ -186,7 +186,6 @@ export class DataExportDownloadsController {
 export class AccountDeletionController {
   constructor(
     private readonly deletion: AccountDeletionService,
-    private readonly reauthentication: ReauthenticationTokenService,
     private readonly rateLimiter: RateLimiter,
   ) {}
 
@@ -194,13 +193,11 @@ export class AccountDeletionController {
   @HttpCode(HttpStatus.ACCEPTED)
   async delete(
     @Req() request: PrivateRequest,
-    @Headers("x-reauthentication-token") proof: string | undefined,
   ): Promise<Record<string, unknown>> {
-    await this.reauthentication.verify(
-      proof,
-      request.authenticatedUserId,
-      currentSessionId(request),
-    );
+    // A signed-in session is the gate; the confirmation lives in the client
+    // dialog. The fresh provider proof this used to demand killed the flow
+    // on devices where reauthentication could not complete, and the deletion
+    // itself stays a grace-period request rather than an immediate erasure.
     await this.rateLimiter.consume(
       "account:delete",
       request.authenticatedUserId,

@@ -4,27 +4,27 @@ import CountryFlagsDomain
 @testable import CountryFlagsInfrastructure
 import CountryFlagsMockBackend
 
-/// Deleting an account's progress is the one request that carries a fresh
-/// proof. These pin what goes on the wire, and what the device deletes when
-/// the backend agrees — which is nothing until it does.
+/// Deleting an account's progress. These pin what goes on the wire, and what
+/// the device deletes when the backend agrees — which is nothing until it
+/// does. The session is the whole gate: no reauthentication proof travels
+/// with the request any more.
 final class ClearProgressServiceTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
     private let account = AccountScope.authenticated(
         userID: UUID(uuidString: "90000000-0000-4000-8000-00000000000c")!
     )
 
-    func testTheRequestCarriesTheProofAndTheConfirmation() async throws {
+    func testTheRequestCarriesTheConfirmation() async throws {
         let transport = MockClientTransport()
         await transport.always(Self.acceptedResponse, for: "deleteProgress")
 
-        let outcome = try await Self.makeService(transport: transport)
-            .clearProgress(provingWith: ReauthenticationProof(token: "proof-1", expiresAt: now))
+        let outcome = try await Self.makeService(transport: transport).clearProgress()
 
         XCTAssertEqual(outcome.status, .pending)
         XCTAssertEqual(outcome.requestedAt, now)
         let sent = await transport.requests(for: "deleteProgress")
         let request = try XCTUnwrap(sent.first)
-        XCTAssertEqual(request.header("x-reauthentication-token"), "proof-1")
+        XCTAssertNil(request.header("x-reauthentication-token"))
         // Compared as a document rather than as text: the generated encoder
         // decides the whitespace, and a test that pinned it would break on a
         // generator update without anything on the wire having changed.
@@ -32,57 +32,17 @@ final class ClearProgressServiceTests: XCTestCase {
         XCTAssertEqual(body as? [String: String], ["confirmation": "DELETE_PROGRESS"])
     }
 
-    /// Every other request keeps travelling without the proof: it is attached
-    /// to the one client built for the one operation.
-    func testTheProofIsNotAttachedToOtherRequests() async throws {
-        let transport = MockClientTransport()
-        await transport.always(Self.acceptedResponse, for: "deleteProgress")
-        await transport.always(
-            .json(
-                """
-                {"sessionSize":10,"contentLocale":"en","defaultAnswerMode":"SELF_RATED",\
-                "extraFactTypes":[],"soundEnabled":true,"hapticsEnabled":true,\
-                "remindersEnabled":false,"desiredRetention":0.9,"timezone":"UTC",\
-                "version":1,"updatedAt":"2027-01-15T08:00:00Z"}
-                """
-            ),
-            for: "getSettings"
-        )
-        await transport.always(
-            .json(
-                """
-                {"sessionSize":10,"contentLocale":"en","defaultAnswerMode":"SELF_RATED",\
-                "extraFactTypes":[],"soundEnabled":true,"hapticsEnabled":true,\
-                "remindersEnabled":false,"desiredRetention":0.9,"timezone":"UTC",\
-                "version":2,"updatedAt":"2027-01-15T08:00:00Z"}
-                """
-            ),
-            for: "updateSettings"
-        )
-        let service = Self.makeService(transport: transport)
-
-        _ = try await service.clearProgress(
-            provingWith: ReauthenticationProof(token: "proof-1", expiresAt: now)
-        )
-        _ = try await service.update(Self.settings(now: now))
-
-        let settingsRequests = await transport.requests(for: "updateSettings")
-        let settingsRequest = try XCTUnwrap(settingsRequests.first)
-        XCTAssertNil(settingsRequest.header("x-reauthentication-token"))
-    }
-
-    /// A refused proof is a refusal to delete. It must reach the caller as an
+    /// A refusal is a refusal to delete. It must reach the caller as an
     /// error rather than as an outcome that would license a local wipe.
-    func testARefusedProofFails() async throws {
+    func testARefusalFails() async throws {
         let transport = MockClientTransport()
         await transport.always(
-            .errorEnvelope(statusCode: 401, code: "REAUTHENTICATION_REQUIRED"),
+            .errorEnvelope(statusCode: 401, code: "UNAUTHORIZED"),
             for: "deleteProgress"
         )
 
         do {
-            _ = try await Self.makeService(transport: transport)
-                .clearProgress(provingWith: ReauthenticationProof(token: "stale", expiresAt: now))
+            _ = try await Self.makeService(transport: transport).clearProgress()
             XCTFail("Expected the refusal to be thrown")
         } catch let error as APIError {
             guard case .unauthorized = error else {

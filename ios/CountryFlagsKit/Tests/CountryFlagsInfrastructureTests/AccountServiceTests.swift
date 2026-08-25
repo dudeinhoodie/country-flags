@@ -202,7 +202,7 @@ final class AccountServiceTests: XCTestCase {
 
     // MARK: - Deletion
 
-    func testDeletingTheAccountCarriesTheProofAndReportsTheDate() async throws {
+    func testDeletingTheAccountReportsTheDate() async throws {
         let transport = MockClientTransport()
         await transport.always(
             .json(
@@ -215,13 +215,14 @@ final class AccountServiceTests: XCTestCase {
             for: "deleteMe"
         )
 
-        let deletion = try await makeService(transport: transport)
-            .deleteAccount(provingWith: ReauthenticationProof(token: "proof-2", expiresAt: now))
+        // The session is the whole gate: no reauthentication proof travels
+        // with the request any more.
+        let deletion = try await makeService(transport: transport).deleteAccount()
 
         XCTAssertEqual(deletion.requestedAt, now)
         XCTAssertEqual(deletion.expectedCompletionAt, now.addingTimeInterval(7 * 86_400))
         let requests = await transport.requests(for: "deleteMe")
-        XCTAssertEqual(requests.first?.header("x-reauthentication-token"), "proof-2")
+        XCTAssertNil(requests.first?.header("x-reauthentication-token"))
     }
 
     // MARK: - Harness

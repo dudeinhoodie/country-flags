@@ -141,12 +141,10 @@ public struct AccountService: AccountDirectory, DataExporting, AccountDeleting {
 
     // MARK: - Deletion
 
-    public func deleteAccount(
-        provingWith proof: ReauthenticationProof
-    ) async throws -> AccountDeletionRecord {
+    public func deleteAccount() async throws -> AccountDeletionRecord {
         let output: Operations.deleteMe.Output
         do {
-            output = try await clientFactory.makeClient(proving: proof).deleteMe()
+            output = try await clientFactory.makeClient().deleteMe()
         } catch {
             throw APIError.from(error).presentable
         }

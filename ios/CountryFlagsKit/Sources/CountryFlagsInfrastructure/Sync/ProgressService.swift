@@ -73,12 +73,10 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, ProgressCle
     /// with what the learner just signed in for.
     ///
     /// Nothing local is touched here: the caller wipes the device only once
-    /// this returns, so a refusal — an expired proof, a network that dropped —
+    /// this returns, so a refusal — a dead session, a network that dropped —
     /// leaves the learner with everything they had.
-    public func clearProgress(
-        provingWith proof: ReauthenticationProof
-    ) async throws -> ProgressDeletionOutcome {
-        let client = clientFactory.makeClient(proving: proof)
+    public func clearProgress() async throws -> ProgressDeletionOutcome {
+        let client = clientFactory.makeClient()
         let output: Operations.deleteProgress.Output
         do {
             output = try await client.deleteProgress(

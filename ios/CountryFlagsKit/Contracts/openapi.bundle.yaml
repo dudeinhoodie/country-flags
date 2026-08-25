@@ -324,9 +324,7 @@ paths:
       summary: Request complete account deletion
       operationId: deleteMe
       x-implementation-status: implemented
-      security:
-        - BearerAuth: []
-          ReauthenticationToken: []
+      description: A signed-in session is the gate; the client asks for an explicit confirmation before calling. The deletion stays a grace-period request rather than an immediate erasure, which is what makes the session alone acceptable proof.
       responses:
         '202':
           description: Deletion request accepted
@@ -964,9 +962,6 @@ paths:
       description: Removes review history, card states, study sessions, achievements and deck mastery while keeping the account, identities, devices and settings. The account change stream is rotated, so cursors issued before the deletion stop resolving and every device performs a full progress resynchronization.
       operationId: deleteProgress
       x-implementation-status: implemented
-      security:
-        - BearerAuth: []
-          ReauthenticationToken: []
       requestBody:
         required: true
         content:
@@ -2620,7 +2615,7 @@ components:
             - OTHER
         representations:
           description: |-
-            Every published encoding of this asset, in the order a client should prefer them: the vector original first, then raster by ascending scale. A client picks the encoding that suits its screen and can fall back down the list, so an encoding it cannot render is inert rather than fatal.
+            Every published encoding of this asset, in the order a client should prefer them: the vector original first when one exists, then raster by ascending scale. An editorially supplied drawing may never have had a vector and publishes a single raster instead. A client picks the encoding that suits its screen and can fall back down the list, so an encoding it cannot render is inert rather than fatal.
             This is the only place an encoding is described. The asset used to carry the vector a second time, in its own `url`, `mimeType` and `sha256`, so that a client written before this field kept working; those are gone in v2 and this list is now required.
           type: array
           minItems: 1

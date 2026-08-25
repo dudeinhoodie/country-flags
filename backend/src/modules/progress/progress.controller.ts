@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -16,7 +15,6 @@ import { ApiException } from "../../common/http/api.exception";
 import type { RequestWithId } from "../../common/http/request-id.middleware";
 import { RateLimiter } from "../../common/security/rate-limiter.service";
 import { type AuthenticatedRequest, AuthGuard } from "../auth/auth.guard";
-import { ReauthenticationTokenService } from "../auth/reauthentication-token.service";
 import { parseLimit, parseUuid } from "../content/content-query";
 import { parseDeleteProgressRequest } from "./delete-progress.request";
 import { ProgressDeletionService } from "./progress-deletion.service";
@@ -30,7 +28,6 @@ export class ProgressController {
   constructor(
     private readonly progress: ProgressService,
     private readonly deletion: ProgressDeletionService,
-    private readonly reauthentication: ReauthenticationTokenService,
     private readonly rateLimiter: RateLimiter,
   ) {}
 
@@ -52,9 +49,12 @@ export class ProgressController {
   @HttpCode(HttpStatus.ACCEPTED)
   async deleteProgress(
     @Req() request: PrivateRequest,
-    @Headers("x-reauthentication-token") proof: string | undefined,
     @Body() body: unknown,
   ): Promise<Record<string, unknown>> {
+    // A signed-in session and an explicit confirmation are the whole gate:
+    // the fresh provider proof this used to demand killed the flow on
+    // devices where reauthentication could not complete, and progress —
+    // unlike the account itself — is recoverable by studying again.
     parseDeleteProgressRequest(body);
     if (request.authenticatedSessionId === null) {
       throw new ApiException(
@@ -63,11 +63,6 @@ export class ProgressController {
         "A session access token is required for this operation",
       );
     }
-    await this.reauthentication.verify(
-      proof,
-      request.authenticatedUserId,
-      request.authenticatedSessionId,
-    );
     await this.rateLimiter.consume(
       "account:delete-progress",
       request.authenticatedUserId,
