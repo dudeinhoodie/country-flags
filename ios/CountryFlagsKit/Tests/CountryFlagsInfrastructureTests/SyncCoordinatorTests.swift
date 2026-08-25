@@ -384,6 +384,9 @@ actor RecordingUploader: ReviewUploading {
         let acknowledgements = operations.compactMap { operation -> ReviewAcknowledgement? in
             guard let status = acknowledgeAll ?? results[operation.id] else { return nil }
             return ReviewAcknowledgement(
+                // The uploader traces the server's review IDs back to the
+                // operations it sent; the fake stands in for that bridge.
+                operationID: operation.id,
                 eventID: operation.id,
                 status: status,
                 rejectionCode: status == .rejected ? rejectionCode : nil,

@@ -434,7 +434,13 @@ public final class StudySessionRunner {
             responseTimeMilliseconds: nil,
             clientOccurredAt: now,
             estimatedServerOccurredAt: nil,
-            clientSequence: Int64(session.committed.count + 1),
+            // The backend requires the sequence to be unique per device, not
+            // per session: numbering each session from one collided on the
+            // second session ever run, and only the first twenty answers of a
+            // device were ever accepted. Wall-clock milliseconds are unique at
+            // the speed a human answers and monotonic across sessions,
+            // reinstalls and cleared stores alike.
+            clientSequence: Int64(now.timeIntervalSince1970 * 1000),
             baseStateVersion: base?.stateVersion
         )
         let projected = LocalSchedulerProjection.project(
