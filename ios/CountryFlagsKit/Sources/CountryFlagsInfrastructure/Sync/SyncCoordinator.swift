@@ -422,7 +422,11 @@ public actor SyncCoordinator: SyncCoordinating {
         var canonicalStates: [CardStateRecord] = []
 
         for acknowledgement in outcome.acknowledgements {
-            guard submitted.contains(acknowledgement.eventID) else {
+            // The queue is keyed by operation IDs; the server's review IDs
+            // were already traced back to them by the uploader. Matching on
+            // the review ID here is the bug that once resent every batch
+            // forever: nothing was ever marked, so nothing ever cleared.
+            guard submitted.contains(acknowledgement.operationID) else {
                 // An identifier this device did not send is not something to
                 // act on.
                 continue
@@ -431,7 +435,7 @@ public actor SyncCoordinator: SyncCoordinating {
             switch acknowledgement.status {
             case .accepted, .duplicate:
                 try await outbox.updateState(
-                    of: acknowledgement.eventID,
+                    of: acknowledgement.operationID,
                     to: .synced,
                     failureCode: nil,
                     for: scope
@@ -441,7 +445,7 @@ public actor SyncCoordinator: SyncCoordinating {
                 // will come back every time, and a loop is worse than a
                 // diagnostic.
                 try await outbox.updateState(
-                    of: acknowledgement.eventID,
+                    of: acknowledgement.operationID,
                     to: .permanentFailure,
                     failureCode: acknowledgement.rejectionCode,
                     for: scope
@@ -456,7 +460,7 @@ public actor SyncCoordinator: SyncCoordinating {
                 // Still the backend's business; it stays queued so the next run
                 // asks again.
                 try await outbox.updateState(
-                    of: acknowledgement.eventID,
+                    of: acknowledgement.operationID,
                     to: .pending,
                     failureCode: nil,
                     for: scope
@@ -470,7 +474,7 @@ public actor SyncCoordinator: SyncCoordinating {
 
         // An item the answer did not mention was never decided, so it goes back
         // to pending rather than being assumed lost or assumed stored.
-        let mentioned = Set(outcome.acknowledgements.map(\.eventID))
+        let mentioned = Set(outcome.acknowledgements.map(\.operationID))
         for operation in batch where !mentioned.contains(operation.id) {
             try await outbox.updateState(
                 of: operation.id,

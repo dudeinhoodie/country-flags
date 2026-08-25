@@ -20,6 +20,13 @@ public enum ReviewAcknowledgementStatus: String, Hashable, Sendable, CaseIterabl
 
 /// One decision, with whatever canonical state came back with it.
 public struct ReviewAcknowledgement: Hashable, Sendable {
+    /// The outbox operation this decision settles. The server speaks in
+    /// review IDs, but the queue is keyed by operation IDs, and the two are
+    /// distinct by construction — an acknowledgement that was matched back to
+    /// its operation is the only kind the queue can act on. Marking by the
+    /// review ID instead is how every upload used to change nothing and the
+    /// same batch was sent forever.
+    public let operationID: UUID
     public let eventID: UUID
     public let status: ReviewAcknowledgementStatus
     public let rejectionCode: String?
@@ -28,11 +35,13 @@ public struct ReviewAcknowledgement: Hashable, Sendable {
     public let cardState: CardStateRecord?
 
     public init(
+        operationID: UUID,
         eventID: UUID,
         status: ReviewAcknowledgementStatus,
         rejectionCode: String?,
         cardState: CardStateRecord?
     ) {
+        self.operationID = operationID
         self.eventID = eventID
         self.status = status
         self.rejectionCode = rejectionCode

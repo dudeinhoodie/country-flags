@@ -332,7 +332,9 @@ public final class ObjectiveSessionRunner {
             responseTimeMilliseconds: nil,
             clientOccurredAt: now,
             estimatedServerOccurredAt: nil,
-            clientSequence: Int64(session.answers.count + 1),
+            // Unique per device, not per session — see StudySessionRunner:
+            // per-session numbering collided on the second session ever run.
+            clientSequence: Int64(now.timeIntervalSince1970 * 1000),
             baseStateVersion: base?.stateVersion
         )
         let projected = LocalSchedulerProjection.project(

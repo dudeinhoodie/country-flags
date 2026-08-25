@@ -62,6 +62,11 @@ public struct ReviewUploader: ReviewUploading {
         decoder.dateDecodingStrategy = .iso8601
 
         var events: [Components.Schemas.ReviewEvent] = []
+        // The server answers in review IDs; the queue is keyed by operation
+        // IDs. This map is the only bridge between the two, so an answer that
+        // cannot be traced back to its operation is dropped rather than acted
+        // on against the wrong key.
+        var operationIDByReviewID: [UUID: UUID] = [:]
         for operation in operations {
             guard let stored = try? decoder.decode(StoredReview.self, from: operation.payload) else {
                 // A payload this build cannot read is not something to guess
@@ -77,6 +82,7 @@ public struct ReviewUploader: ReviewUploading {
             }
             if let event = Self.event(from: stored, deviceID: deviceID) {
                 events.append(event)
+                operationIDByReviewID[stored.reviewID] = operation.id
             }
         }
 
@@ -98,7 +104,9 @@ public struct ReviewUploader: ReviewUploading {
         case .ok(let response):
             let payload = try response.body.json
             return ReviewBatchOutcome(
-                acknowledgements: payload.results.compactMap(Self.acknowledgement),
+                acknowledgements: payload.results.compactMap {
+                    Self.acknowledgement(from: $0, operationIDByReviewID: operationIDByReviewID)
+                },
                 cursor: payload.nextSyncCursor,
                 serverTime: payload.serverTime
             )
@@ -160,14 +168,17 @@ public struct ReviewUploader: ReviewUploading {
     }
 
     private static func acknowledgement(
-        from result: Components.Schemas.ReviewResult
+        from result: Components.Schemas.ReviewResult,
+        operationIDByReviewID: [UUID: UUID]
     ) -> ReviewAcknowledgement? {
         guard let eventID = UUID(uuidString: result.eventId),
+            let operationID = operationIDByReviewID[eventID],
             let status = ReviewAcknowledgementStatus(rawValue: result.status.rawValue)
         else {
             return nil
         }
         return ReviewAcknowledgement(
+            operationID: operationID,
             eventID: eventID,
             status: status,
             rejectionCode: result.rejectionCode,
