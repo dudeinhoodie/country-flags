@@ -164,10 +164,9 @@ public struct ProgressScreen: View {
 
             Spacer(minLength: DesignTokens.Spacing.small)
 
-            if let tier = deck.masteryTier {
-                MasteryTierLabel(tier: tier)
-            }
-
+            // The tier chip left this row: beside the name and the counts it
+            // broke the line at ordinary widths, and the tier still shows on
+            // the award itself in the achievements tab.
             Text(verbatim: "\(deck.learnedCards)/\(deck.totalCards)")
                 .font(DesignTokens.Typography.sectionTitle)
                 .monospacedDigit()

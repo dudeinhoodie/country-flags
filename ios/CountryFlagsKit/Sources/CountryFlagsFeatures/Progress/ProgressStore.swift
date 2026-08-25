@@ -26,14 +26,17 @@ public struct DeckProgressRow: Identifiable, Hashable, Sendable {
 
     public var isUntouched: Bool { startedCards == 0 }
 
-    /// How far through the deck the learner is, for a bar rather than a number.
+    /// How far through the deck the learner is, for a bar rather than a
+    /// number. Clamped: a deck whose membership shrank in a republished
+    /// release can report more started cards than it now holds, and a bar
+    /// drawn from that ratio runs past its card (Oceania did).
     public var fraction: Double {
-        totalCards > 0 ? Double(startedCards) / Double(totalCards) : 0
+        totalCards > 0 ? min(1, Double(startedCards) / Double(totalCards)) : 0
     }
 
-    /// The learned share of the same bar.
+    /// The learned share of the same bar, clamped for the same reason.
     public var learnedFraction: Double {
-        totalCards > 0 ? Double(learnedCards) / Double(totalCards) : 0
+        totalCards > 0 ? min(1, Double(learnedCards) / Double(totalCards)) : 0
     }
 }
 

@@ -162,6 +162,10 @@ public struct RootView: View {
             .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
             .tag(AppTab.progress)
 
+            // The achievements tab was tried and taken out the same day: a
+            // fourth tab for a list the sync fills on its own schedule read
+            // as an empty room. The screen and its stack stay in the package
+            // for whenever the trophies earn their place back.
         }
         // The scene is dark, so the app is: system controls, sheets and the
         // bars all take their colours from here rather than each screen
