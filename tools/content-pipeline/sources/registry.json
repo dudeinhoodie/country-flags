@@ -5,9 +5,9 @@
       "adapter": "cldr",
       "key": "cldr",
       "license": "Unicode-3.0",
-      "retrievedAt": "2026-07-28T13:09:45.791Z",
+      "retrievedAt": "2026-08-25T12:35:50.489Z",
       "revision": "48.2.0",
-      "sha256": "fae659092be9793d5513b9d37078032ecc8b6fd62aaf51a4058fd732a3cf2d75",
+      "sha256": "8c78694aaf9dd22bec1f64fb295e9a2202ef347b828ef017647bb23e53a554bf",
       "snapshotPath": "sources/snapshots/cldr.json",
       "url": "https://github.com/unicode-org/cldr-json/releases/tag/48.2.0"
     },
@@ -45,9 +45,9 @@
       "adapter": "wikidata",
       "key": "wikidata",
       "license": "CC0-1.0",
-      "retrievedAt": "2026-07-28T13:13:41.707Z",
+      "retrievedAt": "2026-08-25T12:36:30.959Z",
       "revision": "query-snapshot-2026-07-28",
-      "sha256": "e6d56069c5007a50ceb748c75f9396b7a59dab3b36ed5635bb670a3ddc6e610f",
+      "sha256": "9cb1824b2590883ac74e62054bfe7add66fe7ccb67bf8ac1e3f81689607a65f0",
       "snapshotPath": "sources/snapshots/wikidata.json",
       "url": "https://query.wikidata.org/sparql"
     },

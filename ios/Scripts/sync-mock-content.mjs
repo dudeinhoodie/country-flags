@@ -191,7 +191,9 @@ function factDisplayValue(factType, value) {
       return join(
         entries
           .filter((seat) => seat.role === undefined || seat.role === "official")
-          .map((seat) => seat.name)
+          // `name` is the shape releases published before the seat carried a
+          // name map still hold, and the API keeps reading it too.
+          .map((seat) => seat.names?.[PRIMARY_LOCALE] ?? seat.name)
           .filter((name) => typeof name === "string"),
       );
     case "POPULATION": {
@@ -216,11 +218,14 @@ function factDisplayValue(factType, value) {
     case "LANGUAGE":
       return join(
         entries
-          .map((entry) => entry.code)
-          .filter((code) => typeof code === "string")
-          .map((code) => {
+          .map((entry) => {
+            const published = entry.names?.[PRIMARY_LOCALE];
+            if (typeof published === "string" && published.length > 0) {
+              return published;
+            }
+            if (typeof entry.code !== "string") return null;
             try {
-              return languageNames.of(code) ?? null;
+              return languageNames.of(entry.code) ?? null;
             } catch {
               return null;
             }

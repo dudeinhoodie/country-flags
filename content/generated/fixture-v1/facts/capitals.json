@@ -31,7 +31,10 @@
       },
       "value": [
         {
-          "name": "Avarua",
+          "names": {
+            "en": "Avarua",
+            "ru": "Аваруа"
+          },
           "role": "official"
         }
       ]
@@ -46,7 +49,10 @@
       },
       "value": [
         {
-          "name": "Port-aux-Français",
+          "names": {
+            "en": "Port-aux-Français",
+            "ru": "Порт-о-Франсэ"
+          },
           "role": "official"
         }
       ]
@@ -71,7 +77,10 @@
       },
       "value": [
         {
-          "name": "Alofi",
+          "names": {
+            "en": "Alofi",
+            "ru": "Алофи"
+          },
           "role": "official"
         }
       ]
@@ -96,7 +105,10 @@
       },
       "value": [
         {
-          "name": "Kabul",
+          "names": {
+            "en": "Kabul",
+            "ru": "Кабул"
+          },
           "role": "official"
         }
       ]
@@ -111,7 +123,10 @@
       },
       "value": [
         {
-          "name": "Tirana",
+          "names": {
+            "en": "Tirana",
+            "ru": "Тирана"
+          },
           "role": "official"
         }
       ]
@@ -126,7 +141,10 @@
       },
       "value": [
         {
-          "name": "Algiers",
+          "names": {
+            "en": "Algiers",
+            "ru": "Алжир"
+          },
           "role": "official"
         }
       ]
@@ -141,7 +159,10 @@
       },
       "value": [
         {
-          "name": "Andorra la Vella",
+          "names": {
+            "en": "Andorra la Vella",
+            "ru": "Андорра-ла-Велья"
+          },
           "role": "official"
         }
       ]
@@ -156,7 +177,10 @@
       },
       "value": [
         {
-          "name": "Luanda",
+          "names": {
+            "en": "Luanda",
+            "ru": "Луанда"
+          },
           "role": "official"
         }
       ]
@@ -171,7 +195,10 @@
       },
       "value": [
         {
-          "name": "Saint John's",
+          "names": {
+            "en": "Saint John's",
+            "ru": "Сент-Джонс"
+          },
           "role": "official"
         }
       ]
@@ -186,7 +213,10 @@
       },
       "value": [
         {
-          "name": "Buenos Aires",
+          "names": {
+            "en": "Buenos Aires",
+            "ru": "Буэнос-Айрес"
+          },
           "role": "official"
         }
       ]
@@ -201,7 +231,10 @@
       },
       "value": [
         {
-          "name": "Yerevan",
+          "names": {
+            "en": "Yerevan",
+            "ru": "Ереван"
+          },
           "role": "official"
         }
       ]
@@ -216,7 +249,10 @@
       },
       "value": [
         {
-          "name": "Canberra",
+          "names": {
+            "en": "Canberra",
+            "ru": "Канберра"
+          },
           "role": "official"
         }
       ]
@@ -231,7 +267,10 @@
       },
       "value": [
         {
-          "name": "Vienna",
+          "names": {
+            "en": "Vienna",
+            "ru": "Вена"
+          },
           "role": "official"
         }
       ]
@@ -246,7 +285,10 @@
       },
       "value": [
         {
-          "name": "Baku",
+          "names": {
+            "en": "Baku",
+            "ru": "Баку"
+          },
           "role": "official"
         }
       ]
@@ -261,7 +303,10 @@
       },
       "value": [
         {
-          "name": "Nassau",
+          "names": {
+            "en": "Nassau",
+            "ru": "Нассау"
+          },
           "role": "official"
         }
       ]
@@ -276,7 +321,10 @@
       },
       "value": [
         {
-          "name": "Manama",
+          "names": {
+            "en": "Manama",
+            "ru": "Манама"
+          },
           "role": "official"
         }
       ]
@@ -291,7 +339,10 @@
       },
       "value": [
         {
-          "name": "Dhaka",
+          "names": {
+            "en": "Dhaka",
+            "ru": "Дакка"
+          },
           "role": "official"
         }
       ]
@@ -306,7 +357,10 @@
       },
       "value": [
         {
-          "name": "Bridgetown",
+          "names": {
+            "en": "Bridgetown",
+            "ru": "Бриджтаун"
+          },
           "role": "official"
         }
       ]
@@ -321,7 +375,10 @@
       },
       "value": [
         {
-          "name": "Minsk",
+          "names": {
+            "en": "Minsk",
+            "ru": "Минск"
+          },
           "role": "official"
         }
       ]
@@ -336,7 +393,10 @@
       },
       "value": [
         {
-          "name": "Brussels",
+          "names": {
+            "en": "Brussels",
+            "ru": "Брюссель"
+          },
           "role": "official"
         }
       ]
@@ -351,7 +411,10 @@
       },
       "value": [
         {
-          "name": "Belmopan",
+          "names": {
+            "en": "Belmopan",
+            "ru": "Бельмопан"
+          },
           "role": "official"
         }
       ]
@@ -366,7 +429,10 @@
       },
       "value": [
         {
-          "name": "Porto-Novo",
+          "names": {
+            "en": "Porto-Novo",
+            "ru": "Порто-Ново"
+          },
           "role": "official"
         }
       ]
@@ -381,7 +447,10 @@
       },
       "value": [
         {
-          "name": "Thimphu",
+          "names": {
+            "en": "Thimphu",
+            "ru": "Тхимпху"
+          },
           "role": "official"
         }
       ]
@@ -396,7 +465,9 @@
       },
       "value": [
         {
-          "name": "Sucre",
+          "names": {
+            "en": "Sucre"
+          },
           "role": "official"
         }
       ]
@@ -411,7 +482,10 @@
       },
       "value": [
         {
-          "name": "Sarajevo",
+          "names": {
+            "en": "Sarajevo",
+            "ru": "Сараево"
+          },
           "role": "official"
         }
       ]
@@ -426,7 +500,10 @@
       },
       "value": [
         {
-          "name": "Gaborone",
+          "names": {
+            "en": "Gaborone",
+            "ru": "Габороне"
+          },
           "role": "official"
         }
       ]
@@ -441,7 +518,10 @@
       },
       "value": [
         {
-          "name": "Brasília",
+          "names": {
+            "en": "Brasília",
+            "ru": "Бразилиа"
+          },
           "role": "official"
         }
       ]
@@ -456,7 +536,10 @@
       },
       "value": [
         {
-          "name": "Bandar Seri Begawan",
+          "names": {
+            "en": "Bandar Seri Begawan",
+            "ru": "Бандар-Сери-Бегаван"
+          },
           "role": "official"
         }
       ]
@@ -471,7 +554,10 @@
       },
       "value": [
         {
-          "name": "Sofia",
+          "names": {
+            "en": "Sofia",
+            "ru": "София"
+          },
           "role": "official"
         }
       ]
@@ -486,7 +572,10 @@
       },
       "value": [
         {
-          "name": "Ouagadougou",
+          "names": {
+            "en": "Ouagadougou",
+            "ru": "Уагадугу"
+          },
           "role": "official"
         }
       ]
@@ -501,7 +590,10 @@
       },
       "value": [
         {
-          "name": "Gitega",
+          "names": {
+            "en": "Gitega",
+            "ru": "Гитега"
+          },
           "role": "official"
         }
       ]
@@ -516,7 +608,10 @@
       },
       "value": [
         {
-          "name": "Praia",
+          "names": {
+            "en": "Praia",
+            "ru": "Прая"
+          },
           "role": "official"
         }
       ]
@@ -531,7 +626,10 @@
       },
       "value": [
         {
-          "name": "Phnom Penh",
+          "names": {
+            "en": "Phnom Penh",
+            "ru": "Пномпень"
+          },
           "role": "official"
         }
       ]
@@ -546,7 +644,10 @@
       },
       "value": [
         {
-          "name": "Yaoundé",
+          "names": {
+            "en": "Yaoundé",
+            "ru": "Яунде"
+          },
           "role": "official"
         }
       ]
@@ -561,7 +662,10 @@
       },
       "value": [
         {
-          "name": "Ottawa",
+          "names": {
+            "en": "Ottawa",
+            "ru": "Оттава"
+          },
           "role": "official"
         }
       ]
@@ -576,7 +680,10 @@
       },
       "value": [
         {
-          "name": "Bangui",
+          "names": {
+            "en": "Bangui",
+            "ru": "Банги"
+          },
           "role": "official"
         }
       ]
@@ -591,7 +698,10 @@
       },
       "value": [
         {
-          "name": "N'Djamena",
+          "names": {
+            "en": "N'Djamena",
+            "ru": "Нджамена"
+          },
           "role": "official"
         }
       ]
@@ -606,7 +716,10 @@
       },
       "value": [
         {
-          "name": "Santiago",
+          "names": {
+            "en": "Santiago",
+            "ru": "Сантьяго"
+          },
           "role": "official"
         }
       ]
@@ -621,7 +734,10 @@
       },
       "value": [
         {
-          "name": "Beijing",
+          "names": {
+            "en": "Beijing",
+            "ru": "Пекин"
+          },
           "role": "official"
         }
       ]
@@ -636,7 +752,10 @@
       },
       "value": [
         {
-          "name": "Bogotá",
+          "names": {
+            "en": "Bogotá",
+            "ru": "Богота"
+          },
           "role": "official"
         }
       ]
@@ -651,7 +770,10 @@
       },
       "value": [
         {
-          "name": "Moroni",
+          "names": {
+            "en": "Moroni",
+            "ru": "Морони"
+          },
           "role": "official"
         }
       ]
@@ -666,7 +788,10 @@
       },
       "value": [
         {
-          "name": "Brazzaville",
+          "names": {
+            "en": "Brazzaville",
+            "ru": "Браззавиль"
+          },
           "role": "official"
         }
       ]
@@ -681,7 +806,10 @@
       },
       "value": [
         {
-          "name": "San José",
+          "names": {
+            "en": "San José",
+            "ru": "Сан-Хосе"
+          },
           "role": "official"
         }
       ]
@@ -696,7 +824,10 @@
       },
       "value": [
         {
-          "name": "Yamoussoukro",
+          "names": {
+            "en": "Yamoussoukro",
+            "ru": "Ямусукро"
+          },
           "role": "official"
         }
       ]
@@ -711,7 +842,10 @@
       },
       "value": [
         {
-          "name": "Zagreb",
+          "names": {
+            "en": "Zagreb",
+            "ru": "Загреб"
+          },
           "role": "official"
         }
       ]
@@ -726,7 +860,10 @@
       },
       "value": [
         {
-          "name": "Havana",
+          "names": {
+            "en": "Havana",
+            "ru": "Гавана"
+          },
           "role": "official"
         }
       ]
@@ -741,7 +878,10 @@
       },
       "value": [
         {
-          "name": "Nicosia",
+          "names": {
+            "en": "Nicosia",
+            "ru": "Никосия"
+          },
           "role": "official"
         }
       ]
@@ -756,7 +896,10 @@
       },
       "value": [
         {
-          "name": "Prague",
+          "names": {
+            "en": "Prague",
+            "ru": "Прага"
+          },
           "role": "official"
         }
       ]
@@ -771,7 +914,10 @@
       },
       "value": [
         {
-          "name": "Pyongyang",
+          "names": {
+            "en": "Pyongyang",
+            "ru": "Пхеньян"
+          },
           "role": "official"
         }
       ]
@@ -786,7 +932,10 @@
       },
       "value": [
         {
-          "name": "Kinshasa",
+          "names": {
+            "en": "Kinshasa",
+            "ru": "Киншаса"
+          },
           "role": "official"
         }
       ]
@@ -801,7 +950,10 @@
       },
       "value": [
         {
-          "name": "Copenhagen",
+          "names": {
+            "en": "Copenhagen",
+            "ru": "Копенгаген"
+          },
           "role": "official"
         }
       ]
@@ -816,7 +968,10 @@
       },
       "value": [
         {
-          "name": "Djibouti",
+          "names": {
+            "en": "Djibouti",
+            "ru": "Джибути"
+          },
           "role": "official"
         }
       ]
@@ -831,7 +986,10 @@
       },
       "value": [
         {
-          "name": "Roseau",
+          "names": {
+            "en": "Roseau",
+            "ru": "Розо"
+          },
           "role": "official"
         }
       ]
@@ -846,7 +1004,10 @@
       },
       "value": [
         {
-          "name": "Santo Domingo",
+          "names": {
+            "en": "Santo Domingo",
+            "ru": "Санто-Доминго"
+          },
           "role": "official"
         }
       ]
@@ -861,7 +1022,10 @@
       },
       "value": [
         {
-          "name": "Quito",
+          "names": {
+            "en": "Quito",
+            "ru": "Кито"
+          },
           "role": "official"
         }
       ]
@@ -876,7 +1040,10 @@
       },
       "value": [
         {
-          "name": "Cairo",
+          "names": {
+            "en": "Cairo",
+            "ru": "Каир"
+          },
           "role": "official"
         }
       ]
@@ -891,7 +1058,10 @@
       },
       "value": [
         {
-          "name": "San Salvador",
+          "names": {
+            "en": "San Salvador",
+            "ru": "Сан-Сальвадор"
+          },
           "role": "official"
         }
       ]
@@ -906,7 +1076,10 @@
       },
       "value": [
         {
-          "name": "Malabo",
+          "names": {
+            "en": "Malabo",
+            "ru": "Сьюдад-де-ла-Пас"
+          },
           "role": "official"
         }
       ]
@@ -921,7 +1094,10 @@
       },
       "value": [
         {
-          "name": "Asmara",
+          "names": {
+            "en": "Asmara",
+            "ru": "Асмэра"
+          },
           "role": "official"
         }
       ]
@@ -936,7 +1112,10 @@
       },
       "value": [
         {
-          "name": "Tallinn",
+          "names": {
+            "en": "Tallinn",
+            "ru": "Таллин"
+          },
           "role": "official"
         }
       ]
@@ -951,7 +1130,9 @@
       },
       "value": [
         {
-          "name": "Lobamba",
+          "names": {
+            "en": "Lobamba"
+          },
           "role": "official"
         }
       ]
@@ -966,7 +1147,10 @@
       },
       "value": [
         {
-          "name": "Addis Ababa",
+          "names": {
+            "en": "Addis Ababa",
+            "ru": "Аддис-Абеба"
+          },
           "role": "official"
         }
       ]
@@ -981,7 +1165,10 @@
       },
       "value": [
         {
-          "name": "Suva",
+          "names": {
+            "en": "Suva",
+            "ru": "Сува"
+          },
           "role": "official"
         }
       ]
@@ -996,7 +1183,10 @@
       },
       "value": [
         {
-          "name": "Helsinki",
+          "names": {
+            "en": "Helsinki",
+            "ru": "Хельсинки"
+          },
           "role": "official"
         }
       ]
@@ -1011,7 +1201,10 @@
       },
       "value": [
         {
-          "name": "Paris",
+          "names": {
+            "en": "Paris",
+            "ru": "Париж"
+          },
           "role": "official"
         }
       ]
@@ -1026,7 +1219,10 @@
       },
       "value": [
         {
-          "name": "Libreville",
+          "names": {
+            "en": "Libreville",
+            "ru": "Либревиль"
+          },
           "role": "official"
         }
       ]
@@ -1041,7 +1237,10 @@
       },
       "value": [
         {
-          "name": "Banjul",
+          "names": {
+            "en": "Banjul",
+            "ru": "Банжул"
+          },
           "role": "official"
         }
       ]
@@ -1056,7 +1255,10 @@
       },
       "value": [
         {
-          "name": "Tbilisi",
+          "names": {
+            "en": "Tbilisi",
+            "ru": "Тбилиси"
+          },
           "role": "official"
         }
       ]
@@ -1071,7 +1273,10 @@
       },
       "value": [
         {
-          "name": "Berlin",
+          "names": {
+            "en": "Berlin",
+            "ru": "Берлин"
+          },
           "role": "official"
         }
       ]
@@ -1086,7 +1291,10 @@
       },
       "value": [
         {
-          "name": "Accra",
+          "names": {
+            "en": "Accra",
+            "ru": "Аккра"
+          },
           "role": "official"
         }
       ]
@@ -1101,7 +1309,10 @@
       },
       "value": [
         {
-          "name": "Athens",
+          "names": {
+            "en": "Athens",
+            "ru": "Афины"
+          },
           "role": "official"
         }
       ]
@@ -1116,7 +1327,10 @@
       },
       "value": [
         {
-          "name": "St. George's",
+          "names": {
+            "en": "St. George's",
+            "ru": "Сент-Джорджес"
+          },
           "role": "official"
         }
       ]
@@ -1131,7 +1345,10 @@
       },
       "value": [
         {
-          "name": "Guatemala City",
+          "names": {
+            "en": "Guatemala City",
+            "ru": "Гватемала"
+          },
           "role": "official"
         }
       ]
@@ -1146,7 +1363,10 @@
       },
       "value": [
         {
-          "name": "Conakry",
+          "names": {
+            "en": "Conakry",
+            "ru": "Конакри"
+          },
           "role": "official"
         }
       ]
@@ -1161,7 +1381,10 @@
       },
       "value": [
         {
-          "name": "Bissau",
+          "names": {
+            "en": "Bissau",
+            "ru": "Бисау"
+          },
           "role": "official"
         }
       ]
@@ -1176,7 +1399,10 @@
       },
       "value": [
         {
-          "name": "Georgetown",
+          "names": {
+            "en": "Georgetown",
+            "ru": "Джорджтаун"
+          },
           "role": "official"
         }
       ]
@@ -1191,7 +1417,10 @@
       },
       "value": [
         {
-          "name": "Port-au-Prince",
+          "names": {
+            "en": "Port-au-Prince",
+            "ru": "Порт-о-Пренс"
+          },
           "role": "official"
         }
       ]
@@ -1206,7 +1435,10 @@
       },
       "value": [
         {
-          "name": "Vatican City",
+          "names": {
+            "en": "Vatican City",
+            "ru": "Ватикан"
+          },
           "role": "official"
         }
       ]
@@ -1221,7 +1453,10 @@
       },
       "value": [
         {
-          "name": "Tegucigalpa",
+          "names": {
+            "en": "Tegucigalpa",
+            "ru": "Тегусигальпа"
+          },
           "role": "official"
         }
       ]
@@ -1236,7 +1471,10 @@
       },
       "value": [
         {
-          "name": "Budapest",
+          "names": {
+            "en": "Budapest",
+            "ru": "Будапешт"
+          },
           "role": "official"
         }
       ]
@@ -1251,7 +1489,10 @@
       },
       "value": [
         {
-          "name": "Reykjavik",
+          "names": {
+            "en": "Reykjavik",
+            "ru": "Рейкьявик"
+          },
           "role": "official"
         }
       ]
@@ -1266,7 +1507,10 @@
       },
       "value": [
         {
-          "name": "New Delhi",
+          "names": {
+            "en": "New Delhi",
+            "ru": "Нью-Дели"
+          },
           "role": "official"
         }
       ]
@@ -1281,7 +1525,10 @@
       },
       "value": [
         {
-          "name": "Jakarta",
+          "names": {
+            "en": "Jakarta",
+            "ru": "Джакарта"
+          },
           "role": "official"
         }
       ]
@@ -1296,7 +1543,10 @@
       },
       "value": [
         {
-          "name": "Tehran",
+          "names": {
+            "en": "Tehran",
+            "ru": "Тегеран"
+          },
           "role": "official"
         }
       ]
@@ -1311,7 +1561,10 @@
       },
       "value": [
         {
-          "name": "Baghdad",
+          "names": {
+            "en": "Baghdad",
+            "ru": "Багдад"
+          },
           "role": "official"
         }
       ]
@@ -1326,7 +1579,10 @@
       },
       "value": [
         {
-          "name": "Dublin",
+          "names": {
+            "en": "Dublin",
+            "ru": "Дублин"
+          },
           "role": "official"
         }
       ]
@@ -1341,7 +1597,10 @@
       },
       "value": [
         {
-          "name": "Jerusalem",
+          "names": {
+            "en": "Jerusalem",
+            "ru": "Иерусалим"
+          },
           "role": "official"
         }
       ]
@@ -1356,7 +1615,10 @@
       },
       "value": [
         {
-          "name": "Rome",
+          "names": {
+            "en": "Rome",
+            "ru": "Рим"
+          },
           "role": "official"
         }
       ]
@@ -1371,7 +1633,10 @@
       },
       "value": [
         {
-          "name": "Kingston",
+          "names": {
+            "en": "Kingston",
+            "ru": "Кингстон"
+          },
           "role": "official"
         }
       ]
@@ -1386,7 +1651,10 @@
       },
       "value": [
         {
-          "name": "Tokyo",
+          "names": {
+            "en": "Tokyo",
+            "ru": "Токио"
+          },
           "role": "official"
         }
       ]
@@ -1401,7 +1669,10 @@
       },
       "value": [
         {
-          "name": "Amman",
+          "names": {
+            "en": "Amman",
+            "ru": "Амман"
+          },
           "role": "official"
         }
       ]
@@ -1416,7 +1687,10 @@
       },
       "value": [
         {
-          "name": "Astana",
+          "names": {
+            "en": "Astana",
+            "ru": "Астана"
+          },
           "role": "official"
         }
       ]
@@ -1431,7 +1705,10 @@
       },
       "value": [
         {
-          "name": "Nairobi",
+          "names": {
+            "en": "Nairobi",
+            "ru": "Найроби"
+          },
           "role": "official"
         }
       ]
@@ -1446,7 +1723,10 @@
       },
       "value": [
         {
-          "name": "South Tarawa",
+          "names": {
+            "en": "South Tarawa",
+            "ru": "Южная Тарава"
+          },
           "role": "official"
         }
       ]
@@ -1461,7 +1741,10 @@
       },
       "value": [
         {
-          "name": "Pristina",
+          "names": {
+            "en": "Pristina",
+            "ru": "Приштина"
+          },
           "role": "official"
         }
       ]
@@ -1476,7 +1759,10 @@
       },
       "value": [
         {
-          "name": "Kuwait City",
+          "names": {
+            "en": "Kuwait City",
+            "ru": "Эль-Кувейт"
+          },
           "role": "official"
         }
       ]
@@ -1491,7 +1777,10 @@
       },
       "value": [
         {
-          "name": "Bishkek",
+          "names": {
+            "en": "Bishkek",
+            "ru": "Бишкек"
+          },
           "role": "official"
         }
       ]
@@ -1506,7 +1795,10 @@
       },
       "value": [
         {
-          "name": "Vientiane",
+          "names": {
+            "en": "Vientiane",
+            "ru": "Вьентьян"
+          },
           "role": "official"
         }
       ]
@@ -1521,7 +1813,10 @@
       },
       "value": [
         {
-          "name": "Riga",
+          "names": {
+            "en": "Riga",
+            "ru": "Рига"
+          },
           "role": "official"
         }
       ]
@@ -1536,7 +1831,10 @@
       },
       "value": [
         {
-          "name": "Beirut",
+          "names": {
+            "en": "Beirut",
+            "ru": "Бейрут"
+          },
           "role": "official"
         }
       ]
@@ -1551,7 +1849,10 @@
       },
       "value": [
         {
-          "name": "Maseru",
+          "names": {
+            "en": "Maseru",
+            "ru": "Масеру"
+          },
           "role": "official"
         }
       ]
@@ -1566,7 +1867,10 @@
       },
       "value": [
         {
-          "name": "Monrovia",
+          "names": {
+            "en": "Monrovia",
+            "ru": "Монровия"
+          },
           "role": "official"
         }
       ]
@@ -1581,7 +1885,10 @@
       },
       "value": [
         {
-          "name": "Tripoli",
+          "names": {
+            "en": "Tripoli",
+            "ru": "Триполи"
+          },
           "role": "official"
         }
       ]
@@ -1596,7 +1903,10 @@
       },
       "value": [
         {
-          "name": "Vaduz",
+          "names": {
+            "en": "Vaduz",
+            "ru": "Вадуц"
+          },
           "role": "official"
         }
       ]
@@ -1611,7 +1921,10 @@
       },
       "value": [
         {
-          "name": "Vilnius",
+          "names": {
+            "en": "Vilnius",
+            "ru": "Вильнюс"
+          },
           "role": "official"
         }
       ]
@@ -1626,7 +1939,10 @@
       },
       "value": [
         {
-          "name": "Luxembourg",
+          "names": {
+            "en": "Luxembourg",
+            "ru": "Люксембург"
+          },
           "role": "official"
         }
       ]
@@ -1641,7 +1957,10 @@
       },
       "value": [
         {
-          "name": "Antananarivo",
+          "names": {
+            "en": "Antananarivo",
+            "ru": "Антананариву"
+          },
           "role": "official"
         }
       ]
@@ -1656,7 +1975,10 @@
       },
       "value": [
         {
-          "name": "Lilongwe",
+          "names": {
+            "en": "Lilongwe",
+            "ru": "Лилонгве"
+          },
           "role": "official"
         }
       ]
@@ -1671,7 +1993,10 @@
       },
       "value": [
         {
-          "name": "Kuala Lumpur",
+          "names": {
+            "en": "Kuala Lumpur",
+            "ru": "Куала-Лумпур"
+          },
           "role": "official"
         }
       ]
@@ -1686,7 +2011,10 @@
       },
       "value": [
         {
-          "name": "Malé",
+          "names": {
+            "en": "Malé",
+            "ru": "Мале"
+          },
           "role": "official"
         }
       ]
@@ -1701,7 +2029,10 @@
       },
       "value": [
         {
-          "name": "Bamako",
+          "names": {
+            "en": "Bamako",
+            "ru": "Бамако"
+          },
           "role": "official"
         }
       ]
@@ -1716,7 +2047,10 @@
       },
       "value": [
         {
-          "name": "Valletta",
+          "names": {
+            "en": "Valletta",
+            "ru": "Валлетта"
+          },
           "role": "official"
         }
       ]
@@ -1731,7 +2065,10 @@
       },
       "value": [
         {
-          "name": "Majuro",
+          "names": {
+            "en": "Majuro",
+            "ru": "Маджуро"
+          },
           "role": "official"
         }
       ]
@@ -1746,7 +2083,10 @@
       },
       "value": [
         {
-          "name": "Nouakchott",
+          "names": {
+            "en": "Nouakchott",
+            "ru": "Нуакшот"
+          },
           "role": "official"
         }
       ]
@@ -1761,7 +2101,10 @@
       },
       "value": [
         {
-          "name": "Port Louis",
+          "names": {
+            "en": "Port Louis",
+            "ru": "Порт-Луи"
+          },
           "role": "official"
         }
       ]
@@ -1776,7 +2119,10 @@
       },
       "value": [
         {
-          "name": "Mexico City",
+          "names": {
+            "en": "Mexico City",
+            "ru": "Мехико"
+          },
           "role": "official"
         }
       ]
@@ -1791,7 +2137,10 @@
       },
       "value": [
         {
-          "name": "Palikir",
+          "names": {
+            "en": "Palikir",
+            "ru": "Паликир"
+          },
           "role": "official"
         }
       ]
@@ -1806,7 +2155,10 @@
       },
       "value": [
         {
-          "name": "Monaco",
+          "names": {
+            "en": "Monaco",
+            "ru": "Монако"
+          },
           "role": "official"
         }
       ]
@@ -1821,7 +2173,10 @@
       },
       "value": [
         {
-          "name": "Ulan Bator",
+          "names": {
+            "en": "Ulan Bator",
+            "ru": "Улан-Батор"
+          },
           "role": "official"
         }
       ]
@@ -1836,7 +2191,10 @@
       },
       "value": [
         {
-          "name": "Podgorica",
+          "names": {
+            "en": "Podgorica",
+            "ru": "Подгорица"
+          },
           "role": "official"
         }
       ]
@@ -1851,7 +2209,10 @@
       },
       "value": [
         {
-          "name": "Rabat",
+          "names": {
+            "en": "Rabat",
+            "ru": "Рабат"
+          },
           "role": "official"
         }
       ]
@@ -1866,7 +2227,10 @@
       },
       "value": [
         {
-          "name": "Maputo",
+          "names": {
+            "en": "Maputo",
+            "ru": "Мапуту"
+          },
           "role": "official"
         }
       ]
@@ -1881,7 +2245,10 @@
       },
       "value": [
         {
-          "name": "Naypyidaw",
+          "names": {
+            "en": "Naypyidaw",
+            "ru": "Нейпьидо"
+          },
           "role": "official"
         }
       ]
@@ -1896,7 +2263,10 @@
       },
       "value": [
         {
-          "name": "Windhoek",
+          "names": {
+            "en": "Windhoek",
+            "ru": "Виндхук"
+          },
           "role": "official"
         }
       ]
@@ -1911,7 +2281,10 @@
       },
       "value": [
         {
-          "name": "Yaren",
+          "names": {
+            "en": "Yaren",
+            "ru": "Ярен"
+          },
           "role": "official"
         }
       ]
@@ -1926,7 +2299,10 @@
       },
       "value": [
         {
-          "name": "Kathmandu",
+          "names": {
+            "en": "Kathmandu",
+            "ru": "Катманду"
+          },
           "role": "official"
         }
       ]
@@ -1941,7 +2317,10 @@
       },
       "value": [
         {
-          "name": "Amsterdam",
+          "names": {
+            "en": "Amsterdam",
+            "ru": "Амстердам"
+          },
           "role": "official"
         }
       ]
@@ -1956,7 +2335,10 @@
       },
       "value": [
         {
-          "name": "Wellington",
+          "names": {
+            "en": "Wellington",
+            "ru": "Веллингтон"
+          },
           "role": "official"
         }
       ]
@@ -1971,7 +2353,10 @@
       },
       "value": [
         {
-          "name": "Managua",
+          "names": {
+            "en": "Managua",
+            "ru": "Манагуа"
+          },
           "role": "official"
         }
       ]
@@ -1986,7 +2371,10 @@
       },
       "value": [
         {
-          "name": "Niamey",
+          "names": {
+            "en": "Niamey",
+            "ru": "Ниамей"
+          },
           "role": "official"
         }
       ]
@@ -2001,7 +2389,10 @@
       },
       "value": [
         {
-          "name": "Abuja",
+          "names": {
+            "en": "Abuja",
+            "ru": "Абуджа"
+          },
           "role": "official"
         }
       ]
@@ -2016,7 +2407,10 @@
       },
       "value": [
         {
-          "name": "Skopje",
+          "names": {
+            "en": "Skopje",
+            "ru": "Скопье"
+          },
           "role": "official"
         }
       ]
@@ -2031,7 +2425,10 @@
       },
       "value": [
         {
-          "name": "Oslo",
+          "names": {
+            "en": "Oslo",
+            "ru": "Осло"
+          },
           "role": "official"
         }
       ]
@@ -2046,7 +2443,10 @@
       },
       "value": [
         {
-          "name": "Muscat",
+          "names": {
+            "en": "Muscat",
+            "ru": "Маскат"
+          },
           "role": "official"
         }
       ]
@@ -2061,7 +2461,10 @@
       },
       "value": [
         {
-          "name": "Islamabad",
+          "names": {
+            "en": "Islamabad",
+            "ru": "Исламабад"
+          },
           "role": "official"
         }
       ]
@@ -2076,7 +2479,10 @@
       },
       "value": [
         {
-          "name": "Ngerulmud",
+          "names": {
+            "en": "Ngerulmud",
+            "ru": "Нгерулмуд"
+          },
           "role": "official"
         }
       ]
@@ -2091,7 +2497,10 @@
       },
       "value": [
         {
-          "name": "Panama City",
+          "names": {
+            "en": "Panama City",
+            "ru": "Панама"
+          },
           "role": "official"
         }
       ]
@@ -2106,7 +2515,10 @@
       },
       "value": [
         {
-          "name": "Port Moresby",
+          "names": {
+            "en": "Port Moresby",
+            "ru": "Порт-Морсби"
+          },
           "role": "official"
         }
       ]
@@ -2121,7 +2533,10 @@
       },
       "value": [
         {
-          "name": "Asunción",
+          "names": {
+            "en": "Asunción",
+            "ru": "Асунсьон"
+          },
           "role": "official"
         }
       ]
@@ -2136,7 +2551,10 @@
       },
       "value": [
         {
-          "name": "Lima",
+          "names": {
+            "en": "Lima",
+            "ru": "Лима"
+          },
           "role": "official"
         }
       ]
@@ -2151,7 +2569,10 @@
       },
       "value": [
         {
-          "name": "Manila",
+          "names": {
+            "en": "Manila",
+            "ru": "Манила"
+          },
           "role": "official"
         }
       ]
@@ -2166,7 +2587,10 @@
       },
       "value": [
         {
-          "name": "Warsaw",
+          "names": {
+            "en": "Warsaw",
+            "ru": "Варшава"
+          },
           "role": "official"
         }
       ]
@@ -2181,7 +2605,10 @@
       },
       "value": [
         {
-          "name": "Lisbon",
+          "names": {
+            "en": "Lisbon",
+            "ru": "Лиссабон"
+          },
           "role": "official"
         }
       ]
@@ -2196,7 +2623,10 @@
       },
       "value": [
         {
-          "name": "Doha",
+          "names": {
+            "en": "Doha",
+            "ru": "Доха"
+          },
           "role": "official"
         }
       ]
@@ -2211,7 +2641,10 @@
       },
       "value": [
         {
-          "name": "Seoul",
+          "names": {
+            "en": "Seoul",
+            "ru": "Сеул"
+          },
           "role": "official"
         }
       ]
@@ -2226,7 +2659,10 @@
       },
       "value": [
         {
-          "name": "Chișinău",
+          "names": {
+            "en": "Chișinău",
+            "ru": "Кишинёв"
+          },
           "role": "official"
         }
       ]
@@ -2241,7 +2677,10 @@
       },
       "value": [
         {
-          "name": "Bucharest",
+          "names": {
+            "en": "Bucharest",
+            "ru": "Бухарест"
+          },
           "role": "official"
         }
       ]
@@ -2256,7 +2695,10 @@
       },
       "value": [
         {
-          "name": "Moscow",
+          "names": {
+            "en": "Moscow",
+            "ru": "Москва"
+          },
           "role": "official"
         }
       ]
@@ -2271,7 +2713,10 @@
       },
       "value": [
         {
-          "name": "Kigali",
+          "names": {
+            "en": "Kigali",
+            "ru": "Кигали"
+          },
           "role": "official"
         }
       ]
@@ -2286,7 +2731,10 @@
       },
       "value": [
         {
-          "name": "Basseterre",
+          "names": {
+            "en": "Basseterre",
+            "ru": "Бастер"
+          },
           "role": "official"
         }
       ]
@@ -2301,7 +2749,10 @@
       },
       "value": [
         {
-          "name": "Castries",
+          "names": {
+            "en": "Castries",
+            "ru": "Кастри"
+          },
           "role": "official"
         }
       ]
@@ -2316,7 +2767,10 @@
       },
       "value": [
         {
-          "name": "Kingstown",
+          "names": {
+            "en": "Kingstown",
+            "ru": "Кингстаун"
+          },
           "role": "official"
         }
       ]
@@ -2331,7 +2785,10 @@
       },
       "value": [
         {
-          "name": "Apia",
+          "names": {
+            "en": "Apia",
+            "ru": "Апиа"
+          },
           "role": "official"
         }
       ]
@@ -2346,7 +2803,10 @@
       },
       "value": [
         {
-          "name": "City of San Marino",
+          "names": {
+            "en": "City of San Marino",
+            "ru": "Сан-Марино"
+          },
           "role": "official"
         }
       ]
@@ -2361,7 +2821,10 @@
       },
       "value": [
         {
-          "name": "São Tomé",
+          "names": {
+            "en": "São Tomé",
+            "ru": "Сан-Томе"
+          },
           "role": "official"
         }
       ]
@@ -2376,7 +2839,10 @@
       },
       "value": [
         {
-          "name": "Riyadh",
+          "names": {
+            "en": "Riyadh",
+            "ru": "Эр-Рияд"
+          },
           "role": "official"
         }
       ]
@@ -2391,7 +2857,10 @@
       },
       "value": [
         {
-          "name": "Dakar",
+          "names": {
+            "en": "Dakar",
+            "ru": "Дакар"
+          },
           "role": "official"
         }
       ]
@@ -2406,7 +2875,10 @@
       },
       "value": [
         {
-          "name": "Belgrade",
+          "names": {
+            "en": "Belgrade",
+            "ru": "Белград"
+          },
           "role": "official"
         }
       ]
@@ -2421,7 +2893,10 @@
       },
       "value": [
         {
-          "name": "Victoria",
+          "names": {
+            "en": "Victoria",
+            "ru": "Виктория"
+          },
           "role": "official"
         }
       ]
@@ -2436,7 +2911,10 @@
       },
       "value": [
         {
-          "name": "Freetown",
+          "names": {
+            "en": "Freetown",
+            "ru": "Фритаун"
+          },
           "role": "official"
         }
       ]
@@ -2451,7 +2929,10 @@
       },
       "value": [
         {
-          "name": "Singapore",
+          "names": {
+            "en": "Singapore",
+            "ru": "Сингапур"
+          },
           "role": "official"
         }
       ]
@@ -2466,7 +2947,10 @@
       },
       "value": [
         {
-          "name": "Bratislava",
+          "names": {
+            "en": "Bratislava",
+            "ru": "Братислава"
+          },
           "role": "official"
         }
       ]
@@ -2481,7 +2965,10 @@
       },
       "value": [
         {
-          "name": "Ljubljana",
+          "names": {
+            "en": "Ljubljana",
+            "ru": "Любляна"
+          },
           "role": "official"
         }
       ]
@@ -2496,7 +2983,10 @@
       },
       "value": [
         {
-          "name": "Honiara",
+          "names": {
+            "en": "Honiara",
+            "ru": "Хониара"
+          },
           "role": "official"
         }
       ]
@@ -2511,7 +3001,10 @@
       },
       "value": [
         {
-          "name": "Mogadishu",
+          "names": {
+            "en": "Mogadishu",
+            "ru": "Могадишо"
+          },
           "role": "official"
         }
       ]
@@ -2526,7 +3019,9 @@
       },
       "value": [
         {
-          "name": "Pretoria",
+          "names": {
+            "en": "Pretoria"
+          },
           "role": "official"
         }
       ]
@@ -2541,7 +3036,10 @@
       },
       "value": [
         {
-          "name": "Juba",
+          "names": {
+            "en": "Juba",
+            "ru": "Джуба"
+          },
           "role": "official"
         }
       ]
@@ -2556,7 +3054,10 @@
       },
       "value": [
         {
-          "name": "Madrid",
+          "names": {
+            "en": "Madrid",
+            "ru": "Мадрид"
+          },
           "role": "official"
         }
       ]
@@ -2571,7 +3072,9 @@
       },
       "value": [
         {
-          "name": "Colombo",
+          "names": {
+            "en": "Colombo"
+          },
           "role": "official"
         }
       ]
@@ -2586,7 +3089,9 @@
       },
       "value": [
         {
-          "name": "Ramallah",
+          "names": {
+            "en": "Ramallah"
+          },
           "role": "official"
         }
       ]
@@ -2601,7 +3106,10 @@
       },
       "value": [
         {
-          "name": "Khartoum",
+          "names": {
+            "en": "Khartoum",
+            "ru": "Хартум"
+          },
           "role": "official"
         }
       ]
@@ -2616,7 +3124,10 @@
       },
       "value": [
         {
-          "name": "Paramaribo",
+          "names": {
+            "en": "Paramaribo",
+            "ru": "Парамарибо"
+          },
           "role": "official"
         }
       ]
@@ -2631,7 +3142,10 @@
       },
       "value": [
         {
-          "name": "Stockholm",
+          "names": {
+            "en": "Stockholm",
+            "ru": "Стокгольм"
+          },
           "role": "official"
         }
       ]
@@ -2646,7 +3160,10 @@
       },
       "value": [
         {
-          "name": "Bern",
+          "names": {
+            "en": "Bern",
+            "ru": "Берн"
+          },
           "role": "official"
         }
       ]
@@ -2661,7 +3178,10 @@
       },
       "value": [
         {
-          "name": "Damascus",
+          "names": {
+            "en": "Damascus",
+            "ru": "Дамаск"
+          },
           "role": "official"
         }
       ]
@@ -2676,7 +3196,10 @@
       },
       "value": [
         {
-          "name": "Taipei",
+          "names": {
+            "en": "Taipei",
+            "ru": "Тайбэй"
+          },
           "role": "official"
         }
       ]
@@ -2691,7 +3214,10 @@
       },
       "value": [
         {
-          "name": "Dushanbe",
+          "names": {
+            "en": "Dushanbe",
+            "ru": "Душанбе"
+          },
           "role": "official"
         }
       ]
@@ -2706,7 +3232,10 @@
       },
       "value": [
         {
-          "name": "Bangkok",
+          "names": {
+            "en": "Bangkok",
+            "ru": "Бангкок"
+          },
           "role": "official"
         }
       ]
@@ -2721,7 +3250,10 @@
       },
       "value": [
         {
-          "name": "Dili",
+          "names": {
+            "en": "Dili",
+            "ru": "Дили"
+          },
           "role": "official"
         }
       ]
@@ -2736,7 +3268,10 @@
       },
       "value": [
         {
-          "name": "Lomé",
+          "names": {
+            "en": "Lomé",
+            "ru": "Ломе"
+          },
           "role": "official"
         }
       ]
@@ -2751,7 +3286,10 @@
       },
       "value": [
         {
-          "name": "Nuku'alofa",
+          "names": {
+            "en": "Nuku'alofa",
+            "ru": "Нукуалофа"
+          },
           "role": "official"
         }
       ]
@@ -2766,7 +3304,10 @@
       },
       "value": [
         {
-          "name": "Port of Spain",
+          "names": {
+            "en": "Port of Spain",
+            "ru": "Порт-оф-Спейн"
+          },
           "role": "official"
         }
       ]
@@ -2781,7 +3322,10 @@
       },
       "value": [
         {
-          "name": "Tunis",
+          "names": {
+            "en": "Tunis",
+            "ru": "Тунис"
+          },
           "role": "official"
         }
       ]
@@ -2796,7 +3340,10 @@
       },
       "value": [
         {
-          "name": "Ankara",
+          "names": {
+            "en": "Ankara",
+            "ru": "Анкара"
+          },
           "role": "official"
         }
       ]
@@ -2811,7 +3358,10 @@
       },
       "value": [
         {
-          "name": "Ashgabat",
+          "names": {
+            "en": "Ashgabat",
+            "ru": "Ашхабад"
+          },
           "role": "official"
         }
       ]
@@ -2826,7 +3376,10 @@
       },
       "value": [
         {
-          "name": "Funafuti",
+          "names": {
+            "en": "Funafuti",
+            "ru": "Фунафути"
+          },
           "role": "official"
         }
       ]
@@ -2841,7 +3394,10 @@
       },
       "value": [
         {
-          "name": "Kampala",
+          "names": {
+            "en": "Kampala",
+            "ru": "Кампала"
+          },
           "role": "official"
         }
       ]
@@ -2856,7 +3412,10 @@
       },
       "value": [
         {
-          "name": "Kyiv",
+          "names": {
+            "en": "Kyiv",
+            "ru": "Киев"
+          },
           "role": "official"
         }
       ]
@@ -2871,7 +3430,10 @@
       },
       "value": [
         {
-          "name": "Abu Dhabi",
+          "names": {
+            "en": "Abu Dhabi",
+            "ru": "Абу-Даби"
+          },
           "role": "official"
         }
       ]
@@ -2886,7 +3448,10 @@
       },
       "value": [
         {
-          "name": "London",
+          "names": {
+            "en": "London",
+            "ru": "Лондон"
+          },
           "role": "official"
         }
       ]
@@ -2901,7 +3466,10 @@
       },
       "value": [
         {
-          "name": "Dodoma",
+          "names": {
+            "en": "Dodoma",
+            "ru": "Додома"
+          },
           "role": "official"
         }
       ]
@@ -2916,7 +3484,10 @@
       },
       "value": [
         {
-          "name": "Washington D.C.",
+          "names": {
+            "en": "Washington D.C.",
+            "ru": "Вашингтон"
+          },
           "role": "official"
         }
       ]
@@ -2931,7 +3502,10 @@
       },
       "value": [
         {
-          "name": "Montevideo",
+          "names": {
+            "en": "Montevideo",
+            "ru": "Монтевидео"
+          },
           "role": "official"
         }
       ]
@@ -2946,7 +3520,10 @@
       },
       "value": [
         {
-          "name": "Tashkent",
+          "names": {
+            "en": "Tashkent",
+            "ru": "Ташкент"
+          },
           "role": "official"
         }
       ]
@@ -2961,7 +3538,10 @@
       },
       "value": [
         {
-          "name": "Port Vila",
+          "names": {
+            "en": "Port Vila",
+            "ru": "Порт-Вила"
+          },
           "role": "official"
         }
       ]
@@ -2976,7 +3556,10 @@
       },
       "value": [
         {
-          "name": "Caracas",
+          "names": {
+            "en": "Caracas",
+            "ru": "Каракас"
+          },
           "role": "official"
         }
       ]
@@ -2991,7 +3574,10 @@
       },
       "value": [
         {
-          "name": "Hanoi",
+          "names": {
+            "en": "Hanoi",
+            "ru": "Ханой"
+          },
           "role": "official"
         }
       ]
@@ -3006,7 +3592,9 @@
       },
       "value": [
         {
-          "name": "El Aaiún",
+          "names": {
+            "en": "El Aaiún"
+          },
           "role": "official"
         }
       ]
@@ -3021,7 +3609,9 @@
       },
       "value": [
         {
-          "name": "Sana'a",
+          "names": {
+            "en": "Sana'a"
+          },
           "role": "official"
         }
       ]
@@ -3036,7 +3626,10 @@
       },
       "value": [
         {
-          "name": "Lusaka",
+          "names": {
+            "en": "Lusaka",
+            "ru": "Лусака"
+          },
           "role": "official"
         }
       ]
@@ -3051,7 +3644,10 @@
       },
       "value": [
         {
-          "name": "Harare",
+          "names": {
+            "en": "Harare",
+            "ru": "Хараре"
+          },
           "role": "official"
         }
       ]
@@ -3066,7 +3662,10 @@
       },
       "value": [
         {
-          "name": "Mariehamn",
+          "names": {
+            "en": "Mariehamn",
+            "ru": "Мариехамн"
+          },
           "role": "official"
         }
       ]
@@ -3081,7 +3680,10 @@
       },
       "value": [
         {
-          "name": "Pago Pago",
+          "names": {
+            "en": "Pago Pago",
+            "ru": "Паго-Паго"
+          },
           "role": "official"
         }
       ]
@@ -3096,7 +3698,10 @@
       },
       "value": [
         {
-          "name": "The Valley",
+          "names": {
+            "en": "The Valley",
+            "ru": "Валли"
+          },
           "role": "official"
         }
       ]
@@ -3111,7 +3716,10 @@
       },
       "value": [
         {
-          "name": "Oranjestad",
+          "names": {
+            "en": "Oranjestad",
+            "ru": "Ораньестад"
+          },
           "role": "official"
         }
       ]
@@ -3126,7 +3734,10 @@
       },
       "value": [
         {
-          "name": "Hamilton",
+          "names": {
+            "en": "Hamilton",
+            "ru": "Гамильтон"
+          },
           "role": "official"
         }
       ]
@@ -3141,7 +3752,9 @@
       },
       "value": [
         {
-          "name": "Kralendijk",
+          "names": {
+            "en": "Kralendijk"
+          },
           "role": "official"
         }
       ]
@@ -3156,7 +3769,10 @@
       },
       "value": [
         {
-          "name": "Diego Garcia",
+          "names": {
+            "en": "Diego Garcia",
+            "ru": "Диего-Гарсия"
+          },
           "role": "official"
         }
       ]
@@ -3171,7 +3787,10 @@
       },
       "value": [
         {
-          "name": "Road Town",
+          "names": {
+            "en": "Road Town",
+            "ru": "Род-Таун"
+          },
           "role": "official"
         }
       ]
@@ -3186,7 +3805,10 @@
       },
       "value": [
         {
-          "name": "George Town",
+          "names": {
+            "en": "George Town",
+            "ru": "Джорджтаун"
+          },
           "role": "official"
         }
       ]
@@ -3201,7 +3823,9 @@
       },
       "value": [
         {
-          "name": "City of Victoria",
+          "names": {
+            "en": "City of Victoria"
+          },
           "role": "official"
         }
       ]
@@ -3226,7 +3850,10 @@
       },
       "value": [
         {
-          "name": "Flying Fish Cove",
+          "names": {
+            "en": "Flying Fish Cove",
+            "ru": "Флайинг-Фиш-Коув"
+          },
           "role": "official"
         }
       ]
@@ -3241,7 +3868,10 @@
       },
       "value": [
         {
-          "name": "West Island",
+          "names": {
+            "en": "West Island",
+            "ru": "Уэст-Айленд"
+          },
           "role": "official"
         }
       ]
@@ -3256,7 +3886,10 @@
       },
       "value": [
         {
-          "name": "Willemstad",
+          "names": {
+            "en": "Willemstad",
+            "ru": "Виллемстад"
+          },
           "role": "official"
         }
       ]
@@ -3271,7 +3904,10 @@
       },
       "value": [
         {
-          "name": "Stanley",
+          "names": {
+            "en": "Stanley",
+            "ru": "Порт-Стэнли"
+          },
           "role": "official"
         }
       ]
@@ -3286,7 +3922,10 @@
       },
       "value": [
         {
-          "name": "Tórshavn",
+          "names": {
+            "en": "Tórshavn",
+            "ru": "Торсхавн"
+          },
           "role": "official"
         }
       ]
@@ -3301,7 +3940,10 @@
       },
       "value": [
         {
-          "name": "Cayenne",
+          "names": {
+            "en": "Cayenne",
+            "ru": "Кайенна"
+          },
           "role": "official"
         }
       ]
@@ -3316,7 +3958,10 @@
       },
       "value": [
         {
-          "name": "Papeetē",
+          "names": {
+            "en": "Papeetē",
+            "ru": "Папеэте"
+          },
           "role": "official"
         }
       ]
@@ -3331,7 +3976,10 @@
       },
       "value": [
         {
-          "name": "Gibraltar",
+          "names": {
+            "en": "Gibraltar",
+            "ru": "Гибралтар"
+          },
           "role": "official"
         }
       ]
@@ -3346,7 +3994,10 @@
       },
       "value": [
         {
-          "name": "Nuuk",
+          "names": {
+            "en": "Nuuk",
+            "ru": "Нуук"
+          },
           "role": "official"
         }
       ]
@@ -3361,7 +4012,10 @@
       },
       "value": [
         {
-          "name": "Basse-Terre",
+          "names": {
+            "en": "Basse-Terre",
+            "ru": "Бас-Тер"
+          },
           "role": "official"
         }
       ]
@@ -3376,7 +4030,10 @@
       },
       "value": [
         {
-          "name": "Hagåtña",
+          "names": {
+            "en": "Hagåtña",
+            "ru": "Хагатна"
+          },
           "role": "official"
         }
       ]
@@ -3391,7 +4048,10 @@
       },
       "value": [
         {
-          "name": "St. Peter Port",
+          "names": {
+            "en": "St. Peter Port",
+            "ru": "Сент-Питер-Порт"
+          },
           "role": "official"
         }
       ]
@@ -3406,7 +4066,10 @@
       },
       "value": [
         {
-          "name": "Douglas",
+          "names": {
+            "en": "Douglas",
+            "ru": "Дуглас"
+          },
           "role": "official"
         }
       ]
@@ -3421,7 +4084,10 @@
       },
       "value": [
         {
-          "name": "Saint Helier",
+          "names": {
+            "en": "Saint Helier",
+            "ru": "Сент-Хелиер"
+          },
           "role": "official"
         }
       ]
@@ -3436,7 +4102,10 @@
       },
       "value": [
         {
-          "name": "Fort-de-France",
+          "names": {
+            "en": "Fort-de-France",
+            "ru": "Фор-де-Франс"
+          },
           "role": "official"
         }
       ]
@@ -3451,7 +4120,9 @@
       },
       "value": [
         {
-          "name": "Mamoudzou",
+          "names": {
+            "en": "Mamoudzou"
+          },
           "role": "official"
         }
       ]
@@ -3466,7 +4137,9 @@
       },
       "value": [
         {
-          "name": "Plymouth",
+          "names": {
+            "en": "Plymouth"
+          },
           "role": "official"
         }
       ]
@@ -3481,7 +4154,10 @@
       },
       "value": [
         {
-          "name": "Nouméa",
+          "names": {
+            "en": "Nouméa",
+            "ru": "Нумеа"
+          },
           "role": "official"
         }
       ]
@@ -3496,7 +4172,10 @@
       },
       "value": [
         {
-          "name": "Kingston",
+          "names": {
+            "en": "Kingston",
+            "ru": "Кингстон"
+          },
           "role": "official"
         }
       ]
@@ -3511,7 +4190,9 @@
       },
       "value": [
         {
-          "name": "Saipan",
+          "names": {
+            "en": "Saipan"
+          },
           "role": "official"
         }
       ]
@@ -3526,7 +4207,10 @@
       },
       "value": [
         {
-          "name": "Adamstown",
+          "names": {
+            "en": "Adamstown",
+            "ru": "Адамстаун"
+          },
           "role": "official"
         }
       ]
@@ -3541,7 +4225,10 @@
       },
       "value": [
         {
-          "name": "San Juan",
+          "names": {
+            "en": "San Juan",
+            "ru": "Сан-Хуан"
+          },
           "role": "official"
         }
       ]
@@ -3556,7 +4243,10 @@
       },
       "value": [
         {
-          "name": "Saint-Denis",
+          "names": {
+            "en": "Saint-Denis",
+            "ru": "Сен-Дени"
+          },
           "role": "official"
         }
       ]
@@ -3571,7 +4261,10 @@
       },
       "value": [
         {
-          "name": "Gustavia",
+          "names": {
+            "en": "Gustavia",
+            "ru": "Густавия"
+          },
           "role": "official"
         }
       ]
@@ -3586,7 +4279,10 @@
       },
       "value": [
         {
-          "name": "Jamestown",
+          "names": {
+            "en": "Jamestown",
+            "ru": "Джеймстаун"
+          },
           "role": "official"
         }
       ]
@@ -3601,7 +4297,10 @@
       },
       "value": [
         {
-          "name": "Marigot",
+          "names": {
+            "en": "Marigot",
+            "ru": "Мариго"
+          },
           "role": "official"
         }
       ]
@@ -3616,7 +4315,10 @@
       },
       "value": [
         {
-          "name": "Saint-Pierre",
+          "names": {
+            "en": "Saint-Pierre",
+            "ru": "Сен-Пьер"
+          },
           "role": "official"
         }
       ]
@@ -3631,7 +4333,10 @@
       },
       "value": [
         {
-          "name": "Philipsburg",
+          "names": {
+            "en": "Philipsburg",
+            "ru": "Филипсбург"
+          },
           "role": "official"
         }
       ]
@@ -3646,7 +4351,10 @@
       },
       "value": [
         {
-          "name": "King Edward Point",
+          "names": {
+            "en": "King Edward Point",
+            "ru": "Кинг Эдуард Пойнт"
+          },
           "role": "official"
         }
       ]
@@ -3661,7 +4369,9 @@
       },
       "value": [
         {
-          "name": "Longyearbyen",
+          "names": {
+            "en": "Longyearbyen"
+          },
           "role": "official"
         }
       ]
@@ -3676,7 +4386,9 @@
       },
       "value": [
         {
-          "name": "Fakaofo",
+          "names": {
+            "en": "Fakaofo"
+          },
           "role": "official"
         }
       ]
@@ -3691,7 +4403,10 @@
       },
       "value": [
         {
-          "name": "Cockburn Town",
+          "names": {
+            "en": "Cockburn Town",
+            "ru": "Коберн-Таун"
+          },
           "role": "official"
         }
       ]
@@ -3706,7 +4421,10 @@
       },
       "value": [
         {
-          "name": "Charlotte Amalie",
+          "names": {
+            "en": "Charlotte Amalie",
+            "ru": "Шарлотта-Амалия"
+          },
           "role": "official"
         }
       ]
@@ -3721,7 +4439,10 @@
       },
       "value": [
         {
-          "name": "Mata-Utu",
+          "names": {
+            "en": "Mata-Utu",
+            "ru": "Мата-Уту"
+          },
           "role": "official"
         }
       ]

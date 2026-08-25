@@ -181,6 +181,7 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     ["missingTranslations", merged.reports.missingTranslations],
     ["missingAssets", merged.reports.missingAssets],
     ["licenseProblems", merged.reports.licenseProblems],
+    ["unnamedFacts", merged.reports.unnamedFacts],
     ["assetOverrides", merged.reports.assetOverrides],
   ];
   for (const [reportType, items] of reportEntries) {

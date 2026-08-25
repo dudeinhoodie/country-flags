@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "entityKey": "country.bolivia-plurinational-state-of",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "country.eswatini",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "country.south-africa",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "country.sri-lanka",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "country.state-of-palestine",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "country.western-sahara",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "country.yemen",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "territory.bonaire-sint-eustatius-and-saba",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "territory.china-hong-kong-special-administrative-region",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "territory.mayotte",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "territory.montserrat",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "territory.northern-mariana-islands",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "territory.svalbard-and-jan-mayen-islands",
+      "factType": "capitals",
+      "locale": "ru"
+    },
+    {
+      "entityKey": "territory.tokelau",
+      "factType": "capitals",
+      "locale": "ru"
+    }
+  ],
+  "reportType": "unnamedFacts",
+  "schemaVersion": 1
+}
