@@ -250,15 +250,17 @@ public struct HomeView: View {
             )
         }
 
-        // The all-countries deck, always: the door to studying more, however
-        // today stands. A fresh install sees it alone, which is exactly the
-        // deck worth opening instead of a zero.
-        if let deck = recommended(sections) {
+        // The all-countries deck, when the day asks nothing: a queue pane
+        // and a deck pane together were two heroes fighting for the same
+        // tap, so the deck yields whenever something is due. It leads with
+        // its own name — "All countries" is what the block is, and the count
+        // is the detail under it, not the headline.
+        if due == 0, let deck = recommended(sections) {
             pane(
-                label: L10n.homeDeckSize,
+                label: deck.name,
                 count: deck.cardCount,
                 total: nil,
-                caption: deck.name,
+                caption: L10n.homeDeckSize,
                 action: L10n.studyStart,
                 identifier: AccessibilityIdentifier.homeDeckRow(deck.code),
                 run: { onOpenDeck(deck.id) }
