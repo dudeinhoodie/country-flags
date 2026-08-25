@@ -91,8 +91,16 @@ export function aggregateProgress(
   ruleVersion = MASTERY_RULE_VERSION,
 ): ProgressAggregate {
   const totalCards = cards.length;
-  const learnedCards = cards.filter(
+  // Touched is not learned: a card is learned once it graduates to REVIEW,
+  // which is what the schedulers mean by it and what a person means by the
+  // word. Counting any touched card here made "learned" and "in progress"
+  // the same set until the first graduations, and the home tally showed one
+  // number twice.
+  const touchedCards = cards.filter(
     ({ totalReviews }) => totalReviews > 0,
+  ).length;
+  const learnedCards = cards.filter(
+    ({ state }) => state === CardLearningState.REVIEW,
   ).length;
   const isDue = ({ dueAt, totalReviews }: ProgressCardMetrics): boolean =>
     totalReviews > 0 && dueAt !== null && dueAt.getTime() <= now.getTime();
@@ -106,7 +114,9 @@ export function aggregateProgress(
     (card) => card.state === CardLearningState.RELEARNING && isDue(card),
   ).length;
   const dueCards = overdueCards + dueLearningCards + dueRelearningCards;
-  const newCards = totalCards - learnedCards;
+  // New is what was never touched — a card mid-learning is neither new nor
+  // learned, and both splits have to say so.
+  const newCards = totalCards - touchedCards;
   const learningCards = cards.filter(
     ({ state }) => state === CardLearningState.LEARNING,
   ).length;

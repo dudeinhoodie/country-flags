@@ -140,7 +140,7 @@ describe("aggregateProgress mastery thresholds", () => {
 
     expect(result).toMatchObject({
       totalCards: 3,
-      learnedCards: 2,
+      learnedCards: 1,
       dueCards: 1,
       newCards: 1,
       learningCards: 1,
