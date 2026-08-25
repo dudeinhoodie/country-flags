@@ -64,7 +64,10 @@ describe("fact display values", () => {
     ];
 
     expect(factDisplayValue(FactType.CURRENCY, value, "en")).toBe("Euro (EUR)");
-    expect(factDisplayValue(FactType.CURRENCY, value, "ru")).toBe("евро (EUR)");
+    // CLDR gives the Russian common noun in its dictionary form. On the back
+    // of a card it is a label, and a label starts with a capital in both
+    // languages or the same card looks unfinished in one of them.
+    expect(factDisplayValue(FactType.CURRENCY, value, "ru")).toBe("Евро (EUR)");
   });
 
   it("falls back to the code when the currency has no name in any candidate", () => {
@@ -88,8 +91,47 @@ describe("fact display values", () => {
 
     expect(factDisplayValue(FactType.LANGUAGE, value, "en")).toBe("French");
     expect(factDisplayValue(FactType.LANGUAGE, value, "ru")).toBe(
-      "французский",
+      "Французский",
     );
+  });
+
+  /// Every entry, not only the first: English capitalises each language name
+  /// lexically, and a list that capitalised one of them would read as a
+  /// sentence rather than as the row of labels it is.
+  it("capitalises every name in a list of several", () => {
+    const value = [
+      {
+        code: "de",
+        names: { ru: "немецкий", en: "German" },
+        role: "official_or_common",
+      },
+      {
+        code: "fr",
+        names: { ru: "французский", en: "French" },
+        role: "official_or_common",
+      },
+      {
+        code: "it",
+        names: { ru: "итальянский", en: "Italian" },
+        role: "official_or_common",
+      },
+    ];
+
+    expect(factDisplayValue(FactType.LANGUAGE, value, "ru")).toBe(
+      "Немецкий, Французский, Итальянский",
+    );
+  });
+
+  /// A name the source already capitalised is passed through untouched, so
+  /// nothing here can quietly respell what a source said.
+  it("leaves a name that is already capitalised alone", () => {
+    expect(
+      factDisplayValue(
+        FactType.CAPITAL,
+        [{ names: { en: "Bern", ru: "Берн" }, role: "official" }],
+        "ru",
+      ),
+    ).toBe("Берн");
   });
 
   /// What the release says wins over what the runtime's tables would say, so
@@ -109,8 +151,10 @@ describe("fact display values", () => {
     const value = [{ code: "fr", role: "official_or_common" }];
 
     expect(factDisplayValue(FactType.LANGUAGE, value, "en")).toBe("French");
+    // The platform's tables spell it in lower case too, and a reader must not
+    // be able to tell which of the two named it.
     expect(factDisplayValue(FactType.LANGUAGE, value, "ru")).toBe(
-      "французский",
+      "Французский",
     );
   });
 

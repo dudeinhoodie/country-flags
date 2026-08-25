@@ -173,6 +173,17 @@ const languageNames = new Intl.DisplayNames([PRIMARY_LOCALE], {
   fallback: "none",
 });
 
+/// A name as a label rather than as a word in a sentence: English capitalises
+/// a language or a currency lexically while CLDR gives the Russian common noun
+/// in its dictionary form, and the same card should not look unfinished in one
+/// locale. Mirrors `capitalized` in fact-display.ts.
+function capitalized(name, locale) {
+  const [first] = name;
+  if (first === undefined) return name;
+  const upper = first.toLocaleUpperCase(locale);
+  return upper === first ? name : upper + name.slice(first.length);
+}
+
 /// The same rendering the API performs on read
 /// (backend/src/modules/content/fact-display.ts). A value whose shape is not
 /// recognised yields null and the fact is left out, because a card that
@@ -194,7 +205,8 @@ function factDisplayValue(factType, value) {
           // `name` is the shape releases published before the seat carried a
           // name map still hold, and the API keeps reading it too.
           .map((seat) => seat.names?.[PRIMARY_LOCALE] ?? seat.name)
-          .filter((name) => typeof name === "string"),
+          .filter((name) => typeof name === "string")
+          .map((name) => capitalized(name, PRIMARY_LOCALE)),
       );
     case "POPULATION": {
       if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
@@ -210,7 +222,7 @@ function factDisplayValue(factType, value) {
             if (typeof entry.code !== "string") return null;
             const name = entry.names?.[PRIMARY_LOCALE];
             return typeof name === "string" && name.length > 0
-              ? `${name} (${entry.code})`
+              ? `${capitalized(name, PRIMARY_LOCALE)} (${entry.code})`
               : entry.code;
           })
           .filter((entry) => entry !== null),
@@ -230,7 +242,8 @@ function factDisplayValue(factType, value) {
               return null;
             }
           })
-          .filter((name) => name !== null),
+          .filter((name) => name !== null)
+          .map((name) => capitalized(name, PRIMARY_LOCALE)),
       );
     default:
       return null;

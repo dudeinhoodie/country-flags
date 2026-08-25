@@ -72,7 +72,8 @@ function capital(value: Prisma.JsonValue, locale: string): string | null {
         localizedName(seat["names"], "en") ??
         seat["name"],
     )
-    .filter((name): name is string => typeof name === "string");
+    .filter((name): name is string => typeof name === "string")
+    .map((name) => capitalized(name, locale));
   return join(seats);
 }
 
@@ -113,7 +114,7 @@ function currency(value: Prisma.JsonValue, locale: string): string | null {
         return null;
       }
       const name = localizedName(entry["names"], locale);
-      return name === null ? code : `${name} (${code})`;
+      return name === null ? code : `${capitalized(name, locale)} (${code})`;
     })
     .filter((entry): entry is string => entry !== null);
   return join(tenders);
@@ -144,7 +145,8 @@ function language(value: Prisma.JsonValue, locale: string): string | null {
       const code = entry["code"];
       return typeof code === "string" ? safeDisplayName(fallback, code) : null;
     })
-    .filter((name): name is string => name !== null);
+    .filter((name): name is string => name !== null)
+    .map((name) => capitalized(name, locale));
   return join(languages);
 }
 
@@ -158,6 +160,26 @@ function safeDisplayName(
     // `of` throws on a malformed tag rather than returning undefined.
     return null;
   }
+}
+
+/**
+ * A name as a label rather than as a word in a sentence.
+ *
+ * English capitalises a language or a currency lexically — "German", "Euro" —
+ * while CLDR gives the Russian common noun in its dictionary form: "немецкий",
+ * "евро". Printed side by side on the back of a card that is not a difference
+ * between the languages, it is the same card looking unfinished in one of
+ * them. Each fact here is a standalone label, so each starts with a capital,
+ * and a name that already does is left exactly as the source spelled it.
+ */
+function capitalized(name: string, locale: string): string {
+  // By code point, so a name outside the basic plane is not cut in half.
+  const [first] = name;
+  if (first === undefined) {
+    return name;
+  }
+  const upper = first.toLocaleUpperCase(locale);
+  return upper === first ? name : upper + name.slice(first.length);
 }
 
 function localizedName(
