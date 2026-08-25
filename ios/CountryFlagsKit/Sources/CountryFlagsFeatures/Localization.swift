@@ -395,6 +395,10 @@ public enum L10n {
     public static var syncOffline: String { localized("sync.offline") }
     public static var syncSignInRequired: String { localized("sync.sign_in_required") }
 
+    public static func syncPendingChip(_ count: Int) -> String {
+        String(format: localized("sync.pending.chip"), count)
+    }
+    public static var syncSynced: String { localized("sync.synced") }
     public static func syncPending(_ count: Int) -> String {
         String(format: localized("sync.pending"), count)
     }
