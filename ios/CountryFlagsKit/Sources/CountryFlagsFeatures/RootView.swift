@@ -65,6 +65,17 @@ public struct RootView: View {
         SegmentedControlAppearance.apply()
     }
 
+    /// Whether a study session sits on the active tab's stack. The root owns
+    /// the tab bar's visibility so it flips the moment the router moves —
+    /// hidden from the session screen itself, the bar reappeared only after
+    /// the pop finished, landing under a thumb already in motion.
+    private var isStudyOpen: Bool {
+        router.path.contains { route in
+            if case .study = route { return true }
+            return false
+        }
+    }
+
     public var body: some View {
         // A tab bar rather than buttons on Home: the catalog and the progress
         // are places, and iOS puts places on the bottom bar. The bar's glass
@@ -138,6 +149,7 @@ public struct RootView: View {
                     destination(for: route)
                 }
             }
+            .toolbar(isStudyOpen ? .hidden : .automatic, for: .tabBar)
             .tabItem { Label(L10n.homeTitle, systemImage: "house") }
             .tag(AppTab.home)
 
@@ -147,6 +159,7 @@ public struct RootView: View {
                         destination(for: route)
                     }
             }
+            .toolbar(isStudyOpen ? .hidden : .automatic, for: .tabBar)
             .tabItem { Label(L10n.catalogTitle, systemImage: "square.grid.2x2") }
             .tag(AppTab.catalog)
 
@@ -159,6 +172,7 @@ public struct RootView: View {
                     destination(for: route)
                 }
             }
+            .toolbar(isStudyOpen ? .hidden : .automatic, for: .tabBar)
             .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
             .tag(AppTab.progress)
 

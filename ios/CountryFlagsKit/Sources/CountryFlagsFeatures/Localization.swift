@@ -323,6 +323,7 @@ public enum L10n {
 
     public static var studyTitle: String { localized("study.title") }
     public static var studyReveal: String { localized("study.reveal") }
+    public static var studyHide: String { localized("study.hide") }
     public static var studyFlagPrompt: String { localized("study.flag_prompt") }
     public static var studyDetails: String { localized("study.details") }
     public static var studyDetailsTitle: String { localized("study.details.title") }

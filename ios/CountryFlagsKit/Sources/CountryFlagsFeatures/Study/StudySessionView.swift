@@ -73,8 +73,9 @@ public struct StudySessionView: View {
         // The flag is the screen: the chrome shrinks to the counter and a way
         // out, both of which live on the scene rather than above it.
         .toolbar(.hidden, for: .navigationBar)
-        // The flag is the screen: while a session runs, the tab bar leaves too.
-        .toolbar(.hidden, for: .tabBar)
+        // The tab bar is hidden by the root, keyed on the router: hidden from
+        // this screen it reappeared only after the pop finished, and a bar
+        // that arrives late under a moving thumb is a mis-tap machine.
         .task { await runner.startOrResume(deckID: deckID, size: size, composition: composition) }
     }
 
@@ -108,6 +109,16 @@ public struct StudySessionView: View {
             // does not exist.
             Color.clear
         }
+    }
+
+    /// One flip for every entrance: the button, a tap on the card, and a tap
+    /// beside it all go through here, so the reveal is recorded exactly once
+    /// and the sides stay symmetrical.
+    private func toggleCard() {
+        if !isShowingBack {
+            runner.revealAnswer()
+        }
+        isShowingBack.toggle()
     }
 
     private func cardView(state: StudySessionState, card: StudySessionCardRecord) -> some View {
@@ -191,26 +202,32 @@ public struct StudySessionView: View {
                     .accessibilityIdentifier(AccessibilityIdentifier.studyNotSaved)
             }
 
-            if !state.isAnswerRevealed {
-                // The button says it will show the answer, so it turns the
-                // card over. Once it has, nothing replaces it: the swipe is
-                // the answer, the hints above say where each one leads, and a
-                // second row of the same choices below was noise.
-                //
-                // Glass, not the white capsule: white is the scene's loudest
-                // voice and belongs to the one action a screen recommends —
-                // here that is answering the card, and this button is the way
-                // to peek.
-                Button {
-                    runner.revealAnswer()
-                    isShowingBack = true
-                } label: {
-                    Label(L10n.studyReveal, systemImage: "arrow.2.squarepath")
-                }
-                    .buttonStyle(GlassActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
+            // The button turns the card over and stays: once the answer is
+            // up it offers the way back, and either side can be returned to
+            // as often as the learner likes. The swipe is the answer either
+            // way; the hints above say where each one leads.
+            //
+            // Glass, not the white capsule: white is the scene's loudest
+            // voice and belongs to the one action a screen recommends —
+            // here that is answering the card, and this button is the way
+            // to peek.
+            Button {
+                toggleCard()
+            } label: {
+                Label(
+                    isShowingBack ? L10n.studyHide : L10n.studyReveal,
+                    systemImage: "arrow.2.squarepath"
+                )
             }
+                .buttonStyle(GlassActionStyle())
+                .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
         }
+        // A tap that lands beside the card turns it like a tap on it would:
+        // the whole scene is the card's ground, and aiming at the exact
+        // rectangle is a precision nobody owes. The gesture sits behind the
+        // interactive children, so buttons and swipes keep winning.
+        .contentShape(Rectangle())
+        .onTapGesture { toggleCard() }
         .animation(reduceMotion ? nil : .default, value: state.isAnswerRevealed)
         // The one this moment is given in docs/16, §6.
         .sensoryFeedback(.impact(flexibility: .soft), trigger: state.isAnswerRevealed) { _, revealed in
