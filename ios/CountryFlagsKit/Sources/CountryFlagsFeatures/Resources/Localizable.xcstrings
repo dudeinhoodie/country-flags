@@ -2038,6 +2038,23 @@
         }
       }
     },
+    "home.loading": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading your day…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загружаем ваш день…"
+          }
+        }
+      }
+    },
     "home.open_catalog": {
       "extractionState": "manual",
       "localizations": {
