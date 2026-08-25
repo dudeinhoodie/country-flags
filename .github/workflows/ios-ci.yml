@@ -7,6 +7,10 @@ on:
       # The app bundles the flags of a pinned content release, so republishing
       # that release can make the committed set stale.
       - "content/generated/**"
+      # The bundled client contract is mirrored into the package, and the
+      # mirror check only helps if it runs when the contract moves — a stale
+      # mirror once merged unnoticed because this filter skipped contracts.
+      - "contracts/**"
       - ".github/workflows/ios-ci.yml"
   push:
     branches:
@@ -15,6 +19,7 @@ on:
     paths:
       - "ios/**"
       - "content/generated/**"
+      - "contracts/**"
       - ".github/workflows/ios-ci.yml"
 
 permissions:
