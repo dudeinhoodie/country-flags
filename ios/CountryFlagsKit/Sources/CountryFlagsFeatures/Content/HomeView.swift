@@ -224,6 +224,11 @@ public struct HomeView: View {
             )
         }
 
+        // The review block, always. An unfinished sitting used to stand in
+        // for the whole of today and suppress everything under it — leaving
+        // a deck mid-session collapsed this screen to a lone resume row.
+        // Each block now stands on its own: the queue when the schedule owes
+        // anything, the day's tally otherwise.
         if due > 0, let deckID = dueLaunchDeckID(sections) {
             pane(
                 label: L10n.homeDueToday,
@@ -234,31 +239,28 @@ public struct HomeView: View {
                 identifier: AccessibilityIdentifier.homeReview,
                 run: { startDueSession(deckID: deckID) }
             )
-        } else if continuable != nil {
-            // The queue is empty and the sitting above is the whole of today:
-            // neither the celebration nor a deck to start belongs under it.
-            EmptyView()
-        } else if let deck = recommended(sections) {
+        } else if hasAnyProgress {
             // A day already finished says so — a learner with real progress
             // who cleared the queue must not see the fresh-install pane and
-            // wonder where their day went. Clearing the queue is the whole
-            // point of the app, so the screen says it like something that was
-            // achieved, and shows what it added up to.
-            if hasAnyProgress {
-                DayClearedCard(
-                    learned: learnedCountries,
-                    inProgress: countriesInProgress,
-                    onOpenCatalog: onOpenCatalog
-                )
-            }
-            // A fresh install, or a day already finished: a deck worth opening
-            // instead of a zero, which says nothing and looks like a screen
-            // that failed to load.
+            // wonder where their day went.
+            DayClearedCard(
+                learned: learnedCountries,
+                inProgress: countriesInProgress,
+                onOpenCatalog: onOpenCatalog
+            )
+        }
+
+        // The all-countries deck, when the day asks nothing: a queue pane
+        // and a deck pane together were two heroes fighting for the same
+        // tap, so the deck yields whenever something is due. It leads with
+        // its own name — "All countries" is what the block is, and the count
+        // is the detail under it, not the headline.
+        if due == 0, let deck = recommended(sections) {
             pane(
-                label: L10n.homeDeckSize,
+                label: deck.name,
                 count: deck.cardCount,
                 total: nil,
-                caption: deck.name,
+                caption: L10n.homeDeckSize,
                 action: L10n.studyStart,
                 identifier: AccessibilityIdentifier.homeDeckRow(deck.code),
                 run: { onOpenDeck(deck.id) }

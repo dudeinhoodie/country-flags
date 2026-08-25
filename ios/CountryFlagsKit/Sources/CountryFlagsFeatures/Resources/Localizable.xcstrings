@@ -1925,13 +1925,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In this deck"
+            "value": "countries in the deck"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "В этой колоде"
+            "value": "стран в колоде"
           }
         }
       }
