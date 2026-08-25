@@ -187,28 +187,45 @@ public struct DeckDetailsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    @ViewBuilder
     private func startCard() -> some View {
-        GlassCard(padding: DesignTokens.Spacing.medium) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-                if let continuable {
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                        SectionLabel(L10n.homeSessionInProgress)
-                        HStack(
-                            alignment: .firstTextBaseline,
-                            spacing: DesignTokens.Spacing.extraSmall
-                        ) {
-                            Text("\(continuable.answeredCards)")
-                                .font(DesignTokens.Typography.heroNumber)
-                                .monospacedDigit()
-                            Text("/ \(continuable.totalCards)")
-                                .font(DesignTokens.Typography.sectionTitle)
-                                .foregroundStyle(.white.opacity(0.55))
+        if let continuable {
+            // The whole pane is the door back in — the same resumption the
+            // bottom button offers, because a block that says "training
+            // waits" and answers a tap with nothing reads as broken.
+            Button {
+                onStartStudy?(deckID, continuable.size, continuable.mode)
+            } label: {
+                GlassCard(padding: DesignTokens.Spacing.medium) {
+                    HStack(spacing: DesignTokens.Spacing.medium) {
+                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                            SectionLabel(L10n.homeSessionInProgress)
+                            HStack(
+                                alignment: .firstTextBaseline,
+                                spacing: DesignTokens.Spacing.extraSmall
+                            ) {
+                                Text("\(continuable.answeredCards)")
+                                    .font(DesignTokens.Typography.heroNumber)
+                                    .monospacedDigit()
+                                Text("/ \(continuable.totalCards)")
+                                    .font(DesignTokens.Typography.sectionTitle)
+                                    .foregroundStyle(.white.opacity(0.55))
+                            }
+                            .foregroundStyle(.white)
                         }
-                        .foregroundStyle(.white)
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.4))
                     }
-                } else {
-                    modePicker
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(AccessibilityIdentifier.deckResume)
+        } else {
+            GlassCard(padding: DesignTokens.Spacing.medium) {
+                modePicker
             }
         }
     }
