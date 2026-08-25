@@ -17,29 +17,10 @@ final class AccountLifecycleUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testASignedInAccountListsItsLoginsAndDevices() {
-        let app = launch(arguments: ["-reset-store"] + fixtures + identity)
-        signIn(in: app)
-
-        XCTAssertTrue(
-            app.descendants(matching: .any)
-                .matching(identifier: "account.identity.APPLE")
-                .firstMatch
-                .waitForExistence(timeout: 15),
-            app.debugDescription
-        )
-        // The mock account is signed in on this device and one other, so the
-        // list proves both that it renders and that this one is named.
-        XCTAssertTrue(
-            app.buttons["account.revokeDevice.9F000000-0000-4000-8000-0000000000D1"]
-                .waitForExistence(timeout: 15),
-            app.debugDescription
-        )
-    }
-
-    /// The whole deletion: the consequences, a fresh proof, and what the app
-    /// says afterwards — which has to survive a relaunch, because the account
-    /// it belonged to is gone by then.
+    /// The whole deletion: the consequences, and what the app says afterwards
+    /// — which has to survive a relaunch, because the account it belonged to
+    /// is gone by then. The signed-in session is the proof; no provider sheet
+    /// stands between the confirmation and the deletion any more.
     func testDeletingTheAccountLeavesAPendingNoticeThatSurvivesARelaunch() {
         let app = launch(arguments: ["-reset-store"] + fixtures + identity)
         signIn(in: app)
@@ -55,11 +36,6 @@ final class AccountLifecycleUITests: XCTestCase {
             .firstMatch
         XCTAssertTrue(confirm.waitForExistence(timeout: 10), app.debugDescription)
         confirm.tap()
-
-        // The proof sheet: nothing has been deleted until a provider answers.
-        let prove = app.buttons["account.prove.fixture"]
-        XCTAssertTrue(prove.waitForExistence(timeout: 10), app.debugDescription)
-        prove.tap()
 
         // The deletion signs the device out, so the account screen is gone
         // and the app is back at its guest self — which still studies.

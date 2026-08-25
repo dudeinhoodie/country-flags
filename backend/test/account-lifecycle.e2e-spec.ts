@@ -554,19 +554,12 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
     ).nextCursor;
 
     await ageTheSignIn();
-    const withoutProof = await request(httpServer)
-      .delete("/v1/me/progress")
-      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
-      .send({ confirmation: "DELETE_PROGRESS" })
-      .expect(401);
-    expect((withoutProof.body as unknown as ErrorBody).error.code).toBe(
-      "REAUTHENTICATION_REQUIRED",
-    );
-
+    // No fresh provider proof: a signed-in session and the explicit
+    // confirmation are the whole gate now — the proof requirement used to
+    // dead-end the flow on devices where reauthentication could not finish.
     const unconfirmed = await request(httpServer)
       .delete("/v1/me/progress")
       .set("Authorization", `Bearer ${account.tokens.accessToken}`)
-      .set("X-Reauthentication-Token", await reauthenticate())
       .send({ confirmation: "DELETE_EVERYTHING" })
       .expect(422);
     expect((unconfirmed.body as unknown as ErrorBody).error.code).toBe(
@@ -576,7 +569,6 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
     const cleared = await request(httpServer)
       .delete("/v1/me/progress")
       .set("Authorization", `Bearer ${account.tokens.accessToken}`)
-      .set("X-Reauthentication-Token", await reauthenticate())
       .send({ confirmation: "DELETE_PROGRESS" })
       .expect(202);
     expect(cleared.body).toMatchObject({ status: "COMPLETED" });
@@ -648,11 +640,11 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
   });
 
   it("deletes account data, revokes sessions, and is service-idempotent", async () => {
-    reauthenticationToken = await reauthenticate();
+    // The session is the whole gate; the grace period is what makes that
+    // acceptable for a deletion.
     const deletion = await request(httpServer)
       .delete("/v1/me")
       .set("Authorization", `Bearer ${account.tokens.accessToken}`)
-      .set("X-Reauthentication-Token", reauthenticationToken)
       .expect(202);
     expect(deletion.body).toMatchObject({
       status: "DELETION_PENDING",

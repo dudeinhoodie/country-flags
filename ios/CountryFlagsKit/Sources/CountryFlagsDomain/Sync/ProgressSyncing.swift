@@ -73,12 +73,12 @@ public struct ProgressDeletionOutcome: Hashable, Sendable {
 
 /// Deletes an account's learning progress, keeping the account itself.
 ///
-/// The proof is a parameter rather than something the implementation fetches:
-/// the contract requires a fresh one per operation, and a service that could
-/// obtain its own would be a service that could delete progress unprompted.
+/// The signed-in session is the whole gate: the fresh per-operation proof
+/// this used to carry dead-ended the flow on devices where reauthentication
+/// could not complete, and progress — unlike the account — is recoverable
+/// by studying again.
 public protocol ProgressClearing: Sendable {
-    func clearProgress(provingWith proof: ReauthenticationProof) async throws
-        -> ProgressDeletionOutcome
+    func clearProgress() async throws -> ProgressDeletionOutcome
 }
 
 /// One account-scoped change from the backend's stream.

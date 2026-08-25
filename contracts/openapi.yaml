@@ -309,9 +309,11 @@ paths:
       summary: Request complete account deletion
       operationId: deleteMe
       x-implementation-status: implemented
-      security:
-        - BearerAuth: []
-          ReauthenticationToken: []
+      description: >-
+        A signed-in session is the gate; the client asks for an explicit
+        confirmation before calling. The deletion stays a grace-period
+        request rather than an immediate erasure, which is what makes the
+        session alone acceptable proof.
       responses:
         "202":
           description: Deletion request accepted
@@ -943,9 +945,6 @@ paths:
         progress resynchronization.
       operationId: deleteProgress
       x-implementation-status: implemented
-      security:
-        - BearerAuth: []
-          ReauthenticationToken: []
       requestBody:
         required: true
         content:

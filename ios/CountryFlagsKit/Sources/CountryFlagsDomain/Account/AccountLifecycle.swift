@@ -188,8 +188,7 @@ public protocol DataExporting: Sendable {
 
 /// Deleting the whole account, proof in hand.
 public protocol AccountDeleting: Sendable {
-    func deleteAccount(provingWith proof: ReauthenticationProof) async throws
-        -> AccountDeletionRecord
+    func deleteAccount() async throws -> AccountDeletionRecord
 }
 
 /// Remembers that a deletion is under way.

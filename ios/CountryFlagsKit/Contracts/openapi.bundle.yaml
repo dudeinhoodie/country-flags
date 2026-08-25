@@ -324,9 +324,7 @@ paths:
       summary: Request complete account deletion
       operationId: deleteMe
       x-implementation-status: implemented
-      security:
-        - BearerAuth: []
-          ReauthenticationToken: []
+      description: A signed-in session is the gate; the client asks for an explicit confirmation before calling. The deletion stays a grace-period request rather than an immediate erasure, which is what makes the session alone acceptable proof.
       responses:
         '202':
           description: Deletion request accepted
@@ -964,9 +962,6 @@ paths:
       description: Removes review history, card states, study sessions, achievements and deck mastery while keeping the account, identities, devices and settings. The account change stream is rotated, so cursors issued before the deletion stop resolving and every device performs a full progress resynchronization.
       operationId: deleteProgress
       x-implementation-status: implemented
-      security:
-        - BearerAuth: []
-          ReauthenticationToken: []
       requestBody:
         required: true
         content:
