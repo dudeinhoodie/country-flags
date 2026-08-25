@@ -76,9 +76,14 @@ struct SyncStatusChip: View {
                 }
                 .font(DesignTokens.Typography.caption)
                 .monospacedDigit()
+                // The whole chip turns green for the made-it moment — the
+                // colour change is the celebration, animated so it arrives
+                // rather than snaps — and white otherwise.
+                .foregroundStyle(showsSynced ? Color.green : .white)
+                .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.35), value: showsSynced)
+        .animation(.easeInOut(duration: 0.45), value: showsSynced)
         .animation(.easeInOut(duration: 0.35), value: status.pendingCount)
         // The moment the queue empties is worth a word of its own: a counter
         // that silently vanishes reads as "gave up", not "made it". The word

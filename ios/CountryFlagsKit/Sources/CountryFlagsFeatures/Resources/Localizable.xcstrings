@@ -3589,51 +3589,15 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld answer to sync"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld answers to sync"
-                }
-              }
-            }
+          "stringUnit": {
+            "state": "translated",
+            "value": "To sync: %lld"
           }
         },
         "ru": {
-          "variations": {
-            "plural": {
-              "few": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ответа нужно синхронизировать"
-                }
-              },
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ответов нужно синхронизировать"
-                }
-              },
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ответ нужно синхронизировать"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ответов нужно синхронизировать"
-                }
-              }
-            }
+          "stringUnit": {
+            "state": "translated",
+            "value": "К отправке: %lld"
           }
         }
       }
