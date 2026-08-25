@@ -252,7 +252,6 @@ public struct RootView: View {
             // entrance too many.
             SettingsScreen(
                 store: makeSettingsStore(),
-                makeClearProgress: makeClearProgressStore,
                 makePrivacy: makePrivacyStore,
                 environmentBadge: configuration.environment.allowsDebugAffordances
                     ? configuration.environment.rawValue.uppercased()

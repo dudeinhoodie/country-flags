@@ -14,13 +14,11 @@ import CountryFlagsDomain
 public struct SettingsScreen: View {
     /// Owned for the same reason the progress screen owns its own.
     @State private var store: SettingsStore
-    @State private var clearProgress: ClearProgressStore?
     /// The chosen session size, held here so the control answers the tap
     /// rather than the round trip behind it. The store is written through and
     /// stays the source of truth; this is what the finger is promised.
     @State private var chosenSessionSize: Int?
     @State private var privacy: PrivacyStore?
-    private let makeClearProgress: (() -> ClearProgressStore)?
     private let makePrivacy: (() -> PrivacyStore)?
     /// Which build this is, for the builds that are not production. It used to
     /// be a badge in the corner of the first screen; the avatar has that corner
@@ -30,12 +28,10 @@ public struct SettingsScreen: View {
 
     public init(
         store: SettingsStore,
-        makeClearProgress: (() -> ClearProgressStore)? = nil,
         makePrivacy: (() -> PrivacyStore)? = nil,
         environmentBadge: String? = nil
     ) {
         _store = State(wrappedValue: store)
-        self.makeClearProgress = makeClearProgress
         self.makePrivacy = makePrivacy
         self.environmentBadge = environmentBadge
     }
@@ -133,9 +129,8 @@ public struct SettingsScreen: View {
 
             privacySection
 
-            if let clearProgress {
-                ClearProgressSection(store: clearProgress)
-            }
+            // Clearing progress left this screen: it is an act of account
+            // management, and it lives with the account behind the avatar.
 
             if let environmentBadge {
                 Section {
@@ -157,8 +152,6 @@ public struct SettingsScreen: View {
         .task {
             await store.load()
             chosenSessionSize = store.settings.sessionSize
-            if clearProgress == nil { clearProgress = makeClearProgress?() }
-            await clearProgress?.load()
             if privacy == nil { privacy = makePrivacy?() }
             await privacy?.load()
         }
