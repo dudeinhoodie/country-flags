@@ -156,13 +156,13 @@ public struct HomeView: View {
                 ContentStatusBanner(isStale: isStale, failure: failure)
             }
 
-            // Until the numbers arrive the pane holds its shape rather than
-            // showing the fallback: a screen that says "start the deck" for a
-            // beat and then corrects itself into "review" reads as a glitch,
-            // and this screen opens the app every single time.
+            // Until the backend's numbers arrive the pane says it is loading,
+            // in plain words with a spinner — not skeleton shapes pretending
+            // to be content, and not the local projection's figures either:
+            // the owner's call is that a number on this screen is the
+            // backend's number or nothing.
             if isAwaitingProgress {
-                SkeletonBlock(height: DesignTokens.Layout.heroPlaceholderHeight)
-                SkeletonBlock()
+                homeLoader
             } else {
                 todayPane(sections)
                 queuePane(sections)
@@ -170,22 +170,35 @@ public struct HomeView: View {
         }
     }
 
-    /// Whether the pane's numbers are still being read.
+    /// One spinner in the hero's place. The height is the hero's, so the
+    /// queue below does not jump when the numbers land.
+    private var homeLoader: some View {
+        VStack(spacing: DesignTokens.Spacing.medium) {
+            ProgressView()
+                .controlSize(.large)
+                .tint(.white)
+            Text(L10n.homeLoading)
+                .font(DesignTokens.Typography.caption)
+                .foregroundStyle(.white.opacity(0.6))
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: DesignTokens.Layout.heroPlaceholderHeight)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(AccessibilityIdentifier.homeLoading)
+    }
+
+    /// Whether the pane's numbers are still being fetched.
     ///
-    /// Only until the local read lands — a store lookup, gone in a frame or
-    /// two. This used to wait for the network as well: any sync in flight,
-    /// and the launch's first catalogue sync, kept the skeleton up for the
-    /// whole round trip, which is every cold open and every finished deck —
-    /// seconds of empty screen guarding numbers that were already right,
-    /// because the local projection updates the moment an answer commits.
-    ///
-    /// The flicker that wait was defending against is handled where it
-    /// belongs: the hero number renders `monospacedDigit` with a
-    /// `numericText` transition, so a canonical correction rolls through the
-    /// digits instead of snapping, and the header's status chip is what says
-    /// a refresh is running. Stale-while-revalidate, not blank-while-loading.
+    /// The screen waits for the backend: a sync in flight, and the launch's
+    /// first catalogue sync, both hold the loader up. The local projection is
+    /// deliberately not painted meanwhile — it can disagree with the account
+    /// the backend holds, and a figure that appears and then changes reads as
+    /// a screen making numbers up. A run that fails or finds no network
+    /// settles back into `idle`, so the loader always resolves somewhere.
     private var isAwaitingProgress: Bool {
-        makeProgress != nil && !(progress?.isLoaded ?? false)
+        if makeProgress != nil, !(progress?.isLoaded ?? false) { return true }
+        if sync.status.phase == .syncing { return true }
+        return store.lastSyncedAt == nil && store.status.phase != .idle
     }
 
     // MARK: - Today

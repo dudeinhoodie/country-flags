@@ -43,6 +43,7 @@ public enum L10n {
     // MARK: - Content
 
     public static var homeTitle: String { localized("home.title") }
+    public static var homeLoading: String { localized("home.loading") }
     public static var homeRecommended: String { localized("home.recommended") }
     public static var homeOpenCatalog: String { localized("home.open_catalog") }
     /// The label over the number the first screen is built around, in each of
