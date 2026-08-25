@@ -60,13 +60,16 @@ final class AccessibilityUITests: XCTestCase {
         XCTAssertTrue(reveal.waitForExistence(timeout: 20), app.debugDescription)
         reveal.tap()
 
-        // The rating is what commits an answer. With animation off it must
-        // appear at once rather than at the end of a transition that is not
-        // running.
-        let good = app.buttons["study.rating.GOOD"]
-        XCTAssertTrue(good.waitForExistence(timeout: 10), app.debugDescription)
-        XCTAssertTrue(good.isHittable, app.debugDescription)
-        good.tap()
+        // The swipe is what commits an answer: the rating bar left the
+        // screen, so throwing the revealed card right is the whole gesture a
+        // person makes. VoiceOver reaches the same four ratings as custom
+        // actions on the card, which XCUITest cannot invoke — the arrival of
+        // the next card is what proves the commit went through.
+        let card = app.descendants(matching: .any)
+            .matching(identifier: "study.card")
+            .firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 10), app.debugDescription)
+        card.swipeRight()
 
         XCTAssertTrue(
             app.buttons["study.reveal"].waitForExistence(timeout: 15),

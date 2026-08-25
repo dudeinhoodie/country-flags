@@ -37,7 +37,8 @@ final class StudySessionUITests: XCTestCase {
                 app.staticTexts["study.answer"].waitForExistence(timeout: 5),
                 app.debugDescription
             )
-            app.buttons["study.rating.GOOD"].tap()
+            app.descendants(matching: .any).matching(identifier: "study.card")
+                .firstMatch.swipeRight()
             answered += 1
         }
 
@@ -70,7 +71,8 @@ final class StudySessionUITests: XCTestCase {
         XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 10))
         let firstPosition = app.staticTexts["study.progress"].label
         app.buttons["study.reveal"].tap()
-        app.buttons["study.rating.GOOD"].tap()
+        app.descendants(matching: .any).matching(identifier: "study.card")
+            .firstMatch.swipeRight()
 
         // The second card is up, which means the first answer committed.
         XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 10))

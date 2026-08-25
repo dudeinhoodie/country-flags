@@ -3075,6 +3075,23 @@
         }
       }
     },
+    "study.hide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide answer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрыть ответ"
+          }
+        }
+      }
+    },
     "study.map.open": {
       "extractionState": "manual",
       "localizations": {

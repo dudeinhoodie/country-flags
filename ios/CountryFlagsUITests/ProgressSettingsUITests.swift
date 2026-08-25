@@ -46,7 +46,8 @@ final class ProgressSettingsUITests: XCTestCase {
             app.staticTexts["study.answer"].waitForExistence(timeout: 10),
             app.debugDescription
         )
-        app.buttons["study.rating.GOOD"].tap()
+        app.descendants(matching: .any).matching(identifier: "study.card")
+            .firstMatch.swipeRight()
 
         // Back to home, then into progress. The session screen has no
         // navigation bar any more — the flag is the screen — so leaving it is

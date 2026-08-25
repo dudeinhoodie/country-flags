@@ -73,8 +73,9 @@ public struct StudySessionView: View {
         // The flag is the screen: the chrome shrinks to the counter and a way
         // out, both of which live on the scene rather than above it.
         .toolbar(.hidden, for: .navigationBar)
-        // The flag is the screen: while a session runs, the tab bar leaves too.
-        .toolbar(.hidden, for: .tabBar)
+        // The tab bar is hidden by the root, keyed on the router: hidden from
+        // this screen it reappeared only after the pop finished, and a bar
+        // that arrives late under a moving thumb is a mis-tap machine.
         .task { await runner.startOrResume(deckID: deckID, size: size, composition: composition) }
     }
 
@@ -108,6 +109,16 @@ public struct StudySessionView: View {
             // does not exist.
             Color.clear
         }
+    }
+
+    /// One flip for every entrance: the button, a tap on the card, and a tap
+    /// beside it all go through here, so the reveal is recorded exactly once
+    /// and the sides stay symmetrical.
+    private func toggleCard() {
+        if !isShowingBack {
+            runner.revealAnswer()
+        }
+        isShowingBack.toggle()
     }
 
     private func cardView(state: StudySessionState, card: StudySessionCardRecord) -> some View {
@@ -165,6 +176,18 @@ public struct StudySessionView: View {
                 swipeProgress: $swipeProgress,
                 commandedThrow: $commandedThrow
             )
+            // The rating bar that used to sit under a revealed card is gone —
+            // the swipe is the answer, and the hints below say where each one
+            // leads. VoiceOver cannot swipe a throw, so the four ratings ride
+            // on the card as actions instead of as buttons everyone else must
+            // scroll past.
+            .accessibilityActions {
+                if state.isAnswerRevealed {
+                    ForEach(StudyRating.allCases, id: \.self) { rating in
+                        Button(L10n.studyRating(rating)) { commandedThrow = rating }
+                    }
+                }
+            }
 
             // Where each throw leads, said before the first one is made. The
             // side the throw is heading for lights up as it goes.
@@ -179,29 +202,34 @@ public struct StudySessionView: View {
                     .accessibilityIdentifier(AccessibilityIdentifier.studyNotSaved)
             }
 
-            if state.isAnswerRevealed {
-                // The swipe reaches two of the four ratings; these reach all of
-                // them, and they are the only way in for VoiceOver.
-                ratingButtons(disabled: state.isCommitting)
-            } else {
-                // The button says it will show the answer, so it turns the
-                // card over. Unlocking the ratings without turning it left the
-                // learner looking at the same flag and no answer anywhere.
-                //
-                // Glass, not the white capsule: white is the scene's loudest
-                // voice and belongs to the one action a screen recommends —
-                // here that is answering the card, and this button is the way
-                // to peek, sitting where the rating pane is about to appear.
-                Button {
-                    runner.revealAnswer()
-                    isShowingBack = true
-                } label: {
-                    Label(L10n.studyReveal, systemImage: "arrow.2.squarepath")
-                }
-                    .buttonStyle(GlassActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
+            // The button turns the card over and stays: once the answer is
+            // up it offers the way back, and either side can be returned to
+            // as often as the learner likes. The swipe is the answer either
+            // way; the hints above say where each one leads.
+            //
+            // Glass, not the white capsule: white is the scene's loudest
+            // voice and belongs to the one action a screen recommends —
+            // here that is answering the card, and this button is the way
+            // to peek.
+            Button {
+                toggleCard()
+            } label: {
+                Label(
+                    isShowingBack ? L10n.studyHide : L10n.studyReveal,
+                    systemImage: "arrow.2.squarepath"
+                )
             }
+                .buttonStyle(GlassActionStyle())
+                .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
         }
+        // A tap that lands beside the card closes it, and only closes: the
+        // back is often read at arm's length and dismissed with whatever
+        // finger is free, while revealing stays a deliberate act on the card
+        // or its button — a stray touch must not spend the reveal. The
+        // gesture sits behind the interactive children, so buttons and
+        // swipes keep winning.
+        .contentShape(Rectangle())
+        .onTapGesture { if isShowingBack { toggleCard() } }
         .animation(reduceMotion ? nil : .default, value: state.isAnswerRevealed)
         // The one this moment is given in docs/16, §6.
         .sensoryFeedback(.impact(flexibility: .soft), trigger: state.isAnswerRevealed) { _, revealed in
@@ -272,59 +300,6 @@ public struct StudySessionView: View {
         palette = await FlagPaletteReader.palette(for: record, assets: assets) ?? .neutral
     }
 
-    /// One pane of glass holding four targets rather than four floating
-    /// buttons: the row is a single object the thumb learns the position of,
-    /// and the material behind it belongs to the scene rather than to each
-    /// button separately.
-    private func ratingButtons(disabled: Bool) -> some View {
-        // One bar, four words: separate glass buttons read as four floating
-        // pills and broke the row into confetti — one pane holding four
-        // targets is the object the thumb learns the position of.
-        HStack(spacing: DesignTokens.Spacing.extraSmall) {
-            ForEach(StudyRating.allCases, id: \.self) { rating in
-                // The button does not rate directly: it asks the stack to
-                // throw, and the throw rates — one path, so the card always
-                // visibly takes the answer with it.
-                Button {
-                    commandedThrow = rating
-                } label: {
-                    Text(L10n.studyRating(rating))
-                        .font(DesignTokens.Typography.body.weight(rating == .good ? .semibold : .medium))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: DesignTokens.Layout.actionHeight)
-                        .foregroundStyle(tint(for: rating))
-                        // "Good" is the answer most cards get, so it is the
-                        // one the thumb finds without aiming.
-                        .background {
-                            if rating == .good {
-                                Capsule(style: .continuous).fill(.white)
-                            }
-                        }
-                        .contentShape(Capsule(style: .continuous))
-                }
-                // The buttons are disabled rather than hidden while a rating is
-                // written, so a second tap lands on nothing and the layout does
-                // not jump under the learner's finger.
-                .disabled(disabled)
-                .accessibilityIdentifier(AccessibilityIdentifier.studyRating(rating))
-            }
-        }
-        .padding(DesignTokens.Spacing.extraSmall)
-        .glassEffect(.regular, in: Capsule(style: .continuous))
-    }
-
-    /// The rating's lean, worn quietly. Whitened well past pastel so the row
-    /// stays one calm object; the word, not the colour, is the carrier.
-    private func tint(for rating: StudyRating) -> Color {
-        switch rating {
-        case .again: Color.red.mix(with: .white, by: 0.55)
-        case .hard: Color.orange.mix(with: .white, by: 0.6)
-        case .good: .black
-        case .easy: Color.green.mix(with: .white, by: 0.6)
-        }
-    }
 }
 
 /// The session's verdict, read off the waterline.
