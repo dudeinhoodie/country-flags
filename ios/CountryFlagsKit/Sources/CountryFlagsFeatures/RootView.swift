@@ -162,6 +162,18 @@ public struct RootView: View {
             .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
             .tag(AppTab.progress)
 
+            // The trophies, on the tab that was designed for them: the router
+            // carried an achievements stack from the start, and the screen
+            // existed — nothing had put the two together.
+            NavigationStack(path: $router.achievementsNavigationPath) {
+                AchievementsScreen(store: makeProgressStore())
+                    .navigationDestination(for: AppRoute.self) { route in
+                        destination(for: route)
+                    }
+            }
+            .tabItem { Label(L10n.achievementsTitle, systemImage: "trophy") }
+            .tag(AppTab.achievements)
+
         }
         // The scene is dark, so the app is: system controls, sheets and the
         // bars all take their colours from here rather than each screen
