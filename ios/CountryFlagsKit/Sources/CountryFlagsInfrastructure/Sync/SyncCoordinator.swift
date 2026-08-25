@@ -289,6 +289,22 @@ public actor SyncCoordinator: SyncCoordinating {
 
     /// Sends the queue in order, a batch at a time, and applies each decision.
     private func uploadPendingWork(scope: AccountScope) async throws {
+        // Reviews parked as sequence collisions are work the account still
+        // deserves: builds before the renumbering parked every collision, and
+        // a collision is the one refusal a fresh number can cure. They rejoin
+        // the queue here and ship with this run.
+        let parked = try await outbox.operations(failedWith: Self.sequenceConflict, for: scope)
+            .filter { $0.kind == .reviewBatch }
+        let revived = try await renumberAndRequeue(parked, scope: scope)
+        if !revived.isEmpty {
+            logger.log(
+                .notice,
+                .sync,
+                "Revived reviews parked by sequence collisions",
+                ["count": .count(revived.count)]
+            )
+        }
+
         while true {
             let pending = try await outbox.pendingOperations(for: scope)
                 .filter { $0.kind == .reviewBatch }
@@ -419,7 +435,9 @@ public actor SyncCoordinator: SyncCoordinating {
         scope: AccountScope
     ) async throws {
         let submitted = Set(batch.map(\.id))
+        let batchByID = Dictionary(uniqueKeysWithValues: batch.map { ($0.id, $0) })
         var canonicalStates: [CardStateRecord] = []
+        var sequenceCollisions: [OutboxOperationRecord] = []
 
         for acknowledgement in outcome.acknowledgements {
             // The queue is keyed by operation IDs; the server's review IDs
@@ -440,6 +458,15 @@ public actor SyncCoordinator: SyncCoordinating {
                     failureCode: nil,
                     for: scope
                 )
+            case .rejected where acknowledgement.rejectionCode == Self.sequenceConflict:
+                // Not a verdict on the answer: the backend says the number is
+                // taken, not that the review is wrong. The event itself is
+                // absent — the duplicate check by review ID ran first — so
+                // the same answer under a fresh number is simply accepted.
+                // It queues for renumbering below instead of being parked.
+                if let operation = batchByID[acknowledgement.operationID] {
+                    sequenceCollisions.append(operation)
+                }
             case .rejected:
                 // Parked rather than retried: a refusal that came back once
                 // will come back every time, and a loop is worse than a
@@ -472,6 +499,18 @@ public actor SyncCoordinator: SyncCoordinating {
             }
         }
 
+        let renumbered = try await renumberAndRequeue(sequenceCollisions, scope: scope)
+        for operation in sequenceCollisions where !renumbered.contains(operation.id) {
+            // A collided payload this build cannot read cannot be corrected;
+            // it keeps the parked fate so the loss stays visible.
+            try await outbox.updateState(
+                of: operation.id,
+                to: .permanentFailure,
+                failureCode: Self.sequenceConflict,
+                for: scope
+            )
+        }
+
         // An item the answer did not mention was never decided, so it goes back
         // to pending rather than being assumed lost or assumed stored.
         let mentioned = Set(outcome.acknowledgements.map(\.operationID))
@@ -490,6 +529,82 @@ public actor SyncCoordinator: SyncCoordinating {
         // would skip every change between the device's last read and now —
         // on a fresh device, the account's whole history. The changes pull
         // owns the cursor and moves it only over pages it has applied.
+    }
+
+    // MARK: - Sequence collisions
+
+    /// The backend's code for "this clientSequence is already taken".
+    private static let sequenceConflict = "SEQUENCE_CONFLICT"
+
+    /// The fields renumbering reads from a queued payload. Nothing else is
+    /// decoded: the bytes an earlier build promised to send are edited in
+    /// place, not rebuilt from current types.
+    private struct QueuedReviewSequence: Decodable {
+        let clientOccurredAt: Date
+        let clientSequence: Int64
+    }
+
+    /// The last sequence number renumbering handed out. It can run twice in
+    /// one process — reviving parked work, then answering a fresh rejection —
+    /// and both must stay unique even inside one millisecond.
+    private var lastIssuedSequence: Int64 = 0
+
+    /// Returns collided reviews to the queue under fresh sequence numbers and
+    /// answers with the identifiers it managed to renumber.
+    ///
+    /// A sequence collision is the one refusal a retry can fix, because the
+    /// number is the whole complaint: per-session numbering from before the
+    /// wall-clock fix, or a reset store resuming from one, collides with
+    /// history the backend already holds. The fresh numbers are wall-clock
+    /// milliseconds — what a new answer would get — assigned in the order the
+    /// answers were given so the per-device sequence keeps telling the truth.
+    /// The review ID is untouched: an answer that did land but lost its
+    /// acknowledgement still resolves as a duplicate, never as a second
+    /// review.
+    private func renumberAndRequeue(
+        _ operations: [OutboxOperationRecord],
+        scope: AccountScope
+    ) async throws -> Set<UUID> {
+        guard !operations.isEmpty else { return [] }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let readable = operations
+            .compactMap { operation -> (operation: OutboxOperationRecord, stored: QueuedReviewSequence)? in
+                guard
+                    let stored = try? decoder.decode(
+                        QueuedReviewSequence.self,
+                        from: operation.payload
+                    )
+                else { return nil }
+                return (operation, stored)
+            }
+            .sorted {
+                ($0.stored.clientOccurredAt, $0.stored.clientSequence)
+                    < ($1.stored.clientOccurredAt, $1.stored.clientSequence)
+            }
+
+        var renumbered: Set<UUID> = []
+        for (operation, _) in readable {
+            guard
+                var payload = try? JSONSerialization.jsonObject(with: operation.payload)
+                    as? [String: Any]
+            else { continue }
+            let next = max(
+                Int64(dates.now().timeIntervalSince1970 * 1000),
+                lastIssuedSequence + 1
+            )
+            lastIssuedSequence = next
+            payload["clientSequence"] = next
+            guard
+                let data = try? JSONSerialization.data(
+                    withJSONObject: payload,
+                    options: [.sortedKeys]
+                )
+            else { continue }
+            try await outbox.requeue(operation.id, withPayload: data, for: scope)
+            renumbered.insert(operation.id)
+        }
+        return renumbered
     }
 
     /// Replaces local projections with what the server decided.

@@ -86,6 +86,44 @@ actor SwiftDataOutboxRepository: OutboxRepository {
         return requeued
     }
 
+    /// The refusals that share one code, oldest first, so a cure that knows
+    /// the code replays them in the order the user produced them.
+    func operations(
+        failedWith code: String,
+        for scope: AccountScope
+    ) async throws -> [OutboxOperationRecord] {
+        let key = scope.key
+        let permanent = OutboxState.permanentFailure.rawValue
+        let descriptor = FetchDescriptor<StoredOutboxOperation>(
+            predicate: #Predicate {
+                $0.scopeKey == key && $0.state == permanent && $0.lastFailureCode == code
+            },
+            sortBy: [SortDescriptor(\.createdAt), SortDescriptor(\.id)]
+        )
+        return try modelContext.fetch(descriptor).compactMap(Self.record)
+    }
+
+    func requeue(
+        _ operationID: UUID,
+        withPayload payload: Data,
+        for scope: AccountScope
+    ) async throws {
+        let key = scope.key
+        try transaction {
+            var descriptor = FetchDescriptor<StoredOutboxOperation>(
+                predicate: #Predicate { $0.scopeKey == key && $0.id == operationID }
+            )
+            descriptor.fetchLimit = 1
+            guard let stored = try modelContext.fetch(descriptor).first else {
+                throw PersistenceError.notFound
+            }
+            stored.payload = payload
+            stored.state = OutboxState.pending.rawValue
+            stored.lastFailureCode = nil
+            stored.updatedAt = Date()
+        }
+    }
+
     func cursor(
         _ feed: SyncCursorRecord.Feed,
         for scope: AccountScope

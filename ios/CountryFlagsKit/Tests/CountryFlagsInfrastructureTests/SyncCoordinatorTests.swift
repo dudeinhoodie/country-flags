@@ -148,6 +148,110 @@ final class SyncCoordinatorTests: XCTestCase {
     /// A refused request acknowledges nothing, so everything goes back to the
     /// queue with its identity intact and the next attempt is a replay, not a
     /// second review.
+    // MARK: - Sequence collisions
+
+    /// A `SEQUENCE_CONFLICT` says the number is taken, not that the answer is
+    /// wrong: the review returns to the queue under a fresh wall-clock
+    /// sequence, in the order the answers were given, and delivers on the
+    /// next run.
+    func testASequenceCollisionIsRenumberedAndDelivered() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let outbox = store.makeOutboxRepository()
+        let ids = try await enqueueReviews(sequences: [1, 2], into: outbox, scope: account)
+        let uploader = RecordingUploader(
+            acknowledgeAll: .rejected,
+            rejectionCode: "SEQUENCE_CONFLICT"
+        )
+        let coordinator = makeCoordinator(store: store, uploader: uploader)
+
+        await coordinator.synchronize(scope: account, trigger: .launch)
+
+        let pending = try await outbox.pendingOperations(for: account)
+        XCTAssertEqual(pending.map(\.id), ids)
+        let reviews = try pending.map(Self.queuedReview)
+        // Fresh numbers on the millisecond scale, still in answer order, and
+        // the review IDs stand: a resend of an answer that did land resolves
+        // as a duplicate, never as a second review.
+        let nowMilliseconds = Int64(now.timeIntervalSince1970 * 1000)
+        XCTAssertGreaterThanOrEqual(reviews[0].sequence, nowMilliseconds)
+        XCTAssertGreaterThan(reviews[1].sequence, reviews[0].sequence)
+        XCTAssertEqual(reviews.map(\.reviewID), ids.map(\.uuidString))
+
+        let second = makeCoordinator(
+            store: store,
+            uploader: RecordingUploader(acknowledgeAll: .accepted)
+        )
+        await second.synchronize(scope: account, trigger: .pullToRefresh)
+        let remaining = try await outbox.pendingOperations(for: account)
+        XCTAssertTrue(remaining.isEmpty)
+    }
+
+    /// Builds before the renumbering parked every collision. The parked work
+    /// is revived at the start of a run and delivered with it.
+    func testAParkedSequenceCollisionIsRevivedAndDelivered() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let outbox = store.makeOutboxRepository()
+        let ids = try await enqueueReviews(sequences: [7], into: outbox, scope: account)
+        try await outbox.updateState(
+            of: ids[0],
+            to: .permanentFailure,
+            failureCode: "SEQUENCE_CONFLICT",
+            for: account
+        )
+        let uploader = RecordingUploader(acknowledgeAll: .accepted)
+        let coordinator = makeCoordinator(store: store, uploader: uploader)
+
+        await coordinator.synchronize(scope: account, trigger: .launch)
+
+        let sent = await uploader.sentOperations()
+        XCTAssertEqual(sent.map(\.id), ids)
+        let review = try Self.queuedReview(from: sent[0])
+        XCTAssertGreaterThanOrEqual(review.sequence, Int64(now.timeIntervalSince1970 * 1000))
+        let pending = try await outbox.pendingOperations(for: account)
+        XCTAssertTrue(pending.isEmpty)
+        let parked = try await outbox.operations(failedWith: "SEQUENCE_CONFLICT", for: account)
+        XCTAssertTrue(parked.isEmpty)
+    }
+
+    /// A collided payload this build cannot decode cannot be corrected; it
+    /// keeps the parked fate so the loss stays visible in diagnostics.
+    func testAnUnreadableCollisionStaysParked() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let outbox = store.makeOutboxRepository()
+        let ids = try await enqueue(count: 1, into: outbox, scope: account)
+        let uploader = RecordingUploader(
+            results: [ids[0]: .rejected],
+            rejectionCode: "SEQUENCE_CONFLICT"
+        )
+        let coordinator = makeCoordinator(store: store, uploader: uploader)
+
+        await coordinator.synchronize(scope: account, trigger: .launch)
+
+        let pending = try await outbox.pendingOperations(for: account)
+        XCTAssertTrue(pending.isEmpty)
+        let parked = try await outbox.operations(failedWith: "SEQUENCE_CONFLICT", for: account)
+        XCTAssertEqual(parked.map(\.id), ids)
+    }
+
+    /// Only the collision code is curable; any other refusal still parks.
+    func testARejectionWithAnotherCodeStillParks() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let outbox = store.makeOutboxRepository()
+        let ids = try await enqueueReviews(sequences: [3], into: outbox, scope: account)
+        let uploader = RecordingUploader(
+            results: [ids[0]: .rejected],
+            rejectionCode: "CARD_NOT_IN_SESSION"
+        )
+        let coordinator = makeCoordinator(store: store, uploader: uploader)
+
+        await coordinator.synchronize(scope: account, trigger: .launch)
+
+        let pending = try await outbox.pendingOperations(for: account)
+        XCTAssertTrue(pending.isEmpty)
+        let parked = try await outbox.operations(failedWith: "CARD_NOT_IN_SESSION", for: account)
+        XCTAssertEqual(parked.map(\.id), ids)
+    }
+
     func testAFailedRequestReturnsTheWholeBatchToTheQueue() async throws {
         let store = try LocalStore(location: .inMemory)
         let outbox = store.makeOutboxRepository()
@@ -332,6 +436,58 @@ final class SyncCoordinatorTests: XCTestCase {
         return ids
     }
 
+    /// Queues reviews whose payloads carry what renumbering reads: the moment
+    /// the answer was given and the sequence the build of that day assigned.
+    @discardableResult
+    private func enqueueReviews(
+        sequences: [Int64],
+        into outbox: any OutboxRepository,
+        scope: AccountScope
+    ) async throws -> [UUID] {
+        var ids: [UUID] = []
+        for (index, sequence) in sequences.enumerated() {
+            let id = UUID(uuidString: String(format: "ab000000-0000-4000-8000-%012d", index))!
+            ids.append(id)
+            let occurredAt = ISO8601DateFormatter().string(
+                from: now.addingTimeInterval(Double(index))
+            )
+            let payload = Data(
+                """
+                {"reviewID":"\(id.uuidString)",\
+                "clientOccurredAt":"\(occurredAt)",\
+                "clientSequence":\(sequence)}
+                """.utf8
+            )
+            try await outbox.enqueue(
+                OutboxOperationRecord(
+                    id: id,
+                    kind: .reviewBatch,
+                    dependencyID: nil,
+                    payload: payload,
+                    state: .pending,
+                    attemptCount: 0,
+                    lastFailureCode: nil,
+                    createdAt: now.addingTimeInterval(Double(index)),
+                    updatedAt: now.addingTimeInterval(Double(index))
+                ),
+                for: scope
+            )
+        }
+        return ids
+    }
+
+    private static func queuedReview(
+        from operation: OutboxOperationRecord
+    ) throws -> (reviewID: String, sequence: Int64) {
+        let payload = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: operation.payload) as? [String: Any]
+        )
+        return (
+            reviewID: try XCTUnwrap(payload["reviewID"] as? String),
+            sequence: try XCTUnwrap((payload["clientSequence"] as? NSNumber)?.int64Value)
+        )
+    }
+
     static func state(cardID: UUID, version: Int, isLocal: Bool) -> CardStateRecord {
         CardStateRecord(
             learningCardID: cardID,
@@ -358,6 +514,7 @@ actor RecordingUploader: ReviewUploading {
     private let cursor: String?
     private let failure: (any Error)?
     private var uploads = 0
+    private var sent: [OutboxOperationRecord] = []
 
     init(
         results: [UUID: ReviewAcknowledgementStatus] = [:],
@@ -377,9 +534,13 @@ actor RecordingUploader: ReviewUploading {
 
     func uploadCount() -> Int { uploads }
 
+    /// Every operation that reached the backend, in the order it was sent.
+    func sentOperations() -> [OutboxOperationRecord] { sent }
+
     func upload(_ operations: [OutboxOperationRecord]) async throws -> ReviewBatchOutcome {
         uploads += 1
         if let failure { throw failure }
+        sent.append(contentsOf: operations)
 
         let acknowledgements = operations.compactMap { operation -> ReviewAcknowledgement? in
             guard let status = acknowledgeAll ?? results[operation.id] else { return nil }
