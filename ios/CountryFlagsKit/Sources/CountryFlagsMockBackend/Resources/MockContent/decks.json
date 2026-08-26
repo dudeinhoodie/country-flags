@@ -61,12 +61,12 @@
       "contentVersion": "fixture-v1"
     },
     {
-      "id": "683add89-243d-572a-b845-9467a1cfb6f3",
-      "code": "REGIONS",
+      "id": "76e42ea0-1b18-553b-aa78-a49f2a69a602",
+      "code": "SPECIAL_AREAS",
       "kind": "CURATED",
-      "name": "Regions",
-      "description": "test",
-      "cardCount": 0,
+      "name": "Special areas",
+      "description": "Antarctica and the islands that belong to no country.",
+      "cardCount": 7,
       "dueCount": null,
       "contentVersion": "fixture-v1"
     }

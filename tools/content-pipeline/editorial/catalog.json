@@ -117,22 +117,25 @@
       }
     },
     {
-      "key": "deck.regions",
+      "key": "deck.special-areas",
       "kind": "curated",
       "members": [
-        "region.africa",
-        "region.americas",
-        "region.asia",
-        "region.oceania"
+        "area.antarctica",
+        "area.bouvet-island",
+        "area.cook-islands",
+        "area.french-southern-territories",
+        "area.heard-island-and-mcdonald-islands",
+        "area.niue",
+        "area.united-states-minor-outlying-islands"
       ],
       "names": {
         "en": {
-          "description": "test",
-          "name": "Regions"
+          "description": "Antarctica and the islands that belong to no country.",
+          "name": "Special areas"
         },
         "ru": {
-          "description": "test",
-          "name": "Регионы"
+          "description": "Антарктида и острова, не принадлежащие ни одной стране.",
+          "name": "Особые территории"
         }
       }
     }
