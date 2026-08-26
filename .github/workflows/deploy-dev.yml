@@ -152,8 +152,8 @@ jobs:
             --region "${REGION}" \
             --image "${{ steps.image.outputs.reference }}" \
             --service-account "api-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
-            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS};ADMIN_DRAFT_OBJECT_STORAGE_PROVIDER=s3;ADMIN_DRAFT_OBJECT_STORAGE_BUCKET=${DRAFT_BUCKET};ADMIN_DRAFT_OBJECT_STORAGE_REGION=${REGION};ADMIN_DRAFT_OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;ADMIN_DRAFT_OBJECT_STORAGE_FORCE_PATH_STYLE=true;ADMIN_DRAFT_OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${DRAFT_BUCKET}" \
-            --set-secrets "DATABASE_URL=dev-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,AUTH_ACCESS_TOKEN_SECRET=dev-auth-access-token-secret:latest,AUTH_RATE_LIMIT_SECRET=dev-auth-rate-limit-secret:latest,ACCOUNT_DATA_HASH_SECRET=dev-account-data-hash-secret:latest,ADMIN_EMAIL_ALLOWLIST=dev-admin-email-allowlist:latest,ADMIN_DRAFT_OBJECT_STORAGE_ACCESS_KEY_ID=dev-admin-draft-storage-access-key-id:latest,ADMIN_DRAFT_OBJECT_STORAGE_SECRET_ACCESS_KEY=dev-admin-draft-storage-secret-access-key:latest" \
+            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS};ADMIN_DRAFT_OBJECT_STORAGE_PROVIDER=s3;ADMIN_DRAFT_OBJECT_STORAGE_BUCKET=${DRAFT_BUCKET};ADMIN_DRAFT_OBJECT_STORAGE_REGION=${REGION};ADMIN_DRAFT_OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;ADMIN_DRAFT_OBJECT_STORAGE_FORCE_PATH_STYLE=true;ADMIN_DRAFT_OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${DRAFT_BUCKET};ADMIN_GITHUB_OWNER=${ADMIN_GITHUB_OWNER};ADMIN_GITHUB_REPOSITORY=${ADMIN_GITHUB_REPOSITORY}" \
+            --set-secrets "DATABASE_URL=dev-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,AUTH_ACCESS_TOKEN_SECRET=dev-auth-access-token-secret:latest,AUTH_RATE_LIMIT_SECRET=dev-auth-rate-limit-secret:latest,ACCOUNT_DATA_HASH_SECRET=dev-account-data-hash-secret:latest,ADMIN_EMAIL_ALLOWLIST=dev-admin-email-allowlist:latest,ADMIN_DRAFT_OBJECT_STORAGE_ACCESS_KEY_ID=dev-admin-draft-storage-access-key-id:latest,ADMIN_DRAFT_OBJECT_STORAGE_SECRET_ACCESS_KEY=dev-admin-draft-storage-secret-access-key:latest,ADMIN_GITHUB_TOKEN=dev-admin-github-token:latest" \
             --quiet
         env:
           # Apple's client id for a native app is its bundle id, and the Dev
@@ -186,6 +186,13 @@ jobs:
           # ADMIN_GOOGLE_CLIENT_IDS is not set: it falls back to
           # GOOGLE_CLIENT_IDS. Add it here if the console gets its own
           # OAuth client instead of reusing the backend's.
+          #
+          # Where the console's proposals and publish dispatches land. Public
+          # coordinates; the credential itself is the dev-admin-github-token
+          # secret set beside them above — env validation refuses a deploy
+          # that carries some of the three but not all.
+          ADMIN_GITHUB_OWNER: dudeinhoodie
+          ADMIN_GITHUB_REPOSITORY: country-flags
 
       # Deployed is not the same as working. The revision has to answer before
       # the run is called a success, or a broken image would be reported green.
