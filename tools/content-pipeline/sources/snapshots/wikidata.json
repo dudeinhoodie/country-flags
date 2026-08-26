@@ -1,6 +1,9 @@
 {
   "bindings": [
     {
+      "capitalNames": {
+        "Q1863": "Андорра-ла-Велья"
+      },
       "capitals": [
         "Q1863"
       ],
@@ -11,6 +14,9 @@
       "wikidataId": "Q228"
     },
     {
+      "capitalNames": {
+        "Q1519": "Абу-Даби"
+      },
       "capitals": [
         "Q1519"
       ],
@@ -21,6 +27,9 @@
       "wikidataId": "Q878"
     },
     {
+      "capitalNames": {
+        "Q5838": "Кабул"
+      },
       "capitals": [
         "Q5838"
       ],
@@ -39,16 +48,23 @@
       "wikidataId": "Q889"
     },
     {
+      "capitalNames": {
+        "Q36262": "Сент-Джонс"
+      },
       "capitals": [
         "Q36262"
       ],
       "isoAlpha2": "AG",
       "languages": [
+        "Q1321",
         "Q1860"
       ],
       "wikidataId": "Q781"
     },
     {
+      "capitalNames": {
+        "Q30994": "Валли"
+      },
       "capitals": [
         "Q30994"
       ],
@@ -59,6 +75,9 @@
       "wikidataId": "Q25228"
     },
     {
+      "capitalNames": {
+        "Q19689": "Тирана"
+      },
       "capitals": [
         "Q19689"
       ],
@@ -69,6 +88,9 @@
       "wikidataId": "Q222"
     },
     {
+      "capitalNames": {
+        "Q1953": "Ереван"
+      },
       "capitals": [
         "Q1953"
       ],
@@ -79,6 +101,9 @@
       "wikidataId": "Q399"
     },
     {
+      "capitalNames": {
+        "Q3897": "Луанда"
+      },
       "capitals": [
         "Q3897"
       ],
@@ -89,12 +114,16 @@
       "wikidataId": "Q916"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "AQ",
       "languages": [],
       "wikidataId": "Q51"
     },
     {
+      "capitalNames": {
+        "Q1486": "Буэнос-Айрес"
+      },
       "capitals": [
         "Q1486"
       ],
@@ -105,6 +134,9 @@
       "wikidataId": "Q414"
     },
     {
+      "capitalNames": {
+        "Q51678": "Паго-Паго"
+      },
       "capitals": [
         "Q51678"
       ],
@@ -116,6 +148,9 @@
       "wikidataId": "Q16641"
     },
     {
+      "capitalNames": {
+        "Q1741": "Вена"
+      },
       "capitals": [
         "Q1741"
       ],
@@ -127,6 +162,9 @@
       "wikidataId": "Q40"
     },
     {
+      "capitalNames": {
+        "Q3114": "Канберра"
+      },
       "capitals": [
         "Q3114"
       ],
@@ -137,6 +175,9 @@
       "wikidataId": "Q408"
     },
     {
+      "capitalNames": {
+        "Q131243": "Ораньестад"
+      },
       "capitals": [
         "Q131243"
       ],
@@ -148,6 +189,9 @@
       "wikidataId": "Q21203"
     },
     {
+      "capitalNames": {
+        "Q48329": "Мариехамн"
+      },
       "capitals": [
         "Q48329"
       ],
@@ -158,6 +202,9 @@
       "wikidataId": "Q5689"
     },
     {
+      "capitalNames": {
+        "Q9248": "Баку"
+      },
       "capitals": [
         "Q9248"
       ],
@@ -169,6 +216,9 @@
       "wikidataId": "Q227"
     },
     {
+      "capitalNames": {
+        "Q11194": "Сараево"
+      },
       "capitals": [
         "Q11194"
       ],
@@ -181,6 +231,9 @@
       "wikidataId": "Q225"
     },
     {
+      "capitalNames": {
+        "Q36168": "Бриджтаун"
+      },
       "capitals": [
         "Q36168"
       ],
@@ -192,6 +245,9 @@
       "wikidataId": "Q244"
     },
     {
+      "capitalNames": {
+        "Q1354": "Дакка"
+      },
       "capitals": [
         "Q1354"
       ],
@@ -202,6 +258,9 @@
       "wikidataId": "Q902"
     },
     {
+      "capitalNames": {
+        "Q239": "Брюссель"
+      },
       "capitals": [
         "Q239"
       ],
@@ -214,6 +273,9 @@
       "wikidataId": "Q31"
     },
     {
+      "capitalNames": {
+        "Q3777": "Уагадугу"
+      },
       "capitals": [
         "Q3777"
       ],
@@ -226,6 +288,9 @@
       "wikidataId": "Q965"
     },
     {
+      "capitalNames": {
+        "Q472": "София"
+      },
       "capitals": [
         "Q472"
       ],
@@ -236,6 +301,9 @@
       "wikidataId": "Q219"
     },
     {
+      "capitalNames": {
+        "Q3882": "Манама"
+      },
       "capitals": [
         "Q3882"
       ],
@@ -246,6 +314,9 @@
       "wikidataId": "Q398"
     },
     {
+      "capitalNames": {
+        "Q167551": "Гитега"
+      },
       "capitals": [
         "Q167551"
       ],
@@ -258,6 +329,9 @@
       "wikidataId": "Q967"
     },
     {
+      "capitalNames": {
+        "Q3799": "Порто-Ново"
+      },
       "capitals": [
         "Q3799"
       ],
@@ -268,6 +342,9 @@
       "wikidataId": "Q962"
     },
     {
+      "capitalNames": {
+        "Q34112": "Густавия"
+      },
       "capitals": [
         "Q34112"
       ],
@@ -278,6 +355,9 @@
       "wikidataId": "Q25362"
     },
     {
+      "capitalNames": {
+        "Q30985": "Гамильтон"
+      },
       "capitals": [
         "Q30985"
       ],
@@ -288,6 +368,9 @@
       "wikidataId": "Q23635"
     },
     {
+      "capitalNames": {
+        "Q9279": "Бандар-Сери-Бегаван"
+      },
       "capitals": [
         "Q9279"
       ],
@@ -299,6 +382,10 @@
       "wikidataId": "Q921"
     },
     {
+      "capitalNames": {
+        "Q1491": "Ла-Пас",
+        "Q2907": "Сукре"
+      },
       "capitals": [
         "Q1491",
         "Q2907"
@@ -313,6 +400,7 @@
       "wikidataId": "Q750"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "BQ",
       "languages": [
@@ -323,6 +411,9 @@
       "wikidataId": "Q27561"
     },
     {
+      "capitalNames": {
+        "Q2844": "Бразилиа"
+      },
       "capitals": [
         "Q2844"
       ],
@@ -333,6 +424,9 @@
       "wikidataId": "Q155"
     },
     {
+      "capitalNames": {
+        "Q2467": "Нассау"
+      },
       "capitals": [
         "Q2467"
       ],
@@ -343,6 +437,9 @@
       "wikidataId": "Q778"
     },
     {
+      "capitalNames": {
+        "Q9270": "Тхимпху"
+      },
       "capitals": [
         "Q9270"
       ],
@@ -353,12 +450,16 @@
       "wikidataId": "Q917"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "BV",
       "languages": [],
       "wikidataId": "Q23408"
     },
     {
+      "capitalNames": {
+        "Q3919": "Габороне"
+      },
       "capitals": [
         "Q3919"
       ],
@@ -369,6 +470,9 @@
       "wikidataId": "Q963"
     },
     {
+      "capitalNames": {
+        "Q2280": "Минск"
+      },
       "capitals": [
         "Q2280"
       ],
@@ -380,6 +484,9 @@
       "wikidataId": "Q184"
     },
     {
+      "capitalNames": {
+        "Q3043": "Бельмопан"
+      },
       "capitals": [
         "Q3043"
       ],
@@ -390,6 +497,9 @@
       "wikidataId": "Q242"
     },
     {
+      "capitalNames": {
+        "Q1930": "Оттава"
+      },
       "capitals": [
         "Q1930"
       ],
@@ -401,6 +511,9 @@
       "wikidataId": "Q16"
     },
     {
+      "capitalNames": {
+        "Q48675": "Уэст-Айленд"
+      },
       "capitals": [
         "Q48675"
       ],
@@ -411,6 +524,9 @@
       "wikidataId": "Q36004"
     },
     {
+      "capitalNames": {
+        "Q3838": "Киншаса"
+      },
       "capitals": [
         "Q3838"
       ],
@@ -421,6 +537,9 @@
       "wikidataId": "Q974"
     },
     {
+      "capitalNames": {
+        "Q3832": "Банги"
+      },
       "capitals": [
         "Q3832"
       ],
@@ -432,6 +551,9 @@
       "wikidataId": "Q929"
     },
     {
+      "capitalNames": {
+        "Q3844": "Браззавиль"
+      },
       "capitals": [
         "Q3844"
       ],
@@ -442,6 +564,9 @@
       "wikidataId": "Q971"
     },
     {
+      "capitalNames": {
+        "Q70": "Берн"
+      },
       "capitals": [
         "Q70"
       ],
@@ -455,6 +580,9 @@
       "wikidataId": "Q39"
     },
     {
+      "capitalNames": {
+        "Q3768": "Ямусукро"
+      },
       "capitals": [
         "Q3768"
       ],
@@ -465,6 +593,9 @@
       "wikidataId": "Q1008"
     },
     {
+      "capitalNames": {
+        "Q170482": "Аваруа"
+      },
       "capitals": [
         "Q170482"
       ],
@@ -476,6 +607,9 @@
       "wikidataId": "Q26988"
     },
     {
+      "capitalNames": {
+        "Q2887": "Сантьяго"
+      },
       "capitals": [
         "Q2887"
       ],
@@ -486,6 +620,9 @@
       "wikidataId": "Q298"
     },
     {
+      "capitalNames": {
+        "Q3808": "Яунде"
+      },
       "capitals": [
         "Q3808"
       ],
@@ -497,6 +634,9 @@
       "wikidataId": "Q1009"
     },
     {
+      "capitalNames": {
+        "Q956": "Пекин"
+      },
       "capitals": [
         "Q956"
       ],
@@ -507,6 +647,9 @@
       "wikidataId": "Q148"
     },
     {
+      "capitalNames": {
+        "Q2841": "Богота"
+      },
       "capitals": [
         "Q2841"
       ],
@@ -517,6 +660,9 @@
       "wikidataId": "Q739"
     },
     {
+      "capitalNames": {
+        "Q3070": "Сан-Хосе"
+      },
       "capitals": [
         "Q3070"
       ],
@@ -527,6 +673,9 @@
       "wikidataId": "Q800"
     },
     {
+      "capitalNames": {
+        "Q1563": "Гавана"
+      },
       "capitals": [
         "Q1563"
       ],
@@ -537,6 +686,9 @@
       "wikidataId": "Q241"
     },
     {
+      "capitalNames": {
+        "Q3751": "Прая"
+      },
       "capitals": [
         "Q3751"
       ],
@@ -548,6 +700,9 @@
       "wikidataId": "Q1011"
     },
     {
+      "capitalNames": {
+        "Q132679": "Виллемстад"
+      },
       "capitals": [
         "Q132679"
       ],
@@ -560,6 +715,9 @@
       "wikidataId": "Q25279"
     },
     {
+      "capitalNames": {
+        "Q30980": "Флайинг-Фиш-Коув"
+      },
       "capitals": [
         "Q30980"
       ],
@@ -570,6 +728,9 @@
       "wikidataId": "Q31063"
     },
     {
+      "capitalNames": {
+        "Q3856": "Никосия"
+      },
       "capitals": [
         "Q3856"
       ],
@@ -581,6 +742,9 @@
       "wikidataId": "Q229"
     },
     {
+      "capitalNames": {
+        "Q1085": "Прага"
+      },
       "capitals": [
         "Q1085"
       ],
@@ -591,6 +755,9 @@
       "wikidataId": "Q213"
     },
     {
+      "capitalNames": {
+        "Q64": "Берлин"
+      },
       "capitals": [
         "Q64"
       ],
@@ -601,6 +768,9 @@
       "wikidataId": "Q183"
     },
     {
+      "capitalNames": {
+        "Q3604": "Джибути"
+      },
       "capitals": [
         "Q3604"
       ],
@@ -612,6 +782,9 @@
       "wikidataId": "Q977"
     },
     {
+      "capitalNames": {
+        "Q1748": "Копенгаген"
+      },
       "capitals": [
         "Q1748"
       ],
@@ -622,6 +795,9 @@
       "wikidataId": "Q35"
     },
     {
+      "capitalNames": {
+        "Q36281": "Розо"
+      },
       "capitals": [
         "Q36281"
       ],
@@ -632,6 +808,9 @@
       "wikidataId": "Q784"
     },
     {
+      "capitalNames": {
+        "Q34820": "Санто-Доминго"
+      },
       "capitals": [
         "Q34820"
       ],
@@ -642,6 +821,9 @@
       "wikidataId": "Q786"
     },
     {
+      "capitalNames": {
+        "Q3561": "Алжир"
+      },
       "capitals": [
         "Q3561"
       ],
@@ -653,6 +835,9 @@
       "wikidataId": "Q262"
     },
     {
+      "capitalNames": {
+        "Q2900": "Кито"
+      },
       "capitals": [
         "Q2900"
       ],
@@ -665,6 +850,9 @@
       "wikidataId": "Q736"
     },
     {
+      "capitalNames": {
+        "Q1770": "Таллин"
+      },
       "capitals": [
         "Q1770"
       ],
@@ -675,6 +863,9 @@
       "wikidataId": "Q191"
     },
     {
+      "capitalNames": {
+        "Q85": "Каир"
+      },
       "capitals": [
         "Q85"
       ],
@@ -685,6 +876,7 @@
       "wikidataId": "Q79"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "EH",
       "languages": [
@@ -693,6 +885,9 @@
       "wikidataId": "Q6250"
     },
     {
+      "capitalNames": {
+        "Q3642": "Асмэра"
+      },
       "capitals": [
         "Q3642"
       ],
@@ -705,6 +900,9 @@
       "wikidataId": "Q986"
     },
     {
+      "capitalNames": {
+        "Q2807": "Мадрид"
+      },
       "capitals": [
         "Q2807"
       ],
@@ -715,6 +913,9 @@
       "wikidataId": "Q29"
     },
     {
+      "capitalNames": {
+        "Q3624": "Аддис-Абеба"
+      },
       "capitals": [
         "Q3624"
       ],
@@ -725,6 +926,9 @@
       "wikidataId": "Q115"
     },
     {
+      "capitalNames": {
+        "Q1757": "Хельсинки"
+      },
       "capitals": [
         "Q1757"
       ],
@@ -736,6 +940,9 @@
       "wikidataId": "Q33"
     },
     {
+      "capitalNames": {
+        "Q38807": "Сува"
+      },
       "capitals": [
         "Q38807"
       ],
@@ -748,6 +955,9 @@
       "wikidataId": "Q712"
     },
     {
+      "capitalNames": {
+        "Q12245": "Порт-Стэнли"
+      },
       "capitals": [
         "Q12245"
       ],
@@ -758,6 +968,9 @@
       "wikidataId": "Q9648"
     },
     {
+      "capitalNames": {
+        "Q42751": "Паликир"
+      },
       "capitals": [
         "Q42751"
       ],
@@ -768,6 +981,9 @@
       "wikidataId": "Q702"
     },
     {
+      "capitalNames": {
+        "Q10704": "Торсхавн"
+      },
       "capitals": [
         "Q10704"
       ],
@@ -779,6 +995,9 @@
       "wikidataId": "Q4628"
     },
     {
+      "capitalNames": {
+        "Q90": "Париж"
+      },
       "capitals": [
         "Q90"
       ],
@@ -789,6 +1008,9 @@
       "wikidataId": "Q142"
     },
     {
+      "capitalNames": {
+        "Q3825": "Либревиль"
+      },
       "capitals": [
         "Q3825"
       ],
@@ -799,6 +1021,9 @@
       "wikidataId": "Q1000"
     },
     {
+      "capitalNames": {
+        "Q84": "Лондон"
+      },
       "capitals": [
         "Q84"
       ],
@@ -809,6 +1034,9 @@
       "wikidataId": "Q145"
     },
     {
+      "capitalNames": {
+        "Q41547": "Сент-Джорджес"
+      },
       "capitals": [
         "Q41547"
       ],
@@ -820,6 +1048,9 @@
       "wikidataId": "Q769"
     },
     {
+      "capitalNames": {
+        "Q994": "Тбилиси"
+      },
       "capitals": [
         "Q994"
       ],
@@ -830,6 +1061,9 @@
       "wikidataId": "Q230"
     },
     {
+      "capitalNames": {
+        "Q44401": "Кайенна"
+      },
       "capitals": [
         "Q44401"
       ],
@@ -841,6 +1075,9 @@
       "wikidataId": "Q3769"
     },
     {
+      "capitalNames": {
+        "Q174262": "Сент-Питер-Порт"
+      },
       "capitals": [
         "Q174262"
       ],
@@ -852,6 +1089,9 @@
       "wikidataId": "Q25230"
     },
     {
+      "capitalNames": {
+        "Q3761": "Аккра"
+      },
       "capitals": [
         "Q3761"
       ],
@@ -862,6 +1102,9 @@
       "wikidataId": "Q117"
     },
     {
+      "capitalNames": {
+        "Q1410": "Гибралтар"
+      },
       "capitals": [
         "Q1410"
       ],
@@ -872,6 +1115,9 @@
       "wikidataId": "Q1410"
     },
     {
+      "capitalNames": {
+        "Q226": "Нуук"
+      },
       "capitals": [
         "Q226"
       ],
@@ -882,6 +1128,9 @@
       "wikidataId": "Q223"
     },
     {
+      "capitalNames": {
+        "Q3726": "Банжул"
+      },
       "capitals": [
         "Q3726"
       ],
@@ -892,6 +1141,9 @@
       "wikidataId": "Q1005"
     },
     {
+      "capitalNames": {
+        "Q3733": "Конакри"
+      },
       "capitals": [
         "Q3733"
       ],
@@ -903,6 +1155,9 @@
       "wikidataId": "Q1006"
     },
     {
+      "capitalNames": {
+        "Q167024": "Бас-Тер"
+      },
       "capitals": [
         "Q167024"
       ],
@@ -911,6 +1166,9 @@
       "wikidataId": "Q17012"
     },
     {
+      "capitalNames": {
+        "Q1140136": "Сьюдад-де-ла-Пас"
+      },
       "capitals": [
         "Q1140136"
       ],
@@ -923,6 +1181,9 @@
       "wikidataId": "Q983"
     },
     {
+      "capitalNames": {
+        "Q1524": "Афины"
+      },
       "capitals": [
         "Q1524"
       ],
@@ -933,6 +1194,9 @@
       "wikidataId": "Q41"
     },
     {
+      "capitalNames": {
+        "Q393878": "Кинг Эдуард Пойнт"
+      },
       "capitals": [
         "Q393878"
       ],
@@ -943,6 +1207,9 @@
       "wikidataId": "Q35086"
     },
     {
+      "capitalNames": {
+        "Q1555": "Гватемала"
+      },
       "capitals": [
         "Q1555"
       ],
@@ -953,6 +1220,9 @@
       "wikidataId": "Q774"
     },
     {
+      "capitalNames": {
+        "Q30988": "Хагатна"
+      },
       "capitals": [
         "Q30988"
       ],
@@ -964,6 +1234,9 @@
       "wikidataId": "Q16635"
     },
     {
+      "capitalNames": {
+        "Q3739": "Бисау"
+      },
       "capitals": [
         "Q3739"
       ],
@@ -974,6 +1247,9 @@
       "wikidataId": "Q1007"
     },
     {
+      "capitalNames": {
+        "Q10717": "Джорджтаун"
+      },
       "capitals": [
         "Q10717"
       ],
@@ -984,6 +1260,7 @@
       "wikidataId": "Q734"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "HK",
       "languages": [
@@ -992,6 +1269,7 @@
       "wikidataId": "Q8646"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "HM",
       "languages": [
@@ -1000,6 +1278,9 @@
       "wikidataId": "Q131198"
     },
     {
+      "capitalNames": {
+        "Q3238": "Тегусигальпа"
+      },
       "capitals": [
         "Q3238"
       ],
@@ -1010,6 +1291,9 @@
       "wikidataId": "Q783"
     },
     {
+      "capitalNames": {
+        "Q1435": "Загреб"
+      },
       "capitals": [
         "Q1435"
       ],
@@ -1020,6 +1304,9 @@
       "wikidataId": "Q224"
     },
     {
+      "capitalNames": {
+        "Q34261": "Порт-о-Пренс"
+      },
       "capitals": [
         "Q34261"
       ],
@@ -1031,6 +1318,9 @@
       "wikidataId": "Q790"
     },
     {
+      "capitalNames": {
+        "Q1781": "Будапешт"
+      },
       "capitals": [
         "Q1781"
       ],
@@ -1041,6 +1331,9 @@
       "wikidataId": "Q28"
     },
     {
+      "capitalNames": {
+        "Q3630": "Джакарта"
+      },
       "capitals": [
         "Q3630"
       ],
@@ -1051,6 +1344,9 @@
       "wikidataId": "Q252"
     },
     {
+      "capitalNames": {
+        "Q1761": "Дублин"
+      },
       "capitals": [
         "Q1761"
       ],
@@ -1062,6 +1358,9 @@
       "wikidataId": "Q27"
     },
     {
+      "capitalNames": {
+        "Q1218": "Иерусалим"
+      },
       "capitals": [
         "Q1218"
       ],
@@ -1072,6 +1371,9 @@
       "wikidataId": "Q801"
     },
     {
+      "capitalNames": {
+        "Q18569": "Дуглас"
+      },
       "capitals": [
         "Q18569"
       ],
@@ -1083,6 +1385,9 @@
       "wikidataId": "Q9676"
     },
     {
+      "capitalNames": {
+        "Q987": "Нью-Дели"
+      },
       "capitals": [
         "Q987"
       ],
@@ -1094,6 +1399,9 @@
       "wikidataId": "Q668"
     },
     {
+      "capitalNames": {
+        "Q184851": "Диего-Гарсия"
+      },
       "capitals": [
         "Q184851"
       ],
@@ -1104,6 +1412,9 @@
       "wikidataId": "Q43448"
     },
     {
+      "capitalNames": {
+        "Q1530": "Багдад"
+      },
       "capitals": [
         "Q1530"
       ],
@@ -1115,6 +1426,9 @@
       "wikidataId": "Q796"
     },
     {
+      "capitalNames": {
+        "Q3616": "Тегеран"
+      },
       "capitals": [
         "Q3616"
       ],
@@ -1125,6 +1439,9 @@
       "wikidataId": "Q794"
     },
     {
+      "capitalNames": {
+        "Q1764": "Рейкьявик"
+      },
       "capitals": [
         "Q1764"
       ],
@@ -1135,6 +1452,9 @@
       "wikidataId": "Q189"
     },
     {
+      "capitalNames": {
+        "Q220": "Рим"
+      },
       "capitals": [
         "Q220"
       ],
@@ -1145,6 +1465,9 @@
       "wikidataId": "Q38"
     },
     {
+      "capitalNames": {
+        "Q147738": "Сент-Хелиер"
+      },
       "capitals": [
         "Q147738"
       ],
@@ -1157,6 +1480,9 @@
       "wikidataId": "Q785"
     },
     {
+      "capitalNames": {
+        "Q34692": "Кингстон"
+      },
       "capitals": [
         "Q34692"
       ],
@@ -1168,6 +1494,9 @@
       "wikidataId": "Q766"
     },
     {
+      "capitalNames": {
+        "Q3805": "Амман"
+      },
       "capitals": [
         "Q3805"
       ],
@@ -1178,6 +1507,9 @@
       "wikidataId": "Q810"
     },
     {
+      "capitalNames": {
+        "Q1490": "Токио"
+      },
       "capitals": [
         "Q1490"
       ],
@@ -1188,6 +1520,9 @@
       "wikidataId": "Q17"
     },
     {
+      "capitalNames": {
+        "Q3870": "Найроби"
+      },
       "capitals": [
         "Q3870"
       ],
@@ -1199,6 +1534,9 @@
       "wikidataId": "Q114"
     },
     {
+      "capitalNames": {
+        "Q9361": "Бишкек"
+      },
       "capitals": [
         "Q9361"
       ],
@@ -1209,6 +1547,9 @@
       "wikidataId": "Q813"
     },
     {
+      "capitalNames": {
+        "Q1850": "Пномпень"
+      },
       "capitals": [
         "Q1850"
       ],
@@ -1219,6 +1560,9 @@
       "wikidataId": "Q424"
     },
     {
+      "capitalNames": {
+        "Q131233": "Южная Тарава"
+      },
       "capitals": [
         "Q131233"
       ],
@@ -1230,6 +1574,9 @@
       "wikidataId": "Q710"
     },
     {
+      "capitalNames": {
+        "Q3901": "Морони"
+      },
       "capitals": [
         "Q3901"
       ],
@@ -1242,6 +1589,9 @@
       "wikidataId": "Q970"
     },
     {
+      "capitalNames": {
+        "Q41295": "Бастер"
+      },
       "capitals": [
         "Q41295"
       ],
@@ -1252,6 +1602,9 @@
       "wikidataId": "Q763"
     },
     {
+      "capitalNames": {
+        "Q18808": "Пхеньян"
+      },
       "capitals": [
         "Q18808"
       ],
@@ -1263,6 +1616,9 @@
       "wikidataId": "Q423"
     },
     {
+      "capitalNames": {
+        "Q8684": "Сеул"
+      },
       "capitals": [
         "Q8684"
       ],
@@ -1274,6 +1630,9 @@
       "wikidataId": "Q884"
     },
     {
+      "capitalNames": {
+        "Q35178": "Эль-Кувейт"
+      },
       "capitals": [
         "Q35178"
       ],
@@ -1284,6 +1643,9 @@
       "wikidataId": "Q817"
     },
     {
+      "capitalNames": {
+        "Q172996": "Джорджтаун"
+      },
       "capitals": [
         "Q172996"
       ],
@@ -1294,6 +1656,9 @@
       "wikidataId": "Q5785"
     },
     {
+      "capitalNames": {
+        "Q1520": "Астана"
+      },
       "capitals": [
         "Q1520"
       ],
@@ -1305,6 +1670,9 @@
       "wikidataId": "Q232"
     },
     {
+      "capitalNames": {
+        "Q9326": "Вьентьян"
+      },
       "capitals": [
         "Q9326"
       ],
@@ -1315,6 +1683,9 @@
       "wikidataId": "Q819"
     },
     {
+      "capitalNames": {
+        "Q3820": "Бейрут"
+      },
       "capitals": [
         "Q3820"
       ],
@@ -1325,6 +1696,9 @@
       "wikidataId": "Q822"
     },
     {
+      "capitalNames": {
+        "Q41699": "Кастри"
+      },
       "capitals": [
         "Q41699"
       ],
@@ -1335,6 +1709,9 @@
       "wikidataId": "Q760"
     },
     {
+      "capitalNames": {
+        "Q1844": "Вадуц"
+      },
       "capitals": [
         "Q1844"
       ],
@@ -1345,6 +1722,10 @@
       "wikidataId": "Q347"
     },
     {
+      "capitalNames": {
+        "Q35381": "Коломбо",
+        "Q41963": "Шри-Джаяварденепура-Котте"
+      },
       "capitals": [
         "Q35381",
         "Q41963"
@@ -1357,6 +1738,9 @@
       "wikidataId": "Q854"
     },
     {
+      "capitalNames": {
+        "Q3748": "Монровия"
+      },
       "capitals": [
         "Q3748"
       ],
@@ -1367,6 +1751,9 @@
       "wikidataId": "Q1014"
     },
     {
+      "capitalNames": {
+        "Q3909": "Масеру"
+      },
       "capitals": [
         "Q3909"
       ],
@@ -1378,6 +1765,9 @@
       "wikidataId": "Q1013"
     },
     {
+      "capitalNames": {
+        "Q216": "Вильнюс"
+      },
       "capitals": [
         "Q216"
       ],
@@ -1388,6 +1778,9 @@
       "wikidataId": "Q37"
     },
     {
+      "capitalNames": {
+        "Q1842": "Люксембург"
+      },
       "capitals": [
         "Q1842"
       ],
@@ -1400,6 +1793,9 @@
       "wikidataId": "Q32"
     },
     {
+      "capitalNames": {
+        "Q1773": "Рига"
+      },
       "capitals": [
         "Q1773"
       ],
@@ -1410,6 +1806,9 @@
       "wikidataId": "Q211"
     },
     {
+      "capitalNames": {
+        "Q3579": "Триполи"
+      },
       "capitals": [
         "Q3579"
       ],
@@ -1420,6 +1819,9 @@
       "wikidataId": "Q1016"
     },
     {
+      "capitalNames": {
+        "Q3551": "Рабат"
+      },
       "capitals": [
         "Q3551"
       ],
@@ -1431,6 +1833,9 @@
       "wikidataId": "Q1028"
     },
     {
+      "capitalNames": {
+        "Q235": "Монако"
+      },
       "capitals": [
         "Q235"
       ],
@@ -1441,6 +1846,9 @@
       "wikidataId": "Q235"
     },
     {
+      "capitalNames": {
+        "Q21197": "Кишинёв"
+      },
       "capitals": [
         "Q21197"
       ],
@@ -1451,6 +1859,9 @@
       "wikidataId": "Q217"
     },
     {
+      "capitalNames": {
+        "Q23564": "Подгорица"
+      },
       "capitals": [
         "Q23564"
       ],
@@ -1461,6 +1872,9 @@
       "wikidataId": "Q236"
     },
     {
+      "capitalNames": {
+        "Q200605": "Мариго"
+      },
       "capitals": [
         "Q200605"
       ],
@@ -1471,6 +1885,9 @@
       "wikidataId": "Q126125"
     },
     {
+      "capitalNames": {
+        "Q3915": "Антананариву"
+      },
       "capitals": [
         "Q3915"
       ],
@@ -1482,6 +1899,9 @@
       "wikidataId": "Q1019"
     },
     {
+      "capitalNames": {
+        "Q12919": "Маджуро"
+      },
       "capitals": [
         "Q12919"
       ],
@@ -1493,6 +1913,9 @@
       "wikidataId": "Q709"
     },
     {
+      "capitalNames": {
+        "Q384": "Скопье"
+      },
       "capitals": [
         "Q384"
       ],
@@ -1504,6 +1927,9 @@
       "wikidataId": "Q221"
     },
     {
+      "capitalNames": {
+        "Q3703": "Бамако"
+      },
       "capitals": [
         "Q3703"
       ],
@@ -1526,6 +1952,9 @@
       "wikidataId": "Q912"
     },
     {
+      "capitalNames": {
+        "Q37400": "Нейпьидо"
+      },
       "capitals": [
         "Q37400"
       ],
@@ -1536,6 +1965,9 @@
       "wikidataId": "Q836"
     },
     {
+      "capitalNames": {
+        "Q23430": "Улан-Батор"
+      },
       "capitals": [
         "Q23430"
       ],
@@ -1546,6 +1978,7 @@
       "wikidataId": "Q711"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "MO",
       "languages": [
@@ -1556,6 +1989,7 @@
       "wikidataId": "Q14773"
     },
     {
+      "capitalNames": {},
       "capitals": [
         "Q49755159"
       ],
@@ -1568,6 +2002,9 @@
       "wikidataId": "Q16644"
     },
     {
+      "capitalNames": {
+        "Q81621": "Фор-де-Франс"
+      },
       "capitals": [
         "Q81621"
       ],
@@ -1576,6 +2013,9 @@
       "wikidataId": "Q17054"
     },
     {
+      "capitalNames": {
+        "Q3688": "Нуакшот"
+      },
       "capitals": [
         "Q3688"
       ],
@@ -1586,6 +2026,10 @@
       "wikidataId": "Q1025"
     },
     {
+      "capitalNames": {
+        "Q30990": "Плимут",
+        "Q31006": "Брейдс"
+      },
       "capitals": [
         "Q30990",
         "Q31006"
@@ -1597,6 +2041,9 @@
       "wikidataId": "Q13353"
     },
     {
+      "capitalNames": {
+        "Q23800": "Валлетта"
+      },
       "capitals": [
         "Q23800"
       ],
@@ -1608,6 +2055,9 @@
       "wikidataId": "Q233"
     },
     {
+      "capitalNames": {
+        "Q3929": "Порт-Луи"
+      },
       "capitals": [
         "Q3929"
       ],
@@ -1619,6 +2069,9 @@
       "wikidataId": "Q1027"
     },
     {
+      "capitalNames": {
+        "Q9347": "Мале"
+      },
       "capitals": [
         "Q9347"
       ],
@@ -1629,6 +2082,9 @@
       "wikidataId": "Q826"
     },
     {
+      "capitalNames": {
+        "Q3876": "Лилонгве"
+      },
       "capitals": [
         "Q3876"
       ],
@@ -1641,6 +2097,9 @@
       "wikidataId": "Q1020"
     },
     {
+      "capitalNames": {
+        "Q1489": "Мехико"
+      },
       "capitals": [
         "Q1489"
       ],
@@ -1653,6 +2112,9 @@
       "wikidataId": "Q96"
     },
     {
+      "capitalNames": {
+        "Q1865": "Куала-Лумпур"
+      },
       "capitals": [
         "Q1865"
       ],
@@ -1663,6 +2125,9 @@
       "wikidataId": "Q833"
     },
     {
+      "capitalNames": {
+        "Q3889": "Мапуту"
+      },
       "capitals": [
         "Q3889"
       ],
@@ -1673,6 +2138,9 @@
       "wikidataId": "Q1029"
     },
     {
+      "capitalNames": {
+        "Q3935": "Виндхук"
+      },
       "capitals": [
         "Q3935"
       ],
@@ -1683,6 +2151,9 @@
       "wikidataId": "Q1030"
     },
     {
+      "capitalNames": {
+        "Q9733": "Нумеа"
+      },
       "capitals": [
         "Q9733"
       ],
@@ -1693,6 +2164,9 @@
       "wikidataId": "Q33788"
     },
     {
+      "capitalNames": {
+        "Q3674": "Ниамей"
+      },
       "capitals": [
         "Q3674"
       ],
@@ -1703,6 +2177,9 @@
       "wikidataId": "Q1032"
     },
     {
+      "capitalNames": {
+        "Q30963": "Кингстон"
+      },
       "capitals": [
         "Q30963"
       ],
@@ -1714,6 +2191,9 @@
       "wikidataId": "Q31057"
     },
     {
+      "capitalNames": {
+        "Q3787": "Абуджа"
+      },
       "capitals": [
         "Q3787"
       ],
@@ -1724,6 +2204,9 @@
       "wikidataId": "Q1033"
     },
     {
+      "capitalNames": {
+        "Q3274": "Манагуа"
+      },
       "capitals": [
         "Q3274"
       ],
@@ -1734,6 +2217,9 @@
       "wikidataId": "Q811"
     },
     {
+      "capitalNames": {
+        "Q727": "Амстердам"
+      },
       "capitals": [
         "Q727"
       ],
@@ -1744,6 +2230,9 @@
       "wikidataId": "Q29999"
     },
     {
+      "capitalNames": {
+        "Q585": "Осло"
+      },
       "capitals": [
         "Q585"
       ],
@@ -1757,6 +2246,9 @@
       "wikidataId": "Q20"
     },
     {
+      "capitalNames": {
+        "Q3037": "Катманду"
+      },
       "capitals": [
         "Q3037"
       ],
@@ -1767,6 +2259,9 @@
       "wikidataId": "Q837"
     },
     {
+      "capitalNames": {
+        "Q31026": "Ярен"
+      },
       "capitals": [
         "Q31026"
       ],
@@ -1778,6 +2273,9 @@
       "wikidataId": "Q697"
     },
     {
+      "capitalNames": {
+        "Q30966": "Алофи"
+      },
       "capitals": [
         "Q30966"
       ],
@@ -1789,6 +2287,9 @@
       "wikidataId": "Q34020"
     },
     {
+      "capitalNames": {
+        "Q23661": "Веллингтон"
+      },
       "capitals": [
         "Q23661"
       ],
@@ -1801,6 +2302,9 @@
       "wikidataId": "Q664"
     },
     {
+      "capitalNames": {
+        "Q3826": "Маскат"
+      },
       "capitals": [
         "Q3826"
       ],
@@ -1811,6 +2315,9 @@
       "wikidataId": "Q842"
     },
     {
+      "capitalNames": {
+        "Q3306": "Панама"
+      },
       "capitals": [
         "Q3306"
       ],
@@ -1821,6 +2328,9 @@
       "wikidataId": "Q804"
     },
     {
+      "capitalNames": {
+        "Q2868": "Лима"
+      },
       "capitals": [
         "Q2868"
       ],
@@ -1833,6 +2343,9 @@
       "wikidataId": "Q419"
     },
     {
+      "capitalNames": {
+        "Q130800": "Папеэте"
+      },
       "capitals": [
         "Q130800"
       ],
@@ -1843,6 +2356,9 @@
       "wikidataId": "Q30971"
     },
     {
+      "capitalNames": {
+        "Q36526": "Порт-Морсби"
+      },
       "capitals": [
         "Q36526"
       ],
@@ -1856,6 +2372,9 @@
       "wikidataId": "Q691"
     },
     {
+      "capitalNames": {
+        "Q1461": "Манила"
+      },
       "capitals": [
         "Q1461"
       ],
@@ -1868,6 +2387,9 @@
       "wikidataId": "Q928"
     },
     {
+      "capitalNames": {
+        "Q1362": "Исламабад"
+      },
       "capitals": [
         "Q1362"
       ],
@@ -1879,6 +2401,9 @@
       "wikidataId": "Q843"
     },
     {
+      "capitalNames": {
+        "Q270": "Варшава"
+      },
       "capitals": [
         "Q270"
       ],
@@ -1889,6 +2414,9 @@
       "wikidataId": "Q36"
     },
     {
+      "capitalNames": {
+        "Q185678": "Сен-Пьер"
+      },
       "capitals": [
         "Q185678"
       ],
@@ -1899,6 +2427,9 @@
       "wikidataId": "Q34617"
     },
     {
+      "capitalNames": {
+        "Q48273": "Адамстаун"
+      },
       "capitals": [
         "Q48273"
       ],
@@ -1910,6 +2441,9 @@
       "wikidataId": "Q35672"
     },
     {
+      "capitalNames": {
+        "Q41211": "Сан-Хуан"
+      },
       "capitals": [
         "Q41211"
       ],
@@ -1921,6 +2455,10 @@
       "wikidataId": "Q1183"
     },
     {
+      "capitalNames": {
+        "Q158119": "Рамалла",
+        "Q212938": "Восточный Иерусалим"
+      },
       "capitals": [
         "Q158119",
         "Q212938"
@@ -1932,6 +2470,9 @@
       "wikidataId": "Q219060"
     },
     {
+      "capitalNames": {
+        "Q597": "Лиссабон"
+      },
       "capitals": [
         "Q597"
       ],
@@ -1942,6 +2483,9 @@
       "wikidataId": "Q45"
     },
     {
+      "capitalNames": {
+        "Q515229": "Нгерулмуд"
+      },
       "capitals": [
         "Q515229"
       ],
@@ -1954,6 +2498,9 @@
       "wikidataId": "Q695"
     },
     {
+      "capitalNames": {
+        "Q2933": "Асунсьон"
+      },
       "capitals": [
         "Q2933"
       ],
@@ -1965,6 +2512,9 @@
       "wikidataId": "Q733"
     },
     {
+      "capitalNames": {
+        "Q3861": "Доха"
+      },
       "capitals": [
         "Q3861"
       ],
@@ -1975,6 +2525,9 @@
       "wikidataId": "Q846"
     },
     {
+      "capitalNames": {
+        "Q47045": "Сен-Дени"
+      },
       "capitals": [
         "Q47045"
       ],
@@ -1985,6 +2538,9 @@
       "wikidataId": "Q17070"
     },
     {
+      "capitalNames": {
+        "Q19660": "Бухарест"
+      },
       "capitals": [
         "Q19660"
       ],
@@ -1995,6 +2551,9 @@
       "wikidataId": "Q218"
     },
     {
+      "capitalNames": {
+        "Q3711": "Белград"
+      },
       "capitals": [
         "Q3711"
       ],
@@ -2005,6 +2564,9 @@
       "wikidataId": "Q403"
     },
     {
+      "capitalNames": {
+        "Q649": "Москва"
+      },
       "capitals": [
         "Q649"
       ],
@@ -2015,6 +2577,9 @@
       "wikidataId": "Q159"
     },
     {
+      "capitalNames": {
+        "Q3859": "Кигали"
+      },
       "capitals": [
         "Q3859"
       ],
@@ -2028,6 +2593,9 @@
       "wikidataId": "Q1037"
     },
     {
+      "capitalNames": {
+        "Q3692": "Эр-Рияд"
+      },
       "capitals": [
         "Q3692"
       ],
@@ -2038,6 +2606,9 @@
       "wikidataId": "Q851"
     },
     {
+      "capitalNames": {
+        "Q40921": "Хониара"
+      },
       "capitals": [
         "Q40921"
       ],
@@ -2048,6 +2619,9 @@
       "wikidataId": "Q685"
     },
     {
+      "capitalNames": {
+        "Q3940": "Виктория"
+      },
       "capitals": [
         "Q3940"
       ],
@@ -2060,6 +2634,9 @@
       "wikidataId": "Q1042"
     },
     {
+      "capitalNames": {
+        "Q1963": "Хартум"
+      },
       "capitals": [
         "Q1963"
       ],
@@ -2071,6 +2648,9 @@
       "wikidataId": "Q1049"
     },
     {
+      "capitalNames": {
+        "Q1754": "Стокгольм"
+      },
       "capitals": [
         "Q1754"
       ],
@@ -2081,6 +2661,9 @@
       "wikidataId": "Q34"
     },
     {
+      "capitalNames": {
+        "Q334": "Сингапур"
+      },
       "capitals": [
         "Q334"
       ],
@@ -2094,6 +2677,9 @@
       "wikidataId": "Q334"
     },
     {
+      "capitalNames": {
+        "Q30970": "Джеймстаун"
+      },
       "capitals": [
         "Q30970"
       ],
@@ -2104,6 +2690,9 @@
       "wikidataId": "Q192184"
     },
     {
+      "capitalNames": {
+        "Q437": "Любляна"
+      },
       "capitals": [
         "Q437"
       ],
@@ -2114,6 +2703,7 @@
       "wikidataId": "Q215"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "SJ",
       "languages": [
@@ -2122,6 +2712,9 @@
       "wikidataId": "Q842829"
     },
     {
+      "capitalNames": {
+        "Q1780": "Братислава"
+      },
       "capitals": [
         "Q1780"
       ],
@@ -2132,6 +2725,9 @@
       "wikidataId": "Q214"
     },
     {
+      "capitalNames": {
+        "Q3780": "Фритаун"
+      },
       "capitals": [
         "Q3780"
       ],
@@ -2143,6 +2739,9 @@
       "wikidataId": "Q1044"
     },
     {
+      "capitalNames": {
+        "Q1848": "Сан-Марино"
+      },
       "capitals": [
         "Q1848"
       ],
@@ -2153,6 +2752,9 @@
       "wikidataId": "Q238"
     },
     {
+      "capitalNames": {
+        "Q3718": "Дакар"
+      },
       "capitals": [
         "Q3718"
       ],
@@ -2166,6 +2768,9 @@
       "wikidataId": "Q1041"
     },
     {
+      "capitalNames": {
+        "Q2449": "Могадишо"
+      },
       "capitals": [
         "Q2449"
       ],
@@ -2177,6 +2782,9 @@
       "wikidataId": "Q1045"
     },
     {
+      "capitalNames": {
+        "Q3001": "Парамарибо"
+      },
       "capitals": [
         "Q3001"
       ],
@@ -2187,6 +2795,9 @@
       "wikidataId": "Q730"
     },
     {
+      "capitalNames": {
+        "Q1947": "Джуба"
+      },
       "capitals": [
         "Q1947"
       ],
@@ -2197,6 +2808,9 @@
       "wikidataId": "Q958"
     },
     {
+      "capitalNames": {
+        "Q3932": "Сан-Томе"
+      },
       "capitals": [
         "Q3932"
       ],
@@ -2207,6 +2821,9 @@
       "wikidataId": "Q1039"
     },
     {
+      "capitalNames": {
+        "Q3110": "Сан-Сальвадор"
+      },
       "capitals": [
         "Q3110"
       ],
@@ -2217,6 +2834,9 @@
       "wikidataId": "Q792"
     },
     {
+      "capitalNames": {
+        "Q30958": "Филипсбург"
+      },
       "capitals": [
         "Q30958"
       ],
@@ -2228,6 +2848,9 @@
       "wikidataId": "Q26273"
     },
     {
+      "capitalNames": {
+        "Q3766": "Дамаск"
+      },
       "capitals": [
         "Q3766"
       ],
@@ -2238,6 +2861,10 @@
       "wikidataId": "Q858"
     },
     {
+      "capitalNames": {
+        "Q101418": "Лобамба",
+        "Q3904": "Мбабане"
+      },
       "capitals": [
         "Q101418",
         "Q3904"
@@ -2250,6 +2877,9 @@
       "wikidataId": "Q1050"
     },
     {
+      "capitalNames": {
+        "Q34205": "Коберн-Таун"
+      },
       "capitals": [
         "Q34205"
       ],
@@ -2260,6 +2890,9 @@
       "wikidataId": "Q18221"
     },
     {
+      "capitalNames": {
+        "Q3659": "Нджамена"
+      },
       "capitals": [
         "Q3659"
       ],
@@ -2271,6 +2904,9 @@
       "wikidataId": "Q657"
     },
     {
+      "capitalNames": {
+        "Q839559": "Порт-о-Франсэ"
+      },
       "capitals": [
         "Q839559"
       ],
@@ -2281,6 +2917,9 @@
       "wikidataId": "Q129003"
     },
     {
+      "capitalNames": {
+        "Q3792": "Ломе"
+      },
       "capitals": [
         "Q3792"
       ],
@@ -2291,6 +2930,9 @@
       "wikidataId": "Q945"
     },
     {
+      "capitalNames": {
+        "Q1861": "Бангкок"
+      },
       "capitals": [
         "Q1861"
       ],
@@ -2301,6 +2943,9 @@
       "wikidataId": "Q869"
     },
     {
+      "capitalNames": {
+        "Q9365": "Душанбе"
+      },
       "capitals": [
         "Q9365"
       ],
@@ -2311,6 +2956,7 @@
       "wikidataId": "Q863"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "TK",
       "languages": [
@@ -2320,6 +2966,9 @@
       "wikidataId": "Q36823"
     },
     {
+      "capitalNames": {
+        "Q9310": "Дили"
+      },
       "capitals": [
         "Q9310"
       ],
@@ -2331,6 +2980,9 @@
       "wikidataId": "Q574"
     },
     {
+      "capitalNames": {
+        "Q23438": "Ашхабад"
+      },
       "capitals": [
         "Q23438"
       ],
@@ -2341,6 +2993,9 @@
       "wikidataId": "Q874"
     },
     {
+      "capitalNames": {
+        "Q3572": "Тунис"
+      },
       "capitals": [
         "Q3572"
       ],
@@ -2351,6 +3006,9 @@
       "wikidataId": "Q948"
     },
     {
+      "capitalNames": {
+        "Q38834": "Нукуалофа"
+      },
       "capitals": [
         "Q38834"
       ],
@@ -2362,6 +3020,9 @@
       "wikidataId": "Q678"
     },
     {
+      "capitalNames": {
+        "Q3640": "Анкара"
+      },
       "capitals": [
         "Q3640"
       ],
@@ -2372,6 +3033,9 @@
       "wikidataId": "Q43"
     },
     {
+      "capitalNames": {
+        "Q39178": "Порт-оф-Спейн"
+      },
       "capitals": [
         "Q39178"
       ],
@@ -2382,6 +3046,9 @@
       "wikidataId": "Q754"
     },
     {
+      "capitalNames": {
+        "Q34126": "Фунафути"
+      },
       "capitals": [
         "Q34126"
       ],
@@ -2393,6 +3060,9 @@
       "wikidataId": "Q672"
     },
     {
+      "capitalNames": {
+        "Q1867": "Тайбэй"
+      },
       "capitals": [
         "Q1867"
       ],
@@ -2424,6 +3094,9 @@
       "wikidataId": "Q865"
     },
     {
+      "capitalNames": {
+        "Q3866": "Додома"
+      },
       "capitals": [
         "Q3866"
       ],
@@ -2435,6 +3108,9 @@
       "wikidataId": "Q924"
     },
     {
+      "capitalNames": {
+        "Q1899": "Киев"
+      },
       "capitals": [
         "Q1899"
       ],
@@ -2445,6 +3121,9 @@
       "wikidataId": "Q212"
     },
     {
+      "capitalNames": {
+        "Q3894": "Кампала"
+      },
       "capitals": [
         "Q3894"
       ],
@@ -2456,6 +3135,7 @@
       "wikidataId": "Q1036"
     },
     {
+      "capitalNames": {},
       "capitals": [],
       "isoAlpha2": "UM",
       "languages": [
@@ -2464,17 +3144,26 @@
       "wikidataId": "Q16645"
     },
     {
+      "capitalNames": {
+        "Q61": "Вашингтон"
+      },
       "capitals": [
         "Q61"
       ],
       "isoAlpha2": "US",
       "languages": [
         "Q1321",
-        "Q33569"
+        "Q28427",
+        "Q33262",
+        "Q33569",
+        "Q34011"
       ],
       "wikidataId": "Q30"
     },
     {
+      "capitalNames": {
+        "Q1335": "Монтевидео"
+      },
       "capitals": [
         "Q1335"
       ],
@@ -2483,6 +3172,9 @@
       "wikidataId": "Q77"
     },
     {
+      "capitalNames": {
+        "Q269": "Ташкент"
+      },
       "capitals": [
         "Q269"
       ],
@@ -2493,6 +3185,9 @@
       "wikidataId": "Q265"
     },
     {
+      "capitalNames": {
+        "Q237": "Ватикан"
+      },
       "capitals": [
         "Q237"
       ],
@@ -2504,6 +3199,9 @@
       "wikidataId": "Q237"
     },
     {
+      "capitalNames": {
+        "Q41474": "Кингстаун"
+      },
       "capitals": [
         "Q41474"
       ],
@@ -2514,6 +3212,9 @@
       "wikidataId": "Q757"
     },
     {
+      "capitalNames": {
+        "Q1533": "Каракас"
+      },
       "capitals": [
         "Q1533"
       ],
@@ -2525,6 +3226,9 @@
       "wikidataId": "Q717"
     },
     {
+      "capitalNames": {
+        "Q179431": "Род-Таун"
+      },
       "capitals": [
         "Q179431"
       ],
@@ -2535,6 +3239,9 @@
       "wikidataId": "Q25305"
     },
     {
+      "capitalNames": {
+        "Q51681": "Шарлотта-Амалия"
+      },
       "capitals": [
         "Q51681"
       ],
@@ -2545,6 +3252,9 @@
       "wikidataId": "Q11703"
     },
     {
+      "capitalNames": {
+        "Q1858": "Ханой"
+      },
       "capitals": [
         "Q1858"
       ],
@@ -2555,6 +3265,9 @@
       "wikidataId": "Q881"
     },
     {
+      "capitalNames": {
+        "Q37806": "Порт-Вила"
+      },
       "capitals": [
         "Q37806"
       ],
@@ -2567,6 +3280,9 @@
       "wikidataId": "Q686"
     },
     {
+      "capitalNames": {
+        "Q31002": "Мата-Уту"
+      },
       "capitals": [
         "Q31002"
       ],
@@ -2579,6 +3295,9 @@
       "wikidataId": "Q35555"
     },
     {
+      "capitalNames": {
+        "Q36260": "Апиа"
+      },
       "capitals": [
         "Q36260"
       ],
@@ -2590,6 +3309,9 @@
       "wikidataId": "Q683"
     },
     {
+      "capitalNames": {
+        "Q25270": "Приштина"
+      },
       "capitals": [
         "Q25270"
       ],
@@ -2601,6 +3323,10 @@
       "wikidataId": "Q1246"
     },
     {
+      "capitalNames": {
+        "Q131694": "Аден",
+        "Q2471": "Сана"
+      },
       "capitals": [
         "Q131694",
         "Q2471"
@@ -2612,6 +3338,10 @@
       "wikidataId": "Q805"
     },
     {
+      "capitalNames": {
+        "Q132676": "Мамуцу",
+        "Q846048": "Дзаудзи"
+      },
       "capitals": [
         "Q132676",
         "Q846048"
@@ -2625,6 +3355,11 @@
       "wikidataId": "Q17063"
     },
     {
+      "capitalNames": {
+        "Q37701": "Блумфонтейн",
+        "Q3926": "Претория",
+        "Q5465": "Кейптаун"
+      },
       "capitals": [
         "Q37701",
         "Q3926",
@@ -2648,6 +3383,9 @@
       "wikidataId": "Q258"
     },
     {
+      "capitalNames": {
+        "Q3881": "Лусака"
+      },
       "capitals": [
         "Q3881"
       ],
@@ -2658,6 +3396,9 @@
       "wikidataId": "Q953"
     },
     {
+      "capitalNames": {
+        "Q3921": "Хараре"
+      },
       "capitals": [
         "Q3921"
       ],

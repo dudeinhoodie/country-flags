@@ -3,12 +3,31 @@ import { FactType } from "@prisma/client";
 import { factDisplayValue, mapBackSideFacts } from "./fact-display";
 
 describe("fact display values", () => {
-  it("names the official capital rather than describing the seat", () => {
+  it("names the official capital in the language asked for", () => {
+    const value = [{ names: { en: "Bern", ru: "Берн" }, role: "official" }];
+
+    expect(factDisplayValue(FactType.CAPITAL, value, "en")).toBe("Bern");
+    expect(factDisplayValue(FactType.CAPITAL, value, "ru")).toBe("Берн");
+  });
+
+  it("falls back to English when the capital has no name in the reader's locale", () => {
+    expect(
+      factDisplayValue(
+        FactType.CAPITAL,
+        [{ names: { en: "Bern" }, role: "official" }],
+        "ru",
+      ),
+    ).toBe("Bern");
+  });
+
+  /// Releases published before the seat carried a name map are still served.
+  /// A reader must not meet an empty card because their content predates it.
+  it("still reads a capital published under the older shape", () => {
     expect(
       factDisplayValue(
         FactType.CAPITAL,
         [{ name: "Paris", role: "official" }],
-        "en",
+        "ru",
       ),
     ).toBe("Paris");
   });
@@ -18,9 +37,9 @@ describe("fact display values", () => {
       factDisplayValue(
         FactType.CAPITAL,
         [
-          { name: "Pretoria", role: "official" },
-          { name: "Cape Town", role: "official" },
-          { name: "Somewhere", role: "former" },
+          { names: { en: "Pretoria" }, role: "official" },
+          { names: { en: "Cape Town" }, role: "official" },
+          { names: { en: "Somewhere" }, role: "former" },
         ],
         "en",
       ),
@@ -45,7 +64,10 @@ describe("fact display values", () => {
     ];
 
     expect(factDisplayValue(FactType.CURRENCY, value, "en")).toBe("Euro (EUR)");
-    expect(factDisplayValue(FactType.CURRENCY, value, "ru")).toBe("евро (EUR)");
+    // CLDR gives the Russian common noun in its dictionary form. On the back
+    // of a card it is a label, and a label starts with a capital in both
+    // languages or the same card looks unfinished in one of them.
+    expect(factDisplayValue(FactType.CURRENCY, value, "ru")).toBe("Евро (EUR)");
   });
 
   it("falls back to the code when the currency has no name in any candidate", () => {
@@ -58,12 +80,81 @@ describe("fact display values", () => {
     ).toBe("XAF");
   });
 
-  it("names a language in the reader's own language", () => {
-    const value = [{ code: "fr", role: "official_or_common" }];
+  it("names a language from the name the release published", () => {
+    const value = [
+      {
+        code: "fr",
+        names: { en: "French", ru: "французский" },
+        role: "official_or_common",
+      },
+    ];
 
     expect(factDisplayValue(FactType.LANGUAGE, value, "en")).toBe("French");
     expect(factDisplayValue(FactType.LANGUAGE, value, "ru")).toBe(
-      "французский",
+      "Французский",
+    );
+  });
+
+  /// Every entry, not only the first: English capitalises each language name
+  /// lexically, and a list that capitalised one of them would read as a
+  /// sentence rather than as the row of labels it is.
+  it("capitalises every name in a list of several", () => {
+    const value = [
+      {
+        code: "de",
+        names: { ru: "немецкий", en: "German" },
+        role: "official_or_common",
+      },
+      {
+        code: "fr",
+        names: { ru: "французский", en: "French" },
+        role: "official_or_common",
+      },
+      {
+        code: "it",
+        names: { ru: "итальянский", en: "Italian" },
+        role: "official_or_common",
+      },
+    ];
+
+    expect(factDisplayValue(FactType.LANGUAGE, value, "ru")).toBe(
+      "Немецкий, Французский, Итальянский",
+    );
+  });
+
+  /// A name the source already capitalised is passed through untouched, so
+  /// nothing here can quietly respell what a source said.
+  it("leaves a name that is already capitalised alone", () => {
+    expect(
+      factDisplayValue(
+        FactType.CAPITAL,
+        [{ names: { en: "Bern", ru: "Берн" }, role: "official" }],
+        "ru",
+      ),
+    ).toBe("Берн");
+  });
+
+  /// What the release says wins over what the runtime's tables would say, so
+  /// two machines serving the same content cannot disagree about a card.
+  it("prefers the published name over the platform's own", () => {
+    expect(
+      factDisplayValue(
+        FactType.LANGUAGE,
+        [{ code: "fr", names: { en: "Frankish" }, role: "official_or_common" }],
+        "en",
+      ),
+    ).toBe("Frankish");
+  });
+
+  /// The shape releases published before the names were carried still render.
+  it("names a language the older shape only gave a code for", () => {
+    const value = [{ code: "fr", role: "official_or_common" }];
+
+    expect(factDisplayValue(FactType.LANGUAGE, value, "en")).toBe("French");
+    // The platform's tables spell it in lower case too, and a reader must not
+    // be able to tell which of the two named it.
+    expect(factDisplayValue(FactType.LANGUAGE, value, "ru")).toBe(
+      "Французский",
     );
   });
 
@@ -90,7 +181,7 @@ describe("fact display values", () => {
     ).toBeNull();
   });
 
-  it("drops a language code the platform cannot name", () => {
+  it("drops a language neither the release nor the platform can name", () => {
     expect(
       factDisplayValue(FactType.LANGUAGE, [{ code: "zz-not-a-tag!" }], "en"),
     ).toBeNull();

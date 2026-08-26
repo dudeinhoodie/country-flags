@@ -13,6 +13,7 @@ import type {
   NormalizedSource,
   PipelineReports,
   Provenance,
+  SourceLexicon,
 } from "./types.js";
 
 /** An editorial override paired with the candidate built from its file. */
@@ -122,6 +123,96 @@ function setPath(target: MutableRecord, path: string, value: unknown): void {
   }
 }
 
+function isRecord(value: unknown): value is MutableRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Adds the names a fact carries in locales its own source does not speak, and
+ * reports every locale still left without one.
+ *
+ * Both additions are deliberately not patches. The seat's Russian name comes
+ * from a different source than the seat, and a patch replaces a path whole —
+ * writing it would hand the fact to Wikidata and move every English name with
+ * it. A language's name is not about any one country at all. So the owning
+ * source keeps the fact, and what it cannot say is filled in here.
+ *
+ * A name that is still missing is not an error: English is always there to
+ * fall back to. It is listed instead, because the list is where a curator
+ * sees what an editorial override has left to say.
+ */
+function nameFactValue(
+  factType: string,
+  value: unknown,
+  entity: MutableRecord,
+  lexicon: SourceLexicon,
+  entityKey: string,
+  locales: string[],
+  reports: PipelineReports,
+): unknown {
+  if (!Array.isArray(value) || value.length === 0) {
+    return value;
+  }
+  // `Array.isArray` narrows an unknown to `any[]`, and every element read out
+  // of it would be an `any` this function then hands back. Naming the element
+  // type keeps what leaves here as unexamined as what came in.
+  const entries: unknown[] = value;
+  const report = (names: Record<string, string>, detail?: string): void => {
+    for (const locale of locales) {
+      if (typeof names[locale] !== "string") {
+        reports.unnamedFacts.push({
+          entityKey,
+          factType,
+          locale,
+          ...(detail === undefined ? {} : { detail }),
+        });
+      }
+    }
+  };
+
+  if (factType === "capitals") {
+    // Offered for the one seat Wikidata knows. A country with several seats
+    // gets nothing: which seat a single name belongs to is exactly what is
+    // unknown, and a name on the wrong seat is worse than an absent one.
+    const offered =
+      entries.length === 1
+        ? ((entity.localizedNames as MutableRecord | undefined)?.capitals as
+            | Record<string, string>
+            | undefined)
+        : undefined;
+    return entries.map((seat) => {
+      if (!isRecord(seat)) {
+        return seat;
+      }
+      const names = {
+        ...(isRecord(seat.names) ? (seat.names as Record<string, string>) : {}),
+        ...(offered ?? {}),
+      };
+      report(names);
+      return { ...seat, names };
+    });
+  }
+
+  if (factType === "languages") {
+    const table = lexicon.languages ?? {};
+    return entries.map((entry) => {
+      if (!isRecord(entry) || typeof entry.code !== "string") {
+        return entry;
+      }
+      const names = table[entry.code];
+      if (names === undefined) {
+        // A subtag no registered source can name. It stays in the fact — the
+        // country does speak it — and the reader falls back to naming it.
+        report({}, entry.code);
+        return entry;
+      }
+      report(names, entry.code);
+      return { ...entry, names };
+    });
+  }
+  return value;
+}
+
 function groupedPatches(
   patches: FieldPatch[],
   matcher: EntityMatcher,
@@ -213,6 +304,7 @@ export async function mergeContent(
     missingTranslations: [],
     missingAssets: [],
     licenseProblems: [],
+    unnamedFacts: [],
     assetOverrides: [],
   };
   const provenanceMap: Record<string, Provenance> = {};
@@ -428,6 +520,11 @@ export async function mergeContent(
     provenanceMap[`deck/${deck.key}`] = editorialProvenance;
   }
 
+  const lexicon = Object.assign(
+    {},
+    ...normalized.map(({ lexicon }) => lexicon ?? {}),
+  ) as SourceLexicon;
+
   const facts = Object.fromEntries(
     ["capitals", "currencies", "languages", "population"].map((factType) => [
       factType,
@@ -450,7 +547,15 @@ export async function mergeContent(
             : {
                 entityKey,
                 gap: false,
-                value,
+                value: nameFactValue(
+                  factType,
+                  value,
+                  entity,
+                  lexicon,
+                  entityKey,
+                  editorial.supportedLocales,
+                  reports,
+                ),
                 provenance: source,
               };
         }),
@@ -462,7 +567,10 @@ export async function mergeContent(
     .map((entity) =>
       Object.fromEntries(
         Object.entries(entity).filter(
-          ([key]) => !["facts", "crossChecks", "identifiers"].includes(key),
+          ([key]) =>
+            !["facts", "crossChecks", "identifiers", "localizedNames"].includes(
+              key,
+            ),
         ),
       ),
     )

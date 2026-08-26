@@ -31,7 +31,7 @@ export function factDisplayValue(
 
   switch (factType) {
     case FactType.CAPITAL:
-      return capital(value);
+      return capital(value, locale);
     case FactType.POPULATION:
       return population(value, locale);
     case FactType.CURRENCY:
@@ -51,13 +51,29 @@ function suppliedDisplayValue(value: Prisma.JsonValue): string | null {
   return typeof supplied === "string" && supplied.length > 0 ? supplied : null;
 }
 
-/** `[{ name, role }]` — the official seats, in the order published. */
-function capital(value: Prisma.JsonValue): string | null {
+/**
+ * `[{ names, role }]` — the official seats, named for the reader.
+ *
+ * `name` is the shape releases published before the seat carried a name map
+ * still hold, and they have to keep rendering after this deploy: a reader is
+ * not shown an empty card because the release predates the split.
+ */
+function capital(value: Prisma.JsonValue, locale: string): string | null {
   const seats = asArray(value)
     .filter(isRecord)
     .filter((seat) => seat["role"] === undefined || seat["role"] === "official")
-    .map((seat) => seat["name"])
-    .filter((name): name is string => typeof name === "string");
+    .map(
+      (seat) =>
+        localizedName(seat["names"], locale) ??
+        // A seat has no code to fall back to the way a currency does, so
+        // English is the fallback, and the content schema requires it to be
+        // there. Without this a reader whose locale the seat was never named
+        // in would be shown no capital at all.
+        localizedName(seat["names"], "en") ??
+        seat["name"],
+    )
+    .filter((name): name is string => typeof name === "string")
+    .map((name) => capitalized(name, locale));
   return join(seats);
 }
 
@@ -98,26 +114,39 @@ function currency(value: Prisma.JsonValue, locale: string): string | null {
         return null;
       }
       const name = localizedName(entry["names"], locale);
-      return name === null ? code : `${name} (${code})`;
+      return name === null ? code : `${capitalized(name, locale)} (${code})`;
     })
     .filter((entry): entry is string => entry !== null);
   return join(tenders);
 }
 
-/** `[{ code, role }]` — the language named in the reader's own. */
+/**
+ * `[{ code, names, role }]` — the language named in the reader's own.
+ *
+ * The name comes from the release, so what a card says is decided by the
+ * content and not by the ICU tables of whichever machine served the request.
+ * `Intl.DisplayNames` stays as the fallback for releases published before the
+ * names were carried, and a code neither can name is dropped rather than
+ * printed raw: "fr" on the back of a card is not an answer to what is spoken
+ * there.
+ */
 function language(value: Prisma.JsonValue, locale: string): string | null {
-  const names = new Intl.DisplayNames([locale], {
+  const fallback = new Intl.DisplayNames([locale], {
     type: "language",
     fallback: "none",
   });
   const languages = asArray(value)
     .filter(isRecord)
-    .map((entry) => entry["code"])
-    .filter((code): code is string => typeof code === "string")
-    // A code the platform cannot name is dropped rather than printed raw:
-    // "fr" on the back of a card is not an answer to what is spoken there.
-    .map((code) => safeDisplayName(names, code))
-    .filter((name): name is string => name !== null);
+    .map((entry) => {
+      const published = localizedName(entry["names"], locale);
+      if (published !== null) {
+        return published;
+      }
+      const code = entry["code"];
+      return typeof code === "string" ? safeDisplayName(fallback, code) : null;
+    })
+    .filter((name): name is string => name !== null)
+    .map((name) => capitalized(name, locale));
   return join(languages);
 }
 
@@ -131,6 +160,26 @@ function safeDisplayName(
     // `of` throws on a malformed tag rather than returning undefined.
     return null;
   }
+}
+
+/**
+ * A name as a label rather than as a word in a sentence.
+ *
+ * English capitalises a language or a currency lexically — "German", "Euro" —
+ * while CLDR gives the Russian common noun in its dictionary form: "немецкий",
+ * "евро". Printed side by side on the back of a card that is not a difference
+ * between the languages, it is the same card looking unfinished in one of
+ * them. Each fact here is a standalone label, so each starts with a capital,
+ * and a name that already does is left exactly as the source spelled it.
+ */
+function capitalized(name: string, locale: string): string {
+  // By code point, so a name outside the basic plane is not cut in half.
+  const [first] = name;
+  if (first === undefined) {
+    return name;
+  }
+  const upper = first.toLocaleUpperCase(locale);
+  return upper === first ? name : upper + name.slice(first.length);
 }
 
 function localizedName(

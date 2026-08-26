@@ -13040,7 +13040,7 @@
         },
         {
           "type": "LANGUAGE",
-          "displayValue": "English, Filipino",
+          "displayValue": "English, Tagalog",
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",

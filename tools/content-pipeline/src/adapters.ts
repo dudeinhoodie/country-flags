@@ -103,11 +103,18 @@ function normalizeCldr(
         source,
         { isoAlpha2 },
         "facts.currencies",
-        codes.map((code) => ({
-          code,
-          role: "legal_tender",
-          names: currencies[code] ?? {},
-        })),
+        codes.map((code) => {
+          const names = currencies[code];
+          // An empty map is not a name: the reader falls back to the code,
+          // and publishing `{}` only pretends the tender was named.
+          return {
+            code,
+            role: "legal_tender",
+            ...(names === undefined || Object.keys(names).length === 0
+              ? {}
+              : { names }),
+          };
+        }),
         80,
       ),
     );
@@ -146,6 +153,12 @@ function normalizeCldr(
         },
       );
     }
+  }
+  const languages = (snapshot as JsonRecord).languages as
+    | Record<string, Record<string, string>>
+    | undefined;
+  if (languages !== undefined) {
+    output.lexicon = { languages };
   }
   return output;
 }
@@ -197,8 +210,10 @@ function normalizeAnnexare(
         source,
         entity,
         "facts.capitals",
+        // English is what this source speaks; the other locales are added at
+        // assembly from the names Wikidata publishes for the same seat.
         (record.capital as string[]).map((name) => ({
-          name,
+          names: { en: name },
           role: "official",
         })),
         50,
@@ -267,6 +282,28 @@ function normalizeWikidata(
       patch(source, entity, "crossChecks.capitals", record.capitals, 40),
       patch(source, entity, "crossChecks.languages", record.languages, 40),
     );
+    // The seat's name in Russian, offered beside the fact rather than as the
+    // fact: annexare owns which seat it is and what it is called in English.
+    // Only an entity Wikidata knows one seat for is named, because a name
+    // matched to the wrong seat of two is worse than an absent one.
+    const capitalNames = record.capitalNames as
+      | Record<string, string>
+      | undefined;
+    const capitals = (record.capitals as unknown[] | undefined) ?? [];
+    const onlyCapital = capitals.length === 1 ? String(capitals[0]) : undefined;
+    const russianName =
+      onlyCapital === undefined ? undefined : capitalNames?.[onlyCapital];
+    if (russianName !== undefined) {
+      output.patches.push(
+        patch(
+          source,
+          entity,
+          "localizedNames.capitals",
+          { ru: russianName },
+          60,
+        ),
+      );
+    }
   }
   return output;
 }
@@ -320,6 +357,8 @@ function cldrAdapter(): SourceAdapter {
         ruTerritories,
         enCurrencies,
         ruCurrencies,
+        enLanguages,
+        ruLanguages,
         territoryContainment,
         currencyData,
       ] = await Promise.all([
@@ -327,6 +366,11 @@ function cldrAdapter(): SourceAdapter {
         fetchJson(`${base}/cldr-localenames-full/main/ru/territories.json`),
         fetchJson(`${base}/cldr-numbers-full/main/en/currencies.json`),
         fetchJson(`${base}/cldr-numbers-full/main/ru/currencies.json`),
+        // The names a card prints for the languages a country speaks. They
+        // used to come from the runtime's ICU tables at render time, which
+        // made the published release depend on the machine reading it.
+        fetchJson(`${base}/cldr-localenames-full/main/en/languages.json`),
+        fetchJson(`${base}/cldr-localenames-full/main/ru/languages.json`),
         fetchJson(`${base}/cldr-core/supplemental/territoryContainment.json`),
         fetchJson(`${base}/cldr-core/supplemental/currencyData.json`),
       ]);
@@ -335,6 +379,8 @@ function cldrAdapter(): SourceAdapter {
         ruTerritories,
         enCurrencies,
         ruCurrencies,
+        enLanguages,
+        ruLanguages,
         territoryContainment,
         currencyData,
       };
@@ -382,6 +428,14 @@ function cldrAdapter(): SourceAdapter {
             },
           ]),
       );
+      const languageValues = (locale: "en" | "ru"): Record<string, string> =>
+        (
+          (
+            (payloadFor(`${locale}Languages`).main as JsonRecord)[
+              locale
+            ] as JsonRecord
+          ).localeDisplayNames as JsonRecord
+        ).languages as Record<string, string>;
       const currencyRegions = (
         (payloadFor("currencyData").supplemental as JsonRecord)
           .currencyData as JsonRecord
@@ -428,6 +482,27 @@ function cldrAdapter(): SourceAdapter {
             },
           ];
         }),
+      );
+      // Every subtag CLDR can name in both locales. The table is filtered
+      // down to what an entity actually lists at assembly time; keeping it
+      // whole here means a later catalogue change needs no new pull.
+      const languages = Object.fromEntries(
+        [
+          ...new Set([
+            ...Object.keys(languageValues("en")),
+            ...Object.keys(languageValues("ru")),
+          ]),
+        ]
+          .sort()
+          .flatMap((code) => {
+            const en = languageValues("en")[code];
+            const ru = languageValues("ru")[code];
+            // English is the guaranteed fallback, so a subtag without it is
+            // not a name this pipeline can publish.
+            return typeof en !== "string"
+              ? []
+              : [[code, { en, ...(typeof ru === "string" ? { ru } : {}) }]];
+          }),
       );
       const containmentRoot = (
         payloadFor("territoryContainment").supplemental as JsonRecord
@@ -485,6 +560,7 @@ function cldrAdapter(): SourceAdapter {
         territories,
         currencies,
         currencyUsage,
+        languages,
         containment,
       };
     },
@@ -708,14 +784,19 @@ function wikidataAdapter(): SourceAdapter {
       );
       const responses = await mapWithConcurrency(chunks, 2, async (chunk) => {
         const values = chunk.map((code) => `"${code}"`).join(" ");
+        // The label service supplies the seat's name in Russian, which no
+        // other registered source has. English is deliberately not taken:
+        // annexare owns that name, and letting a second source spell it
+        // would move names this catalogue has always published.
         const query = `
-          SELECT ?country ?isoAlpha2 ?capital ?language ?sitelinks WHERE {
+          SELECT ?country ?isoAlpha2 ?capital ?capitalLabel ?language ?sitelinks WHERE {
             VALUES ?isoAlpha2 { ${values} }
             ?country wdt:P297 ?isoAlpha2.
             ?country wikibase:sitelinks ?sitelinks.
             FILTER NOT EXISTS { ?country wdt:P576 ?dissolved. }
             OPTIONAL { ?country wdt:P36 ?capital. }
             OPTIONAL { ?country wdt:P37 ?language. }
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "ru". }
           }
         `;
         return fetchJson(
@@ -739,6 +820,7 @@ function wikidataAdapter(): SourceAdapter {
         string,
         {
           capitals: Set<string>;
+          capitalNames: Map<string, string>;
           languages: Set<string>;
           isoAlpha2?: string;
           sitelinks: number;
@@ -750,6 +832,7 @@ function wikidataAdapter(): SourceAdapter {
         );
         const value = grouped.get(wikidataId) ?? {
           capitals: new Set<string>(),
+          capitalNames: new Map<string, string>(),
           languages: new Set<string>(),
           sitelinks: 0,
         };
@@ -774,6 +857,21 @@ function wikidataAdapter(): SourceAdapter {
             target.add(id);
           }
         }
+        const capitalId = (() => {
+          const uri = (row.capital as JsonRecord | undefined)?.value;
+          return typeof uri === "string" ? uri.split("/").at(-1) : undefined;
+        })();
+        const label = (row.capitalLabel as JsonRecord | undefined)?.value;
+        // Asked for one language, the label service answers with the item's
+        // identifier when it has no label in it. That is not a name.
+        if (
+          capitalId !== undefined &&
+          typeof label === "string" &&
+          label.length > 0 &&
+          label !== capitalId
+        ) {
+          value.capitalNames.set(capitalId, label);
+        }
         grouped.set(wikidataId, value);
       }
       const bindings: JsonRecord[] = [];
@@ -794,10 +892,19 @@ function wikidataAdapter(): SourceAdapter {
           continue;
         }
         selectedCodes.add(isoAlpha2);
+        const capitals = [...value.capitals].sort();
         bindings.push({
           wikidataId,
           isoAlpha2,
-          capitals: [...value.capitals].sort(),
+          capitals,
+          // Keyed by the item the name belongs to, so a country that grows a
+          // second seat does not silently hand the first one's name to it.
+          capitalNames: Object.fromEntries(
+            capitals.flatMap((id) => {
+              const name = value.capitalNames.get(id);
+              return name === undefined ? [] : [[id, name]];
+            }),
+          ),
           languages: [...value.languages].sort(),
         });
       }

@@ -46,10 +46,24 @@ export interface FieldPatch {
   provenance: Provenance;
 }
 
+/**
+ * A table of names that belongs to no single entity.
+ *
+ * A patch says something about one country; a language's name in Russian is
+ * true everywhere it is spoken. Carrying it as a patch would mean writing the
+ * whole table onto all 250 entities, so a source contributes it once and the
+ * fact assembly reads it when it names the codes an entity actually lists.
+ */
+export interface SourceLexicon {
+  /** Language subtag to its name per locale, as the source spells them. */
+  languages?: Record<string, Record<string, string>>;
+}
+
 export interface NormalizedSource {
   patches: FieldPatch[];
   relations: RelationCandidate[];
   assets: AssetCandidate[];
+  lexicon?: SourceLexicon;
 }
 
 export interface SourceAdapter {
@@ -201,12 +215,27 @@ export interface PipelineReports {
   missingAssets: { entityKey: string }[];
   licenseProblems: { entityKey: string; reason: string }[];
   /**
+   * A fact published without a name in every supported locale. Not a failure
+   * — the reader falls back — but the list is where a curator sees what an
+   * editorial override still has to say.
+   */
+  unnamedFacts: UnnamedFact[];
+  /**
    * An editorial override that displaced adapter candidates. Reported for
    * the same reason field conflicts are: a silent win is a decision nobody
    * can review, and a source refresh that changes the upstream drawing under
    * an active override has to be visible in the refresh pull request.
    */
   assetOverrides: AssetOverrideReport[];
+}
+
+export interface UnnamedFact {
+  entityKey: string;
+  factType: string;
+  /** The supported locale the fact has no name in. */
+  locale: string;
+  /** The code the missing name belongs to, when the fact lists codes. */
+  detail?: string;
 }
 
 export interface AssetOverrideReport {

@@ -22,14 +22,26 @@
       "value": [
         {
           "code": "no",
+          "names": {
+            "en": "Norwegian",
+            "ru": "норвежский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "nb",
+          "names": {
+            "en": "Norwegian Bokmål",
+            "ru": "норвежский букмол"
+          },
           "role": "official_or_common"
         },
         {
           "code": "nn",
+          "names": {
+            "en": "Norwegian Nynorsk",
+            "ru": "нюнорск"
+          },
           "role": "official_or_common"
         }
       ]
@@ -45,6 +57,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -60,6 +76,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -75,6 +95,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -90,6 +114,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -105,6 +133,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -120,18 +152,34 @@
       "value": [
         {
           "code": "ps",
+          "names": {
+            "en": "Pashto",
+            "ru": "пушту"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fa",
+          "names": {
+            "en": "Persian",
+            "ru": "персидский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "uz",
+          "names": {
+            "en": "Uzbek",
+            "ru": "узбекский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "tk",
+          "names": {
+            "en": "Turkmen",
+            "ru": "туркменский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -147,6 +195,10 @@
       "value": [
         {
           "code": "sq",
+          "names": {
+            "en": "Albanian",
+            "ru": "албанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -162,6 +214,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -177,6 +233,10 @@
       "value": [
         {
           "code": "ca",
+          "names": {
+            "en": "Catalan",
+            "ru": "каталанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -192,6 +252,10 @@
       "value": [
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -207,6 +271,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -222,10 +290,18 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "gn",
+          "names": {
+            "en": "Guarani",
+            "ru": "гуарани"
+          },
           "role": "official_or_common"
         }
       ]
@@ -241,10 +317,18 @@
       "value": [
         {
           "code": "hy",
+          "names": {
+            "en": "Armenian",
+            "ru": "армянский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ru",
+          "names": {
+            "en": "Russian",
+            "ru": "русский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -260,6 +344,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -275,6 +363,10 @@
       "value": [
         {
           "code": "de",
+          "names": {
+            "en": "German",
+            "ru": "немецкий"
+          },
           "role": "official_or_common"
         }
       ]
@@ -290,6 +382,10 @@
       "value": [
         {
           "code": "az",
+          "names": {
+            "en": "Azerbaijani",
+            "ru": "азербайджанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -305,6 +401,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -320,6 +420,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -335,6 +439,10 @@
       "value": [
         {
           "code": "bn",
+          "names": {
+            "en": "Bangla",
+            "ru": "бенгальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -350,6 +458,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -365,10 +477,18 @@
       "value": [
         {
           "code": "be",
+          "names": {
+            "en": "Belarusian",
+            "ru": "белорусский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ru",
+          "names": {
+            "en": "Russian",
+            "ru": "русский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -384,14 +504,26 @@
       "value": [
         {
           "code": "nl",
+          "names": {
+            "en": "Dutch",
+            "ru": "нидерландский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "de",
+          "names": {
+            "en": "German",
+            "ru": "немецкий"
+          },
           "role": "official_or_common"
         }
       ]
@@ -407,10 +539,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -426,6 +566,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -441,6 +585,10 @@
       "value": [
         {
           "code": "dz",
+          "names": {
+            "en": "Dzongkha",
+            "ru": "дзонг-кэ"
+          },
           "role": "official_or_common"
         }
       ]
@@ -456,14 +604,26 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ay",
+          "names": {
+            "en": "Aymara",
+            "ru": "аймара"
+          },
           "role": "official_or_common"
         },
         {
           "code": "qu",
+          "names": {
+            "en": "Quechua",
+            "ru": "кечуа"
+          },
           "role": "official_or_common"
         }
       ]
@@ -479,14 +639,26 @@
       "value": [
         {
           "code": "bs",
+          "names": {
+            "en": "Bosnian",
+            "ru": "боснийский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "hr",
+          "names": {
+            "en": "Croatian",
+            "ru": "хорватский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sr",
+          "names": {
+            "en": "Serbian",
+            "ru": "сербский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -502,10 +674,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "tn",
+          "names": {
+            "en": "Tswana",
+            "ru": "тсвана"
+          },
           "role": "official_or_common"
         }
       ]
@@ -521,6 +701,10 @@
       "value": [
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -536,6 +720,10 @@
       "value": [
         {
           "code": "ms",
+          "names": {
+            "en": "Malay",
+            "ru": "малайский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -551,6 +739,10 @@
       "value": [
         {
           "code": "bg",
+          "names": {
+            "en": "Bulgarian",
+            "ru": "болгарский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -566,10 +758,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ff",
+          "names": {
+            "en": "Fula",
+            "ru": "фулах"
+          },
           "role": "official_or_common"
         }
       ]
@@ -585,10 +785,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "rn",
+          "names": {
+            "en": "Rundi",
+            "ru": "рунди"
+          },
           "role": "official_or_common"
         }
       ]
@@ -604,6 +812,10 @@
       "value": [
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -619,6 +831,10 @@
       "value": [
         {
           "code": "km",
+          "names": {
+            "en": "Khmer",
+            "ru": "кхмерский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -634,10 +850,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -653,10 +877,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -672,10 +904,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sg",
+          "names": {
+            "en": "Sango",
+            "ru": "санго"
+          },
           "role": "official_or_common"
         }
       ]
@@ -691,10 +931,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -710,6 +958,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -725,6 +977,10 @@
       "value": [
         {
           "code": "zh",
+          "names": {
+            "en": "Chinese",
+            "ru": "китайский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -740,6 +996,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -755,10 +1015,18 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -774,10 +1042,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ln",
+          "names": {
+            "en": "Lingala",
+            "ru": "лингала"
+          },
           "role": "official_or_common"
         }
       ]
@@ -793,6 +1069,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -808,6 +1088,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -823,6 +1107,10 @@
       "value": [
         {
           "code": "hr",
+          "names": {
+            "en": "Croatian",
+            "ru": "хорватский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -838,6 +1126,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -853,14 +1145,26 @@
       "value": [
         {
           "code": "el",
+          "names": {
+            "en": "Greek",
+            "ru": "греческий"
+          },
           "role": "official_or_common"
         },
         {
           "code": "tr",
+          "names": {
+            "en": "Turkish",
+            "ru": "турецкий"
+          },
           "role": "official_or_common"
         },
         {
           "code": "hy",
+          "names": {
+            "en": "Armenian",
+            "ru": "армянский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -876,6 +1180,10 @@
       "value": [
         {
           "code": "cs",
+          "names": {
+            "en": "Czech",
+            "ru": "чешский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -891,6 +1199,10 @@
       "value": [
         {
           "code": "ko",
+          "names": {
+            "en": "Korean",
+            "ru": "корейский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -906,22 +1218,42 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ln",
+          "names": {
+            "en": "Lingala",
+            "ru": "лингала"
+          },
           "role": "official_or_common"
         },
         {
           "code": "kg",
+          "names": {
+            "en": "Kongo",
+            "ru": "конго"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sw",
+          "names": {
+            "en": "Swahili",
+            "ru": "суахили"
+          },
           "role": "official_or_common"
         },
         {
           "code": "lu",
+          "names": {
+            "en": "Luba-Katanga",
+            "ru": "луба-катанга"
+          },
           "role": "official_or_common"
         }
       ]
@@ -937,6 +1269,10 @@
       "value": [
         {
           "code": "da",
+          "names": {
+            "en": "Danish",
+            "ru": "датский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -952,10 +1288,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -971,6 +1315,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -986,6 +1334,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1001,6 +1353,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1016,6 +1372,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1031,6 +1391,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1046,10 +1410,18 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1065,14 +1437,26 @@
       "value": [
         {
           "code": "ti",
+          "names": {
+            "en": "Tigrinya",
+            "ru": "тигринья"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1088,6 +1472,10 @@
       "value": [
         {
           "code": "et",
+          "names": {
+            "en": "Estonian",
+            "ru": "эстонский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1103,10 +1491,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ss",
+          "names": {
+            "en": "Swati",
+            "ru": "свази"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1122,6 +1518,10 @@
       "value": [
         {
           "code": "am",
+          "names": {
+            "en": "Amharic",
+            "ru": "амхарский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1137,18 +1537,34 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fj",
+          "names": {
+            "en": "Fijian",
+            "ru": "фиджи"
+          },
           "role": "official_or_common"
         },
         {
           "code": "hi",
+          "names": {
+            "en": "Hindi",
+            "ru": "хинди"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ur",
+          "names": {
+            "en": "Urdu",
+            "ru": "урду"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1164,10 +1580,18 @@
       "value": [
         {
           "code": "fi",
+          "names": {
+            "en": "Finnish",
+            "ru": "финский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sv",
+          "names": {
+            "en": "Swedish",
+            "ru": "шведский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1183,6 +1607,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1198,6 +1626,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1213,6 +1645,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1228,6 +1664,10 @@
       "value": [
         {
           "code": "ka",
+          "names": {
+            "en": "Georgian",
+            "ru": "грузинский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1243,6 +1683,10 @@
       "value": [
         {
           "code": "de",
+          "names": {
+            "en": "German",
+            "ru": "немецкий"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1258,6 +1702,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1273,6 +1721,10 @@
       "value": [
         {
           "code": "el",
+          "names": {
+            "en": "Greek",
+            "ru": "греческий"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1288,6 +1740,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1303,6 +1759,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1318,10 +1778,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ff",
+          "names": {
+            "en": "Fula",
+            "ru": "фулах"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1337,6 +1805,10 @@
       "value": [
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1352,6 +1824,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1367,10 +1843,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ht",
+          "names": {
+            "en": "Haitian Creole",
+            "ru": "гаитянский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1386,10 +1870,18 @@
       "value": [
         {
           "code": "it",
+          "names": {
+            "en": "Italian",
+            "ru": "итальянский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "la",
+          "names": {
+            "en": "Latin",
+            "ru": "латинский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1405,6 +1897,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1420,6 +1916,10 @@
       "value": [
         {
           "code": "hu",
+          "names": {
+            "en": "Hungarian",
+            "ru": "венгерский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1435,6 +1935,10 @@
       "value": [
         {
           "code": "is",
+          "names": {
+            "en": "Icelandic",
+            "ru": "исландский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1450,10 +1954,18 @@
       "value": [
         {
           "code": "hi",
+          "names": {
+            "en": "Hindi",
+            "ru": "хинди"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1469,6 +1981,10 @@
       "value": [
         {
           "code": "id",
+          "names": {
+            "en": "Indonesian",
+            "ru": "индонезийский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1484,6 +2000,10 @@
       "value": [
         {
           "code": "fa",
+          "names": {
+            "en": "Persian",
+            "ru": "персидский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1499,10 +2019,18 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ku",
+          "names": {
+            "en": "Kurdish",
+            "ru": "курдский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1518,10 +2046,18 @@
       "value": [
         {
           "code": "ga",
+          "names": {
+            "en": "Irish",
+            "ru": "ирландский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1537,10 +2073,18 @@
       "value": [
         {
           "code": "he",
+          "names": {
+            "en": "Hebrew",
+            "ru": "иврит"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1556,6 +2100,10 @@
       "value": [
         {
           "code": "it",
+          "names": {
+            "en": "Italian",
+            "ru": "итальянский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1571,6 +2119,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1586,6 +2138,10 @@
       "value": [
         {
           "code": "ja",
+          "names": {
+            "en": "Japanese",
+            "ru": "японский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1601,6 +2157,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1616,10 +2176,18 @@
       "value": [
         {
           "code": "kk",
+          "names": {
+            "en": "Kazakh",
+            "ru": "казахский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ru",
+          "names": {
+            "en": "Russian",
+            "ru": "русский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1635,10 +2203,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sw",
+          "names": {
+            "en": "Swahili",
+            "ru": "суахили"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1654,6 +2230,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1669,10 +2249,18 @@
       "value": [
         {
           "code": "sq",
+          "names": {
+            "en": "Albanian",
+            "ru": "албанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sr",
+          "names": {
+            "en": "Serbian",
+            "ru": "сербский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1688,6 +2276,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1703,10 +2295,18 @@
       "value": [
         {
           "code": "ky",
+          "names": {
+            "en": "Kyrgyz",
+            "ru": "киргизский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ru",
+          "names": {
+            "en": "Russian",
+            "ru": "русский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1722,6 +2322,10 @@
       "value": [
         {
           "code": "lo",
+          "names": {
+            "en": "Lao",
+            "ru": "лаосский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1737,6 +2341,10 @@
       "value": [
         {
           "code": "lv",
+          "names": {
+            "en": "Latvian",
+            "ru": "латышский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1752,10 +2360,18 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1771,10 +2387,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "st",
+          "names": {
+            "en": "Southern Sotho",
+            "ru": "южный сото"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1790,6 +2414,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1805,6 +2433,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1820,6 +2452,10 @@
       "value": [
         {
           "code": "de",
+          "names": {
+            "en": "German",
+            "ru": "немецкий"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1835,6 +2471,10 @@
       "value": [
         {
           "code": "lt",
+          "names": {
+            "en": "Lithuanian",
+            "ru": "литовский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1850,14 +2490,26 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "de",
+          "names": {
+            "en": "German",
+            "ru": "немецкий"
+          },
           "role": "official_or_common"
         },
         {
           "code": "lb",
+          "names": {
+            "en": "Luxembourgish",
+            "ru": "люксембургский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1873,10 +2525,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "mg",
+          "names": {
+            "en": "Malagasy",
+            "ru": "малагасийский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1892,10 +2552,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ny",
+          "names": {
+            "en": "Nyanja",
+            "ru": "ньянджа"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1911,6 +2579,10 @@
       "value": [
         {
           "code": "ms",
+          "names": {
+            "en": "Malay",
+            "ru": "малайский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1926,6 +2598,10 @@
       "value": [
         {
           "code": "dv",
+          "names": {
+            "en": "Divehi",
+            "ru": "мальдивский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1941,6 +2617,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1956,10 +2636,18 @@
       "value": [
         {
           "code": "mt",
+          "names": {
+            "en": "Maltese",
+            "ru": "мальтийский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1975,10 +2663,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "mh",
+          "names": {
+            "en": "Marshallese",
+            "ru": "маршалльский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -1994,6 +2690,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2009,6 +2709,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2024,6 +2728,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2039,6 +2747,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2054,6 +2766,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2069,6 +2785,10 @@
       "value": [
         {
           "code": "mn",
+          "names": {
+            "en": "Mongolian",
+            "ru": "монгольский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2084,18 +2804,34 @@
       "value": [
         {
           "code": "sr",
+          "names": {
+            "en": "Serbian",
+            "ru": "сербский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "bs",
+          "names": {
+            "en": "Bosnian",
+            "ru": "боснийский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sq",
+          "names": {
+            "en": "Albanian",
+            "ru": "албанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "hr",
+          "names": {
+            "en": "Croatian",
+            "ru": "хорватский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2111,6 +2847,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2126,6 +2866,10 @@
       "value": [
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2141,6 +2885,10 @@
       "value": [
         {
           "code": "my",
+          "names": {
+            "en": "Burmese",
+            "ru": "бирманский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2156,10 +2904,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "af",
+          "names": {
+            "en": "Afrikaans",
+            "ru": "африкаанс"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2175,10 +2931,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "na",
+          "names": {
+            "en": "Nauru",
+            "ru": "науру"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2194,6 +2958,10 @@
       "value": [
         {
           "code": "ne",
+          "names": {
+            "en": "Nepali",
+            "ru": "непальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2209,6 +2977,10 @@
       "value": [
         {
           "code": "nl",
+          "names": {
+            "en": "Dutch",
+            "ru": "нидерландский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2224,10 +2996,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "mi",
+          "names": {
+            "en": "Māori",
+            "ru": "маори"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2243,6 +3023,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2258,6 +3042,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2273,6 +3061,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2288,6 +3080,10 @@
       "value": [
         {
           "code": "mk",
+          "names": {
+            "en": "Macedonian",
+            "ru": "македонский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2303,14 +3099,26 @@
       "value": [
         {
           "code": "no",
+          "names": {
+            "en": "Norwegian",
+            "ru": "норвежский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "nb",
+          "names": {
+            "en": "Norwegian Bokmål",
+            "ru": "норвежский букмол"
+          },
           "role": "official_or_common"
         },
         {
           "code": "nn",
+          "names": {
+            "en": "Norwegian Nynorsk",
+            "ru": "нюнорск"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2326,6 +3134,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2341,10 +3153,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ur",
+          "names": {
+            "en": "Urdu",
+            "ru": "урду"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2360,6 +3180,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2375,6 +3199,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2390,6 +3218,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2405,10 +3237,18 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "gn",
+          "names": {
+            "en": "Guarani",
+            "ru": "гуарани"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2424,6 +3264,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2439,10 +3283,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "tl",
+          "names": {
+            "en": "Tagalog",
+            "ru": "тагалог"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2458,6 +3310,10 @@
       "value": [
         {
           "code": "pl",
+          "names": {
+            "en": "Polish",
+            "ru": "польский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2473,6 +3329,10 @@
       "value": [
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2488,6 +3348,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2503,6 +3367,10 @@
       "value": [
         {
           "code": "ko",
+          "names": {
+            "en": "Korean",
+            "ru": "корейский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2518,6 +3386,10 @@
       "value": [
         {
           "code": "ro",
+          "names": {
+            "en": "Romanian",
+            "ru": "румынский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2533,6 +3405,10 @@
       "value": [
         {
           "code": "ro",
+          "names": {
+            "en": "Romanian",
+            "ru": "румынский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2548,6 +3424,10 @@
       "value": [
         {
           "code": "ru",
+          "names": {
+            "en": "Russian",
+            "ru": "русский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2563,14 +3443,26 @@
       "value": [
         {
           "code": "rw",
+          "names": {
+            "en": "Kinyarwanda",
+            "ru": "киньяруанда"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2586,6 +3478,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2601,6 +3497,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2616,6 +3516,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2631,10 +3535,18 @@
       "value": [
         {
           "code": "sm",
+          "names": {
+            "en": "Samoan",
+            "ru": "самоанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2650,6 +3562,10 @@
       "value": [
         {
           "code": "it",
+          "names": {
+            "en": "Italian",
+            "ru": "итальянский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2665,6 +3581,10 @@
       "value": [
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2680,6 +3600,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2695,6 +3619,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2710,6 +3638,10 @@
       "value": [
         {
           "code": "sr",
+          "names": {
+            "en": "Serbian",
+            "ru": "сербский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2725,10 +3657,18 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2744,6 +3684,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2759,18 +3703,34 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ms",
+          "names": {
+            "en": "Malay",
+            "ru": "малайский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ta",
+          "names": {
+            "en": "Tamil",
+            "ru": "тамильский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "zh",
+          "names": {
+            "en": "Chinese",
+            "ru": "китайский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2786,6 +3746,10 @@
       "value": [
         {
           "code": "sk",
+          "names": {
+            "en": "Slovak",
+            "ru": "словацкий"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2801,6 +3765,10 @@
       "value": [
         {
           "code": "sl",
+          "names": {
+            "en": "Slovenian",
+            "ru": "словенский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2816,6 +3784,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2831,10 +3803,18 @@
       "value": [
         {
           "code": "so",
+          "names": {
+            "en": "Somali",
+            "ru": "сомали"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2850,42 +3830,82 @@
       "value": [
         {
           "code": "af",
+          "names": {
+            "en": "Afrikaans",
+            "ru": "африкаанс"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "nr",
+          "names": {
+            "en": "South Ndebele",
+            "ru": "южный ндебеле"
+          },
           "role": "official_or_common"
         },
         {
           "code": "st",
+          "names": {
+            "en": "Southern Sotho",
+            "ru": "южный сото"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ss",
+          "names": {
+            "en": "Swati",
+            "ru": "свази"
+          },
           "role": "official_or_common"
         },
         {
           "code": "tn",
+          "names": {
+            "en": "Tswana",
+            "ru": "тсвана"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ts",
+          "names": {
+            "en": "Tsonga",
+            "ru": "тсонга"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ve",
+          "names": {
+            "en": "Venda",
+            "ru": "венда"
+          },
           "role": "official_or_common"
         },
         {
           "code": "xh",
+          "names": {
+            "en": "Xhosa",
+            "ru": "коса"
+          },
           "role": "official_or_common"
         },
         {
           "code": "zu",
+          "names": {
+            "en": "Zulu",
+            "ru": "зулу"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2901,6 +3921,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2916,22 +3940,42 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "eu",
+          "names": {
+            "en": "Basque",
+            "ru": "баскский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ca",
+          "names": {
+            "en": "Catalan",
+            "ru": "каталанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "gl",
+          "names": {
+            "en": "Galician",
+            "ru": "галисийский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "oc",
+          "names": {
+            "en": "Occitan",
+            "ru": "окситанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2947,10 +3991,18 @@
       "value": [
         {
           "code": "si",
+          "names": {
+            "en": "Sinhala",
+            "ru": "сингальский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ta",
+          "names": {
+            "en": "Tamil",
+            "ru": "тамильский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2966,6 +4018,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -2981,10 +4037,18 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3000,6 +4064,10 @@
       "value": [
         {
           "code": "nl",
+          "names": {
+            "en": "Dutch",
+            "ru": "нидерландский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3015,6 +4083,10 @@
       "value": [
         {
           "code": "sv",
+          "names": {
+            "en": "Swedish",
+            "ru": "шведский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3030,14 +4102,26 @@
       "value": [
         {
           "code": "de",
+          "names": {
+            "en": "German",
+            "ru": "немецкий"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "it",
+          "names": {
+            "en": "Italian",
+            "ru": "итальянский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3053,6 +4137,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3068,6 +4156,10 @@
       "value": [
         {
           "code": "zh",
+          "names": {
+            "en": "Chinese",
+            "ru": "китайский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3083,10 +4175,18 @@
       "value": [
         {
           "code": "tg",
+          "names": {
+            "en": "Tajik",
+            "ru": "таджикский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ru",
+          "names": {
+            "en": "Russian",
+            "ru": "русский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3102,6 +4202,10 @@
       "value": [
         {
           "code": "th",
+          "names": {
+            "en": "Thai",
+            "ru": "тайский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3117,6 +4221,10 @@
       "value": [
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3132,6 +4240,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3147,10 +4259,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "to",
+          "names": {
+            "en": "Tongan",
+            "ru": "тонганский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3166,6 +4286,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3181,6 +4305,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3196,6 +4324,10 @@
       "value": [
         {
           "code": "tr",
+          "names": {
+            "en": "Turkish",
+            "ru": "турецкий"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3211,10 +4343,18 @@
       "value": [
         {
           "code": "tk",
+          "names": {
+            "en": "Turkmen",
+            "ru": "туркменский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ru",
+          "names": {
+            "en": "Russian",
+            "ru": "русский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3230,6 +4370,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3245,10 +4389,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sw",
+          "names": {
+            "en": "Swahili",
+            "ru": "суахили"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3264,6 +4416,10 @@
       "value": [
         {
           "code": "uk",
+          "names": {
+            "en": "Ukrainian",
+            "ru": "украинский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3279,6 +4435,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3294,6 +4454,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3309,10 +4473,18 @@
       "value": [
         {
           "code": "sw",
+          "names": {
+            "en": "Swahili",
+            "ru": "суахили"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3328,6 +4500,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3343,6 +4519,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3358,10 +4538,18 @@
       "value": [
         {
           "code": "uz",
+          "names": {
+            "en": "Uzbek",
+            "ru": "узбекский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ru",
+          "names": {
+            "en": "Russian",
+            "ru": "русский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3377,14 +4565,26 @@
       "value": [
         {
           "code": "bi",
+          "names": {
+            "en": "Bislama",
+            "ru": "бислама"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3400,6 +4600,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3415,6 +4619,10 @@
       "value": [
         {
           "code": "vi",
+          "names": {
+            "en": "Vietnamese",
+            "ru": "вьетнамский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3430,6 +4638,10 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3445,6 +4657,10 @@
       "value": [
         {
           "code": "ar",
+          "names": {
+            "en": "Arabic",
+            "ru": "арабский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3460,6 +4676,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3475,14 +4695,26 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sn",
+          "names": {
+            "en": "Shona",
+            "ru": "шона"
+          },
           "role": "official_or_common"
         },
         {
           "code": "nd",
+          "names": {
+            "en": "North Ndebele",
+            "ru": "северный ндебеле"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3498,6 +4730,10 @@
       "value": [
         {
           "code": "sv",
+          "names": {
+            "en": "Swedish",
+            "ru": "шведский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3513,10 +4749,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "sm",
+          "names": {
+            "en": "Samoan",
+            "ru": "самоанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3532,6 +4776,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3547,10 +4795,18 @@
       "value": [
         {
           "code": "nl",
+          "names": {
+            "en": "Dutch",
+            "ru": "нидерландский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "pa",
+          "names": {
+            "en": "Punjabi",
+            "ru": "панджаби"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3566,6 +4822,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3581,6 +4841,10 @@
       "value": [
         {
           "code": "nl",
+          "names": {
+            "en": "Dutch",
+            "ru": "нидерландский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3596,6 +4860,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3611,6 +4879,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3626,6 +4898,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3641,10 +4917,18 @@
       "value": [
         {
           "code": "zh",
+          "names": {
+            "en": "Chinese",
+            "ru": "китайский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3660,10 +4944,18 @@
       "value": [
         {
           "code": "zh",
+          "names": {
+            "en": "Chinese",
+            "ru": "китайский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "pt",
+          "names": {
+            "en": "Portuguese",
+            "ru": "португальский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3679,6 +4971,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3694,6 +4990,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3709,14 +5009,26 @@
       "value": [
         {
           "code": "nl",
+          "names": {
+            "en": "Dutch",
+            "ru": "нидерландский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "pa",
+          "names": {
+            "en": "Punjabi",
+            "ru": "панджаби"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3732,6 +5044,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3747,6 +5063,10 @@
       "value": [
         {
           "code": "fo",
+          "names": {
+            "en": "Faroese",
+            "ru": "фарерский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3762,6 +5082,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3777,6 +5101,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3792,6 +5120,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3807,6 +5139,10 @@
       "value": [
         {
           "code": "kl",
+          "names": {
+            "en": "Kalaallisut",
+            "ru": "гренландский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3822,6 +5158,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3837,14 +5177,26 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ch",
+          "names": {
+            "en": "Chamorro",
+            "ru": "чаморро"
+          },
           "role": "official_or_common"
         },
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3860,10 +5212,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3879,10 +5239,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "gv",
+          "names": {
+            "en": "Manx",
+            "ru": "мэнский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3898,10 +5266,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3917,6 +5293,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3932,6 +5312,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3947,6 +5331,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3962,6 +5350,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3977,6 +5369,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -3992,10 +5388,18 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "ch",
+          "names": {
+            "en": "Chamorro",
+            "ru": "чаморро"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4011,6 +5415,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4026,10 +5434,18 @@
       "value": [
         {
           "code": "es",
+          "names": {
+            "en": "Spanish",
+            "ru": "испанский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4045,6 +5461,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4060,6 +5480,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4075,6 +5499,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4090,14 +5518,26 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "nl",
+          "names": {
+            "en": "Dutch",
+            "ru": "нидерландский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4113,6 +5553,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4128,10 +5572,18 @@
       "value": [
         {
           "code": "nl",
+          "names": {
+            "en": "Dutch",
+            "ru": "нидерландский"
+          },
           "role": "official_or_common"
         },
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4147,6 +5599,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4162,6 +5618,10 @@
       "value": [
         {
           "code": "no",
+          "names": {
+            "en": "Norwegian",
+            "ru": "норвежский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4177,6 +5637,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4192,6 +5656,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4207,6 +5675,10 @@
       "value": [
         {
           "code": "en",
+          "names": {
+            "en": "English",
+            "ru": "английский"
+          },
           "role": "official_or_common"
         }
       ]
@@ -4222,6 +5694,10 @@
       "value": [
         {
           "code": "fr",
+          "names": {
+            "en": "French",
+            "ru": "французский"
+          },
           "role": "official_or_common"
         }
       ]
