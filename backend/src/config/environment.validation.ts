@@ -377,6 +377,29 @@ export function validateEnvironment(
     );
   }
 
+  // The GitHub credential is read by the admin drafts module straight from
+  // process.env and is optional: an unconfigured deployment degrades to the
+  // manual export path. A partial configuration must not exist, though — an
+  // operator who set one of the three believes the console can propose, and
+  // nothing would say otherwise until the button fails.
+  const githubVariables = [
+    "ADMIN_GITHUB_TOKEN",
+    "ADMIN_GITHUB_OWNER",
+    "ADMIN_GITHUB_REPOSITORY",
+  ] as const;
+  const missingGithubVariables = githubVariables.filter((name) => {
+    const value = config[name];
+    return typeof value !== "string" || value.trim().length === 0;
+  });
+  if (
+    missingGithubVariables.length > 0 &&
+    missingGithubVariables.length < githubVariables.length
+  ) {
+    throw new Error(
+      `Environment variables ${githubVariables.join(", ")} must be set together; missing: ${missingGithubVariables.join(", ")}`,
+    );
+  }
+
   const databaseUrl = validateDatabaseUrl(
     requiredString(config, "DATABASE_URL"),
     "DATABASE_URL",

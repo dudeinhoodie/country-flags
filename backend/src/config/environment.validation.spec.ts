@@ -335,4 +335,32 @@ describe("validateEnvironment", () => {
       ).toThrow("SERVICE_RELEASE is required");
     });
   });
+
+  describe("admin GitHub credential", () => {
+    it("rejects a partial configuration instead of degrading silently", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          ADMIN_GITHUB_TOKEN: "github_pat_example",
+        }),
+      ).toThrow(
+        "ADMIN_GITHUB_TOKEN, ADMIN_GITHUB_OWNER, ADMIN_GITHUB_REPOSITORY must be set together",
+      );
+    });
+
+    it("accepts the credential when all three variables are present", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          ADMIN_GITHUB_TOKEN: "github_pat_example",
+          ADMIN_GITHUB_OWNER: "dudeinhoodie",
+          ADMIN_GITHUB_REPOSITORY: "country-flags",
+        }),
+      ).not.toThrow();
+    });
+
+    it("accepts the credential being absent entirely", () => {
+      expect(() => validateEnvironment(validConfig)).not.toThrow();
+    });
+  });
 });
