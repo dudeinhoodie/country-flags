@@ -6,7 +6,7 @@
       "kind": "CURATED",
       "name": "All countries",
       "description": "Every flag, with no regions to lean on.",
-      "cardCount": 250,
+      "cardCount": 249,
       "dueCount": null,
       "contentVersion": "fixture-v1"
     },
@@ -57,6 +57,16 @@
       "name": "Oceania",
       "description": "The Southern Cross, and a Union Jack in the corner of most of them.",
       "cardCount": 30,
+      "dueCount": null,
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "76e42ea0-1b18-553b-aa78-a49f2a69a602",
+      "code": "SPECIAL_AREAS",
+      "kind": "CURATED",
+      "name": "Special areas",
+      "description": "Antarctica and the islands that belong to no country.",
+      "cardCount": 7,
       "dueCount": null,
       "contentVersion": "fixture-v1"
     }

@@ -6,7 +6,6 @@
       "key": "deck.all",
       "kind": "curated",
       "memberEntityKeys": [
-        "area.antarctica",
         "area.bouvet-island",
         "area.cook-islands",
         "area.french-southern-territories",
@@ -597,6 +596,29 @@
           "name": "Океания"
         }
       }
+    },
+    {
+      "key": "deck.special-areas",
+      "kind": "curated",
+      "memberEntityKeys": [
+        "area.antarctica",
+        "area.bouvet-island",
+        "area.cook-islands",
+        "area.french-southern-territories",
+        "area.heard-island-and-mcdonald-islands",
+        "area.niue",
+        "area.united-states-minor-outlying-islands"
+      ],
+      "names": {
+        "en": {
+          "description": "Antarctica and the islands that belong to no country.",
+          "name": "Special areas"
+        },
+        "ru": {
+          "description": "Антарктида и острова, не принадлежащие ни одной стране.",
+          "name": "Особые территории"
+        }
+      }
     }
   ],
   "defaultLocale": "ru",
@@ -610,7 +632,7 @@
         "isoAlpha3": "ATA",
         "m49": "010"
       },
-      "includeInCountryCatalog": true,
+      "includeInCountryCatalog": false,
       "key": "area.antarctica",
       "names": {
         "en": {

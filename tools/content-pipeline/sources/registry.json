@@ -65,9 +65,9 @@
       "adapter": "editorial",
       "key": "editorial",
       "license": "Proprietary editorial data",
-      "retrievedAt": "2026-08-26T10:55:19.000Z",
-      "revision": "editorial-v5",
-      "sha256": "44d43d2d3ccb469cbfe0d89ba2c0ded0154bb6cf869c18d6c55a06a497aa6a73",
+      "retrievedAt": "2026-08-26T13:01:26.022Z",
+      "revision": "editorial-v7",
+      "sha256": "beebbbabe0759a49aac751253fcf298c29e1a684041da615666f3d6a57e8fb65",
       "snapshotPath": "editorial/catalog.json",
       "url": "file:editorial/catalog.json"
     }
