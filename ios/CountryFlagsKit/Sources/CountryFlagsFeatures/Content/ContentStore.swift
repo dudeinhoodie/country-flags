@@ -33,6 +33,8 @@ public final class ContentStore {
     /// answer final.
     private let fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)?
     private let analytics: (any AnalyticsTracking)?
+    /// Whether the launch's first read and sync have already run.
+    private var hasStarted = false
 
     public init(
         repository: any ContentRepository,
@@ -55,7 +57,14 @@ public final class ContentStore {
     /// The order matters: a launch with a full store shows the catalog on the
     /// first frame and the sync happens behind it, so being offline costs
     /// nothing the user can see.
+    ///
+    /// Idempotent: every screen calls it on appearance, and only the first
+    /// call does the work. It used to run in full each time, so switching
+    /// tabs re-read the whole catalogue and re-ran a sync that had just
+    /// finished.
     public func start() async {
+        guard !hasStarted else { return }
+        hasStarted = true
         await coordinator.restoreStatus()
         status = await coordinator.currentStatus()
         await reload()

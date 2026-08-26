@@ -445,6 +445,113 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertNil(store.dueSummary)
     }
 
+    // MARK: - The backend is the only source of truth (ADR-016)
+
+    /// An account's counts are the backend's. The device can compute its own
+    /// — it holds every answer — and deliberately does not: the two disagree
+    /// whenever another device has answered, and a screen that blends them
+    /// shows a total belonging to neither.
+    func testAnAccountShowsTheBackendCountsAndNotTheDeviceOnes() async {
+        let cards = [UUID(), UUID(), UUID()]
+        let store = makeStore(
+            cards: cards,
+            states: [
+                state(cards[0], state: "REVIEW", dueAt: fixedNow.addingTimeInterval(-1)),
+                state(cards[1], state: "LEARNING", dueAt: fixedNow.addingTimeInterval(600)),
+            ],
+            deckProgress: [
+                DeckProgressRecord(
+                    deckID: deckID,
+                    totalCards: 3,
+                    learnedCards: 3,
+                    dueCards: 2,
+                    currentMasteryTier: "GOLD",
+                    highestAchievementTier: "GOLD",
+                    updatedAt: fixedNow
+                )
+            ],
+            scope: .authenticated(userID: UUID())
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.origin, .backend)
+        // The device would have said one learned and one due.
+        XCTAssertEqual(store.decks[0].learnedCards, 3)
+        XCTAssertEqual(store.decks[0].dueCards, 2)
+        XCTAssertEqual(store.decks[0].startedCards, 3)
+    }
+
+    /// Nothing rather than a guess: a locally invented figure would be
+    /// replaced by a different one the moment the backend answered, and a
+    /// screen that changes its mind reads as a screen making numbers up.
+    func testAnAccountWithNoBackendCountsYetShowsNothing() async {
+        let cards = [UUID()]
+        let store = makeStore(
+            cards: cards,
+            states: [state(cards[0], state: "REVIEW", dueAt: fixedNow)],
+            scope: .authenticated(userID: UUID())
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.origin, .awaitingBackend)
+        XCTAssertTrue(store.decks.isEmpty)
+        XCTAssertFalse(store.isLoaded)
+    }
+
+    /// A guest is the one case the device answers for: their work is never
+    /// uploaded, so there is no backend opinion to defer to.
+    func testAGuestIsCountedByTheDevice() async {
+        let cards = [UUID(), UUID()]
+        let store = makeStore(
+            cards: cards,
+            states: [state(cards[0], state: "REVIEW", dueAt: fixedNow.addingTimeInterval(-1))]
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.origin, .device)
+        XCTAssertEqual(store.decks[0].learnedCards, 1)
+    }
+
+    /// The race that left the home screen showing the numbers from before a
+    /// session: two overlapping reads used to publish in the order they
+    /// finished, so a slow early one could land last and win.
+    func testASupersededReloadDoesNotOverwriteTheNewerOne() async {
+        let cards = [UUID()]
+        let store = makeStore(
+            cards: cards,
+            states: [state(cards[0], state: "REVIEW", dueAt: fixedNow)],
+            scope: .authenticated(userID: UUID())
+        )
+
+        // Started and immediately superseded; the second reload is the one
+        // whose result may be published.
+        async let first: Void = store.reload()
+        await store.reload()
+        await first
+
+        XCTAssertEqual(store.origin, .awaitingBackend)
+        XCTAssertFalse(store.isRefreshing)
+    }
+
+    /// One answer to "how much does today owe", asked of the store that owns
+    /// the numbers. The home screen used to work it out from a different
+    /// reading than this one, so the hero could disagree with the rows.
+    func testTheDayIsOwedWhatTheBackendSummarySays() async {
+        let card = UUID(uuidString: "20000000-0000-4000-8000-000000000001")!
+        let store = makeStore(
+            cards: [card],
+            states: [state(card, state: "REVIEW", dueAt: fixedNow)],
+            dueSummary: dueSummary(serverTime: fixedNow.addingTimeInterval(-600))
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.totalDue, 23)
+    }
+
     private func dueSummary(serverTime: Date) -> DueSummaryRecord {
         DueSummaryRecord(
             overdue: 7,
@@ -464,7 +571,8 @@ final class ProgressStoreTests: XCTestCase {
         achievements: [AchievementRecord] = [],
         dueSummary: DueSummaryRecord? = nil,
         activeSession: StudySessionRecord? = nil,
-        sessionReviews: [ReviewEventRecord] = []
+        sessionReviews: [ReviewEventRecord] = [],
+        scope: AccountScope = .guest(installationID: UUID())
     ) -> ProgressStore {
         ProgressStore(
             content: FakeContentRepository(
@@ -479,7 +587,7 @@ final class ProgressStoreTests: XCTestCase {
                 activeSession: activeSession,
                 sessionReviews: sessionReviews
             ),
-            scopes: FixedScopeResolver(),
+            scopes: FixedScopeResolver(scope: scope),
             dates: FixedDateProvider(instant: fixedNow)
         )
     }

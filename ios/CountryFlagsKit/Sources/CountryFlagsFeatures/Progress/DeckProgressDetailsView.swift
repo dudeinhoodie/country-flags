@@ -18,7 +18,7 @@ public struct DeckProgressDetailsView: View {
     private let deckID: UUID
     private let store: ContentStore
     private let assets: any AssetLoading
-    private let makeProgress: (() -> ProgressStore)?
+    private let progress: ProgressStore?
     private let makeSettings: (() -> SettingsStore)?
     private let onStartStudy: ((UUID, StudySessionSize) -> Void)?
     private let dates: any DateProviding
@@ -30,7 +30,7 @@ public struct DeckProgressDetailsView: View {
         deckID: UUID,
         store: ContentStore,
         assets: any AssetLoading,
-        makeProgress: (() -> ProgressStore)? = nil,
+        progress: ProgressStore? = nil,
         makeSettings: (() -> SettingsStore)? = nil,
         onStartStudy: ((UUID, StudySessionSize) -> Void)? = nil,
         dates: any DateProviding = SystemDateProvider()
@@ -39,7 +39,7 @@ public struct DeckProgressDetailsView: View {
         self.deckID = deckID
         self.store = store
         self.assets = assets
-        self.makeProgress = makeProgress
+        self.progress = progress
         self.makeSettings = makeSettings
         self.onStartStudy = onStartStudy
         self.dates = dates
@@ -50,11 +50,11 @@ public struct DeckProgressDetailsView: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .task { await model.load() }
-            // Re-read on every return: a session answered cards while this
-            // screen was covered, and the shelves have to move with it.
-            .onAppear {
-                guard let makeProgress else { return }
-                Task { states = await makeProgress().cardStatesByID() }
+            // Keyed to the store's rows: the app refreshes them centrally
+            // after a session, and the shelves move with them.
+            .task(id: progress?.decks) {
+                guard let progress else { return }
+                states = await progress.cardStatesByID()
             }
             // The learner's own size setting, read once: the screen shows
             // where the deck stands, and the button starts the next sitting.

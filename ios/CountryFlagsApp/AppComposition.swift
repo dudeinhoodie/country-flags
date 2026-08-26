@@ -32,6 +32,9 @@ protocol AppDependencies {
     var identifiers: IdentifierProviding { get }
     var featureFlags: FeatureFlagCenter { get }
     var content: ContentStore { get }
+    /// The one progress store in the app. Every screen that shows a count
+    /// reads this instance, so the same deck cannot be worth two numbers.
+    var progress: ProgressStore { get }
     var assets: any AssetLoading { get }
     var scopes: any AccountScopeResolving { get }
     var sync: SyncCenter { get }
@@ -54,6 +57,7 @@ struct AppComposition: AppDependencies {
     let identifiers: IdentifierProviding
     let featureFlags: FeatureFlagCenter
     let content: ContentStore
+    let progress: ProgressStore
     let assets: any AssetLoading
     let scopes: any AccountScopeResolving
     /// The session behind `scopes`, for the account surface that signs in
@@ -293,6 +297,21 @@ struct AppComposition: AppDependencies {
             logger: logger
         )
 
+        // Built here rather than per screen: the counts belong to the app,
+        // and four screens each building their own is how the same deck came
+        // to be worth different numbers in different places.
+        let progress = makeProgressStore(store: store, scopes: sessions, dates: dates)
+        let sync = SyncCenter(
+            coordinator: syncCoordinator,
+            scopes: sessions,
+            analytics: analyticsCoordinator,
+            dates: dates
+        )
+        // The single "the numbers changed" signal: a run finishes, the store
+        // re-reads, every screen observing it moves. No screen decides for
+        // itself when that moment is.
+        MainActor.assumeIsolated { sync.observe(progress) }
+
         return AppComposition(
             configuration: configuration,
             router: AppRouter(),
@@ -330,6 +349,7 @@ struct AppComposition: AppDependencies {
                     return entity
                 }
             ),
+            progress: progress,
             assets: assetCache,
             // Who the repositories write as: the session when somebody signed
             // in, the guest otherwise. One answer for the whole app.
@@ -344,12 +364,7 @@ struct AppComposition: AppDependencies {
                 archives: exportArchiveFetcher(for: configuration),
                 logger: logger
             ),
-            sync: SyncCenter(
-                coordinator: syncCoordinator,
-                scopes: sessions,
-                analytics: analyticsCoordinator,
-                dates: dates
-            ),
+            sync: sync,
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
             // composition change rather than a change to every screen.
@@ -399,12 +414,15 @@ struct AppComposition: AppDependencies {
 
     /// The progress screen owns no state between visits: it reads the store on
     /// appearance, so a session finished a moment ago is already counted.
-    func makeProgressStore() -> ProgressStore {
+    static func makeProgressStore(
+        store: LocalStore,
+        scopes: any AccountScopeResolving,
+        dates: any DateProviding
+    ) -> ProgressStore {
         ProgressStore(
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
             scopes: scopes,
-            outbox: store.makeOutboxRepository(),
             dates: dates
         )
     }

@@ -14,7 +14,7 @@ public struct RootView: View {
     private let assets: any AssetLoading
     private let makeStudyRunner: () -> StudySessionRunner
     private let makeObjectiveRunner: () -> ObjectiveSessionRunner
-    private let makeProgressStore: () -> ProgressStore
+    private let progress: ProgressStore
     private let makeSettingsStore: () -> SettingsStore
     private let makeAccountStore: (() -> AccountStore)?
     private let makeClearProgressStore: (() -> ClearProgressStore)?
@@ -30,6 +30,11 @@ public struct RootView: View {
 
     @Environment(\.scenePhase) private var scenePhase
 
+    /// How old the catalogue may be before coming back to the app refreshes
+    /// it. Ten minutes: long enough that answering the door costs nothing,
+    /// short enough that an hour away never shows yesterday's shelf.
+    private static let contentStaleAfter: TimeInterval = 600
+
     public init(
         router: AppRouter,
         configuration: RuntimeConfiguration,
@@ -37,7 +42,7 @@ public struct RootView: View {
         assets: any AssetLoading,
         makeStudyRunner: @escaping () -> StudySessionRunner,
         makeObjectiveRunner: @escaping () -> ObjectiveSessionRunner,
-        makeProgressStore: @escaping () -> ProgressStore,
+        progress: ProgressStore,
         makeSettingsStore: @escaping () -> SettingsStore,
         makeAccountStore: (() -> AccountStore)? = nil,
         makeClearProgressStore: (() -> ClearProgressStore)? = nil,
@@ -52,7 +57,7 @@ public struct RootView: View {
         self.assets = assets
         self.makeStudyRunner = makeStudyRunner
         self.makeObjectiveRunner = makeObjectiveRunner
-        self.makeProgressStore = makeProgressStore
+        self.progress = progress
         self.makeSettingsStore = makeSettingsStore
         self.makeAccountStore = makeAccountStore
         self.makeClearProgressStore = makeClearProgressStore
@@ -86,7 +91,7 @@ public struct RootView: View {
                     store: content,
                     sync: sync,
                     assets: assets,
-                    makeProgress: makeProgressStore,
+                    progress: progress,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
@@ -154,7 +159,7 @@ public struct RootView: View {
             .tag(AppTab.home)
 
             NavigationStack(path: $router.catalogNavigationPath) {
-                CatalogView(store: content, assets: assets, makeProgress: makeProgressStore) { router.push(.deck(id: $0)) }
+                CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -165,7 +170,7 @@ public struct RootView: View {
 
             NavigationStack(path: $router.progressNavigationPath) {
                 ProgressScreen(
-                    store: makeProgressStore(),
+                    store: progress,
                     onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
@@ -193,10 +198,14 @@ public struct RootView: View {
         }
         .task { await sync.start() }
         .onChange(of: scenePhase) { _, phase in
-            // Returning to the foreground is a trigger like any other, and the
-            // coordinator coalesces it with whatever is already running.
+            // The one place the app reacts to coming back. Screens used to
+            // watch this too, so a return ran the same reads twice and the
+            // two overlapping passes raced each other.
             guard phase == .active else { return }
-            Task { await sync.synchronize(trigger: .foreground) }
+            Task {
+                await content.refreshIfStale(olderThan: Self.contentStaleAfter)
+                await sync.synchronize(trigger: .foreground)
+            }
         }
     }
 
@@ -204,14 +213,14 @@ public struct RootView: View {
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .catalog:
-            CatalogView(store: content, assets: assets, makeProgress: makeProgressStore) { router.push(.deck(id: $0)) }
+            CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
         case .deck(let id):
             DeckDetailsView(
                 deckID: id,
                 store: content,
                 assets: assets,
                 makeSettings: makeSettingsStore,
-                makeProgress: makeProgressStore,
+                progress: progress,
                 isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
             ) { deckID, size, mode in
                 router.push(
@@ -248,7 +257,7 @@ public struct RootView: View {
             }
         case .progress:
             ProgressScreen(
-                store: makeProgressStore(),
+                store: progress,
                 onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
             )
         case .deckProgress(let deckID):
@@ -256,7 +265,7 @@ public struct RootView: View {
                 deckID: deckID,
                 store: content,
                 assets: assets,
-                makeProgress: makeProgressStore,
+                progress: progress,
                 makeSettings: makeSettingsStore,
                 onStartStudy: { deckID, size in
                     router.push(
