@@ -37,11 +37,15 @@ interface CatalogRelation {
  * Who a deck holds.
  *
  * A taxonomy deck names a node rather than its members: everything the
- * classification places under it, at any depth, and only what the approved
- * catalogue still carries. Regions hold subregions and subregions hold
+ * classification places under it, at any depth, and only what the learnable
+ * pool still carries. Regions hold subregions and subregions hold
  * countries, so the walk is what turns "Europe" into the fifty-odd entities it
  * actually means — and it stays that as the catalogue changes, which a list
  * written by hand does not.
+ *
+ * `all-current` alone reads the listing toggle: hiding an entity from the
+ * all-countries deck must not silently pull it out of every other deck
+ * (ADR-015).
  *
  * Only `contains` is followed. The other relation an entity can carry says it
  * is associated with a region rather than part of it, and a deck built from
@@ -49,11 +53,11 @@ interface CatalogRelation {
  */
 function deckMembers(
   deck: EditorialDeck,
-  currentKeys: string[],
+  pools: { allCurrent: string[]; learnable: string[] },
   relations: CatalogRelation[],
 ): string[] {
   if (deck.members === "all-current") {
-    return currentKeys;
+    return pools.allCurrent;
   }
   if (Array.isArray(deck.members)) {
     return [...deck.members].sort();
@@ -75,7 +79,7 @@ function deckMembers(
     );
   }
 
-  const included = new Set(currentKeys);
+  const included = new Set(pools.learnable);
   const members = new Set<string>();
   const seen = new Set<string>();
   const queue = [root];
@@ -105,6 +109,17 @@ export interface MergedContent {
   assets: BuiltAsset[];
   provenance: Record<string, Provenance>;
   reports: PipelineReports;
+  /**
+   * Every entity that carries a learning card: active countries,
+   * territories and areas, whatever the listing toggle says (ADR-015).
+   */
+  learnableEntityKeys: string[];
+}
+
+const LEARNABLE_TYPES = new Set(["country", "territory", "area"]);
+
+function isLearnable(entity: MutableRecord): boolean {
+  return entity.status === "active" && LEARNABLE_TYPES.has(String(entity.type));
 }
 
 function setPath(target: MutableRecord, path: string, value: unknown): void {
@@ -322,7 +337,9 @@ export async function mergeContent(
       key: entity.key,
       type: entity.type,
       status: entity.status,
-      includeInCountryCatalog: entity.includeInCountryCatalog,
+      // The built catalog keeps the flat field: the editorial config
+      // object is source structure, not a published shape.
+      includeInCountryCatalog: entity.config.includeInCountryCatalog,
       recognition: {
         status: entity.recognitionStatus,
         ...(entity.recognitionAsOf === undefined
@@ -437,7 +454,7 @@ export async function mergeContent(
   );
 
   for (const entity of byEntity.values()) {
-    if (entity.includeInCountryCatalog !== true) {
+    if (!isLearnable(entity)) {
       continue;
     }
     const names = entity.names as
@@ -503,10 +520,17 @@ export async function mergeContent(
     ).values(),
   ];
 
+  // The learnable pool: every entity that carries a card and facts, and
+  // that a deck may hold. The listing toggle narrows only the
+  // all-countries deck below it — never the pool (ADR-015).
+  const learnableKeys = [...byEntity.values()]
+    .filter(isLearnable)
+    .map((entity) => String(entity.key))
+    .sort();
   const currentKeys = [...byEntity.values()]
     .filter(
       (entity) =>
-        entity.includeInCountryCatalog === true && entity.status === "active",
+        isLearnable(entity) && entity.includeInCountryCatalog === true,
     )
     .map((entity) => String(entity.key))
     .sort();
@@ -514,7 +538,11 @@ export async function mergeContent(
     key: deck.key,
     kind: deck.kind,
     names: deck.names,
-    memberEntityKeys: deckMembers(deck, currentKeys, uniqueRelations),
+    memberEntityKeys: deckMembers(
+      deck,
+      { allCurrent: currentKeys, learnable: learnableKeys },
+      uniqueRelations,
+    ),
   }));
   for (const deck of editorial.decks) {
     provenanceMap[`deck/${deck.key}`] = editorialProvenance;
@@ -531,7 +559,7 @@ export async function mergeContent(
       {
         schemaVersion: 1,
         factType,
-        records: currentKeys.map((entityKey) => {
+        records: learnableKeys.map((entityKey) => {
           const entity = byEntity.get(entityKey);
           if (entity === undefined) {
             throw new Error(`Missing merged entity ${entityKey}`);
@@ -604,5 +632,6 @@ export async function mergeContent(
       ),
     ),
     reports,
+    learnableEntityKeys: learnableKeys,
   };
 }

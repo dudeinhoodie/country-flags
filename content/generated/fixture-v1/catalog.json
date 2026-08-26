@@ -555,6 +555,7 @@
       "key": "deck.oceania",
       "kind": "taxonomy",
       "memberEntityKeys": [
+        "area.antarctica",
         "area.cook-islands",
         "area.heard-island-and-mcdonald-islands",
         "area.niue",
@@ -620,6 +621,9 @@
   "defaultLocale": "ru",
   "entities": [
     {
+      "assetKeys": [
+        "flag.antarctica.current"
+      ],
       "codes": {
         "isoAlpha2": "AQ",
         "isoAlpha3": "ATA",

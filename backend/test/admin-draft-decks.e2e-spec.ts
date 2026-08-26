@@ -47,8 +47,9 @@ interface DraftBody {
     decks: { key: string; members: unknown }[];
     entities: {
       key: string;
+      type: string;
       status: string;
-      includeInCountryCatalog: boolean;
+      config: { includeInCountryCatalog: boolean };
     }[];
   };
 }
@@ -222,7 +223,8 @@ describe("Admin draft deck editor (integration)", () => {
     // the same document: approved, still-current entities.
     const draft = await currentDraft();
     const approved = draft.document.entities.filter(
-      (entity) => entity.includeInCountryCatalog && entity.status === "active",
+      (entity) =>
+        entity.config.includeInCountryCatalog && entity.status === "active",
     );
     expect(allCurrent?.memberCount).toBe(approved.length);
   });
@@ -275,7 +277,7 @@ describe("Admin draft deck editor (integration)", () => {
     const approved = draft.document.entities
       .filter(
         (entity) =>
-          entity.includeInCountryCatalog && entity.status === "active",
+          entity.config.includeInCountryCatalog && entity.status === "active",
       )
       .map((entity) => entity.key);
     const chosen = [approved[1]!, approved[0]!];
@@ -318,7 +320,7 @@ describe("Admin draft deck editor (integration)", () => {
     const approved = draft.document.entities
       .filter(
         (entity) =>
-          entity.includeInCountryCatalog && entity.status === "active",
+          entity.config.includeInCountryCatalog && entity.status === "active",
       )
       .map((entity) => entity.key);
     const names = {

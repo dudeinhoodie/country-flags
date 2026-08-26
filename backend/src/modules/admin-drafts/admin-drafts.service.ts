@@ -6,7 +6,10 @@ import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AdminAuditService } from "../admin-auth/admin-audit.service";
 import { CatalogSourceService } from "./catalog-source.service";
-import { EditorialDocumentService } from "./editorial-document.service";
+import {
+  EditorialDocumentService,
+  normalizeEditorialDocument,
+} from "./editorial-document.service";
 import { stableJson } from "./stable-json";
 
 function draftNotFound(): never {
@@ -48,7 +51,12 @@ export class AdminDraftsService {
     if (draft === null) {
       draftNotFound();
     }
-    return draft;
+    return {
+      ...draft,
+      document: normalizeEditorialDocument(
+        draft.document as Record<string, unknown>,
+      ) as ContentDraft["document"],
+    };
   }
 
   async create(actor: AdminUser, requestId: string): Promise<ContentDraft> {
@@ -159,7 +167,9 @@ export class AdminDraftsService {
       }
 
       const next = this.documents.assertValid(
-        mutate(draft.document as Record<string, unknown>),
+        mutate(
+          normalizeEditorialDocument(draft.document as Record<string, unknown>),
+        ),
       );
       const updated = await transaction.contentDraft.updateMany({
         where: { id: draftId, revision: expectedRevision },

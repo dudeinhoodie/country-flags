@@ -192,8 +192,13 @@ void test("approved selection contains every current MVP country and territory",
     pipelineRoot,
     editorialSource,
   );
+  // The learnable pool, not the listing toggle: hiding an entity from the
+  // all-countries deck is an editorial act and must not fail the build
+  // contract (ADR-015).
   const included = editorial.entities.filter(
-    ({ includeInCountryCatalog }) => includeInCountryCatalog,
+    ({ type, status }) =>
+      status === "active" &&
+      (type === "country" || type === "territory" || type === "area"),
   );
   assert.equal(included.length, 250);
   assert.equal(
@@ -242,7 +247,7 @@ void test("approved selection contains every current MVP country and territory",
 
 void test("matching uses reliable identifiers and explicit aliases only", () => {
   const editorial: EditorialCatalog = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     defaultLocale: "ru",
     supportedLocales: ["ru", "en"],
     entities: [
@@ -250,7 +255,7 @@ void test("matching uses reliable identifiers and explicit aliases only", () => 
         key: "country.france",
         type: "country",
         status: "active",
-        includeInCountryCatalog: true,
+        config: { includeInCountryCatalog: true },
         recognitionStatus: "un_member",
         identifiers: { isoAlpha2: "FR" },
       },
@@ -258,7 +263,7 @@ void test("matching uses reliable identifiers and explicit aliases only", () => 
         key: "country.kosovo",
         type: "country",
         status: "active",
-        includeInCountryCatalog: true,
+        config: { includeInCountryCatalog: true },
         recognitionStatus: "partially_recognized",
       },
     ],

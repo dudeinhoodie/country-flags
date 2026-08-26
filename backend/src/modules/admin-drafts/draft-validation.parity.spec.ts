@@ -36,8 +36,9 @@ describe("deck resolution parity with the content pipeline", () => {
   const catalog = readJson<{
     entities: {
       key: string;
+      type: string;
       status: string;
-      includeInCountryCatalog: boolean;
+      config: { includeInCountryCatalog: boolean };
     }[];
     decks: EditorialDeck[];
     additionalRelations: {

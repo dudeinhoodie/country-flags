@@ -5,8 +5,18 @@ import type { PrismaService } from "../../infrastructure/database/prisma.service
 
 const context: MembershipContext = {
   entities: [
-    { key: "country.france", status: "active", includeInCountryCatalog: true },
-    { key: "country.japan", status: "active", includeInCountryCatalog: true },
+    {
+      key: "country.france",
+      type: "country",
+      status: "active",
+      config: { includeInCountryCatalog: true },
+    },
+    {
+      key: "country.japan",
+      type: "country",
+      status: "active",
+      config: { includeInCountryCatalog: true },
+    },
   ],
   relations: [],
 };
@@ -127,7 +137,7 @@ describe("DraftDiffService", () => {
           {
             key: "country.france",
             status: "hidden",
-            includeInCountryCatalog: true,
+            config: { includeInCountryCatalog: true },
             overrides: { "names.ru.short": "Франция (ред.)" },
           },
           context.entities[1],
@@ -153,7 +163,7 @@ describe("DraftDiffService", () => {
       {
         key: "country.france",
         status: "active",
-        includeInCountryCatalog: true,
+        config: { includeInCountryCatalog: true },
         overrides: { "names.en.short": "Pinned" },
       },
       context.entities[1] as unknown as Record<string, unknown>,
@@ -165,7 +175,7 @@ describe("DraftDiffService", () => {
           {
             key: "country.france",
             status: "active",
-            includeInCountryCatalog: true,
+            config: { includeInCountryCatalog: true },
           },
           context.entities[1],
         ],

@@ -13,8 +13,9 @@ export interface EditorialDeck {
 
 export interface EditorialEntity {
   key: string;
+  type: string;
   status: string;
-  includeInCountryCatalog: boolean;
+  config: { includeInCountryCatalog: boolean };
 }
 
 export interface TaxonomyRelation {
@@ -37,15 +38,33 @@ export function membersMode(members: DeckMembers): MembersMode {
   return Array.isArray(members) ? "explicit" : "taxonomy";
 }
 
+const LEARNABLE_TYPES = new Set(["country", "territory", "area"]);
+
+export function isLearnable(entity: EditorialEntity): boolean {
+  return entity.status === "active" && LEARNABLE_TYPES.has(entity.type);
+}
+
 /**
- * The entities a deck can hold: approved and still current. Mirrors the
- * pipeline's `currentKeys` (tools/content-pipeline/src/merge.ts) exactly —
- * a preview that computed a different set would be a preview of nothing.
+ * The learnable pool: every entity that carries a card and facts, and that
+ * a deck may hold. Mirrors the pipeline's `learnableKeys`
+ * (tools/content-pipeline/src/merge.ts) exactly — a preview that computed
+ * a different set would be a preview of nothing.
+ */
+export function learnableEntityKeys(entities: EditorialEntity[]): string[] {
+  return entities
+    .filter(isLearnable)
+    .map((entity) => entity.key)
+    .sort();
+}
+
+/**
+ * The all-countries deck: the learnable pool narrowed by the listing
+ * toggle. Nothing but `all-current` reads the toggle (ADR-015).
  */
 export function currentEntityKeys(entities: EditorialEntity[]): string[] {
   return entities
     .filter(
-      (entity) => entity.includeInCountryCatalog && entity.status === "active",
+      (entity) => isLearnable(entity) && entity.config.includeInCountryCatalog,
     )
     .map((entity) => entity.key)
     .sort();
@@ -67,9 +86,8 @@ export function resolveDeckMembers(
   deck: EditorialDeck,
   context: MembershipContext,
 ): string[] {
-  const currentKeys = currentEntityKeys(context.entities);
   if (deck.members === "all-current") {
-    return currentKeys;
+    return currentEntityKeys(context.entities);
   }
   if (Array.isArray(deck.members)) {
     return [...deck.members].sort();
@@ -92,7 +110,9 @@ export function resolveDeckMembers(
     );
   }
 
-  const included = new Set(currentKeys);
+  // The taxonomy walk keeps every learnable entity: hiding one from the
+  // all-countries deck must not pull it out of a regional deck (ADR-015).
+  const included = new Set(learnableEntityKeys(context.entities));
   const members = new Set<string>();
   const seen = new Set<string>();
   const queue = [root];

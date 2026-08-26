@@ -14,6 +14,35 @@ export interface EditorialDocument extends Record<string, unknown> {
 }
 
 /**
+ * Drafts saved before ADR-015 carry schema v1, where the listing toggle
+ * sat flat on the entity. JSONB keeps whatever shape was stored, so old
+ * drafts are lifted to v2 on read instead of by a data migration — the
+ * next write persists the lifted shape through the schema check.
+ */
+export function normalizeEditorialDocument(
+  document: Record<string, unknown>,
+): Record<string, unknown> {
+  if (document.schemaVersion !== 1) {
+    return document;
+  }
+  const entities = Array.isArray(document.entities) ? document.entities : [];
+  return {
+    ...document,
+    schemaVersion: 2,
+    entities: entities.map((entry) => {
+      const entity = entry as Record<string, unknown>;
+      const { includeInCountryCatalog, ...rest } = entity;
+      return {
+        ...rest,
+        config: {
+          includeInCountryCatalog: includeInCountryCatalog === true,
+        },
+      };
+    }),
+  };
+}
+
+/**
  * The versioned JSON Schema is the boundary: a draft document that does not
  * conform is refused, never stored. The schema itself lives in contracts/
  * (single source of truth, validated against the real catalog by

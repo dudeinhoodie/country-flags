@@ -73,9 +73,9 @@ COPY --from=builder --chown=node:node /workspace/tools/asset-core/dist ./tools/a
 # runtime has no git checkout: the catalog and its schema ride in the image,
 # belonging to exactly the commit this image was built from (SERVICE_RELEASE).
 COPY --chown=node:node tools/content-pipeline/editorial/catalog.json ./editorial/catalog.json
-COPY --chown=node:node contracts/schemas/content/editorial-catalog.v1.schema.json ./contracts/editorial-catalog.v1.schema.json
+COPY --chown=node:node contracts/schemas/content/editorial-catalog.v2.schema.json ./contracts/editorial-catalog.v2.schema.json
 ENV ADMIN_CATALOG_PATH=/app/editorial/catalog.json
-ENV ADMIN_EDITORIAL_SCHEMA_PATH=/app/contracts/editorial-catalog.v1.schema.json
+ENV ADMIN_EDITORIAL_SCHEMA_PATH=/app/contracts/editorial-catalog.v2.schema.json
 COPY --from=builder --chown=node:node /workspace/contracts ./contracts
 
 USER node

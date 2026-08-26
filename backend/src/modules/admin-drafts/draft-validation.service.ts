@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import {
   currentEntityKeys,
+  isLearnable,
   membersMode,
   resolveDeckMembers,
 } from "./deck-membership";
@@ -160,6 +161,35 @@ export class DraftValidationService {
               `The deck has no name or description for ${locale}`,
             ),
           );
+        }
+      }
+
+      // A member outside the learnable pool has no card: the client
+      // skips it silently, so the deck teaches less than the list says —
+      // or nothing at all, as a deck of regions would (ADR-015).
+      if (membersMode(deck.members) === "explicit") {
+        const learnableByKey = new Map(
+          catalog.entities.map((entity) => [entity.key, isLearnable(entity)]),
+        );
+        for (const memberKey of deck.members as string[]) {
+          const learnable = learnableByKey.get(memberKey);
+          if (learnable === undefined) {
+            findings.push(
+              warning(
+                "MEMBER_UNKNOWN",
+                deck.key,
+                `The deck lists ${memberKey}, which the catalog does not carry`,
+              ),
+            );
+          } else if (!learnable) {
+            findings.push(
+              warning(
+                "MEMBER_NOT_LEARNABLE",
+                deck.key,
+                `${memberKey} carries no learning card, so the deck will publish without it`,
+              ),
+            );
+          }
         }
       }
 

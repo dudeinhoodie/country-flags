@@ -231,7 +231,9 @@ describe("Admin editorial drafts (integration)", () => {
     const draft = bodyOf<DraftBody>(created);
     expect(draft.baseContentVersion).toBe(fixtureVersion);
     expect(draft.baseCatalogCommit).toBe("dev");
-    expect(draft.schemaVersion).toBe(1);
+    // Editorial schema v2: presentation toggles live in the entity's
+    // config object (ADR-015).
+    expect(draft.schemaVersion).toBe(2);
     expect(draft.revision).toBe(1);
     expect(draft.status).toBe("DRAFT");
 

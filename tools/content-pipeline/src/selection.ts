@@ -178,7 +178,7 @@ export async function syncSelection(root: string): Promise<void> {
       key,
       type: policy.type,
       status: "active" as const,
-      includeInCountryCatalog: true,
+      config: { includeInCountryCatalog: true },
       recognitionStatus: policy.recognitionStatus,
       ...(policy.recognitionStatus === "partially_recognized"
         ? { recognitionAsOf: "2026-07-28" }
@@ -192,7 +192,7 @@ export async function syncSelection(root: string): Promise<void> {
     key: taiwanExisting?.key ?? "country.taiwan",
     type: "country",
     status: "active",
-    includeInCountryCatalog: true,
+    config: { includeInCountryCatalog: true },
     recognitionStatus: "partially_recognized",
     recognitionAsOf: "2026-07-28",
     identifiers: { isoAlpha2: "TW", isoAlpha3: "TWN" },
@@ -216,7 +216,7 @@ export async function syncSelection(root: string): Promise<void> {
       key: `region.${region}`,
       type: "region",
       status: "active",
-      includeInCountryCatalog: false,
+      config: { includeInCountryCatalog: false },
       recognitionStatus: "not_applicable",
       overrides: {
         "names.en.short": regionName,
@@ -227,7 +227,7 @@ export async function syncSelection(root: string): Promise<void> {
       key: `subregion.${subregion}`,
       type: "subregion",
       status: "active",
-      includeInCountryCatalog: false,
+      config: { includeInCountryCatalog: false },
       recognitionStatus: "not_applicable",
       overrides: {
         "names.en.short": subregionName,
@@ -239,7 +239,7 @@ export async function syncSelection(root: string): Promise<void> {
     key: "subregion.outlying-oceania",
     type: "subregion",
     status: "active",
-    includeInCountryCatalog: false,
+    config: { includeInCountryCatalog: false },
     recognitionStatus: "not_applicable",
     overrides: {
       "names.en.short": "Outlying Oceania",
@@ -283,7 +283,9 @@ export async function syncSelection(root: string): Promise<void> {
       const code =
         entity.identifiers?.isoAlpha2 ??
         (entity.identifiers?.customCode === "XK" ? "XK" : undefined);
-      return entity.includeInCountryCatalog && code !== undefined ? [code] : [];
+      return entity.config.includeInCountryCatalog && code !== undefined
+        ? [code]
+        : [];
     })
     .sort();
   const isoAlpha3ByAlpha2 = new Map(
