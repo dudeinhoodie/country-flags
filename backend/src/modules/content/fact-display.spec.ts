@@ -1,6 +1,10 @@
 import { FactType } from "@prisma/client";
 
-import { factDisplayValue, mapBackSideFacts } from "./fact-display";
+import {
+  factDetails,
+  factDisplayValue,
+  mapBackSideFacts,
+} from "./fact-display";
 
 describe("fact display values", () => {
   it("names the official capital in the language asked for", () => {
@@ -214,10 +218,44 @@ describe("back side facts", () => {
       {
         type: FactType.CAPITAL,
         displayValue: "Paris",
+        // The older shape reads structurally too: what a client cannot do
+        // with the line, it should not be denied because of the release's age.
+        details: {
+          kind: "capital",
+          seats: [{ name: "Paris", role: "official" }],
+        },
         observedAt: null,
         source,
       },
     ]);
+  });
+
+  it("carries the structured reading beside the line", () => {
+    const facts = mapBackSideFacts(
+      [
+        {
+          factType: FactType.CURRENCY,
+          value: [
+            {
+              code: "NOK",
+              names: { en: "Norwegian Krone", ru: "норвежская крона" },
+              role: "legal_tender",
+            },
+          ],
+          observedAt: null,
+          source,
+        },
+      ],
+      "en",
+    );
+
+    // Both: the line keeps older clients whole, the details let a screen
+    // show the name without taking " (NOK)" off the end of prose.
+    expect(facts[0]?.displayValue).toBe("Norwegian Krone (NOK)");
+    expect(facts[0]?.details).toEqual({
+      kind: "currency",
+      tenders: [{ code: "NOK", name: "Norwegian Krone", role: "legal_tender" }],
+    });
   });
 
   it("reports an observation date as a plain day", () => {
@@ -234,5 +272,86 @@ describe("back side facts", () => {
     );
 
     expect(facts[0]?.observedAt).toBe("2026-07-28");
+  });
+});
+
+/**
+ * The parts a screen needs, without the prose in between (#148). The
+ * rendered line is a presentation decision — a separator, a code in
+ * brackets — and a client that wanted the pieces used to take it apart with
+ * a regular expression.
+ */
+describe("structured fact details", () => {
+  it("gives a currency its code and its name apart", () => {
+    const value = [
+      {
+        code: "NOK",
+        names: { en: "Norwegian Krone", ru: "норвежская крона" },
+        role: "legal_tender",
+      },
+      { code: "EUR", names: { en: "Euro" }, role: "legal_tender" },
+    ];
+
+    expect(factDetails(FactType.CURRENCY, value, "ru")).toEqual({
+      kind: "currency",
+      tenders: [
+        { code: "NOK", name: "Норвежская крона", role: "legal_tender" },
+        // Named in English only, and the reader asked for Russian: the code
+        // stands in, exactly as the rendered line does. A currency has one
+        // to fall back to; a capital does not, which is why that falls back
+        // to English instead.
+        { code: "EUR", name: "EUR", role: "legal_tender" },
+      ],
+    });
+  });
+
+  it("falls back to the code when the release never named the tender", () => {
+    const details = factDetails(FactType.CURRENCY, [{ code: "XCD" }], "en");
+
+    expect(details).toEqual({
+      kind: "currency",
+      tenders: [{ code: "XCD", name: "XCD", role: null }],
+    });
+  });
+
+  it("lists the official seats of a capital", () => {
+    const value = [
+      { names: { en: "Pretoria" }, role: "official" },
+      { names: { en: "Cape Town" }, role: "legislative" },
+    ];
+
+    expect(factDetails(FactType.CAPITAL, value, "en")).toEqual({
+      kind: "capital",
+      seats: [{ name: "Pretoria", role: "official" }],
+    });
+  });
+
+  it("keeps a population as a number and its year", () => {
+    expect(
+      factDetails(FactType.POPULATION, { value: 5_425_000, year: 2024 }, "ru"),
+    ).toEqual({ kind: "population", value: 5_425_000, year: 2024 });
+  });
+
+  it("names languages and keeps their tags", () => {
+    const value = [{ code: "nb", names: { en: "Norwegian Bokmål" } }];
+
+    expect(factDetails(FactType.LANGUAGE, value, "en")).toEqual({
+      kind: "language",
+      languages: [{ code: "nb", name: "Norwegian Bokmål" }],
+    });
+  });
+
+  it("offers nothing structured for a value a publisher rendered itself", () => {
+    const value = { displayValue: "Something only a human could phrase" };
+
+    expect(factDetails(FactType.CURRENCY, value, "en")).toBeNull();
+    // The line still arrives: that is what the escape hatch is for.
+    expect(factDisplayValue(FactType.CURRENCY, value, "en")).toBe(
+      "Something only a human could phrase",
+    );
+  });
+
+  it("offers nothing structured for a shape it does not model", () => {
+    expect(factDetails(FactType.CURRENCY, [{ notACode: 1 }], "en")).toBeNull();
   });
 });

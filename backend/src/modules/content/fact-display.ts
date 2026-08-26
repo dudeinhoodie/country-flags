@@ -212,6 +212,155 @@ function isRecord(
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/**
+ * The same fact with its parts still apart (#148).
+ *
+ * `displayValue` bakes in decisions that belong to the screen — that tenders
+ * are comma-separated, that a currency shows its code in brackets — and a
+ * client that wanted the name alone had to take the prose apart with a
+ * regular expression. The names are still resolved here, because that needs
+ * the request's locale; everything past that is the reader's business.
+ */
+export type FactDetails =
+  | { kind: "capital"; seats: { name: string; role: string | null }[] }
+  | {
+      kind: "currency";
+      tenders: { code: string; name: string; role: string | null }[];
+    }
+  | { kind: "language"; languages: { code: string | null; name: string }[] }
+  | { kind: "population"; value: number; year: number | null };
+
+/**
+ * The structured reading of a stored fact, or null when its shape is not one
+ * this backend models — in which case `displayValue` is all a client gets,
+ * which is what a publisher's own rendered value is for.
+ */
+export function factDetails(
+  factType: FactType,
+  value: Prisma.JsonValue,
+  locale: string,
+): FactDetails | null {
+  // A supplied line is prose by definition: there is nothing structured
+  // behind it to hand over.
+  if (suppliedDisplayValue(value) !== null || typeof value === "string") {
+    return null;
+  }
+  switch (factType) {
+    case FactType.CAPITAL:
+      return capitalDetails(value, locale);
+    case FactType.CURRENCY:
+      return currencyDetails(value, locale);
+    case FactType.LANGUAGE:
+      return languageDetails(value, locale);
+    case FactType.POPULATION:
+      return populationDetails(value);
+    default:
+      return null;
+  }
+}
+
+function capitalDetails(
+  value: Prisma.JsonValue,
+  locale: string,
+): FactDetails | null {
+  const seats = asArray(value)
+    .filter(isRecord)
+    .filter((seat) => seat["role"] === undefined || seat["role"] === "official")
+    .flatMap((seat) => {
+      const name =
+        localizedName(seat["names"], locale) ??
+        localizedName(seat["names"], "en") ??
+        seat["name"];
+      if (typeof name !== "string" || name.length === 0) {
+        return [];
+      }
+      const role = seat["role"];
+      return [
+        {
+          name: capitalized(name, locale),
+          role: typeof role === "string" ? role : null,
+        },
+      ];
+    });
+  return seats.length > 0 ? { kind: "capital", seats } : null;
+}
+
+function currencyDetails(
+  value: Prisma.JsonValue,
+  locale: string,
+): FactDetails | null {
+  const tenders = asArray(value)
+    .filter(isRecord)
+    .filter(
+      (entry) =>
+        entry["role"] === undefined || entry["role"] === "legal_tender",
+    )
+    .flatMap((entry) => {
+      const code = entry["code"];
+      if (typeof code !== "string" || code.length === 0) {
+        return [];
+      }
+      // The code stands in for a name the release never carried, the same
+      // way the rendered line falls back to it.
+      const name = localizedName(entry["names"], locale);
+      const role = entry["role"];
+      return [
+        {
+          code,
+          name: name === null ? code : capitalized(name, locale),
+          role: typeof role === "string" ? role : null,
+        },
+      ];
+    });
+  return tenders.length > 0 ? { kind: "currency", tenders } : null;
+}
+
+function languageDetails(
+  value: Prisma.JsonValue,
+  locale: string,
+): FactDetails | null {
+  const fallback = new Intl.DisplayNames([locale], {
+    type: "language",
+    fallback: "none",
+  });
+  const languages = asArray(value)
+    .filter(isRecord)
+    .flatMap((entry) => {
+      const code = entry["code"];
+      const named =
+        localizedName(entry["names"], locale) ??
+        (typeof code === "string" ? safeDisplayName(fallback, code) : null);
+      if (named === null) {
+        return [];
+      }
+      return [
+        {
+          code: typeof code === "string" ? code : null,
+          name: capitalized(named, locale),
+        },
+      ];
+    });
+  return languages.length > 0 ? { kind: "language", languages } : null;
+}
+
+function populationDetails(value: Prisma.JsonValue): FactDetails | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+  const count = value["value"];
+  if (typeof count !== "number" || !Number.isFinite(count)) {
+    return null;
+  }
+  const year = value["year"];
+  return {
+    kind: "population",
+    // Unformatted: grouping a number is a locale decision the screen makes,
+    // and it is the one thing the rendered line cannot be undone into.
+    value: count,
+    year: typeof year === "number" ? year : null,
+  };
+}
+
 /** The stored shape the three read paths share. */
 interface StoredFact {
   factType: FactType;
@@ -233,6 +382,7 @@ export function mapBackSideFacts(
 ): Array<{
   type: FactType;
   displayValue: string;
+  details?: FactDetails;
   observedAt: string | null;
   source: { name: string; url: string | null };
 }> {
@@ -241,10 +391,15 @@ export function mapBackSideFacts(
     if (displayValue === null) {
       return [];
     }
+    // Both, deliberately: `displayValue` keeps older clients whole while
+    // `details` lets a screen decide its own presentation (#148). The line
+    // retires once no supported client reads it.
+    const details = factDetails(fact.factType, fact.value, locale);
     return [
       {
         type: fact.factType,
         displayValue,
+        ...(details === null ? {} : { details }),
         observedAt:
           fact.observedAt === null
             ? null
