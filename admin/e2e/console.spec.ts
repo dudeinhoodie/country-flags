@@ -55,6 +55,7 @@ async function stubApi(
     "/api/v1/admin/me": ADMIN_USER,
     "/api/v1/admin/content/status": {
       activeVersion: "fixture-v1",
+      minimumClientVersion: "0.1.0",
       schemaVersion: 1,
       publishedAt: "2026-08-20T09:30:00Z",
       entityCount: 278,

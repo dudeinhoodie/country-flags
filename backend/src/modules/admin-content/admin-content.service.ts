@@ -24,6 +24,28 @@ const READABLE_ENTITY_STATUSES = [
   GeoEntityStatus.HISTORICAL,
 ];
 
+/// The release stores its whole manifest in `metadata`; this reads the one
+/// field the console needs from it. A release published before the field
+/// existed, or one whose metadata is shaped unexpectedly, answers `null`
+/// rather than a guess.
+function minimumClientVersionOf(
+  metadata: Prisma.JsonValue | undefined,
+): string | null {
+  if (
+    metadata === undefined ||
+    metadata === null ||
+    typeof metadata !== "object"
+  ) {
+    return null;
+  }
+  const manifest = (metadata as Record<string, unknown>).manifest;
+  if (typeof manifest !== "object" || manifest === null) {
+    return null;
+  }
+  const value = (manifest as Record<string, unknown>).minimumClientVersion;
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
 function contentNotFound(): never {
   throw new ApiException(
     HttpStatus.NOT_FOUND,
@@ -79,6 +101,11 @@ export class AdminContentService {
       activeVersion: pointer?.contentVersion ?? null,
       schemaVersion: pointer?.release.schemaVersion ?? null,
       publishedAt: pointer?.release.publishedAt?.toISOString() ?? null,
+      // What the live release demands of a client. The console offers it as
+      // the next release's value: raising it is how an installed app is
+      // locked out, so it must be a deliberate act rather than the number
+      // left in a form (#250).
+      minimumClientVersion: minimumClientVersionOf(pointer?.release.metadata),
       entityCount,
       deckCount,
     };

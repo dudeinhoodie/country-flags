@@ -30,6 +30,29 @@ function messageOf(payload: unknown, fallback: string): string {
 }
 
 /**
+ * Orders two dotted versions numerically, so 0.10.0 is above 0.9.0 rather
+ * than below it as a string comparison would have it. Missing or
+ * non-numeric parts count as zero: this decides whether to warn, and a
+ * version nobody can parse is not worth refusing over.
+ */
+function compareVersions(left: string, right: string): number {
+  const parts = (value: string): number[] =>
+    value.split(".").map((part) => {
+      const parsed = Number.parseInt(part, 10);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    });
+  const a = parts(left);
+  const b = parts(right);
+  for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
+    const difference = (a[index] ?? 0) - (b[index] ?? 0);
+    if (difference !== 0) {
+      return difference;
+    }
+  }
+  return 0;
+}
+
+/**
  * The two questions an editor asks before proposing: is it valid, and what
  * would it change. A blocking finding is what stops a proposal, so it is
  * stated rather than counted.
@@ -63,7 +86,12 @@ export function ReleasePanel({
   const [proposal, setProposal] = useState<string | null>(proposalUrl);
   const [publish, setPublish] = useState<PublishRunStatus | null>(null);
   const [contentVersion, setContentVersion] = useState("");
-  const [minimumClientVersion, setMinimumClientVersion] = useState("1.0.0");
+  // Empty until the live release says what it demands. It used to start at a
+  // hard-coded "1.0.0", which had nothing to do with any client that exists:
+  // publishing without touching the field raised the bar and locked every
+  // installed app out of the content (#250).
+  const [minimumClientVersion, setMinimumClientVersion] = useState("");
+  const [activeMinimum, setActiveMinimum] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +140,34 @@ export function ReleasePanel({
         setError("Validation could not be run");
       });
   }, [client, draftId, onValidated]);
+
+  // What the live release demands of a client, offered as this release's
+  // value. Carrying it forward is the safe default: the bar moves only when
+  // an editor deliberately types a higher number.
+  useEffect(() => {
+    let cancelled = false;
+    client
+      .GET("/v1/admin/content/status")
+      .then(({ data }) => {
+        if (cancelled || data === undefined) {
+          return;
+        }
+        const live = data.minimumClientVersion;
+        setActiveMinimum(live);
+        if (live !== null) {
+          setMinimumClientVersion((current) =>
+            current === "" ? live : current,
+          );
+        }
+      })
+      .catch(() => {
+        // The field stays empty and the run is refused without one, which is
+        // safer than inventing a version nobody published.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [client]);
 
   useEffect(() => {
     let cancelled = false;
@@ -180,6 +236,14 @@ export function ReleasePanel({
         setError("The publish run could not be started");
       });
   }, [client, contentVersion, minimumClientVersion]);
+
+  // Whether this release would demand more of a client than the live one
+  // does. Allowed, and sometimes right — but it is the one field here that
+  // can take a working app away from someone, so it says so.
+  const raisesTheBar =
+    activeMinimum !== null &&
+    minimumClientVersion.trim() !== "" &&
+    compareVersions(minimumClientVersion.trim(), activeMinimum) > 0;
 
   const blocking = report?.findings.filter(
     (finding) => finding.level === "blocking",
@@ -381,14 +445,28 @@ export function ReleasePanel({
                 onChange={(event) =>
                   setMinimumClientVersion(event.target.value)
                 }
-                helperText="Clients below this get an update screen"
+                error={raisesTheBar}
+                helperText={
+                  raisesTheBar
+                    ? `Higher than the live release (${activeMinimum}): every app below this is locked out until it updates. Raise it only for content older apps cannot read.`
+                    : activeMinimum === null
+                      ? "No release has set one yet. Use the version installed apps actually carry."
+                      : `Carried over from the live release (${activeMinimum}). Apps below this get an update screen.`
+                }
                 sx={{ flex: 1 }}
               />
             </Stack>
             <Box>
               <Button
                 variant="outlined"
-                disabled={busy || contentVersion.trim().length === 0}
+                // The minimum is required rather than defaulted in code:
+                // whatever goes in decides which installed apps keep
+                // working, so it is never a value nobody chose.
+                disabled={
+                  busy ||
+                  contentVersion.trim().length === 0 ||
+                  minimumClientVersion.trim().length === 0
+                }
                 onClick={startPublish}
               >
                 Start the publish run

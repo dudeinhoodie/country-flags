@@ -37,6 +37,7 @@ function stubAdminApi(): void {
           new Response(
             JSON.stringify({
               activeVersion: "2026.08.20",
+              minimumClientVersion: "0.1.0",
               schemaVersion: 1,
               publishedAt: "2026-08-20T10:00:00Z",
               entityCount: 278,
