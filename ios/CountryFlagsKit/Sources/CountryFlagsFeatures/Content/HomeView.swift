@@ -26,32 +26,21 @@ public struct HomeView: View {
     /// point honours.
     private let makeSettings: (() -> SettingsStore)?
 
-    /// The counts behind the hero. Built here, once, from the factory: this
-    /// view is re-initialised whenever the launch makes progress, and a store
-    /// built in the initialiser would be built — and thrown away — every time.
-    @State private var progress: ProgressStore?
-    private let makeProgress: (() -> ProgressStore)?
+    /// The counts behind the hero. The app's one progress store, observed
+    /// rather than owned: the same numbers appear on four screens, and a
+    /// screen holding its own copy is how they came to disagree.
+    private let progress: ProgressStore?
     /// The flags shown fanned in the today pane and beside each queue row,
     /// keyed by deck. Read alongside the counts and for the same reason: the
     /// rows should show the cards they are talking about.
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
-    @Environment(\.scenePhase) private var scenePhase
-
-    /// How old the catalogue may be before coming back to the app refreshes it.
-    ///
-    /// Ten minutes is short enough that an hour away never shows yesterday's
-    /// queue, and long enough that putting the phone down to answer the door
-    /// costs nothing. The counts themselves are recomputed on every return
-    /// whatever this says — they are local arithmetic over a clock that has
-    /// moved, and cards fall due while nobody is looking.
-    private static let staleAfter: TimeInterval = 600
 
     public init(
         store: ContentStore,
         sync: SyncCenter,
         assets: (any AssetLoading)? = nil,
-        makeProgress: (() -> ProgressStore)? = nil,
+        progress: ProgressStore? = nil,
         makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
@@ -63,7 +52,7 @@ public struct HomeView: View {
         self.store = store
         self.sync = sync
         self.assets = assets
-        self.makeProgress = makeProgress
+        self.progress = progress
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
@@ -81,52 +70,12 @@ public struct HomeView: View {
                 await sync.synchronize(trigger: .pullToRefresh)
             }
             .task { await store.start() }
-            // The queue grows with every answer, and answering happens on
-            // another screen, so the count is re-read when this one appears —
-            // without asking the network for anything.
-            //
-            // Read again whenever content synchronisation moves, because that
-            // read goes to the store the first import is still filling and can
-            // arrive after the screen already has. Tied to appearance alone, a
-            // count that lost that race stayed wrong for the whole visit and
-            // only corrected itself once the learner left and came back.
-            .task(id: store.status) { await sync.refreshStatus() }
-            // A sync run finishing is the moment the canonical numbers land in
-            // the store — pull them onto the screen instead of waiting for the
-            // learner to leave and come back.
-            .task(id: sync.status) {
-                if progress == nil { progress = makeProgress?() }
-                await progress?.load()
-                await reloadPreviews()
-            }
-            // Coming back is the other moment both numbers change: a session
-            // queues work and answers cards while this screen is covered, and
-            // nothing above re-reads on a pop. The root of a navigation stack
-            // reappears when the pushed screen leaves, so this is the return
-            // path — and the first appearance, which is harmless: both reads
-            // are cheap and idempotent.
-            .onAppear {
-                if progress == nil { progress = makeProgress?() }
-                Task {
-                    await sync.refreshStatus()
-                    await progress?.load()
-                    await reloadPreviews()
-                }
-            }
-            // Coming back from the background is the third moment the numbers
-            // change, and the only one nothing was watching. A view that never
-            // disappeared gets no `onAppear`, and a sync that finishes in the
-            // same state it started in changes no value to key a task on — so
-            // an hour in a pocket used to leave yesterday's queue on screen.
-            .onChange(of: scenePhase) { _, phase in
-                guard phase == .active else { return }
-                Task {
-                    await store.refreshIfStale(olderThan: Self.staleAfter)
-                    await sync.refreshStatus()
-                    await progress?.load()
-                    await reloadPreviews()
-                }
-            }
+            // The one thing this screen still reads for itself: which flags to
+            // fan, which is a view concern and depends on the deck rows it
+            // just received. Everything else — the counts, the queue, the
+            // unfinished session — is refreshed centrally after a sync run,
+            // and this screen simply observes the store it is refreshed into.
+            .task(id: progress?.decks) { await reloadPreviews() }
     }
 
     @ViewBuilder
@@ -164,8 +113,14 @@ public struct HomeView: View {
             if isAwaitingProgress {
                 homeLoader
             } else {
-                todayPane(sections)
-                queuePane(sections)
+                // Dimmed while the numbers are being checked: the figure stays
+                // readable and stops claiming to be settled.
+                VStack(spacing: DesignTokens.Spacing.large) {
+                    todayPane(sections)
+                    queuePane(sections)
+                }
+                .opacity(isVerifying ? 0.55 : 1)
+                .animation(.easeInOut(duration: 0.2), value: isVerifying)
             }
         }
     }
@@ -187,18 +142,29 @@ public struct HomeView: View {
         .accessibilityIdentifier(AccessibilityIdentifier.homeLoading)
     }
 
-    /// Whether the pane's numbers are still being fetched.
+    /// Whether the pane has no numbers it is allowed to draw yet.
     ///
-    /// The screen waits for the backend: a sync in flight, and the launch's
-    /// first catalogue sync, both hold the loader up. The local projection is
-    /// deliberately not painted meanwhile — it can disagree with the account
-    /// the backend holds, and a figure that appears and then changes reads as
-    /// a screen making numbers up. A run that fails or finds no network
-    /// settles back into `idle`, so the loader always resolves somewhere.
+    /// The backend is the only source of truth for an account's counts
+    /// (ADR-016), so an account whose counts have never arrived waits rather
+    /// than showing a local guess that would change the moment the real one
+    /// landed. A guest is never waiting: nobody else is counting their work.
     private var isAwaitingProgress: Bool {
-        if makeProgress != nil, !(progress?.isLoaded ?? false) { return true }
+        guard let progress else {
+            return store.lastSyncedAt == nil && store.status.phase != .idle
+        }
+        return progress.origin == .awaitingBackend
+    }
+
+    /// Whether the numbers on screen are being checked right now. They stay
+    /// up — a figure being verified says more than a spinner — but they say
+    /// so, which is what the screen used to hide.
+    ///
+    /// A run in flight counts: between finishing a session and the run that
+    /// carries its answers home, what is on screen is the backend's previous
+    /// word, and the screen should not present it as settled.
+    private var isVerifying: Bool {
         if sync.status.phase == .syncing { return true }
-        return store.lastSyncedAt == nil && store.status.phase != .idle
+        return progress?.isRefreshing ?? false
     }
 
     // MARK: - Today
@@ -208,7 +174,7 @@ public struct HomeView: View {
     /// inside, not a second hero fighting the first.
     @ViewBuilder
     private func todayPane(_ sections: [CatalogSection]) -> some View {
-        let due = totalDue(sections)
+        let due = totalDue
         let continuable = progress?.continuable
 
         // Its own row, above the day's pane: an unfinished sitting is a
@@ -451,38 +417,13 @@ public struct HomeView: View {
 
     // MARK: - Data
 
-    /// What the schedule owes, counted once. The decks overlap — the curated
-    /// deck holds every card the regions hold — so summing rows double-counts;
-    /// the curated deck's own queue is the whole queue, and without one the
-    /// largest region stands in.
-    /// How many cards the day owes.
+    /// How many cards the day owes, asked of the store that owns the answer.
     ///
-    /// The backend's number when the backend has the facts, and the device's
-    /// only when it does not. One authority at a time, decided by one
-    /// question: is this device holding answers it has not sent?
-    ///
-    /// That question is the whole of it. The backend counts what it has
-    /// received; while something waits in the outbox it is counting an older
-    /// world, and the device is the one that knows. Once the outbox is empty
-    /// the backend has seen every answer from every device — including the
-    /// ones this phone never made — so its number is the one that can be
-    /// right, and the session opened from this pane is composed from the same
-    /// place.
-    private func totalDue(_ sections: [CatalogSection]) -> Int {
-        guard let progress else { return 0 }
-        if let summary = progress.dueSummary, !hasUnsentAnswers {
-            return summary.totalDue
-        }
-        if let all = recommended(sections),
-            let row = progress.decks.first(where: { $0.id == all.id })
-        {
-            return row.dueCards
-        }
-        return progress.decks.map(\.dueCards).max() ?? 0
-    }
-
-    /// Whether this device is ahead of the backend.
-    private var hasUnsentAnswers: Bool { sync.status.pendingCount > 0 }
+    /// This screen used to work it out itself, from a different reading of
+    /// "is the device ahead of the backend" than the store used — two answers
+    /// to one question, which is how the hero and the rows beneath it came to
+    /// disagree. There is one answer now, and it lives with the numbers.
+    private var totalDue: Int { progress?.totalDue ?? 0 }
 
     /// The deck a "review everything" tap studies: the curated deck holds
     /// every card, so its due queue is the whole queue. Without one, the deck

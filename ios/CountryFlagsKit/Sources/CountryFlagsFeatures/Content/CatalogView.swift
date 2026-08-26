@@ -13,22 +13,22 @@ import CountryFlagsDomain
 public struct CatalogView: View {
     private let store: ContentStore
     private let assets: any AssetLoading
-    private let makeProgress: (() -> ProgressStore)?
+    /// The app's one progress store, observed rather than built here.
+    private let progress: ProgressStore?
     private let onOpenDeck: (UUID) -> Void
 
     @State private var searchText = ""
-    @State private var progress: ProgressStore?
     @State private var curatedFan: [LearningCardRecord] = []
 
     public init(
         store: ContentStore,
         assets: any AssetLoading,
-        makeProgress: (() -> ProgressStore)? = nil,
+        progress: ProgressStore? = nil,
         onOpenDeck: @escaping (UUID) -> Void
     ) {
         self.store = store
         self.assets = assets
-        self.makeProgress = makeProgress
+        self.progress = progress
         self.onOpenDeck = onOpenDeck
     }
 
@@ -38,16 +38,7 @@ public struct CatalogView: View {
             .searchable(text: $searchText, prompt: L10n.catalogSearchPrompt)
             .refreshable { await store.refresh() }
             .task { await store.start() }
-            // The trail changes while this screen is covered — a session
-            // answers cards — so it is re-read on the way back in.
-            .onAppear {
-                if progress == nil { progress = makeProgress?() }
-                Task {
-                    await progress?.load()
-                    await reloadFan()
-                }
-            }
-            // On a cold launch the appearance above races `store.start()`:
+            // On a cold launch the fan races `store.start()`:
             // the catalog is not `.ready` yet, `reloadFan` bails out, and the
             // curated row would keep an empty fan for the whole visit. Keyed
             // to the catalog's content, the fan is re-read the moment the

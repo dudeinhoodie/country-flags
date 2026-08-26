@@ -14,7 +14,7 @@ public struct RootView: View {
     private let assets: any AssetLoading
     private let makeStudyRunner: () -> StudySessionRunner
     private let makeObjectiveRunner: () -> ObjectiveSessionRunner
-    private let makeProgressStore: () -> ProgressStore
+    private let progress: ProgressStore
     private let makeSettingsStore: () -> SettingsStore
     private let makeAccountStore: (() -> AccountStore)?
     private let makeClearProgressStore: (() -> ClearProgressStore)?
@@ -30,6 +30,11 @@ public struct RootView: View {
 
     @Environment(\.scenePhase) private var scenePhase
 
+    /// How old the catalogue may be before coming back to the app refreshes
+    /// it. Ten minutes: long enough that answering the door costs nothing,
+    /// short enough that an hour away never shows yesterday's shelf.
+    private static let contentStaleAfter: TimeInterval = 600
+
     public init(
         router: AppRouter,
         configuration: RuntimeConfiguration,
@@ -37,7 +42,7 @@ public struct RootView: View {
         assets: any AssetLoading,
         makeStudyRunner: @escaping () -> StudySessionRunner,
         makeObjectiveRunner: @escaping () -> ObjectiveSessionRunner,
-        makeProgressStore: @escaping () -> ProgressStore,
+        progress: ProgressStore,
         makeSettingsStore: @escaping () -> SettingsStore,
         makeAccountStore: (() -> AccountStore)? = nil,
         makeClearProgressStore: (() -> ClearProgressStore)? = nil,
@@ -52,7 +57,7 @@ public struct RootView: View {
         self.assets = assets
         self.makeStudyRunner = makeStudyRunner
         self.makeObjectiveRunner = makeObjectiveRunner
-        self.makeProgressStore = makeProgressStore
+        self.progress = progress
         self.makeSettingsStore = makeSettingsStore
         self.makeAccountStore = makeAccountStore
         self.makeClearProgressStore = makeClearProgressStore
@@ -77,6 +82,62 @@ public struct RootView: View {
     }
 
     public var body: some View {
+        // The launch is held behind one screen until every first request has
+        // landed — the catalogue and the account's numbers both. They arrive
+        // at different times, and letting the app in after the first of them
+        // meant a deck of 250 cards appearing and then flickering into
+        // "nothing to review" a moment later, as the numbers overruled it.
+        //
+        // A screen rather than an overlay with a gesture: there is nothing
+        // behind it worth reaching, so it cannot be dismissed.
+        if isBootstrapping {
+            AccountBootstrapScreen(
+                failure: sync.status.lastFailure,
+                isRetrying: sync.status.phase == .syncing
+                    || content.status.phase != .idle,
+                environment: configuration.environment.allowsDebugAffordances
+                    ? configuration.environment.rawValue.uppercased()
+                    : nil,
+                retry: {
+                    // Both halves again: whichever of them failed, the
+                    // learner asked for the whole launch to be retried.
+                    await content.refresh()
+                    await sync.synchronize(trigger: .pullToRefresh)
+                }
+            )
+            .preferredColorScheme(.dark)
+            // Both first requests start here, so the wait is over exactly
+            // when there is something complete to show.
+            .task { await content.start() }
+            .task { await sync.start() }
+        } else {
+            shell
+        }
+    }
+
+    /// Whether any of the launch's first requests is still outstanding.
+    ///
+    /// The catalogue's first synchronisation counts even when it fails: what
+    /// matters is that the attempt has been made, because after it the app
+    /// knows what it is able to show. The numbers are the other half.
+    private var isBootstrapping: Bool {
+        if content.lastSyncedAt == nil { return true }
+        return isAwaitingFirstNumbers
+    }
+
+    /// Whether an account is still waiting for the numbers it is not allowed
+    /// to invent. A guest never waits: nobody else is counting their work.
+    ///
+    /// The store answers this, not the sync status. A run reports success
+    /// before the store has re-read what it delivered, so waiting on the run
+    /// let the app open one frame early — long enough for the learned-countries
+    /// block to appear a moment after the screen it belongs to. The store
+    /// settles on `backend` once it has read the answer, empty or not.
+    private var isAwaitingFirstNumbers: Bool {
+        progress.origin == .awaitingBackend
+    }
+
+    private var shell: some View {
         // A tab bar rather than buttons on Home: the catalog and the progress
         // are places, and iOS puts places on the bottom bar. The bar's glass
         // is the system's own.
@@ -86,7 +147,7 @@ public struct RootView: View {
                     store: content,
                     sync: sync,
                     assets: assets,
-                    makeProgress: makeProgressStore,
+                    progress: progress,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
@@ -154,7 +215,7 @@ public struct RootView: View {
             .tag(AppTab.home)
 
             NavigationStack(path: $router.catalogNavigationPath) {
-                CatalogView(store: content, assets: assets, makeProgress: makeProgressStore) { router.push(.deck(id: $0)) }
+                CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -165,7 +226,7 @@ public struct RootView: View {
 
             NavigationStack(path: $router.progressNavigationPath) {
                 ProgressScreen(
-                    store: makeProgressStore(),
+                    store: progress,
                     onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
@@ -193,10 +254,14 @@ public struct RootView: View {
         }
         .task { await sync.start() }
         .onChange(of: scenePhase) { _, phase in
-            // Returning to the foreground is a trigger like any other, and the
-            // coordinator coalesces it with whatever is already running.
+            // The one place the app reacts to coming back. Screens used to
+            // watch this too, so a return ran the same reads twice and the
+            // two overlapping passes raced each other.
             guard phase == .active else { return }
-            Task { await sync.synchronize(trigger: .foreground) }
+            Task {
+                await content.refreshIfStale(olderThan: Self.contentStaleAfter)
+                await sync.synchronize(trigger: .foreground)
+            }
         }
     }
 
@@ -204,14 +269,14 @@ public struct RootView: View {
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .catalog:
-            CatalogView(store: content, assets: assets, makeProgress: makeProgressStore) { router.push(.deck(id: $0)) }
+            CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
         case .deck(let id):
             DeckDetailsView(
                 deckID: id,
                 store: content,
                 assets: assets,
                 makeSettings: makeSettingsStore,
-                makeProgress: makeProgressStore,
+                progress: progress,
                 isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
             ) { deckID, size, mode in
                 router.push(
@@ -248,7 +313,7 @@ public struct RootView: View {
             }
         case .progress:
             ProgressScreen(
-                store: makeProgressStore(),
+                store: progress,
                 onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
             )
         case .deckProgress(let deckID):
@@ -256,7 +321,7 @@ public struct RootView: View {
                 deckID: deckID,
                 store: content,
                 assets: assets,
-                makeProgress: makeProgressStore,
+                progress: progress,
                 makeSettings: makeSettingsStore,
                 onStartStudy: { deckID, size in
                     router.push(
@@ -299,6 +364,10 @@ public enum AccessibilityIdentifier {
     public static let shellTitle = "root.shell.title"
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
+    /// The first-run wait for an account's numbers, and the way out of it
+    /// when the backend cannot be reached.
+    public static let accountBootstrap = "root.accountBootstrap"
+    public static let accountBootstrapRetry = "root.accountBootstrap.retry"
 
     public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"

@@ -42,6 +42,18 @@ public enum L10n {
 
     // MARK: - Content
 
+    /// The first-run wait: an account's numbers are the backend's, so there
+    /// is a moment before the first answer when the app has nothing it is
+    /// allowed to draw. It says what it is waiting for rather than showing
+    /// an empty shelf.
+    public static var bootstrapTitle: String { localized("bootstrap.title") }
+    public static var bootstrapSubtitle: String { localized("bootstrap.subtitle") }
+    public static var bootstrapFailedTitle: String { localized("bootstrap.failed.title") }
+    public static var bootstrapFailedSubtitle: String {
+        localized("bootstrap.failed.subtitle")
+    }
+    public static var bootstrapRetry: String { localized("bootstrap.retry") }
+
     public static var homeTitle: String { localized("home.title") }
     public static var homeLoading: String { localized("home.loading") }
     public static var homeRecommended: String { localized("home.recommended") }

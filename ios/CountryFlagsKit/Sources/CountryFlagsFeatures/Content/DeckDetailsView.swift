@@ -18,7 +18,13 @@ public struct DeckDetailsView: View {
     /// The unfinished session in this deck, when there is one. While it
     /// exists, the pickers would lie — the runner resumes the stored session
     /// whatever they say — so the card offers the way back instead.
-    @State private var continuable: ContinuableSession?
+    /// The unfinished session, when it belongs to this deck. Read from the
+    /// app's progress store rather than loaded here: the store is refreshed
+    /// centrally after a session ends, so the offer disappears on its own.
+    private var continuable: ContinuableSession? {
+        guard let session = progress?.continuable, session.deckID == deckID else { return nil }
+        return session
+    }
     /// The country whose drawer is open. The same sheet the session shows on
     /// the back of a card: a learner browsing a deck asks the same question
     /// about a flag as a learner answering one, and should not get a second,
@@ -29,7 +35,7 @@ public struct DeckDetailsView: View {
     private let store: ContentStore
     private let assets: any AssetLoading
     private let makeSettings: (() -> SettingsStore)?
-    private let makeProgress: (() -> ProgressStore)?
+    private let progress: ProgressStore?
     private let isObjectiveModeEnabled: Bool
     private let onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)?
 
@@ -39,7 +45,7 @@ public struct DeckDetailsView: View {
         assets: any AssetLoading,
         defaultSessionSize: StudySessionSize = .ten,
         makeSettings: (() -> SettingsStore)? = nil,
-        makeProgress: (() -> ProgressStore)? = nil,
+        progress: ProgressStore? = nil,
         isObjectiveModeEnabled: Bool = false,
         onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)? = nil
     ) {
@@ -49,7 +55,7 @@ public struct DeckDetailsView: View {
         self.store = store
         self.assets = assets
         self.makeSettings = makeSettings
-        self.makeProgress = makeProgress
+        self.progress = progress
         self.isObjectiveModeEnabled = isObjectiveModeEnabled
         self.onStartStudy = onStartStudy
     }
@@ -67,17 +73,6 @@ public struct DeckDetailsView: View {
                 await model.load()
             }
             .task { await model.load() }
-            // On appearance rather than once: finishing the session pops back
-            // here, and the offer to continue has to disappear with it.
-            .onAppear {
-                guard let makeProgress else { return }
-                Task {
-                    let progress = makeProgress()
-                    await progress.load()
-                    continuable =
-                        progress.continuable?.deckID == deckID ? progress.continuable : nil
-                }
-            }
             // The learner chose a session size once, in the settings; a deck
             // that ignored it and always offered ten would make that setting
             // a lie. Read once per visit, before anything is tapped.

@@ -57,71 +57,124 @@ public struct AchievementRow: Identifiable, Hashable, Sendable {
     public let earnedAt: Date?
 }
 
-/// What the progress screen reads.
+/// Where the numbers on screen came from.
 ///
-/// The counts come from the device's own records rather than from the server:
-/// which cards a deck holds and which of them have been answered is something
-/// the device can see for itself, and a guest — the only kind of account this
-/// build has — is never synchronised at all. Mastery is the opposite. The
-/// tiers are the server's product decision, so a tier is displayed when one
-/// has arrived and simply absent when none has.
+/// The distinction the app is built on: an account's counts are the
+/// backend's, full stop. What the device can compute for itself is shown for
+/// a guest alone, because the backend has never heard of a guest.
+public enum ProgressOrigin: Equatable, Sendable {
+    /// The backend's own counts, as this device last received them. Offline
+    /// this is the last snapshot rather than a fresh one — still the
+    /// backend's answer, not a local recomputation.
+    case backend
+    /// A guest's own records. There is no account to attribute the work to,
+    /// so there is nothing for the backend to have an opinion about.
+    case device
+    /// An account whose counts have never arrived. Nothing is shown rather
+    /// than a locally invented figure that would change the moment the real
+    /// one landed.
+    case awaitingBackend
+}
+
+/// What every screen reads its numbers from.
+///
+/// One instance for the whole app (`AppComposition`), because the same counts
+/// appear on four screens and a number that differs between them is a bug the
+/// user can see. Screens observe it and never load it themselves: refreshing
+/// is driven from one place, after the work that can change the numbers.
+///
+/// The backend is the single source of truth (ADR-016). For an account the
+/// counts, the due breakdown and the mastery tiers are all the backend's; the
+/// device's own projection answers for a guest alone. The two are never
+/// blended — a screen showing one deck's local count beside another's
+/// server count is how the same session came to be worth different numbers
+/// in different places.
 @MainActor
 @Observable
-public final class ProgressStore {
+public final class ProgressStore: CanonicalDataObserving {
     public private(set) var decks: [DeckProgressRow] = []
     public private(set) var achievements: [AchievementRow] = []
     /// The unfinished session, when there is one: the screen that knows about
     /// it can offer to continue instead of silently starting over.
     public private(set) var continuable: ContinuableSession?
-    /// The backend's own breakdown of the queue, when one arrived recently
-    /// enough to still be about today. The counts beside it stay local: this
-    /// says what kind of work is waiting — overdue, still being learned, never
-    /// seen — which is the part the device cannot work out for itself.
+    /// The backend's breakdown of today's queue: what kind of work is waiting,
+    /// overdue, still being learned or never seen.
     public private(set) var dueSummary: DueSummaryRecord?
-    public private(set) var isLoaded = false
+    /// Whose numbers these are. Screens read it to know whether they may draw
+    /// anything at all.
+    public private(set) var origin: ProgressOrigin = .awaitingBackend
+    /// Whether a reload is in flight over numbers already on screen. Screens
+    /// dim rather than hide: a figure that is being checked still says more
+    /// than a spinner, as long as it says it is being checked.
+    public private(set) var isRefreshing = false
+    public var isLoaded: Bool { origin != .awaitingBackend }
 
     private let content: any ContentRepository
     private let learning: any LearningRepository
-    /// What has not reached the backend yet, read for one question: whether
-    /// the backend's counts are complete enough to be the ones shown.
-    private let outbox: (any OutboxRepository)?
     private let scopes: any AccountScopeResolving
     private let dates: any DateProviding
+    /// The one reload in flight. A newer request cancels the older, so a slow
+    /// early read can no longer land after — and overwrite — a fast late one.
+    private var reloadTask: Task<Void, Never>?
+    /// Whether a run has ever come home successfully. An empty result then
+    /// means "the account has no progress yet", which is an answer; before
+    /// it, an empty result means the backend has not spoken.
+    private var backendHasAnswered = false
 
     public init(
         content: any ContentRepository,
         learning: any LearningRepository,
         scopes: any AccountScopeResolving,
-        outbox: (any OutboxRepository)? = nil,
         dates: any DateProviding = SystemDateProvider()
     ) {
         self.content = content
         self.learning = learning
         self.scopes = scopes
-        self.outbox = outbox
         self.dates = dates
     }
 
-    /// What this device is still holding for the backend. No outbox to ask
-    /// means nothing is known to be waiting.
-    private func unsentAnswers(for scope: AccountScope) async -> [OutboxOperationRecord] {
-        guard let outbox else { return [] }
-        return (try? await outbox.pendingOperations(for: scope)) ?? []
+    /// A sync run landed. The store re-reads, and remembers whether the
+    /// backend actually answered — the launch screen waits on the reading
+    /// being finished, not on the run, so the app never opens a frame before
+    /// the numbers it is about to draw.
+    public func canonicalDataDidLand(succeeded: Bool) async {
+        if succeeded { backendHasAnswered = true }
+        await reload()
     }
 
+    /// Re-reads everything, cancelling whatever read was already running.
+    ///
+    /// Every caller goes through here rather than through `load` directly:
+    /// two overlapping reads used to write their results in the order they
+    /// finished, so returning from a session showed the numbers from before
+    /// it until something else happened to read again.
+    public func reload() async {
+        reloadTask?.cancel()
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.load()
+        }
+        reloadTask = task
+        await task.value
+    }
+
+    /// Reads the current state. Cancellable: a superseded read stops before
+    /// it publishes anything.
     public func load() async {
+        isRefreshing = true
+        defer { isRefreshing = false }
+
         // The progress belongs to the account that did the work, so the scope
         // is resolved here rather than captured when the screen was built.
         let scope = await scopes.currentScope()
-        continuable = await continuableSession(for: scope)
-        // A summary that has aged out is dropped rather than shown: yesterday's
-        // queue presented as today's would be worse than no breakdown at all,
-        // and the count beside it is computed locally and stays right anyway.
         let now = dates.now()
-        dueSummary = (try? await learning.dueSummary(for: scope))
+        let loadedContinuable = await continuableSession(for: scope)
+        // A summary that has aged out is dropped rather than shown: yesterday's
+        // queue presented as today's would be worse than no breakdown at all.
+        let loadedSummary = (try? await learning.dueSummary(for: scope))
             .flatMap { $0.isFresh(at: now) ? $0 : nil }
         let states = (try? await learning.cardStates(for: scope)) ?? []
-        achievements = ((try? await learning.achievements(for: scope)) ?? [])
+        let loadedAchievements = ((try? await learning.achievements(for: scope)) ?? [])
             .filter { $0.earnedAt != nil }
             .sorted { ($0.earnedAt ?? .distantPast) > ($1.earnedAt ?? .distantPast) }
             .map {
@@ -132,14 +185,19 @@ public final class ProgressStore {
                     earnedAt: $0.earnedAt
                 )
             }
+        if Task.isCancelled { return }
+        continuable = loadedContinuable
+        dueSummary = loadedSummary
+        achievements = loadedAchievements
+
         // A learner who has answered nothing has no progress, whatever the
         // decks hold, and the screen that says so shows no deck rows at all.
         // Reading the catalogue to build rows nobody sees is what made this
         // screen slow on a fresh install: the release is still being written
         // to the content store then, and a read of it waits for that import.
-        guard !states.isEmpty || !achievements.isEmpty else {
-            decks = []
-            isLoaded = true
+        guard !states.isEmpty || !loadedAchievements.isEmpty else {
+            self.decks = []
+            origin = scope.isGuest ? .device : .backend
             return
         }
 
@@ -154,58 +212,99 @@ public final class ProgressStore {
             if leftCurated != rightCurated { return leftCurated }
             return (left.sortOrder, left.name) < (right.sortOrder, right.name)
         }
-        let cardsByDeck = (try? await content.cardIdentifiersByDeck()) ?? [:]
-        let counted = LocalProgressProjection.progress(
-            cardsByDeck: cardsByDeck,
-            states: states,
-            now: dates.now()
-        )
-        let countsByDeck = Dictionary(
-            counted.map { ($0.deckID, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-        // What the backend last said about every deck: the mastery tier, and —
-        // when this device is not ahead of it — the counts themselves.
+        // What the backend last said about every deck. For an account this is
+        // the answer — not a starting point to be corrected with local
+        // arithmetic.
         let serverProgress = (try? await learning.deckProgress(for: scope)) ?? []
         let tiersByDeck = Dictionary(
             serverProgress.map { ($0.deckID, MasteryTier(rawValue: $0.currentMasteryTier)) },
             uniquingKeysWith: { first, _ in first }
         )
-        // One authority at a time, decided by one question: is this device
-        // holding answers the backend has not received? While something waits
-        // in the outbox the backend is counting an older world; once it is
-        // empty the backend has seen every answer from every device, including
-        // ones this phone never made, so its counts are the only ones that can
-        // be right — and every screen reads them from here.
-        let unsent = await unsentAnswers(for: scope)
-        let isAheadOfBackend = !unsent.isEmpty
-        let serverByDeck = isAheadOfBackend
-            ? [:]
-            : Dictionary(
-                serverProgress.map { ($0.deckID, $0) },
+        let serverByDeck = Dictionary(
+            serverProgress.map { ($0.deckID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        if scope.isGuest {
+            // Nobody else can be counting: a guest's work is durable on the
+            // device and is never uploaded, so the device is the authority
+            // for exactly as long as there is no account.
+            let counted = LocalProgressProjection.progress(
+                cardsByDeck: (try? await content.cardIdentifiersByDeck()) ?? [:],
+                states: states,
+                now: now
+            )
+            let countsByDeck = Dictionary(
+                counted.map { ($0.deckID, $0) },
                 uniquingKeysWith: { first, _ in first }
             )
+            if Task.isCancelled { return }
+            self.decks = decks.map { deck in
+                let counts = countsByDeck[deck.id]
+                return DeckProgressRow(
+                    id: deck.id,
+                    code: deck.code,
+                    name: deck.name,
+                    isCurated: DeckKind(rawValue: deck.kind) == .curated,
+                    totalCards: counts?.totalCards ?? deck.cardCount,
+                    startedCards: counts?.startedCards ?? 0,
+                    learnedCards: counts?.learnedCards ?? 0,
+                    dueCards: counts?.dueCards ?? 0,
+                    // Still the server's award if one was ever received: a
+                    // tier is never computed here, only displayed.
+                    masteryTier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
+                )
+            }
+            origin = .device
+            return
+        }
 
-        self.decks = decks.map { deck in
-            let counts = countsByDeck[deck.id]
-            let server = serverByDeck[deck.id]
+        // An account whose counts have never arrived shows nothing rather
+        // than a local guess: the guess would be replaced by a different
+        // number the moment the backend answered, and a screen that changes
+        // its mind reads as a screen making figures up.
+        guard !serverByDeck.isEmpty else {
+            if Task.isCancelled { return }
+            self.decks = []
+            // An account with nothing on the backend yet is a state, not a
+            // wait — but only once the backend has actually said so.
+            origin = backendHasAnswered ? .backend : .awaitingBackend
+            return
+        }
+
+        if Task.isCancelled { return }
+        self.decks = decks.compactMap { deck in
+            // A deck the backend has not spoken about is left out rather than
+            // shown as zeroes: absent and "none learned" are different claims.
+            guard let server = serverByDeck[deck.id] else { return nil }
             return DeckProgressRow(
                 id: deck.id,
                 code: deck.code,
                 name: deck.name,
                 isCurated: DeckKind(rawValue: deck.kind) == .curated,
-                totalCards: server?.totalCards ?? counts?.totalCards ?? deck.cardCount,
+                totalCards: server.totalCards,
                 // Started is learned plus what is still settling: the backend
                 // publishes those two rather than a total, and adding them is
                 // the same question asked in its vocabulary.
-                startedCards: server.map { $0.learnedCards + $0.inProgressCards }
-                    ?? counts?.startedCards ?? 0,
-                learnedCards: server?.learnedCards ?? counts?.learnedCards ?? 0,
-                dueCards: server?.dueCards ?? counts?.dueCards ?? 0,
+                startedCards: server.learnedCards + server.inProgressCards,
+                learnedCards: server.learnedCards,
+                dueCards: server.dueCards,
                 masteryTier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
             )
         }
-        isLoaded = true
+        origin = .backend
+    }
+
+    /// How much work the day owes, counted once for every screen.
+    ///
+    /// The backend's own breakdown when it sent one; otherwise the curated
+    /// deck's queue, which spans every card. Summing the rows would
+    /// double-count, because a country belongs to the whole-world deck and to
+    /// its region at the same time.
+    public var totalDue: Int {
+        if let dueSummary { return dueSummary.totalDue }
+        if let whole = decks.first(where: \.isCurated) { return whole.dueCards }
+        return decks.map(\.dueCards).max() ?? 0
     }
 
     /// The scheduler state of every answered card, keyed by card. The

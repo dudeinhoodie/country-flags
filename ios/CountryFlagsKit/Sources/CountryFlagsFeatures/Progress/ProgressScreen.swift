@@ -15,21 +15,20 @@ public struct ProgressScreen: View {
     // held in a plain property, each of those would hand the screen a second
     // store that has read nothing yet, and the reading would start over for as
     // long as the launch stayed busy.
-    @State private var store: ProgressStore
+    /// The app's one progress store, observed. This screen used to be handed
+    /// a freshly built one and load it itself, which is how it could show a
+    /// different number than the home screen for the same deck.
+    private let store: ProgressStore
     private let onOpenDeck: ((UUID) -> Void)?
 
     public init(store: ProgressStore, onOpenDeck: ((UUID) -> Void)? = nil) {
-        _store = State(wrappedValue: store)
+        self.store = store
         self.onOpenDeck = onOpenDeck
     }
 
     public var body: some View {
         content
             .navigationTitle(L10n.progressTitle)
-            .task { await store.load() }
-            // The screen lives on a tab now and survives between visits, so
-            // what changed while it was covered is re-read on the way back in.
-            .onAppear { Task { await store.load() } }
     }
 
     @ViewBuilder
