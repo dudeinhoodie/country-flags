@@ -32,6 +32,7 @@ describe("Bootstrap", () => {
             new Response(
               JSON.stringify({
                 activeVersion: null,
+                minimumClientVersion: null,
                 schemaVersion: null,
                 publishedAt: null,
                 entityCount: 0,

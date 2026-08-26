@@ -785,6 +785,8 @@ export interface components {
             schemaVersion: number | null;
             /** Format: date-time */
             publishedAt: string | null;
+            /** @description The client version the live release demands. Raising it in a new release locks every older installed app out of the content, so the console offers this value as the next release's default rather than a number of its own. */
+            minimumClientVersion: string | null;
             entityCount: number;
             deckCount: number;
         };
