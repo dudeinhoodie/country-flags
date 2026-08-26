@@ -2643,6 +2643,104 @@ components:
           type:
             - string
             - 'null'
+    CapitalFactDetails:
+      type: object
+      required:
+        - kind
+        - seats
+      properties:
+        kind:
+          type: string
+          enum:
+            - capital
+        seats:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                minLength: 1
+              role:
+                type:
+                  - string
+                  - 'null'
+                description: What kind of seat this is when the source says so — an official capital, a legislative one. Null when it does not.
+    CurrencyFactDetails:
+      type: object
+      required:
+        - kind
+        - tenders
+      properties:
+        kind:
+          type: string
+          enum:
+            - currency
+        tenders:
+          type: array
+          items:
+            type: object
+            required:
+              - code
+              - name
+            properties:
+              code:
+                description: The ISO 4217 code, which is what is printed on the note.
+                type: string
+                minLength: 1
+              name:
+                type: string
+                minLength: 1
+              role:
+                type:
+                  - string
+                  - 'null'
+    LanguageFactDetails:
+      type: object
+      required:
+        - kind
+        - languages
+      properties:
+        kind:
+          type: string
+          enum:
+            - language
+        languages:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+            properties:
+              code:
+                description: The BCP 47 tag, when the release carries one. A language the backend could name without a tag has none.
+                type:
+                  - string
+                  - 'null'
+              name:
+                type: string
+                minLength: 1
+    PopulationFactDetails:
+      type: object
+      required:
+        - kind
+        - value
+      properties:
+        kind:
+          type: string
+          enum:
+            - population
+        value:
+          description: The count itself, unformatted — grouping is the screen's.
+          type: integer
+          minimum: 0
+        year:
+          description: The year the source counted, not the day it published.
+          type:
+            - integer
+            - 'null'
     Fact:
       type: object
       required:
@@ -2661,8 +2759,23 @@ components:
             - CURRENCY
             - OTHER
         displayValue:
+          description: 'The fact as one line, composed by the backend in the requested locale. Kept for clients that predate `details`, and for a fact whose shape no rule here models. A client that understands `details` should present that instead: this string bakes in decisions — which separator, whether a currency shows its code — that belong to the screen.'
           type: string
           minLength: 1
+        details:
+          description: The same fact with its parts still apart, names already resolved to the requested locale. Absent when the stored value has a shape the backend does not model, in which case `displayValue` is all there is.
+          oneOf:
+            - $ref: '#/components/schemas/CapitalFactDetails'
+            - $ref: '#/components/schemas/CurrencyFactDetails'
+            - $ref: '#/components/schemas/LanguageFactDetails'
+            - $ref: '#/components/schemas/PopulationFactDetails'
+          discriminator:
+            propertyName: kind
+            mapping:
+              capital: '#/components/schemas/CapitalFactDetails'
+              currency: '#/components/schemas/CurrencyFactDetails'
+              language: '#/components/schemas/LanguageFactDetails'
+              population: '#/components/schemas/PopulationFactDetails'
         observedAt:
           type:
             - string
