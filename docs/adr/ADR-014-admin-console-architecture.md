@@ -70,6 +70,15 @@ Editing follows a draft/proposal model with a two-phase release path:
   pointer locking. Until that ADR exists, no publish endpoint appears in
   the admin contract.
 
+  > **Superseded (2026-08-26).** That ADR exists:
+  > [ADR-017](ADR-017-in-product-publisher-and-rollback.md) answers the four
+  > questions — a publisher job holds the signing key, a Cloud Run Job runs
+  > the long transaction, the publishing contour has its own rights, and an
+  > advisory lock on the active pointer replaces the workflow's concurrency
+  > guard. The prohibition on a publish endpoint is lifted by it; everything
+  > else in this ADR still holds, including git remaining the single merge
+  > point for editorial changes.
+
 ## Alternatives considered
 
 - **Refine** — viable and more headless, but requires assembling more of
