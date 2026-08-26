@@ -1255,6 +1255,7 @@ model AdminUser {
   auditEvents   AdminAuditEvent[]
   createdDrafts ContentDraft[]    @relation("ContentDraftCreatedBy")
   updatedDrafts ContentDraft[]    @relation("ContentDraftUpdatedBy")
+  publishRuns   PublishRun[]      @relation("PublishRunRequestedBy")
 
   @@map("admin_users")
 }
@@ -1381,4 +1382,51 @@ model DraftAsset {
   @@unique([draftId, entityContentKey, assetType, variant])
   @@index([draftId])
   @@map("draft_assets")
+}
+
+/// How a publish or rollback run ended up (ADR-017).
+///
+/// A run is a record rather than a request: the transaction that applies a
+/// release runs up to twenty minutes, so the console asks for one and then
+/// watches it, exactly as it watched a workflow before.
+enum PublishRunStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum PublishRunKind {
+  PUBLISH
+  ROLLBACK
+}
+
+model PublishRun {
+  id                     String           @id @default(uuid()) @db.Uuid
+  kind                   PublishRunKind
+  status                 PublishRunStatus @default(QUEUED)
+  /// The version this run produces, or the one a rollback returns to.
+  contentVersion         String           @map("content_version")
+  /// What the release will demand of a client. Absent for a rollback: the
+  /// release it returns to already carries its own.
+  minimumClientVersion   String?          @map("minimum_client_version")
+  /// What was active when the run started, so the way back is recoverable
+  /// from the record alone.
+  previousVersion        String?          @map("previous_version")
+  /// Where the run got to, for the screen watching it.
+  stage                  String?
+  failureCode            String?          @map("failure_code")
+  failureMessage         String?          @map("failure_message")
+  /// The executor's own handle — a Cloud Run Job execution — so an operator
+  /// can find the logs of a run that failed outside our own reporting.
+  executionName          String?          @map("execution_name")
+  requestedByAdminUserId String           @map("requested_by_admin_user_id") @db.Uuid
+  createdAt              DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  startedAt              DateTime?        @map("started_at") @db.Timestamptz(3)
+  finishedAt             DateTime?        @map("finished_at") @db.Timestamptz(3)
+  requestedBy            AdminUser        @relation("PublishRunRequestedBy", fields: [requestedByAdminUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@map("publish_runs")
 }
