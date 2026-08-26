@@ -1,27 +1,28 @@
 import Chip from "@mui/material/Chip";
+import { ENV_CHIP } from "../app/theme";
 import { useRuntimeConfig } from "../config/RuntimeConfigContext";
-import type { AdminEnvironment } from "../config/runtime-config";
-
-const BADGE_COLOR: Record<AdminEnvironment, "default" | "info" | "error"> = {
-  local: "default",
-  dev: "info",
-  prod: "error",
-};
 
 /**
  * Always-visible environment marker (docs/adr/ADR-014). An operator must
- * never wonder whether a screen shows dev or prod data.
+ * never wonder whether a screen shows dev or prod data; the styles come
+ * from the theme module so the treatment is a design-system decision.
  */
 export function EnvironmentBadge() {
   const { environment, appVersion } = useRuntimeConfig();
+  const style = ENV_CHIP[environment];
   return (
     <Chip
       label={environment.toUpperCase()}
-      color={BADGE_COLOR[environment]}
-      variant={environment === "local" ? "outlined" : "filled"}
       size="small"
       title={`Build ${appVersion}`}
-      sx={{ fontWeight: 700, letterSpacing: "0.08em" }}
+      sx={{
+        height: 22,
+        fontWeight: 800,
+        letterSpacing: "0.1em",
+        backgroundColor: style.background,
+        color: style.color,
+        border: style.border ?? "none",
+      }}
     />
   );
 }

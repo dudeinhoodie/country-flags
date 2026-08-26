@@ -25,6 +25,7 @@ export function FlagThumbnail({
           px: 1,
           display: "inline-flex",
           alignItems: "center",
+          borderRadius: 1,
           border: "1px dashed",
           borderColor: "error.main",
         }}
@@ -35,12 +36,23 @@ export function FlagThumbnail({
       </Box>
     );
   }
+  // The hairline keeps predominantly white flags from dissolving into the
+  // surface — the same rule the app's flag component follows (docs/16 §4.7).
   return (
     <Box
       component="img"
       src={url}
       alt=""
-      sx={{ height, border: "1px solid", borderColor: "divider" }}
+      sx={{
+        height,
+        display: "block",
+        borderRadius: 1,
+        border: "1px solid",
+        borderColor: (theme) =>
+          theme.palette.mode === "light"
+            ? "rgba(22, 32, 46, 0.15)"
+            : "rgba(233, 238, 247, 0.18)",
+      }}
     />
   );
 }

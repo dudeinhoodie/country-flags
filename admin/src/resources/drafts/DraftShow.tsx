@@ -15,6 +15,8 @@ import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { Link, useParams } from "react-router-dom";
+import { LoadingState } from "../../components/LoadingState";
+import { StatusChip } from "../../components/StatusChip";
 import { ReleasePanel } from "./ReleasePanel";
 import { useDeckWriter, useDraftWithDecks } from "./useDraftDecks";
 
@@ -44,7 +46,7 @@ export function DraftShow() {
     return <Alert severity="error">{error}</Alert>;
   }
   if (draft === null || decks === null) {
-    return <Typography color="text.secondary">Loading the draft…</Typography>;
+    return <LoadingState label="Loading the draft…" />;
   }
 
   return (
@@ -53,7 +55,7 @@ export function DraftShow() {
       <CardContent>
         <Stack spacing={2}>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Chip label={draft.status} size="small" />
+            <StatusChip value={draft.status} />
             <Chip
               label={`revision ${String(draft.revision)}`}
               size="small"

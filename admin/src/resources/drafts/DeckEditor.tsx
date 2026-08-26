@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { useNavigate, useParams } from "react-router-dom";
+import { LoadingState } from "../../components/LoadingState";
 import { DeckMembersEditor } from "./DeckMembersEditor";
 import {
   useDeckWriter,
@@ -76,7 +77,7 @@ export function DeckEditor() {
     return <Alert severity="error">{draftError ?? deckError}</Alert>;
   }
   if (draft === null || (!isNew && deck === null)) {
-    return <Typography color="text.secondary">Loading the deck…</Typography>;
+    return <LoadingState label="Loading the deck…" />;
   }
 
   function save(): void {

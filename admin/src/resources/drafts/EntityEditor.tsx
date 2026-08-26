@@ -20,6 +20,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import { useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { useNavigate, useParams } from "react-router-dom";
+import { LoadingState } from "../../components/LoadingState";
 import { useDraftWithDecks } from "./useDraftDecks";
 import { useDraftEntity, useEntityWriter } from "./useDraftEntities";
 
@@ -133,7 +134,7 @@ export function EntityEditor() {
     return <Alert severity="error">{draftError ?? entityError}</Alert>;
   }
   if (draft === null || detail === null) {
-    return <Typography color="text.secondary">Loading the entity…</Typography>;
+    return <LoadingState label="Loading the entity…" />;
   }
 
   const locales = [
