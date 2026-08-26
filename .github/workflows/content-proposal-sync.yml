@@ -1,0 +1,75 @@
+# The console's proposal (ADM-011) commits the editorial catalog and the
+# uploaded flag bytes — nothing else, because the backend carries no
+# pipeline toolchain. The repository's quality gates require the derived
+# artifacts committed beside that source: the pinned editorial checksum,
+# the deterministic fixture build, and the iOS projections. This workflow
+# closes the gap on every proposal branch, so a proposal opens green
+# instead of red (#243).
+#
+# Its own push comes back through this workflow once more; that second
+# run finds nothing to rebuild and stops, so there is no loop.
+name: Content proposal sync
+
+on:
+  push:
+    branches:
+      - "admin/draft-**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: content-proposal-sync-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          # A commit pushed with the default GITHUB_TOKEN starts no
+          # workflow runs, which would leave the proposal PR's checks
+          # stale on the synced head. The ADMIN_GITHUB_TOKEN repository
+          # secret — the same fine-grained PAT the backend proposes
+          # with — retriggers them; the default token is the fallback so
+          # the sync itself still lands without it.
+          token: ${{ secrets.ADMIN_GITHUB_TOKEN || github.token }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      - name: Pin the editorial snapshot checksum
+        run: node tools/content-pipeline/scripts/pin-editorial.mjs
+
+      - name: Rebuild deterministic content fixture
+        run: >-
+          corepack yarn content build
+          --catalog-version fixture-v1
+          --publish-ready
+
+      - name: Project the release into the iOS mock
+        run: |
+          node ios/Scripts/sync-flag-assets.mjs
+          node ios/Scripts/sync-mock-content.mjs
+
+      - name: Commit the derived artifacts
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Derived content already in sync"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(content): rebuild the release the editorial change belongs to"
+          git push origin "HEAD:${{ github.ref_name }}"
