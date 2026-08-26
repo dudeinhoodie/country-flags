@@ -116,6 +116,10 @@ public final class ProgressStore: CanonicalDataObserving {
     /// The one reload in flight. A newer request cancels the older, so a slow
     /// early read can no longer land after — and overwrite — a fast late one.
     private var reloadTask: Task<Void, Never>?
+    /// Whether a run has ever come home successfully. An empty result then
+    /// means "the account has no progress yet", which is an answer; before
+    /// it, an empty result means the backend has not spoken.
+    private var backendHasAnswered = false
 
     public init(
         content: any ContentRepository,
@@ -127,6 +131,15 @@ public final class ProgressStore: CanonicalDataObserving {
         self.learning = learning
         self.scopes = scopes
         self.dates = dates
+    }
+
+    /// A sync run landed. The store re-reads, and remembers whether the
+    /// backend actually answered — the launch screen waits on the reading
+    /// being finished, not on the run, so the app never opens a frame before
+    /// the numbers it is about to draw.
+    public func canonicalDataDidLand(succeeded: Bool) async {
+        if succeeded { backendHasAnswered = true }
+        await reload()
     }
 
     /// Re-reads everything, cancelling whatever read was already running.
@@ -253,7 +266,9 @@ public final class ProgressStore: CanonicalDataObserving {
         guard !serverByDeck.isEmpty else {
             if Task.isCancelled { return }
             self.decks = []
-            origin = .awaitingBackend
+            // An account with nothing on the backend yet is a state, not a
+            // wait — but only once the backend has actually said so.
+            origin = backendHasAnswered ? .backend : .awaitingBackend
             return
         }
 

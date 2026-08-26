@@ -10,7 +10,11 @@ import CountryFlagsDomain
 /// came back from the background — and every new path meant another entry.
 @MainActor
 public protocol CanonicalDataObserving: AnyObject {
-    func reload() async
+    /// A run has finished and whatever it brought home is in the
+    /// repositories. `succeeded` is the difference between "the backend
+    /// answered, and this is the answer" and "the backend did not answer" —
+    /// which a store cannot tell from an empty result on its own.
+    func canonicalDataDidLand(succeeded: Bool) async
 }
 
 /// The app's single entry point into synchronisation.
@@ -32,6 +36,8 @@ public final class SyncCenter {
     /// single "the numbers changed" signal in the app: one publisher, and no
     /// screen deciding for itself when to read again.
     private var observers: [any CanonicalDataObserving] = []
+    /// Whether the launch's recovery and first run have already happened.
+    private var hasStarted = false
 
     public init(
         coordinator: any SyncCoordinating,
@@ -55,9 +61,9 @@ public final class SyncCenter {
     /// Re-reads every registered store. Called after a sync run, and directly
     /// after work that changes the numbers without touching the network — a
     /// finished session for a guest, whose answers are never uploaded.
-    public func refreshObservers() async {
+    public func refreshObservers(succeeded: Bool = true) async {
         for observer in observers {
-            await observer.reload()
+            await observer.canonicalDataDidLand(succeeded: succeeded)
         }
     }
 
@@ -66,7 +72,13 @@ public final class SyncCenter {
     /// Recovery comes first and unconditionally: a crash mid-request leaves
     /// operations in flight, and a launch that synced without requeueing them
     /// would leave that work invisible until something else happened to fix it.
+    ///
+    /// Idempotent: the launch has two possible first screens — the wait for
+    /// an account's numbers and the app itself — and moving between them
+    /// must not recover the same interrupted work twice.
     public func start() async {
+        guard !hasStarted else { return }
+        hasStarted = true
         let scope = await resolvedScope()
         await coordinator.recoverInterruptedWork(for: scope)
         status = await coordinator.status(for: scope)
@@ -80,7 +92,7 @@ public final class SyncCenter {
         // After the run, never during it: the canonical counts land in the
         // repositories as the last step of a run, so reading earlier is
         // reading the world the run was about to replace.
-        await refreshObservers()
+        await refreshObservers(succeeded: status.lastFailure == nil)
         await reportCompletion(startedAt: startedAt)
     }
 

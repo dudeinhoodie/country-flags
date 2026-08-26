@@ -482,6 +482,37 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertEqual(store.decks[0].startedCards, 3)
     }
 
+    /// An empty answer is still an answer. Waiting on it forever is what
+    /// would strand an account that has genuinely studied nothing.
+    func testAnEmptyBackendAnswerEndsTheWait() async {
+        let cards = [UUID()]
+        let store = makeStore(
+            cards: cards,
+            states: [state(cards[0], state: "REVIEW", dueAt: fixedNow)],
+            scope: .authenticated(userID: UUID())
+        )
+
+        await store.canonicalDataDidLand(succeeded: true)
+
+        XCTAssertEqual(store.origin, .backend)
+        XCTAssertTrue(store.decks.isEmpty)
+    }
+
+    /// A run that failed leaves the wait in place: the backend has not
+    /// spoken, and an empty screen must not be presented as its answer.
+    func testAFailedRunLeavesTheAccountWaiting() async {
+        let cards = [UUID()]
+        let store = makeStore(
+            cards: cards,
+            states: [state(cards[0], state: "REVIEW", dueAt: fixedNow)],
+            scope: .authenticated(userID: UUID())
+        )
+
+        await store.canonicalDataDidLand(succeeded: false)
+
+        XCTAssertEqual(store.origin, .awaitingBackend)
+    }
+
     /// Nothing rather than a guess: a locally invented figure would be
     /// replaced by a different one the moment the backend answered, and a
     /// screen that changes its mind reads as a screen making numbers up.

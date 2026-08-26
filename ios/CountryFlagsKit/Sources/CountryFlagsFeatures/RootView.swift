@@ -82,6 +82,62 @@ public struct RootView: View {
     }
 
     public var body: some View {
+        // The launch is held behind one screen until every first request has
+        // landed — the catalogue and the account's numbers both. They arrive
+        // at different times, and letting the app in after the first of them
+        // meant a deck of 250 cards appearing and then flickering into
+        // "nothing to review" a moment later, as the numbers overruled it.
+        //
+        // A screen rather than an overlay with a gesture: there is nothing
+        // behind it worth reaching, so it cannot be dismissed.
+        if isBootstrapping {
+            AccountBootstrapScreen(
+                failure: sync.status.lastFailure,
+                isRetrying: sync.status.phase == .syncing
+                    || content.status.phase != .idle,
+                environment: configuration.environment.allowsDebugAffordances
+                    ? configuration.environment.rawValue.uppercased()
+                    : nil,
+                retry: {
+                    // Both halves again: whichever of them failed, the
+                    // learner asked for the whole launch to be retried.
+                    await content.refresh()
+                    await sync.synchronize(trigger: .pullToRefresh)
+                }
+            )
+            .preferredColorScheme(.dark)
+            // Both first requests start here, so the wait is over exactly
+            // when there is something complete to show.
+            .task { await content.start() }
+            .task { await sync.start() }
+        } else {
+            shell
+        }
+    }
+
+    /// Whether any of the launch's first requests is still outstanding.
+    ///
+    /// The catalogue's first synchronisation counts even when it fails: what
+    /// matters is that the attempt has been made, because after it the app
+    /// knows what it is able to show. The numbers are the other half.
+    private var isBootstrapping: Bool {
+        if content.lastSyncedAt == nil { return true }
+        return isAwaitingFirstNumbers
+    }
+
+    /// Whether an account is still waiting for the numbers it is not allowed
+    /// to invent. A guest never waits: nobody else is counting their work.
+    ///
+    /// The store answers this, not the sync status. A run reports success
+    /// before the store has re-read what it delivered, so waiting on the run
+    /// let the app open one frame early — long enough for the learned-countries
+    /// block to appear a moment after the screen it belongs to. The store
+    /// settles on `backend` once it has read the answer, empty or not.
+    private var isAwaitingFirstNumbers: Bool {
+        progress.origin == .awaitingBackend
+    }
+
+    private var shell: some View {
         // A tab bar rather than buttons on Home: the catalog and the progress
         // are places, and iOS puts places on the bottom bar. The bar's glass
         // is the system's own.
@@ -308,6 +364,10 @@ public enum AccessibilityIdentifier {
     public static let shellTitle = "root.shell.title"
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
+    /// The first-run wait for an account's numbers, and the way out of it
+    /// when the backend cannot be reached.
+    public static let accountBootstrap = "root.accountBootstrap"
+    public static let accountBootstrapRetry = "root.accountBootstrap.retry"
 
     public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"
