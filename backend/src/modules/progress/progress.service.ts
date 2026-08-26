@@ -86,6 +86,41 @@ function progressResponse(
   };
 }
 
+/**
+ * Every card taught by anything the classification places under an entity,
+ * at any depth.
+ *
+ * A region contains subregions and the subregions contain the countries the
+ * cards actually hang on, so a walk that stopped at the first level counted
+ * nothing at all and left every region's progress, tier and achievement at
+ * zero (#252). The pipeline resolves taxonomy decks the same way
+ * (`deckMembers` in tools/content-pipeline/src/merge.ts); these two readings
+ * of one tree have to agree, and `region-progress.spec.ts` pins them.
+ *
+ * The root itself contributes nothing: a region is not a country and has no
+ * card of its own. Cycles cannot come from a well-formed catalogue, but the
+ * walk carries a seen-set anyway — a bad relation should not hang a request.
+ */
+export function cardsUnder(
+  rootId: string,
+  childrenByParent: Map<string, string[]>,
+  cardsByEntity: Map<string, string[]>,
+): string[] {
+  const cards: string[] = [];
+  const seen = new Set<string>([rootId]);
+  const queue = [...(childrenByParent.get(rootId) ?? [])];
+  while (queue.length > 0) {
+    const entityId = queue.shift();
+    if (entityId === undefined || seen.has(entityId)) {
+      continue;
+    }
+    seen.add(entityId);
+    cards.push(...(cardsByEntity.get(entityId) ?? []));
+    queue.push(...(childrenByParent.get(entityId) ?? []));
+  }
+  return cards;
+}
+
 function scopeResponse(
   scope: ScopeProgress,
   highestAchievementTier: MasteryTier,
@@ -510,7 +545,7 @@ export class ProgressService {
         ];
       }),
     );
-    const [decks, regions] = await Promise.all([
+    const [decks, regions, relations, cardsByEntityRows] = await Promise.all([
       transaction.deck.findMany({
         where: { status: DeckStatus.PUBLISHED },
         select: {
@@ -527,28 +562,37 @@ export class ProgressService {
           kind: GeoEntityKind.REGION,
           status: GeoEntityStatus.ACTIVE,
         },
-        select: {
-          id: true,
-          parentRelations: {
-            where: {
-              relationType: GeoRelationType.CONTAINS,
-              OR: [{ validTo: null }, { validTo: { gte: now } }],
-            },
-            select: {
-              child: {
-                select: {
-                  learningCards: {
-                    where: { status: CardStatus.ACTIVE },
-                    select: { id: true },
-                  },
-                },
-              },
-            },
-          },
-        },
+        select: { id: true },
         orderBy: { id: "asc" },
       }),
+      // The classification, whole. A region's own children are subregions
+      // and the cards hang on the countries below those, so the walk has to
+      // be transitive — read once here rather than joined per region.
+      transaction.geoRelation.findMany({
+        where: {
+          relationType: GeoRelationType.CONTAINS,
+          OR: [{ validTo: null }, { validTo: { gte: now } }],
+        },
+        select: { parentEntityId: true, childEntityId: true },
+      }),
+      transaction.learningCard.findMany({
+        where: { status: CardStatus.ACTIVE },
+        select: { id: true, subjectEntityId: true },
+      }),
     ]);
+    const childrenByParent = new Map<string, string[]>();
+    for (const relation of relations) {
+      const siblings = childrenByParent.get(relation.parentEntityId) ?? [];
+      siblings.push(relation.childEntityId);
+      childrenByParent.set(relation.parentEntityId, siblings);
+    }
+    const cardsByEntity = new Map<string, string[]>();
+    for (const card of cardsByEntityRows) {
+      const cards = cardsByEntity.get(card.subjectEntityId) ?? [];
+      cards.push(card.id);
+      cardsByEntity.set(card.subjectEntityId, cards);
+    }
+
     const scope = (
       scopeType: ScopeProgress["scopeType"],
       scopeId: string,
@@ -579,9 +623,7 @@ export class ProgressService {
         scope(
           "REGION",
           region.id,
-          region.parentRelations.flatMap(({ child }) =>
-            child.learningCards.map(({ id }) => id),
-          ),
+          cardsUnder(region.id, childrenByParent, cardsByEntity),
         ),
       ),
     };
