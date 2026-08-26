@@ -115,6 +115,26 @@
           "name": "Океания"
         }
       }
+    },
+    {
+      "key": "deck.regions",
+      "kind": "curated",
+      "members": [
+        "region.africa",
+        "region.americas",
+        "region.asia",
+        "region.oceania"
+      ],
+      "names": {
+        "en": {
+          "description": "test",
+          "name": "Regions"
+        },
+        "ru": {
+          "description": "test",
+          "name": "Регионы"
+        }
+      }
     }
   ],
   "defaultLocale": "ru",
@@ -123,7 +143,7 @@
       "identifiers": {
         "isoAlpha2": "AQ"
       },
-      "includeInCountryCatalog": true,
+      "includeInCountryCatalog": false,
       "key": "area.antarctica",
       "recognitionStatus": "special_area",
       "status": "active",
