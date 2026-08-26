@@ -54,12 +54,17 @@ interface EditorialEntityDocument extends Record<string, unknown> {
 const ENTITY_SCALAR_FIELDS = [
   "type",
   "status",
-  "includeInCountryCatalog",
   "recognitionStatus",
   "recognitionAsOf",
   "validFrom",
   "validTo",
 ] as const;
+
+/** The document nests toggles in config; the diff names them flat. */
+function entityToggle(entity: Record<string, unknown>): unknown {
+  return (entity.config as Record<string, unknown> | undefined)
+    ?.includeInCountryCatalog;
+}
 
 function scalarText(value: unknown): string {
   if (value === undefined) {
@@ -249,6 +254,11 @@ export class DraftDiffService {
             `${field}: ${scalarText(base[field])} → ${scalarText(entity[field])}`,
           );
         }
+      }
+      if (scalarText(entityToggle(base)) !== scalarText(entityToggle(entity))) {
+        details.push(
+          `includeInCountryCatalog: ${scalarText(entityToggle(base))} → ${scalarText(entityToggle(entity))}`,
+        );
       }
       const baseIdentifiers = (base.identifiers ?? {}) as Record<
         string,

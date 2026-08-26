@@ -3,10 +3,30 @@ import type { MembershipContext } from "./deck-membership";
 
 const context: MembershipContext = {
   entities: [
-    { key: "country.france", status: "active", includeInCountryCatalog: true },
-    { key: "country.japan", status: "active", includeInCountryCatalog: true },
-    { key: "country.spain", status: "active", includeInCountryCatalog: true },
-    { key: "region.europe", status: "active", includeInCountryCatalog: false },
+    {
+      key: "country.france",
+      type: "country",
+      status: "active",
+      config: { includeInCountryCatalog: true },
+    },
+    {
+      key: "country.japan",
+      type: "country",
+      status: "active",
+      config: { includeInCountryCatalog: true },
+    },
+    {
+      key: "country.spain",
+      type: "country",
+      status: "active",
+      config: { includeInCountryCatalog: true },
+    },
+    {
+      key: "region.europe",
+      type: "region",
+      status: "active",
+      config: { includeInCountryCatalog: false },
+    },
   ],
   relations: [
     {
@@ -24,12 +44,11 @@ const context: MembershipContext = {
 
 function document(overrides: Record<string, unknown> = {}): unknown {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     defaultLocale: "ru",
     supportedLocales: ["ru", "en"],
     entities: context.entities.map((entity) => ({
       ...entity,
-      type: "country",
       recognitionStatus: "un_member",
     })),
     additionalRelations: [],
@@ -109,19 +128,55 @@ describe("DraftValidationService", () => {
     expect(report.warnings).toBeGreaterThan(0);
   });
 
+  it("warns about explicit members that carry no card, and unknown ones", () => {
+    const report = service.validate(
+      document({
+        decks: [
+          {
+            key: "deck.mixed",
+            kind: "curated",
+            names: {
+              ru: { name: "Смесь", description: "Разное" },
+              en: { name: "Mixed", description: "Assorted" },
+            },
+            members: ["country.france", "region.europe", "country.atlantis"],
+          },
+        ],
+      }),
+      context,
+      [],
+    );
+    // Editorial latitude, not a broken build: the deck publishes without
+    // the cardless members, and the editor should know before proposing.
+    expect(report.blocking).toBe(0);
+    expect(
+      report.findings.some(
+        (finding) =>
+          finding.code === "MEMBER_NOT_LEARNABLE" &&
+          finding.message.includes("region.europe"),
+      ),
+    ).toBe(true);
+    expect(
+      report.findings.some(
+        (finding) =>
+          finding.code === "MEMBER_UNKNOWN" &&
+          finding.message.includes("country.atlantis"),
+      ),
+    ).toBe(true);
+  });
+
   it("blocks duplicate entities and duplicate decks", () => {
     const doubled = document({
       entities: [
         ...context.entities.map((entity) => ({
           ...entity,
-          type: "country",
           recognitionStatus: "un_member",
         })),
         {
           key: "country.france",
           type: "country",
           status: "active",
-          includeInCountryCatalog: true,
+          config: { includeInCountryCatalog: true },
           recognitionStatus: "un_member",
         },
       ],

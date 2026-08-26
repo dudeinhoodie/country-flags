@@ -1,6 +1,7 @@
 import {
   assertDeckIsSound,
   currentEntityKeys,
+  learnableEntityKeys,
   membersMode,
   resolveDeckMembers,
 } from "./deck-membership";
@@ -29,26 +30,56 @@ function errorOf(action: () => unknown): { code: string; message: string } {
 
 const context: MembershipContext = {
   entities: [
-    { key: "country.france", status: "active", includeInCountryCatalog: true },
-    { key: "country.japan", status: "active", includeInCountryCatalog: true },
-    { key: "country.spain", status: "active", includeInCountryCatalog: true },
-    // Excluded from the catalog: approved decks must not pick it up.
+    {
+      key: "country.france",
+      type: "country",
+      status: "active",
+      config: { includeInCountryCatalog: true },
+    },
+    {
+      key: "country.japan",
+      type: "country",
+      status: "active",
+      config: { includeInCountryCatalog: true },
+    },
+    {
+      key: "country.spain",
+      type: "country",
+      status: "active",
+      config: { includeInCountryCatalog: true },
+    },
+    // Not learnable any more: no deck may pick it up.
     {
       key: "country.ussr",
+      type: "country",
       status: "historical",
-      includeInCountryCatalog: true,
+      config: { includeInCountryCatalog: true },
     },
+    // Hidden from the all-countries deck, still learnable: taxonomy and
+    // explicit decks keep it (ADR-015).
     {
       key: "territory.aland",
+      type: "territory",
       status: "active",
-      includeInCountryCatalog: false,
+      config: { includeInCountryCatalog: false },
     },
-    { key: "region.europe", status: "active", includeInCountryCatalog: false },
-    { key: "region.asia", status: "active", includeInCountryCatalog: false },
+    {
+      key: "region.europe",
+      type: "region",
+      status: "active",
+      config: { includeInCountryCatalog: false },
+    },
+    {
+      key: "region.asia",
+      type: "region",
+      status: "active",
+      config: { includeInCountryCatalog: false },
+    },
     {
       key: "subregion.iberia",
+      type: "subregion",
       status: "active",
-      includeInCountryCatalog: false,
+      config: { includeInCountryCatalog: false },
     },
   ],
   relations: [
@@ -94,8 +125,19 @@ function deck(overrides: Partial<EditorialDeck>): EditorialDeck {
   };
 }
 
+describe("learnableEntityKeys", () => {
+  it("keeps every active country, territory and area, whatever the listing toggle says", () => {
+    expect(learnableEntityKeys(context.entities)).toEqual([
+      "country.france",
+      "country.japan",
+      "country.spain",
+      "territory.aland",
+    ]);
+  });
+});
+
 describe("currentEntityKeys", () => {
-  it("keeps only approved, still-current entities, sorted", () => {
+  it("narrows the learnable pool by the listing toggle, sorted", () => {
     expect(currentEntityKeys(context.entities)).toEqual([
       "country.france",
       "country.japan",
@@ -158,13 +200,32 @@ describe("resolveDeckMembers", () => {
     expect(error.message).toMatch(/contains nothing/);
   });
 
+  it("keeps an entity hidden from the all-countries deck in a taxonomy deck", () => {
+    const hiddenIsland: MembershipContext = {
+      entities: context.entities,
+      relations: [
+        {
+          parentKey: "region.nordics",
+          childKey: "territory.aland",
+          relationType: "contains",
+        },
+      ],
+    };
+    expect(
+      resolveDeckMembers(
+        deck({ kind: "taxonomy", members: { taxonomy: "region.nordics" } }),
+        hiddenIsland,
+      ),
+    ).toEqual(["territory.aland"]);
+  });
+
   it("refuses a node whose entities are all unpublishable", () => {
     const isolated: MembershipContext = {
       entities: context.entities,
       relations: [
         {
           parentKey: "region.nowhere",
-          childKey: "territory.aland",
+          childKey: "country.ussr",
           relationType: "contains",
         },
       ],

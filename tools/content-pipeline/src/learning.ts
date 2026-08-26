@@ -4,11 +4,6 @@ import { sha256 } from "./stable-json.js";
 const TEMPLATE_CODE = "FLAG_TO_COUNTRY";
 const TEMPLATE_SCHEMA_VERSION = 1;
 
-interface CatalogDeck {
-  key: string;
-  memberEntityKeys: string[];
-}
-
 export interface LearningContent {
   cardTemplates: Record<string, unknown>;
   learningCards: Record<string, unknown>;
@@ -36,15 +31,13 @@ function vectorChecksum(asset: BuiltAsset): string {
 }
 
 export function buildLearningContent(
-  decks: CatalogDeck[],
+  learnableEntityKeys: string[],
   assets: BuiltAsset[],
   createdAt: string,
 ): LearningContent {
-  const allDeck = decks.find(({ key }) => key === "deck.all");
-  if (allDeck === undefined) {
-    throw new Error("Catalog must contain deck.all to derive learning cards");
-  }
-
+  // The card pool is the learnable pool, not the all-countries deck: an
+  // entity hidden from that listing still teaches in every other deck it
+  // belongs to (ADR-015).
   const assetsByEntity = new Map<string, BuiltAsset[]>();
   for (const asset of assets) {
     const list = assetsByEntity.get(asset.entityKey) ?? [];
@@ -52,7 +45,7 @@ export function buildLearningContent(
     assetsByEntity.set(asset.entityKey, list);
   }
 
-  const cards = [...allDeck.memberEntityKeys]
+  const cards = [...learnableEntityKeys]
     .sort((left, right) => left.localeCompare(right, "en"))
     .map((entityKey) => {
       const entityAssets = (assetsByEntity.get(entityKey) ?? []).sort(

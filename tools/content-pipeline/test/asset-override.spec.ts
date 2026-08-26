@@ -37,7 +37,7 @@ function catalog(
   overrides?: EditorialCatalog["assetOverrides"],
 ): EditorialCatalog {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     defaultLocale: "ru",
     supportedLocales: ["ru", "en"],
     entities: [
@@ -45,7 +45,7 @@ function catalog(
         key: "country.alpha",
         type: "country",
         status: "active",
-        includeInCountryCatalog: true,
+        config: { includeInCountryCatalog: true },
         recognitionStatus: "un_member",
         identifiers: { isoAlpha2: "AA" },
         overrides: {
@@ -57,7 +57,7 @@ function catalog(
         key: "country.beta",
         type: "country",
         status: "active",
-        includeInCountryCatalog: true,
+        config: { includeInCountryCatalog: true },
         recognitionStatus: "un_member",
         identifiers: { isoAlpha2: "BB" },
         overrides: {
@@ -240,7 +240,7 @@ void test("an override for an entity no source covers displaces nothing", async 
     key: "country.gamma",
     type: "country",
     status: "active",
-    includeInCountryCatalog: true,
+    config: { includeInCountryCatalog: true },
     recognitionStatus: "un_member",
     identifiers: { isoAlpha2: "GG" },
     overrides: {

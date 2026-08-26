@@ -12,7 +12,7 @@ function entity(
     key: "country.france",
     type: "country",
     status: "active",
-    includeInCountryCatalog: true,
+    config: { includeInCountryCatalog: true },
     recognitionStatus: "un_member",
     identifiers: { isoAlpha2: "FR" },
     ...overrides,
@@ -71,6 +71,24 @@ describe("DraftEntitiesService", () => {
     // Untouched fields survive the update.
     expect(stored?.identifiers).toEqual({ isoAlpha2: "FR" });
     expect(stored?.type).toBe("country");
+  });
+
+  it("stores the flat listing toggle inside the entity's config", async () => {
+    const { service, written } = serviceWith({ entities: [entity()] });
+    await service.update(
+      actor,
+      "draft-1",
+      1,
+      "country.france",
+      { includeInCountryCatalog: false },
+      "req-1",
+    );
+    const stored = (written()?.entities as Record<string, unknown>[])[0];
+    expect(stored?.config).toEqual({ includeInCountryCatalog: false });
+    // The flat API field never lands in the document itself.
+    expect(stored !== undefined && "includeInCountryCatalog" in stored).toBe(
+      false,
+    );
   });
 
   it("drops an emptied overrides map instead of storing {}", async () => {
