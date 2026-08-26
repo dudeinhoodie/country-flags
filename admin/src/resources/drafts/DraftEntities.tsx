@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -15,6 +14,8 @@ import Typography from "@mui/material/Typography";
 import { useMemo, useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { Link, useParams } from "react-router-dom";
+import { LoadingState } from "../../components/LoadingState";
+import { StatusChip } from "../../components/StatusChip";
 import { useDraftEntities } from "./useDraftEntities";
 import type { DraftEntityListItem } from "./useDraftEntities";
 
@@ -38,16 +39,6 @@ function matches(entity: DraftEntityListItem, query: string): boolean {
   return haystack.includes(query);
 }
 
-const STATUS_COLOR: Record<
-  string,
-  "default" | "success" | "warning" | "error"
-> = {
-  active: "success",
-  historical: "warning",
-  retired: "default",
-  hidden: "error",
-};
-
 export function DraftEntities() {
   const { draftId } = useParams();
   const { permissions } = usePermissions<string>();
@@ -69,9 +60,7 @@ export function DraftEntities() {
     return <Alert severity="error">{error}</Alert>;
   }
   if (filtered === null) {
-    return (
-      <Typography color="text.secondary">Loading the entities…</Typography>
-    );
+    return <LoadingState label="Loading the entities…" />;
   }
 
   return (
@@ -124,12 +113,7 @@ export function DraftEntities() {
                   <TableCell>{entity.publishedName ?? "—"}</TableCell>
                   <TableCell>{entity.type}</TableCell>
                   <TableCell>
-                    <Chip
-                      label={entity.status}
-                      size="small"
-                      color={STATUS_COLOR[entity.status] ?? "default"}
-                      variant="outlined"
-                    />
+                    <StatusChip value={entity.status} />
                   </TableCell>
                   <TableCell align="center">
                     {entity.includeInCountryCatalog ? "yes" : "no"}

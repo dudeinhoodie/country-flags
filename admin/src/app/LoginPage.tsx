@@ -6,8 +6,10 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
 import { useAdminApiClient } from "../api/ApiClientContext";
+import { BrandMark } from "../components/BrandMark";
 import { EnvironmentBadge } from "../components/EnvironmentBadge";
 import { useRuntimeConfig } from "../config/RuntimeConfigContext";
+import { scene, sceneBackgroundImage } from "./theme";
 
 interface GoogleCredentialResponse {
   credential?: string;
@@ -139,6 +141,8 @@ export function LoginPage() {
     };
   }, [config, client]);
 
+  // The login is a brand surface: the product's dark scene regardless of
+  // the console theme, with the glow turning red when this is prod.
   return (
     <Box
       sx={{
@@ -146,27 +150,64 @@ export function LoginPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        p: 3,
+        color: scene.text,
+        backgroundColor: scene.ink,
+        backgroundImage: sceneBackgroundImage(config.environment),
       }}
     >
-      <Card sx={{ minWidth: 360 }}>
-        <CardContent>
-          <Stack spacing={2} sx={{ alignItems: "center" }}>
-            <Typography variant="h5" component="h1">
+      <Stack spacing={4} sx={{ alignItems: "center" }}>
+        <Stack spacing={1.5} sx={{ alignItems: "center" }}>
+          <BrandMark size={48} />
+          <Stack spacing={0.25} sx={{ alignItems: "center" }}>
+            <Typography
+              variant="h5"
+              component="h1"
+              sx={{ fontWeight: 800, letterSpacing: "-0.01em" }}
+            >
               Country Flags Admin
             </Typography>
-            <EnvironmentBadge />
-            {config.googleClientId === "" ? (
-              <Alert severity="warning">
-                Google sign-in is not configured for this environment: the
-                runtime config has an empty googleClientId.
-              </Alert>
-            ) : (
-              <div ref={buttonRef} />
-            )}
-            {error !== null && <Alert severity="error">{error}</Alert>}
+            <Typography variant="overline" sx={{ color: scene.textDim }}>
+              Catalog console
+            </Typography>
           </Stack>
-        </CardContent>
-      </Card>
+        </Stack>
+        <Card
+          sx={{
+            width: "min(400px, 92vw)",
+            backgroundColor: scene.glass,
+            border: `1px solid ${scene.glassBorder}`,
+            borderRadius: 4,
+            backdropFilter: "blur(18px)",
+            boxShadow: "0 24px 60px rgba(4, 9, 20, 0.55)",
+          }}
+        >
+          <CardContent sx={{ p: 4 }}>
+            <Stack spacing={2.5} sx={{ alignItems: "center" }}>
+              <EnvironmentBadge />
+              <Typography
+                variant="body2"
+                sx={{ color: scene.textDim, textAlign: "center" }}
+              >
+                Sign in with your Google account. Access is granted by an
+                administrator.
+              </Typography>
+              {config.googleClientId === "" ? (
+                <Alert severity="warning">
+                  Google sign-in is not configured for this environment: the
+                  runtime config has an empty googleClientId.
+                </Alert>
+              ) : (
+                <div ref={buttonRef} />
+              )}
+              {error !== null && <Alert severity="error">{error}</Alert>}
+            </Stack>
+          </CardContent>
+        </Card>
+        <Typography variant="caption" sx={{ color: scene.textDim }}>
+          Build {config.appVersion}
+        </Typography>
+      </Stack>
     </Box>
   );
 }

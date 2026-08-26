@@ -1,4 +1,16 @@
-import { Datagrid, DateField, List, TextField } from "react-admin";
+import {
+  Datagrid,
+  DateField,
+  FunctionField,
+  List,
+  TextField,
+} from "react-admin";
+import { RoleChip, StatusChip } from "../../components/StatusChip";
+
+interface AccessRow {
+  role: string;
+  status: string;
+}
 
 /**
  * The server orders the roster by email and ignores client sort; the
@@ -10,8 +22,14 @@ export function AccessList() {
       <Datagrid rowClick="edit" bulkActionButtons={false}>
         <TextField source="email" sortable={false} />
         <TextField source="displayName" sortable={false} />
-        <TextField source="role" sortable={false} />
-        <TextField source="status" sortable={false} />
+        <FunctionField
+          label="Role"
+          render={(record: AccessRow) => <RoleChip value={record.role} />}
+        />
+        <FunctionField
+          label="Status"
+          render={(record: AccessRow) => <StatusChip value={record.status} />}
+        />
         <DateField source="createdAt" showTime sortable={false} />
       </Datagrid>
     </List>

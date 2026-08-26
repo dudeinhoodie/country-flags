@@ -1,6 +1,8 @@
 import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import EditNoteOutlinedIcon from "@mui/icons-material/EditNoteOutlined";
 import {
-  CreateButton,
   Datagrid,
   DateField,
   FunctionField,
@@ -13,6 +15,7 @@ import {
   useCreate,
 } from "react-admin";
 import { Link } from "react-router-dom";
+import { StatusChip } from "../../components/StatusChip";
 import type { components } from "../../api/generated/admin-api";
 
 type Draft = components["schemas"]["AdminDraftSummary"];
@@ -70,17 +73,33 @@ export function DraftList() {
       exporter={false}
       perPage={25}
       empty={
-        <div style={{ padding: "2rem" }}>
-          <p>
-            No drafts yet. Importing one copies the editorial catalog this
-            deployment carries, together with the commit it belongs to.
-          </p>
+        <Stack
+          spacing={2}
+          sx={{ alignItems: "center", py: 10, textAlign: "center", flex: 1 }}
+        >
+          <EditNoteOutlinedIcon
+            sx={{ fontSize: 44, color: "text.secondary" }}
+          />
+          <Typography variant="h6" component="p">
+            No drafts yet
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ maxWidth: 440 }}
+          >
+            Importing one copies the editorial catalog this deployment carries,
+            together with the commit it belongs to.
+          </Typography>
           <ImportDraftButton />
-        </div>
+        </Stack>
       }
     >
       <Datagrid bulkActionButtons={false} rowClick={false}>
-        <TextField source="status" sortable={false} />
+        <FunctionField
+          label="Status"
+          render={(record: Draft) => <StatusChip value={record.status} />}
+        />
         <NumberField source="revision" sortable={false} />
         <TextField
           source="baseContentVersion"
@@ -110,5 +129,3 @@ export function DraftList() {
     </List>
   );
 }
-
-export { CreateButton };

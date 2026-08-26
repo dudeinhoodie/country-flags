@@ -1,19 +1,20 @@
 import type { CSSProperties } from "react";
+import { scene } from "../app/theme";
 
 const screenStyle: CSSProperties = {
   minHeight: "100vh",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  backgroundColor: "#1a1a1a",
-  color: "#f5f5f5",
+  backgroundColor: scene.ink,
+  color: scene.text,
   fontFamily: "system-ui, sans-serif",
   padding: "2rem",
 };
 
 const panelStyle: CSSProperties = {
   maxWidth: "36rem",
-  borderLeft: "4px solid #d32f2f",
+  borderLeft: `4px solid ${scene.crimson}`,
   paddingLeft: "1.5rem",
 };
 

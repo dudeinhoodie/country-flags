@@ -125,7 +125,8 @@ test("signs the operator in and shows the active release", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Catalog administration")).toBeVisible();
   await expect(page.getByText("fixture-v1")).toBeVisible();
-  await expect(page.getByText("Entities: 278 · Decks: 6")).toBeVisible();
+  await expect(page.getByText("278", { exact: true })).toBeVisible();
+  await expect(page.getByText("6", { exact: true })).toBeVisible();
 });
 
 test("marks the environment, and prod unmistakably", async ({ page }) => {

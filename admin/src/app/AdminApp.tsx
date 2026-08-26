@@ -1,3 +1,7 @@
+import EditNoteOutlinedIcon from "@mui/icons-material/EditNoteOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
+import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
 import { useMemo } from "react";
 import { Admin, CustomRoutes, Resource } from "react-admin";
 import { Route } from "react-router-dom";
@@ -22,6 +26,7 @@ import { createAuthProvider } from "./auth-provider";
 import { Dashboard } from "./Dashboard";
 import { createAdminDataProvider } from "./data-provider";
 import { LoginPage } from "./LoginPage";
+import { darkTheme, lightTheme } from "./theme";
 
 export function AdminApp({ config }: { config: RuntimeConfig }) {
   const providers = useMemo(() => {
@@ -38,6 +43,8 @@ export function AdminApp({ config }: { config: RuntimeConfig }) {
         <Admin
           title="Country Flags Admin"
           layout={AdminLayout}
+          theme={lightTheme}
+          darkTheme={darkTheme}
           dataProvider={providers.dataProvider}
           authProvider={providers.authProvider}
           loginPage={LoginPage}
@@ -71,17 +78,20 @@ export function AdminApp({ config }: { config: RuntimeConfig }) {
               <Resource
                 name="entities"
                 options={{ label: "Countries" }}
+                icon={PublicOutlinedIcon}
                 list={EntityList}
                 show={EntityShow}
               />
               <Resource
                 name="drafts"
                 options={{ label: "Drafts" }}
+                icon={EditNoteOutlinedIcon}
                 list={DraftList}
               />
               <Resource
                 name="decks"
                 options={{ label: "Decks" }}
+                icon={StyleOutlinedIcon}
                 list={DeckList}
                 show={DeckShow}
               />
@@ -91,6 +101,7 @@ export function AdminApp({ config }: { config: RuntimeConfig }) {
                 <Resource
                   name="users"
                   options={{ label: "Access" }}
+                  icon={ManageAccountsOutlinedIcon}
                   list={AccessList}
                   edit={AccessEdit}
                 />
