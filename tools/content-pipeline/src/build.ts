@@ -148,7 +148,7 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     .sort()
     .at(-1);
   const learning = buildLearningContent(
-    merged.catalog.decks as { key: string; memberEntityKeys: string[] }[],
+    merged.learnableEntityKeys,
     merged.assets,
     String(createdAt),
   );

@@ -543,7 +543,7 @@ export function validateEnvironment(
     ),
     ADMIN_EDITORIAL_SCHEMA_PATH: optionalString(
       config.ADMIN_EDITORIAL_SCHEMA_PATH,
-      "../contracts/schemas/content/editorial-catalog.v1.schema.json",
+      "../contracts/schemas/content/editorial-catalog.v2.schema.json",
       "ADMIN_EDITORIAL_SCHEMA_PATH",
     ),
     // Flags and coats of arms are small; the limit exists to stop a

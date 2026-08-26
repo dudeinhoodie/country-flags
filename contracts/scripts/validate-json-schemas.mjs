@@ -37,12 +37,18 @@ const validationTargets = [
     data: ["fixtures/security/guest-import.valid.json"],
   },
   {
+    // Kept for the drafts still stored in v1 shape; the backend lifts them
+    // to v2 on read (ADR-015), and nothing new is written against it.
     schema: "schemas/content/editorial-catalog.v1.schema.json",
+    data: ["fixtures/content/editorial-catalog.v1.valid.json"],
+  },
+  {
+    schema: "schemas/content/editorial-catalog.v2.schema.json",
     // The real editorial catalog is validated alongside the fixture: the
     // admin console saves drafts against this schema, so the schema must
     // keep describing the document the pipeline actually maintains.
     data: [
-      "fixtures/content/editorial-catalog.valid.json",
+      "fixtures/content/editorial-catalog.v2.valid.json",
       "../tools/content-pipeline/editorial/catalog.json",
     ],
   },

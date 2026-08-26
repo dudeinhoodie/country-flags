@@ -16,13 +16,28 @@ export interface EditorialEntityRecord extends Record<string, unknown> {
   key: string;
   type: "country" | "territory" | "area" | "region" | "subregion";
   status: "active" | "historical" | "retired" | "hidden";
-  includeInCountryCatalog: boolean;
+  /** Presentation toggles (ADR-015); they never gate learnability. */
+  config: { includeInCountryCatalog: boolean };
   recognitionStatus: string;
   recognitionAsOf?: string;
   validFrom?: string;
   validTo?: string;
   identifiers?: Record<string, string>;
   overrides?: Record<string, unknown>;
+}
+
+/**
+ * The API keeps the toggle flat: nesting is document structure, and the
+ * console's screens should not have to know where a toggle happens to live
+ * in the editorial file.
+ */
+export type ApiEntityRecord = Omit<EditorialEntityRecord, "config"> & {
+  includeInCountryCatalog: boolean;
+};
+
+function toApiEntity(entity: EditorialEntityRecord): ApiEntityRecord {
+  const { config, ...rest } = entity;
+  return { ...rest, includeInCountryCatalog: config.includeInCountryCatalog };
 }
 
 /**
@@ -54,7 +69,7 @@ export interface EntityListItem {
 }
 
 export interface EntityDetail {
-  entity: EditorialEntityRecord;
+  entity: ApiEntityRecord;
   /**
    * What the active release currently serves for this entity, locale → short
    * name. Placeholders for the editor: an override the entity does not carry
@@ -96,7 +111,7 @@ export class DraftEntitiesService {
       key: entity.key,
       type: entity.type,
       status: entity.status,
-      includeInCountryCatalog: entity.includeInCountryCatalog,
+      includeInCountryCatalog: entity.config.includeInCountryCatalog,
       recognitionStatus: entity.recognitionStatus,
       identifiers: entity.identifiers ?? {},
       overrideCount: Object.keys(entity.overrides ?? {}).length,
@@ -124,7 +139,7 @@ export class DraftEntitiesService {
     for (const name of published?.names ?? []) {
       publishedNames[name.locale] = name.value;
     }
-    return { entity, publishedNames };
+    return { entity: toApiEntity(entity), publishedNames };
   }
 
   /**
@@ -155,9 +170,15 @@ export class DraftEntitiesService {
           entityNotFound(entityKey);
         }
         const existing = catalog.entities[index] as EditorialEntityRecord;
+        // The API field is flat; in the document the toggle lives in the
+        // entity's config object (ADR-015).
+        const { includeInCountryCatalog, ...fieldChanges } = changes;
         const next = {
           ...existing,
-          ...changes,
+          ...fieldChanges,
+          ...(includeInCountryCatalog === undefined
+            ? {}
+            : { config: { ...existing.config, includeInCountryCatalog } }),
           key: entityKey,
         } as EditorialEntityRecord;
         for (const field of [

@@ -141,7 +141,15 @@ export interface EditorialEntity {
   key: string;
   type: "country" | "territory" | "area" | "region" | "subregion";
   status: "active" | "historical" | "retired" | "hidden";
-  includeInCountryCatalog: boolean;
+  /**
+   * Presentation toggles (ADR-015). They never decide whether the entity
+   * is learnable: an active country, territory or area keeps its card and
+   * facts and stays available to every deck regardless.
+   */
+  config: {
+    /** Whether the entity appears in the all-countries deck. */
+    includeInCountryCatalog: boolean;
+  };
   recognitionStatus: string;
   recognitionAsOf?: string;
   validFrom?: string;
@@ -172,7 +180,7 @@ export interface EditorialDeck {
 }
 
 export interface EditorialCatalog {
-  schemaVersion: 1;
+  schemaVersion: 2;
   defaultLocale: string;
   supportedLocales: string[];
   entities: EditorialEntity[];

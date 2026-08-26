@@ -87,6 +87,15 @@ Schema: [catalog.schema.json](../content/schemas/catalog.schema.json)
 
 Остальные данные можно обогатить при импорте.
 
+Семантика `includeInCountryCatalog` зафиксирована
+[ADR-015](adr/ADR-015-entity-config-and-learnable-pool.md): флаг управляет
+**только** членством в колоде «Все страны» (`all-current`). Учебный пул —
+карточка, факты, участие в остальных колодах — определяется иначе: активная
+сущность типа `country`, `territory` или `area` обучаема всегда, что бы флаг
+ни говорил. В editorial-слое (`editorial/catalog.json`, schema v2) флаг живёт
+внутри объекта `config` сущности; в собранном каталоге публикуется плоско,
+как показано выше.
+
 ## 4. Locale
 
 Ключи объекта `names` — BCP 47 language tags:
