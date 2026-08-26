@@ -5,7 +5,7 @@
       "adapter": "cldr",
       "key": "cldr",
       "license": "Unicode-3.0",
-      "retrievedAt": "2026-08-25T12:35:50.489Z",
+      "retrievedAt": "2026-08-26T16:00:55.777Z",
       "revision": "48.2.0",
       "sha256": "8c78694aaf9dd22bec1f64fb295e9a2202ef347b828ef017647bb23e53a554bf",
       "snapshotPath": "sources/snapshots/cldr.json",
@@ -15,9 +15,9 @@
       "adapter": "un-m49",
       "key": "un-m49",
       "license": "UN terms of use",
-      "retrievedAt": "2026-07-28T13:05:12.292Z",
+      "retrievedAt": "2026-08-26T16:00:54.932Z",
       "revision": "snapshot-2026-07-28",
-      "sha256": "3860fc27b83a237e634357fec3e7542ed36c47e8afcc490500efd2e7da88557b",
+      "sha256": "db29d472f9f8f34c827a5f23f4fe7dfd053546b3428cdf37e9e5e2fda1904820",
       "snapshotPath": "sources/snapshots/un-m49.json",
       "url": "https://unstats.un.org/unsd/methodology/m49/overview/"
     },
@@ -67,7 +67,7 @@
       "license": "Proprietary editorial data",
       "retrievedAt": "2026-08-26T14:17:17.835Z",
       "revision": "editorial-v8",
-      "sha256": "230f6e26b345775a190a58a810d6024f61d624823f4dceef207e91127036b165",
+      "sha256": "8afa474dbe085d7a868d53138157245ab0dea27a59924f5191639b78348dd61a",
       "snapshotPath": "editorial/catalog.json",
       "url": "file:editorial/catalog.json"
     }

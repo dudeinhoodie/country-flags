@@ -6,6 +6,7 @@
       "key": "deck.all",
       "kind": "curated",
       "memberEntityKeys": [
+        "area.antarctica",
         "area.bouvet-island",
         "area.cook-islands",
         "area.french-southern-territories",
@@ -649,7 +650,7 @@
         "isoAlpha3": "ATA",
         "m49": "010"
       },
-      "includeInCountryCatalog": false,
+      "includeInCountryCatalog": true,
       "key": "area.antarctica",
       "names": {
         "en": {

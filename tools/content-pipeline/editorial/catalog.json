@@ -142,9 +142,7 @@
     {
       "key": "deck.kek",
       "kind": "curated",
-      "members": [
-        "area.antarctica"
-      ],
+      "members": ["area.antarctica"],
       "names": {
         "en": {
           "description": "kek",
@@ -161,7 +159,7 @@
   "entities": [
     {
       "config": {
-        "includeInCountryCatalog": false
+        "includeInCountryCatalog": true
       },
       "identifiers": {
         "isoAlpha2": "AQ"
@@ -3539,13 +3537,10 @@
   "sourceAliases": {
     "annexare:XK": "country.kosovo",
     "cldr:XK": "country.kosovo",
-    "flag-icons:XK": "country.kosovo",
     "flag-icons:country.kosovo": "country.kosovo",
-    "wikidata:XK": "country.kosovo",
-    "wikidata:country.kosovo": "country.kosovo"
+    "flag-icons:XK": "country.kosovo",
+    "wikidata:country.kosovo": "country.kosovo",
+    "wikidata:XK": "country.kosovo"
   },
-  "supportedLocales": [
-    "ru",
-    "en"
-  ]
+  "supportedLocales": ["ru", "en"]
 }

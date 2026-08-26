@@ -15,7 +15,7 @@
       "entityKey": "area.bouvet-island",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -34,7 +34,7 @@
       "entityKey": "area.cook-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -53,7 +53,7 @@
       "entityKey": "area.french-southern-territories",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -72,7 +72,7 @@
       "entityKey": "area.heard-island-and-mcdonald-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -91,7 +91,7 @@
       "entityKey": "area.niue",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -110,7 +110,7 @@
       "entityKey": "area.united-states-minor-outlying-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -129,7 +129,7 @@
       "entityKey": "country.afghanistan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -148,7 +148,7 @@
       "entityKey": "country.albania",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -167,7 +167,7 @@
       "entityKey": "country.algeria",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -186,7 +186,7 @@
       "entityKey": "country.andorra",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -205,7 +205,7 @@
       "entityKey": "country.angola",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -224,7 +224,7 @@
       "entityKey": "country.antigua-and-barbuda",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -243,7 +243,7 @@
       "entityKey": "country.argentina",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -262,7 +262,7 @@
       "entityKey": "country.armenia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -281,7 +281,7 @@
       "entityKey": "country.australia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -300,7 +300,7 @@
       "entityKey": "country.austria",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -319,7 +319,7 @@
       "entityKey": "country.azerbaijan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -338,7 +338,7 @@
       "entityKey": "country.bahamas",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -357,7 +357,7 @@
       "entityKey": "country.bahrain",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -376,7 +376,7 @@
       "entityKey": "country.bangladesh",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -395,7 +395,7 @@
       "entityKey": "country.barbados",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -414,7 +414,7 @@
       "entityKey": "country.belarus",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -433,7 +433,7 @@
       "entityKey": "country.belgium",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -452,7 +452,7 @@
       "entityKey": "country.belize",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -471,7 +471,7 @@
       "entityKey": "country.benin",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -490,7 +490,7 @@
       "entityKey": "country.bhutan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -517,7 +517,7 @@
       "entityKey": "country.bolivia-plurinational-state-of",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -536,7 +536,7 @@
       "entityKey": "country.bosnia-and-herzegovina",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -555,7 +555,7 @@
       "entityKey": "country.botswana",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -574,7 +574,7 @@
       "entityKey": "country.brazil",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -593,7 +593,7 @@
       "entityKey": "country.brunei-darussalam",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -612,7 +612,7 @@
       "entityKey": "country.bulgaria",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -631,7 +631,7 @@
       "entityKey": "country.burkina-faso",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -650,7 +650,7 @@
       "entityKey": "country.burundi",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -669,7 +669,7 @@
       "entityKey": "country.cabo-verde",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -688,7 +688,7 @@
       "entityKey": "country.cambodia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -707,7 +707,7 @@
       "entityKey": "country.cameroon",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -726,7 +726,7 @@
       "entityKey": "country.canada",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -745,7 +745,7 @@
       "entityKey": "country.central-african-republic",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -764,7 +764,7 @@
       "entityKey": "country.chad",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -783,7 +783,7 @@
       "entityKey": "country.chile",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -802,7 +802,7 @@
       "entityKey": "country.china",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -821,7 +821,7 @@
       "entityKey": "country.colombia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -840,7 +840,7 @@
       "entityKey": "country.comoros",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -859,7 +859,7 @@
       "entityKey": "country.congo",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -878,7 +878,7 @@
       "entityKey": "country.costa-rica",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -897,7 +897,7 @@
       "entityKey": "country.cote-d-ivoire",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -916,7 +916,7 @@
       "entityKey": "country.croatia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -935,7 +935,7 @@
       "entityKey": "country.cuba",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -954,7 +954,7 @@
       "entityKey": "country.cyprus",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -973,7 +973,7 @@
       "entityKey": "country.czechia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -992,7 +992,7 @@
       "entityKey": "country.democratic-people-s-republic-of-korea",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1011,7 +1011,7 @@
       "entityKey": "country.democratic-republic-of-the-congo",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1030,7 +1030,7 @@
       "entityKey": "country.denmark",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1049,7 +1049,7 @@
       "entityKey": "country.djibouti",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1068,7 +1068,7 @@
       "entityKey": "country.dominica",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1087,7 +1087,7 @@
       "entityKey": "country.dominican-republic",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1106,7 +1106,7 @@
       "entityKey": "country.ecuador",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1125,7 +1125,7 @@
       "entityKey": "country.egypt",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1144,7 +1144,7 @@
       "entityKey": "country.el-salvador",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1163,7 +1163,7 @@
       "entityKey": "country.equatorial-guinea",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1182,7 +1182,7 @@
       "entityKey": "country.eritrea",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1201,7 +1201,7 @@
       "entityKey": "country.estonia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1220,7 +1220,7 @@
       "entityKey": "country.eswatini",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1239,7 +1239,7 @@
       "entityKey": "country.ethiopia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1258,7 +1258,7 @@
       "entityKey": "country.fiji",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1277,7 +1277,7 @@
       "entityKey": "country.finland",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1296,7 +1296,7 @@
       "entityKey": "country.france",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1315,7 +1315,7 @@
       "entityKey": "country.gabon",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1334,7 +1334,7 @@
       "entityKey": "country.gambia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1353,7 +1353,7 @@
       "entityKey": "country.georgia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1372,7 +1372,7 @@
       "entityKey": "country.germany",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1391,7 +1391,7 @@
       "entityKey": "country.ghana",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1410,7 +1410,7 @@
       "entityKey": "country.greece",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1429,7 +1429,7 @@
       "entityKey": "country.grenada",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1448,7 +1448,7 @@
       "entityKey": "country.guatemala",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1467,7 +1467,7 @@
       "entityKey": "country.guinea",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1486,7 +1486,7 @@
       "entityKey": "country.guinea-bissau",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1505,7 +1505,7 @@
       "entityKey": "country.guyana",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1524,7 +1524,7 @@
       "entityKey": "country.haiti",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1551,7 +1551,7 @@
       "entityKey": "country.holy-see",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1570,7 +1570,7 @@
       "entityKey": "country.honduras",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1589,7 +1589,7 @@
       "entityKey": "country.hungary",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1608,7 +1608,7 @@
       "entityKey": "country.iceland",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1627,7 +1627,7 @@
       "entityKey": "country.india",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1646,7 +1646,7 @@
       "entityKey": "country.indonesia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1665,7 +1665,7 @@
       "entityKey": "country.iran-islamic-republic-of",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1684,7 +1684,7 @@
       "entityKey": "country.iraq",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1703,7 +1703,7 @@
       "entityKey": "country.ireland",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1722,7 +1722,7 @@
       "entityKey": "country.israel",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1741,7 +1741,7 @@
       "entityKey": "country.italy",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1760,7 +1760,7 @@
       "entityKey": "country.jamaica",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1779,7 +1779,7 @@
       "entityKey": "country.japan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1798,7 +1798,7 @@
       "entityKey": "country.jordan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1817,7 +1817,7 @@
       "entityKey": "country.kazakhstan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1836,7 +1836,7 @@
       "entityKey": "country.kenya",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1855,7 +1855,7 @@
       "entityKey": "country.kiribati",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1874,7 +1874,7 @@
       "entityKey": "country.kosovo",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1893,7 +1893,7 @@
       "entityKey": "country.kuwait",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1912,7 +1912,7 @@
       "entityKey": "country.kyrgyzstan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1931,7 +1931,7 @@
       "entityKey": "country.lao-people-s-democratic-republic",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1950,7 +1950,7 @@
       "entityKey": "country.latvia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1969,7 +1969,7 @@
       "entityKey": "country.lebanon",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -1988,7 +1988,7 @@
       "entityKey": "country.lesotho",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2015,7 +2015,7 @@
       "entityKey": "country.liberia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2034,7 +2034,7 @@
       "entityKey": "country.libya",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2053,7 +2053,7 @@
       "entityKey": "country.liechtenstein",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2072,7 +2072,7 @@
       "entityKey": "country.lithuania",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2091,7 +2091,7 @@
       "entityKey": "country.luxembourg",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2110,7 +2110,7 @@
       "entityKey": "country.madagascar",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2129,7 +2129,7 @@
       "entityKey": "country.malawi",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2148,7 +2148,7 @@
       "entityKey": "country.malaysia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2167,7 +2167,7 @@
       "entityKey": "country.maldives",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2186,7 +2186,7 @@
       "entityKey": "country.mali",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2205,7 +2205,7 @@
       "entityKey": "country.malta",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2224,7 +2224,7 @@
       "entityKey": "country.marshall-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2243,7 +2243,7 @@
       "entityKey": "country.mauritania",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2262,7 +2262,7 @@
       "entityKey": "country.mauritius",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2281,7 +2281,7 @@
       "entityKey": "country.mexico",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2300,7 +2300,7 @@
       "entityKey": "country.micronesia-federated-states-of",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2319,7 +2319,7 @@
       "entityKey": "country.monaco",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2338,7 +2338,7 @@
       "entityKey": "country.mongolia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2357,7 +2357,7 @@
       "entityKey": "country.montenegro",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2376,7 +2376,7 @@
       "entityKey": "country.morocco",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2395,7 +2395,7 @@
       "entityKey": "country.mozambique",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2414,7 +2414,7 @@
       "entityKey": "country.myanmar",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2433,7 +2433,7 @@
       "entityKey": "country.namibia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2460,7 +2460,7 @@
       "entityKey": "country.nauru",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2479,7 +2479,7 @@
       "entityKey": "country.nepal",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2498,7 +2498,7 @@
       "entityKey": "country.netherlands-kingdom-of-the",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2517,7 +2517,7 @@
       "entityKey": "country.new-zealand",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2536,7 +2536,7 @@
       "entityKey": "country.nicaragua",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2555,7 +2555,7 @@
       "entityKey": "country.niger",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2574,7 +2574,7 @@
       "entityKey": "country.nigeria",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2593,7 +2593,7 @@
       "entityKey": "country.north-macedonia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2612,7 +2612,7 @@
       "entityKey": "country.norway",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2631,7 +2631,7 @@
       "entityKey": "country.oman",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2650,7 +2650,7 @@
       "entityKey": "country.pakistan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2669,7 +2669,7 @@
       "entityKey": "country.palau",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2688,7 +2688,7 @@
       "entityKey": "country.panama",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2715,7 +2715,7 @@
       "entityKey": "country.papua-new-guinea",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2734,7 +2734,7 @@
       "entityKey": "country.paraguay",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2753,7 +2753,7 @@
       "entityKey": "country.peru",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2772,7 +2772,7 @@
       "entityKey": "country.philippines",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2791,7 +2791,7 @@
       "entityKey": "country.poland",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2810,7 +2810,7 @@
       "entityKey": "country.portugal",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2829,7 +2829,7 @@
       "entityKey": "country.qatar",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2848,7 +2848,7 @@
       "entityKey": "country.republic-of-korea",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2867,7 +2867,7 @@
       "entityKey": "country.republic-of-moldova",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2886,7 +2886,7 @@
       "entityKey": "country.romania",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2905,7 +2905,7 @@
       "entityKey": "country.russia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2924,7 +2924,7 @@
       "entityKey": "country.rwanda",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2943,7 +2943,7 @@
       "entityKey": "country.saint-kitts-and-nevis",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2962,7 +2962,7 @@
       "entityKey": "country.saint-lucia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -2981,7 +2981,7 @@
       "entityKey": "country.saint-vincent-and-the-grenadines",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3000,7 +3000,7 @@
       "entityKey": "country.samoa",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3019,7 +3019,7 @@
       "entityKey": "country.san-marino",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3038,7 +3038,7 @@
       "entityKey": "country.sao-tome-and-principe",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3057,7 +3057,7 @@
       "entityKey": "country.saudi-arabia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3076,7 +3076,7 @@
       "entityKey": "country.senegal",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3095,7 +3095,7 @@
       "entityKey": "country.serbia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3114,7 +3114,7 @@
       "entityKey": "country.seychelles",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3133,7 +3133,7 @@
       "entityKey": "country.sierra-leone",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3152,7 +3152,7 @@
       "entityKey": "country.singapore",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3171,7 +3171,7 @@
       "entityKey": "country.slovakia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3190,7 +3190,7 @@
       "entityKey": "country.slovenia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3209,7 +3209,7 @@
       "entityKey": "country.solomon-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3228,7 +3228,7 @@
       "entityKey": "country.somalia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3247,7 +3247,7 @@
       "entityKey": "country.south-africa",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3266,7 +3266,7 @@
       "entityKey": "country.south-sudan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3285,7 +3285,7 @@
       "entityKey": "country.spain",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3304,7 +3304,7 @@
       "entityKey": "country.sri-lanka",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3323,7 +3323,7 @@
       "entityKey": "country.state-of-palestine",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3350,7 +3350,7 @@
       "entityKey": "country.sudan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3369,7 +3369,7 @@
       "entityKey": "country.suriname",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3388,7 +3388,7 @@
       "entityKey": "country.sweden",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3407,7 +3407,7 @@
       "entityKey": "country.switzerland",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3426,7 +3426,7 @@
       "entityKey": "country.syrian-arab-republic",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3445,7 +3445,7 @@
       "entityKey": "country.taiwan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3464,7 +3464,7 @@
       "entityKey": "country.tajikistan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3483,7 +3483,7 @@
       "entityKey": "country.thailand",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3502,7 +3502,7 @@
       "entityKey": "country.timor-leste",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3521,7 +3521,7 @@
       "entityKey": "country.togo",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3540,7 +3540,7 @@
       "entityKey": "country.tonga",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3559,7 +3559,7 @@
       "entityKey": "country.trinidad-and-tobago",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3578,7 +3578,7 @@
       "entityKey": "country.tunisia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3597,7 +3597,7 @@
       "entityKey": "country.turkiye",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3616,7 +3616,7 @@
       "entityKey": "country.turkmenistan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3635,7 +3635,7 @@
       "entityKey": "country.tuvalu",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3654,7 +3654,7 @@
       "entityKey": "country.uganda",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3673,7 +3673,7 @@
       "entityKey": "country.ukraine",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3692,7 +3692,7 @@
       "entityKey": "country.united-arab-emirates",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3711,7 +3711,7 @@
       "entityKey": "country.united-kingdom-of-great-britain-and-northern-ireland",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3730,7 +3730,7 @@
       "entityKey": "country.united-republic-of-tanzania",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3749,7 +3749,7 @@
       "entityKey": "country.united_states",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3768,7 +3768,7 @@
       "entityKey": "country.uruguay",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3787,7 +3787,7 @@
       "entityKey": "country.uzbekistan",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3806,7 +3806,7 @@
       "entityKey": "country.vanuatu",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3825,7 +3825,7 @@
       "entityKey": "country.venezuela-bolivarian-republic-of",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3844,7 +3844,7 @@
       "entityKey": "country.viet-nam",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3863,7 +3863,7 @@
       "entityKey": "country.western-sahara",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3882,7 +3882,7 @@
       "entityKey": "country.yemen",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3901,7 +3901,7 @@
       "entityKey": "country.zambia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3920,7 +3920,7 @@
       "entityKey": "country.zimbabwe",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3947,7 +3947,7 @@
       "entityKey": "territory.aland-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3966,7 +3966,7 @@
       "entityKey": "territory.american-samoa",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -3985,7 +3985,7 @@
       "entityKey": "territory.anguilla",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4004,7 +4004,7 @@
       "entityKey": "territory.aruba",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4023,7 +4023,7 @@
       "entityKey": "territory.bermuda",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4042,7 +4042,7 @@
       "entityKey": "territory.bonaire-sint-eustatius-and-saba",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4061,7 +4061,7 @@
       "entityKey": "territory.british-indian-ocean-territory",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4080,7 +4080,7 @@
       "entityKey": "territory.british-virgin-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4099,7 +4099,7 @@
       "entityKey": "territory.cayman-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4118,7 +4118,7 @@
       "entityKey": "territory.china-hong-kong-special-administrative-region",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4137,7 +4137,7 @@
       "entityKey": "territory.china-macao-special-administrative-region",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4156,7 +4156,7 @@
       "entityKey": "territory.christmas-island",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4175,7 +4175,7 @@
       "entityKey": "territory.cocos-keeling-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4194,7 +4194,7 @@
       "entityKey": "territory.curacao",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4213,7 +4213,7 @@
       "entityKey": "territory.falkland-islands-malvinas",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4232,7 +4232,7 @@
       "entityKey": "territory.faroe-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4251,7 +4251,7 @@
       "entityKey": "territory.french-guiana",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4270,7 +4270,7 @@
       "entityKey": "territory.french-polynesia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4289,7 +4289,7 @@
       "entityKey": "territory.gibraltar",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4308,7 +4308,7 @@
       "entityKey": "territory.greenland",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4327,7 +4327,7 @@
       "entityKey": "territory.guadeloupe",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4346,7 +4346,7 @@
       "entityKey": "territory.guam",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4365,7 +4365,7 @@
       "entityKey": "territory.guernsey",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4384,7 +4384,7 @@
       "entityKey": "territory.isle-of-man",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4403,7 +4403,7 @@
       "entityKey": "territory.jersey",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4422,7 +4422,7 @@
       "entityKey": "territory.martinique",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4441,7 +4441,7 @@
       "entityKey": "territory.mayotte",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4460,7 +4460,7 @@
       "entityKey": "territory.montserrat",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4479,7 +4479,7 @@
       "entityKey": "territory.new-caledonia",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4498,7 +4498,7 @@
       "entityKey": "territory.norfolk-island",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4517,7 +4517,7 @@
       "entityKey": "territory.northern-mariana-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4536,7 +4536,7 @@
       "entityKey": "territory.pitcairn",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4555,7 +4555,7 @@
       "entityKey": "territory.puerto-rico",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4574,7 +4574,7 @@
       "entityKey": "territory.reunion",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4593,7 +4593,7 @@
       "entityKey": "territory.saint-barthelemy",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4612,7 +4612,7 @@
       "entityKey": "territory.saint-helena",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4631,7 +4631,7 @@
       "entityKey": "territory.saint-martin-french-part",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4650,7 +4650,7 @@
       "entityKey": "territory.saint-pierre-and-miquelon",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4669,7 +4669,7 @@
       "entityKey": "territory.sint-maarten-dutch-part",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4688,7 +4688,7 @@
       "entityKey": "territory.south-georgia-and-the-south-sandwich-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4707,7 +4707,7 @@
       "entityKey": "territory.svalbard-and-jan-mayen-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4726,7 +4726,7 @@
       "entityKey": "territory.tokelau",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4745,7 +4745,7 @@
       "entityKey": "territory.turks-and-caicos-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4764,7 +4764,7 @@
       "entityKey": "territory.united-states-virgin-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },
@@ -4783,7 +4783,7 @@
       "entityKey": "territory.wallis-and-futuna-islands",
       "gap": false,
       "provenance": {
-        "retrievedAt": "2026-08-25T12:35:50.489Z",
+        "retrievedAt": "2026-08-26T16:00:55.777Z",
         "revision": "48.2.0",
         "sourceKey": "cldr"
       },

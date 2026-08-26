@@ -3,7 +3,7 @@
   "assetBaseUrl": "https://cdn.country-flags.app/content/fixture-v1/",
   "changeCursor": "content:fixture-v1:0",
   "contentVersion": "fixture-v1",
-  "createdAt": "2026-08-26T14:17:17.835Z",
+  "createdAt": "2026-08-26T16:00:55.777Z",
   "defaultLocale": "ru",
   "files": [
     {
@@ -19,10 +19,10 @@
       "sha256": "8b0494f8370cc10ad5079a7adc498c205f177dda65b1ed1a19b2effa4ae35acc"
     },
     {
-      "bytes": 267308,
+      "bytes": 267334,
       "path": "catalog.json",
       "schemaId": "https://country-flags.example/schemas/catalog.schema.json",
-      "sha256": "2c93500ee49629baa994afde8f65170ebd4e942d9d0ad391a1a0d984b2b214da"
+      "sha256": "d5c38f450817e9bea59588ea1c937e154b7270672f35caabb67843de81bdbf68"
     },
     {
       "bytes": 105709,
@@ -34,7 +34,7 @@
       "bytes": 110910,
       "path": "facts/currencies.json",
       "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
-      "sha256": "b2879ea738086dea90e8bd74fb28b2bd76b0af1bdc9950f4ea2b2736a9d659af"
+      "sha256": "729eb0d09fe35330a1d708d512bb45c186090f4ca9561d0be142c227079596c4"
     },
     {
       "bytes": 138411,
@@ -52,13 +52,13 @@
       "bytes": 156348,
       "path": "learning-cards.json",
       "schemaId": "https://country-flags.app/content/v1/learning-cards.schema.json",
-      "sha256": "53b9d33bed5c45f45bffe9f5a69a952b7494a0512acbcd6c8ec931f21c0d4211"
+      "sha256": "3ae9fdaf1360b3c9e5f60a1147ab303d994953d31bb4a02fd184c9386a428a54"
     },
     {
       "bytes": 860961,
       "path": "provenance/provenance.json",
       "schemaId": "https://country-flags.app/content/v1/provenance.schema.json",
-      "sha256": "87701c39e14a965762ece22563cce571af8ffd1ed5b2c0f81d3ed3e4785fb5d9"
+      "sha256": "c8b6e215111df8774c0a212ac9a98881bbe2a48f0c075b977453fe5591f2ff2d"
     },
     {
       "bytes": 74,
@@ -70,7 +70,7 @@
       "bytes": 326465,
       "path": "reports/field-conflicts.json",
       "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
-      "sha256": "c898359d37642354d364a8a00b284856c2883d006442409073a0d5f6079c1f91"
+      "sha256": "79afe1227b1b5fd6da57e7958f1a3853d784ac4c8f46b36667b3195dd72f7cc2"
     },
     {
       "bytes": 75,
