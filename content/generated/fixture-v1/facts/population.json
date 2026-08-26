@@ -2,11 +2,6 @@
   "factType": "population",
   "records": [
     {
-      "entityKey": "area.antarctica",
-      "gap": true,
-      "reason": "source_value_unavailable"
-    },
-    {
       "entityKey": "area.bouvet-island",
       "gap": true,
       "reason": "source_value_unavailable"

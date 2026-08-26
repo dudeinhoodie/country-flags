@@ -6,7 +6,7 @@
       "kind": "CURATED",
       "name": "All countries",
       "description": "Every flag, with no regions to lean on.",
-      "cardCount": 250,
+      "cardCount": 249,
       "dueCount": null,
       "contentVersion": "fixture-v1"
     },
@@ -56,7 +56,17 @@
       "kind": "TAXONOMY",
       "name": "Oceania",
       "description": "The Southern Cross, and a Union Jack in the corner of most of them.",
-      "cardCount": 30,
+      "cardCount": 29,
+      "dueCount": null,
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "683add89-243d-572a-b845-9467a1cfb6f3",
+      "code": "REGIONS",
+      "kind": "CURATED",
+      "name": "Regions",
+      "description": "test",
+      "cardCount": 0,
       "dueCount": null,
       "contentVersion": "fixture-v1"
     }

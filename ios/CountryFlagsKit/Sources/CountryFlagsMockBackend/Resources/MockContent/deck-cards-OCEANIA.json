@@ -1,60 +1,6 @@
 {
   "items": [
     {
-      "id": "062c6ffa-c04c-5c2d-8493-fa7151db74be",
-      "templateCode": "FLAG_TO_COUNTRY",
-      "templateSchemaVersion": 1,
-      "semanticVersion": 1,
-      "revision": 1,
-      "answerMode": "SELF_RATED",
-      "prompt": {
-        "asset": {
-          "id": "de4b7cbc-be66-53bd-b3da-f80a178588d0",
-          "type": "FLAG",
-          "representations": [
-            {
-              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/antarctica.svg",
-              "mimeType": "image/svg+xml",
-              "sha256": "0d7cff1e7b7bbb452b27623ee3dfa075c3ce375fea7a3dc6c916bea53fc8b593",
-              "scale": null,
-              "widthPx": null,
-              "heightPx": null
-            },
-            {
-              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/antarctica@2x.png",
-              "mimeType": "image/png",
-              "sha256": "cc078aa039f7e0796a2f491a5735c8164fe375ce9db88559927137dcea81c463",
-              "scale": 2,
-              "widthPx": 320,
-              "heightPx": 240
-            },
-            {
-              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/antarctica@3x.png",
-              "mimeType": "image/png",
-              "sha256": "e6d87c1d1a803741697c5bf7a9acad3b9460ed7a41608a4112d4c17a5b3efce9",
-              "scale": 3,
-              "widthPx": 480,
-              "heightPx": 360
-            }
-          ],
-          "width": null,
-          "height": null,
-          "aspectRatio": 1.333333,
-          "licenseName": "MIT",
-          "attribution": "lipis/flag-icons contributors"
-        }
-      },
-      "answer": {
-        "entityId": "d39978ad-2a21-5b71-9c27-5fe1d66347a7",
-        "displayName": "Antarctica",
-        "aliases": [
-          "Антарктида"
-        ]
-      },
-      "backSideFacts": [],
-      "contentVersion": "fixture-v1"
-    },
-    {
       "id": "47720b58-ef34-5e43-9b6f-ae280bbb32ac",
       "templateCode": "FLAG_TO_COUNTRY",
       "templateSchemaVersion": 1,

@@ -6,7 +6,6 @@
       "key": "deck.all",
       "kind": "curated",
       "memberEntityKeys": [
-        "area.antarctica",
         "area.bouvet-island",
         "area.cook-islands",
         "area.french-southern-territories",
@@ -556,7 +555,6 @@
       "key": "deck.oceania",
       "kind": "taxonomy",
       "memberEntityKeys": [
-        "area.antarctica",
         "area.cook-islands",
         "area.heard-island-and-mcdonald-islands",
         "area.niue",
@@ -597,20 +595,37 @@
           "name": "Океания"
         }
       }
+    },
+    {
+      "key": "deck.regions",
+      "kind": "curated",
+      "memberEntityKeys": [
+        "region.africa",
+        "region.americas",
+        "region.asia",
+        "region.oceania"
+      ],
+      "names": {
+        "en": {
+          "description": "test",
+          "name": "Regions"
+        },
+        "ru": {
+          "description": "test",
+          "name": "Регионы"
+        }
+      }
     }
   ],
   "defaultLocale": "ru",
   "entities": [
     {
-      "assetKeys": [
-        "flag.antarctica.current"
-      ],
       "codes": {
         "isoAlpha2": "AQ",
         "isoAlpha3": "ATA",
         "m49": "010"
       },
-      "includeInCountryCatalog": true,
+      "includeInCountryCatalog": false,
       "key": "area.antarctica",
       "names": {
         "en": {
