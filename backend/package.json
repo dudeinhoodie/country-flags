@@ -32,7 +32,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.1107.0",
     "@country-flags/asset-core": "workspace:*",
-    "@nestjs/common": "11.1.6",
+    "@nestjs/common": "11.2.1",
     "@nestjs/config": "4.0.2",
     "@nestjs/core": "11.1.29",
     "@nestjs/platform-express": "11.1.29",
