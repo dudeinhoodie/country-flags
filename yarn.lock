@@ -875,7 +875,7 @@ __metadata:
     "@opentelemetry/sdk-metrics": "npm:2.10.0"
     "@opentelemetry/sdk-node": "npm:0.221.0"
     "@opentelemetry/semantic-conventions": "npm:1.43.0"
-    "@prisma/client": "npm:6.13.0"
+    "@prisma/client": "npm:7.9.1"
     "@types/express": "npm:5.0.3"
     "@types/jest": "npm:29.5.14"
     "@types/multer": "npm:2.2.0"
@@ -3000,18 +3000,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:6.13.0":
-  version: 6.13.0
-  resolution: "@prisma/client@npm:6.13.0"
+"@prisma/client-runtime-utils@npm:7.9.1":
+  version: 7.9.1
+  resolution: "@prisma/client-runtime-utils@npm:7.9.1"
+  checksum: 10c0/dd383cda22942d4d82ff1d1fb803550a9afe5e77f04fb8b9533f777e905d848ec4b5df94b6e78332a3d6060b92fa4b4d87b385ffd066e9a255123684331dcebe
+  languageName: node
+  linkType: hard
+
+"@prisma/client@npm:7.9.1":
+  version: 7.9.1
+  resolution: "@prisma/client@npm:7.9.1"
+  dependencies:
+    "@prisma/client-runtime-utils": "npm:7.9.1"
   peerDependencies:
     prisma: "*"
-    typescript: ">=5.1.0"
+    typescript: ">=5.4.0"
   peerDependenciesMeta:
     prisma:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/6d3d181aa91265bd6a331069b1d8358d83f02ffea788121d19f051a58e9957ae2df68e10e5e9e01b389fb942e4c7fa0de27af95deac216dfff7182bf5d7befc0
+  checksum: 10c0/055e259cf63c4cd6bb575c48cb701021419dd64ba4ed372f269ddde5b234580d26ed9213b4a70415af85954235a42d1c35be0b0982a4504a5351fa4d420fbe1f
   languageName: node
   linkType: hard
 
