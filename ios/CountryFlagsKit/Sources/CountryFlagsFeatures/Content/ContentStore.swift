@@ -19,7 +19,25 @@ public final class ContentStore {
     public private(set) var localeResolution: ContentLocaleResolution?
     /// When the catalogue was last brought up to date. What "stale" is measured
     /// against when the app comes back to the foreground.
+    ///
+    /// It says nothing about whether there is content: it is in-memory state
+    /// about *this run*, nil on every launch however full the store is. A
+    /// launch gated on it kept a device holding the whole catalogue behind a
+    /// spinner every time it started (#266) — ask `hasSomethingToShow`.
     public private(set) var lastSyncedAt: Date?
+
+    /// Whether the store holds a catalogue the app could draw right now.
+    ///
+    /// False only before the first read finishes, or when the store is
+    /// genuinely empty and the sync that would fill it has not answered.
+    /// An empty release and a failed first sync are answers, not waits: the
+    /// app has screens for both.
+    public var hasSomethingToShow: Bool {
+        switch catalog {
+        case .loading: false
+        case .empty, .ready, .failed: true
+        }
+    }
 
     private let repository: any ContentRepository
     private let coordinator: any ContentSynchronizing

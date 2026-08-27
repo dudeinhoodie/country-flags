@@ -18,6 +18,46 @@ final class ContentStoreTests: XCTestCase {
         XCTAssertEqual(store.catalog, .loading)
     }
 
+    /// What the launch screen is allowed to wait on.
+    ///
+    /// It used to wait on `lastSyncedAt`, which is in-memory state about this
+    /// run and nil on every launch — so a device holding the whole catalogue
+    /// sat behind a spinner every time it started, and the store's whole
+    /// reason for existing was thrown away (#266). The question is what the
+    /// store holds.
+    func testAStoredCatalogueIsSomethingToShowBeforeAnySync() async {
+        let repository = FakeContentRepository(decks: [
+            Self.deck(code: "ALL", kind: "CURATED")
+        ])
+        let store = makeStore(repository: repository)
+
+        await store.reload()
+
+        XCTAssertTrue(store.hasSomethingToShow)
+        // The point of the regression: nothing has been synced in this run,
+        // and the app must open anyway.
+        XCTAssertNil(store.lastSyncedAt)
+    }
+
+    func testAnEmptyStoreHasNothingToShowUntilItIsRead() async {
+        let store = makeStore(repository: FakeContentRepository())
+
+        XCTAssertFalse(store.hasSomethingToShow)
+    }
+
+    /// A failed first sync with nothing stored is an answer, not a wait: the
+    /// app shows its own unavailable screen, which offers a retry.
+    func testAFailedFirstSyncCountsAsSomethingToShow() async {
+        let store = makeStore(
+            repository: FakeContentRepository(),
+            synchronizer: FakeSynchronizer(status: ContentSyncStatus(lastFailure: .offline))
+        )
+
+        await store.start()
+
+        XCTAssertTrue(store.hasSomethingToShow)
+    }
+
     func testAStoredCatalogIsGroupedIntoSections() async {
         let repository = FakeContentRepository(decks: [
             Self.deck(code: "ALL", kind: "CURATED"),
