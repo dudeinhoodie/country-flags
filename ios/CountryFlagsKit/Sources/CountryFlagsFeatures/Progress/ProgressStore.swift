@@ -108,6 +108,15 @@ public final class ProgressStore: CanonicalDataObserving {
     /// than a spinner, as long as it says it is being checked.
     public private(set) var isRefreshing = false
     public var isLoaded: Bool { origin != .awaitingBackend }
+    /// Whether the work being counted is a guest's, or nil while the store
+    /// has not yet resolved whose it is.
+    ///
+    /// `origin` cannot answer this on its own: `.awaitingBackend` is both "an
+    /// account whose counts have never arrived" and the value the store holds
+    /// before it has read anything at all. The launch screen has to tell those
+    /// apart, because naming an account to a guest describes work that is not
+    /// happening (#270).
+    public private(set) var isGuest: Bool?
 
     private let content: any ContentRepository
     private let learning: any LearningRepository
@@ -167,6 +176,10 @@ public final class ProgressStore: CanonicalDataObserving {
         // The progress belongs to the account that did the work, so the scope
         // is resolved here rather than captured when the screen was built.
         let scope = await scopes.currentScope()
+        // Recorded before the reads that follow: the launch screen must not
+        // name an account until it is known there is one, and this is the
+        // first moment anything knows.
+        isGuest = scope.isGuest
         let now = dates.now()
         let loadedContinuable = await continuableSession(for: scope)
         // A summary that has aged out is dropped rather than shown: yesterday's

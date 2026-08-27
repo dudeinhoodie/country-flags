@@ -1072,91 +1072,6 @@
         }
       }
     },
-    "bootstrap.failed.subtitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your progress is safe. Check the connection and try again."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ваш прогресс сохранён. Проверьте соединение и попробуйте снова."
-          }
-        }
-      }
-    },
-    "bootstrap.failed.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Could not reach the server"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не удалось связаться с сервером"
-          }
-        }
-      }
-    },
-    "bootstrap.retry": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Try again"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Повторить"
-          }
-        }
-      }
-    },
-    "bootstrap.subtitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Looking up what you have learned so far. This takes a moment the first time."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ищем, что вы уже выучили. В первый раз это занимает несколько секунд."
-          }
-        }
-      }
-    },
-    "bootstrap.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Getting your account ready"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Готовим ваш аккаунт"
-          }
-        }
-      }
-    },
     "catalog.locale_fallback": {
       "extractionState": "manual",
       "localizations": {
@@ -2255,6 +2170,142 @@
           "stringUnit": {
             "state": "translated",
             "value": "Главная"
+          }
+        }
+      }
+    },
+    "launch.account.failed.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your progress is safe. Check the connection and try again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваш прогресс сохранён. Проверьте соединение и попробуйте снова."
+          }
+        }
+      }
+    },
+    "launch.account.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looking up what you have learned so far. This takes a moment the first time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ищем, что вы уже выучили. В первый раз это занимает несколько секунд."
+          }
+        }
+      }
+    },
+    "launch.account.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Getting your account ready"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готовим ваш аккаунт"
+          }
+        }
+      }
+    },
+    "launch.catalog.failed.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The countries could not be downloaded. Check the connection and try again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить страны. Проверьте соединение и попробуйте снова."
+          }
+        }
+      }
+    },
+    "launch.catalog.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the countries and their flags. This takes a moment the first time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загружаем страны и их флаги. В первый раз это занимает несколько секунд."
+          }
+        }
+      }
+    },
+    "launch.catalog.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Getting the flags ready"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готовим флаги"
+          }
+        }
+      }
+    },
+    "launch.failed.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not reach the server"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось связаться с сервером"
+          }
+        }
+      }
+    },
+    "launch.retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить"
           }
         }
       }
