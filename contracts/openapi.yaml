@@ -8,6 +8,25 @@ info:
     progress synchronization, configuration and privacy-aware telemetry.
     Operations marked `planned` define the stable MVP contract before their
     NestJS implementation lands.
+
+    ## Refusing a request
+
+    A request this API will not act on because of what the request itself
+    says — a parameter or field that is missing, unreadable, or outside its
+    allowed values — is answered `422` with the code `VALIDATION_FAILED` and
+    a `details.fields` entry naming what was wrong. This holds wherever the
+    field arrived from: a query parameter and a body field are refused the
+    same way, so a client can report or retry by status without knowing
+    which endpoint it was talking to.
+
+    `400` is not used. A well-formed request that is refused for what the
+    system knows rather than for how it was written — an unknown content
+    version, a session that cannot be composed — is also `422`, but carries
+    a code of its own that names the reason.
+
+    A cursor is the common case: one that cannot be read says so, and says
+    that asking without it starts the list over. Clients hit this when they
+    hold a cursor issued by a release that no longer exists.
   license:
     name: UNLICENSED
     identifier: LicenseRef-Proprietary

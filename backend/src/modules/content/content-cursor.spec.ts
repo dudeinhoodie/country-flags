@@ -1,5 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
-
+import { ApiException } from "../../common/http/api.exception";
 import {
   decodeCardCursor,
   decodeContentChangeCursor,
@@ -7,6 +6,19 @@ import {
   encodeContentChangeCursor,
   encodeDeckCursor,
 } from "./content-cursor";
+
+/// Every refusal of a request is 422 `VALIDATION_FAILED`, whichever endpoint
+/// and whichever field it came from (#276). Asserting the status rather than
+/// just the exception type is the point: the class of mistake is what a
+/// client keys on.
+function expectsRefusal(act: () => unknown): void {
+  expect(act).toThrow(ApiException);
+  try {
+    act();
+  } catch (error) {
+    expect((error as ApiException).getStatus()).toBe(422);
+  }
+}
 
 describe("content change cursor", () => {
   it("round trips sequences beyond the safe integer range", () => {
@@ -40,9 +52,7 @@ describe("content change cursor", () => {
       "content:fixture-v2:01",
       "content::0",
     ]) {
-      expect(() => decodeContentChangeCursor(value)).toThrow(
-        BadRequestException,
-      );
+      expectsRefusal(() => decodeContentChangeCursor(value));
     }
   });
 
@@ -66,9 +76,7 @@ describe("content change cursor", () => {
   ])("rejects a non-feed cursor %#", (payload) => {
     const cursor = Buffer.from(JSON.stringify(payload)).toString("base64url");
 
-    expect(() => decodeContentChangeCursor(cursor)).toThrow(
-      BadRequestException,
-    );
+    expectsRefusal(() => decodeContentChangeCursor(cursor));
   });
 });
 
@@ -114,12 +122,10 @@ describe("card cursor", () => {
       }),
     ).toString("base64url");
 
-    expect(() => decodeCardCursor(legacy)).toThrow(BadRequestException);
+    expectsRefusal(() => decodeCardCursor(legacy));
   });
 
   it("refuses a cursor belonging to another list", () => {
-    expect(() => decodeCardCursor(encodeDeckCursor("ALL"))).toThrow(
-      BadRequestException,
-    );
+    expectsRefusal(() => decodeCardCursor(encodeDeckCursor("ALL")));
   });
 });

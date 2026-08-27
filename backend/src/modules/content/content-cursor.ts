@@ -1,4 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
+import { validationError } from "../../common/http/request-validation";
 
 interface DeckCursor {
   kind: "deck";
@@ -30,9 +30,15 @@ function encode(payload: ContentCursor): string {
   return Buffer.from(JSON.stringify(payload)).toString("base64url");
 }
 
-function decode(value: string): unknown {
+/// A cursor that cannot be read at all. The client that hits this is
+/// usually holding one it stored against a release that no longer exists,
+/// which is exactly the moment it needs to be told that asking without a
+/// cursor starts the list over.
+const UNREADABLE = "cannot be read; omit it to start from the beginning";
+
+function decode(field: string, value: string): unknown {
   if (value.length === 0 || value.length > 512) {
-    throw new BadRequestException("cursor is invalid");
+    validationError(field, UNREADABLE);
   }
 
   try {
@@ -40,7 +46,7 @@ function decode(value: string): unknown {
       Buffer.from(value, "base64url").toString("utf8"),
     ) as unknown;
   } catch {
-    throw new BadRequestException("cursor is invalid");
+    validationError(field, UNREADABLE);
   }
 }
 
@@ -49,7 +55,7 @@ export function encodeDeckCursor(code: string): string {
 }
 
 export function decodeDeckCursor(value: string): DeckCursor {
-  const cursor = decode(value);
+  const cursor = decode("cursor", value);
   if (
     typeof cursor !== "object" ||
     cursor === null ||
@@ -59,7 +65,10 @@ export function decodeDeckCursor(value: string): DeckCursor {
     typeof cursor.code !== "string" ||
     cursor.code.length === 0
   ) {
-    throw new BadRequestException("cursor does not belong to the deck list");
+    validationError(
+      "cursor",
+      "belongs to another list; omit it to start from the beginning",
+    );
   }
 
   return { kind: "deck", code: cursor.code };
@@ -73,7 +82,7 @@ export function encodeCardCursor(
 }
 
 export function decodeCardCursor(value: string): CardCursor {
-  const cursor = decode(value);
+  const cursor = decode("cursor", value);
   if (
     typeof cursor !== "object" ||
     cursor === null ||
@@ -84,7 +93,10 @@ export function decodeCardCursor(value: string): CardCursor {
     !("learningCardId" in cursor) ||
     typeof cursor.learningCardId !== "string"
   ) {
-    throw new BadRequestException("cursor does not belong to the card list");
+    validationError(
+      "cursor",
+      "belongs to another list; omit it to start from the beginning",
+    );
   }
 
   return {
@@ -117,7 +129,7 @@ export function decodeContentChangeCursor(value: string): ContentChangeCursor {
     return { version, sequence: BigInt(sequence) };
   }
 
-  const cursor = decode(value);
+  const cursor = decode("after", value);
   if (
     typeof cursor !== "object" ||
     cursor === null ||
@@ -127,8 +139,9 @@ export function decodeContentChangeCursor(value: string): ContentChangeCursor {
     !("sequence" in cursor) ||
     (typeof cursor.sequence !== "string" && typeof cursor.sequence !== "number")
   ) {
-    throw new BadRequestException(
-      "cursor does not belong to the content change feed",
+    validationError(
+      "after",
+      "does not belong to the content change feed; ask for the manifest again for a fresh one",
     );
   }
 
@@ -139,8 +152,9 @@ export function decodeContentChangeCursor(value: string): ContentChangeCursor {
     (typeof sequenceValue === "number" &&
       (!Number.isSafeInteger(sequenceValue) || sequenceValue < 0))
   ) {
-    throw new BadRequestException(
-      "cursor does not belong to the content change feed",
+    validationError(
+      "after",
+      "does not belong to the content change feed; ask for the manifest again for a fresh one",
     );
   }
 

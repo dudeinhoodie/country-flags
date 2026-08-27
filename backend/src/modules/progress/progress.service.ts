@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
@@ -15,6 +14,7 @@ import {
   type Prisma,
 } from "@prisma/client";
 
+import { validationError } from "../../common/http/request-validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
   aggregateProgress,
@@ -464,7 +464,10 @@ export class ProgressService {
     } catch {
       // The common error envelope is produced by the controller filter.
     }
-    throw new BadRequestException("Achievement cursor is invalid");
+    validationError(
+      "cursor",
+      "cannot be read; omit it to start from the beginning",
+    );
   }
 
   private async loadSnapshot(

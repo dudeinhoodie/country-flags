@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { BadRequestException, HttpStatus } from "@nestjs/common";
+import { HttpStatus } from "@nestjs/common";
 import { AnswerMode, SelectionOrigin } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
@@ -253,7 +253,7 @@ export function parseCreateStudySessionRequest(
   value: unknown,
 ): CreateStudySessionRequest {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    throw new BadRequestException("Request body must be an object");
+    validationError("body", "must be an object");
   }
   const body = value as Record<string, unknown>;
   if (body.selectionOrigin === SelectionOrigin.CLIENT_OFFLINE) {
@@ -265,41 +265,37 @@ export function parseCreateStudySessionRequest(
     (key) => !serverKeys.includes(key),
   );
   if (unknownKeys.length > 0) {
-    throw new BadRequestException(
-      `Unknown request fields: ${unknownKeys.join(", ")}`,
-    );
+    validationError(unknownKeys.join(", "), "is not allowed");
   }
   for (const key of REQUIRED_KEYS) {
     if (!(key in body)) {
-      throw new BadRequestException(`Request field ${key} is required`);
+      validationError(key, "is required");
     }
   }
   if (typeof body.id !== "string" || typeof body.deckId !== "string") {
-    throw new BadRequestException("id and deckId must be UUID strings");
+    validationError("id, deckId", "must be UUID strings");
   }
   if (![5, 10, 20].includes(body.requestedUniqueCount as number)) {
-    throw new BadRequestException("requestedUniqueCount must be 5, 10, or 20");
+    validationError("requestedUniqueCount", "must be 5, 10, or 20");
   }
   if (
     body.mode !== AnswerMode.SELF_RATED &&
     body.mode !== AnswerMode.MULTIPLE_CHOICE
   ) {
-    throw new BadRequestException("mode must be SELF_RATED or MULTIPLE_CHOICE");
+    validationError("mode", "must be SELF_RATED or MULTIPLE_CHOICE");
   }
   if (body.selectionOrigin !== SelectionOrigin.SERVER) {
-    throw new BadRequestException(
-      "selectionOrigin must be SERVER or CLIENT_OFFLINE",
-    );
+    validationError("selectionOrigin", "must be SERVER or CLIENT_OFFLINE");
   }
   if (typeof body.locale !== "string") {
-    throw new BadRequestException("locale must be a string");
+    validationError("locale", "must be a string");
   }
   if (
     body.composition !== undefined &&
     body.composition !== "STANDARD" &&
     body.composition !== "DUE_ONLY"
   ) {
-    throw new BadRequestException("composition must be STANDARD or DUE_ONLY");
+    validationError("composition", "must be STANDARD or DUE_ONLY");
   }
 
   return {

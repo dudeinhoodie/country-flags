@@ -434,6 +434,57 @@ describe("content fixture and read API (integration)", () => {
     ]);
   });
 
+  // The rule the contract now states: one class of mistake, one answer,
+  // whichever endpoint it reaches and whether the field came from the query
+  // string or the path. These four used to be split between 400 and 422 with
+  // an identical envelope and code, so a client keying on status could not
+  // tell them apart on purpose (#276).
+  it("refuses every malformed request the same way", async () => {
+    const refusals = await Promise.all([
+      request(httpServer).get("/v1/app-config").query({ platform: "ios" }),
+      request(httpServer)
+        .get("/v1/app-config")
+        .query({ platform: "fridge", appVersion: "0.1.0", locale: "ru-RU" }),
+      request(httpServer).get("/v1/decks").query({ locale: "!!" }),
+      request(httpServer).get("/v1/content/changes").query({ locale: "ru-RU" }),
+      request(httpServer)
+        .get("/v1/content/changes")
+        .query({ locale: "ru-RU", after: "zzz" }),
+    ]);
+
+    for (const refusal of refusals) {
+      expect(refusal.status).toBe(422);
+      const body = refusal.body as unknown as ErrorBody;
+      expect(body.error.code).toBe("VALIDATION_FAILED");
+      expect(body.error.details).toHaveProperty("fields");
+    }
+  });
+
+  /// A cursor that cannot be read is a different problem from one that was
+  /// never sent, and the client hitting it — holding a cursor from a release
+  /// that no longer exists — needs to be told that asking without one starts
+  /// the list over (#274).
+  it("tells a missing cursor apart from an unreadable one", async () => {
+    const missing = await request(httpServer)
+      .get("/v1/content/changes")
+      .query({ locale: "ru-RU" })
+      .expect(422);
+    const unreadable = await request(httpServer)
+      .get("/v1/content/changes")
+      .query({ locale: "ru-RU", after: "zzz" })
+      .expect(422);
+
+    const messageOf = (response: request.Response): string => {
+      const fields = (response.body as unknown as ErrorBody).error.details
+        .fields as Array<{ message: string }>;
+      return fields[0]?.message ?? "";
+    };
+
+    expect(messageOf(missing)).toContain("is required");
+    expect(messageOf(unreadable)).toContain("cannot be read");
+    expect(messageOf(unreadable)).toContain("omit it");
+  });
+
   it("returns one deck with the same representation as the list page", async () => {
     const deckId = "70000000-0000-4000-8000-000000000001";
     const list = await request(httpServer)
@@ -592,21 +643,31 @@ describe("content fixture and read API (integration)", () => {
     const invalid = await request(httpServer)
       .get("/v1/entities/not-a-uuid")
       .query({ locale: "en" })
-      .expect(400);
+      .expect(422);
     expect((invalid.body as unknown as ErrorBody).error.code).toBe(
       "VALIDATION_FAILED",
     );
   });
 
   it("uses the canonical error envelope for invalid cursors and missing decks", async () => {
+    // A refused request is 422 wherever the field came from, and it names
+    // the field and the way back — a client that stored a cursor from a
+    // release that is gone reaches exactly this (#274, #276).
     const invalidCursor = await request(httpServer)
       .get("/v1/decks")
       .query({ locale: "ru", cursor: "not-a-cursor" })
-      .expect(400);
+      .expect(422);
     const invalidCursorBody = invalidCursor.body as unknown as ErrorBody;
     expect(invalidCursorBody.error.code).toBe("VALIDATION_FAILED");
     expect(invalidCursorBody.error.requestId).toMatch(/^[0-9a-f-]{36}$/iu);
-    expect(invalidCursorBody.error.details).toEqual({});
+    expect(invalidCursorBody.error.details).toEqual({
+      fields: [
+        {
+          field: "cursor",
+          message: "cannot be read; omit it to start from the beginning",
+        },
+      ],
+    });
 
     const missing = await request(httpServer)
       .get("/v1/decks/ffffffff-ffff-4fff-8fff-ffffffffffff/cards")
