@@ -378,6 +378,62 @@ describe("content fixture and read API (integration)", () => {
     expect(switzerland).toMatchObject({ semanticVersion: 1, revision: 2 });
   });
 
+  // A deck is read in the alphabet of whoever is reading it, so the order is
+  // resolved per request rather than published once (#267). The fixture's own
+  // sortOrder happens to be the English alphabet, so only a second locale can
+  // tell the two apart: in Russian, Франция moves from second place to
+  // seventh, and Германия takes its place.
+  it("orders a deck by the name shown in the requested locale", async () => {
+    const deckId = "70000000-0000-4000-8000-000000000001";
+    const page = await request(httpServer)
+      .get(`/v1/decks/${deckId}/cards`)
+      .query({ locale: "ru", limit: 10 })
+      .expect(200);
+    const body = page.body as unknown as CardPageBody;
+
+    expect(body.items.map(({ answer }) => answer.displayName)).toEqual([
+      "Бельгия",
+      "Германия",
+      "Казахстан",
+      "Косово",
+      "Непал",
+      "Россия",
+      "Франция",
+      "Швейцария",
+    ]);
+  });
+
+  it("keeps that order across pages", async () => {
+    const deckId = "70000000-0000-4000-8000-000000000001";
+    const names: string[] = [];
+    let cursor: string | null = null;
+
+    do {
+      const page: request.Response = await request(httpServer)
+        .get(`/v1/decks/${deckId}/cards`)
+        .query({
+          locale: "ru",
+          limit: 3,
+          ...(cursor === null ? {} : { cursor }),
+        })
+        .expect(200);
+      const body = page.body as unknown as CardPageBody;
+      names.push(...body.items.map(({ answer }) => answer.displayName));
+      cursor = body.page.nextCursor;
+    } while (cursor !== null);
+
+    expect(names).toEqual([
+      "Бельгия",
+      "Германия",
+      "Казахстан",
+      "Косово",
+      "Непал",
+      "Россия",
+      "Франция",
+      "Швейцария",
+    ]);
+  });
+
   it("returns one deck with the same representation as the list page", async () => {
     const deckId = "70000000-0000-4000-8000-000000000001";
     const list = await request(httpServer)
