@@ -173,7 +173,7 @@ jobs:
       # unreadable without them, and TestFlight keeps only what it was given.
       - name: Keep the archive's symbols
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dsyms-${{ inputs.build_number }}
           path: ios/build/CountryFlags.xcarchive/dSYMs
@@ -182,7 +182,7 @@ jobs:
 
       - name: Keep the .ipa
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ipa-${{ inputs.build_number }}
           path: ios/build/export/*.ipa
