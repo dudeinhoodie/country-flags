@@ -109,19 +109,28 @@ public struct RootView: View {
             // Both first requests start here, so the wait is over exactly
             // when there is something complete to show.
             .task { await content.start() }
+            // The counts are read from the store before the network is
+            // asked: a guest's numbers are local and complete already, and
+            // waiting for a sync run to report them held the launch behind a
+            // request that had nothing to do with them.
+            .task { await progress.reload() }
             .task { await sync.start() }
         } else {
             shell
         }
     }
 
-    /// Whether any of the launch's first requests is still outstanding.
+    /// Whether the app has nothing it could put on screen yet.
     ///
-    /// The catalogue's first synchronisation counts even when it fails: what
-    /// matters is that the attempt has been made, because after it the app
-    /// knows what it is able to show. The numbers are the other half.
+    /// The question is what the store holds, not whether this process has
+    /// been to the network. Waiting on the sync meant a device with the whole
+    /// catalogue already on it sat behind a spinner on every launch, which
+    /// threw away the offline-first behaviour the store exists for (#266).
+    ///
+    /// `.loading` is the store's own word for "nothing to draw"; `.empty` and
+    /// `.failed` are answers, and the app shows them as screens of their own.
     private var isBootstrapping: Bool {
-        if content.lastSyncedAt == nil { return true }
+        if !content.hasSomethingToShow { return true }
         return isAwaitingFirstNumbers
     }
 
@@ -252,6 +261,11 @@ public struct RootView: View {
             if accountToolbar == nil { accountToolbar = makeAccountStore?() }
             await accountToolbar?.start()
         }
+        // A warm launch opens straight into the shell, so the first read of
+        // the counts happens here rather than on the waiting screen. Both
+        // calls are idempotent; whichever screen the launch lands on, the
+        // store is read once and the run starts once.
+        .task { await progress.reload() }
         .task { await sync.start() }
         .onChange(of: scenePhase) { _, phase in
             // The one place the app reacts to coming back. Screens used to
