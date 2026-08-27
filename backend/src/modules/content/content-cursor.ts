@@ -5,9 +5,12 @@ interface DeckCursor {
   code: string;
 }
 
+/// A deck's cards are read in the reader's alphabet (#267), so the cursor
+/// carries the name it stopped at rather than the membership's own order.
+/// `sortName` is the name lowercased, which is what the query sorts on.
 interface CardCursor {
   kind: "card";
-  sortOrder: number | null;
+  sortName: string;
   learningCardId: string;
 }
 
@@ -63,10 +66,10 @@ export function decodeDeckCursor(value: string): DeckCursor {
 }
 
 export function encodeCardCursor(
-  sortOrder: number | null,
+  sortName: string,
   learningCardId: string,
 ): string {
-  return encode({ kind: "card", sortOrder, learningCardId });
+  return encode({ kind: "card", sortName, learningCardId });
 }
 
 export function decodeCardCursor(value: string): CardCursor {
@@ -76,10 +79,8 @@ export function decodeCardCursor(value: string): CardCursor {
     cursor === null ||
     !("kind" in cursor) ||
     cursor.kind !== "card" ||
-    !("sortOrder" in cursor) ||
-    (cursor.sortOrder !== null &&
-      (typeof cursor.sortOrder !== "number" ||
-        !Number.isInteger(cursor.sortOrder))) ||
+    !("sortName" in cursor) ||
+    typeof cursor.sortName !== "string" ||
     !("learningCardId" in cursor) ||
     typeof cursor.learningCardId !== "string"
   ) {
@@ -88,7 +89,7 @@ export function decodeCardCursor(value: string): CardCursor {
 
   return {
     kind: "card",
-    sortOrder: cursor.sortOrder,
+    sortName: cursor.sortName,
     learningCardId: cursor.learningCardId,
   };
 }

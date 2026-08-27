@@ -12,7 +12,6 @@ import {
   GeoNameType,
   PublicationStatus,
   RecognitionStatus,
-  type Prisma,
 } from "@prisma/client";
 
 import { PrismaService } from "../../infrastructure/database/prisma.service";
@@ -332,35 +331,26 @@ export class ContentService {
 
     const cursor =
       cursorValue === undefined ? undefined : decodeCardCursor(cursorValue);
-    const cursorWhere: Prisma.DeckCardWhereInput =
-      cursor === undefined
-        ? {}
-        : cursor.sortOrder === null
-          ? {
-              sortOrder: null,
-              learningCardId: { gt: cursor.learningCardId },
-            }
-          : {
-              OR: [
-                { sortOrder: { gt: cursor.sortOrder } },
-                { sortOrder: null },
-                {
-                  sortOrder: cursor.sortOrder,
-                  learningCardId: { gt: cursor.learningCardId },
-                },
-              ],
-            };
+    // The order a person reads is decided here, by the name they are shown,
+    // not by the editorial key the membership was published under. Sorted by
+    // key, "All countries" opened on Bouvet Island and Cook Islands, because
+    // `area.*` sorts before `country.*` (#267).
+    //
+    // Resolved per request rather than at publication: one release is read in
+    // every locale, and each has its own alphabet.
+    const ordered = await this.orderedDeckCardIds(
+      deckId,
+      localeCandidates(locale, manifest.defaultLocale),
+      cursor,
+      limit,
+    );
     const memberships = await this.prisma.deckCard.findMany({
       where: {
         deckId,
-        learningCard: { status: CardStatus.ACTIVE },
-        ...cursorWhere,
+        learningCardId: {
+          in: ordered.map(({ learningCardId }) => learningCardId),
+        },
       },
-      orderBy: [
-        { sortOrder: { sort: "asc", nulls: "last" } },
-        { learningCardId: "asc" },
-      ],
-      take: limit + 1,
       include: {
         learningCard: {
           include: {
@@ -387,8 +377,18 @@ export class ContentService {
         },
       },
     });
-    const hasMore = memberships.length > limit;
-    const pageItems = hasMore ? memberships.slice(0, limit) : memberships;
+    // The page's order is the ordering query's; this second read only
+    // fetches the rows and returns them however the database found them.
+    const byCard = new Map(
+      memberships.map((membership) => [membership.learningCardId, membership]),
+    );
+    const hasMore = ordered.length > limit;
+    const pageItems = (hasMore ? ordered.slice(0, limit) : ordered).flatMap(
+      (entry) => {
+        const membership = byCard.get(entry.learningCardId);
+        return membership === undefined ? [] : [membership];
+      },
+    );
     const candidates = localeCandidates(locale, manifest.defaultLocale);
     const items = pageItems.map(({ learningCard }) => {
       const revision = learningCard.revisions[0];
@@ -428,21 +428,75 @@ export class ContentService {
         contentVersion: learningCard.contentVersion,
       };
     });
-    const lastMembership = pageItems.at(-1);
+    const lastOrdered = (hasMore ? ordered.slice(0, limit) : ordered).at(-1);
 
     return {
       items,
       page: {
         nextCursor:
-          hasMore && lastMembership !== undefined
-            ? encodeCardCursor(
-                lastMembership.sortOrder,
-                lastMembership.learningCardId,
-              )
+          hasMore && lastOrdered !== undefined
+            ? encodeCardCursor(lastOrdered.sortName, lastOrdered.learningCardId)
             : null,
         hasMore,
       },
     };
+  }
+
+  /**
+   * One deck's cards in the reader's alphabet, one page at a time.
+   *
+   * Raw SQL because the order is a property of a related row — the entity's
+   * name in the requested locale — which the query builder cannot sort by.
+   * The name is chosen the way every other read chooses it: the first locale
+   * candidate that has one, falling back through the language and the
+   * release's default.
+   *
+   * `sort_name` is the name lowercased. It is not a linguistically correct
+   * collation for every alphabet, and does not pretend to be: it puts the
+   * list in the order a reader expects to scan, which sorting by an internal
+   * key never did. The client sorts what it holds with the platform's own
+   * collator on top of this.
+   *
+   * The card id breaks ties as text on both sides of the comparison, so the
+   * page boundary and the order agree whatever collation the database was
+   * created with.
+   */
+  private async orderedDeckCardIds(
+    deckId: string,
+    candidates: string[],
+    cursor: { sortName: string; learningCardId: string } | undefined,
+    limit: number,
+  ): Promise<{ learningCardId: string; sortName: string }[]> {
+    const rows = await this.prisma.$queryRaw<
+      { learningCardId: string; sortName: string }[]
+    >`
+      SELECT dc.learning_card_id AS "learningCardId",
+             COALESCE(lower(named.value), '') AS "sortName"
+        FROM deck_cards dc
+        JOIN learning_cards lc
+          ON lc.id = dc.learning_card_id
+         AND lc.status = 'ACTIVE'::"CardStatus"
+        LEFT JOIN LATERAL (
+               SELECT n.value
+                 FROM geo_entity_names n
+                WHERE n.geo_entity_id = lc.subject_entity_id
+                  AND n.name_type = 'SHORT'::"GeoNameType"
+                  AND lower(n.locale) = ANY(${candidates}::text[])
+                ORDER BY array_position(${candidates}::text[], lower(n.locale)),
+                         n.is_primary DESC,
+                         n.value
+                LIMIT 1
+             ) AS named ON TRUE
+       WHERE dc.deck_id = ${deckId}::uuid
+         AND (
+               ${cursor === undefined}::boolean
+               OR (COALESCE(lower(named.value), ''), dc.learning_card_id::text)
+                  > (${cursor?.sortName ?? ""}, ${cursor?.learningCardId ?? ""})
+             )
+       ORDER BY "sortName", dc.learning_card_id::text
+       LIMIT ${limit + 1}
+    `;
+    return rows;
   }
 
   private mapDeck(
