@@ -864,7 +864,7 @@ __metadata:
     "@nestjs/common": "npm:11.1.6"
     "@nestjs/config": "npm:4.0.2"
     "@nestjs/core": "npm:11.1.29"
-    "@nestjs/platform-express": "npm:11.1.29"
+    "@nestjs/platform-express": "npm:11.2.1"
     "@nestjs/testing": "npm:11.1.6"
     "@openfeature/core": "npm:^1.12.0"
     "@openfeature/server-sdk": "npm:^1.23.0"
@@ -2284,9 +2284,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:11.1.29":
-  version: 11.1.29
-  resolution: "@nestjs/platform-express@npm:11.1.29"
+"@nestjs/platform-express@npm:11.2.1":
+  version: 11.2.1
+  resolution: "@nestjs/platform-express@npm:11.2.1"
   dependencies:
     cors: "npm:2.8.6"
     express: "npm:5.2.1"
@@ -2296,7 +2296,7 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^11.0.0
     "@nestjs/core": ^11.0.0
-  checksum: 10c0/9cd265f7dcce27f2099928b72842b5b8e63457f38bfa02f3967f3bc68819922c97696f79c228c245aae6ac3adffaff52fec5868985589c4af7c358cc881a104e
+  checksum: 10c0/a9505891041d6531c9082a4ba656d3df5798b352a70f1ff9932d78b883312381cc8b8b6fedb40b838beea7498ea4eeb8720bc5e55df5de247f55902a746ccba0
   languageName: node
   linkType: hard
 
