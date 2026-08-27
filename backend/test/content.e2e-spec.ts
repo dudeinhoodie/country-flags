@@ -440,20 +440,23 @@ describe("content fixture and read API (integration)", () => {
   // an identical envelope and code, so a client keying on status could not
   // tell them apart on purpose (#276).
   it("refuses every malformed request the same way", async () => {
-    const refusals = await Promise.all([
-      request(httpServer).get("/v1/app-config").query({ platform: "ios" }),
-      request(httpServer)
-        .get("/v1/app-config")
-        .query({ platform: "fridge", appVersion: "0.1.0", locale: "ru-RU" }),
-      request(httpServer).get("/v1/decks").query({ locale: "!!" }),
-      request(httpServer).get("/v1/content/changes").query({ locale: "ru-RU" }),
-      request(httpServer)
-        .get("/v1/content/changes")
-        .query({ locale: "ru-RU", after: "zzz" }),
-    ]);
+    // One at a time: five at once resets the connection on the test server,
+    // which says nothing about the statuses this is here to compare.
+    const malformed: Array<[string, Record<string, string>]> = [
+      ["/v1/app-config", { platform: "ios" }],
+      [
+        "/v1/app-config",
+        { platform: "fridge", appVersion: "0.1.0", locale: "ru-RU" },
+      ],
+      ["/v1/decks", { locale: "!!" }],
+      ["/v1/content/changes", { locale: "ru-RU" }],
+      ["/v1/content/changes", { locale: "ru-RU", after: "zzz" }],
+    ];
 
-    for (const refusal of refusals) {
-      expect(refusal.status).toBe(422);
+    for (const [path, query] of malformed) {
+      const refusal = await request(httpServer).get(path).query(query);
+
+      expect([path, refusal.status]).toEqual([path, 422]);
       const body = refusal.body as unknown as ErrorBody;
       expect(body.error.code).toBe("VALIDATION_FAILED");
       expect(body.error.details).toHaveProperty("fields");
