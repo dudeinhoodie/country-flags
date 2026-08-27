@@ -135,6 +135,7 @@ public struct RootView: View {
     /// screen should speak in: with no catalogue there is nothing to put
     /// numbers on, so that wait is named first and is the only one a guest
     /// ever sees (#270).
+    ///
     /// The stores answer this, not the sync status. A run reports success
     /// before the store has re-read what it delivered, so waiting on the run
     /// let the app open one frame early — long enough for the learned-countries
@@ -146,6 +147,38 @@ public struct RootView: View {
             isGuest: progress.isGuest,
             origin: progress.origin
         )
+    }
+
+    /// The two ways out of any tab: the account on the left, the settings on
+    /// the right.
+    ///
+    /// On every tab rather than on Home alone. They used to hang off the Home
+    /// screen, so reaching either from the catalog or the progress meant going
+    /// back to Home first — a trip through an unrelated screen to change a
+    /// setting (#273). Their place in the bar does not move between tabs,
+    /// which is what makes them findable without looking.
+    @ToolbarContentBuilder
+    private var accountAndSettings: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                router.push(.settings)
+            } label: {
+                Image(systemName: "gearshape")
+            }
+            .accessibilityLabel(L10n.shellOpenSettings)
+            .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
+        }
+        if makeAccountLifecycleStore != nil {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    router.push(.account)
+                } label: {
+                    AccountAvatarButtonLabel(profile: accountToolbar?.profile)
+                }
+                .accessibilityLabel(L10n.accountOpen)
+                .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
+            }
+        }
     }
 
     private var shell: some View {
@@ -193,29 +226,12 @@ public struct RootView: View {
                 .toolbar {
                     // Between the avatar and the gear, which is where a
                     // learner already looks for the state of their account.
+                    // Home alone: it is status rather than a way anywhere, and
+                    // this is the tab that gives up its title for it.
                     ToolbarItem(placement: .principal) {
                         SyncStatusChip(status: sync.status)
                     }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            router.push(.settings)
-                        } label: {
-                            Image(systemName: "gearshape")
-                        }
-                        .accessibilityLabel(L10n.shellOpenSettings)
-                        .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
-                    }
-                    if makeAccountLifecycleStore != nil {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button {
-                                router.push(.account)
-                            } label: {
-                                AccountAvatarButtonLabel(profile: accountToolbar?.profile)
-                            }
-                            .accessibilityLabel(L10n.accountOpen)
-                            .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
-                        }
-                    }
+                    accountAndSettings
                 }
                 .navigationDestination(for: AppRoute.self) { route in
                     destination(for: route)
@@ -227,6 +243,7 @@ public struct RootView: View {
 
             NavigationStack(path: $router.catalogNavigationPath) {
                 CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
+                    .toolbar { accountAndSettings }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -240,6 +257,7 @@ public struct RootView: View {
                     store: progress,
                     onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
                 )
+                .toolbar { accountAndSettings }
                 .navigationDestination(for: AppRoute.self) { route in
                     destination(for: route)
                 }
