@@ -15,7 +15,7 @@
     "fixtures": "node scripts/validate-openapi-fixtures.mjs"
   },
   "devDependencies": {
-    "@redocly/cli": "1.34.17",
+    "@redocly/cli": "2.47.0",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "prettier": "3.6.2",
