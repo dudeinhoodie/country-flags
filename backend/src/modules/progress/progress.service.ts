@@ -15,6 +15,10 @@ import {
 } from "@prisma/client";
 
 import { validationError } from "../../common/http/request-validation";
+import {
+  remainingDailyAllowance,
+  reviewedTodayCount,
+} from "./daily-review-limit";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
   aggregateProgress,
@@ -346,11 +350,27 @@ export class ProgressService {
           now,
         ),
       );
+      // The day's ceiling applies to the account, not to each deck: the
+      // decks overlap, so fifty per deck would be no ceiling at all. A deck's
+      // own progress keeps reporting the whole backlog, which is what "this
+      // deck owes" means; the dose belongs to the day.
+      const settings = await transaction.userSettings.findUnique({
+        where: { userId },
+        select: { timezone: true },
+      });
+      const allowance = remainingDailyAllowance(
+        await reviewedTodayCount(
+          transaction,
+          userId,
+          settings?.timezone ?? "UTC",
+        ),
+      );
       const accountAggregate = aggregateProgress(
         snapshot.cards,
         now,
         rule.thresholds,
         rule.ruleVersion,
+        allowance,
       );
 
       return {
