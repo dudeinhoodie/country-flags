@@ -317,8 +317,17 @@ public struct RootView: View {
         }
         .onChange(of: isStudyOpen) { wasOpen, isOpen in
             guard wasOpen, !isOpen else { return }
-            isSettlingAfterSession = true
             Task {
+                // Opening a sitting and leaving it without answering changes
+                // nothing the backend has not got, so nothing is asked for
+                // and no spinner is spent on it. The counts are still re-read
+                // from the store: a guest's work never leaves the device, so
+                // for them this local pass is the whole of it.
+                guard await sync.hasPendingWork() else {
+                    await progress.reload()
+                    return
+                }
+                isSettlingAfterSession = true
                 await sync.synchronize(trigger: .sessionCompleted)
                 isSettlingAfterSession = false
             }

@@ -85,6 +85,19 @@ public final class SyncCenter {
         await synchronize(trigger: .launch)
     }
 
+    /// Whether anything is waiting to be sent.
+    ///
+    /// Asked before a run is started on the strength of something having
+    /// happened: opening a deck and closing it without answering leaves
+    /// nothing to carry, and a request made for that would spend a spinner
+    /// on a screen that is already right.
+    ///
+    /// Read from the queue rather than from the last run's status, which is
+    /// as old as that run.
+    public func hasPendingWork() async -> Bool {
+        await coordinator.status(for: resolvedScope()).pendingCount > 0
+    }
+
     public func synchronize(trigger: SyncTrigger) async {
         let scope = await resolvedScope()
         let startedAt = dates.now()
