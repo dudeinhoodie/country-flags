@@ -129,10 +129,10 @@ describe("aggregateProgress mastery thresholds", () => {
           learningCardId: "review",
           state: CardLearningState.REVIEW,
           dueAt: new Date("2026-09-01T00:00:00.000Z"),
-          successfulReviews: 2,
-          totalReviews: 2,
-          recentSuccessfulReviews: 2,
-          recentReviews: 2,
+          successfulReviews: 3,
+          totalReviews: 3,
+          recentSuccessfulReviews: 3,
+          recentReviews: 3,
         },
       ],
       now,
@@ -145,8 +145,68 @@ describe("aggregateProgress mastery thresholds", () => {
       newCards: 1,
       learningCards: 1,
       reviewCards: 1,
-      reviewCount: 4,
-      accuracy30Days: 0.75,
+      reviewCount: 5,
+      accuracy30Days: 0.8,
     });
+  });
+
+  /**
+   * Learned is three correct answers, not the state the scheduler put the
+   * card in.
+   *
+   * The two used to be the same thing, and a sitting could end with nothing
+   * learned because the first repetition is an hour out (ADR-013) — the
+   * screen said the work had not counted.
+   */
+  it("counts three correct answers as learned, whatever the scheduler calls the card", () => {
+    const result = aggregateProgress(
+      [
+        // Still in its learning steps, but answered right three times.
+        {
+          learningCardId: "learning-but-known",
+          state: CardLearningState.LEARNING,
+          dueAt: new Date("2026-08-01T00:00:00.000Z"),
+          successfulReviews: 3,
+          totalReviews: 3,
+          recentSuccessfulReviews: 3,
+          recentReviews: 3,
+        },
+        // Graduated by the scheduler, but only twice right: two correct
+        // answers are not yet knowing a flag.
+        {
+          learningCardId: "graduated-but-thin",
+          state: CardLearningState.REVIEW,
+          dueAt: new Date("2026-09-01T00:00:00.000Z"),
+          successfulReviews: 2,
+          totalReviews: 4,
+          recentSuccessfulReviews: 2,
+          recentReviews: 4,
+        },
+      ],
+      now,
+    );
+
+    expect(result.learnedCards).toBe(1);
+  });
+
+  /// A card answered once is in progress, and in progress is not learned:
+  /// the two counts must never name the same card (#232).
+  it("keeps a card answered once out of the learned count", () => {
+    const result = aggregateProgress(
+      [
+        {
+          learningCardId: "touched-once",
+          state: CardLearningState.LEARNING,
+          dueAt: new Date("2026-08-01T00:00:00.000Z"),
+          successfulReviews: 1,
+          totalReviews: 1,
+          recentSuccessfulReviews: 1,
+          recentReviews: 1,
+        },
+      ],
+      now,
+    );
+
+    expect(result).toMatchObject({ learnedCards: 0, newCards: 0 });
   });
 });
