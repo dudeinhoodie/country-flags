@@ -2,6 +2,13 @@ import SwiftUI
 
 import CountryFlagsDomain
 
+/// The deck that holds every card the release publishes.
+///
+/// A release may carry several curated decks, so being curated no longer
+/// picks this one out. The code is what the publisher gives the all-countries
+/// membership, and it is stable across releases.
+let ALL_COUNTRIES_DECK_CODE = "ALL"
+
 /// What the learner has done so far.
 ///
 /// The counts are the device's own: a guest studies durably and is never
@@ -81,7 +88,7 @@ public struct ProgressScreen: View {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                     WorldMapView(
                         brightness: Dictionary(
-                            regions.map { ($0.code, $0.learnedFraction) },
+                            otherDecks.map { ($0.code, $0.learnedFraction) },
                             uniquingKeysWith: { first, _ in first }
                         )
                     )
@@ -115,7 +122,7 @@ public struct ProgressScreen: View {
                     // for the single element would find a crowd.
                     .accessibilityIdentifier(
                         AccessibilityIdentifier.progressDeckCounts(
-                            whole?.code ?? "ALL"
+                            whole?.code ?? ALL_COUNTRIES_DECK_CODE
                         )
                     )
                 }
@@ -123,7 +130,7 @@ public struct ProgressScreen: View {
 
             GlassCard(padding: DesignTokens.Spacing.small) {
                 VStack(spacing: 0) {
-                    ForEach(Array(regions.enumerated()), id: \.element.id) { index, deck in
+                    ForEach(Array(otherDecks.enumerated()), id: \.element.id) { index, deck in
                         if index > 0 {
                             Divider()
                                 .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
@@ -182,24 +189,34 @@ public struct ProgressScreen: View {
         .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
     }
 
-    /// The regions, without the whole: the curated deck spans every card, so
-    /// a row for it would restate the hero in different words.
-    private var regions: [DeckProgressRow] {
-        store.decks.filter { !$0.isCurated }
+    /// Every deck except the one the hero already states.
+    ///
+    /// Not "the ones that are not curated": a release may publish several
+    /// curated decks — special areas, and whatever the editors add — and
+    /// those used to fall through the screen entirely, excluded from the
+    /// rows for being curated and not shown by the hero, which names one
+    /// deck. New decks appeared in the catalogue and this tab did not admit
+    /// they existed.
+    private var otherDecks: [DeckProgressRow] {
+        store.decks.filter { $0.id != whole?.id }
     }
 
-    /// The curated deck, when the release publishes one: the numbers that
-    /// count each card exactly once.
+    /// The deck that spans the whole catalogue, when the release has one.
+    ///
+    /// Identified by the membership it is published under rather than by
+    /// being curated, because being curated no longer distinguishes it. Its
+    /// numbers are the ones that count each card exactly once, which is what
+    /// makes them the hero's; another curated deck is a slice like any other.
     private var whole: DeckProgressRow? {
-        store.decks.first { $0.isCurated }
+        store.decks.first { $0.code == ALL_COUNTRIES_DECK_CODE }
     }
 
     private var learnedCards: Int {
-        whole?.learnedCards ?? regions.reduce(0) { $0 + $1.learnedCards }
+        whole?.learnedCards ?? otherDecks.reduce(0) { $0 + $1.learnedCards }
     }
 
     private var totalCards: Int {
-        whole?.totalCards ?? regions.reduce(0) { $0 + $1.totalCards }
+        whole?.totalCards ?? otherDecks.reduce(0) { $0 + $1.totalCards }
     }
 }
 
