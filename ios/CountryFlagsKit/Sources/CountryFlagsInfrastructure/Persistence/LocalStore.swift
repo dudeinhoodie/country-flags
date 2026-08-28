@@ -23,7 +23,13 @@ import CountryFlagsDomain
 /// because an unsynchronized outbox lives in it.
 enum LocalStoreMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [LocalSchemaV1.self, LocalSchemaV2.self, LocalSchemaV3.self, LocalSchemaV4.self]
+        [
+            LocalSchemaV1.self,
+            LocalSchemaV2.self,
+            LocalSchemaV3.self,
+            LocalSchemaV4.self,
+            LocalSchemaV5.self,
+        ]
     }
 
     static var stages: [MigrationStage] {
@@ -39,6 +45,12 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             // default on a model version 3 froze, so SwiftData widens the table
             // and a device keeps what it has not uploaded yet.
             .lightweight(fromVersion: LocalSchemaV3.self, toVersion: LocalSchemaV4.self),
+            // Adding a fact's parts beside the line the backend composed: a
+            // property with a default on a model versions 1 to 4 froze, so
+            // SwiftData widens the table and a device keeps what it has not
+            // uploaded yet. Facts already downloaded have nil there and keep
+            // showing the line they arrived as.
+            .lightweight(fromVersion: LocalSchemaV4.self, toVersion: LocalSchemaV5.self),
         ]
     }
 }
@@ -57,7 +69,7 @@ public struct LocalStore: Sendable {
     public let container: ModelContainer
 
     public init(location: Location = .onDisk(name: "CountryFlags")) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV4.self)
+        let schema = Schema(versionedSchema: LocalSchemaV5.self)
         let configuration: ModelConfiguration
         switch location {
         case .inMemory:
@@ -89,7 +101,7 @@ public struct LocalStore: Sendable {
     /// Builds a store at an explicit file URL, which is what a migration or a
     /// relaunch test needs.
     public init(fileURL: URL) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV4.self)
+        let schema = Schema(versionedSchema: LocalSchemaV5.self)
         do {
             container = try ModelContainer(
                 for: schema,
@@ -129,7 +141,7 @@ public struct LocalStore: Sendable {
     /// which only needs to know which files to remove before the store is
     /// opened.
     public static func fileURLs(forName name: String) -> [URL] {
-        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV4.self))
+        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV5.self))
             .url
         // SQLite keeps its write-ahead log and shared memory next to the store.
         return [base]

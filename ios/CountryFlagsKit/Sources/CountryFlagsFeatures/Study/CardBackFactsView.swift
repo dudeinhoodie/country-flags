@@ -37,14 +37,19 @@ private struct CardBackFactRow: View {
     let fact: FactRecord
 
     var body: some View {
+        // Through the same wording as the other two surfaces. Read straight
+        // from the record, this row showed the currency's ISO code while the
+        // self-rated card next door did not — the drift `FactDisplay` exists
+        // to prevent, on the one screen that was not using it.
+        let presentation = FactDisplay.presentation(for: fact)
         HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
-            if let name = L10n.factType(fact.type) {
+            if let name = presentation.label {
                 Text(name)
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(.secondary)
                     .frame(width: 96, alignment: .leading)
             }
-            Text(fact.displayValue)
+            Text(presentation.value)
                 .font(DesignTokens.Typography.body)
             Spacer(minLength: 0)
         }

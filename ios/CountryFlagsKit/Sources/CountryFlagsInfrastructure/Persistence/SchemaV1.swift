@@ -1,6 +1,8 @@
 import Foundation
 import SwiftData
 
+import CountryFlagsDomain
+
 /// Version 1 of the local store.
 ///
 /// A versioned schema is declared from the start so the first real migration
@@ -106,14 +108,113 @@ enum LocalSchemaV1: VersionedSchema {
         }
     }
 
+    /// A fact as versions 1 to 4 stored it: the composed line and nothing
+    /// else, before version 5 kept the parts beside it.
+    ///
+    /// Frozen for the same reason as the two above. The live `StoredFact`
+    /// gained a property, and every version that listed it would describe
+    /// version 5's store rather than its own.
+    ///
+    /// The entity, its names and its assets are frozen with it. They do not
+    /// change here, but they are one graph: the entity owns the relationship
+    /// to the fact and the names and assets own theirs back to the entity, so
+    /// a version that took the new fact and the old entity would describe a
+    /// store where the two halves disagree.
+    @Model
+    final class StoredFact {
+        var type: String = ""
+        var displayValue: String = ""
+        var sourceName: String = ""
+        var entity: LocalSchemaV1.StoredGeoEntity?
+
+        init(type: String, displayValue: String, sourceName: String) {
+            self.type = type
+            self.displayValue = displayValue
+            self.sourceName = sourceName
+        }
+    }
+
+    @Model
+    final class StoredGeoEntity {
+        var id: UUID = UUID()
+        var kind: String = ""
+        var status: String = ""
+        var recognitionStatus: String = ""
+        var contentVersion: String = ""
+        var isRetired: Bool = false
+        @Relationship(deleteRule: .cascade, inverse: \LocalSchemaV1.StoredGeoName.entity)
+        var names: [LocalSchemaV1.StoredGeoName]? = []
+        @Relationship(deleteRule: .cascade, inverse: \LocalSchemaV1.StoredAsset.entity)
+        var assets: [LocalSchemaV1.StoredAsset]? = []
+        @Relationship(deleteRule: .cascade, inverse: \LocalSchemaV1.StoredFact.entity)
+        var facts: [LocalSchemaV1.StoredFact]? = []
+
+        init(
+            id: UUID,
+            kind: String,
+            status: String,
+            recognitionStatus: String,
+            contentVersion: String,
+            isRetired: Bool = false
+        ) {
+            self.id = id
+            self.kind = kind
+            self.status = status
+            self.recognitionStatus = recognitionStatus
+            self.contentVersion = contentVersion
+            self.isRetired = isRetired
+        }
+    }
+
+    @Model
+    final class StoredGeoName {
+        var locale: String = ""
+        var value: String = ""
+        var isPrimary: Bool = false
+        var entity: LocalSchemaV1.StoredGeoEntity?
+
+        init(locale: String, value: String, isPrimary: Bool) {
+            self.locale = locale
+            self.value = value
+            self.isPrimary = isPrimary
+        }
+    }
+
+    @Model
+    final class StoredAsset {
+        var id: UUID = UUID()
+        var type: String = ""
+        var url: URL = URL(fileURLWithPath: "/")
+        var mimeType: String = ""
+        var sha256: String = ""
+        var contentVersion: String = ""
+        var entity: LocalSchemaV1.StoredGeoEntity?
+
+        init(
+            id: UUID,
+            type: String,
+            url: URL,
+            mimeType: String,
+            sha256: String,
+            contentVersion: String
+        ) {
+            self.id = id
+            self.type = type
+            self.url = url
+            self.mimeType = mimeType
+            self.sha256 = sha256
+            self.contentVersion = contentVersion
+        }
+    }
+
     static var models: [any PersistentModel.Type] {
         [
             StoredContentManifest.self,
             StoredContentStagingState.self,
-            StoredGeoEntity.self,
-            StoredGeoName.self,
-            StoredAsset.self,
-            StoredFact.self,
+            LocalSchemaV1.StoredGeoEntity.self,
+            LocalSchemaV1.StoredGeoName.self,
+            LocalSchemaV1.StoredAsset.self,
+            LocalSchemaV1.StoredFact.self,
             StoredDeck.self,
             LocalSchemaV1.StoredLearningCard.self,
             StoredDeckCard.self,
@@ -283,12 +384,26 @@ final class StoredFact {
     var type: String = ""
     var displayValue: String = ""
     var sourceName: String = ""
+    /// The fact's parts, JSON-encoded, or nil when the release published a
+    /// shape the backend does not model.
+    ///
+    /// One opaque property rather than a column per part: nothing queries a
+    /// fact by its capital or its currency code — they are read whole, with
+    /// the card — and a blob keeps the migration a lightweight one, which is
+    /// what carries an unsynchronized outbox across the update.
+    var detailsJSON: Data?
     var entity: StoredGeoEntity?
 
-    init(type: String, displayValue: String, sourceName: String) {
+    init(
+        type: String,
+        displayValue: String,
+        sourceName: String,
+        detailsJSON: Data? = nil
+    ) {
         self.type = type
         self.displayValue = displayValue
         self.sourceName = sourceName
+        self.detailsJSON = detailsJSON
     }
 }
 
@@ -383,6 +498,13 @@ struct StoredCardFact: Codable, Hashable {
     var type: String
     var displayValue: String
     var sourceName: String
+    /// The fact's parts, kept beside the composed line so the screen decides
+    /// the wording rather than taking the line apart again.
+    ///
+    /// Optional, and decoded as such: a card stored before this shape has no
+    /// such key, and reads back with nil — showing the line it arrived as,
+    /// which is what it showed before. Nothing needs rewriting for that.
+    var details: FactDetails?
 }
 
 @Model
