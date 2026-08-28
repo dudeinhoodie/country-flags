@@ -33,6 +33,13 @@ public struct HomeView: View {
     /// The flags shown fanned in the today pane and beside each queue row,
     /// keyed by deck. Read alongside the counts and for the same reason: the
     /// rows should show the cards they are talking about.
+    /// Whether a sitting's answers are still on their way to the backend.
+    ///
+    /// Latched rather than read live: the upload finishes before the counts
+    /// are rebuilt, so a plain reading would flip back to numbers halfway
+    /// through and settle a second time. It is set when work appears and
+    /// cleared when the checking stops.
+    @State private var isSettling = false
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
 
@@ -75,6 +82,12 @@ public struct HomeView: View {
                 await sync.synchronize(trigger: .pullToRefresh)
             }
             .task { await store.start() }
+            .onChange(of: sync.status.pendingCount) { _, pending in
+                if pending > 0 { isSettling = true }
+            }
+            .onChange(of: isVerifying) { _, verifying in
+                if !verifying { isSettling = false }
+            }
             // The one thing this screen still reads for itself: which flags to
             // fan, which is a view concern and depends on the deck rows it
             // just received. Everything else — the counts, the queue, the
@@ -115,16 +128,20 @@ public struct HomeView: View {
             // to be content, and not the local projection's figures either:
             // the owner's call is that a number on this screen is the
             // backend's number or nothing.
-            if isAwaitingProgress {
+            if isAwaitingProgress || isSettlingAfterWork {
                 homeLoader
             } else {
                 // Dimmed while the numbers are being checked: the figure stays
                 // readable and stops claiming to be settled.
+                //
+                // And not tappable while it is dimmed, so a queue that is
+                // about to change cannot be walked into.
                 VStack(spacing: DesignTokens.Spacing.large) {
                     todayPane(sections)
                     queuePane(sections)
                 }
                 .opacity(isVerifying ? 0.55 : 1)
+                .disabled(isVerifying)
                 .animation(.easeInOut(duration: 0.2), value: isVerifying)
             }
         }
@@ -171,6 +188,18 @@ public struct HomeView: View {
         if sync.status.phase == .syncing { return true }
         return progress?.isRefreshing ?? false
     }
+
+    /// Whether what is on screen is known to be behind rather than merely
+    /// being checked.
+    ///
+    /// Leaving a sitting, the answers are still on their way up, so the
+    /// counts under them are the backend's previous word — not a figure to
+    /// dim and keep, but one that is about to change. The screen spins in its
+    /// place rather than showing a number it already knows is stale.
+    ///
+    /// A routine check with nothing waiting keeps its numbers and dims them:
+    /// a figure being verified says more than a spinner.
+    private var isSettlingAfterWork: Bool { isSettling && isVerifying }
 
     // MARK: - Today
 
