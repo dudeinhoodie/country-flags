@@ -20,6 +20,22 @@ final class SyncCenterTests: XCTestCase {
         XCTAssertEqual(center.status.pendingCount, 2)
     }
 
+/// The launch has two possible first screens and both call `start()`, so
+    /// the second call returns at once. A screen that timed the launch by
+    /// that call was timing nothing — which is how the home screen showed the
+    /// numbers this device was last told and replaced them two seconds later
+    /// with no spinner in between.
+    func testTheFirstRunIsNotSettledUntilItComesBack() async {
+        let coordinator = RecordingCoordinator(status: SyncStatus())
+        let center = SyncCenter(coordinator: coordinator, scopes: FixedScopeResolver())
+
+        XCTAssertFalse(center.hasSettledFirstRun)
+
+        await center.start()
+
+        XCTAssertTrue(center.hasSettledFirstRun)
+    }
+
     func testEveryTriggerReachesTheSharedBoundary() async {
         let coordinator = RecordingCoordinator(status: SyncStatus())
         let center = SyncCenter(coordinator: coordinator, scopes: FixedScopeResolver())

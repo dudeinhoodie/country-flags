@@ -47,7 +47,11 @@ public struct RootView: View {
     /// So the first thing shown was the previous word, replaced a moment
     /// later: the same flash as leaving a sitting, at the other end of the
     /// app.
-    @State private var isSettlingAtLaunch = true
+    ///
+    /// Asked of the sync rather than timed around `start()`: that call
+    /// returns at once the second time, and both of the launch's screens make
+    /// it, so a flag cleared after it was cleared before anything happened.
+    private var isSettlingAtLaunch: Bool { !sync.hasSettledFirstRun }
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -311,10 +315,7 @@ public struct RootView: View {
         // calls are idempotent; whichever screen the launch lands on, the
         // store is read once and the run starts once.
         .task { await progress.reload() }
-        .task {
-            await sync.start()
-            isSettlingAtLaunch = false
-        }
+        .task { await sync.start() }
         .onChange(of: isStudyOpen) { wasOpen, isOpen in
             guard wasOpen, !isOpen else { return }
             Task {
