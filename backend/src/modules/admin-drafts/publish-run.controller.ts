@@ -86,6 +86,10 @@ export class PublishRunController {
   /// deployment can be in for as long as the executor is not there yet.
   @Post("runs/:runId/cancel")
   @RequireAdminRole(AdminRole.PUBLISHER)
+  // A POST that creates nothing: the run already existed, and this ends it.
+  // Nest would answer 201 by default, which would promise a resource that
+  // was never made.
+  @HttpCode(HttpStatus.OK)
   async cancelRun(
     @Req() request: AdminAuthenticatedRequest,
     @Param("runId") rawRunId: string,
