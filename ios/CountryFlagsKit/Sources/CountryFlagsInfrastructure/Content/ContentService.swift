@@ -272,13 +272,7 @@ public struct ContentService: Sendable {
                         displayName: card.answer.displayName,
                         aliases: card.answer.aliases,
                         contentVersion: card.contentVersion,
-                        backSideFacts: (card.backSideFacts ?? []).map {
-                            FactRecord(
-                                type: $0._type,
-                                displayValue: $0.displayValue,
-                                sourceName: $0.source.name
-                            )
-                        }
+                        backSideFacts: (card.backSideFacts ?? []).map(Self.factRecord)
                     )
                 )
                 deckCards.append(
@@ -418,13 +412,7 @@ public struct ContentService: Sendable {
                         displayScale: displayScale
                     )
                 },
-                facts: payload.facts.map {
-                    FactRecord(
-                        type: $0._type,
-                        displayValue: $0.displayValue,
-                        sourceName: $0.source.name
-                    )
-                }
+                facts: payload.facts.map(Self.factRecord)
             )
         case .notFound:
             return nil
@@ -450,6 +438,47 @@ public struct ContentService: Sendable {
     ///   release offers nothing this platform can draw — a card with no
     ///   drawable prompt is reported as unsupported rather than shown as an
     ///   empty frame.
+    /// A fact as the record keeps it: the composed line, and the parts when
+    /// the release and the backend have them.
+    ///
+    /// `details` is absent against a backend that predates it and against a
+    /// release whose stored value has a shape the backend does not model. The
+    /// line is what the reader sees then, exactly as it arrived — the client
+    /// no longer takes it apart to guess the parts back out.
+    private static func factRecord(_ fact: Components.Schemas.Fact) -> FactRecord {
+        FactRecord(
+            type: fact._type,
+            displayValue: fact.displayValue,
+            sourceName: fact.source.name,
+            details: factDetails(fact.details)
+        )
+    }
+
+    private static func factDetails(
+        _ details: Components.Schemas.Fact.detailsPayload?
+    ) -> FactDetails? {
+        switch details {
+        case .none:
+            return nil
+        case .capital(let capital):
+            return .capital(
+                seats: capital.seats.map { .init(name: $0.name, role: $0.role) }
+            )
+        case .currency(let currency):
+            return .currency(
+                tenders: currency.tenders.map {
+                    .init(code: $0.code, name: $0.name, role: $0.role)
+                }
+            )
+        case .language(let language):
+            return .language(
+                languages: language.languages.map { .init(code: $0.code, name: $0.name) }
+            )
+        case .population(let population):
+            return .population(value: population.value, year: population.year)
+        }
+    }
+
     private static func assetRecord(
         _ asset: Components.Schemas.Asset,
         contentVersion: String,

@@ -174,7 +174,12 @@ actor SwiftDataContentRepository: ContentRepository {
                 StoredGeoName(locale: $0.locale, value: $0.value, isPrimary: $0.isPrimary)
             }
             stored.facts = entity.facts.map {
-                StoredFact(type: $0.type, displayValue: $0.displayValue, sourceName: $0.sourceName)
+                StoredFact(
+                    type: $0.type,
+                    displayValue: $0.displayValue,
+                    sourceName: $0.sourceName,
+                    detailsJSON: FactDetailsCoding.encode($0.details)
+                )
             }
             // Assets are upserted by identifier rather than rebuilt with the
             // rest of the children, because a card refers to one directly and
@@ -217,7 +222,8 @@ actor SwiftDataContentRepository: ContentRepository {
                 StoredCardFact(
                     type: $0.type,
                     displayValue: $0.displayValue,
-                    sourceName: $0.sourceName
+                    sourceName: $0.sourceName,
+                    details: $0.details
                 )
             }
         }
@@ -495,7 +501,8 @@ actor SwiftDataContentRepository: ContentRepository {
                 FactRecord(
                     type: $0.type,
                     displayValue: $0.displayValue,
-                    sourceName: $0.sourceName
+                    sourceName: $0.sourceName,
+                    details: $0.details
                 )
             }
         )
@@ -525,7 +532,8 @@ actor SwiftDataContentRepository: ContentRepository {
                 FactRecord(
                     type: $0.type,
                     displayValue: $0.displayValue,
-                    sourceName: $0.sourceName
+                    sourceName: $0.sourceName,
+                    details: FactDetailsCoding.decode($0.detailsJSON)
                 )
             }
         )
