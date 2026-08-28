@@ -90,8 +90,9 @@ public struct RootView: View {
         //
         // A screen rather than an overlay with a gesture: there is nothing
         // behind it worth reaching, so it cannot be dismissed.
-        if isBootstrapping {
-            AccountBootstrapScreen(
+        if let waitingFor = launchWait {
+            LaunchWaitScreen(
+                reason: waitingFor,
                 failure: sync.status.lastFailure,
                 isRetrying: sync.status.phase == .syncing
                     || content.status.phase != .idle,
@@ -120,7 +121,7 @@ public struct RootView: View {
         }
     }
 
-    /// Whether the app has nothing it could put on screen yet.
+    /// What the app is still waiting for, or nil when it can be let in.
     ///
     /// The question is what the store holds, not whether this process has
     /// been to the network. Waiting on the sync meant a device with the whole
@@ -129,21 +130,55 @@ public struct RootView: View {
     ///
     /// `.loading` is the store's own word for "nothing to draw"; `.empty` and
     /// `.failed` are answers, and the app shows them as screens of their own.
-    private var isBootstrapping: Bool {
-        if !content.hasSomethingToShow { return true }
-        return isAwaitingFirstNumbers
-    }
-
-    /// Whether an account is still waiting for the numbers it is not allowed
-    /// to invent. A guest never waits: nobody else is counting their work.
     ///
-    /// The store answers this, not the sync status. A run reports success
+    /// The order is the order they arrive in, and it is also the order the
+    /// screen should speak in: with no catalogue there is nothing to put
+    /// numbers on, so that wait is named first and is the only one a guest
+    /// ever sees (#270).
+    ///
+    /// The stores answer this, not the sync status. A run reports success
     /// before the store has re-read what it delivered, so waiting on the run
     /// let the app open one frame early — long enough for the learned-countries
     /// block to appear a moment after the screen it belongs to. The store
     /// settles on `backend` once it has read the answer, empty or not.
-    private var isAwaitingFirstNumbers: Bool {
-        progress.origin == .awaitingBackend
+    private var launchWait: LaunchWaitScreen.Reason? {
+        LaunchWaitScreen.Reason.waiting(
+            hasCatalog: content.hasSomethingToShow,
+            isGuest: progress.isGuest,
+            origin: progress.origin
+        )
+    }
+
+    /// The two ways out of any tab: the account on the left, the settings on
+    /// the right.
+    ///
+    /// On every tab rather than on Home alone. They used to hang off the Home
+    /// screen, so reaching either from the catalog or the progress meant going
+    /// back to Home first — a trip through an unrelated screen to change a
+    /// setting (#273). Their place in the bar does not move between tabs,
+    /// which is what makes them findable without looking.
+    @ToolbarContentBuilder
+    private var accountAndSettings: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                router.push(.settings)
+            } label: {
+                Image(systemName: "gearshape")
+            }
+            .accessibilityLabel(L10n.shellOpenSettings)
+            .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
+        }
+        if makeAccountLifecycleStore != nil {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    router.push(.account)
+                } label: {
+                    AccountAvatarButtonLabel(profile: accountToolbar?.profile)
+                }
+                .accessibilityLabel(L10n.accountOpen)
+                .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
+            }
+        }
     }
 
     private var shell: some View {
@@ -191,29 +226,12 @@ public struct RootView: View {
                 .toolbar {
                     // Between the avatar and the gear, which is where a
                     // learner already looks for the state of their account.
+                    // Home alone: it is status rather than a way anywhere, and
+                    // this is the tab that gives up its title for it.
                     ToolbarItem(placement: .principal) {
                         SyncStatusChip(status: sync.status)
                     }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            router.push(.settings)
-                        } label: {
-                            Image(systemName: "gearshape")
-                        }
-                        .accessibilityLabel(L10n.shellOpenSettings)
-                        .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
-                    }
-                    if makeAccountLifecycleStore != nil {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button {
-                                router.push(.account)
-                            } label: {
-                                AccountAvatarButtonLabel(profile: accountToolbar?.profile)
-                            }
-                            .accessibilityLabel(L10n.accountOpen)
-                            .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
-                        }
-                    }
+                    accountAndSettings
                 }
                 .navigationDestination(for: AppRoute.self) { route in
                     destination(for: route)
@@ -225,6 +243,7 @@ public struct RootView: View {
 
             NavigationStack(path: $router.catalogNavigationPath) {
                 CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
+                    .toolbar { accountAndSettings }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -238,6 +257,7 @@ public struct RootView: View {
                     store: progress,
                     onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
                 )
+                .toolbar { accountAndSettings }
                 .navigationDestination(for: AppRoute.self) { route in
                     destination(for: route)
                 }
@@ -378,10 +398,10 @@ public enum AccessibilityIdentifier {
     public static let shellTitle = "root.shell.title"
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
-    /// The first-run wait for an account's numbers, and the way out of it
-    /// when the backend cannot be reached.
-    public static let accountBootstrap = "root.accountBootstrap"
-    public static let accountBootstrapRetry = "root.accountBootstrap.retry"
+    /// The launch wait — for the catalogue or for an account's numbers — and
+    /// the way out of it when the backend cannot be reached.
+    public static let launchWait = "root.launchWait"
+    public static let launchWaitRetry = "root.launchWait.retry"
 
     public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"

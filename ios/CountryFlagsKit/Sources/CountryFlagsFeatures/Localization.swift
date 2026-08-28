@@ -42,17 +42,28 @@ public enum L10n {
 
     // MARK: - Content
 
-    /// The first-run wait: an account's numbers are the backend's, so there
-    /// is a moment before the first answer when the app has nothing it is
-    /// allowed to draw. It says what it is waiting for rather than showing
-    /// an empty shelf.
-    public static var bootstrapTitle: String { localized("bootstrap.title") }
-    public static var bootstrapSubtitle: String { localized("bootstrap.subtitle") }
-    public static var bootstrapFailedTitle: String { localized("bootstrap.failed.title") }
-    public static var bootstrapFailedSubtitle: String {
-        localized("bootstrap.failed.subtitle")
+    /// The launch wait, in two kinds. Nothing has been read yet, and the
+    /// flags themselves are coming — everyone's first launch, and the only
+    /// wait a guest ever sees; or an account's numbers, which are the
+    /// backend's (ADR-016), have never arrived. Naming an account to someone
+    /// who has none describes work that is not happening.
+    public static var launchCatalogTitle: String { localized("launch.catalog.title") }
+    public static var launchCatalogSubtitle: String {
+        localized("launch.catalog.subtitle")
     }
-    public static var bootstrapRetry: String { localized("bootstrap.retry") }
+    public static var launchCatalogFailedSubtitle: String {
+        localized("launch.catalog.failed.subtitle")
+    }
+    public static var launchAccountTitle: String { localized("launch.account.title") }
+    public static var launchAccountSubtitle: String {
+        localized("launch.account.subtitle")
+    }
+    public static var launchAccountFailedSubtitle: String {
+        localized("launch.account.failed.subtitle")
+    }
+    /// The server is what could not be reached whichever wait it interrupted.
+    public static var launchFailedTitle: String { localized("launch.failed.title") }
+    public static var launchRetry: String { localized("launch.retry") }
 
     public static var homeTitle: String { localized("home.title") }
     public static var homeLoading: String { localized("home.loading") }
