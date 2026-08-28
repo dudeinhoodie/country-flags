@@ -30,10 +30,13 @@ public struct HomeView: View {
     /// rather than owned: the same numbers appear on four screens, and a
     /// screen holding its own copy is how they came to disagree.
     private let progress: ProgressStore?
-    /// Whether a sitting has just ended and its answers have not come back as
-    /// numbers yet. The shell owns the window, because that is where the
-    /// session closes and the synchronisation that follows it is started.
-    private let isSettlingAfterSession: Bool
+    /// Whether the numbers on screen are known to be the previous word —
+    /// after a sitting, or before the launch's own run has come back.
+    ///
+    /// The shell owns both windows, because that is where a session closes
+    /// and where the launch run is started; a screen that tried to infer them
+    /// was looking after they had already closed.
+    private let isSettling: Bool
     /// The flags shown fanned in the today pane and beside each queue row,
     /// keyed by deck. Read alongside the counts and for the same reason: the
     /// rows should show the cards they are talking about.
@@ -45,7 +48,7 @@ public struct HomeView: View {
         sync: SyncCenter,
         assets: (any AssetLoading)? = nil,
         progress: ProgressStore? = nil,
-        isSettlingAfterSession: Bool = false,
+        isSettling: Bool = false,
         makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
@@ -58,7 +61,7 @@ public struct HomeView: View {
         self.sync = sync
         self.assets = assets
         self.progress = progress
-        self.isSettlingAfterSession = isSettlingAfterSession
+        self.isSettling = isSettling
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
@@ -121,7 +124,7 @@ public struct HomeView: View {
             // to be content, and not the local projection's figures either:
             // the owner's call is that a number on this screen is the
             // backend's number or nothing.
-            if isAwaitingProgress || isSettlingAfterSession {
+            if isAwaitingProgress || isSettling {
                 homeLoader
             } else {
                 // Dimmed while the numbers are being checked: the figure stays

@@ -39,6 +39,16 @@ public struct RootView: View {
     /// already drained by the time the home screen is looking.
     @State private var isSettlingAfterSession = false
 
+    /// Whether the launch's own run is still on its way back.
+    ///
+    /// The shell opens as soon as the counts have been read from the store,
+    /// which is what makes a warm launch instant — but those are the numbers
+    /// this device was last told, and the run that refreshes them lands after.
+    /// So the first thing shown was the previous word, replaced a moment
+    /// later: the same flash as leaving a sitting, at the other end of the
+    /// app.
+    @State private var isSettlingAtLaunch = true
+
     @Environment(\.scenePhase) private var scenePhase
 
     /// How old the catalogue may be before coming back to the app refreshes
@@ -206,7 +216,7 @@ public struct RootView: View {
                     sync: sync,
                     assets: assets,
                     progress: progress,
-                    isSettlingAfterSession: isSettlingAfterSession,
+                    isSettling: isSettlingAfterSession || isSettlingAtLaunch,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
@@ -301,7 +311,10 @@ public struct RootView: View {
         // calls are idempotent; whichever screen the launch lands on, the
         // store is read once and the run starts once.
         .task { await progress.reload() }
-        .task { await sync.start() }
+        .task {
+            await sync.start()
+            isSettlingAtLaunch = false
+        }
         .onChange(of: isStudyOpen) { wasOpen, isOpen in
             guard wasOpen, !isOpen else { return }
             isSettlingAfterSession = true
