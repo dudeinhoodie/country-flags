@@ -135,17 +135,25 @@ private enum Fixtures {
 
 private actor ScriptedSession: SessionControlling {
     private let outcome: SignInOutcome
+    private let avatarURL: URL?
     private var state: AuthenticationState = .guest
 
-    init(outcome: SignInOutcome) {
+    init(outcome: SignInOutcome, avatarURL: URL? = nil) {
         self.outcome = outcome
+        self.avatarURL = avatarURL
+    }
+
+    /// Starts signed in, for the cases that are about what a signed-in
+    /// account already has rather than about signing in.
+    func beginAuthenticated(userID: UUID) {
+        state = .authenticated(userID: userID)
     }
 
     func currentState() async -> AuthenticationState { state }
 
     func currentProfile() async -> AccountProfile? {
         state.isAuthenticated
-            ? AccountProfile(displayName: "Scripted Learner", avatarURL: nil)
+            ? AccountProfile(displayName: "Scripted Learner", avatarURL: avatarURL)
             : nil
     }
 
@@ -247,5 +255,109 @@ private actor OrderRecorder {
 
     func note(_ name: String) {
         notes.append(name)
+    }
+}
+
+/**
+ * The avatar the toolbar draws.
+ *
+ * It is the same picture on all three tabs now, so the store holds it: a view
+ * that fetched per instance blinked the photo back to a grey glyph on every
+ * tab switch, on an image the app already had.
+ */
+@MainActor
+final class AccountAvatarTests: XCTestCase {
+    private let avatarURL = URL(string: "https://provider.test/avatar.png")!
+
+    func testTheAvatarIsFetchedOnceAndKept() async {
+        let session = ScriptedSession(
+            outcome: .succeeded(userID: Fixtures.userID),
+            avatarURL: avatarURL,
+        )
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let avatars = CountingAvatarLoader(bytes: Data([1, 2, 3]))
+        let store = AccountStore(
+            session: session,
+            migrations: RecordingMigrations(),
+            outbox: StubOutbox(pendingCount: 0),
+            scopes: StubScopes(),
+            nonces: StubNonces(),
+            avatars: avatars,
+        )
+
+        await store.start()
+        let afterFirst = await avatars.count
+        XCTAssertEqual(store.avatar, Data([1, 2, 3]))
+        XCTAssertEqual(afterFirst, 1)
+
+        // What a tab switch amounts to: the store is read again. The picture
+        // has to still be there, and nothing has to be fetched for it.
+        await store.start()
+        let afterSecond = await avatars.count
+        XCTAssertEqual(store.avatar, Data([1, 2, 3]))
+        XCTAssertEqual(afterSecond, 1)
+    }
+
+    /// A missing picture and a picture that would not load look the same on
+    /// screen — the glyph — and neither is worth a message.
+    func testAFailedFetchLeavesNoAvatarAndNoError() async {
+        let session = ScriptedSession(
+            outcome: .succeeded(userID: Fixtures.userID),
+            avatarURL: avatarURL,
+        )
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let store = AccountStore(
+            session: session,
+            migrations: RecordingMigrations(),
+            outbox: StubOutbox(pendingCount: 0),
+            scopes: StubScopes(),
+            nonces: StubNonces(),
+            avatars: FailingAvatarLoader(),
+        )
+
+        await store.start()
+
+        XCTAssertNil(store.avatar)
+        XCTAssertNil(store.lastFailure)
+    }
+
+    func testAnAccountWithoutAPictureFetchesNothing() async {
+        let session = ScriptedSession(outcome: .succeeded(userID: Fixtures.userID))
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let avatars = CountingAvatarLoader(bytes: Data([1]))
+        let store = AccountStore(
+            session: session,
+            migrations: RecordingMigrations(),
+            outbox: StubOutbox(pendingCount: 0),
+            scopes: StubScopes(),
+            nonces: StubNonces(),
+            avatars: avatars,
+        )
+
+        await store.start()
+        let fetches = await avatars.count
+
+        XCTAssertNil(store.avatar)
+        XCTAssertEqual(fetches, 0)
+    }
+}
+
+private actor CountingAvatarLoader: AvatarLoading {
+    private(set) var count = 0
+    private let bytes: Data
+
+    init(bytes: Data) {
+        self.bytes = bytes
+    }
+
+    func data(from _: URL) async throws -> Data {
+        count += 1
+        return bytes
+    }
+}
+
+private struct FailingAvatarLoader: AvatarLoading {
+    func data(from _: URL) async throws -> Data {
+        throw URLError(.badServerResponse)
     }
 }

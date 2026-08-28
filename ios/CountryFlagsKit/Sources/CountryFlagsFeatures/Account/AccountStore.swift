@@ -16,6 +16,16 @@ public final class AccountStore {
     public private(set) var state: AuthenticationState = .guest
     /// The signed-in person as the screen shows them.
     public private(set) var profile: AccountProfile?
+    /// The avatar's bytes, fetched once and kept for the life of the store.
+    ///
+    /// Held here rather than fetched by the view, because the same avatar is
+    /// drawn in the toolbar of every tab now. A view that fetches per instance
+    /// starts each one at its placeholder, so switching tabs blinked the photo
+    /// back to a grey glyph and in again — on a picture the app already had.
+    ///
+    /// Bytes rather than an image: this layer owns data, and turning it into
+    /// something drawable is the view's half of the job.
+    public private(set) var avatar: Data?
     /// How the last import attempt ended, for the line under the account.
     public private(set) var migration: GuestMigrationOutcome?
     /// The last sign-in failure worth wording. Cancellation never lands here.
@@ -47,6 +57,10 @@ public final class AccountStore {
     private let analytics: (any AnalyticsTracking)?
     private let dates: any DateProviding
     private let logger: any AppLogging
+    private let avatars: any AvatarLoading
+    /// Which URL `avatar` holds, so a profile that has not changed is not
+    /// fetched again on every start.
+    private var avatarURL: URL?
     private var pendingNonce: SignInNonce?
 
     public init(
@@ -60,9 +74,11 @@ public final class AccountStore {
         allowsFakeSignIn: Bool = false,
         analytics: (any AnalyticsTracking)? = nil,
         dates: any DateProviding = SystemDateProvider(),
-        logger: any AppLogging = NoOpLogger()
+        logger: any AppLogging = NoOpLogger(),
+        avatars: any AvatarLoading = URLSessionAvatarLoader()
     ) {
         self.logger = logger
+        self.avatars = avatars
         self.session = session
         self.migrations = migrations
         self.outbox = outbox
@@ -91,12 +107,29 @@ public final class AccountStore {
     public func start() async {
         state = await session.currentState()
         profile = await session.currentProfile()
+        await loadAvatar()
         pendingDeletion = deletionState?.pendingDeletion()
         // A migration a previous launch left unsettled is finished here, not
         // on the next sign-in: the user already signed in once.
         if case .authenticated(let userID) = state {
             migration = await migrations.importGuestWork(into: userID)
         }
+    }
+
+    /// Fetches the avatar once per URL.
+    ///
+    /// A failure leaves `avatar` nil and the screen draws its glyph, which is
+    /// what it draws for an account that has no picture: a missing avatar is
+    /// never worth a message.
+    private func loadAvatar() async {
+        guard let url = profile?.avatarURL else {
+            avatar = nil
+            avatarURL = nil
+            return
+        }
+        guard url != avatarURL else { return }
+        avatarURL = url
+        avatar = try? await avatars.data(from: url)
     }
 
     // MARK: - Signing in
@@ -127,6 +160,7 @@ public final class AccountStore {
             )
         }
         profile = await session.currentProfile()
+        await loadAvatar()
         await reportAuthOutcome(credential.provider, outcome)
         switch outcome {
         case .succeeded(let userID):
