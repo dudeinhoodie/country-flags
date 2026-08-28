@@ -53,6 +53,8 @@ public final class ContentStore {
     private let analytics: (any AnalyticsTracking)?
     /// Whether the launch's first read and sync have already run.
     private var hasStarted = false
+    /// The catalogue catch-up in flight, if any.
+    private var catchUpTask: Task<Void, Never>?
 
     public init(
         repository: any ContentRepository,
@@ -92,6 +94,28 @@ public final class ContentStore {
     /// Pull-to-refresh and every other explicit "try again".
     public func refresh() async {
         await synchronize()
+    }
+
+    /// Brings the catalogue up to date without holding a gesture open.
+    ///
+    /// A pull on the home screen means "bring what I am looking at up to
+    /// date", and what that screen shows is the day's numbers. Applying a
+    /// release is a different job: a new publication is walked deck by deck,
+    /// page by page, until the whole of it is stored — so binding the
+    /// gesture's spinner to it left the spinner turning for as long as an
+    /// entire catalogue took to arrive, which is what a new release costs.
+    ///
+    /// The screen is observed, so the shelf updates when the release lands
+    /// rather than when the finger lifts.
+    ///
+    /// One run at a time: two would stage the same release against each
+    /// other, and the staging state is a single row.
+    public func catchUp() {
+        guard catchUpTask == nil else { return }
+        catchUpTask = Task { @MainActor [weak self] in
+            await self?.synchronize()
+            self?.catchUpTask = nil
+        }
     }
 
     /// Brings the catalogue up to date only if it has had time to go stale.

@@ -64,7 +64,12 @@ public struct HomeView: View {
         content
             .navigationTitle(L10n.homeTitle)
             .refreshable {
-                await store.refresh()
+                // The gesture waits for the numbers, which is what this screen
+                // shows. The catalogue catches up alongside it and lands when
+                // it lands: a newly published release is applied deck by deck,
+                // and holding the spinner for that turned a pull into a wait
+                // as long as a whole catalogue.
+                store.catchUp()
                 // Pull-to-refresh goes through the same boundary as every other
                 // trigger, so two of them cannot race into a double submission.
                 await sync.synchronize(trigger: .pullToRefresh)
