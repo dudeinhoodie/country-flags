@@ -1,5 +1,6 @@
 import { HttpException } from "@nestjs/common";
 
+import { ApiException } from "../../common/http/api.exception";
 import {
   parseCompleteStudySessionRequest,
   parseCreateStudySessionRequest,
@@ -313,9 +314,24 @@ describe("composition", () => {
   });
 
   it("rejects a composition the contract does not name", () => {
+    // The refusal names the field rather than describing it in prose: a
+    // client reads `details.fields`, and the message above it is the same
+    // sentence on every endpoint (#276).
     expect(() =>
       parseCreateStudySessionRequest({ ...server, composition: "REVIEW" }),
-    ).toThrow("composition must be STANDARD or DUE_ONLY");
+    ).toThrow(ApiException);
+    try {
+      parseCreateStudySessionRequest({ ...server, composition: "REVIEW" });
+    } catch (error) {
+      const response = (error as ApiException).getResponse() as {
+        error: { code: string; details: { fields: unknown[] } };
+      };
+      expect((error as ApiException).getStatus()).toBe(422);
+      expect(response.error.code).toBe("VALIDATION_FAILED");
+      expect(response.error.details.fields).toEqual([
+        { field: "composition", message: "must be STANDARD or DUE_ONLY" },
+      ]);
+    }
   });
 
   it("keeps the idempotency hash sensitive to the composition", () => {

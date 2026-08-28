@@ -606,7 +606,7 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
       .get("/v1/me/changes")
       .query({ after: staleCursor })
       .set("Authorization", `Bearer ${account.tokens.accessToken}`)
-      .expect(400);
+      .expect(422);
     expect((stale.body as unknown as ErrorBody).error.code).toBe(
       "VALIDATION_FAILED",
     );

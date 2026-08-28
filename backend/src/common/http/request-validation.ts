@@ -5,6 +5,25 @@ import { ApiException } from "./api.exception";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+/**
+ * The one way this API refuses a request it will not act on.
+ *
+ * Every refusal of this kind answers 422 with `VALIDATION_FAILED` and names
+ * the field, whether the field arrived in the query string or in the body.
+ * The status is not a judgement about how wrong the request was — a client
+ * that reports or retries by status can only do so if the same class of
+ * mistake always answers the same way, and this API used to answer 400 on one
+ * endpoint and 422 on the next for the very same missing parameter (#276).
+ *
+ * 422 rather than 400 because it is the status this API's contract already
+ * documents, and because a 400 raised ad hoc carries no `fields` detail: the
+ * client is told something was wrong but never what.
+ *
+ * Reserved for the request itself. A request that is understood and refused
+ * for what the system knows — an unknown content version, a session that
+ * cannot be composed — carries its own code, and those already answer 422
+ * with a name of their own.
+ */
 export function validationError(field: string, message: string): never {
   throw new ApiException(
     HttpStatus.UNPROCESSABLE_ENTITY,

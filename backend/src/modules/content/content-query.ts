@@ -1,4 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
+import { validationError } from "../../common/http/request-validation";
 
 const LOCALE_PATTERN = /^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/u;
 const UUID_PATTERN =
@@ -6,7 +6,7 @@ const UUID_PATTERN =
 
 export function parseLocale(value: string | undefined): string {
   if (value === undefined || !LOCALE_PATTERN.test(value)) {
-    throw new BadRequestException("locale must be a valid BCP 47 locale");
+    validationError("locale", "must be a BCP 47 locale");
   }
 
   return value;
@@ -18,12 +18,12 @@ export function parseLimit(value: string | undefined): number {
   }
 
   if (!/^[0-9]+$/u.test(value)) {
-    throw new BadRequestException("limit must be an integer from 1 to 100");
+    validationError("limit", "must be an integer from 1 to 100");
   }
 
   const limit = Number(value);
   if (limit < 1 || limit > 100) {
-    throw new BadRequestException("limit must be an integer from 1 to 100");
+    validationError("limit", "must be an integer from 1 to 100");
   }
 
   return limit;
@@ -31,7 +31,7 @@ export function parseLimit(value: string | undefined): number {
 
 export function parseUuid(value: string, parameter: string): string {
   if (!UUID_PATTERN.test(value)) {
-    throw new BadRequestException(`${parameter} must be a UUID`);
+    validationError(parameter, "must be a UUID");
   }
 
   return value;

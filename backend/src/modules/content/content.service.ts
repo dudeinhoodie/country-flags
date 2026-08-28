@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import {
   AssetStatus,
   CardStatus,
@@ -14,6 +10,7 @@ import {
   RecognitionStatus,
 } from "@prisma/client";
 
+import { validationError } from "../../common/http/request-validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
   ASSET_REPRESENTATIONS_INCLUDE,
@@ -249,7 +246,10 @@ export class ContentService {
     contentVersion: string;
   }> {
     if (after === undefined) {
-      throw new BadRequestException("after cursor is required");
+      validationError(
+        "after",
+        "is required; the manifest carries the first one",
+      );
     }
     const cursor = decodeContentChangeCursor(after);
     const [pointer, changes] = await this.prisma.$transaction(

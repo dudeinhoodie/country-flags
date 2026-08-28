@@ -1,4 +1,9 @@
-import { BadRequestException } from "@nestjs/common";
+import { validationError } from "../../common/http/request-validation";
+
+/// A cursor this scope cannot read — unreadable, or issued to somebody
+/// else. Either way the client is holding one it can no longer use, and the
+/// way out is the same.
+const UNREADABLE = "cannot be read; omit it to start from the beginning";
 
 interface SequenceCursor {
   kind: "user-change";
@@ -16,7 +21,7 @@ function decode(
   expectedScopeId: string,
 ): bigint {
   if (value.length === 0 || value.length > 512) {
-    throw new BadRequestException("cursor is invalid");
+    validationError("cursor", UNREADABLE);
   }
 
   try {
@@ -38,7 +43,7 @@ function decode(
     }
     return BigInt(decoded.sequence);
   } catch {
-    throw new BadRequestException("cursor is invalid");
+    validationError("cursor", UNREADABLE);
   }
 }
 
