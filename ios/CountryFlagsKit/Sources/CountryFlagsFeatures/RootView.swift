@@ -173,7 +173,10 @@ public struct RootView: View {
                 Button {
                     router.push(.account)
                 } label: {
-                    AccountAvatarButtonLabel(profile: accountToolbar?.profile)
+                    AccountAvatarButtonLabel(
+                        profile: accountToolbar?.profile,
+                        avatar: accountToolbar?.avatar
+                    )
                 }
                 .accessibilityLabel(L10n.accountOpen)
                 .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
