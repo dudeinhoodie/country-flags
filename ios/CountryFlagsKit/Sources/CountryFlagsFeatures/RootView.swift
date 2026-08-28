@@ -28,6 +28,17 @@ public struct RootView: View {
     /// one, and the picture would never arrive.
     @State private var accountToolbar: AccountStore?
 
+    /// Whether a sitting has just ended and its answers have not yet come
+    /// back as numbers.
+    ///
+    /// Leaving a session pops to the home screen first and synchronises
+    /// after, so the counts there are the backend's previous word for as long
+    /// as that takes — which is how a screen showed 86 and then 84 two
+    /// seconds later. The window is known exactly here, where the session
+    /// closes, rather than guessed at from a pending count that has usually
+    /// already drained by the time the home screen is looking.
+    @State private var isSettlingAfterSession = false
+
     @Environment(\.scenePhase) private var scenePhase
 
     /// How old the catalogue may be before coming back to the app refreshes
@@ -195,6 +206,7 @@ public struct RootView: View {
                     sync: sync,
                     assets: assets,
                     progress: progress,
+                    isSettlingAfterSession: isSettlingAfterSession,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
@@ -290,6 +302,14 @@ public struct RootView: View {
         // store is read once and the run starts once.
         .task { await progress.reload() }
         .task { await sync.start() }
+        .onChange(of: isStudyOpen) { wasOpen, isOpen in
+            guard wasOpen, !isOpen else { return }
+            isSettlingAfterSession = true
+            Task {
+                await sync.synchronize(trigger: .sessionCompleted)
+                isSettlingAfterSession = false
+            }
+        }
         .onChange(of: scenePhase) { _, phase in
             // The one place the app reacts to coming back. Screens used to
             // watch this too, so a return ran the same reads twice and the
@@ -330,10 +350,7 @@ public struct RootView: View {
                     runner: makeStudyRunner(),
                     store: content,
                     assets: assets,
-                    onFinish: {
-                        router.pop()
-                        Task { await sync.synchronize(trigger: .sessionCompleted) }
-                    }
+                    onFinish: { router.pop() }
                 )
             case .multipleChoice:
                 ObjectiveSessionView(
@@ -342,10 +359,7 @@ public struct RootView: View {
                     runner: makeObjectiveRunner(),
                     store: content,
                     assets: assets,
-                    onFinish: {
-                        router.pop()
-                        Task { await sync.synchronize(trigger: .sessionCompleted) }
-                    }
+                    onFinish: { router.pop() }
                 )
             }
         case .progress:

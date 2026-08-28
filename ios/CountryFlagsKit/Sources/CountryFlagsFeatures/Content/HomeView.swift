@@ -30,16 +30,13 @@ public struct HomeView: View {
     /// rather than owned: the same numbers appear on four screens, and a
     /// screen holding its own copy is how they came to disagree.
     private let progress: ProgressStore?
+    /// Whether a sitting has just ended and its answers have not come back as
+    /// numbers yet. The shell owns the window, because that is where the
+    /// session closes and the synchronisation that follows it is started.
+    private let isSettlingAfterSession: Bool
     /// The flags shown fanned in the today pane and beside each queue row,
     /// keyed by deck. Read alongside the counts and for the same reason: the
     /// rows should show the cards they are talking about.
-    /// Whether a sitting's answers are still on their way to the backend.
-    ///
-    /// Latched rather than read live: the upload finishes before the counts
-    /// are rebuilt, so a plain reading would flip back to numbers halfway
-    /// through and settle a second time. It is set when work appears and
-    /// cleared when the checking stops.
-    @State private var isSettling = false
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
 
@@ -48,6 +45,7 @@ public struct HomeView: View {
         sync: SyncCenter,
         assets: (any AssetLoading)? = nil,
         progress: ProgressStore? = nil,
+        isSettlingAfterSession: Bool = false,
         makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
@@ -60,6 +58,7 @@ public struct HomeView: View {
         self.sync = sync
         self.assets = assets
         self.progress = progress
+        self.isSettlingAfterSession = isSettlingAfterSession
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
@@ -82,12 +81,6 @@ public struct HomeView: View {
                 await sync.synchronize(trigger: .pullToRefresh)
             }
             .task { await store.start() }
-            .onChange(of: sync.status.pendingCount) { _, pending in
-                if pending > 0 { isSettling = true }
-            }
-            .onChange(of: isVerifying) { _, verifying in
-                if !verifying { isSettling = false }
-            }
             // The one thing this screen still reads for itself: which flags to
             // fan, which is a view concern and depends on the deck rows it
             // just received. Everything else — the counts, the queue, the
@@ -128,7 +121,7 @@ public struct HomeView: View {
             // to be content, and not the local projection's figures either:
             // the owner's call is that a number on this screen is the
             // backend's number or nothing.
-            if isAwaitingProgress || isSettlingAfterWork {
+            if isAwaitingProgress || isSettlingAfterSession {
                 homeLoader
             } else {
                 // Dimmed while the numbers are being checked: the figure stays
@@ -199,7 +192,6 @@ public struct HomeView: View {
     ///
     /// A routine check with nothing waiting keeps its numbers and dims them:
     /// a figure being verified says more than a spinner.
-    private var isSettlingAfterWork: Bool { isSettling && isVerifying }
 
     // MARK: - Today
 
