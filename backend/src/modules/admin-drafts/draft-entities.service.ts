@@ -17,7 +17,15 @@ export interface EditorialEntityRecord extends Record<string, unknown> {
   type: "country" | "territory" | "area" | "region" | "subregion";
   status: "active" | "historical" | "retired" | "hidden";
   /** Presentation toggles (ADR-015); they never gate learnability. */
-  config: { includeInCountryCatalog: boolean };
+  config: {
+    includeInCountryCatalog: boolean;
+    /**
+     * Fact types the entity does not have by its nature (#272). The console
+     * neither shows nor sets it — an edit spreads the stored config, so the
+     * declaration survives one — and the pipeline is what reads it.
+     */
+    factsNotApplicable?: string[];
+  };
   recognitionStatus: string;
   recognitionAsOf?: string;
   validFrom?: string;

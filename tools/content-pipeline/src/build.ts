@@ -82,7 +82,8 @@ function blockingReportCount(reports: PipelineReports): number {
     reports.fieldConflicts.filter(({ blocking }) => blocking).length +
     reports.missingTranslations.length +
     reports.missingAssets.length +
-    reports.licenseProblems.length
+    reports.licenseProblems.length +
+    reports.factlessEntities.filter(({ blocking }) => blocking).length
   );
 }
 
@@ -182,6 +183,7 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     ["missingAssets", merged.reports.missingAssets],
     ["licenseProblems", merged.reports.licenseProblems],
     ["unnamedFacts", merged.reports.unnamedFacts],
+    ["factlessEntities", merged.reports.factlessEntities],
     ["assetOverrides", merged.reports.assetOverrides],
   ];
   for (const [reportType, items] of reportEntries) {
@@ -253,6 +255,7 @@ export async function readReports(
     "missing-assets",
     "license-problems",
     "asset-overrides",
+    "factless-entities",
   ];
   return Object.fromEntries(
     await Promise.all(

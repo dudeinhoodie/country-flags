@@ -149,6 +149,13 @@ export interface EditorialEntity {
   config: {
     /** Whether the entity appears in the all-countries deck. */
     includeInCountryCatalog: boolean;
+    /**
+     * Fact types this entity does not have because of what it is, not
+     * because the sources came up short. Antarctica has no capital,
+     * currency, official language or resident population, and saying so is
+     * a different statement from failing to find them (#272).
+     */
+    factsNotApplicable?: string[];
   };
   recognitionStatus: string;
   recognitionAsOf?: string;
@@ -229,12 +236,31 @@ export interface PipelineReports {
    */
   unnamedFacts: UnnamedFact[];
   /**
+   * A learnable entity whose card would have nothing on its back. Blocking
+   * unless every fact type it lacks was declared in the catalog's
+   * `factsNotApplicable`: a card that teaches only the flag and the name is
+   * a decision somebody made, and one that lost its facts to a source is
+   * not (#272).
+   */
+  factlessEntities: FactlessEntity[];
+  /**
    * An editorial override that displaced adapter candidates. Reported for
    * the same reason field conflicts are: a silent win is a decision nobody
    * can review, and a source refresh that changes the upstream drawing under
    * an active override has to be visible in the refresh pull request.
    */
   assetOverrides: AssetOverrideReport[];
+}
+
+export interface FactlessEntity {
+  entityKey: string;
+  /**
+   * The fact types it has neither a value for nor a declaration about. An
+   * empty list means every absence was accounted for in the catalog, and the
+   * entry is a record rather than a failure.
+   */
+  undeclared: string[];
+  blocking: boolean;
 }
 
 export interface UnnamedFact {

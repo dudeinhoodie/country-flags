@@ -390,6 +390,81 @@ void test("offline builds are byte-identical and preserve editorial overrides", 
   );
 });
 
+/**
+ * A fact with nothing in it is not a fact.
+ *
+ * Antarctica arrived from the source as `capitals: []` — an answer, not a
+ * hole — and the pipeline published it as a fact with an empty value. The
+ * card's back then had a row with a label and no text, and the release
+ * carried a learning card nobody could learn anything from, with nothing
+ * anywhere in the build reporting it (#272).
+ */
+void test("an absence is recorded as an absence, and a factless card must be declared", async () => {
+  const [built] = await buildOfflineBundleTwice();
+  assert.ok(built);
+
+  const factTypes = ["capitals", "currencies", "languages", "population"];
+  const collections = await Promise.all(
+    factTypes.map(
+      async (factType) =>
+        JSON.parse(
+          await readFile(
+            join(built.outputDirectory, `facts/${factType}.json`),
+            "utf8",
+          ),
+        ) as {
+          factType: string;
+          records: {
+            entityKey: string;
+            gap: boolean;
+            reason?: string;
+            value?: unknown;
+          }[];
+        },
+    ),
+  );
+
+  // The guard that would have caught it: nothing published as a fact is
+  // empty, whatever the source said.
+  for (const collection of collections) {
+    for (const record of collection.records) {
+      if (record.gap) {
+        continue;
+      }
+      const value = record.value;
+      const isEmpty =
+        value === null ||
+        (Array.isArray(value) && value.length === 0) ||
+        (typeof value === "string" && value.length === 0) ||
+        (typeof value === "object" &&
+          !Array.isArray(value) &&
+          Object.keys(value).length === 0);
+      assert.ok(
+        !isEmpty,
+        `${collection.factType} publishes an empty value for ${record.entityKey}`,
+      );
+    }
+  }
+
+  // A source that answers "none" has answered: the entity does not have the
+  // thing, which is a different statement from the source coming up short.
+  for (const collection of collections) {
+    assert.deepEqual(
+      collection.records.find(
+        ({ entityKey }) => entityKey === "area.antarctica",
+      ),
+      { entityKey: "area.antarctica", gap: true, reason: "not_applicable" },
+      `${collection.factType} should record Antarctica as not applicable`,
+    );
+  }
+
+  // Declared, so it passes; the record stays so the decision is visible.
+  assert.deepEqual(built.reports.factlessEntities, [
+    { entityKey: "area.antarctica", undeclared: [], blocking: false },
+  ]);
+  assert.ok(built.reports.factlessEntities.every(({ blocking }) => !blocking));
+});
+
 void test("every published asset offers a representation that decodes into an image", async () => {
   const [bundle] = await buildOfflineBundleTwice();
   assert.ok(bundle);

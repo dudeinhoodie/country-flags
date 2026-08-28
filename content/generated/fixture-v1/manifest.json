@@ -3,7 +3,7 @@
   "assetBaseUrl": "https://cdn.country-flags.app/content/fixture-v1/",
   "changeCursor": "content:fixture-v1:0",
   "contentVersion": "fixture-v1",
-  "createdAt": "2026-08-26T14:17:17.835Z",
+  "createdAt": "2026-08-27T18:55:52.646Z",
   "defaultLocale": "ru",
   "files": [
     {
@@ -25,40 +25,40 @@
       "sha256": "2c93500ee49629baa994afde8f65170ebd4e942d9d0ad391a1a0d984b2b214da"
     },
     {
-      "bytes": 105709,
+      "bytes": 104889,
       "path": "facts/capitals.json",
       "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
-      "sha256": "d2a9e69432a593eb89ce3f10185f8f9d707c39988a5b62a227c1f28b57166b18"
+      "sha256": "c3bf94782c8df95260a16bf44f43729c523fe950b42c81651237c290e660921d"
     },
     {
-      "bytes": 110910,
+      "bytes": 110746,
       "path": "facts/currencies.json",
       "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
-      "sha256": "b2879ea738086dea90e8bd74fb28b2bd76b0af1bdc9950f4ea2b2736a9d659af"
+      "sha256": "97484e9601c340c9498ad32daf7de9087b432837df97e476d9f78cc0679f1b8b"
     },
     {
-      "bytes": 138411,
+      "bytes": 138247,
       "path": "facts/languages.json",
       "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
-      "sha256": "ab9b171d80a99f4ffe028d32049baffeb8889459500b251611c1715355e04ae5"
+      "sha256": "653f063168cae2db7f4c08ca60efb2cb5d96ef77291fbf7d7d56e754b1200a5f"
     },
     {
-      "bytes": 73804,
+      "bytes": 73794,
       "path": "facts/population.json",
       "schemaId": "https://country-flags.app/content/v1/fact-collection.schema.json",
-      "sha256": "49bf792fe39b8ad98dd936c9f5e08c7c4481b6982e6d27af2f21c46ea389d61c"
+      "sha256": "8f1801ee0dff752c848dc506e69877927a5e5c4514947b97af10635edd15986f"
     },
     {
       "bytes": 156348,
       "path": "learning-cards.json",
       "schemaId": "https://country-flags.app/content/v1/learning-cards.schema.json",
-      "sha256": "53b9d33bed5c45f45bffe9f5a69a952b7494a0512acbcd6c8ec931f21c0d4211"
+      "sha256": "db08e70649cdf6955cf8a3140fc049b9c9e33cbd45eb66c4b87c45042717e8a0"
     },
     {
       "bytes": 860961,
       "path": "provenance/provenance.json",
       "schemaId": "https://country-flags.app/content/v1/provenance.schema.json",
-      "sha256": "87701c39e14a965762ece22563cce571af8ffd1ed5b2c0f81d3ed3e4785fb5d9"
+      "sha256": "fd0e419c0434cae293ad01cbb7db1d59000565b73862a1873523aac4e5b6a20c"
     },
     {
       "bytes": 74,
@@ -67,10 +67,16 @@
       "sha256": "f0b97ad615006fb82b2a4d26608655cd78a6540eb6c734f12ad267359c2c7427"
     },
     {
+      "bytes": 177,
+      "path": "reports/factless-entities.json",
+      "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
+      "sha256": "954d069b8380eac9a95f045fac3b461a49d32756481c9881629d51ec60157a2f"
+    },
+    {
       "bytes": 326465,
       "path": "reports/field-conflicts.json",
       "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
-      "sha256": "c898359d37642354d364a8a00b284856c2883d006442409073a0d5f6079c1f91"
+      "sha256": "41d4d4bc5e020e12e55edf3167a82fdacda4f325c0650b2db2f79403701a40fb"
     },
     {
       "bytes": 75,

@@ -118,6 +118,26 @@ export interface MergedContent {
 
 const LEARNABLE_TYPES = new Set(["country", "territory", "area"]);
 
+/// The fact types a release publishes, in the order the back of a card
+/// reads them.
+const FACT_TYPES = ["capitals", "currencies", "languages", "population"];
+
+/// A source that answers "none" — `[]`, `{}`, `""` — has answered. It is
+/// saying the entity does not have the thing, which is a gap rather than a
+/// fact with nothing in it (#272).
+function isEmptyFactValue(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (Array.isArray(value) || typeof value === "string") {
+    return value.length === 0;
+  }
+  if (isRecord(value)) {
+    return Object.keys(value).length === 0;
+  }
+  return false;
+}
+
 function isLearnable(entity: MutableRecord): boolean {
   return entity.status === "active" && LEARNABLE_TYPES.has(String(entity.type));
 }
@@ -320,6 +340,7 @@ export async function mergeContent(
     missingAssets: [],
     licenseProblems: [],
     unnamedFacts: [],
+    factlessEntities: [],
     assetOverrides: [],
   };
   const provenanceMap: Record<string, Provenance> = {};
@@ -553,8 +574,21 @@ export async function mergeContent(
     ...normalized.map(({ lexicon }) => lexicon ?? {}),
   ) as SourceLexicon;
 
+  // What each entity is declared not to have, as opposed to what the sources
+  // failed to supply. Read once: it is asked for every fact type of every
+  // learnable entity below.
+  const notApplicableByEntity = new Map(
+    editorial.entities.map((entity) => [
+      entity.key,
+      new Set(entity.config.factsNotApplicable ?? []),
+    ]),
+  );
+  const factsWithValue = new Map<string, Set<string>>(
+    learnableKeys.map((entityKey) => [entityKey, new Set<string>()]),
+  );
+
   const facts = Object.fromEntries(
-    ["capitals", "currencies", "languages", "population"].map((factType) => [
+    FACT_TYPES.map((factType) => [
       factType,
       {
         schemaVersion: 1,
@@ -566,30 +600,57 @@ export async function mergeContent(
           }
           const value = (entity.facts as MutableRecord | undefined)?.[factType];
           const source = provenanceMap[`${entityKey}/facts.${factType}`];
-          return value === undefined
-            ? {
-                entityKey,
-                gap: true,
-                reason: "source_value_unavailable",
-              }
-            : {
-                entityKey,
-                gap: false,
-                value: nameFactValue(
-                  factType,
-                  value,
-                  entity,
-                  lexicon,
-                  entityKey,
-                  editorial.supportedLocales,
-                  reports,
-                ),
-                provenance: source,
-              };
+          // Three outcomes, and the difference between them is the point.
+          // A declared type is one the entity does not have; an empty value
+          // is the source saying the same thing in its own way — Antarctica
+          // arrives with `capitals: []`, which was published as a fact with
+          // nothing in it and read on the card as a blank row (#272). Only a
+          // value with something in it is a fact.
+          if (notApplicableByEntity.get(entityKey)?.has(factType) === true) {
+            return { entityKey, gap: true, reason: "not_applicable" };
+          }
+          if (value === undefined) {
+            return { entityKey, gap: true, reason: "source_value_unavailable" };
+          }
+          if (isEmptyFactValue(value)) {
+            return { entityKey, gap: true, reason: "not_applicable" };
+          }
+          factsWithValue.get(entityKey)?.add(factType);
+          return {
+            entityKey,
+            gap: false,
+            value: nameFactValue(
+              factType,
+              value,
+              entity,
+              lexicon,
+              entityKey,
+              editorial.supportedLocales,
+              reports,
+            ),
+            provenance: source,
+          };
         }),
       },
     ]),
   );
+
+  // A card whose back has nothing on it teaches the flag and the name and
+  // stops there. That is a decision, not an accident, so it has to be
+  // declared: Antarctica shipped empty and nothing in the pipeline noticed
+  // until someone opened the card (#272).
+  for (const entityKey of learnableKeys) {
+    if ((factsWithValue.get(entityKey)?.size ?? 0) > 0) {
+      continue;
+    }
+    const declared = notApplicableByEntity.get(entityKey) ?? new Set<string>();
+    const undeclared = FACT_TYPES.filter((factType) => !declared.has(factType));
+    reports.factlessEntities.push({
+      entityKey,
+      undeclared,
+      blocking: undeclared.length > 0,
+    });
+  }
 
   const catalogEntities = [...byEntity.values()]
     .map((entity) =>
