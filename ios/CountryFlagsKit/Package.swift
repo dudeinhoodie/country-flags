@@ -22,7 +22,16 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.1.0"),
         // The evaluation API only. The provider is ours: the backend evaluates
         // the rules, so no control plane SDK is linked into the app.
-        .package(url: "https://github.com/open-feature/swift-sdk", from: "0.5.0"),
+        // Up to the next minor, not the next major: below 1.0 a minor is
+        // where this SDK makes breaking changes, and 0.6 moved a provider's
+        // event publisher to an optional element. `from:` let a fresh
+        // resolution take it, so the app target stopped compiling while the
+        // package — pinned a version back — still did, and which of the two
+        // you got depended on what a build directory happened to have cached.
+        .package(
+            url: "https://github.com/open-feature/swift-sdk",
+            .upToNextMinor(from: "0.5.0")
+        ),
     ],
     targets: [
         // Imports neither SwiftUI, SwiftData, OpenFeature nor an OAuth SDK.

@@ -18,7 +18,13 @@ public struct CatalogView: View {
     private let onOpenDeck: (UUID) -> Void
 
     @State private var searchText = ""
-    @State private var curatedFan: [LearningCardRecord] = []
+    /// The three flags each curated deck fans, keyed by deck.
+    ///
+    /// One fan per deck rather than one for all of them: a release publishes
+    /// several curated decks now, and a single shared fan drew the same three
+    /// flags on every one of them — every custom deck wearing the
+    /// all-countries deck's cards.
+    @State private var curatedFans: [UUID: [LearningCardRecord]] = [:]
 
     public init(
         store: ContentStore,
@@ -142,7 +148,11 @@ public struct CatalogView: View {
                 }
 
                 if isCurated {
-                    FlagFanView(cards: curatedFan, store: store, assets: assets)
+                    FlagFanView(
+                        cards: curatedFans[deck.id] ?? [],
+                        store: store,
+                        assets: assets
+                    )
                 }
             }
         }
@@ -162,11 +172,13 @@ public struct CatalogView: View {
     }
 
     private func reloadFan() async {
-        if case .ready(let sections, _, _) = store.catalog,
-            let curated = sections.first(where: { $0.kind == .curated })?.decks.first
-        {
-            curatedFan = Array(await store.cards(inDeck: curated.id).prefix(3))
+        guard case .ready(let sections, _, _) = store.catalog else { return }
+        let curated = sections.filter { $0.kind == .curated }.flatMap(\.decks)
+        var fans: [UUID: [LearningCardRecord]] = [:]
+        for deck in curated {
+            fans[deck.id] = Array(await store.cards(inDeck: deck.id).prefix(3))
         }
+        curatedFans = fans
     }
 
     private func filtered(_ sections: [CatalogSection]) -> [CatalogSection] {

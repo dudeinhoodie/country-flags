@@ -110,15 +110,76 @@ public struct AssetRecord: Hashable, Sendable {
     }
 }
 
+/// A fact with its parts still apart, names already in the reader's locale.
+///
+/// The backend also composes a line — `displayValue` — and that line bakes in
+/// decisions the screen should be making: which separator, whether a currency
+/// shows the code printed on the note. With the parts in hand the client
+/// stops taking the line apart again with regular expressions to undo them.
+///
+/// Absent when the release stores a shape the backend does not model, in
+/// which case the composed line is all there is and is shown as it arrived.
+public enum FactDetails: Hashable, Sendable, Codable {
+    case capital(seats: [Seat])
+    case currency(tenders: [Tender])
+    case language(languages: [Language])
+    /// The count unformatted, and the year the source counted — not the day
+    /// it published, which is what `observedAt` would be.
+    case population(value: Int, year: Int?)
+
+    public struct Seat: Hashable, Sendable, Codable {
+        public let name: String
+        /// What kind of seat this is when the source says so — an official
+        /// capital, a legislative one. Nil when it does not.
+        public let role: String?
+
+        public init(name: String, role: String?) {
+            self.name = name
+            self.role = role
+        }
+    }
+
+    public struct Tender: Hashable, Sendable, Codable {
+        /// The ISO 4217 code, which is what is printed on the note.
+        public let code: String
+        public let name: String
+        public let role: String?
+
+        public init(code: String, name: String, role: String?) {
+            self.code = code
+            self.name = name
+            self.role = role
+        }
+    }
+
+    public struct Language: Hashable, Sendable, Codable {
+        /// The BCP 47 tag, when the release carries one.
+        public let code: String?
+        public let name: String
+
+        public init(code: String?, name: String) {
+            self.code = code
+            self.name = name
+        }
+    }
+}
+
 public struct FactRecord: Hashable, Sendable {
     public let type: String
     public let displayValue: String
     public let sourceName: String
+    public let details: FactDetails?
 
-    public init(type: String, displayValue: String, sourceName: String) {
+    public init(
+        type: String,
+        displayValue: String,
+        sourceName: String,
+        details: FactDetails? = nil
+    ) {
         self.type = type
         self.displayValue = displayValue
         self.sourceName = sourceName
+        self.details = details
     }
 }
 
