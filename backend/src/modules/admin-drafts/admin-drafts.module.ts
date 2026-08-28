@@ -26,6 +26,8 @@ import { DraftProposalService } from "./draft-proposal.service";
 import { DraftValidationService } from "./draft-validation.service";
 import { EditorialDocumentService } from "./editorial-document.service";
 import { createGitHubClient, GitHubClient } from "./github-client";
+import { PublishRunController } from "./publish-run.controller";
+import { PublishRunService } from "./publish-run.service";
 import { ReleaseRunController } from "./release-run.controller";
 import { ReleaseRunService } from "./release-run.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
@@ -38,6 +40,7 @@ import { TaxonomySourceService } from "./taxonomy-source.service";
     DraftDecksController,
     DraftEntitiesController,
     ReleaseRunController,
+    PublishRunController,
   ],
   providers: [
     AdminDraftsService,
@@ -50,6 +53,7 @@ import { TaxonomySourceService } from "./taxonomy-source.service";
     DraftValidationService,
     DraftProposalService,
     ReleaseRunService,
+    PublishRunService,
     {
       provide: GitHubClient,
       useFactory: (): GitHubClient => createGitHubClient(),

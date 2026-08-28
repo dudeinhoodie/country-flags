@@ -422,6 +422,103 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/content/releases/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the release runs this deployment is doing or last did */
+        get: operations["adminListReleaseRuns"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/releases/runs/{runId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read one release run */
+        get: operations["adminGetReleaseRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/releases/runs/{runId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Give up on a queued run
+         * @description The way out of a queue nothing is draining. A run holds the only live slot, so one no executor picks up would block every release after it with the database as the only remedy.
+         *     Only a queued run: a running one is a job that has already started, and cancelling the record under it would leave the two disagreeing about what happened.
+         */
+        post: operations["adminCancelReleaseRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/releases/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Queue a publish run
+         * @description Records the intent and returns; the executor does the work (ADR-017). The response is a run, not a result — a release takes minutes, and an endpoint that waited for one would be an endpoint that times out.
+         *     Distinct from `POST /v1/admin/content/releases/publish-run`, which dispatches the CI workflow. That path stays: it is the only one that can publish from an arbitrary commit, and the way in when this contour is broken.
+         *     A second run is refused rather than queued behind the first: a request that cannot succeed should be answered now, not after twenty minutes of losing a race over the active pointer.
+         */
+        post: operations["adminQueueReleasePublish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/content/releases/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Queue a rollback run
+         * @description The same mechanism the other way round. A rollback does not rebuild anything: the release it returns to is already published and signed, so only the pointer moves — which is why it is fast and needs no signing key.
+         */
+        post: operations["adminQueueReleaseRollback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/users": {
         parameters: {
             query?: never;
@@ -779,6 +876,54 @@ export interface components {
             contentVersion: string;
             /** @description The oldest client this release lets read it; a client below it gets an update screen instead of a catalog, so this is a product decision rather than a formatting detail. */
             minimumClientVersion: string;
+        };
+        /** @description One publish or rollback, as a record rather than as a response. Applying a release is a serializable transaction with a twenty-minute timeout, which no HTTP request survives, so the request queues a run and the executor — a job with its own credentials and the signing key this service never sees — carries it out (ADR-017). */
+        AdminReleaseRun: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "PUBLISH" | "ROLLBACK";
+            /** @enum {string} */
+            status: "QUEUED" | "RUNNING" | "SUCCEEDED" | "FAILED" | "CANCELLED";
+            /** @description The version this run produces, or the one it returns to. */
+            contentVersion: string;
+            /** @description What the release will demand of a client. Null for a rollback: the release it returns to already carries its own. */
+            minimumClientVersion?: string | null;
+            /** @description What was active when the run started, so the way back is recoverable from the record alone. */
+            previousVersion?: string | null;
+            /** @description Where the run got to, for the screen watching it. */
+            stage?: string | null;
+            failure?: {
+                code: string;
+                message: string;
+            } | null;
+            /** @description The executor's own handle, so an operator can find the logs of a run that failed outside our reporting. */
+            executionName?: string | null;
+            /** Format: uuid */
+            requestedByAdminUserId: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            startedAt?: string | null;
+            /** Format: date-time */
+            finishedAt?: string | null;
+        };
+        /** @description What is live, what is in flight, and what happened last — the three things a screen watching a release has to say at once. */
+        AdminReleaseRunState: {
+            activeVersion: string | null;
+            /** @description The queued or running run, if there is one. */
+            current: components["schemas"]["AdminReleaseRun"] | null;
+            /** @description The most recent run whatever its outcome. */
+            last: components["schemas"]["AdminReleaseRun"] | null;
+        };
+        AdminReleasePublishRequest: {
+            contentVersion: string;
+            /** @description The oldest client this release lets read it; a client below it gets an update screen instead of a catalog, so this is a product decision rather than a formatting detail. */
+            minimumClientVersion: string;
+        };
+        AdminReleaseRollbackRequest: {
+            /** @description A version this deployment actually published. Returning to one it never applied would point every client at nothing. */
+            toVersion: string;
         };
         AdminContentStatus: {
             activeVersion: string | null;
@@ -1968,6 +2113,194 @@ export interface operations {
             422: components["responses"]["ValidationResponse"];
             /** @description This deployment cannot reach GitHub. */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListReleaseRuns: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description What is live, what is in flight, and what happened last. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReleaseRunState"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetReleaseRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The run. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReleaseRun"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminCancelReleaseRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The run, now cancelled. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReleaseRun"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            /** @description The run has already started or already finished. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminQueueReleasePublish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminReleasePublishRequest"];
+            };
+        };
+        responses: {
+            /** @description The run was queued. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReleaseRun"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description That version is already the active release, or another run is already queued or running. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminQueueReleaseRollback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminReleaseRollbackRequest"];
+            };
+        };
+        responses: {
+            /** @description The run was queued. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReleaseRun"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description That version is already active, or another run is already queued or running. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The request is malformed, or names a version this deployment never published. */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

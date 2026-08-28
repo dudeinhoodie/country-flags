@@ -1,6 +1,8 @@
 import { PublishRunKind, PublishRunStatus } from "@prisma/client";
 import type { AdminUser, PublishRun } from "@prisma/client";
 
+import { ApiException } from "../../common/http/api.exception";
+import { parseReleaseRollbackRequest } from "./admin-drafts.request";
 import { PublishRunService } from "./publish-run.service";
 import type { AdminAuditService } from "../admin-auth/admin-audit.service";
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
@@ -15,6 +17,12 @@ interface Fakes {
     contentVersion: string;
   } | null;
   publishedVersions?: string[];
+  /** The run `cancel` finds, or null when it should find nothing. */
+  storedRun?: {
+    id: string;
+    status: PublishRunStatus;
+    kind: PublishRunKind;
+  } | null;
 }
 
 /**
@@ -26,9 +34,11 @@ interface Fakes {
 function serviceWith(fakes: Fakes = {}): {
   service: PublishRunService;
   created: () => Record<string, unknown> | null;
+  updated: () => Record<string, unknown> | null;
   audited: () => string | null;
 } {
   let created: Record<string, unknown> | null = null;
+  let updated: Record<string, unknown> | null = null;
   let audited: string | null = null;
   const client = {
     contentPointer: {
@@ -65,6 +75,21 @@ function serviceWith(fakes: Fakes = {}): {
           ...data,
         } as unknown as PublishRun);
       },
+      findUnique: (): Promise<PublishRun | null> =>
+        Promise.resolve(
+          (fakes.storedRun ?? null) as unknown as PublishRun | null,
+        ),
+      update: ({
+        data,
+      }: {
+        data: Record<string, unknown>;
+      }): Promise<PublishRun> => {
+        updated = data;
+        return Promise.resolve({
+          ...(fakes.storedRun ?? {}),
+          ...data,
+        } as unknown as PublishRun);
+      },
     },
   };
   const database = {
@@ -85,6 +110,7 @@ function serviceWith(fakes: Fakes = {}): {
   return {
     service: new PublishRunService(database, audit),
     created: () => created,
+    updated: () => updated,
     audited: () => audited,
   };
 }
@@ -215,5 +241,100 @@ describe("PublishRunStatus", () => {
       "FAILED",
       "CANCELLED",
     ]);
+  });
+});
+
+/**
+ * A rollback names a version and nothing else.
+ *
+ * Accepting a minimum client version here would let an operator change what
+ * an already-published release demands of a client without republishing it,
+ * which is a way to lock every installed app out of content that is already
+ * live.
+ */
+describe("parseReleaseRollbackRequest", () => {
+  it("reads the version to return to", () => {
+    expect(parseReleaseRollbackRequest({ toVersion: "fixture-v2.2" })).toEqual({
+      toVersion: "fixture-v2.2",
+    });
+  });
+
+  it("refuses a minimum client version smuggled alongside it", () => {
+    expect(() =>
+      parseReleaseRollbackRequest({
+        toVersion: "fixture-v2.2",
+        minimumClientVersion: "9.9.9",
+      }),
+    ).toThrow(ApiException);
+  });
+
+  it.each([{}, { toVersion: "" }, { toVersion: "../etc/passwd" }])(
+    "refuses a malformed request %#",
+    (body) => {
+      expect(() => parseReleaseRollbackRequest(body)).toThrow(ApiException);
+    },
+  );
+});
+
+/**
+ * Giving up on a queued run.
+ *
+ * A run holds the only live slot, so one nothing picks up would block every
+ * release after it. This is the way out, and it is deliberately narrow.
+ */
+describe("PublishRunService.cancel", () => {
+  it("cancels a queued run and stamps when it ended", async () => {
+    const { service, updated, audited } = serviceWith({
+      storedRun: {
+        id: "run-1",
+        status: PublishRunStatus.QUEUED,
+        kind: PublishRunKind.PUBLISH,
+      },
+    });
+
+    await service.cancel(actor, "run-1", "request-1");
+
+    expect(updated()).toMatchObject({ status: PublishRunStatus.CANCELLED });
+    expect(updated()?.finishedAt).toBeInstanceOf(Date);
+    expect(audited()).toBe("admin.release.run_cancelled");
+  });
+
+  /// A running job has already started, and cancelling the record under it
+  /// would leave the two disagreeing about what happened.
+  it("refuses a run that has already started", async () => {
+    const { service, updated } = serviceWith({
+      storedRun: {
+        id: "run-1",
+        status: PublishRunStatus.RUNNING,
+        kind: PublishRunKind.PUBLISH,
+      },
+    });
+
+    await expect(service.cancel(actor, "run-1", "request-1")).rejects.toThrow(
+      ApiException,
+    );
+    expect(updated()).toBeNull();
+  });
+
+  it("refuses a run that is already finished", async () => {
+    const { service } = serviceWith({
+      storedRun: {
+        id: "run-1",
+        status: PublishRunStatus.SUCCEEDED,
+        kind: PublishRunKind.ROLLBACK,
+      },
+    });
+
+    await expect(service.cancel(actor, "run-1", "request-1")).rejects.toThrow(
+      ApiException,
+    );
+  });
+
+  it("says a run it cannot find is missing", async () => {
+    const { service } = serviceWith({ storedRun: null });
+
+    await expect(service.cancel(actor, "run-1", "request-1")).rejects.toThrow(
+      ApiException,
+    );
   });
 });
