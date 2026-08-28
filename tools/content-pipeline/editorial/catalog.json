@@ -138,23 +138,6 @@
           "name": "Особые территории"
         }
       }
-    },
-    {
-      "key": "deck.kek",
-      "kind": "curated",
-      "members": [
-        "area.antarctica"
-      ],
-      "names": {
-        "en": {
-          "description": "kek",
-          "name": "kek"
-        },
-        "ru": {
-          "description": "kek",
-          "name": "kek"
-        }
-      }
     }
   ],
   "defaultLocale": "ru",
