@@ -149,23 +149,27 @@ public struct RootView: View {
         )
     }
 
-    /// The two ways out of any tab, drawn with the screen rather than in the
-    /// navigation bar.
+    /// The two ways out of any tab: the account on the left, the settings on
+    /// the right.
     ///
-    /// In the bar they were three toolbars, one per tab, and switching tabs
-    /// cross-fades the whole bar — the same two buttons fading out and back
-    /// in, which reads as a blink on controls that never moved. Tab content
-    /// is swapped without that transition, so drawn here they simply stay
-    /// put. It also puts them somewhere a pushed screen does not inherit
-    /// them: a deck has its own bar and its own back button (#273).
-    ///
-    /// The middle is the screen's own word for itself — the sync chip on the
-    /// home screen, which gave up its title for it long ago, and the title
-    /// everywhere else.
-    @ViewBuilder
-    private func shellHeader(title: String?) -> some View {
-        HStack(spacing: DesignTokens.Spacing.small) {
-            if makeAccountLifecycleStore != nil {
+    /// On every tab rather than on Home alone. They used to hang off the Home
+    /// screen, so reaching either from the catalog or the progress meant going
+    /// back to Home first — a trip through an unrelated screen to change a
+    /// setting (#273). Their place in the bar does not move between tabs,
+    /// which is what makes them findable without looking.
+    @ToolbarContentBuilder
+    private var accountAndSettings: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                router.push(.settings)
+            } label: {
+                Image(systemName: "gearshape")
+            }
+            .accessibilityLabel(L10n.shellOpenSettings)
+            .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
+        }
+        if makeAccountLifecycleStore != nil {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     router.push(.account)
                 } label: {
@@ -174,31 +178,7 @@ public struct RootView: View {
                 .accessibilityLabel(L10n.accountOpen)
                 .accessibilityIdentifier(AccessibilityIdentifier.accountOpen)
             }
-
-            Spacer(minLength: DesignTokens.Spacing.small)
-
-            if let title {
-                Text(title)
-                    .font(DesignTokens.Typography.sectionTitle)
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-            } else {
-                SyncStatusChip(status: sync.status)
-            }
-
-            Spacer(minLength: DesignTokens.Spacing.small)
-
-            Button {
-                router.push(.settings)
-            } label: {
-                Image(systemName: "gearshape")
-                    .foregroundStyle(.white)
-            }
-            .accessibilityLabel(L10n.shellOpenSettings)
-            .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
         }
-        .padding(.horizontal, DesignTokens.Spacing.medium)
-        .padding(.bottom, DesignTokens.Spacing.small)
     }
 
     private var shell: some View {
@@ -243,8 +223,16 @@ public struct RootView: View {
                         )
                     }
                 )
-                .safeAreaInset(edge: .top) { shellHeader(title: nil) }
-                .toolbar(.hidden, for: .navigationBar)
+                .toolbar {
+                    // Between the avatar and the gear, which is where a
+                    // learner already looks for the state of their account.
+                    // Home alone: it is status rather than a way anywhere, and
+                    // this is the tab that gives up its title for it.
+                    ToolbarItem(placement: .principal) {
+                        SyncStatusChip(status: sync.status)
+                    }
+                    accountAndSettings
+                }
                 .navigationDestination(for: AppRoute.self) { route in
                     destination(for: route)
                 }
@@ -255,8 +243,7 @@ public struct RootView: View {
 
             NavigationStack(path: $router.catalogNavigationPath) {
                 CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
-                    .safeAreaInset(edge: .top) { shellHeader(title: L10n.catalogTitle) }
-                    .toolbar(.hidden, for: .navigationBar)
+                    .toolbar { accountAndSettings }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -270,8 +257,7 @@ public struct RootView: View {
                     store: progress,
                     onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
                 )
-                .safeAreaInset(edge: .top) { shellHeader(title: L10n.progressTitle) }
-                .toolbar(.hidden, for: .navigationBar)
+                .toolbar { accountAndSettings }
                 .navigationDestination(for: AppRoute.self) { route in
                     destination(for: route)
                 }
