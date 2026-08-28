@@ -1015,6 +1015,203 @@ paths:
                 $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/releases/runs:
+    get:
+      tags: [AdminReleases]
+      summary: Read the release runs this deployment is doing or last did
+      operationId: adminListReleaseRuns
+      x-implementation-status: implemented
+      responses:
+        "200":
+          description: What is live, what is in flight, and what happened last.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminReleaseRunState"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/releases/runs/{runId}:
+    get:
+      tags: [AdminReleases]
+      summary: Read one release run
+      operationId: adminGetReleaseRun
+      x-implementation-status: implemented
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminReleaseRun"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/releases/runs/{runId}/cancel:
+    post:
+      tags: [AdminReleases]
+      summary: Give up on a queued run
+      operationId: adminCancelReleaseRun
+      x-implementation-status: implemented
+      description: >-
+        The way out of a queue nothing is draining. A run holds the only live
+        slot, so one no executor picks up would block every release after it
+        with the database as the only remedy.
+
+        Only a queued run: a running one is a job that has already started,
+        and cancelling the record under it would leave the two disagreeing
+        about what happened.
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The run, now cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminReleaseRun"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the PUBLISHER role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "409":
+          description: The run has already started or already finished.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/releases/publish:
+    post:
+      tags: [AdminReleases]
+      summary: Queue a publish run
+      operationId: adminQueueReleasePublish
+      x-implementation-status: implemented
+      description: >-
+        Records the intent and returns; the executor does the work (ADR-017).
+        The response is a run, not a result — a release takes minutes, and an
+        endpoint that waited for one would be an endpoint that times out.
+
+        Distinct from `POST /v1/admin/content/releases/publish-run`, which
+        dispatches the CI workflow. That path stays: it is the only one that
+        can publish from an arbitrary commit, and the way in when this
+        contour is broken.
+
+        A second run is refused rather than queued behind the first: a
+        request that cannot succeed should be answered now, not after twenty
+        minutes of losing a race over the active pointer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminReleasePublishRequest"
+      responses:
+        "202":
+          description: The run was queued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminReleaseRun"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the PUBLISHER role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "409":
+          description: >-
+            That version is already the active release, or another run is
+            already queued or running.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/releases/rollback:
+    post:
+      tags: [AdminReleases]
+      summary: Queue a rollback run
+      operationId: adminQueueReleaseRollback
+      x-implementation-status: implemented
+      description: >-
+        The same mechanism the other way round. A rollback does not rebuild
+        anything: the release it returns to is already published and signed,
+        so only the pointer moves — which is why it is fast and needs no
+        signing key.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminReleaseRollbackRequest"
+      responses:
+        "202":
+          description: The run was queued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminReleaseRun"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the PUBLISHER role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "409":
+          description: >-
+            That version is already active, or another run is already queued
+            or running.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "422":
+          description: >-
+            The request is malformed, or names a version this deployment
+            never published.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/users:
     get:
       tags: [AdminAccess]
@@ -1907,6 +2104,118 @@ components:
             decision rather than a formatting detail.
           type: string
           pattern: ^\d+\.\d+\.\d+$
+    AdminReleaseRun:
+      description: >-
+        One publish or rollback, as a record rather than as a response.
+        Applying a release is a serializable transaction with a twenty-minute
+        timeout, which no HTTP request survives, so the request queues a run
+        and the executor — a job with its own credentials and the signing key
+        this service never sees — carries it out (ADR-017).
+      type: object
+      required:
+        [id, kind, status, contentVersion, requestedByAdminUserId, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum: [PUBLISH, ROLLBACK]
+        status:
+          type: string
+          enum: [QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED]
+        contentVersion:
+          description: The version this run produces, or the one it returns to.
+          type: string
+        minimumClientVersion:
+          description: >-
+            What the release will demand of a client. Null for a rollback:
+            the release it returns to already carries its own.
+          type: [string, "null"]
+        previousVersion:
+          description: >-
+            What was active when the run started, so the way back is
+            recoverable from the record alone.
+          type: [string, "null"]
+        stage:
+          description: Where the run got to, for the screen watching it.
+          type: [string, "null"]
+        failure:
+          anyOf:
+            - type: object
+              required: [code, message]
+              properties:
+                code:
+                  type: string
+                message:
+                  type: string
+            - type: "null"
+        executionName:
+          description: >-
+            The executor's own handle, so an operator can find the logs of a
+            run that failed outside our reporting.
+          type: [string, "null"]
+        requestedByAdminUserId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: [string, "null"]
+          format: date-time
+        finishedAt:
+          type: [string, "null"]
+          format: date-time
+    AdminReleaseRunState:
+      description: >-
+        What is live, what is in flight, and what happened last — the three
+        things a screen watching a release has to say at once.
+      type: object
+      required: [activeVersion, current, last]
+      properties:
+        activeVersion:
+          type: [string, "null"]
+        current:
+          description: The queued or running run, if there is one.
+          anyOf:
+            - $ref: "#/components/schemas/AdminReleaseRun"
+            - type: "null"
+        last:
+          description: The most recent run whatever its outcome.
+          anyOf:
+            - $ref: "#/components/schemas/AdminReleaseRun"
+            - type: "null"
+    AdminReleasePublishRequest:
+      type: object
+      additionalProperties: false
+      required: [contentVersion, minimumClientVersion]
+      properties:
+        contentVersion:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$
+        minimumClientVersion:
+          description: >-
+            The oldest client this release lets read it; a client below it
+            gets an update screen instead of a catalog, so this is a product
+            decision rather than a formatting detail.
+          type: string
+          pattern: ^\d+\.\d+\.\d+$
+    AdminReleaseRollbackRequest:
+      type: object
+      additionalProperties: false
+      required: [toVersion]
+      properties:
+        toVersion:
+          description: >-
+            A version this deployment actually published. Returning to one it
+            never applied would point every client at nothing.
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$
     AdminContentStatus:
       type: object
       required:

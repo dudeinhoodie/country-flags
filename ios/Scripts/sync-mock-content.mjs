@@ -18,7 +18,7 @@
 //   node ios/Scripts/sync-mock-content.mjs --check   fail when it is stale (CI)
 
 import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -394,10 +394,27 @@ if (checkOnly) {
   }
 } else {
   await mkdir(outputDirectory, { recursive: true });
+  const leftOver = new Set(await readdir(outputDirectory).catch(() => []));
   for (const [name, document] of documents) {
     await writeFile(join(outputDirectory, name), stableJson(document));
+    leftOver.delete(name);
+  }
+  // Whatever the projection no longer produces goes, because the check above
+  // refuses it. A deck the editorial change removed left its file behind, and
+  // the only advice the failure could give — run this script and commit the
+  // result — changed nothing, so a content proposal could not be made green
+  // by anything short of deleting the file by hand.
+  //
+  // This directory holds the projection and nothing else, which is what lets
+  // the sweep be this blunt: the check already treats every file in it that
+  // is not generated as an error.
+  for (const name of leftOver) {
+    await rm(join(outputDirectory, name));
   }
   process.stdout.write(
-    `Projected ${CONTENT_VERSION} into ${String(documents.size)} mock documents.\n`,
+    `Projected ${CONTENT_VERSION} into ${String(documents.size)} mock documents` +
+      (leftOver.size === 0
+        ? ".\n"
+        : `, and removed ${String(leftOver.size)} the release no longer has.\n`),
   );
 }

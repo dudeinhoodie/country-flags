@@ -355,6 +355,29 @@ export interface PublishRunInput {
   minimumClientVersion: string;
 }
 
+/**
+ * What a rollback names: a version, and nothing else.
+ *
+ * No minimum client version — the release being returned to already carries
+ * its own, and accepting one here would let an operator change what a
+ * published release demands without republishing it.
+ */
+export function parseReleaseRollbackRequest(body: unknown): {
+  toVersion: string;
+} {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(root, ["toVersion"], "body");
+  return {
+    toVersion: requiredString(
+      root.toVersion,
+      "toVersion",
+      1,
+      64,
+      VERSION_PATTERN,
+    ),
+  };
+}
+
 export function parsePublishRunRequest(body: unknown): PublishRunInput {
   const root = requestRecord(body, "body");
   exactRequestKeys(root, ["contentVersion", "minimumClientVersion"], "body");

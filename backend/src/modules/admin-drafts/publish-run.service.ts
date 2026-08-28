@@ -153,6 +153,65 @@ export class PublishRunService {
     return pointer?.contentVersion ?? null;
   }
 
+  /**
+   * Gives up on a run that is still queued.
+   *
+   * The way out of a stuck queue. A run holds the only live slot — the
+   * partial unique index sees to that — so one that no executor ever picks
+   * up would block every release after it, with the database as the only
+   * remedy. That is not a state an operator should have to escalate out of.
+   *
+   * Only a queued run: a running one is a job that has already started, and
+   * cancelling the record under it would leave the two disagreeing about
+   * what happened. Stopping work in flight is the executor's to offer, and
+   * it does not yet.
+   */
+  async cancel(
+    actor: AdminUser,
+    runId: string,
+    requestId: string,
+  ): Promise<PublishRun> {
+    return this.database.$transaction(async (transaction) => {
+      const run = await transaction.publishRun.findUnique({
+        where: { id: runId },
+      });
+      if (run === null) {
+        throw new ApiException(
+          HttpStatus.NOT_FOUND,
+          "RESOURCE_NOT_FOUND",
+          "The requested resource was not found",
+        );
+      }
+      if (run.status !== PublishRunStatus.QUEUED) {
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          "PUBLISH_RUN_NOT_QUEUED",
+          `This run is ${run.status.toLowerCase()}, and only a queued run can be cancelled`,
+        );
+      }
+
+      const cancelled = await transaction.publishRun.update({
+        where: { id: runId },
+        data: {
+          status: PublishRunStatus.CANCELLED,
+          finishedAt: new Date(),
+        },
+      });
+      await this.audit.record(transaction, {
+        actorAdminUserId: actor.id,
+        action: "admin.release.run_cancelled",
+        targetType: "publish_run",
+        targetId: runId,
+        requestId,
+        metadata: {
+          kind: run.kind,
+          contentVersion: run.contentVersion,
+        },
+      });
+      return cancelled;
+    });
+  }
+
   private async queue(
     actor: AdminUser,
     run: {

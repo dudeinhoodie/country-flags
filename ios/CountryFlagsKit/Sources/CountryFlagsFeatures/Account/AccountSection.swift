@@ -288,23 +288,34 @@ struct GoogleLogoMark: View {
 /// glyph on the other made them look like two different kinds of control. The
 /// provider's picture takes its place once there is one: a face is worth more
 /// than a symbol, and only then is the disc earned.
+/// The avatar in the navigation bar.
+///
+/// Draws bytes the store already holds rather than fetching its own. It is
+/// the same picture on the toolbar of all three tabs, and `AsyncImage` fetches
+/// per instance: switching tabs blinked the photo back to the grey glyph and
+/// in again, on an image the app had in hand.
 struct AccountAvatarButtonLabel: View {
     let profile: AccountProfile?
+    let avatar: Data?
 
     var body: some View {
-        if let url = profile?.avatarURL {
-            AsyncImage(url: url) { image in
-                image.resizable().scaledToFill()
-            } placeholder: {
-                glyph
-            }
-            .frame(width: 28, height: 28)
-            .clipShape(Circle())
-            .overlay {
-                Circle()
-                    .strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
-            }
+        if let avatar, let image = UIImage(data: avatar) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 28, height: 28)
+                .clipShape(Circle())
+                .overlay {
+                    Circle()
+                        .strokeBorder(
+                            .white.opacity(DesignTokens.Card.borderOpacity),
+                            lineWidth: 1
+                        )
+                }
         } else {
+            // An account with no picture, and an account whose picture has
+            // not arrived, look the same. Neither is worth a spinner in a
+            // navigation bar.
             glyph
         }
     }

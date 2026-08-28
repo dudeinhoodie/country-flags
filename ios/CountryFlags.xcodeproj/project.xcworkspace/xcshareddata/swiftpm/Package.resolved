@@ -1,5 +1,5 @@
 {
-  "originHash" : "5b08c9aa4ba09ae08833dcfd724f102bd0b3046169bad44cbc132c4a1ca9a1b1",
+  "originHash" : "f61b0e77e27bca8d51848231dc16ed862a52642a4081a4f8a8d2966735c627d5",
   "pins" : [
     {
       "identity" : "app-check",
@@ -119,15 +119,6 @@
       }
     },
     {
-      "identity" : "swift-log",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-log",
-      "state" : {
-        "revision" : "3ffafb9722d5d918c614feb496c8789a3b59d222",
-        "version" : "1.15.0"
-      }
-    },
-    {
       "identity" : "swift-numerics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-numerics.git",
@@ -168,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/open-feature/swift-sdk",
       "state" : {
-        "revision" : "df7ff813300aa1b6cdce300a9e53fa5b6eca31c7",
-        "version" : "0.6.0"
+        "revision" : "d71686219a65ab78f77923ceb0e2ea549e1e50ef",
+        "version" : "0.5.0"
       }
     },
     {
