@@ -178,7 +178,14 @@ describe("progress, mastery and achievements (integration)", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send({
         payloadVersion: 1,
-        events: reviewedCardIds.map((learningCardId, index) => ({
+        // One answer each, and two more for the first card: learned is three
+        // correct answers, so the fixture has to contain a card that reaches
+        // it or the assertion below would only be pinning zero.
+        events: [
+          ...reviewedCardIds,
+          reviewedCardIds[0],
+          reviewedCardIds[0],
+        ].map((learningCardId, index) => ({
           id: `96000000-0000-4000-8000-${(index + 1)
             .toString()
             .padStart(12, "0")}`,
@@ -228,8 +235,8 @@ describe("progress, mastery and achievements (integration)", () => {
 
     expect(account).toMatchObject({
       totalCards: 8,
-      learnedCards: 2,
-      reviewCount: 5,
+      learnedCards: 1,
+      reviewCount: 7,
       accuracy30Days: 1,
       currentMasteryTier: "BRONZE",
       highestAchievementTier: "BRONZE",
@@ -237,19 +244,19 @@ describe("progress, mastery and achievements (integration)", () => {
     });
     expect(allDeck).toMatchObject({
       totalCards: 8,
-      learnedCards: 2,
-      reviewCount: 5,
+      learnedCards: 1,
+      reviewCount: 7,
       currentMasteryTier: "BRONZE",
       highestAchievementTier: "BRONZE",
     });
     expect(europeDeck).toMatchObject({
       totalCards: 7,
-      learnedCards: 2,
+      learnedCards: 1,
       currentMasteryTier: "BRONZE",
     });
     expect(europeRegion).toMatchObject({
       totalCards: 7,
-      learnedCards: 2,
+      learnedCards: 1,
       currentMasteryTier: "BRONZE",
     });
 
