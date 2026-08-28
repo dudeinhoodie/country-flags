@@ -4,7 +4,7 @@
     {
       "entityKey": "area.antarctica",
       "gap": true,
-      "reason": "source_value_unavailable"
+      "reason": "not_applicable"
     },
     {
       "entityKey": "area.bouvet-island",

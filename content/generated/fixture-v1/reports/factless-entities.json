@@ -1,0 +1,11 @@
+{
+  "items": [
+    {
+      "blocking": false,
+      "entityKey": "area.antarctica",
+      "undeclared": []
+    }
+  ],
+  "reportType": "factlessEntities",
+  "schemaVersion": 1
+}

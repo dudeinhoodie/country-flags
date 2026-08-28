@@ -3,23 +3,13 @@
   "records": [
     {
       "entityKey": "area.antarctica",
-      "gap": false,
-      "provenance": {
-        "retrievedAt": "2026-07-28T13:07:17.716Z",
-        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
-        "sourceKey": "annexare"
-      },
-      "value": []
+      "gap": true,
+      "reason": "not_applicable"
     },
     {
       "entityKey": "area.bouvet-island",
-      "gap": false,
-      "provenance": {
-        "retrievedAt": "2026-07-28T13:07:17.716Z",
-        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
-        "sourceKey": "annexare"
-      },
-      "value": []
+      "gap": true,
+      "reason": "not_applicable"
     },
     {
       "entityKey": "area.cook-islands",
@@ -59,13 +49,8 @@
     },
     {
       "entityKey": "area.heard-island-and-mcdonald-islands",
-      "gap": false,
-      "provenance": {
-        "retrievedAt": "2026-07-28T13:07:17.716Z",
-        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
-        "sourceKey": "annexare"
-      },
-      "value": []
+      "gap": true,
+      "reason": "not_applicable"
     },
     {
       "entityKey": "area.niue",
@@ -87,13 +72,8 @@
     },
     {
       "entityKey": "area.united-states-minor-outlying-islands",
-      "gap": false,
-      "provenance": {
-        "retrievedAt": "2026-07-28T13:07:17.716Z",
-        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
-        "sourceKey": "annexare"
-      },
-      "value": []
+      "gap": true,
+      "reason": "not_applicable"
     },
     {
       "entityKey": "country.afghanistan",
@@ -3832,13 +3812,8 @@
     },
     {
       "entityKey": "territory.china-macao-special-administrative-region",
-      "gap": false,
-      "provenance": {
-        "retrievedAt": "2026-07-28T13:07:17.716Z",
-        "revision": "1c393325611d89d3511de01269a4f60fe9dc1c6f",
-        "sourceKey": "annexare"
-      },
-      "value": []
+      "gap": true,
+      "reason": "not_applicable"
     },
     {
       "entityKey": "territory.christmas-island",

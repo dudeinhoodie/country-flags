@@ -100,6 +100,14 @@
             "includeInCountryCatalog": {
               "type": "boolean",
               "description": "Whether the entity appears in the all-countries deck (`all-current` membership). Nothing else reads it."
+            },
+            "factsNotApplicable": {
+              "type": "array",
+              "description": "Fact types this entity does not have, as a matter of what it is rather than of what the sources know. Antarctica has no capital, currency, official language or resident population, and saying so is different from failing to find them: a declared type is published as a gap with reason `not_applicable`, and an entity left with no facts at all is a build failure unless every one of them was declared here (#272).",
+              "uniqueItems": true,
+              "items": {
+                "enum": ["capitals", "currencies", "languages", "population"]
+              }
             }
           }
         },
