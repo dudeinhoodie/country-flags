@@ -299,4 +299,43 @@ describe("content bundle publish/rollback pipeline (integration)", () => {
       rollbackContentVersion(database, storage, "does-not-exist"),
     ).rejects.toThrow(/does not exist/);
   });
+
+  /**
+   * Publishing a version that had been superseded.
+   *
+   * The no-op short circuit only catches the version that is already active,
+   * so a retired one goes the whole way — and the publish set the status and
+   * the publication date while leaving the retirement that superseding had
+   * written. PUBLISHED beside a retiredAt is the one shape
+   * `content_release_lifecycle_check` forbids, so the transaction died on the
+   * constraint and the pointer never moved. Rollback had always cleared it;
+   * publish is the other door into the same state.
+   */
+  it("publishes a version that had been retired", async () => {
+    const before = await database.contentRelease.findUniqueOrThrow({
+      where: { version: "bundle-v2" },
+    });
+    expect(before.status).toBe(ContentReleaseStatus.RETIRED);
+    expect(before.retiredAt).not.toBeNull();
+
+    const summary = await publishBundle(
+      join(tempDir, "bundle-v2"),
+      publicKeys,
+      database,
+      storage,
+    );
+    expect(summary.alreadyPublished).toBe(false);
+    expect(summary.previousActiveVersion).toBe("bundle-v1");
+
+    const after = await database.contentRelease.findUniqueOrThrow({
+      where: { version: "bundle-v2" },
+    });
+    expect(after.status).toBe(ContentReleaseStatus.PUBLISHED);
+    expect(after.retiredAt).toBeNull();
+
+    const pointer = await database.contentPointer.findUniqueOrThrow({
+      where: { key: "active" },
+    });
+    expect(pointer.contentVersion).toBe("bundle-v2");
+  });
 });
