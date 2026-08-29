@@ -113,6 +113,46 @@ final class ClearProgressStoreTests: XCTestCase {
         XCTAssertEqual(attempts, 0)
     }
 
+    /// The dismissal that comes with an accepted confirmation must not cancel
+    /// it.
+    ///
+    /// This is the shape SwiftUI produces: tapping the destructive button
+    /// dismisses the dialog, and the presentation binding's setter runs before
+    /// the button's own task does. A store that read "the dialog is gone" as
+    /// "the learner changed their mind" deleted nothing and said nothing —
+    /// which is exactly how clearing progress came to do nothing at all.
+    func testTheDismissalThatCarriesTheConfirmationStillClears() async throws {
+        let clearing = RecordingClearing(result: .success(()))
+        let learning = WipeRecordingRepository()
+        let store = makeStore(clearing: clearing, learning: learning)
+        await store.load()
+        store.request()
+
+        store.cancel()
+        await store.confirm()
+
+        XCTAssertEqual(store.phase, .cleared)
+        let attempts = await clearing.attempts()
+        XCTAssertEqual(attempts, 1)
+        let wasWiped = await learning.wasWiped()
+        XCTAssertTrue(wasWiped)
+    }
+
+    /// One acceptance is one deletion: the arming is spent by the confirm it
+    /// authorised, so a second call has nothing behind it.
+    func testConfirmingTwiceDeletesOnce() async throws {
+        let clearing = RecordingClearing(result: .success(()))
+        let store = makeStore(clearing: clearing)
+        await store.load()
+        store.request()
+
+        await store.confirm()
+        await store.confirm()
+
+        let attempts = await clearing.attempts()
+        XCTAssertEqual(attempts, 1)
+    }
+
     /// A guest has no account-side history to delete, so the entry point is
     /// never offered — and cannot be driven anyway.
     func testAGuestIsNotOfferedTheOperation() async throws {
