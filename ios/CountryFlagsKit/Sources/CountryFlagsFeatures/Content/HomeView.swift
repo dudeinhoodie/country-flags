@@ -495,9 +495,8 @@ public struct HomeView: View {
         }
     }
 
-    /// Reads the flags the pane and the rows show. Due cards first, so the
-    /// fan shows what the number counts; a fresh install fans the deck it is
-    /// offered instead.
+    /// Reads the flags the pane and the rows show: in every place, the cards
+    /// the button beside them is about to deal.
     private func reloadPreviews() async {
         guard let progress, progress.isLoaded else { return }
         let states = await progress.cardStatesByID()
@@ -505,25 +504,10 @@ public struct HomeView: View {
 
         var fresh: [UUID: [LearningCardRecord]] = [:]
         for deck in progress.decks where deck.dueCards > 0 {
-            let cards = await store.cards(inDeck: deck.id)
-            // The three the session will actually open with, which means the
-            // oldest debt first — the same order the queue is filled in.
-            // Taking the first three in deck order gave three due cards that
-            // were simply alphabetically early, so the fan showed flags the
-            // session was not about to ask for and read as a random handful.
-            //
-            // The whole deck is scanned rather than stopped at the third
-            // match: which three are oldest is not known until the due ones
-            // have been found.
-            fresh[deck.id] = Array(
-                cards.filter { card in
-                    guard let state = states[card.id] else { return false }
-                    return state.state != "NEW" && state.dueAt <= now
-                }
-                .sorted { left, right in
-                    (states[left.id]?.dueAt ?? now) < (states[right.id]?.dueAt ?? now)
-                }
-                .prefix(3)
+            fresh[deck.id] = opening(
+                await store.cards(inDeck: deck.id),
+                states: states,
+                now: now
             )
         }
         previews = fresh
@@ -536,8 +520,52 @@ public struct HomeView: View {
         } else if case .ready(let sections, _, _) = store.catalog,
             let deck = recommended(sections)
         {
-            fanCards = Array(await store.cards(inDeck: deck.id).prefix(3))
+            fanCards = opening(
+                await store.cards(inDeck: deck.id),
+                states: states,
+                now: now
+            )
         }
+    }
+
+    /// The three cards a session started here would open with.
+    ///
+    /// The bands are the session's own — what the day owes first, then what
+    /// has never been seen, then the rest — because the pile stands next to
+    /// the button that deals them, and `LocalCardSelection` ranks the real
+    /// session the same way. Inside a band the oldest debt leads and the name
+    /// breaks ties, so the fan is stable between reloads instead of
+    /// reshuffling under the learner.
+    ///
+    /// Both callers go through here. The fan used to fall back to the first
+    /// three cards in store order, which is alphabetical — so whenever the
+    /// device had no card states to rank by, the app fanned Antarctica and its
+    /// alphabetical neighbours next to a queue they were no part of.
+    private func opening(
+        _ cards: [LearningCardRecord],
+        states: [UUID: CardStateRecord],
+        now: Date
+    ) -> [LearningCardRecord] {
+        func band(_ card: LearningCardRecord) -> Int {
+            guard let state = states[card.id], state.state != "NEW" else { return 1 }
+            return LocalProgressProjection.isOwed(state, at: now) ? 0 : 2
+        }
+        return Array(
+            cards
+                // A retired card is never dealt into a new session, so it has
+                // no business advertising one.
+                .filter { !$0.isRetired }
+                .sorted { left, right in
+                    let leftBand = band(left)
+                    let rightBand = band(right)
+                    if leftBand != rightBand { return leftBand < rightBand }
+                    let leftDue = states[left.id]?.dueAt ?? .distantFuture
+                    let rightDue = states[right.id]?.dueAt ?? .distantFuture
+                    if leftDue != rightDue { return leftDue < rightDue }
+                    return left.displayName < right.displayName
+                }
+                .prefix(3)
+        )
     }
 }
 

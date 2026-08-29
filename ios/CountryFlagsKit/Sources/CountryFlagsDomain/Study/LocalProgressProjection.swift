@@ -85,7 +85,10 @@ public enum LocalProgressProjection {
     /// `LocalCardSelection` asks the same question when it decides which cards
     /// a session is owed, so the number a screen advertises and the cards a
     /// session deals cannot disagree about what "due" means.
-    static func isOwed(_ card: CardStateRecord, at now: Date) -> Bool {
+    /// It is public because the home screen asks it too, when it works out
+    /// which flags to fan beside the queue's number: the pile and the number
+    /// have to be about the same cards.
+    public static func isOwed(_ card: CardStateRecord, at now: Date) -> Bool {
         card.state != "NEW" && card.dueAt <= now
     }
 }
