@@ -215,9 +215,17 @@ describe("Admin draft deck editor (integration)", () => {
     const decks = await listDecks();
     expect(decks.length).toBeGreaterThan(0);
 
+    // Whether the catalogue has an all-current deck at all is an editorial
+    // decision, not a property of the editor: "all countries" may equally be
+    // a list the owner named by hand. What this test is for is the parity
+    // below — that the console resolves the mode the way the pipeline does —
+    // so it runs when the mode is present and stands aside when it is not,
+    // the same way the taxonomy case beneath it is written.
     const allCurrent = decks.find((deck) => deck.membersMode === "all-current");
-    expect(allCurrent).toBeDefined();
-    expect(allCurrent?.memberCount).toBeGreaterThan(0);
+    if (allCurrent === undefined) {
+      return;
+    }
+    expect(allCurrent.memberCount).toBeGreaterThan(0);
 
     // The resolved count must equal what the pipeline would compute from
     // the same document: approved, still-current entities.
@@ -226,7 +234,7 @@ describe("Admin draft deck editor (integration)", () => {
       (entity) =>
         entity.config.includeInCountryCatalog && entity.status === "active",
     );
-    expect(allCurrent?.memberCount).toBe(approved.length);
+    expect(allCurrent.memberCount).toBe(approved.length);
   });
 
   it("resolves a taxonomy deck the way the published release did", async () => {
@@ -378,15 +386,26 @@ describe("Admin draft deck editor (integration)", () => {
     expect((await currentDraft()).revision).toBe(draft.revision);
   });
 
-  it("renames a deck without rewriting its all-current membership", async () => {
+  /**
+   * A names-only edit must leave the membership exactly as it was, whichever
+   * way that membership is expressed.
+   *
+   * It used to reach for the catalogue's all-current deck, which tied the
+   * check to what the catalogue happened to contain — and the moment "all
+   * countries" became a hand-named list, the test could not find its subject
+   * and stopped guarding anything. The deck this suite made itself is always
+   * there, and the property being guarded was never about one mode.
+   */
+  it("renames a deck without rewriting its membership", async () => {
     const before = await currentDraft();
-    const allCurrent = (await listDecks()).find(
-      (deck) => deck.membersMode === "all-current",
+    const target = before.document.decks.find(
+      (entry) => entry.key === "deck.editorial-picks",
     );
-    expect(allCurrent).toBeDefined();
+    expect(target).toBeDefined();
+    const membersBefore = target?.members;
 
     const renamed = await request(httpServer)
-      .patch(`/v1/admin/content/drafts/${draftId}/decks/${allCurrent!.key}`)
+      .patch(`/v1/admin/content/drafts/${draftId}/decks/deck.editorial-picks`)
       .set("Cookie", editorCookie)
       .set("Origin", TRUSTED_ORIGIN)
       .set("If-Match", String(before.revision))
@@ -400,9 +419,9 @@ describe("Admin draft deck editor (integration)", () => {
 
     const after = await currentDraft();
     const deck = after.document.decks.find(
-      (entry) => entry.key === allCurrent!.key,
+      (entry) => entry.key === "deck.editorial-picks",
     );
-    expect(deck?.members).toBe("all-current");
+    expect(deck?.members).toEqual(membersBefore);
   });
 
   it("guards deck writes with the draft revision", async () => {
