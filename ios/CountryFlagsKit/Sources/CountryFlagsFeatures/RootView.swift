@@ -28,8 +28,8 @@ public struct RootView: View {
     /// one, and the picture would never arrive.
     @State private var accountToolbar: AccountStore?
 
-    /// Whether a sitting has just ended and its answers have not yet come
-    /// back as numbers.
+    /// Whether a run is in flight that is about to change the numbers on
+    /// screen.
     ///
     /// Leaving a session pops to the home screen first and synchronises
     /// after, so the counts there are the backend's previous word for as long
@@ -37,7 +37,7 @@ public struct RootView: View {
     /// seconds later. The window is known exactly here, where the session
     /// closes, rather than guessed at from a pending count that has usually
     /// already drained by the time the home screen is looking.
-    @State private var isSettlingAfterSession = false
+    @State private var isSettlingRun = false
 
     /// Whether the launch's own run is still on its way back.
     ///
@@ -220,7 +220,7 @@ public struct RootView: View {
                     sync: sync,
                     assets: assets,
                     progress: progress,
-                    isSettling: isSettlingAfterSession || isSettlingAtLaunch,
+                    isSettling: isSettlingRun || isSettlingAtLaunch,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
@@ -328,9 +328,9 @@ public struct RootView: View {
                     await progress.reload()
                     return
                 }
-                isSettlingAfterSession = true
+                isSettlingRun = true
                 await sync.synchronize(trigger: .sessionCompleted)
-                isSettlingAfterSession = false
+                isSettlingRun = false
             }
         }
         .onChange(of: scenePhase) { _, phase in
@@ -339,8 +339,15 @@ public struct RootView: View {
             // two overlapping passes raced each other.
             guard phase == .active else { return }
             Task {
+                // Coming back is the same kind of window as leaving a sitting:
+                // what is on screen is the word from before the app went away,
+                // and it is about to be replaced. It was left uncovered, so
+                // the numbers changed under the reader with nothing to say
+                // they were being checked.
+                isSettlingRun = true
                 await content.refreshIfStale(olderThan: Self.contentStaleAfter)
                 await sync.synchronize(trigger: .foreground)
+                isSettlingRun = false
             }
         }
     }
