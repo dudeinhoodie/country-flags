@@ -69,16 +69,6 @@
       "cardCount": 7,
       "dueCount": null,
       "contentVersion": "fixture-v1"
-    },
-    {
-      "id": "a5e35855-1ac8-5f42-b5f6-c72f1b06e324",
-      "code": "KEK",
-      "kind": "CURATED",
-      "name": "kek",
-      "description": "kek",
-      "cardCount": 1,
-      "dueCount": null,
-      "contentVersion": "fixture-v1"
     }
   ],
   "page": {
