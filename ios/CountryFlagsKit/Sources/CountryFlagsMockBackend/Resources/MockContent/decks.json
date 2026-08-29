@@ -5,8 +5,8 @@
       "code": "ALL",
       "kind": "CURATED",
       "name": "All countries",
-      "description": "Every flag, with no regions to lean on.",
-      "cardCount": 249,
+      "description": "Flags of all UN countries",
+      "cardCount": 195,
       "dueCount": null,
       "contentVersion": "fixture-v1"
     },
