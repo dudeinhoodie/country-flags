@@ -2,6 +2,15 @@ import { CardLearningState, MasteryTier } from "@prisma/client";
 
 export const MASTERY_RULE_VERSION = 1;
 
+/**
+ * How many correct answers make a country learned.
+ *
+ * A product decision rather than a property of the scheduler: the scheduler
+ * decides when to ask again, this decides when to stop calling the card
+ * unlearned on the screens that count them.
+ */
+export const LEARNED_SUCCESSFUL_REVIEWS = 3;
+
 export interface MasteryThreshold {
   tier: Exclude<MasteryTier, "NONE">;
   coverage: number;
@@ -84,26 +93,57 @@ export function masteryTierRank(tier: MasteryTier): number {
   ].indexOf(tier);
 }
 
+/**
+ * @param dueAllowance how many cards today's queue may hold, or undefined
+ *   for the whole backlog. The allowance trims the set of cards counted as
+ *   due — the ones owed longest first — rather than the total afterwards, so
+ *   the breakdown still adds up to it. A screen that showed fifty due and a
+ *   breakdown summing to two hundred would be describing two queues.
+ */
 export function aggregateProgress(
   cards: ProgressCardMetrics[],
   now: Date,
   thresholds: readonly MasteryThreshold[] = MASTERY_THRESHOLDS,
   ruleVersion = MASTERY_RULE_VERSION,
+  dueAllowance?: number,
 ): ProgressAggregate {
   const totalCards = cards.length;
-  // Touched is not learned: a card is learned once it graduates to REVIEW,
-  // which is what the schedulers mean by it and what a person means by the
-  // word. Counting any touched card here made "learned" and "in progress"
-  // the same set until the first graduations, and the home tally showed one
-  // number twice.
   const touchedCards = cards.filter(
     ({ totalReviews }) => totalReviews > 0,
   ).length;
+  // Learned is three correct answers, not the scheduler's own word for it.
+  //
+  // FSRS graduates a card to REVIEW after its learning steps, and ADR-013
+  // puts the first repetition an hour out — so a whole sitting could end
+  // with nothing learned, and the screen said the work had not counted.
+  // Three correct answers is what a person means by knowing a flag, and it
+  // is reachable inside one session.
+  //
+  // Touched is still not learned, which is the half of #232 that stands: a
+  // card answered once is in progress, and the two counts must not name the
+  // same card twice. They stay disjoint because "in progress" is derived as
+  // touched minus learned rather than from the scheduler's states.
   const learnedCards = cards.filter(
-    ({ state }) => state === CardLearningState.REVIEW,
+    ({ successfulReviews }) => successfulReviews >= LEARNED_SUCCESSFUL_REVIEWS,
   ).length;
-  const isDue = ({ dueAt, totalReviews }: ProgressCardMetrics): boolean =>
+  const hasComeRound = ({
+    dueAt,
+    totalReviews,
+  }: ProgressCardMetrics): boolean =>
     totalReviews > 0 && dueAt !== null && dueAt.getTime() <= now.getTime();
+  // The day's queue: everything the schedule owes, oldest debt first, cut to
+  // what the day allows. What falls outside is not forgiven — it is still
+  // owed, and comes back tomorrow.
+  const owed = cards.filter(hasComeRound);
+  const queue = [...owed]
+    .sort(
+      (left, right) =>
+        (left.dueAt?.getTime() ?? 0) - (right.dueAt?.getTime() ?? 0),
+    )
+    .slice(0, dueAllowance ?? cards.length);
+  const queued = new Set(queue.map(({ learningCardId }) => learningCardId));
+  const isDue = (card: ProgressCardMetrics): boolean =>
+    queued.has(card.learningCardId);
   const overdueCards = cards.filter(
     (card) => card.state === CardLearningState.REVIEW && isDue(card),
   ).length;
@@ -144,7 +184,11 @@ export function aggregateProgress(
   );
   const accuracy30Days =
     recentReviews === 0 ? 0 : recentSuccessfulReviews / recentReviews;
-  const overdueRatio = totalCards === 0 ? 0 : dueCards / totalCards;
+  // The whole debt, not the day's dose. A tier that read the capped queue
+  // would be handed out for keeping a backlog small enough to hide behind
+  // the ceiling — the larger the debt, the smaller the share it appears to
+  // be, which is exactly backwards.
+  const overdueRatio = totalCards === 0 ? 0 : owed.length / totalCards;
 
   let currentMasteryTier: MasteryTier = MasteryTier.NONE;
   for (const threshold of thresholds) {

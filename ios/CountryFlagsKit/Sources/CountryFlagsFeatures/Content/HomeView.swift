@@ -115,11 +115,21 @@ public struct HomeView: View {
             } else {
                 // Dimmed while the numbers are being checked: the figure stays
                 // readable and stops claiming to be settled.
+                //
+                // And not tappable while it is dimmed. Leaving the session
+                // afterwards, the counter here is the backend's previous word
+                // until the run that carries the answers home lands — so a tap
+                // in that window starts a session against a queue that is
+                // about to change, and the learner who has just finished the
+                // last card gets a session rather than the "nothing due"
+                // screen they earned. The dimming already says the number is
+                // being checked; this makes the screen mean it.
                 VStack(spacing: DesignTokens.Spacing.large) {
                     todayPane(sections)
                     queuePane(sections)
                 }
                 .opacity(isVerifying ? 0.55 : 1)
+                .disabled(isVerifying)
                 .animation(.easeInOut(duration: 0.2), value: isVerifying)
             }
         }
@@ -477,12 +487,22 @@ public struct HomeView: View {
         var fresh: [UUID: [LearningCardRecord]] = [:]
         for deck in progress.decks where deck.dueCards > 0 {
             let cards = await store.cards(inDeck: deck.id)
-            // Lazy, so the scan stops at the third match instead of testing
-            // the whole deck for three flags.
+            // The three the session will actually open with, which means the
+            // oldest debt first — the same order the queue is filled in.
+            // Taking the first three in deck order gave three due cards that
+            // were simply alphabetically early, so the fan showed flags the
+            // session was not about to ask for and read as a random handful.
+            //
+            // The whole deck is scanned rather than stopped at the third
+            // match: which three are oldest is not known until the due ones
+            // have been found.
             fresh[deck.id] = Array(
-                cards.lazy.filter { card in
+                cards.filter { card in
                     guard let state = states[card.id] else { return false }
                     return state.state != "NEW" && state.dueAt <= now
+                }
+                .sorted { left, right in
+                    (states[left.id]?.dueAt ?? now) < (states[right.id]?.dueAt ?? now)
                 }
                 .prefix(3)
             )

@@ -207,11 +207,18 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, ProgressCle
             totalCards: payload.totalCards,
             learnedCards: payload.learnedCards,
             dueCards: payload.dueCards,
-            // The two states that mean "started, not finished". Both are
-            // optional in the contract; a release that sends neither leaves
-            // the count at zero, which reads as "nothing in flight" rather
-            // than as a wrong number.
-            inProgressCards: (payload.learningCards ?? 0) + (payload.relearningCards ?? 0),
+            // Started but not finished: every card that has been answered,
+            // less the ones that count as learned.
+            //
+            // Derived rather than taken from the scheduler's own states,
+            // because learned is now three correct answers and a card can
+            // reach that while the scheduler still calls it LEARNING. Summing
+            // the states would then name the same card in both counts, and
+            // the tally would show one card twice.
+            inProgressCards: max(
+                0,
+                payload.totalCards - (payload.newCards ?? 0) - payload.learnedCards
+            ),
             currentMasteryTier: payload.currentMasteryTier,
             highestAchievementTier: payload.highestAchievementTier,
             updatedAt: payload.updatedAt

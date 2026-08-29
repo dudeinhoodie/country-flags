@@ -32,6 +32,10 @@ import {
   selectionReasonFor,
 } from "./session-selection";
 import {
+  remainingDailyAllowance,
+  reviewedTodayCount,
+} from "../progress/daily-review-limit";
+import {
   buildSessionSummary,
   effectiveCompletedAt,
   effectiveStartedAt,
@@ -218,11 +222,34 @@ export class StudySessionsService {
           ...membership,
           state: membership.learningCard.userStates[0] ?? null,
         }));
+        const settings = await transaction.userSettings.findUnique({
+          where: { userId },
+          select: { timezone: true },
+        });
         // DUE_ONLY narrows the pool before ranking: the session holds what
-        // the schedule owes and nothing else, however few that is.
+        // the schedule owes and nothing else, however few that is — and no
+        // more than the day still allows. Without the ceiling here the cap
+        // would be a label on a screen, and three sittings of twenty would
+        // walk straight past fifty.
         const pool =
           request.composition === "DUE_ONLY"
-            ? candidates.filter((candidate) => isDue(candidate, now))
+            ? candidates
+                .filter((candidate) => isDue(candidate, now))
+                .sort(
+                  (left, right) =>
+                    (left.state?.dueAt.getTime() ?? 0) -
+                    (right.state?.dueAt.getTime() ?? 0),
+                )
+                .slice(
+                  0,
+                  remainingDailyAllowance(
+                    await reviewedTodayCount(
+                      transaction,
+                      userId,
+                      settings?.timezone ?? "UTC",
+                    ),
+                  ),
+                )
             : candidates;
         const ranked = selectSessionCandidates(
           pool,
