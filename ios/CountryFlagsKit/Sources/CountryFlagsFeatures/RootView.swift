@@ -39,19 +39,6 @@ public struct RootView: View {
     /// already drained by the time the home screen is looking.
     @State private var isSettlingRun = false
 
-    /// Whether the launch's own run is still on its way back.
-    ///
-    /// The shell opens as soon as the counts have been read from the store,
-    /// which is what makes a warm launch instant — but those are the numbers
-    /// this device was last told, and the run that refreshes them lands after.
-    /// So the first thing shown was the previous word, replaced a moment
-    /// later: the same flash as leaving a sitting, at the other end of the
-    /// app.
-    ///
-    /// Asked of the sync rather than timed around `start()`: that call
-    /// returns at once the second time, and both of the launch's screens make
-    /// it, so a flag cleared after it was cleared before anything happened.
-    private var isSettlingAtLaunch: Bool { !sync.hasSettledFirstRun }
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -170,7 +157,8 @@ public struct RootView: View {
         LaunchWaitScreen.Reason.waiting(
             hasCatalog: content.hasSomethingToShow,
             isGuest: progress.isGuest,
-            origin: progress.origin
+            origin: progress.origin,
+            hasCheckedNumbers: sync.hasSettledFirstRun
         )
     }
 
@@ -220,7 +208,7 @@ public struct RootView: View {
                     sync: sync,
                     assets: assets,
                     progress: progress,
-                    isSettling: isSettlingRun || isSettlingAtLaunch,
+                    isSettling: isSettlingRun,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the

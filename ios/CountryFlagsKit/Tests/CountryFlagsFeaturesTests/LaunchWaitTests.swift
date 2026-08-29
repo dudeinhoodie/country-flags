@@ -16,7 +16,8 @@ final class LaunchWaitTests: XCTestCase {
             LaunchWaitScreen.Reason.waiting(
                 hasCatalog: false,
                 isGuest: nil,
-                origin: .awaitingBackend
+                origin: .awaitingBackend,
+                hasCheckedNumbers: true
             ),
             .catalog
         )
@@ -30,7 +31,8 @@ final class LaunchWaitTests: XCTestCase {
             LaunchWaitScreen.Reason.waiting(
                 hasCatalog: false,
                 isGuest: true,
-                origin: .awaitingBackend
+                origin: .awaitingBackend,
+                hasCheckedNumbers: true
             ),
             .catalog
         )
@@ -38,7 +40,8 @@ final class LaunchWaitTests: XCTestCase {
             LaunchWaitScreen.Reason.waiting(
                 hasCatalog: true,
                 isGuest: true,
-                origin: .device
+                origin: .device,
+                hasCheckedNumbers: true
             ),
             "a guest's numbers are local and complete, so nothing is waited for"
         )
@@ -49,7 +52,8 @@ final class LaunchWaitTests: XCTestCase {
             LaunchWaitScreen.Reason.waiting(
                 hasCatalog: true,
                 isGuest: false,
-                origin: .awaitingBackend
+                origin: .awaitingBackend,
+                hasCheckedNumbers: true
             ),
             .account
         )
@@ -64,7 +68,40 @@ final class LaunchWaitTests: XCTestCase {
             LaunchWaitScreen.Reason.waiting(
                 hasCatalog: true,
                 isGuest: nil,
-                origin: .awaitingBackend
+                origin: .awaitingBackend,
+                hasCheckedNumbers: true
+            ),
+            .catalog
+        )
+    }
+
+/// Reading the stored counts is not the same as knowing them.
+    ///
+    /// The app opened as soon as the store had been read, which is the word
+    /// it was last told — so the first thing a learner saw was the deck they
+    /// had, then a spinner, then the numbers they actually have. The wait
+    /// holds until the launch's own run has come back.
+    func testTheWaitHoldsUntilTheNumbersHaveBeenChecked() {
+        XCTAssertEqual(
+            LaunchWaitScreen.Reason.waiting(
+                hasCatalog: true,
+                isGuest: false,
+                origin: .backend,
+                hasCheckedNumbers: false
+            ),
+            .account
+        )
+    }
+
+    /// A guest waits under the wording that claims no account, here as
+    /// everywhere else.
+    func testAGuestWaitingOnTheRunIsStillNotToldAboutAnAccount() {
+        XCTAssertEqual(
+            LaunchWaitScreen.Reason.waiting(
+                hasCatalog: true,
+                isGuest: true,
+                origin: .device,
+                hasCheckedNumbers: false
             ),
             .catalog
         )
@@ -75,7 +112,8 @@ final class LaunchWaitTests: XCTestCase {
             LaunchWaitScreen.Reason.waiting(
                 hasCatalog: true,
                 isGuest: false,
-                origin: .backend
+                origin: .backend,
+                hasCheckedNumbers: true
             )
         )
     }

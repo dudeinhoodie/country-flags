@@ -32,20 +32,32 @@ struct LaunchWaitScreen: View {
         ///
         /// A free function of the state rather than a property of the view,
         /// so the rule can be checked without a screen.
+        /// - Parameter hasCheckedNumbers: whether the launch's own run has
+        ///   come back. Reading the stored counts is not the same as knowing
+        ///   them: the app used to open on the word it was last told and
+        ///   correct it a moment later, so the first thing a learner saw was
+        ///   a number changing. The wait holds until the numbers are the ones
+        ///   they will keep looking at.
         static func waiting(
             hasCatalog: Bool,
             isGuest: Bool?,
-            origin: ProgressOrigin
+            origin: ProgressOrigin,
+            hasCheckedNumbers: Bool
         ) -> Self? {
             // The catalogue first: with nothing to draw there is no screen to
             // put numbers on, and this is the only wait a first launch shows.
             guard hasCatalog else { return .catalog }
-            guard origin == .awaitingBackend else { return nil }
             // Only an account waits for numbers. Until the store has resolved
             // whose they are the wait continues — letting the app in a frame
             // early is what #247 fixed — but under the wording that does not
             // claim an account the learner may not have.
-            return isGuest == false ? .account : .catalog
+            guard origin != .awaitingBackend else {
+                return isGuest == false ? .account : .catalog
+            }
+            guard hasCheckedNumbers else {
+                return isGuest == false ? .account : .catalog
+            }
+            return nil
         }
     }
 
