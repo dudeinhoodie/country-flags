@@ -506,12 +506,22 @@ public struct HomeView: View {
         var fresh: [UUID: [LearningCardRecord]] = [:]
         for deck in progress.decks where deck.dueCards > 0 {
             let cards = await store.cards(inDeck: deck.id)
-            // Lazy, so the scan stops at the third match instead of testing
-            // the whole deck for three flags.
+            // The three the session will actually open with, which means the
+            // oldest debt first — the same order the queue is filled in.
+            // Taking the first three in deck order gave three due cards that
+            // were simply alphabetically early, so the fan showed flags the
+            // session was not about to ask for and read as a random handful.
+            //
+            // The whole deck is scanned rather than stopped at the third
+            // match: which three are oldest is not known until the due ones
+            // have been found.
             fresh[deck.id] = Array(
-                cards.lazy.filter { card in
+                cards.filter { card in
                     guard let state = states[card.id] else { return false }
                     return state.state != "NEW" && state.dueAt <= now
+                }
+                .sorted { left, right in
+                    (states[left.id]?.dueAt ?? now) < (states[right.id]?.dueAt ?? now)
                 }
                 .prefix(3)
             )

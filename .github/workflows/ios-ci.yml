@@ -34,7 +34,15 @@ jobs:
     # macos-26 carries Xcode 26, whose SDK the app now genuinely needs:
     # the liquid-glass APIs the UI is built on do not exist in Xcode 16.
     runs-on: macos-26
-    timeout-minutes: 45
+    # Headroom, not a target. The job builds the app three times over — Mock
+    # with the UI tests, Dev, and the unsigned archive — on top of the package
+    # suite, and that costs 37 to 41 minutes on a good runner. At 45 a slow
+    # one tips over and a branch fails for having been unlucky, which is worse
+    # than useless: it teaches everyone to rerun red without reading it.
+    #
+    # The cost is real and worth attacking at the source — three full builds
+    # is the thing to remove, not the ceiling to keep raising.
+    timeout-minutes: 70
 
     env:
       PROJECT: CountryFlags.xcodeproj
