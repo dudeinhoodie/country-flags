@@ -356,8 +356,6 @@ public enum L10n {
     public static var studyMapOpen: String { localized("study.map.open") }
     public static var studyNotSaved: String { localized("study.not_saved") }
     public static var studyNoCards: String { localized("study.no_cards") }
-    /// A due-only session with an empty queue: good news, said plainly.
-    public static var studyNothingDue: String { localized("study.nothing_due") }
     public static var studyStoreUnavailable: String { localized("study.store_unavailable") }
     public static var studyResultTitle: String { localized("study.result.title") }
     public static var studyResultDone: String { localized("study.result.done") }

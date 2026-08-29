@@ -3381,23 +3381,6 @@
         }
       }
     },
-    "study.nothing_due": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing to review yet. The cards will let you know."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Повторять пока нечего. Карточки сами напомнят о себе."
-          }
-        }
-      }
-    },
     "study.objective.score": {
       "extractionState": "manual",
       "localizations": {
