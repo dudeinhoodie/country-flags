@@ -28,6 +28,31 @@ public struct RootView: View {
     /// one, and the picture would never arrive.
     @State private var accountToolbar: AccountStore?
 
+    /// Whether a run is in flight that is about to change the numbers on
+    /// screen.
+    ///
+    /// Leaving a session pops to the home screen first and synchronises
+    /// after, so the counts there are the backend's previous word for as long
+    /// as that takes — which is how a screen showed 86 and then 84 two
+    /// seconds later. The window is known exactly here, where the session
+    /// closes, rather than guessed at from a pending count that has usually
+    /// already drained by the time the home screen is looking.
+    @State private var isSettlingRun = false
+
+    /// Whether the launch's own run is still on its way back.
+    ///
+    /// The shell opens as soon as the counts have been read from the store,
+    /// which is what makes a warm launch instant — but those are the numbers
+    /// this device was last told, and the run that refreshes them lands after.
+    /// So the first thing shown was the previous word, replaced a moment
+    /// later: the same flash as leaving a sitting, at the other end of the
+    /// app.
+    ///
+    /// Asked of the sync rather than timed around `start()`: that call
+    /// returns at once the second time, and both of the launch's screens make
+    /// it, so a flag cleared after it was cleared before anything happened.
+    private var isSettlingAtLaunch: Bool { !sync.hasSettledFirstRun }
+
     @Environment(\.scenePhase) private var scenePhase
 
     /// How old the catalogue may be before coming back to the app refreshes
@@ -195,6 +220,7 @@ public struct RootView: View {
                     sync: sync,
                     assets: assets,
                     progress: progress,
+                    isSettling: isSettlingRun || isSettlingAtLaunch,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
@@ -290,14 +316,38 @@ public struct RootView: View {
         // store is read once and the run starts once.
         .task { await progress.reload() }
         .task { await sync.start() }
+        .onChange(of: isStudyOpen) { wasOpen, isOpen in
+            guard wasOpen, !isOpen else { return }
+            Task {
+                // Opening a sitting and leaving it without answering changes
+                // nothing the backend has not got, so nothing is asked for
+                // and no spinner is spent on it. The counts are still re-read
+                // from the store: a guest's work never leaves the device, so
+                // for them this local pass is the whole of it.
+                guard await sync.hasPendingWork() else {
+                    await progress.reload()
+                    return
+                }
+                isSettlingRun = true
+                await sync.synchronize(trigger: .sessionCompleted)
+                isSettlingRun = false
+            }
+        }
         .onChange(of: scenePhase) { _, phase in
             // The one place the app reacts to coming back. Screens used to
             // watch this too, so a return ran the same reads twice and the
             // two overlapping passes raced each other.
             guard phase == .active else { return }
             Task {
+                // Coming back is the same kind of window as leaving a sitting:
+                // what is on screen is the word from before the app went away,
+                // and it is about to be replaced. It was left uncovered, so
+                // the numbers changed under the reader with nothing to say
+                // they were being checked.
+                isSettlingRun = true
                 await content.refreshIfStale(olderThan: Self.contentStaleAfter)
                 await sync.synchronize(trigger: .foreground)
+                isSettlingRun = false
             }
         }
     }
@@ -330,10 +380,7 @@ public struct RootView: View {
                     runner: makeStudyRunner(),
                     store: content,
                     assets: assets,
-                    onFinish: {
-                        router.pop()
-                        Task { await sync.synchronize(trigger: .sessionCompleted) }
-                    }
+                    onFinish: { router.pop() }
                 )
             case .multipleChoice:
                 ObjectiveSessionView(
@@ -342,10 +389,7 @@ public struct RootView: View {
                     runner: makeObjectiveRunner(),
                     store: content,
                     assets: assets,
-                    onFinish: {
-                        router.pop()
-                        Task { await sync.synchronize(trigger: .sessionCompleted) }
-                    }
+                    onFinish: { router.pop() }
                 )
             }
         case .progress:

@@ -30,6 +30,13 @@ public struct HomeView: View {
     /// rather than owned: the same numbers appear on four screens, and a
     /// screen holding its own copy is how they came to disagree.
     private let progress: ProgressStore?
+    /// Whether the numbers on screen are known to be the previous word —
+    /// after a sitting, or before the launch's own run has come back.
+    ///
+    /// The shell owns both windows, because that is where a session closes
+    /// and where the launch run is started; a screen that tried to infer them
+    /// was looking after they had already closed.
+    private let isSettling: Bool
     /// The flags shown fanned in the today pane and beside each queue row,
     /// keyed by deck. Read alongside the counts and for the same reason: the
     /// rows should show the cards they are talking about.
@@ -41,6 +48,7 @@ public struct HomeView: View {
         sync: SyncCenter,
         assets: (any AssetLoading)? = nil,
         progress: ProgressStore? = nil,
+        isSettling: Bool = false,
         makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
@@ -53,6 +61,7 @@ public struct HomeView: View {
         self.sync = sync
         self.assets = assets
         self.progress = progress
+        self.isSettling = isSettling
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
@@ -64,7 +73,12 @@ public struct HomeView: View {
         content
             .navigationTitle(L10n.homeTitle)
             .refreshable {
-                await store.refresh()
+                // The gesture waits for the numbers, which is what this screen
+                // shows. The catalogue catches up alongside it and lands when
+                // it lands: a newly published release is applied deck by deck,
+                // and holding the spinner for that turned a pull into a wait
+                // as long as a whole catalogue.
+                store.catchUp()
                 // Pull-to-refresh goes through the same boundary as every other
                 // trigger, so two of them cannot race into a double submission.
                 await sync.synchronize(trigger: .pullToRefresh)
@@ -110,20 +124,14 @@ public struct HomeView: View {
             // to be content, and not the local projection's figures either:
             // the owner's call is that a number on this screen is the
             // backend's number or nothing.
-            if isAwaitingProgress {
+            if isAwaitingProgress || isSettling {
                 homeLoader
             } else {
                 // Dimmed while the numbers are being checked: the figure stays
                 // readable and stops claiming to be settled.
                 //
-                // And not tappable while it is dimmed. Leaving the session
-                // afterwards, the counter here is the backend's previous word
-                // until the run that carries the answers home lands — so a tap
-                // in that window starts a session against a queue that is
-                // about to change, and the learner who has just finished the
-                // last card gets a session rather than the "nothing due"
-                // screen they earned. The dimming already says the number is
-                // being checked; this makes the screen mean it.
+                // And not tappable while it is dimmed, so a queue that is
+                // about to change cannot be walked into.
                 VStack(spacing: DesignTokens.Spacing.large) {
                     todayPane(sections)
                     queuePane(sections)
@@ -176,6 +184,17 @@ public struct HomeView: View {
         if sync.status.phase == .syncing { return true }
         return progress?.isRefreshing ?? false
     }
+
+    /// Whether what is on screen is known to be behind rather than merely
+    /// being checked.
+    ///
+    /// Leaving a sitting, the answers are still on their way up, so the
+    /// counts under them are the backend's previous word — not a figure to
+    /// dim and keep, but one that is about to change. The screen spins in its
+    /// place rather than showing a number it already knows is stale.
+    ///
+    /// A routine check with nothing waiting keeps its numbers and dims them:
+    /// a figure being verified says more than a spinner.
 
     // MARK: - Today
 

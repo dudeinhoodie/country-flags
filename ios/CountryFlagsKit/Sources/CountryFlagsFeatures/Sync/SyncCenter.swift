@@ -27,6 +27,13 @@ public protocol CanonicalDataObserving: AnyObject {
 @Observable
 public final class SyncCenter {
     public private(set) var status = SyncStatus()
+    /// Whether the run the launch starts has come back.
+    ///
+    /// The screens read this rather than watching `start()`, which returns at
+    /// once on the second call — the launch has two possible first screens
+    /// and both ask. A screen that timed the launch by that call was timing
+    /// nothing and never waited.
+    public private(set) var hasSettledFirstRun = false
 
     private let coordinator: any SyncCoordinating
     private let scopes: any AccountScopeResolving
@@ -77,12 +84,32 @@ public final class SyncCenter {
     /// an account's numbers and the app itself — and moving between them
     /// must not recover the same interrupted work twice.
     public func start() async {
-        guard !hasStarted else { return }
+        guard !hasStarted else {
+            // The waiting screen begins the run and is then taken away, which
+            // cancels the task that was awaiting it. The shell asks again so
+            // an interrupted launch still finishes; the coordinator joins a
+            // run already going rather than starting a second.
+            if !hasSettledFirstRun { await synchronize(trigger: .launch) }
+            return
+        }
         hasStarted = true
         let scope = await resolvedScope()
         await coordinator.recoverInterruptedWork(for: scope)
         status = await coordinator.status(for: scope)
         await synchronize(trigger: .launch)
+    }
+
+    /// Whether anything is waiting to be sent.
+    ///
+    /// Asked before a run is started on the strength of something having
+    /// happened: opening a deck and closing it without answering leaves
+    /// nothing to carry, and a request made for that would spend a spinner
+    /// on a screen that is already right.
+    ///
+    /// Read from the queue rather than from the last run's status, which is
+    /// as old as that run.
+    public func hasPendingWork() async -> Bool {
+        await coordinator.status(for: resolvedScope()).pendingCount > 0
     }
 
     public func synchronize(trigger: SyncTrigger) async {
@@ -93,6 +120,10 @@ public final class SyncCenter {
         // repositories as the last step of a run, so reading earlier is
         // reading the world the run was about to replace.
         await refreshObservers(succeeded: status.lastFailure == nil)
+        // Settled whatever the outcome: a run that failed has still answered,
+        // and a screen waiting for one must not wait for a network that is
+        // not there.
+        hasSettledFirstRun = true
         await reportCompletion(startedAt: startedAt)
     }
 
