@@ -43,6 +43,14 @@ public struct HomeView: View {
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
 
+    /// The placeholder's bars stand in for text, so they grow with it. Drawn
+    /// at fixed points they matched the hero at one type size and at no other,
+    /// which is the layout breaking at accessibility sizes that the design
+    /// language counts as unfinished rather than as a later bug.
+    @ScaledMetric(relativeTo: .footnote) private var labelBarHeight: CGFloat = 12
+    @ScaledMetric(relativeTo: .largeTitle) private var figureBarHeight: CGFloat = 40
+    @ScaledMetric(relativeTo: .footnote) private var captionBarHeight: CGFloat = 13
+
     public init(
         store: ContentStore,
         sync: SyncCenter,
@@ -119,44 +127,95 @@ public struct HomeView: View {
                 ContentStatusBanner(isStale: isStale, failure: failure)
             }
 
-            // Until the backend's numbers arrive the pane says it is loading,
-            // in plain words with a spinner — not skeleton shapes pretending
-            // to be content, and not the local projection's figures either:
-            // the owner's call is that a number on this screen is the
-            // backend's number or nothing.
-            if isAwaitingProgress || isSettling {
-                homeLoader
-            } else {
-                // Dimmed while the numbers are being checked: the figure stays
-                // readable and stops claiming to be settled.
-                //
-                // And not tappable while it is dimmed, so a queue that is
-                // about to change cannot be walked into.
-                VStack(spacing: DesignTokens.Spacing.large) {
-                    todayPane(sections)
-                    queuePane(sections)
+            // Until the backend's numbers arrive the pane shows its own shape
+            // and nothing else.
+            //
+            // Not the local projection's figures: a number on this screen is
+            // the backend's number or none at all (ADR-016). That half has
+            // not moved.
+            //
+            // No longer a spinner, though. The skeleton was turned down here
+            // once as shapes pretending to be content; put side by side, an
+            // empty box turning on the spot pretends harder — it says a wait
+            // is happening and nothing about what is coming. The placeholder
+            // promises only what it can keep: bars where the label, the
+            // figure, the flags and the action are about to be.
+            Group {
+                if isAwaitingProgress || isSettling {
+                    homeLoader
+                        .transition(.opacity)
+                } else {
+                    // Dimmed while the numbers are being checked: the figure
+                    // stays readable and stops claiming to be settled.
+                    //
+                    // And not tappable while it is dimmed, so a queue that is
+                    // about to change cannot be walked into.
+                    VStack(spacing: DesignTokens.Spacing.large) {
+                        todayPane(sections)
+                        queuePane(sections)
+                    }
+                    .opacity(isVerifying ? 0.55 : 1)
+                    .disabled(isVerifying)
+                    .animation(.easeInOut(duration: 0.2), value: isVerifying)
+                    .transition(.opacity)
                 }
-                .opacity(isVerifying ? 0.55 : 1)
-                .disabled(isVerifying)
-                .animation(.easeInOut(duration: 0.2), value: isVerifying)
             }
+            // The shape does not blink out when the numbers land; they arrive
+            // into it. Motion reports the state change and nothing else.
+            .animation(
+                .easeInOut(duration: 0.2),
+                value: isAwaitingProgress || isSettling
+            )
         }
     }
 
-    /// One spinner in the hero's place. The height is the hero's, so the
-    /// queue below does not jump when the numbers land.
+    /// The hero's own shape, before the app knows which hero it is.
+    ///
+    /// A launch has not resolved yet whether the day owes anything, so the
+    /// pane cannot say whether it is about to be the queue, the day's tally
+    /// or the deck it offers instead. What all three share is this: a label,
+    /// one large figure with the flags it counts beside it, a line of detail
+    /// under them and a single action. The placeholder is built from those
+    /// pieces at those sizes, so the numbers arrive into the shape rather
+    /// than replacing it — which is the whole of why it is not a spinner.
+    ///
+    /// The height is not pinned to a constant any more. It used to be, and
+    /// the constant did not match what the hero actually settles at; built
+    /// out of the same parts, the placeholder simply is that height.
     private var homeLoader: some View {
-        VStack(spacing: DesignTokens.Spacing.medium) {
-            ProgressView()
-                .controlSize(.large)
-                .tint(.white)
-            Text(L10n.homeLoading)
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.white.opacity(0.6))
+        GlassCard(padding: DesignTokens.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                    SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
+                        .frame(width: 132)
+
+                    HStack(alignment: .center, spacing: DesignTokens.Spacing.medium) {
+                        SkeletonBlock(height: figureBarHeight, radius: DesignTokens.Radius.medium)
+                            .frame(width: 88)
+
+                        Spacer(minLength: 0)
+
+                        // The fan's own frame, so the flags land where the
+                        // placeholder said they would.
+                        SkeletonBlock(height: 74, radius: DesignTokens.Radius.medium)
+                            .frame(width: 120)
+                    }
+
+                    SkeletonBlock(height: captionBarHeight, radius: DesignTokens.Radius.small)
+                        .frame(width: 196)
+                }
+
+                // The action is a capsule, so its placeholder is one too.
+                SkeletonBlock(
+                    height: DesignTokens.Layout.actionHeight,
+                    radius: DesignTokens.Layout.actionHeight / 2
+                )
+            }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: DesignTokens.Layout.heroPlaceholderHeight)
-        .accessibilityElement(children: .combine)
+        // One element saying what is happening: read as children, VoiceOver
+        // announces a row of empty shapes.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L10n.homeLoading)
         .accessibilityIdentifier(AccessibilityIdentifier.homeLoading)
     }
 
