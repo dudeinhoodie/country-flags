@@ -36,6 +36,16 @@ public final class AccountLifecycleStore {
     public private(set) var deletionPhase: DeletionPhase = .idle
     public private(set) var isLoaded = false
 
+    /// Whether the consequences have been put to the learner, whatever is on
+    /// screen now.
+    ///
+    /// Kept apart from `isConfirmingDeletion` for the reason described on
+    /// `ClearProgressStore.isArmed`: SwiftUI writes the dialog's presentation
+    /// binding back as the destructive button dismisses it, so the flag that
+    /// says "the dialog is up" is already false by the time the accepted
+    /// action runs, and a deletion gated on it never started.
+    private var isArmedForDeletion = false
+
     /// Called after the account is signed out by a deletion, so the
     /// composition can send the interface back to its guest self.
     public var onSignedOut: (@Sendable () async -> Void)?
@@ -77,6 +87,7 @@ public final class AccountLifecycleStore {
 
     public func requestDeletion() {
         deletionPhase = .idle
+        isArmedForDeletion = true
         isConfirmingDeletion = true
     }
 
@@ -86,7 +97,8 @@ public final class AccountLifecycleStore {
 
     /// The consequences were accepted; the deletion runs now, server first.
     public func confirmDeletion() async {
-        guard isConfirmingDeletion else { return }
+        guard isArmedForDeletion else { return }
+        isArmedForDeletion = false
         isConfirmingDeletion = false
         deletionPhase = .working
         let deletion: AccountDeletionRecord

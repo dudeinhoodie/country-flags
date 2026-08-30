@@ -73,6 +73,32 @@ final class AccountLifecycleStoreTests: XCTestCase {
         XCTAssertEqual(attempts, 0)
     }
 
+    /// The dismissal that comes with an accepted confirmation must not cancel
+    /// it. Tapping the destructive button takes the dialog down, and SwiftUI
+    /// writes the presentation binding back before the button's task runs —
+    /// so a gate that read "the dialog is gone" as "they changed their mind"
+    /// made the button do nothing at all.
+    func testTheDismissalThatCarriesTheConfirmationStillDeletes() async throws {
+        let deleting = StubDeleting(
+            result: .success(
+                AccountDeletionRecord(
+                    requestedAt: now,
+                    expectedCompletionAt: now.addingTimeInterval(604_800)
+                )
+            )
+        )
+        let store = makeStore(deleting: deleting)
+        await store.load()
+        store.requestDeletion()
+
+        store.cancelDeletion()
+        await store.confirmDeletion()
+
+        let attempts = await deleting.attempts()
+        XCTAssertEqual(attempts, 1)
+        XCTAssertNotNil(store.pendingDeletion)
+    }
+
     func testARefusedDeletionLeavesTheAccountAndTheDeviceAlone() async throws {
         let deleting = StubDeleting(result: .failure(Failure.refused))
         let cleaner = RecordingCleaner()

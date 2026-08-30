@@ -22,6 +22,7 @@ import {
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
   aggregateProgress,
+  dailyQueue,
   type MasteryThreshold,
   masteryTierRank,
   type ProgressAggregate,
@@ -39,6 +40,12 @@ interface ProgressSnapshot {
   cards: ProgressCardMetrics[];
   decks: ScopeProgress[];
   regions: ScopeProgress[];
+  /**
+   * The cards the learner's day holds, chosen once for the account. Every
+   * scope above counts its due cards against this, and so does the account
+   * itself, so the rows under a queue add up to the number over them.
+   */
+  dueToday: ReadonlySet<string>;
 }
 
 export interface ProgressRebuildResult {
@@ -243,12 +250,27 @@ export class ProgressService {
       const definitions = activeDefinitions.filter(
         ({ ruleVersion }) => ruleVersion === rule.ruleVersion,
       );
+      // The day's ceiling is read before the snapshot, because the snapshot
+      // is built against it: the account chooses today's cards once and every
+      // deck and region counts its share of that one queue.
+      const settings = await transaction.userSettings.findUnique({
+        where: { userId },
+        select: { timezone: true },
+      });
+      const allowance = remainingDailyAllowance(
+        await reviewedTodayCount(
+          transaction,
+          userId,
+          settings?.timezone ?? "UTC",
+        ),
+      );
       const snapshot = await this.loadSnapshot(
         transaction,
         userId,
         now,
         rule.thresholds,
         rule.ruleVersion,
+        allowance,
       );
       const publishedDeckIds = snapshot.decks.map(({ scopeId }) => scopeId);
       await transaction.userDeckMastery.deleteMany({
@@ -350,27 +372,15 @@ export class ProgressService {
           now,
         ),
       );
-      // The day's ceiling applies to the account, not to each deck: the
-      // decks overlap, so fifty per deck would be no ceiling at all. A deck's
-      // own progress keeps reporting the whole backlog, which is what "this
-      // deck owes" means; the dose belongs to the day.
-      const settings = await transaction.userSettings.findUnique({
-        where: { userId },
-        select: { timezone: true },
-      });
-      const allowance = remainingDailyAllowance(
-        await reviewedTodayCount(
-          transaction,
-          userId,
-          settings?.timezone ?? "UTC",
-        ),
-      );
+      // The same queue the decks and regions were counted against: the
+      // ceiling belongs to the learner's day, and every figure the app draws
+      // from this rebuild is a share of one day rather than of one backlog.
       const accountAggregate = aggregateProgress(
         snapshot.cards,
         now,
         rule.thresholds,
         rule.ruleVersion,
-        allowance,
+        snapshot.dueToday,
       );
 
       return {
@@ -496,6 +506,7 @@ export class ProgressService {
     now: Date,
     thresholds: readonly MasteryThreshold[],
     ruleVersion: number,
+    allowance: number,
   ): Promise<ProgressSnapshot> {
     const cards = await transaction.learningCard.findMany({
       where: { status: CardStatus.ACTIVE },
@@ -616,6 +627,12 @@ export class ProgressService {
       cardsByEntity.set(card.subjectEntityId, cards);
     }
 
+    // Today's cards, chosen once across the whole account. A deck asked to cut
+    // its own backlog to the day's ceiling would report a share of a queue
+    // nobody is going to be dealt: the decks overlap, so each of them cutting
+    // separately adds up to several times the day.
+    const dueToday = dailyQueue([...metrics.values()], now, allowance);
+
     const scope = (
       scopeType: ScopeProgress["scopeType"],
       scopeId: string,
@@ -630,10 +647,12 @@ export class ProgressService {
         now,
         thresholds,
         ruleVersion,
+        dueToday,
       ),
     });
 
     return {
+      dueToday,
       cards: [...metrics.values()],
       decks: decks.map((deck) =>
         scope(

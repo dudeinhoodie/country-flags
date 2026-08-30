@@ -43,6 +43,13 @@ public struct HomeView: View {
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
 
+    /// The placeholder's bars stand in for text, so they grow with it. Drawn
+    /// at fixed points they matched the hero at one type size and at no other,
+    /// which is the layout breaking at accessibility sizes that the design
+    /// language counts as unfinished rather than as a later bug.
+    @ScaledMetric(relativeTo: .footnote) private var labelBarHeight: CGFloat = 12
+    @ScaledMetric(relativeTo: .largeTitle) private var figureBarHeight: CGFloat = 40
+
     public init(
         store: ContentStore,
         sync: SyncCenter,
@@ -89,7 +96,11 @@ public struct HomeView: View {
             // just received. Everything else — the counts, the queue, the
             // unfinished session — is refreshed centrally after a sync run,
             // and this screen simply observes the store it is refreshed into.
-            .task(id: progress?.decks) { await reloadPreviews() }
+            // Keyed on the catalogue as well as on the counts: a launch
+            // resolves them in either order, and the first wave needs the
+            // flags the moment the catalogue lands rather than whenever the
+            // counts happen to follow.
+            .task(id: previewInputs) { await reloadPreviews() }
     }
 
     @ViewBuilder
@@ -119,45 +130,174 @@ public struct HomeView: View {
                 ContentStatusBanner(isStale: isStale, failure: failure)
             }
 
-            // Until the backend's numbers arrive the pane says it is loading,
-            // in plain words with a spinner — not skeleton shapes pretending
-            // to be content, and not the local projection's figures either:
-            // the owner's call is that a number on this screen is the
-            // backend's number or nothing.
-            if isAwaitingProgress || isSettling {
-                homeLoader
-            } else {
-                // Dimmed while the numbers are being checked: the figure stays
-                // readable and stops claiming to be settled.
-                //
-                // And not tappable while it is dimmed, so a queue that is
-                // about to change cannot be walked into.
-                VStack(spacing: DesignTokens.Spacing.large) {
-                    todayPane(sections)
-                    queuePane(sections)
+            // The screen fills in the order its data arrives, which is two
+            // waves and not one: the catalogue is already on the device — the
+            // decks, the cards and every flag — and only the counts are still
+            // coming. So the wait shows what is known and marks what is not,
+            // rather than replacing the screen with a single blank shape.
+            //
+            // Not the local projection's figures, though: a number here is
+            // the backend's number or none at all (ADR-016). That half has
+            // not moved, and it is why the figure is the one thing the first
+            // wave cannot draw.
+            //
+            // And no longer a spinner. The skeleton was turned down here once
+            // as shapes pretending to be content; put side by side, an empty
+            // box turning on the spot pretends harder — it says a wait is
+            // happening and nothing about what is coming.
+            Group {
+                if isAwaitingProgress || isSettling {
+                    VStack(spacing: DesignTokens.Spacing.large) {
+                        homeLoader(sections)
+                        queueLoader
+                    }
+                    .transition(.opacity)
+                } else {
+                    // Dimmed while the numbers are being checked: the figure
+                    // stays readable and stops claiming to be settled.
+                    //
+                    // And not tappable while it is dimmed, so a queue that is
+                    // about to change cannot be walked into.
+                    VStack(spacing: DesignTokens.Spacing.large) {
+                        todayPane(sections)
+                        queuePane(sections)
+                    }
+                    .opacity(isVerifying ? 0.55 : 1)
+                    .disabled(isVerifying)
+                    .animation(.easeInOut(duration: 0.2), value: isVerifying)
+                    .transition(.opacity)
                 }
-                .opacity(isVerifying ? 0.55 : 1)
-                .disabled(isVerifying)
-                .animation(.easeInOut(duration: 0.2), value: isVerifying)
+            }
+            // The shape does not blink out when the numbers land; they arrive
+            // into it. Motion reports the state change and nothing else.
+            .animation(
+                .easeInOut(duration: 0.2),
+                value: isAwaitingProgress || isSettling
+            )
+        }
+    }
+
+    /// The hero in its first wave: what the device knows, and a placeholder
+    /// where the backend's answer will go.
+    ///
+    /// The deck's name is real — it comes off the catalogue, which is already
+    /// stored. Everything the counts decide waits: the figure, the action,
+    /// and the fan, which is blank because a pile of flags beside a number
+    /// reads as the cards that number counts.
+    ///
+    /// Which hero this becomes is not known: a launch has not resolved
+    /// whether the day owes anything, so the deck the screen would offer is
+    /// what it names meanwhile. The label changes when the answer arrives,
+    /// and the cross-fade carries it.
+    ///
+    /// The height is not pinned to a constant. It used to be, and the
+    /// constant did not match what the hero settles at; built from the same
+    /// pieces, this is that height.
+    private func homeLoader(_ sections: [CatalogSection]) -> some View {
+        GlassCard(padding: DesignTokens.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                    if let deck = recommended(sections) {
+                        SectionLabel(deck.name)
+                    } else {
+                        // No catalogue to name yet — the label waits too.
+                        SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
+                            .frame(width: 132)
+                            .accessibilityHidden(true)
+                    }
+
+                    HStack(alignment: .center, spacing: DesignTokens.Spacing.medium) {
+                        SkeletonBlock(height: figureBarHeight, radius: DesignTokens.Radius.medium)
+                            .frame(width: 88)
+                            .accessibilityHidden(true)
+
+                        Spacer(minLength: 0)
+
+                        // Blank cards rather than the deck's own flags: the
+                        // fan stands beside the number and reads as the cards
+                        // that number counts, and until the counts land there
+                        // is no queue for it to be about.
+                        SkeletonFanView()
+                    }
+
+                    // The one line of words on the screen, and the only thing
+                    // here VoiceOver has to read.
+                    Text(L10n.homeLoading)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeLoading)
+                }
+
+                // The action is a capsule, so its placeholder is one too.
+                SkeletonBlock(
+                    height: DesignTokens.Layout.actionHeight,
+                    radius: DesignTokens.Layout.actionHeight / 2
+                )
+                .accessibilityHidden(true)
             }
         }
     }
 
-    /// One spinner in the hero's place. The height is the hero's, so the
-    /// queue below does not jump when the numbers land.
-    private var homeLoader: some View {
-        VStack(spacing: DesignTokens.Spacing.medium) {
-            ProgressView()
-                .controlSize(.large)
-                .tint(.white)
-            Text(L10n.homeLoading)
-                .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.white.opacity(0.6))
+    /// The list under the hero, waiting.
+    ///
+    /// Which regions it will hold is the one thing the catalogue cannot say:
+    /// it keeps only the regions that owe something today, and that is the
+    /// answer still coming. So the rows carry no names — a named row that
+    /// disappeared would read as a fault, where an unnamed one that did is
+    /// just a list that came back shorter.
+    ///
+    /// Four of them. The block is the last thing on the screen, so a list of
+    /// any length moves nothing above it; the count is how it looks rather
+    /// than how it lays out.
+    private var queueLoader: some View {
+        GlassCard(padding: DesignTokens.Spacing.small) {
+            VStack(spacing: 0) {
+                ForEach(Array(Self.loadingRowWidths.enumerated()), id: \.offset) { index, width in
+                    if index > 0 {
+                        Divider()
+                            .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
+                    }
+
+                    HStack(spacing: DesignTokens.Spacing.small) {
+                        // One flag rather than the row's whole handful, and no
+                        // continent: the placeholder stands for the row, not
+                        // for its ornaments.
+                        SkeletonBlock(height: 18, radius: 3)
+                            .frame(width: 24)
+
+                        SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
+                            .frame(width: width)
+
+                        Spacer(minLength: DesignTokens.Spacing.small)
+
+                        SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
+                            .frame(width: 22)
+                    }
+                    .padding(.horizontal, DesignTokens.Spacing.small)
+                    .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                }
+            }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: DesignTokens.Layout.heroPlaceholderHeight)
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier(AccessibilityIdentifier.homeLoading)
+        // The block says nothing yet, and the line above it has already said
+        // the screen is loading.
+        .accessibilityHidden(true)
+    }
+
+    /// Varied so the rows read as names rather than as a stack of one bar.
+    private static let loadingRowWidths: [CGFloat] = [96, 74, 86, 68]
+
+    /// What the previews are a function of: the catalogue they are drawn
+    /// from, and the counts that decide which cards to draw.
+    private struct PreviewInputs: Equatable {
+        let hasCatalog: Bool
+        let decks: [DeckProgressRow]
+    }
+
+    private var previewInputs: PreviewInputs {
+        if case .ready = store.catalog {
+            return PreviewInputs(hasCatalog: true, decks: progress?.decks ?? [])
+        }
+        return PreviewInputs(hasCatalog: false, decks: progress?.decks ?? [])
     }
 
     /// Whether the pane has no numbers it is allowed to draw yet.
@@ -495,40 +635,31 @@ public struct HomeView: View {
         }
     }
 
-    /// Reads the flags the pane and the rows show. Due cards first, so the
-    /// fan shows what the number counts; a fresh install fans the deck it is
-    /// offered instead.
+    /// Reads the flags the pane and the rows show: in every place, the cards
+    /// the button beside them is about to deal.
+    ///
+    /// It runs before the counts exist as well, because the first wave draws
+    /// real flags and has only the catalogue to draw them from. With no card
+    /// states to rank by, the deck's own opening cards are what there is —
+    /// which is the honest answer while there is no queue to be about.
     private func reloadPreviews() async {
-        guard let progress, progress.isLoaded else { return }
-        let states = await progress.cardStatesByID()
+        let decks = progress?.decks ?? []
+        let states = progress?.isLoaded == true
+            ? await progress?.cardStatesByID() ?? [:]
+            : [:]
         let now = Date()
 
         var fresh: [UUID: [LearningCardRecord]] = [:]
-        for deck in progress.decks where deck.dueCards > 0 {
-            let cards = await store.cards(inDeck: deck.id)
-            // The three the session will actually open with, which means the
-            // oldest debt first — the same order the queue is filled in.
-            // Taking the first three in deck order gave three due cards that
-            // were simply alphabetically early, so the fan showed flags the
-            // session was not about to ask for and read as a random handful.
-            //
-            // The whole deck is scanned rather than stopped at the third
-            // match: which three are oldest is not known until the due ones
-            // have been found.
-            fresh[deck.id] = Array(
-                cards.filter { card in
-                    guard let state = states[card.id] else { return false }
-                    return state.state != "NEW" && state.dueAt <= now
-                }
-                .sorted { left, right in
-                    (states[left.id]?.dueAt ?? now) < (states[right.id]?.dueAt ?? now)
-                }
-                .prefix(3)
+        for deck in decks where deck.dueCards > 0 {
+            fresh[deck.id] = opening(
+                await store.cards(inDeck: deck.id),
+                states: states,
+                now: now
             )
         }
         previews = fresh
 
-        if let top = progress.decks.filter({ $0.dueCards > 0 })
+        if let top = decks.filter({ $0.dueCards > 0 })
             .max(by: { $0.dueCards < $1.dueCards }),
             let cards = fresh[top.id], !cards.isEmpty
         {
@@ -536,8 +667,52 @@ public struct HomeView: View {
         } else if case .ready(let sections, _, _) = store.catalog,
             let deck = recommended(sections)
         {
-            fanCards = Array(await store.cards(inDeck: deck.id).prefix(3))
+            fanCards = opening(
+                await store.cards(inDeck: deck.id),
+                states: states,
+                now: now
+            )
         }
+    }
+
+    /// The three cards a session started here would open with.
+    ///
+    /// The bands are the session's own — what the day owes first, then what
+    /// has never been seen, then the rest — because the pile stands next to
+    /// the button that deals them, and `LocalCardSelection` ranks the real
+    /// session the same way. Inside a band the oldest debt leads and the name
+    /// breaks ties, so the fan is stable between reloads instead of
+    /// reshuffling under the learner.
+    ///
+    /// Both callers go through here. The fan used to fall back to the first
+    /// three cards in store order, which is alphabetical — so whenever the
+    /// device had no card states to rank by, the app fanned Antarctica and its
+    /// alphabetical neighbours next to a queue they were no part of.
+    private func opening(
+        _ cards: [LearningCardRecord],
+        states: [UUID: CardStateRecord],
+        now: Date
+    ) -> [LearningCardRecord] {
+        func band(_ card: LearningCardRecord) -> Int {
+            guard let state = states[card.id], state.state != "NEW" else { return 1 }
+            return LocalProgressProjection.isOwed(state, at: now) ? 0 : 2
+        }
+        return Array(
+            cards
+                // A retired card is never dealt into a new session, so it has
+                // no business advertising one.
+                .filter { !$0.isRetired }
+                .sorted { left, right in
+                    let leftBand = band(left)
+                    let rightBand = band(right)
+                    if leftBand != rightBand { return leftBand < rightBand }
+                    let leftDue = states[left.id]?.dueAt ?? .distantFuture
+                    let rightDue = states[right.id]?.dueAt ?? .distantFuture
+                    if leftDue != rightDue { return leftDue < rightDue }
+                    return left.displayName < right.displayName
+                }
+                .prefix(3)
+        )
     }
 }
 
@@ -577,17 +752,51 @@ struct FlagFanView: View {
                     .offset(x: Self.poses[index].x, y: Self.poses[index].y)
                 }
             }
-            .frame(width: 120, height: 74)
+            .frame(width: Self.frame.width, height: Self.frame.height)
             .accessibilityHidden(true)
         }
     }
 
-    private static let size = CGSize(width: 76, height: 57)
-    private static let poses: [(rotation: Double, x: CGFloat, y: CGFloat)] = [
+    /// Shared with the fan's placeholder, so the cards land exactly where the
+    /// waiting shape said they would.
+    static let size = CGSize(width: 76, height: 57)
+    static let frame = CGSize(width: 120, height: 74)
+    static let poses: [(rotation: Double, x: CGFloat, y: CGFloat)] = [
         (-2, 0, 0),
         (-10, -20, 3),
         (8, 20, 5),
     ]
+}
+
+/// The pile, before there is a queue for it to be about.
+///
+/// It used to show the deck's own first three flags while the counts were on
+/// their way, which is a promise the screen could not keep: the fan sits
+/// beside the number and reads as "these are the ones", and until the counts
+/// land nothing knows which three those are. Blank cards say the same thing
+/// the number's placeholder says — this is coming — and say nothing untrue
+/// on the way.
+///
+/// Same cards, same sizes, same lie of the pile, so the flags arrive into
+/// the shape rather than displacing it.
+struct SkeletonFanView: View {
+    var body: some View {
+        ZStack {
+            ForEach(Array(FlagFanView.poses.enumerated().reversed()), id: \.offset) { _, pose in
+                SkeletonBlock(
+                    height: FlagFanView.size.height,
+                    radius: DesignTokens.Radius.small
+                )
+                .frame(width: FlagFanView.size.width)
+                // No shadow: a card that is not there yet is not an object
+                // casting one.
+                .rotationEffect(.degrees(pose.rotation))
+                .offset(x: pose.x, y: pose.y)
+            }
+        }
+        .frame(width: FlagFanView.frame.width, height: FlagFanView.frame.height)
+        .accessibilityHidden(true)
+    }
 }
 
 /// One flag at row height: enough to be recognised beside its count.

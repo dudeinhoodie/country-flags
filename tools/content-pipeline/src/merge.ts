@@ -441,6 +441,15 @@ export async function mergeContent(
     ...adapterCandidatesByEntity.keys(),
     ...overrideByEntity.keys(),
   ])) {
+    // Only what the product teaches is drawn into the bundle. A source still
+    // describes the flag of every territory it knows, and the snapshots keep
+    // it, so an entity that comes back into the pool gets its asset back on
+    // the next build — but a release should not carry, sign and serve fifty
+    // rasterized flags no card will ever ask for.
+    const entity = byEntity.get(entityKey);
+    if (entity === undefined || !isLearnable(entity)) {
+      continue;
+    }
     const adapters = adapterCandidatesByEntity.get(entityKey) ?? [];
     const override = overrideByEntity.get(entityKey);
     const bestAdapter = adapters.at(-1);

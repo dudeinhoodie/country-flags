@@ -113,9 +113,6 @@ public enum DesignTokens {
         public static let ratingLabelWidth: CGFloat = 72
         /// The placeholder standing in for the counter while a session loads.
         public static let progressPlaceholderWidth: CGFloat = 88
-        /// The height the home hero settles at, held by its placeholder so the
-        /// screen does not jump when the numbers arrive.
-        public static let heroPlaceholderHeight: CGFloat = 208
         /// A flag in a list row: large enough to be recognised, small enough
         /// that the name beside it is still the thing being read.
         public static let rowFlagWidth: CGFloat = 44

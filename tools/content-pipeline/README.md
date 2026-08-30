@@ -49,9 +49,15 @@ workflow updates its checksum and proposes the change in a draft PR.
 M49 first, synchronizes the version-controlled selection, and then refreshes
 CLDR, annexare, World Bank, Wikidata, and flag-icons for all 250 approved
 entities. `sync-selection` can be run separately after an editorial or UN M49
-change. New politically or legally ambiguous entities still require a reviewed
-editorial classification; the pipeline never accepts fuzzy or political
-decisions silently.
+change; it keeps each entity's editorial `status` and `config`, so a refresh
+cannot quietly undo a reviewed decision — which is what the section below has
+always promised and what the code now does. New politically or legally
+ambiguous entities still require a reviewed editorial classification; the
+pipeline never accepts fuzzy or political decisions silently.
+
+Assets are built for the learnable pool alone. A release should not carry,
+sign and serve a flag no card will ever ask for, so an entity outside the pool
+keeps everything the sources know about it and publishes no drawing.
 
 `--publish-ready` exits non-zero for unresolved matching, unresolved
 same-priority conflicts, missing required translations or flags, and asset or

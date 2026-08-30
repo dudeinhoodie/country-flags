@@ -94,18 +94,55 @@ export function masteryTierRank(tier: MasteryTier): number {
 }
 
 /**
- * @param dueAllowance how many cards today's queue may hold, or undefined
- *   for the whole backlog. The allowance trims the set of cards counted as
- *   due — the ones owed longest first — rather than the total afterwards, so
- *   the breakdown still adds up to it. A screen that showed fifty due and a
- *   breakdown summing to two hundred would be describing two queues.
+ * The cards today's queue holds: everything the schedule owes, oldest debt
+ * first, cut to what the day allows. What falls outside is not forgiven — it
+ * is still owed, and comes back tomorrow.
+ *
+ * It is named separately because the ceiling belongs to the learner's day and
+ * not to any one deck: the account picks the day's cards once, and every deck
+ * and region then reports its share of that queue. Letting each of them cut
+ * its own backlog to fifty would be no ceiling at all, and letting them report
+ * the uncut backlog put a hero of fifty above rows adding up to two hundred.
+ */
+export function dailyQueue(
+  cards: readonly ProgressCardMetrics[],
+  now: Date,
+  allowance?: number,
+): Set<string> {
+  return new Set(
+    cards
+      .filter(
+        ({ dueAt, totalReviews }) =>
+          totalReviews > 0 &&
+          dueAt !== null &&
+          dueAt.getTime() <= now.getTime(),
+      )
+      .sort(
+        (left, right) =>
+          (left.dueAt?.getTime() ?? 0) - (right.dueAt?.getTime() ?? 0),
+      )
+      .slice(0, allowance ?? cards.length)
+      .map(({ learningCardId }) => learningCardId),
+  );
+}
+
+/**
+ * @param dueToday what today counts as due: a ceiling on this set of cards,
+ *   or — for a deck or region inside an account — the account's own queue, so
+ *   the scope reports its share of the day rather than its share of the
+ *   backlog. Undefined counts the whole backlog.
+ *
+ *   Either way it trims the set of cards counted as due — the ones owed
+ *   longest first — rather than the total afterwards, so the breakdown still
+ *   adds up to it. A screen that showed fifty due and a breakdown summing to
+ *   two hundred would be describing two queues.
  */
 export function aggregateProgress(
   cards: ProgressCardMetrics[],
   now: Date,
   thresholds: readonly MasteryThreshold[] = MASTERY_THRESHOLDS,
   ruleVersion = MASTERY_RULE_VERSION,
-  dueAllowance?: number,
+  dueToday?: number | ReadonlySet<string>,
 ): ProgressAggregate {
   const totalCards = cards.length;
   const touchedCards = cards.filter(
@@ -131,17 +168,10 @@ export function aggregateProgress(
     totalReviews,
   }: ProgressCardMetrics): boolean =>
     totalReviews > 0 && dueAt !== null && dueAt.getTime() <= now.getTime();
-  // The day's queue: everything the schedule owes, oldest debt first, cut to
-  // what the day allows. What falls outside is not forgiven — it is still
-  // owed, and comes back tomorrow.
+  // The whole debt, kept for the tier below; the day's queue is a cut of it.
   const owed = cards.filter(hasComeRound);
-  const queue = [...owed]
-    .sort(
-      (left, right) =>
-        (left.dueAt?.getTime() ?? 0) - (right.dueAt?.getTime() ?? 0),
-    )
-    .slice(0, dueAllowance ?? cards.length);
-  const queued = new Set(queue.map(({ learningCardId }) => learningCardId));
+  const queued =
+    typeof dueToday === "object" ? dueToday : dailyQueue(cards, now, dueToday);
   const isDue = (card: ProgressCardMetrics): boolean =>
     queued.has(card.learningCardId);
   const overdueCards = cards.filter(

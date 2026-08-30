@@ -4,7 +4,11 @@ import {
   DAILY_REVIEW_LIMIT,
   remainingDailyAllowance,
 } from "./daily-review-limit";
-import { aggregateProgress, type ProgressCardMetrics } from "./mastery-rules";
+import {
+  aggregateProgress,
+  dailyQueue,
+  type ProgressCardMetrics,
+} from "./mastery-rules";
 
 function cards(input: {
   total: number;
@@ -311,6 +315,78 @@ describe("aggregateProgress daily allowance", () => {
     const cards = Array.from({ length: 80 }, (_, index) => due(index, 1));
 
     expect(aggregateProgress(cards, now).dueCards).toBe(80);
+  });
+
+  /// The rows under a queue have to add up to the number over them.
+  ///
+  /// The regions used to cut nothing at all, so a home screen showing fifty
+  /// due listed regions summing to two hundred underneath it. They cannot cut
+  /// separately either — the decks overlap, and fifty each is no ceiling — so
+  /// the account picks the day once and every scope counts its share of that.
+  it("counts a scope's share of the account's own queue", () => {
+    const europe = Array.from({ length: 120 }, (_, index) => due(index, 10));
+    const asia = Array.from({ length: 130 }, (_, index) => due(200 + index, 1));
+    const account = [...europe, ...asia];
+
+    const today = dailyQueue(account, now, 50);
+    const whole = aggregateProgress(account, now, undefined, undefined, today);
+    const inEurope = aggregateProgress(
+      europe,
+      now,
+      undefined,
+      undefined,
+      today,
+    );
+    const inAsia = aggregateProgress(asia, now, undefined, undefined, today);
+
+    expect(whole.dueCards).toBe(50);
+    expect(inEurope.dueCards + inAsia.dueCards).toBe(whole.dueCards);
+    // Europe waited ten times longer, so the day is spent entirely on it.
+    expect(inEurope.dueCards).toBe(50);
+    expect(inAsia.dueCards).toBe(0);
+    // And the region still knows how much it is owed in total.
+    expect(inAsia.totalCards).toBe(130);
+  });
+});
+
+describe("dailyQueue", () => {
+  const now = new Date("2026-08-28T12:00:00.000Z");
+
+  function card(
+    id: number,
+    overrides: Partial<ProgressCardMetrics> = {},
+  ): ProgressCardMetrics {
+    return {
+      learningCardId: `card-${id}`,
+      state: CardLearningState.REVIEW,
+      dueAt: new Date(now.getTime() - 86_400_000),
+      successfulReviews: 5,
+      totalReviews: 5,
+      recentSuccessfulReviews: 5,
+      recentReviews: 5,
+      ...overrides,
+    };
+  }
+
+  it("holds the cards owed longest, and only what the day allows", () => {
+    const cards = [
+      card(1, { dueAt: new Date(now.getTime() - 10 * 86_400_000) }),
+      card(2, { dueAt: new Date(now.getTime() - 86_400_000) }),
+      card(3, { dueAt: new Date(now.getTime() - 5 * 86_400_000) }),
+    ];
+
+    expect([...dailyQueue(cards, now, 2)]).toEqual(["card-1", "card-3"]);
+  });
+
+  /// A card nobody has answered is new, not owed: the day's queue is a debt.
+  it("leaves out cards that have never been answered or are not yet round", () => {
+    const cards = [
+      card(1),
+      card(2, { totalReviews: 0, state: null, dueAt: null }),
+      card(3, { dueAt: new Date(now.getTime() + 86_400_000) }),
+    ];
+
+    expect([...dailyQueue(cards, now)]).toEqual(["card-1"]);
   });
 });
 

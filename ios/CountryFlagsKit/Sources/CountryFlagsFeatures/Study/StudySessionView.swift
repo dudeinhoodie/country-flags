@@ -85,19 +85,19 @@ public struct StudySessionView: View {
             StudySessionResultView(
                 summary: summary, store: store, assets: assets, onDone: onFinish
             )
+        } else if runner.startFailure == .nothingDue {
+            // An empty queue is not a screen.
+            //
+            // The learner tapped "repeat" on a pane that had just counted the
+            // day's work; if the queue is empty by the time the session opens,
+            // the two numbers disagreed, and the answer to that is the first
+            // screen — which recounts and says the day is clear, with the
+            // learner's own total on it. It used to be a dead end that
+            // announced the good news and then offered a session nobody had
+            // asked for.
+            Color.clear.onAppear(perform: onFinish)
         } else if let failure = runner.startFailure {
-            StudyUnavailableView(failure: failure, onDone: onFinish) {
-                // The same deck, without the queue's filter. Nothing is due,
-                // but the deck is still two hundred countries and the person
-                // is already here.
-                Task {
-                    await runner.startOrResume(
-                        deckID: deckID,
-                        size: size,
-                        composition: .standard
-                    )
-                }
-            }
+            StudyUnavailableView(failure: failure, onDone: onFinish)
         } else if let state = runner.state, let card = state.currentCard {
             cardView(state: state, card: card)
         } else if runner.state == nil {
@@ -562,16 +562,15 @@ struct ResultWaterView: View {
     }
 }
 
+/// A session that could not be dealt, said out loud.
+///
+/// `.nothingDue` never reaches here: an empty queue is good news and is
+/// answered by returning to the first screen, which counts the day again and
+/// shows the tally. The cases left are the ones a learner can do nothing
+/// about, and the screen offers them the way out rather than another session.
 struct StudyUnavailableView: View {
     let failure: StudySessionStartFailure
     let onDone: () -> Void
-    /// Studying the deck anyway, when the queue is what came up empty.
-    ///
-    /// An empty repeat queue is not a reason to send somebody back to the
-    /// first screen: they opened a deck meaning to study it, and the deck is
-    /// full of countries. Absent for the failures where there is nothing to
-    /// offer — a deck with no usable cards, or a store that will not open.
-    var onStudyAnyway: (() -> Void)?
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
@@ -590,24 +589,17 @@ struct StudyUnavailableView: View {
 
             Spacer(minLength: 0)
 
-            if failure == .nothingDue, let onStudyAnyway {
-                Button(L10n.studyStart, action: onStudyAnyway)
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
-
-                Button(L10n.studyResultDone, action: onDone)
-                    .buttonStyle(GlassActionStyle())
-            } else {
-                Button(L10n.studyResultDone, action: onDone)
-                    .buttonStyle(PrimaryActionStyle())
-            }
+            Button(L10n.studyResultDone, action: onDone)
+                .buttonStyle(PrimaryActionStyle())
         }
     }
 
     private var title: String {
         switch failure {
-        case .noUsableCards: L10n.studyNoCards
-        case .nothingDue: L10n.studyNothingDue
+        // An empty deck and an empty queue read the same to a learner standing
+        // in front of one; the queue is handled before this screen, and this
+        // stays total so a new failure has to choose its own words.
+        case .noUsableCards, .nothingDue: L10n.studyNoCards
         case .storeUnavailable: L10n.studyStoreUnavailable
         }
     }

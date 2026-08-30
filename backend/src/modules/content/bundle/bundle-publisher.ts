@@ -901,6 +901,17 @@ export async function publishBundle(
         data: {
           status: ContentReleaseStatus.PUBLISHED,
           publishedAt: new Date(),
+          // A release being published is not a retired one. A version that
+          // was active, was superseded by a later publish, and is now being
+          // published again still carried the retirement that superseding
+          // wrote — and PUBLISHED beside a retiredAt is precisely what
+          // `content_release_lifecycle_check` forbids, so the publish died on
+          // the constraint instead of replacing the pointer.
+          //
+          // Rollback has always cleared it on the same transition
+          // (`bundle-rollback.ts`); this is the other door into the same
+          // state.
+          retiredAt: null,
         },
       });
       if (previousActiveVersion !== null && previousActiveVersion !== version) {

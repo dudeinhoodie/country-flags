@@ -177,8 +177,14 @@ export async function syncSelection(root: string): Promise<void> {
       ...(existing ?? {}),
       key,
       type: policy.type,
-      status: "active" as const,
-      config: { includeInCountryCatalog: true },
+      // What the source says is what the source says; whether the product
+      // teaches the entity, and how it presents it, is editorial and
+      // survives the refresh. Overwriting these was how a UN M49 pull could
+      // silently put fifty-three territories back into the decks a reviewed
+      // decision had taken them out of — and the README has always promised
+      // that editorial files are applied after every source refresh.
+      status: existing?.status ?? ("active" as const),
+      config: existing?.config ?? { includeInCountryCatalog: true },
       recognitionStatus: policy.recognitionStatus,
       ...(policy.recognitionStatus === "partially_recognized"
         ? { recognitionAsOf: "2026-07-28" }
@@ -191,8 +197,8 @@ export async function syncSelection(root: string): Promise<void> {
     ...(taiwanExisting ?? {}),
     key: taiwanExisting?.key ?? "country.taiwan",
     type: "country",
-    status: "active",
-    config: { includeInCountryCatalog: true },
+    status: taiwanExisting?.status ?? "active",
+    config: taiwanExisting?.config ?? { includeInCountryCatalog: true },
     recognitionStatus: "partially_recognized",
     recognitionAsOf: "2026-07-28",
     identifiers: { isoAlpha2: "TW", isoAlpha3: "TWN" },

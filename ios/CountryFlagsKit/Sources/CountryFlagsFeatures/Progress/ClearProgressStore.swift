@@ -35,6 +35,21 @@ public final class ClearProgressStore {
     public private(set) var isOffered = false
     public private(set) var phase: Phase = .idle
 
+    /// Whether the learner has been shown the consequences, whatever the phase
+    /// says now.
+    ///
+    /// The phase alone cannot answer that. SwiftUI writes a dialog's
+    /// presentation binding back on dismissal, and tapping the destructive
+    /// button dismisses the dialog: the binding's setter cancelled the very
+    /// confirmation the tap was making, and the deletion — which runs a turn
+    /// later, in a task — then found the phase already back at `.idle` and did
+    /// nothing at all. That is the whole of "clearing progress does nothing".
+    ///
+    /// The dialog is the only thing that can reach `confirm()`, so being armed
+    /// by `request()` is the consent; a dismissal takes the dialog off screen
+    /// and leaves the arming alone.
+    private var isArmed = false
+
     /// Called once the deletion landed and the device was cleared, so the
     /// composition can put the screens that read the store back in step.
     public var onCleared: (@Sendable () async -> Void)?
@@ -68,12 +83,14 @@ public final class ClearProgressStore {
     /// Puts the consequences to the learner. Nothing is deleted here.
     public func request() {
         guard isOffered else { return }
+        isArmed = true
         phase = .confirming
     }
 
     /// The consequences were accepted; the deletion runs now, server first.
     public func confirm() async {
-        guard phase == .confirming else { return }
+        guard isArmed else { return }
+        isArmed = false
         phase = .clearing
         do {
             _ = try await clearing.clearProgress()
