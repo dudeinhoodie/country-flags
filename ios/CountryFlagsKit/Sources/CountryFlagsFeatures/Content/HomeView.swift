@@ -49,7 +49,6 @@ public struct HomeView: View {
     /// language counts as unfinished rather than as a later bug.
     @ScaledMetric(relativeTo: .footnote) private var labelBarHeight: CGFloat = 12
     @ScaledMetric(relativeTo: .largeTitle) private var figureBarHeight: CGFloat = 40
-    @ScaledMetric(relativeTo: .footnote) private var captionBarHeight: CGFloat = 13
 
     public init(
         store: ContentStore,
@@ -97,7 +96,11 @@ public struct HomeView: View {
             // just received. Everything else — the counts, the queue, the
             // unfinished session — is refreshed centrally after a sync run,
             // and this screen simply observes the store it is refreshed into.
-            .task(id: progress?.decks) { await reloadPreviews() }
+            // Keyed on the catalogue as well as on the counts: a launch
+            // resolves them in either order, and the first wave needs the
+            // flags the moment the catalogue lands rather than whenever the
+            // counts happen to follow.
+            .task(id: previewInputs) { await reloadPreviews() }
     }
 
     @ViewBuilder
@@ -127,23 +130,28 @@ public struct HomeView: View {
                 ContentStatusBanner(isStale: isStale, failure: failure)
             }
 
-            // Until the backend's numbers arrive the pane shows its own shape
-            // and nothing else.
+            // The screen fills in the order its data arrives, which is two
+            // waves and not one: the catalogue is already on the device — the
+            // decks, the cards and every flag — and only the counts are still
+            // coming. So the wait shows what is known and marks what is not,
+            // rather than replacing the screen with a single blank shape.
             //
-            // Not the local projection's figures: a number on this screen is
+            // Not the local projection's figures, though: a number here is
             // the backend's number or none at all (ADR-016). That half has
-            // not moved.
+            // not moved, and it is why the figure is the one thing the first
+            // wave cannot draw.
             //
-            // No longer a spinner, though. The skeleton was turned down here
-            // once as shapes pretending to be content; put side by side, an
-            // empty box turning on the spot pretends harder — it says a wait
-            // is happening and nothing about what is coming. The placeholder
-            // promises only what it can keep: bars where the label, the
-            // figure, the flags and the action are about to be.
+            // And no longer a spinner. The skeleton was turned down here once
+            // as shapes pretending to be content; put side by side, an empty
+            // box turning on the spot pretends harder — it says a wait is
+            // happening and nothing about what is coming.
             Group {
                 if isAwaitingProgress || isSettling {
-                    homeLoader
-                        .transition(.opacity)
+                    VStack(spacing: DesignTokens.Spacing.large) {
+                        homeLoader(sections)
+                        queueLoader
+                    }
+                    .transition(.opacity)
                 } else {
                     // Dimmed while the numbers are being checked: the figure
                     // stays readable and stops claiming to be settled.
@@ -169,40 +177,57 @@ public struct HomeView: View {
         }
     }
 
-    /// The hero's own shape, before the app knows which hero it is.
+    /// The hero in its first wave: what the device knows, and a placeholder
+    /// where the backend's answer will go.
     ///
-    /// A launch has not resolved yet whether the day owes anything, so the
-    /// pane cannot say whether it is about to be the queue, the day's tally
-    /// or the deck it offers instead. What all three share is this: a label,
-    /// one large figure with the flags it counts beside it, a line of detail
-    /// under them and a single action. The placeholder is built from those
-    /// pieces at those sizes, so the numbers arrive into the shape rather
-    /// than replacing it — which is the whole of why it is not a spinner.
+    /// The deck's name and three of its flags are real — they come off the
+    /// catalogue, which is already stored, and the flags are bundled. What
+    /// cannot be drawn yet is the figure and the action it leads to, and
+    /// those are the two shapes standing empty.
     ///
-    /// The height is not pinned to a constant any more. It used to be, and
-    /// the constant did not match what the hero actually settles at; built
-    /// out of the same parts, the placeholder simply is that height.
-    private var homeLoader: some View {
+    /// Which hero this becomes is not known: a launch has not resolved
+    /// whether the day owes anything, so the deck the screen would offer is
+    /// what it names meanwhile. The label changes when the answer arrives,
+    /// and the cross-fade carries it.
+    ///
+    /// The height is not pinned to a constant. It used to be, and the
+    /// constant did not match what the hero settles at; built from the same
+    /// pieces, this is that height.
+    private func homeLoader(_ sections: [CatalogSection]) -> some View {
         GlassCard(padding: DesignTokens.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                    SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
-                        .frame(width: 132)
+                    if let deck = recommended(sections) {
+                        SectionLabel(deck.name)
+                    } else {
+                        // No catalogue to name yet — the label waits too.
+                        SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
+                            .frame(width: 132)
+                            .accessibilityHidden(true)
+                    }
 
                     HStack(alignment: .center, spacing: DesignTokens.Spacing.medium) {
                         SkeletonBlock(height: figureBarHeight, radius: DesignTokens.Radius.medium)
                             .frame(width: 88)
+                            .accessibilityHidden(true)
 
                         Spacer(minLength: 0)
 
-                        // The fan's own frame, so the flags land where the
-                        // placeholder said they would.
-                        SkeletonBlock(height: 74, radius: DesignTokens.Radius.medium)
-                            .frame(width: 120)
+                        // Real flags, in the fan's own frame. They are the
+                        // deck's rather than the queue's — before the counts
+                        // there is no queue to draw — and they change with
+                        // everything else when the second wave lands.
+                        if !fanCards.isEmpty {
+                            FlagFanView(cards: fanCards, store: store, assets: assets)
+                        }
                     }
 
-                    SkeletonBlock(height: captionBarHeight, radius: DesignTokens.Radius.small)
-                        .frame(width: 196)
+                    // The one line of words on the screen, and the only thing
+                    // here VoiceOver has to read.
+                    Text(L10n.homeLoading)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeLoading)
                 }
 
                 // The action is a capsule, so its placeholder is one too.
@@ -210,13 +235,71 @@ public struct HomeView: View {
                     height: DesignTokens.Layout.actionHeight,
                     radius: DesignTokens.Layout.actionHeight / 2
                 )
+                .accessibilityHidden(true)
             }
         }
-        // One element saying what is happening: read as children, VoiceOver
-        // announces a row of empty shapes.
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L10n.homeLoading)
-        .accessibilityIdentifier(AccessibilityIdentifier.homeLoading)
+    }
+
+    /// The list under the hero, waiting.
+    ///
+    /// Which regions it will hold is the one thing the catalogue cannot say:
+    /// it keeps only the regions that owe something today, and that is the
+    /// answer still coming. So the rows carry no names — a named row that
+    /// disappeared would read as a fault, where an unnamed one that did is
+    /// just a list that came back shorter.
+    ///
+    /// Four of them. The block is the last thing on the screen, so a list of
+    /// any length moves nothing above it; the count is how it looks rather
+    /// than how it lays out.
+    private var queueLoader: some View {
+        GlassCard(padding: DesignTokens.Spacing.small) {
+            VStack(spacing: 0) {
+                ForEach(Array(Self.loadingRowWidths.enumerated()), id: \.offset) { index, width in
+                    if index > 0 {
+                        Divider()
+                            .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
+                    }
+
+                    HStack(spacing: DesignTokens.Spacing.small) {
+                        // One flag rather than the row's whole handful, and no
+                        // continent: the placeholder stands for the row, not
+                        // for its ornaments.
+                        SkeletonBlock(height: 18, radius: 3)
+                            .frame(width: 24)
+
+                        SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
+                            .frame(width: width)
+
+                        Spacer(minLength: DesignTokens.Spacing.small)
+
+                        SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
+                            .frame(width: 22)
+                    }
+                    .padding(.horizontal, DesignTokens.Spacing.small)
+                    .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                }
+            }
+        }
+        // The block says nothing yet, and the line above it has already said
+        // the screen is loading.
+        .accessibilityHidden(true)
+    }
+
+    /// Varied so the rows read as names rather than as a stack of one bar.
+    private static let loadingRowWidths: [CGFloat] = [96, 74, 86, 68]
+
+    /// What the previews are a function of: the catalogue they are drawn
+    /// from, and the counts that decide which cards to draw.
+    private struct PreviewInputs: Equatable {
+        let hasCatalog: Bool
+        let decks: [DeckProgressRow]
+    }
+
+    private var previewInputs: PreviewInputs {
+        if case .ready = store.catalog {
+            return PreviewInputs(hasCatalog: true, decks: progress?.decks ?? [])
+        }
+        return PreviewInputs(hasCatalog: false, decks: progress?.decks ?? [])
     }
 
     /// Whether the pane has no numbers it is allowed to draw yet.
@@ -556,13 +639,20 @@ public struct HomeView: View {
 
     /// Reads the flags the pane and the rows show: in every place, the cards
     /// the button beside them is about to deal.
+    ///
+    /// It runs before the counts exist as well, because the first wave draws
+    /// real flags and has only the catalogue to draw them from. With no card
+    /// states to rank by, the deck's own opening cards are what there is —
+    /// which is the honest answer while there is no queue to be about.
     private func reloadPreviews() async {
-        guard let progress, progress.isLoaded else { return }
-        let states = await progress.cardStatesByID()
+        let decks = progress?.decks ?? []
+        let states = progress?.isLoaded == true
+            ? await progress?.cardStatesByID() ?? [:]
+            : [:]
         let now = Date()
 
         var fresh: [UUID: [LearningCardRecord]] = [:]
-        for deck in progress.decks where deck.dueCards > 0 {
+        for deck in decks where deck.dueCards > 0 {
             fresh[deck.id] = opening(
                 await store.cards(inDeck: deck.id),
                 states: states,
@@ -571,7 +661,7 @@ public struct HomeView: View {
         }
         previews = fresh
 
-        if let top = progress.decks.filter({ $0.dueCards > 0 })
+        if let top = decks.filter({ $0.dueCards > 0 })
             .max(by: { $0.dueCards < $1.dueCards }),
             let cards = fresh[top.id], !cards.isEmpty
         {
