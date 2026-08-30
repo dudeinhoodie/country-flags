@@ -191,6 +191,8 @@
               <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
               <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:64px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
               <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:72px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:58px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:76px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
             </div>
           </div>
         </div></div>
@@ -198,8 +200,9 @@
         <p class="sub">Каталог локальный, чисел ещё нет.</p>
         <p class="why">
           Настоящие: имя колоды и три флага. Всё, что зависит от бэкенда, —
-          число, разбивка, кнопка и строки регионов — стоит скелетоном на
-          своём месте.
+          число, разбивка, кнопка и весь список регионов внизу — стоит
+          скелетоном на своём месте. Список во всю длину, пять строк: это
+          все регионы каталога, дальше он только укоротится.
         </p>
       </article>
 
@@ -298,25 +301,28 @@
     <div class="rail"><div class="frames">
 
       <article class="frame">
-        <div class="phone" style="height:300px"><div class="scene"></div><div class="content">
+        <div class="phone" style="height:330px"><div class="scene"></div><div class="content">
           <div class="glass" style="padding:6px 16px;">
             <div class="rows">
               <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
               <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:64px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
               <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:72px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:58px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:76px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
             </div>
           </div>
         </div></div>
         <h3>C1 · Строки целиком в скелетоне</h3>
         <p class="why">
-          Ничего не обещает: ни какие регионы, ни сколько их. Три строки —
-          это «здесь будет список», а не «здесь будет три». Список может
-          приехать любой длины, и это не прочтётся как подмена.
+          Не обещает, какие это регионы. Пять строк — по числу регионов в
+          каталоге, то есть максимум, который список может принять: он
+          укоротится, но никогда не вырастет, и рамка сверху вниз не
+          дёрнется.
         </p>
       </article>
 
       <article class="frame">
-        <div class="phone" style="height:300px"><div class="scene"></div><div class="content">
+        <div class="phone" style="height:330px"><div class="scene"></div><div class="content">
           <div class="glass" style="padding:6px 16px;">
             <div class="rows">
               <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="sk sk-count"></span><div class="cont"></div></div>
@@ -339,11 +345,15 @@
     </div></div>
 
     <div class="pick">
-      <b>Я бы взял C1.</b> C2 показывает больше, но обещает список, которого
-      ещё нет: исчезающие строки читаются как ошибка, а не как уточнение, и
-      это ровно та подмена, из-за которой мы убирали спиннер. C1 обещает
-      только «здесь будет список» — и это обещание он держит при любом
-      ответе.
+      <b>Взято C1.</b> C2 показывает больше, но обещает конкретные регионы,
+      которых ещё нет: строка с названием, которая исчезла, читается как
+      ошибка, а не как уточнение — ровно та подмена, из-за которой мы убирали
+      спиннер. Безымянная строка, которой не стало, — просто список,
+      оказавшийся короче.
+      <br /><br />
+      Длина в обоих случаях одна и та же: пять — это все регионы каталога,
+      то есть потолок. Список на второй волне укорачивается и никогда не
+      растёт, поэтому герой над ним стоит на месте, а не уезжает вниз.
     </div>
   </section>
 
@@ -370,6 +380,8 @@
       <ul>
         <li>Подпись героя меняется на второй волне: до чисел неизвестно, какой это герой.</li>
         <li>Кнопка не нажимается, пока скелетон, — нельзя войти в очередь, которой нет.</li>
+        <li>Список внизу на второй волне укорачивается: показываются только регионы, где сегодня что-то есть. Начинать с пяти — значит начинать с потолка, поэтому экран сжимается снизу и ничего не сдвигает над собой.</li>
+        <li>Если сегодня не должно быть ни одной строки, блок уходит целиком — единственный случай, когда исчезает не строка, а карточка.</li>
         <li>Если числа приходят быстро, обе волны сливаются — это нормально и не требует задержки.</li>
       </ul>
     </section>
