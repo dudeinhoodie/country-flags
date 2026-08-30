@@ -49,13 +49,13 @@
   .options { display: flex; gap: 26px; min-width: min-content; }
 
   .option { width: 292px; flex: none; display: flex; flex-direction: column; gap: 12px; }
-  .option .name { display: flex; align-items: baseline; gap: 9px; }
-  .option .letter {
+  .option .name, .blockcase .name { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+  .option .letter, .blockcase .letter {
     font: 650 12px/1 ui-monospace, monospace; color: var(--ink-3);
     border: 1px solid var(--rule); border-radius: 5px; padding: 4px 6px;
   }
-  .option h2 { font-size: 17px; font-weight: 650; }
-  .option .tag {
+  .option h2, .blockcase h2 { font-size: 17px; font-weight: 650; }
+  .option .tag, .blockcase .tag {
     font-size: 11px; font-weight: 650; letter-spacing: 0.8px; text-transform: uppercase;
     color: #34c759; vertical-align: 1px;
   }
@@ -128,6 +128,12 @@
   .sk-cap { height: 12px; width: 72%; border-radius: 6px; }
   .sk-cta { height: 44px; border-radius: 999px; }
   .sk-fan { width: 96px; height: 58px; border-radius: 10px; flex: none; }
+  /* one row of the region list, part by part */
+  .sk-mini { width: 21px; height: 16px; border-radius: 3px; flex: none; }
+  .sk-name { height: 12px; border-radius: 6px; display: block; }
+  .sk-count { height: 12px; width: 22px; border-radius: 6px; flex: none; }
+  .sk-cont { width: 30px; height: 21px; border-radius: 5px; flex: none; }
+  .cont { width: 30px; height: 21px; border-radius: 5px; background: rgba(255, 255, 255, 0.09); flex: none; }
 
   /* staged arrival */
   .stage { opacity: 0; animation: rise 0.42s ease forwards; }
@@ -139,6 +145,29 @@
   @media (prefers-reduced-motion: reduce) {
     .sk::after { animation: none; opacity: 0.5; transform: none; }
     .stage { animation: none; opacity: 1; }
+  }
+
+  /* --- the region block on its own ------------------------------------ */
+  section.block { display: flex; flex-direction: column; gap: 18px; }
+  h3.sec { font-size: 21px; font-weight: 700; letter-spacing: -0.2px; }
+  .seclede { color: var(--ink-2); font-size: 15px; max-width: 68ch; }
+  .blockcase { width: 340px; flex: none; display: flex; flex-direction: column; gap: 12px; }
+  .pane {
+    position: relative; border-radius: 26px; overflow: hidden;
+    background: var(--ground); border: 1px solid var(--rule);
+    padding: 22px; min-height: 268px; display: flex; align-items: center;
+  }
+  .pane > .glass { width: 100%; }
+
+  /* the two states occupy the same cell, so the swap has no reflow */
+  .swap { display: grid; }
+  .swap > * { grid-area: 1 / 1; }
+  .wave { opacity: 0; animation: rise 0.34s ease forwards; animation-delay: 1.5s; }
+  .leaves { animation: fade 0.34s ease forwards; animation-delay: 1.5s; }
+  @keyframes fade { to { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wave, .leaves { animation-duration: 0.01s; }
   }
 
   /* --- rejected ------------------------------------------------------- */
@@ -222,27 +251,36 @@
       <article class="option">
         <div class="phone"><div class="scene"></div><div class="content">
           <div class="navrow"><span class="title">Сегодня</span><span>◍</span></div>
-          <div class="glass hero" data-staged>
+          <div class="glass hero">
             <div style="display:flex;flex-direction:column;gap:9px;">
               <div class="label stage s1">Все страны</div>
               <div class="figure">
-                <div class="sk sk-num stage s3" style="animation-name:rise"></div>
-                <div class="fan stage s2"><i class="f-fr"></i><i class="f-pl"></i><i class="f-de"></i></div>
+                <div class="sk sk-num"></div>
+                <div class="fan stage s1"><i class="f-fr"></i><i class="f-pl"></i><i class="f-de"></i></div>
               </div>
-              <div class="cap stage s3">считаем ваш день…</div>
+              <div class="cap stage s1">считаем ваш день…</div>
             </div>
-            <div class="cta stage s2">Начать</div>
+            <div class="sk sk-cta"></div>
+          </div>
+          <div class="glass" style="padding:5px 15px;">
+            <div class="rows">
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:74px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+            </div>
           </div>
         </div></div>
-        <div class="name"><span class="letter">C</span><h2>Заполнение по мере готовности</h2></div>
+        <div class="name"><span class="letter">C</span><h2>Заполнение по мере готовности</h2><span class="tag">выбрано</span></div>
         <p class="note">
           Данные и правда приходят двумя волнами: сначала каталог, потом
-          числа. Экран показывает это честно — сначала то, что уже знает,
-          потом остальное.
+          числа. Экран показывает это честно — настоящие подпись и флаги,
+          скелетон на числе, кнопке и всём списке регионов внизу.
         </p>
         <dl class="meta">
-          <div><dt>Требует</dt><dd>знать, какой герой будет, до чисел</dd></div>
-          <div><dt>Слабое</dt><dd>две волны движения на каждом запуске</dd></div>
+          <div><dt>Требует</dt><dd>ничего сверх локального каталога</dd></div>
+          <div><dt>Слабое</dt><dd>подпись героя уточняется на второй волне</dd></div>
         </dl>
       </article>
 
@@ -299,6 +337,79 @@
     </div>
   </div>
 
+  <section class="block">
+    <h3 class="sec">Блок регионов отдельно</h3>
+    <p class="seclede">
+      Он единственный, что стоит под героем, и до чисел о нём известно
+      меньше, чем кажется. Названия регионов и их флаги лежат в каталоге —
+      а вот <em>какие регионы попадут в список</em>, знают только числа:
+      показываются только те, где сегодня что-то есть.
+    </p>
+
+    <div class="controls">
+      <button class="play" id="playBlock" type="button">Проиграть волну</button>
+      <span class="hint">Оба варианта ждут одинаково, а приезжают по-разному.</span>
+    </div>
+
+    <div class="rail"><div class="frames" id="blocks">
+
+      <article class="blockcase">
+        <div class="pane"><div class="scene"></div>
+          <div class="glass" style="position:relative;padding:5px 15px;">
+            <div class="swap">
+              <div class="rows leaves">
+                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:74px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              </div>
+              <div class="rows wave">
+                <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="ct">7</span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-de"></i><i class="f-fr"></i></div><span class="nm">Азия</span><span class="ct">4</span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-pl"></i><i class="f-de"></i></div><span class="nm">Африка</span><span class="ct">1</span><div class="cont"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="name"><span class="letter">C1</span><h2>Строки целиком</h2><span class="tag">рекомендую</span></div>
+        <p class="note">
+          Пять безымянных строк — по числу регионов в каталоге, то есть
+          потолок. Список приезжает короче, и это читается как список,
+          оказавшийся короче.
+        </p>
+      </article>
+
+      <article class="blockcase">
+        <div class="pane"><div class="scene"></div>
+          <div class="glass" style="position:relative;padding:5px 15px;">
+            <div class="swap">
+              <div class="rows leaves">
+                <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="sk sk-count"></span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-de"></i><i class="f-fr"></i></div><span class="nm">Африка</span><span class="sk sk-count"></span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-pl"></i><i class="f-de"></i></div><span class="nm">Америка</span><span class="sk sk-count"></span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-de"></i></div><span class="nm">Азия</span><span class="sk sk-count"></span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-pl"></i><i class="f-fr"></i></div><span class="nm">Океания</span><span class="sk sk-count"></span><div class="cont"></div></div>
+              </div>
+              <div class="rows wave">
+                <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="ct">7</span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-de"></i><i class="f-fr"></i></div><span class="nm">Азия</span><span class="ct">4</span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-pl"></i><i class="f-de"></i></div><span class="nm">Африка</span><span class="ct">1</span><div class="cont"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="name"><span class="letter">C2</span><h2>Имена настоящие, ждём число</h2></div>
+        <p class="note">
+          Это то, что на скриншоте. Информативнее и красивее — но «Америка»
+          и «Океания» исчезнут вместе со своими флагами, а исчезнувшая
+          названная строка читается как сбой, не как уточнение.
+        </p>
+      </article>
+
+    </div></div>
+  </section>
+
   <div class="rejected">
     <h3>Что отвергнуто и почему</h3>
     <ul>
@@ -323,13 +434,23 @@
   const play = document.getElementById("play");
   let options = document.getElementById("options");
 
+  // Replacing the node restarts every CSS animation inside it at once, which
+  // is the point: the things being compared run in the same beat.
+  function replay(button, node, settle) {
+    button.disabled = true;
+    const clone = node.cloneNode(true);
+    node.replaceWith(clone);
+    window.setTimeout(() => { button.disabled = false; }, settle);
+    return clone;
+  }
+
   play.addEventListener("click", () => {
-    play.disabled = true;
-    // Replacing the node restarts every CSS animation inside it at once,
-    // which is the point: the options are compared in the same beat.
-    const clone = options.cloneNode(true);
-    options.replaceWith(clone);
-    options = clone;
-    window.setTimeout(() => { play.disabled = false; }, 1800);
+    options = replay(play, options, 1800);
+  });
+
+  const playBlock = document.getElementById("playBlock");
+  let blocks = document.getElementById("blocks");
+  playBlock.addEventListener("click", () => {
+    blocks = replay(playBlock, blocks, 2000);
   });
 </script>
