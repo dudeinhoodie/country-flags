@@ -1,0 +1,397 @@
+<title>Две волны</title>
+<style>
+  /* Project tokens, as in the other two loader pages. */
+  :root {
+    --ground: #0a0a0f;
+    --ink: #ffffff;
+    --ink-2: rgba(255, 255, 255, 0.62);
+    --ink-3: rgba(255, 255, 255, 0.42);
+    --rule: rgba(255, 255, 255, 0.12);
+    --glass: rgba(255, 255, 255, 0.065);
+    --glass-edge: rgba(255, 255, 255, 0.13);
+    --skeleton: rgba(255, 255, 255, 0.06);
+    --sheen: rgba(255, 255, 255, 0.16);
+    --known: #34c759;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 15px/1.55 -apple-system, "SF Pro Text", system-ui, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 32px 96px;
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 46px; }
+
+  header { display: flex; flex-direction: column; gap: 18px; max-width: 64ch; }
+  .eyebrow { font-size: 12px; font-weight: 650; letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-3); }
+  h1 { font-size: 34px; line-height: 1.15; font-weight: 700; letter-spacing: -0.5px; text-wrap: balance; }
+  .lede { color: var(--ink-2); font-size: 17px; }
+  .lede strong { color: var(--ink); font-weight: 650; }
+
+  h2.sec { font-size: 21px; font-weight: 700; letter-spacing: -0.2px; }
+  .seclede { color: var(--ink-2); font-size: 15px; max-width: 68ch; }
+  section { display: flex; flex-direction: column; gap: 20px; }
+
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em; color: var(--ink); }
+
+  .controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  button.play {
+    appearance: none; border: 1px solid var(--glass-edge); background: rgba(255, 255, 255, 0.09);
+    color: var(--ink); font: inherit; font-weight: 600; border-radius: 999px; padding: 11px 22px; cursor: pointer;
+  }
+  button.play:hover { background: rgba(255, 255, 255, 0.14); }
+  button.play:focus-visible { outline: 2px solid #2b63ff; outline-offset: 3px; }
+  .hint { color: var(--ink-3); font-size: 13px; }
+
+  .rail { overflow-x: auto; padding-bottom: 10px; }
+  .frames { display: flex; gap: 30px; min-width: min-content; align-items: flex-start; }
+  .frame { width: 300px; flex: none; display: flex; flex-direction: column; gap: 12px; }
+  .frame h3 { font-size: 16px; font-weight: 650; }
+  .frame .sub { color: var(--ink-3); font-size: 13px; }
+  .frame .why { color: var(--ink-2); font-size: 13.5px; }
+
+  /* --- phone ---------------------------------------------------------- */
+  .phone { width: 300px; height: 540px; border-radius: 34px; overflow: hidden; position: relative; background: var(--ground); border: 1px solid var(--rule); }
+  .scene {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(320px 320px at 20% 12%, rgba(43, 99, 255, 0.21), transparent 70%),
+      radial-gradient(320px 320px at 85% 30%, rgba(224, 16, 47, 0.17), transparent 70%),
+      radial-gradient(290px 290px at 50% 100%, rgba(43, 99, 255, 0.11), transparent 70%);
+  }
+  .content { position: relative; height: 100%; padding: 26px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .navrow { display: flex; align-items: center; justify-content: space-between; color: var(--ink-3); font-size: 12px; }
+  .navrow .title { color: var(--ink); font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+
+  .glass { background: var(--glass); border: 1px solid var(--glass-edge); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .hero { min-height: 168px; justify-content: space-between; }
+  .label { font-size: 11px; font-weight: 650; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); }
+  .figure { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .num { font: 900 34px/1 "SF Pro Rounded", -apple-system, system-ui, sans-serif; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .cap { font-size: 12.5px; color: rgba(255, 255, 255, 0.6); }
+  .cta { background: #fff; color: #000; border-radius: 999px; height: 46px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+
+  .rows { display: flex; flex-direction: column; padding: 2px 0; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 10px 2px; min-height: 44px; }
+  .row + .row { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+  .row .nm { flex: 1; font-size: 15px; }
+  .row .ct { font-size: 15px; color: rgba(255, 255, 255, 0.7); font-variant-numeric: tabular-nums; }
+  .minis { display: flex; gap: 3px; }
+  .minis i { width: 22px; height: 17px; border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.22); }
+  .cont { width: 34px; height: 24px; border-radius: 5px; background: rgba(255, 255, 255, 0.09); flex: none; }
+
+  .fan { position: relative; width: 108px; height: 64px; flex: none; }
+  .fan i { position: absolute; width: 66px; height: 50px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.22); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35); left: 21px; top: 7px; }
+  .f-fr { background: linear-gradient(90deg, #0d47a1 33%, #fff 33% 66%, #d32f2f 66%); }
+  .f-pl { background: linear-gradient(180deg, #fff 50%, #e53935 50%); }
+  .f-de { background: linear-gradient(180deg, #111 33%, #d32f2f 33% 66%, #fbc02d 66%); }
+  .fan i:nth-child(1) { transform: rotate(-10deg) translateX(-18px); }
+  .fan i:nth-child(2) { transform: rotate(8deg) translateX(18px); }
+  .fan i:nth-child(3) { transform: rotate(-2deg); }
+
+  /* --- skeleton ------------------------------------------------------- */
+  .sk { background: var(--skeleton); border: 1px solid var(--glass-edge); border-radius: 10px; position: relative; overflow: hidden; }
+  .sk::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, var(--sheen), transparent);
+    width: 55%; transform: translateX(-120%); animation: sheen 1.6s linear infinite; filter: blur(6px);
+  }
+  @keyframes sheen { to { transform: translateX(320%); } }
+  .sk-num { height: 34px; width: 88px; }
+  .sk-cap { height: 12px; width: 74%; border-radius: 6px; }
+  .sk-cta { height: 46px; border-radius: 999px; }
+  .sk-count { height: 13px; width: 24px; border-radius: 6px; }
+  .sk-name { height: 13px; width: 84px; border-radius: 6px; }
+  .sk-mini { width: 22px; height: 17px; border-radius: 3px; }
+  .sk-cont { width: 34px; height: 24px; border-radius: 5px; }
+
+  /* the arrival of the second wave */
+  .wave { opacity: 0; animation: rise 0.34s ease forwards; animation-delay: 1.5s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .leaves { animation: fade 0.34s ease forwards; animation-delay: 1.5s; }
+  @keyframes fade { to { opacity: 0; } }
+  .swap { display: grid; }
+  .swap > * { grid-area: 1 / 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sk::after { animation: none; opacity: 0.5; transform: none; }
+    .wave, .leaves { animation-duration: 0.01s; }
+  }
+
+  /* --- legend --------------------------------------------------------- */
+  .legend { display: flex; gap: 22px; flex-wrap: wrap; font-size: 13.5px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .dot.k { background: var(--known); }
+  .dot.u { background: rgba(255, 255, 255, 0.28); }
+
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(272px, 1fr)); gap: 26px; }
+  .notes section { gap: 10px; }
+  .notes h3 { font-size: 15px; font-weight: 650; }
+  .notes ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; display: flex; flex-direction: column; gap: 7px; }
+  .notes li::marker { color: var(--ink-3); }
+
+  .pick { border: 1px solid var(--glass-edge); background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 16px 18px; font-size: 14px; color: var(--ink-2); max-width: 72ch; }
+  .pick b { color: var(--ink); font-weight: 650; }
+
+  footer { color: var(--ink-3); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 20px; max-width: 72ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Country Flags · iOS · главный экран</p>
+    <h1>Две волны</h1>
+    <p class="lede">
+      Выбрано заполнение по мере готовности, с кнопкой и блоком регионов в
+      скелетоне. Как только кнопка перестаёт быть настоящей, третья волна
+      исчезает сама: <strong>до чисел известны ровно подпись и флаги</strong>,
+      всё остальное приезжает разом. Волн в экране становится столько же,
+      сколько их в данных, — две.
+    </p>
+    <div class="legend">
+      <span><i class="dot k"></i> известно сразу — каталог уже на устройстве</span>
+      <span><i class="dot u"></i> ждём бэкенд</span>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Как это идёт</h2>
+    <p class="seclede">
+      Слева — то, что видно первые доли секунды или несколько секунд на
+      холодном бэкенде. Справа — то, во что это превращается. Рамка не
+      меняется: приезжают значения, а не блоки.
+    </p>
+    <div class="controls">
+      <button class="play" id="play" type="button">Проиграть волну</button>
+      <span class="hint">Третий телефон проигрывает переход целиком.</span>
+    </div>
+
+    <div class="rail"><div class="frames" id="frames">
+
+      <article class="frame">
+        <div class="phone"><div class="scene"></div><div class="content">
+          <div class="navrow"><span class="title">Сегодня</span><span>◍</span></div>
+          <div class="glass hero">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="label">Все страны</div>
+              <div class="figure">
+                <div class="sk sk-num"></div>
+                <div class="fan"><i class="f-fr"></i><i class="f-pl"></i><i class="f-de"></i></div>
+              </div>
+              <div class="cap">считаем ваш день…</div>
+            </div>
+            <div class="sk sk-cta"></div>
+          </div>
+          <div class="glass" style="padding:6px 16px;">
+            <div class="rows">
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:64px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:72px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+            </div>
+          </div>
+        </div></div>
+        <h3>Волна 1 — что знаем</h3>
+        <p class="sub">Каталог локальный, чисел ещё нет.</p>
+        <p class="why">
+          Настоящие: имя колоды и три флага. Всё, что зависит от бэкенда, —
+          число, разбивка, кнопка и строки регионов — стоит скелетоном на
+          своём месте.
+        </p>
+      </article>
+
+      <article class="frame">
+        <div class="phone"><div class="scene"></div><div class="content">
+          <div class="navrow"><span class="title">Сегодня</span><span>◍</span></div>
+          <div class="glass hero">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="label">Сегодня к повторению</div>
+              <div class="figure">
+                <div class="num">12</div>
+                <div class="fan"><i class="f-fr"></i><i class="f-pl"></i><i class="f-de"></i></div>
+              </div>
+              <div class="cap">просрочено 8 · в изучении 3 · новых 1</div>
+            </div>
+            <div class="cta">Повторить</div>
+          </div>
+          <div class="glass" style="padding:6px 16px;">
+            <div class="rows">
+              <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="ct">7</span><div class="cont"></div></div>
+              <div class="row"><div class="minis"><i class="f-de"></i><i class="f-fr"></i></div><span class="nm">Азия</span><span class="ct">4</span><div class="cont"></div></div>
+              <div class="row"><div class="minis"><i class="f-pl"></i><i class="f-de"></i></div><span class="nm">Африка</span><span class="ct">1</span><div class="cont"></div></div>
+            </div>
+          </div>
+        </div></div>
+        <h3>Волна 2 — числа приехали</h3>
+        <p class="sub">Одним движением, потому что и данные приходят одним ответом.</p>
+        <p class="why">
+          Подпись уточняется, цифра встаёт на своё место, кнопка становится
+          нажимаемой. Обрати внимание: имя колоды сменилось — до чисел
+          неизвестно даже, какой это герой.
+        </p>
+      </article>
+
+      <article class="frame">
+        <div class="phone"><div class="scene"></div><div class="content">
+          <div class="navrow"><span class="title">Сегодня</span><span>◍</span></div>
+          <div class="glass hero">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="swap">
+                <div class="label leaves">Все страны</div>
+                <div class="label wave">Сегодня к повторению</div>
+              </div>
+              <div class="figure">
+                <div class="swap">
+                  <div class="sk sk-num leaves"></div>
+                  <div class="num wave">12</div>
+                </div>
+                <div class="fan"><i class="f-fr"></i><i class="f-pl"></i><i class="f-de"></i></div>
+              </div>
+              <div class="swap">
+                <div class="cap leaves">считаем ваш день…</div>
+                <div class="cap wave">просрочено 8 · в изучении 3 · новых 1</div>
+              </div>
+            </div>
+            <div class="swap">
+              <div class="sk sk-cta leaves"></div>
+              <div class="cta wave">Повторить</div>
+            </div>
+          </div>
+          <div class="glass" style="padding:6px 16px;">
+            <div class="swap">
+              <div class="rows leaves">
+                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:64px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:72px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              </div>
+              <div class="rows wave">
+                <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="ct">7</span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-de"></i><i class="f-fr"></i></div><span class="nm">Азия</span><span class="ct">4</span><div class="cont"></div></div>
+                <div class="row"><div class="minis"><i class="f-pl"></i><i class="f-de"></i></div><span class="nm">Африка</span><span class="ct">1</span><div class="cont"></div></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+        <h3>Переход</h3>
+        <p class="sub">Обе волны подряд, кроссфейдом 0,2 с.</p>
+        <p class="why">
+          Веер не мигает — он единственное, что не меняется, и это держит
+          экран на месте, пока вокруг него всё встаёт.
+        </p>
+      </article>
+
+    </div></div>
+  </section>
+
+  <section>
+    <h2 class="sec">Один открытый вопрос: строки регионов</h2>
+    <p class="seclede">
+      Названия регионов и их флаги известны сразу — они в каталоге. Неизвестно
+      другое: <em>какие регионы вообще попадут в список</em>. Он показывает
+      только те, где сегодня что-то есть, а это знают только числа. Отсюда две
+      честные развилки.
+    </p>
+
+    <div class="rail"><div class="frames">
+
+      <article class="frame">
+        <div class="phone" style="height:300px"><div class="scene"></div><div class="content">
+          <div class="glass" style="padding:6px 16px;">
+            <div class="rows">
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:64px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:72px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+            </div>
+          </div>
+        </div></div>
+        <h3>C1 · Строки целиком в скелетоне</h3>
+        <p class="why">
+          Ничего не обещает: ни какие регионы, ни сколько их. Три строки —
+          это «здесь будет список», а не «здесь будет три». Список может
+          приехать любой длины, и это не прочтётся как подмена.
+        </p>
+      </article>
+
+      <article class="frame">
+        <div class="phone" style="height:300px"><div class="scene"></div><div class="content">
+          <div class="glass" style="padding:6px 16px;">
+            <div class="rows">
+              <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="sk sk-count"></span><div class="cont"></div></div>
+              <div class="row"><div class="minis"><i class="f-de"></i><i class="f-fr"></i></div><span class="nm">Африка</span><span class="sk sk-count"></span><div class="cont"></div></div>
+              <div class="row"><div class="minis"><i class="f-pl"></i><i class="f-de"></i></div><span class="nm">Америка</span><span class="sk sk-count"></span><div class="cont"></div></div>
+              <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-de"></i></div><span class="nm">Азия</span><span class="sk sk-count"></span><div class="cont"></div></div>
+              <div class="row"><div class="minis"><i class="f-pl"></i><i class="f-fr"></i></div><span class="nm">Океания</span><span class="sk sk-count"></span><div class="cont"></div></div>
+            </div>
+          </div>
+        </div></div>
+        <h3>C2 · Настоящие регионы, скелетон только на числах</h3>
+        <p class="why">
+          Больше информации и красивее: реальные названия, реальные флаги,
+          ждём одну цифру. Но список сегодняшних регионов почти всегда короче
+          пяти — и на второй волне часть строк исчезнет. Экран не дозаполнится,
+          а схлопнется.
+        </p>
+      </article>
+
+    </div></div>
+
+    <div class="pick">
+      <b>Я бы взял C1.</b> C2 показывает больше, но обещает список, которого
+      ещё нет: исчезающие строки читаются как ошибка, а не как уточнение, и
+      это ровно та подмена, из-за которой мы убирали спиннер. C1 обещает
+      только «здесь будет список» — и это обещание он держит при любом
+      ответе.
+    </div>
+  </section>
+
+  <div class="notes">
+    <section>
+      <h3>Что настоящее в первой волне</h3>
+      <ul>
+        <li>Имя колоды, три флага, размеры колод в каталоге — всё локально.</li>
+        <li>Строка «считаем ваш день…» — единственные слова на экране; они же уходят в VoiceOver.</li>
+        <li>Всё, что зависит от бэкенда, — скелетон на своём месте.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Движение</h3>
+      <ul>
+        <li>Блик по скелетону — в одну сторону, 1,6 с, как везде в приложении.</li>
+        <li>Вторая волна — кроссфейд 0,2 с, одним движением на всё сразу.</li>
+        <li>Веер не участвует в переходе: он уже правда.</li>
+        <li>При «уменьшить движение» блик стоит, волна не анимируется.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Чего это стоит</h3>
+      <ul>
+        <li>Подпись героя меняется на второй волне: до чисел неизвестно, какой это герой.</li>
+        <li>Кнопка не нажимается, пока скелетон, — нельзя войти в очередь, которой нет.</li>
+        <li>Если числа приходят быстро, обе волны сливаются — это нормально и не требует задержки.</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>
+    Дизайн, не реализация: в коде пока лежит вариант A из
+    <code>design/home-loader-states.html</code>. Флаги условные, важны место и
+    размер. Пропорции телефона уменьшены.
+  </footer>
+</div>
+
+<script>
+  // Both waves are the thing being judged, so the transition is replayable.
+  const play = document.getElementById("play");
+  let frames = document.getElementById("frames");
+
+  play.addEventListener("click", () => {
+    play.disabled = true;
+    const clone = frames.cloneNode(true);
+    frames.replaceWith(clone);
+    frames = clone;
+    window.setTimeout(() => { play.disabled = false; }, 2000);
+  });
+</script>
