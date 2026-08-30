@@ -180,10 +180,10 @@ public struct HomeView: View {
     /// The hero in its first wave: what the device knows, and a placeholder
     /// where the backend's answer will go.
     ///
-    /// The deck's name and three of its flags are real — they come off the
-    /// catalogue, which is already stored, and the flags are bundled. What
-    /// cannot be drawn yet is the figure and the action it leads to, and
-    /// those are the two shapes standing empty.
+    /// The deck's name is real — it comes off the catalogue, which is already
+    /// stored. Everything the counts decide waits: the figure, the action,
+    /// and the fan, which is blank because a pile of flags beside a number
+    /// reads as the cards that number counts.
     ///
     /// Which hero this becomes is not known: a launch has not resolved
     /// whether the day owes anything, so the deck the screen would offer is
@@ -213,13 +213,11 @@ public struct HomeView: View {
 
                         Spacer(minLength: 0)
 
-                        // Real flags, in the fan's own frame. They are the
-                        // deck's rather than the queue's — before the counts
-                        // there is no queue to draw — and they change with
-                        // everything else when the second wave lands.
-                        if !fanCards.isEmpty {
-                            FlagFanView(cards: fanCards, store: store, assets: assets)
-                        }
+                        // Blank cards rather than the deck's own flags: the
+                        // fan stands beside the number and reads as the cards
+                        // that number counts, and until the counts land there
+                        // is no queue for it to be about.
+                        SkeletonFanView()
                     }
 
                     // The one line of words on the screen, and the only thing
@@ -754,17 +752,51 @@ struct FlagFanView: View {
                     .offset(x: Self.poses[index].x, y: Self.poses[index].y)
                 }
             }
-            .frame(width: 120, height: 74)
+            .frame(width: Self.frame.width, height: Self.frame.height)
             .accessibilityHidden(true)
         }
     }
 
-    private static let size = CGSize(width: 76, height: 57)
-    private static let poses: [(rotation: Double, x: CGFloat, y: CGFloat)] = [
+    /// Shared with the fan's placeholder, so the cards land exactly where the
+    /// waiting shape said they would.
+    static let size = CGSize(width: 76, height: 57)
+    static let frame = CGSize(width: 120, height: 74)
+    static let poses: [(rotation: Double, x: CGFloat, y: CGFloat)] = [
         (-2, 0, 0),
         (-10, -20, 3),
         (8, 20, 5),
     ]
+}
+
+/// The pile, before there is a queue for it to be about.
+///
+/// It used to show the deck's own first three flags while the counts were on
+/// their way, which is a promise the screen could not keep: the fan sits
+/// beside the number and reads as "these are the ones", and until the counts
+/// land nothing knows which three those are. Blank cards say the same thing
+/// the number's placeholder says — this is coming — and say nothing untrue
+/// on the way.
+///
+/// Same cards, same sizes, same lie of the pile, so the flags arrive into
+/// the shape rather than displacing it.
+struct SkeletonFanView: View {
+    var body: some View {
+        ZStack {
+            ForEach(Array(FlagFanView.poses.enumerated().reversed()), id: \.offset) { _, pose in
+                SkeletonBlock(
+                    height: FlagFanView.size.height,
+                    radius: DesignTokens.Radius.small
+                )
+                .frame(width: FlagFanView.size.width)
+                // No shadow: a card that is not there yet is not an object
+                // casting one.
+                .rotationEffect(.degrees(pose.rotation))
+                .offset(x: pose.x, y: pose.y)
+            }
+        }
+        .frame(width: FlagFanView.frame.width, height: FlagFanView.frame.height)
+        .accessibilityHidden(true)
+    }
 }
 
 /// One flag at row height: enough to be recognised beside its count.
