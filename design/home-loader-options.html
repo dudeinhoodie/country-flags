@@ -126,7 +126,10 @@
   .sk-label { height: 11px; width: 44%; border-radius: 5px; }
   .sk-num { height: 34px; width: 84px; }
   .sk-cap { height: 12px; width: 72%; border-radius: 6px; }
-  .sk-cta { height: 44px; border-radius: 999px; }
+  /* The action's placeholder stands in for a solid white capsule rather than
+     for a line of text: the button's own height and radius, edge to edge,
+     and more weight than the bars around it. */
+  .sk-cta { height: 44px; border-radius: 999px; background: rgba(255, 255, 255, 0.13); }
   .sk-fan { width: 96px; height: 58px; border-radius: 10px; flex: none; }
   /* one row of the region list, part by part */
   .sk-mini { width: 21px; height: 16px; border-radius: 3px; flex: none; }
@@ -264,11 +267,10 @@
           </div>
           <div class="glass" style="padding:5px 15px;">
             <div class="rows">
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:74px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span></div>
             </div>
           </div>
         </div></div>
@@ -358,11 +360,10 @@
           <div class="glass" style="position:relative;padding:5px 15px;">
             <div class="swap">
               <div class="rows leaves">
-                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:74px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+                <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span></div>
+                <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span></div>
+                <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span></div>
+                <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span></div>
               </div>
               <div class="rows wave">
                 <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="ct">7</span><div class="cont"></div></div>
@@ -374,9 +375,9 @@
         </div>
         <div class="name"><span class="letter">C1</span><h2>Строки целиком</h2><span class="tag">рекомендую</span></div>
         <p class="note">
-          Пять безымянных строк — по числу регионов в каталоге, то есть
-          потолок. Список приезжает короче, и это читается как список,
-          оказавшийся короче.
+          Четыре безымянные строки из трёх частей: флаг, название, число.
+          Обещают список, но не его длину и не его состав — и любой ответ
+          это обещание держит.
         </p>
       </article>
 

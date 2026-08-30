@@ -103,7 +103,10 @@
   @keyframes sheen { to { transform: translateX(320%); } }
   .sk-num { height: 34px; width: 88px; }
   .sk-cap { height: 12px; width: 74%; border-radius: 6px; }
-  .sk-cta { height: 46px; border-radius: 999px; }
+  /* The action's placeholder stands in for a solid white capsule, not for a
+     line of text, so it carries more weight than the bars around it — at the
+     button's own height and radius, edge to edge. */
+  .sk-cta { height: 46px; border-radius: 999px; background: rgba(255, 255, 255, 0.13); }
   .sk-count { height: 13px; width: 24px; border-radius: 6px; }
   .sk-name { height: 13px; width: 84px; border-radius: 6px; }
   .sk-mini { width: 22px; height: 17px; border-radius: 3px; }
@@ -188,11 +191,10 @@
           </div>
           <div class="glass" style="padding:6px 16px;">
             <div class="rows">
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:64px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:72px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:58px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:76px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span></div>
             </div>
           </div>
         </div></div>
@@ -200,9 +202,10 @@
         <p class="sub">Каталог локальный, чисел ещё нет.</p>
         <p class="why">
           Настоящие: имя колоды и три флага. Всё, что зависит от бэкенда, —
-          число, разбивка, кнопка и весь список регионов внизу — стоит
-          скелетоном на своём месте. Список во всю длину, пять строк: это
-          все регионы каталога, дальше он только укоротится.
+          число, разбивка, кнопка и весь список внизу — стоит скелетоном на
+          своём месте. Строка списка собрана из трёх частей: один флаг,
+          название, число. Силуэт континента placeholder не рисует: он
+          украшение строки, а не её содержание.
         </p>
       </article>
 
@@ -266,9 +269,10 @@
           <div class="glass" style="padding:6px 16px;">
             <div class="swap">
               <div class="rows leaves">
-                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:64px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-                <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:72px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+                <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span></div>
+                <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span></div>
+                <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span></div>
+                <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span></div>
               </div>
               <div class="rows wave">
                 <div class="row"><div class="minis"><i class="f-fr"></i><i class="f-pl"></i></div><span class="nm">Европа</span><span class="ct">7</span><div class="cont"></div></div>
@@ -304,20 +308,19 @@
         <div class="phone" style="height:330px"><div class="scene"></div><div class="content">
           <div class="glass" style="padding:6px 16px;">
             <div class="rows">
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:64px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:72px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:58px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
-              <div class="row"><div class="sk sk-mini"></div><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="display:block;width:76px"></span></span><span class="sk sk-count"></span><div class="sk sk-cont"></div></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:78px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:62px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:70px"></span></span><span class="sk sk-count"></span></div>
+              <div class="row"><div class="sk sk-mini"></div><span class="nm"><span class="sk sk-name" style="width:56px"></span></span><span class="sk sk-count"></span></div>
             </div>
           </div>
         </div></div>
         <h3>C1 · Строки целиком в скелетоне</h3>
         <p class="why">
-          Не обещает, какие это регионы. Пять строк — по числу регионов в
-          каталоге, то есть максимум, который список может принять: он
-          укоротится, но никогда не вырастет, и рамка сверху вниз не
-          дёрнется.
+          Не обещает, какие это регионы. Четыре строки — это «здесь будет
+          список», а не «здесь будет четыре»: блок стоит последним на экране,
+          поэтому список может приехать любой длины, ничего над собой не
+          сдвинув.
         </p>
       </article>
 
@@ -351,9 +354,11 @@
       спиннер. Безымянная строка, которой не стало, — просто список,
       оказавшийся короче.
       <br /><br />
-      Длина в обоих случаях одна и та же: пять — это все регионы каталога,
-      то есть потолок. Список на второй волне укорачивается и никогда не
-      растёт, поэтому герой над ним стоит на месте, а не уезжает вниз.
+      Число строк при этом ничего не решает: блок стоит последним на экране,
+      под ним ничего нет. Список, приехавший длиннее, просто удлиняет
+      прокрутку; приехавший короче — подтягивает низ. Ни в одну сторону он не
+      двигает то, что над ним, так что четыре строки — вопрос вида, а не
+      вёрстки.
     </div>
   </section>
 
@@ -380,7 +385,8 @@
       <ul>
         <li>Подпись героя меняется на второй волне: до чисел неизвестно, какой это герой.</li>
         <li>Кнопка не нажимается, пока скелетон, — нельзя войти в очередь, которой нет.</li>
-        <li>Список внизу на второй волне укорачивается: показываются только регионы, где сегодня что-то есть. Начинать с пяти — значит начинать с потолка, поэтому экран сжимается снизу и ничего не сдвигает над собой.</li>
+        <li>Список внизу на второй волне меняет длину: показываются только регионы, где сегодня что-то есть. Это ничего не стоит — блок последний на экране, и над ним от этого ничего не двигается.</li>
+        <li>Строка placeholder'а проще настоящей: один флаг вместо двух-трёх и без силуэта континента. Она стоит за строку, а не за её украшения.</li>
         <li>Если сегодня не должно быть ни одной строки, блок уходит целиком — единственный случай, когда исчезает не строка, а карточка.</li>
         <li>Если числа приходят быстро, обе волны сливаются — это нормально и не требует задержки.</li>
       </ul>
