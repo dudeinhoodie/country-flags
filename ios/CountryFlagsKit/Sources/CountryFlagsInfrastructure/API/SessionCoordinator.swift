@@ -72,10 +72,16 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
     /// refusal moves the state on its own. Announcing "guest" first would flash
     /// a signed-out interface at somebody who is not.
     public func restore() async {
-        guard case .guest = state,
-            let refreshToken = await storedRefreshToken(),
-            let stored = try? await tokens.value(for: .accountUserID),
-            let userID = UUID(uuidString: stored)
+        // The identity first, off the keychain alone, so the state is
+        // authenticated before the network is touched. This used to happen
+        // only after the refresh returned, and the launch's sync — racing
+        // this call — resolved its scope while the refresh was still in
+        // flight: the first run synced the guest and the home screen opened
+        // on a guest's empty numbers until a pull-to-refresh asked again.
+        await ensureIdentityRestored()
+        guard case .authenticated(let userID) = state,
+            accessToken == nil,
+            let refreshToken = await storedRefreshToken()
         else {
             return
         }
@@ -92,14 +98,39 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
                 // The token is as good as it was yesterday — nobody refused it
                 // — so the app stays signed in and the first request that
                 // reaches the backend refreshes for real.
-                state = .authenticated(userID: userID)
                 return
             }
             // The stored token is spent or revoked. The account is known to
             // have existed, so this is an expired session rather than a guest,
             // and nothing of the guest's own data is touched by saying so.
             state = .authenticationExpired(userID: userID)
+            accessToken = nil
+            try? await tokens.setValue(nil, for: .refreshToken)
         }
+    }
+
+    /// The keychain's answer to who this launch belongs to, read exactly once
+    /// and awaited by every scope resolution: no caller can ask earlier than
+    /// the answer exists. Deliberately without the network — the token's
+    /// validity is the refresh's business, identity is the keychain's.
+    private var identityRestoration: Task<Void, Never>?
+
+    private func ensureIdentityRestored() async {
+        if identityRestoration == nil {
+            identityRestoration = Task { await restoreIdentity() }
+        }
+        await identityRestoration?.value
+    }
+
+    private func restoreIdentity() async {
+        guard case .guest = state,
+            await storedRefreshToken() != nil,
+            let stored = try? await tokens.value(for: .accountUserID),
+            let userID = UUID(uuidString: stored)
+        else {
+            return
+        }
+        state = .authenticated(userID: userID)
     }
 
     // MARK: - Signing in
@@ -195,6 +226,10 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
     // MARK: - AccountScopeResolving
 
     public func currentScope() async -> AccountScope {
+        // Whoever asks first — the launch sync, a store's first read — waits
+        // the milliseconds the keychain takes, and no early caller can ever
+        // be told "guest" about a device that is signed in.
+        await ensureIdentityRestored()
         if case .authenticated(let userID) = state {
             return .authenticated(userID: userID)
         }

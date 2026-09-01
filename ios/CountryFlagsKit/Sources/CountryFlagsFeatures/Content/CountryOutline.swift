@@ -8,15 +8,40 @@ import CountryFlagsDomain
 /// makes the match survive a display name in any language. Both the card's
 /// back and the details sheet resolve through here, so they cannot drift.
 enum CountryOutlineLookup {
+    /// The editorial deck of places that belong to no continent. Its members
+    /// — Antarctica, Bouvet, the remote islets — are exactly where the
+    /// boundary source is least trustworthy, so their maps draw no trace at
+    /// all: membership is the editor's word, not a hard-coded list. The code
+    /// is the backend's derivation of the editorial key `deck.special-areas`
+    /// — `deckCodeFromKey` in `bundle-mapper.ts`, the same rule that turns
+    /// `deck.all` into the `ALL` the progress screen matches on.
+    private static let specialAreasDeckCode = "SPECIAL_AREAS"
+
     static func outline(
-        forPromptAsset assetID: UUID, store: ContentStore
+        forPromptAsset assetID: UUID, cardID: UUID, store: ContentStore
     ) async -> CountryBoundaries.Outline? {
         guard
             let record = await store.asset(id: assetID),
             let assetName = BundledFlags.shipped.assetName(forChecksum: record.sha256)
         else { return nil }
         let slug = String(assetName.dropFirst("flag-".count))
-        return CountryBoundaries.shipped.outline(forSlug: slug)
+        guard let outline = CountryBoundaries.shipped.outline(forSlug: slug) else {
+            return nil
+        }
+        if await belongsToSpecialAreas(cardID: cardID, store: store) {
+            return outline.untraced()
+        }
+        return outline
+    }
+
+    private static func belongsToSpecialAreas(
+        cardID: UUID, store: ContentStore
+    ) async -> Bool {
+        guard
+            let special = await store.decks()
+                .first(where: { $0.code == specialAreasDeckCode })
+        else { return false }
+        return (await store.cardIdentifiersByDeck()[special.id] ?? []).contains(cardID)
     }
 }
 
@@ -52,7 +77,7 @@ struct CountrySilhouetteView: View {
             var maximumLatitude = -Double.greatestFiniteMagnitude
             var minimumLongitude = Double.greatestFiniteMagnitude
             var maximumLongitude = -Double.greatestFiniteMagnitude
-            for ring in outline.rings {
+            for ring in outline.fills {
                 for point in ring {
                     minimumLatitude = min(minimumLatitude, point.latitude)
                     maximumLatitude = max(maximumLatitude, point.latitude)
@@ -70,7 +95,7 @@ struct CountrySilhouetteView: View {
             let offsetY = (size.height - height * scale) / 2
 
             var path = Path()
-            for ring in outline.rings {
+            for ring in outline.fills {
                 guard let first = ring.first else { continue }
                 path.move(
                     to: CGPoint(

@@ -373,6 +373,21 @@ public enum L10n {
         String(format: localized("study.result.remembered"), remembered, planned)
     }
 
+    /// The learned share the result ring stands at, spoken for VoiceOver.
+    public static func studyResultMasteryLearned(_ percent: Int) -> String {
+        String(format: localized("study.result.mastery.learned"), percent)
+    }
+
+    /// What the sitting added to the deck, worn by the pill under the ring.
+    public static func studyResultMasteryDelta(_ percent: Int) -> String {
+        String(format: localized("study.result.mastery.delta"), percent)
+    }
+
+    /// The cards leaving the session for the repeat queue, for VoiceOver.
+    public static func studyResultReturning(_ count: Int) -> String {
+        String(format: localized("study.result.returning"), count)
+    }
+
     public static func studyRating(_ rating: StudyRating) -> String {
         localized("study.rating.\(rating.rawValue.lowercased())")
     }

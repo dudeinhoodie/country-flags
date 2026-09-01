@@ -48,7 +48,7 @@ struct DayClearedCard: View {
     /// The mark and the figure on one line, the draft under them.
     private var total: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-            HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
+            HStack(alignment: .center, spacing: DesignTokens.Spacing.small) {
                 seal
 
                 Text("\(learned)")
@@ -75,10 +75,6 @@ struct DayClearedCard: View {
             .font(.system(size: 34))
             .symbolRenderingMode(.palette)
             .foregroundStyle(.black.opacity(0.75), Color.green)
-            // Sat on the number's own baseline rather than on the glyph's box,
-            // which is taller than the digits beside it. Written as a guide so
-            // it holds when Dynamic Type resizes both.
-            .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 4 }
             .accessibilityHidden(true)
     }
 

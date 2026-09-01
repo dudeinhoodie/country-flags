@@ -45,7 +45,6 @@ struct CountryDetailsSheet: View {
     let store: ContentStore
     let assets: any AssetLoading
     @State private var facts: [FactRecord] = []
-    @State private var aliases: [String] = []
     @State private var regionDeck: DeckRecord?
     @State private var officialName: String?
     @State private var outline: CountryBoundaries.Outline?
@@ -79,15 +78,6 @@ struct CountryDetailsSheet: View {
                 }
                 .frame(height: DesignTokens.Layout.detailPairHeight)
 
-                // The other names this country answers to, quietly under the
-                // flag: the aliases are part of knowing it.
-                if !aliases.isEmpty {
-                    Text(L10n.detailsAlsoKnown(aliases.prefix(3).joined(separator: ", ")))
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-
                 // Every fact is a tile, dealt in pairs. Each pair is fixed
                 // vertically so it takes the taller tile's height: left to
                 // themselves the tiles sized to their own text, and a wrapped
@@ -120,10 +110,21 @@ struct CountryDetailsSheet: View {
             .padding(DesignTokens.Spacing.large)
         }
         .scrollIndicators(.hidden)
+        // The sheet's content usually fits the screen whole, and a fitting
+        // scroll view still rubber-bands — a bounce that read as a pull-to-
+        // refresh and swallowed the closing pull. Without it, the drag goes
+        // to the sheet the moment there is nothing left to scroll.
+        .scrollBounceBehavior(.basedOnSize)
         // Full height at once: the sheet holds a flag, four facts and a map,
         // and a half-open sheet showed the flag the reader had already seen.
         .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
+        // A pull at the top closes the sheet instead of rubber-banding the
+        // scroll: the bounce read as a pull-to-refresh that never came, on a
+        // sheet with nothing to refresh. Mid-scroll dragging is untouched.
+        .presentationContentInteraction(.resizes)
+        // No grabber: the pull works from anywhere on the sheet now, and the
+        // close circle is in the header — the pellet was chrome with no job.
+        .presentationDragIndicator(.hidden)
         .presentationBackground(.regularMaterial)
         .fullScreenCover(isPresented: $isShowingFullMap) {
             if let outline {
@@ -138,9 +139,6 @@ struct CountryDetailsSheet: View {
                 displayName: subject.displayName,
                 store: store
             )
-            aliases = (record?.aliases ?? []).filter {
-                $0.localizedCaseInsensitiveCompare(subject.displayName) != .orderedSame
-            }
             let decks = await store.decks()
             let membership = await store.cardIdentifiersByDeck()
             regionDeck = decks.first { deck in
@@ -148,7 +146,7 @@ struct CountryDetailsSheet: View {
                     && (membership[deck.id] ?? []).contains(subject.cardID)
             }
             outline = await CountryOutlineLookup.outline(
-                forPromptAsset: subject.promptAssetID, store: store
+                forPromptAsset: subject.promptAssetID, cardID: subject.cardID, store: store
             )
             didResolveOutline = true
         }
