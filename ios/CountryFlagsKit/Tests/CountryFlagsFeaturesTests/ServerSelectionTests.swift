@@ -132,11 +132,12 @@ final class ServerSelectionTests: XCTestCase {
         XCTAssertEqual(completed.count, 1)
     }
 
-    /// Nothing waiting to be sent means the backend has seen every answer from
-    /// every device, so its "nothing is due" is the truth — even here, where
-    /// this device happens to hold cards whose time has come. They are cards
-    /// the backend has already accounted for.
-    func testAnEmptyDueOnlyAnswerStandsWhenNothingIsWaitingToBeSent() async {
+    /// Nothing waiting to be sent means the backend has seen every answer
+    /// from every device, so its "nothing is due" is the truth about the
+    /// queue. The learner still tapped the deck meaning to study it, and the
+    /// empty repeat queue is no longer a screen: the start falls through to
+    /// a standard session composed from the same deck.
+    func testAnEmptyDueOnlyAnswerFallsThroughToAStandardSession() async {
         let learning = RecordingLearningRepository(states: Fixtures.dueStates(deckID: deckID))
         let selection = ScriptedSelection(
             result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
@@ -150,11 +151,13 @@ final class ServerSelectionTests: XCTestCase {
 
         await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
 
-        XCTAssertEqual(runner.startFailure, .nothingDue)
+        XCTAssertNil(runner.startFailure)
+        XCTAssertEqual(runner.state?.cards.isEmpty, false)
     }
 
-    /// And with no outbox to ask at all, nothing is known to be waiting.
-    func testAnEmptyDueOnlyAnswerStandsWhenTheDeviceAgrees() async {
+    /// And with no outbox to ask at all, nothing is known to be waiting —
+    /// the fall-through is the same.
+    func testAnEmptyDueOnlyAnswerFallsThroughWithoutAnOutbox() async {
         let selection = ScriptedSelection(
             result: .success(Fixtures.serverSession(deckID: deckID, cardCount: 0))
         )
@@ -166,7 +169,8 @@ final class ServerSelectionTests: XCTestCase {
 
         await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
 
-        XCTAssertEqual(runner.startFailure, .nothingDue)
+        XCTAssertNil(runner.startFailure)
+        XCTAssertEqual(runner.state?.cards.isEmpty, false)
     }
 
     // MARK: - Harness
