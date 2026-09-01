@@ -435,7 +435,7 @@ private struct StudyCardBack: View {
                 store: store
             )
             outline = await CountryOutlineLookup.outline(
-                forPromptAsset: card.promptAssetID, store: store
+                forPromptAsset: card.promptAssetID, cardID: card.learningCardID, store: store
             )
         }
     }

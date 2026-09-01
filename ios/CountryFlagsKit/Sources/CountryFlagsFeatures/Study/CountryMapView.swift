@@ -119,10 +119,32 @@ private struct CountryOutlineLayer: MapContent {
     let outline: CountryBoundaries.Outline
 
     var body: some MapContent {
-        ForEach(Array(outline.rings.enumerated()), id: \.offset) { _, ring in
+        // Fill and stroke are separate geometries on purpose: a fill may be
+        // split along seams a stroke would expose, and a coast may be an
+        // open shoreline a polygon would close across the whole map. A tiny
+        // territory draws no trace at all — the source data cannot be
+        // trusted to metres, and the camera already answers the question.
+        // See `CountryBoundaries`.
+        if outline.isTraced {
+            traced
+        }
+    }
+
+    @MapContentBuilder
+    private var traced: some MapContent {
+        ForEach(Array(outline.fills.enumerated()), id: \.offset) { _, ring in
             MapPolygon(coordinates: ring)
-                .stroke(.white, lineWidth: 2)
+                .stroke(.clear, lineWidth: 0)
                 .foregroundStyle(Color.accentColor.opacity(0.25))
+        }
+        ForEach(Array(outline.coasts.enumerated()), id: \.offset) { _, line in
+            // Round joins: at 1:10m detail a mitred corner spikes on every
+            // sharp headland.
+            MapPolyline(coordinates: line)
+                .stroke(
+                    .white,
+                    style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
+                )
         }
     }
 }
