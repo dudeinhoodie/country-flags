@@ -101,8 +101,10 @@ public enum DesignTokens {
         /// guidelines allow.
         public static let minimumTouchTarget: CGFloat = 44
         /// Both provider sign-in buttons, identical on purpose: two offers
-        /// of the same thing must read as equals.
-        public static let providerButtonHeight: CGFloat = 50
+        /// of the same thing must read as equals. The same height as every
+        /// other action in the app, so a screen offering a way in does not
+        /// suddenly change its measure.
+        public static let providerButtonHeight: CGFloat = actionHeight
         /// The height of a primary action. Larger than the minimum on purpose:
         /// the rating row is pressed hundreds of times in a session, and a miss
         /// there costs a wrong interval rather than a wrong screen.

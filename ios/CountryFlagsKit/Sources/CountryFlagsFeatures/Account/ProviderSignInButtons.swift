@@ -10,6 +10,20 @@ import CountryFlagsDomain
 /// places cannot drift into looking like a first choice and an afterthought —
 /// what differs is what the caller does with the credential, which is the
 /// closure it passes.
+///
+/// They wear the app's own vocabulary — capsules at the height of every other
+/// action, white for the one recommended and glass for the one merely
+/// offered — within what the providers allow, which is the whole design
+/// problem here. Apple's button may not be redrawn: it must be the system's
+/// own, in one of three approved styles. What it does allow is a corner
+/// radius of up to half its height, so the capsule this app is built from is
+/// available, and the white style is the same white the app spends on its
+/// loudest action. Google's mark and wording are theirs; the surface under
+/// them is ours.
+///
+/// Apple sits first and in white, Google second and in glass, which is also
+/// how guideline 4.8 wants it: the alternative to a third-party sign-in has
+/// to be at least as prominent, and here it is more so.
 struct ProviderSignInButtons: View {
     /// The credential a debug build offers instead of a provider sheet, which
     /// is the only way a UI test can drive a flow that starts with one. It is
@@ -54,11 +68,15 @@ struct ProviderSignInButtons: View {
         }
         .signInWithAppleButtonStyle(.white)
         .frame(height: DesignTokens.Layout.providerButtonHeight)
+        // The one shape the app draws. Apple permits a radius up to half the
+        // height, and half the height is a capsule.
+        .clipShape(Capsule(style: .continuous))
         .accessibilityIdentifier(appleIdentifier)
 
         if let google {
-            // The same slab as Apple's, deliberately: white, the same height,
-            // the same radius, the provider's own mark on the left.
+            // Glass rather than a second white slab: two white capsules would
+            // read as two recommendations, and one of them has to be the
+            // quieter offer. The mark and the wording stay Google's.
             Button {
                 Task {
                     switch await google.signIn() {
@@ -72,20 +90,23 @@ struct ProviderSignInButtons: View {
                 }
             } label: {
                 HStack(spacing: DesignTokens.Spacing.small) {
+                    // On its own white keeper, as Google's guidelines ask
+                    // when the mark sits on anything but white.
                     GoogleLogoMark()
                         .frame(width: 18, height: 18)
+                        .padding(5)
+                        .background(.white, in: Circle())
                     Text(L10n.accountSignInGoogle)
                         .font(DesignTokens.Typography.body.weight(.medium))
+                        .foregroundStyle(.white)
                 }
-                .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
                 .frame(height: DesignTokens.Layout.providerButtonHeight)
-                .background(
-                    .white,
-                    in: RoundedRectangle(
-                        cornerRadius: DesignTokens.Radius.small, style: .continuous
-                    )
+                .glassEffect(
+                    .regular.tint(.white.opacity(0.16)).interactive(),
+                    in: Capsule(style: .continuous)
                 )
+                .contentShape(Capsule(style: .continuous))
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier(googleIdentifier)
