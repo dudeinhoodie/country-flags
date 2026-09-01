@@ -272,6 +272,13 @@ public enum L10n {
     public static var accountExportShare: String { localized("account.export_share") }
     public static var accountExportFailed: String { localized("account.export_failed") }
     public static var accountLegalSection: String { localized("account.legal_section") }
+    /// The about screen: which build this is, and whose work it carries.
+    public static var aboutTitle: String { localized("about.title") }
+    public static var aboutVersion: String { localized("about.version") }
+    public static var aboutBuild: String { localized("about.build") }
+    public static var aboutCreditsSection: String { localized("about.credits") }
+    public static var settingsAbout: String { localized("settings.about") }
+
     public static var accountPrivacyPolicy: String { localized("account.privacy_policy") }
     public static var accountTerms: String { localized("account.terms") }
     public static var accountDangerSection: String { localized("account.danger_section") }

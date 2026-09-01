@@ -28,11 +28,16 @@ public struct RuntimeConfiguration: Hashable, Sendable {
     /// The backend's own client, which the identity token is minted for: the
     /// backend verifies the audience, and the audience is the backend.
     public let googleServerClientID: String?
-    /// The published legal documents, absent until they exist. An absent
-    /// address hides its link rather than opening a page that is not there:
-    /// the same rule the Google button follows.
+    /// The published legal documents. Optional in the type because a build
+    /// can be configured without them; a release build cannot — the release
+    /// check requires both to be set and to answer.
     public let privacyPolicyURL: URL?
     public let termsURL: URL?
+    /// What this build calls itself, for the about screen and for anybody
+    /// reporting a problem. Defaulted rather than optional: a build always
+    /// has a version, and a screen that shows one has nothing to branch on.
+    public let appVersion: String
+    public let appBuild: String
 
     public init(
         environment: AppEnvironment,
@@ -41,7 +46,9 @@ public struct RuntimeConfiguration: Hashable, Sendable {
         googleClientID: String? = nil,
         googleServerClientID: String? = nil,
         privacyPolicyURL: URL? = nil,
-        termsURL: URL? = nil
+        termsURL: URL? = nil,
+        appVersion: String = "0",
+        appBuild: String = "0"
     ) {
         self.environment = environment
         self.apiBaseURL = apiBaseURL
@@ -50,5 +57,7 @@ public struct RuntimeConfiguration: Hashable, Sendable {
         self.googleServerClientID = googleServerClientID
         self.privacyPolicyURL = privacyPolicyURL
         self.termsURL = termsURL
+        self.appVersion = appVersion
+        self.appBuild = appBuild
     }
 }

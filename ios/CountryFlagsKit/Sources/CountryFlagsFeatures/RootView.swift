@@ -421,6 +421,13 @@ public struct RootView: View {
                     ? configuration.environment.rawValue.uppercased()
                     : nil
             )
+        case .about:
+            AboutScreen(
+                version: configuration.appVersion,
+                build: configuration.appBuild,
+                privacyPolicyURL: configuration.privacyPolicyURL,
+                termsURL: configuration.termsURL
+            )
         case .account:
             if let makeAccountLifecycleStore {
                 AccountScreen(
@@ -445,6 +452,8 @@ public enum AccessibilityIdentifier {
     public static let shellTitle = "root.shell.title"
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
+    public static let settingsAbout = "settings.about"
+    public static let aboutVersion = "about.version"
     /// The launch wait — for the catalogue or for an account's numbers — and
     /// the way out of it when the backend cannot be reached.
     public static let launchWait = "root.launchWait"
