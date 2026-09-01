@@ -203,13 +203,22 @@ struct ProgressTrackView: View {
                 Capsule().fill(.white.opacity(0.15))
                 Capsule()
                     .fill(.white.opacity(0.4))
-                    .frame(width: proxy.size.width * started)
+                    .frame(width: fillWidth(started, in: proxy.size.width))
                 Capsule()
                     .fill(.white)
-                    .frame(width: proxy.size.width * learned)
+                    .frame(width: fillWidth(learned, in: proxy.size.width))
             }
         }
         .frame(height: DesignTokens.Layout.progressBarHeight)
         .accessibilityHidden(true)
+    }
+
+    /// Never thinner than the bar is tall: below that a capsule's corner
+    /// radius is set by its width and the sliver's ends read square. The
+    /// smallest honest fill is a round dot.
+    private func fillWidth(_ fraction: Double, in width: CGFloat) -> CGFloat {
+        fraction > 0
+            ? max(DesignTokens.Layout.progressBarHeight, width * fraction)
+            : 0
     }
 }
