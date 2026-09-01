@@ -55,16 +55,6 @@ public struct StudySessionView: View {
             // ends, so nothing flashes white between them.
             AppScene(palette: palette, drifts: true)
 
-            // The verdict is poured over the scene itself, not into the
-            // padded column: green water rising to the share of remembered
-            // answers, edge to edge.
-            if let summary = runner.summary, summary.plannedCards > 0 {
-                ResultWaterView(
-                    fraction: Double(summary.rememberedCards)
-                        / Double(summary.plannedCards)
-                )
-            }
-
             content
             .task(id: deckID) { deckName = await store.deck(id: deckID)?.name ?? "" }
                 .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
@@ -83,21 +73,15 @@ public struct StudySessionView: View {
     private var content: some View {
         if let summary = runner.summary {
             StudySessionResultView(
-                summary: summary, store: store, assets: assets, onDone: onFinish
+                summary: summary,
+                deckName: deckName,
+                mastery: runner.deckMastery,
+                store: store,
+                assets: assets,
+                onDone: onFinish
             )
         } else if let failure = runner.startFailure {
-            StudyUnavailableView(failure: failure, onDone: onFinish) {
-                // The same deck, without the queue's filter. Nothing is due,
-                // but the deck is still two hundred countries and the person
-                // is already here.
-                Task {
-                    await runner.startOrResume(
-                        deckID: deckID,
-                        size: size,
-                        composition: .standard
-                    )
-                }
-            }
+            StudyUnavailableView(failure: failure, onDone: onFinish)
         } else if let state = runner.state, let card = state.currentCard {
             cardView(state: state, card: card)
         } else if runner.state == nil {
@@ -302,33 +286,81 @@ public struct StudySessionView: View {
 
 }
 
-/// The session's verdict, read off the waterline.
+/// The session's verdict, told as an open gauge.
 ///
-/// The scene fills with green water to the share of remembered answers — the
-/// level is the result, and a perfect session reaches the brim. Over the
-/// water only what the water cannot say: the two counts, the flags that were
-/// answered with the misses dimmed, and the way out. Nothing is said twice.
+/// The hero is a half-circle scale of the sitting itself — zero to the cards
+/// it dealt — filled to the remembered count with the scene's aurora. The
+/// score stands inside the bowl, the deck's own gain worn as a pill under
+/// it, and its floor sits on the line of the scale's end labels. Below, the
+/// answers: every flag of the sitting, a missed one slightly translucent and
+/// nothing more, rows centred whatever the count. Nothing is said twice and
+/// nothing is judged — the screen shows results, the learner draws the
+/// conclusions.
 struct StudySessionResultView: View {
     let summary: StudySessionSummary
+    /// Feeds the pill alone; the gauge is the session's own arithmetic.
+    let mastery: StudySessionDeckMastery?
+    let deckName: String
     let store: ContentStore
     let assets: any AssetLoading
     let onDone: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var hasArrived = false
-    /// One soft tap per step of the pour, and a firmer one at the waterline.
-    @State private var pourTick = 0
+    /// The gauge's sweep position, 0...1 of the half-circle.
+    @State private var gaugeFill: Double = 0
+    /// One soft tap per step of the sweep, and a firmer one at the level.
+    @State private var fillTick = 0
     @State private var hasFilled = false
+
+    /// The pill's green, and where the gauge's gradient sets off from.
+    static let green = Color(red: 122 / 255, green: 224 / 255, blue: 150 / 255)
+    /// Where the gradient arrives: a bright, cheerful cyan — livelier than
+    /// the scene's own muted blue, which read as overcast.
+    static let gaugeCyan = Color(red: 86 / 255, green: 200 / 255, blue: 245 / 255)
+
+    /// The fill is smooth, unhurried, and over before it is waited for.
+    private static let fillDuration: TimeInterval = 1.25
+
+    init(
+        summary: StudySessionSummary,
+        deckName: String,
+        mastery: StudySessionDeckMastery?,
+        store: ContentStore,
+        assets: any AssetLoading,
+        onDone: @escaping () -> Void
+    ) {
+        self.summary = summary
+        self.deckName = deckName
+        self.mastery = mastery
+        self.store = store
+        self.assets = assets
+        self.onDone = onDone
+    }
+
+    private var sessionFraction: Double {
+        summary.plannedCards > 0
+            ? Double(summary.rememberedCards) / Double(summary.plannedCards)
+            : 0
+    }
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.large) {
-            score
+            header
                 .settled(hasArrived, step: 0, reduceMotion: reduceMotion)
                 .padding(.top, DesignTokens.Spacing.large)
 
+            gauge
+                // Dropped from the header by the owner's eye on the device.
+                .padding(.top, 30)
+                .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
+
             if !summary.answered.isEmpty {
-                answeredFlags
-                    .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
+                answers
+                    // Sunk below the gauge by the owner's eye, like the
+                    // gauge below the header.
+                    .padding(.top, DesignTokens.Spacing.large)
+                    .settled(hasArrived, step: 2, reduceMotion: reduceMotion)
             }
 
             Spacer(minLength: 0)
@@ -343,221 +375,288 @@ struct StudySessionResultView: View {
             )
             .buttonStyle(PrimaryActionStyle())
             .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
-            .settled(hasArrived, step: 2, reduceMotion: reduceMotion)
+            .settled(hasArrived, step: 3, reduceMotion: reduceMotion)
         }
         .onAppear {
             hasArrived = true
             if reduceMotion {
+                gaugeFill = sessionFraction
                 hasFilled = true
             } else {
-                // The pour is felt as much as seen: a soft tap per step of
-                // the rise, then the firmer arrival at the waterline, timed
-                // to the water view's 2.4-second fill.
+                // A plain ease-out: the spring's bounce read as a jitter at
+                // the tip, and a gauge does not tremble.
+                withAnimation(.easeOut(duration: Self.fillDuration).delay(0.15)) {
+                    gaugeFill = sessionFraction
+                }
+                // The fill is felt as much as seen: a soft tap per step of
+                // the sweep, then the firmer arrival at the level.
                 Task {
-                    for _ in 0..<16 {
-                        try? await Task.sleep(for: .milliseconds(150))
-                        pourTick += 1
+                    for _ in 0..<8 {
+                        try? await Task.sleep(for: .milliseconds(160))
+                        fillTick += 1
                     }
+                    try? await Task.sleep(for: .milliseconds(120))
                     hasFilled = true
                 }
             }
         }
-        .sensoryFeedback(.impact(weight: .light, intensity: 0.45), trigger: pourTick)
+        .sensoryFeedback(.impact(weight: .light, intensity: 0.45), trigger: fillTick)
         .sensoryFeedback(.impact(weight: .medium, intensity: 1.0), trigger: hasFilled) {
             _, filled in filled
         }
     }
 
-    /// "7 / 10", always: the remembered count over the session's size — the
-    /// same fraction the water stands at.
-    private var score: some View {
-        HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
-            Text("\(summary.rememberedCards)")
-                .font(.system(size: 46, weight: .heavy, design: .rounded))
-                .foregroundStyle(.white)
-            Text(verbatim: "/ \(summary.plannedCards)")
-                .font(.system(size: 30, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.5))
+    /// The verdict in words, quiet on purpose: the gauge is the loud part.
+    /// The deck's name is not here — it stands over its own flags below.
+    private var header: some View {
+        Text(L10n.studyResultTitle)
+            .font(DesignTokens.Typography.caption.weight(.semibold))
+            .kerning(DesignTokens.Typography.labelKerning)
+            .textCase(.uppercase)
+            .foregroundStyle(.white.opacity(0.55))
+            .multilineTextAlignment(.center)
+    }
+
+    /// The scale and what stands in its bowl, one element for VoiceOver.
+    private var gauge: some View {
+        ZStack(alignment: .bottom) {
+            VStack(spacing: DesignTokens.Spacing.small) {
+                ZStack {
+                    SessionGaugeArc(fill: 1)
+                        .stroke(
+                            .white.opacity(0.22),
+                            style: StrokeStyle(lineWidth: SessionGauge.trackLine, lineCap: .round)
+                        )
+                    // The app's success green pouring into a bright cyan:
+                    // one cheerful sweep. A fill sampled off the deck's flags
+                    // gave every deck its own gauge, and some a muddy one.
+                    SessionGaugeArc(fill: gaugeFill)
+                        .stroke(
+                            LinearGradient(
+                                colors: [Self.green, Self.gaugeCyan],
+                                startPoint: .bottomLeading,
+                                endPoint: .topTrailing
+                            ),
+                            style: StrokeStyle(lineWidth: SessionGauge.line, lineCap: .round)
+                        )
+                }
+                .frame(width: SessionGauge.width, height: SessionGauge.arcHeight)
+
+                // The scale's own ends: zero, and the cards this sitting
+                // dealt — which is why the size is not repeated anywhere.
+                // Each label is centred exactly under its end of the arc,
+                // not flushed to the box's edge beside it.
+                ZStack {
+                    Text(verbatim: "0")
+                        .position(x: SessionGauge.line / 2, y: 8)
+                    Text(verbatim: "\(summary.plannedCards)")
+                        .position(x: SessionGauge.width - SessionGauge.line / 2, y: 8)
+                }
+                .font(DesignTokens.Typography.caption.weight(.medium))
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.55))
+                .frame(width: SessionGauge.width, height: 16)
+            }
+
+            // The verdict stack, its floor on the end labels' line. The
+            // score stands alone: the scale's ends say what it is out of,
+            // and the spoken label says what it counts. The pill's slot is
+            // held even when nothing is earned — the score keeps its place
+            // whatever happens under it.
+            VStack(spacing: DesignTokens.Spacing.extraSmall) {
+                Text(verbatim: "\(summary.rememberedCards)")
+                    .font(.system(size: 64, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+
+                deltaPill(mastery?.deltaPercent ?? 0)
+                    .opacity((mastery?.deltaPercent ?? 0) > 0 ? 1 : 0)
+                    .padding(.top, DesignTokens.Spacing.small)
+            }
         }
-        .monospacedDigit()
-        .accessibilityElement(children: .combine)
-        // The bare fraction is for the eye; the sentence says what it counts.
-        .accessibilityLabel(
-            L10n.studyResultRemembered(summary.rememberedCards, summary.plannedCards)
-        )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(gaugeAccessibilityLabel)
         .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
     }
 
-    /// The answered flags on a dark pane so they read over saturated water:
-    /// a remembered country carries a green mark, a missed one stands dimmed
-    /// — the dimming is the app's own word for "not yet yours".
-    private var answeredFlags: some View {
-        LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 44), spacing: DesignTokens.Spacing.small)],
-            spacing: DesignTokens.Spacing.small
-        ) {
-            ForEach(Array(summary.answered.enumerated()), id: \.offset) { _, card in
-                let missed = card.rating == .again || card.rating == .hard
-                VStack(spacing: 3) {
-                    FlagImageView(
-                        assetID: card.promptAssetID,
-                        accessibilityLabel: "",
-                        store: store,
-                        assets: assets
-                    )
-                    .frame(width: 44, height: 33)
-                    .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
-                    .saturation(missed ? 0.5 : 1)
-                    .opacity(missed ? 0.45 : 1)
+    /// Everything the visuals say, in one spoken sentence: the score, the
+    /// deck's gain, and — because the flags below carry it only as
+    /// translucency — how many cards are coming back.
+    private var gaugeAccessibilityLabel: String {
+        var parts = [
+            L10n.studyResultRemembered(summary.rememberedCards, summary.plannedCards)
+        ]
+        if let mastery, mastery.deltaPercent > 0 {
+            parts.append(L10n.studyResultMasteryDelta(mastery.deltaPercent))
+        }
+        let returning = summary.answeredCards - summary.rememberedCards
+        if returning > 0 {
+            parts.append(L10n.studyResultReturning(returning))
+        }
+        return parts.joined(separator: ", ")
+    }
 
-                    if !missed {
-                        Capsule()
-                            .fill(ResultWaterView.green.opacity(0.9))
-                            .frame(width: 20, height: 3)
+    /// What the sitting added to the deck, worn as the one green word.
+    private func deltaPill(_ delta: Int) -> some View {
+        Text(L10n.studyResultMasteryDelta(delta))
+            .font(DesignTokens.Typography.caption.weight(.semibold))
+            .monospacedDigit()
+            .foregroundStyle(Self.green)
+            .padding(.horizontal, DesignTokens.Spacing.medium)
+            .padding(.vertical, DesignTokens.Spacing.small)
+            .background(Self.green.opacity(0.18), in: Capsule(style: .continuous))
+            .overlay {
+                Capsule(style: .continuous)
+                    .strokeBorder(Self.green.opacity(0.4), lineWidth: 1)
+            }
+    }
+
+    /// Every card of the sitting under one quiet word: a missed flag is
+    /// slightly translucent and nothing more — a flag is content and is
+    /// never desaturated. Spoken by the gauge's label, not repeated here.
+    private var answers: some View {
+        VStack(spacing: DesignTokens.Spacing.medium) {
+            // The deck's name, wearing the section word's type. Not
+            // `SectionLabel`: that one pins itself to the leading edge, and
+            // everything on this screen stands on the centre line.
+            if !deckName.isEmpty {
+                Text(deckName)
+                    .font(DesignTokens.Typography.caption.weight(.semibold))
+                    .kerning(DesignTokens.Typography.labelKerning)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.white.opacity(0.5))
+            }
+
+            // Scrolls only when a fifty-card sitting outgrows the screen;
+            // the usual five to twenty stand still.
+            ScrollView(.vertical, showsIndicators: false) {
+                CenteredFlow(spacing: DesignTokens.Spacing.small) {
+                    ForEach(Array(summary.answered.enumerated()), id: \.offset) { _, card in
+                        let missed = card.rating == .again || card.rating == .hard
+                        FlagImageView(
+                            assetID: card.promptAssetID,
+                            accessibilityLabel: "",
+                            store: store,
+                            assets: assets
+                        )
+                        .frame(width: 40, height: 30)
+                        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                        // The card's own hairline, at the card's own opacity:
+                        // what keeps a white flag from dissolving.
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                .strokeBorder(
+                                    .white.opacity(DesignTokens.Card.borderOpacity),
+                                    lineWidth: 1
+                                )
+                        }
+                        .opacity(missed ? 0.55 : 1)
                     }
                 }
             }
-        }
-        .padding(DesignTokens.Spacing.medium)
-        .background(
-            .black.opacity(0.25),
-            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
-                .strokeBorder(.white.opacity(0.14), lineWidth: 1)
+            .scrollBounceBehavior(.basedOnSize)
+            .frame(maxHeight: SessionGauge.answersMaxHeight)
+            .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityHidden(true)
     }
 }
 
-/// The green water the finish screen stands in.
-///
-/// One Canvas shape — a sine surface over a filled body — so the waterline is
-/// the water's own edge and can never split from it. Time drives everything:
-/// the pour eases the level up over 2.4 seconds, then the surface keeps
-/// drifting sideways under a slow swell, on the same clock that moves the
-/// scene's lamps and sways the waiting cards.
-struct ResultWaterView: View {
-    /// The share of answers remembered, 0...1: the level the water settles at.
-    let fraction: Double
+/// The measures of the approved mockup, taken as they are.
+private enum SessionGauge {
+    static let width: CGFloat = 330
+    static let line: CGFloat = 10
+    static let trackLine: CGFloat = 2.5
+    /// The arc's box: its radius plus half the band over the apex.
+    static let arcHeight: CGFloat = 160
+    /// Five rows of flags; a longer sitting scrolls inside its box.
+    static let answersMaxHeight: CGFloat = 182
+}
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var poursFrom = Date()
-    /// The pour earns the display's full refresh; the idle drift after it
-    /// does not. Once the water stands at its level, the clock slows to the
-    /// same 20Hz every other ambient timeline in the app runs at.
-    @State private var hasSettled = false
+/// The half-circle scale, swept by `fill` from the left end over the top.
+private struct SessionGaugeArc: Shape {
+    var fill: Double
 
-    static let green = Color(red: 122 / 255, green: 224 / 255, blue: 150 / 255)
+    var animatableData: Double {
+        get { fill }
+        set { fill = newValue }
+    }
 
-    var body: some View {
-        TimelineView(
-            .animation(minimumInterval: hasSettled ? 1 / 20 : nil, paused: reduceMotion)
-        ) { context in
-            Canvas { canvas, size in
-                let time = context.date.timeIntervalSince(poursFrom)
-                let poured = reduceMotion ? 1.0 : min(1, max(0, time / 2.4))
-                // Ease-out into the level, and the brim is 90% of the
-                // screen: even a perfect session leaves the score dry air.
-                let level = fraction * 0.9 * (1 - pow(1 - poured, 3))
-                guard level > 0.001 else { return }
+    func path(in rect: CGRect) -> Path {
+        guard fill > 0 else { return Path() }
+        let radius = min(rect.width, rect.height * 2) / 2 - SessionGauge.line / 2
+        var arc = Path()
+        arc.addArc(
+            center: CGPoint(x: rect.midX, y: rect.maxY),
+            radius: radius,
+            startAngle: .degrees(180),
+            endAngle: .degrees(180 + 180 * min(fill, 1)),
+            clockwise: false
+        )
+        return arc
+    }
+}
 
-                let drift = reduceMotion ? 0 : time * 0.55
-                let swell = reduceMotion ? 0 : sin(time * 0.9) * 3.5
-                let amplitude = reduceMotion ? 5.0 : 5 + 1.5 * sin(time * 0.6 + 1)
-                let surfaceY = size.height * (1 - CGFloat(level)) + CGFloat(swell)
-                let wavelength = max(size.width / 1.5, 1)
+/// Rows of as many tiles as fit the width, every row centred — the last,
+/// however short, included. `LazyVGrid` fills columns and leaves the tail
+/// row hanging on the left; the flags read as one set, and a set is centred.
+private struct CenteredFlow: Layout {
+    let spacing: CGFloat
 
-                func greenY(_ x: CGFloat) -> CGFloat {
-                    let angle = Double(x / wavelength) * 2 * .pi + drift
-                    return surfaceY + CGFloat(sin(angle) * amplitude)
-                }
-                let greyDrift = reduceMotion ? 0.9 : time * 0.4 + 2
-                func greyY(_ x: CGFloat) -> CGFloat {
-                    let angle = Double(x / wavelength) * 2 * .pi + greyDrift
-                    return surfaceY - 4 + CGFloat(sin(angle) * amplitude * 1.35)
-                }
-
-                let step: CGFloat = 4
-                let end = size.width + step
-
-                // One sampling loop for both uses of a surface: the crest is
-                // the open line, the body the same line closed to the floor —
-                // so the stroke can never drift off the fill it caps.
-                func surfacePath(of surface: (CGFloat) -> CGFloat, closed: Bool) -> Path {
-                    var path = Path()
-                    var x: CGFloat = 0
-                    while x <= end {
-                        let point = CGPoint(x: x, y: surface(x))
-                        if x == 0 { path.move(to: point) } else { path.addLine(to: point) }
-                        x += step
-                    }
-                    if closed {
-                        path.addLine(to: CGPoint(x: end, y: size.height))
-                        path.addLine(to: CGPoint(x: 0, y: size.height))
-                        path.closeSubpath()
-                    }
-                    return path
-                }
-                func body(of surface: (CGFloat) -> CGFloat) -> Path {
-                    surfacePath(of: surface, closed: true)
-                }
-                func crest(of surface: (CGFloat) -> CGFloat) -> Path {
-                    surfacePath(of: surface, closed: false)
-                }
-
-                // The grey swell is a wave of its own, full-bodied down to
-                // the floor so it never reads as a strip floating free of the
-                // bar, its own hairline marking where it ends. Painted first:
-                // the green water always lies on top, and the two crests
-                // cross now and then as they drift.
-                canvas.fill(
-                    body(of: greyY),
-                    with: .linearGradient(
-                        Gradient(stops: [
-                            .init(color: Color(white: 0.78).opacity(0.26), location: 0),
-                            .init(color: Color(white: 0.78).opacity(0.08), location: 0.4),
-                            .init(color: Color(white: 0.78).opacity(0.05), location: 1),
-                        ]),
-                        startPoint: CGPoint(x: 0, y: surfaceY - 4),
-                        endPoint: CGPoint(x: 0, y: size.height)
-                    )
-                )
-                canvas.stroke(
-                    crest(of: greyY),
-                    with: .color(Color(white: 0.62).opacity(0.85)),
-                    lineWidth: 1
-                )
-
-                canvas.fill(
-                    body(of: greenY),
-                    with: .linearGradient(
-                        Gradient(stops: [
-                            .init(color: Self.green.opacity(0.36), location: 0),
-                            .init(color: Self.green.opacity(0.14), location: 0.65),
-                            .init(color: Self.green.opacity(0.1), location: 1),
-                        ]),
-                        startPoint: CGPoint(x: 0, y: surfaceY),
-                        endPoint: CGPoint(x: 0, y: size.height)
-                    )
-                )
-                canvas.stroke(
-                    crest(of: greenY),
-                    with: .color(Self.green.opacity(0.9)),
-                    lineWidth: 1
-                )
+    func sizeThatFits(
+        proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
+    ) -> CGSize {
+        let width = proposal.width ?? .infinity
+        var rowWidth: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+        var widestRow: CGFloat = 0
+        for view in subviews {
+            let size = view.sizeThatFits(.unspecified)
+            let grown = rowWidth == 0 ? size.width : rowWidth + spacing + size.width
+            if grown > width, rowWidth > 0 {
+                totalHeight += (totalHeight == 0 ? 0 : spacing) + rowHeight
+                widestRow = max(widestRow, rowWidth)
+                rowWidth = size.width
+                rowHeight = size.height
+            } else {
+                rowWidth = grown
+                rowHeight = max(rowHeight, size.height)
             }
         }
-        .ignoresSafeArea()
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-        .task {
-            guard !reduceMotion else { return }
-            // A hair past the 2.4-second pour, so the ease-out finishes at
-            // full rate before the clock slows.
-            try? await Task.sleep(for: .seconds(2.6))
-            hasSettled = true
+        totalHeight += (totalHeight == 0 ? 0 : spacing) + rowHeight
+        widestRow = max(widestRow, rowWidth)
+        return CGSize(width: proposal.width ?? widestRow, height: totalHeight)
+    }
+
+    func placeSubviews(
+        in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
+    ) {
+        var index = 0
+        var y = bounds.minY
+        while index < subviews.count {
+            var rowEnd = index
+            var rowWidth: CGFloat = 0
+            var rowHeight: CGFloat = 0
+            while rowEnd < subviews.count {
+                let size = subviews[rowEnd].sizeThatFits(.unspecified)
+                let grown = rowWidth == 0 ? size.width : rowWidth + spacing + size.width
+                if grown > bounds.width, rowWidth > 0 { break }
+                rowWidth = grown
+                rowHeight = max(rowHeight, size.height)
+                rowEnd += 1
+            }
+            var x = bounds.minX + (bounds.width - rowWidth) / 2
+            for i in index..<rowEnd {
+                let size = subviews[i].sizeThatFits(.unspecified)
+                subviews[i].place(
+                    at: CGPoint(x: x, y: y + (rowHeight - size.height) / 2),
+                    proposal: ProposedViewSize(size)
+                )
+                x += size.width + spacing
+            }
+            y += rowHeight + spacing
+            index = rowEnd
         }
     }
 }
@@ -565,13 +664,6 @@ struct ResultWaterView: View {
 struct StudyUnavailableView: View {
     let failure: StudySessionStartFailure
     let onDone: () -> Void
-    /// Studying the deck anyway, when the queue is what came up empty.
-    ///
-    /// An empty repeat queue is not a reason to send somebody back to the
-    /// first screen: they opened a deck meaning to study it, and the deck is
-    /// full of countries. Absent for the failures where there is nothing to
-    /// offer — a deck with no usable cards, or a store that will not open.
-    var onStudyAnyway: (() -> Void)?
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
@@ -590,17 +682,8 @@ struct StudyUnavailableView: View {
 
             Spacer(minLength: 0)
 
-            if failure == .nothingDue, let onStudyAnyway {
-                Button(L10n.studyStart, action: onStudyAnyway)
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
-
-                Button(L10n.studyResultDone, action: onDone)
-                    .buttonStyle(GlassActionStyle())
-            } else {
-                Button(L10n.studyResultDone, action: onDone)
-                    .buttonStyle(PrimaryActionStyle())
-            }
+            Button(L10n.studyResultDone, action: onDone)
+                .buttonStyle(PrimaryActionStyle())
         }
     }
 

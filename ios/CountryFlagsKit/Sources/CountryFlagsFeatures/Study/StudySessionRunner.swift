@@ -46,6 +46,11 @@ public final class StudySessionRunner {
     /// not saved instead of moving on.
     public private(set) var lastCommitFailed = false
     public private(set) var summary: StudySessionSummary?
+    /// The deck as the result ring tells it, set together with the summary.
+    /// Read off the device's own projection — the sanctioned optimistic view
+    /// until the backend answers — so the ring can move the moment the
+    /// session ends instead of waiting for a sync.
+    public private(set) var deckMastery: StudySessionDeckMastery?
 
     private let scopes: any AccountScopeResolving
     /// Resolved once, when the session starts. A session belongs to the account
@@ -68,6 +73,11 @@ public final class StudySessionRunner {
     /// resumed session reports the sitting rather than the calendar time since
     /// it was first opened.
     private var startedAt: Date?
+    /// The deck's cards and its learned count as the sitting began, for the
+    /// ring's before/after. Taken per sitting, like `startedAt`: a resumed
+    /// session measures what this sitting adds, not what the session has.
+    private var deckCardIDs: [UUID] = []
+    private var learnedBefore = 0
 
     public init(
         scopes: any AccountScopeResolving,
@@ -113,11 +123,22 @@ public final class StudySessionRunner {
     ) async {
         if scope == nil { scope = await scopes.currentScope() }
         startedAt = dates.now()
+        await snapshotDeckBefore(deckID: deckID)
         if await resume(deckID: deckID, composition: composition) {
             await reportSessionStarted(requestedCardCount: state?.cards.count ?? 0)
             return
         }
         await start(deckID: deckID, size: size, composition: composition)
+        // An empty repeat queue is no longer a screen: the learner tapped the
+        // deck meaning to study it, and the advertised due count and the
+        // queue composed at start are two snapshots of one truth taken at
+        // different moments — they may honestly disagree right after a
+        // sitting. A due-only launch that finds nothing due falls through to
+        // a standard session; the second start still answers .noUsableCards
+        // itself when the deck is truly empty, the one case that needs words.
+        if startFailure == .nothingDue, composition == .dueOnly {
+            await start(deckID: deckID, size: size, composition: .standard)
+        }
         await reportSessionStarted(requestedCardCount: size.rawValue)
     }
 
@@ -574,6 +595,37 @@ public final class StudySessionRunner {
                 StudySessionSummary.AnsweredCard(promptAssetID: card.promptAssetID, rating: $0)
             }
         }
+        // The mastery is built before the summary is published: the summary
+        // is what makes the result screen appear, and a screen that appeared
+        // ahead of the ring's data started its pour at nil and never poured.
+        if !deckCardIDs.isEmpty {
+            let deckIDs = Set(deckCardIDs)
+            let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
+            let learnedIDs = LocalProgressProjection.learnedCardIDs(
+                among: deckIDs, states: states
+            )
+            // The green share of the ring: what was remembered in this
+            // sitting, whether or not the scheduler moved. Reviewing a
+            // country already learned earns the same green as learning one —
+            // the ring must never stand still under correct answers.
+            let rememberedIDs = Set(
+                session.cards
+                    .filter { deckIDs.contains($0.learningCardID) }
+                    .compactMap { card in
+                        ratingByCard[card.learningCardID].flatMap { rating in
+                            rating == .good || rating == .easy
+                                ? card.learningCardID
+                                : nil
+                        }
+                    }
+            )
+            deckMastery = StudySessionDeckMastery(
+                totalCards: deckCardIDs.count,
+                learnedBefore: learnedBefore,
+                shownCards: learnedIDs.union(rememberedIDs).count,
+                rememberedCards: rememberedIDs.count
+            )
+        }
         summary = StudySessionSummary(
             sessionID: session.sessionID,
             deckID: session.deckID,
@@ -581,6 +633,69 @@ public final class StudySessionRunner {
             ratings: counts,
             answered: answered
         )
+    }
+
+    // MARK: - The deck the ring describes
+
+    /// Reads the deck's learned share before the first answer of the sitting
+    /// can move it. The count comes from `LocalProgressProjection`, the same
+    /// arithmetic the progress screen uses for a guest, so the two cannot
+    /// disagree about what "learned" means.
+    private func snapshotDeckBefore(deckID: UUID) async {
+        deckCardIDs = ((try? await content.cards(inDeck: deckID)) ?? []).map(\.id)
+        learnedBefore = await learnedCards(deckID: deckID)
+    }
+
+    private func learnedCards(deckID: UUID) async -> Int {
+        guard !deckCardIDs.isEmpty else { return 0 }
+        let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
+        return LocalProgressProjection.progress(
+            cardsByDeck: [deckID: deckCardIDs],
+            states: states,
+            now: dates.now()
+        ).first?.learnedCards ?? 0
+    }
+}
+
+/// The deck as the result ring tells it.
+///
+/// The ring's whole is the union of two honest sets: the deck's learned cards
+/// and the cards remembered in this sitting. The remembered ones are the
+/// green tail of the fill — so a sitting of correct answers always pours
+/// green, including a review of countries long learned, where the scheduler
+/// itself has nothing to move.
+public struct StudySessionDeckMastery: Hashable, Sendable {
+    public let totalCards: Int
+    /// Learned as the sitting began, for the pill's delta alone.
+    public let learnedBefore: Int
+    /// The union standing in the ring: learned after the sitting, plus
+    /// remembered in it.
+    public let shownCards: Int
+    /// The green share of that union: deck cards remembered in this sitting.
+    public let rememberedCards: Int
+
+    public init(totalCards: Int, learnedBefore: Int, shownCards: Int, rememberedCards: Int) {
+        self.totalCards = totalCards
+        self.learnedBefore = learnedBefore
+        self.shownCards = shownCards
+        self.rememberedCards = rememberedCards
+    }
+
+    /// Clamped like `DeckProgressRow.fraction`, and for the same reason: a
+    /// republished release can shrink a deck under counts already recorded.
+    public var fractionShown: Double { fraction(of: shownCards) }
+    /// Where white ends and green begins.
+    public var fractionWhite: Double { fraction(of: max(shownCards - rememberedCards, 0)) }
+
+    /// Whole points, both derived from the rounded figures, so the number in
+    /// the ring and the delta on the pill cannot disagree by a rounding.
+    public var percentAfter: Int { Int((fractionShown * 100).rounded()) }
+    public var deltaPercent: Int {
+        percentAfter - Int((fraction(of: learnedBefore) * 100).rounded())
+    }
+
+    private func fraction(of count: Int) -> Double {
+        totalCards > 0 ? min(1, Double(count) / Double(totalCards)) : 0
     }
 }
 

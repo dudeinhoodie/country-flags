@@ -3585,6 +3585,40 @@
         }
       }
     },
+    "study.result.mastery.delta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%1$lld%% this session"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%1$lld%% за тренировку"
+          }
+        }
+      }
+    },
+    "study.result.mastery.learned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deck %1$lld%% learned"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изучено %1$lld%% колоды"
+          }
+        }
+      }
+    },
     "study.result.remembered": {
       "extractionState": "manual",
       "localizations": {
@@ -3602,19 +3636,36 @@
         }
       }
     },
+    "study.result.returning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Returning to the deck: %1$lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернутся в колоду: %1$lld"
+          }
+        }
+      }
+    },
     "study.result.title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session done"
+            "value": "Session complete"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Тренировка позади"
+            "value": "Тренировка завершена"
           }
         }
       }

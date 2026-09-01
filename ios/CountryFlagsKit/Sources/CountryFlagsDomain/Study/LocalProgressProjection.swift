@@ -71,6 +71,21 @@ public enum LocalProgressProjection {
             .sorted { $0.deckID.uuidString < $1.deckID.uuidString }
     }
 
+    /// The learned cards by identity rather than by count, for the one screen
+    /// that joins them with something else: the result ring unions them with
+    /// the cards remembered in the sitting, so a correct answer always shows
+    /// even when it moved nothing in the scheduler.
+    public static func learnedCardIDs(
+        among cardIDs: Set<UUID>,
+        states: [CardStateRecord]
+    ) -> Set<UUID> {
+        Set(
+            states
+                .filter { $0.state == "REVIEW" && cardIDs.contains($0.learningCardID) }
+                .map(\.learningCardID)
+        )
+    }
+
     /// Whether a card is work the day actually owes: it has been answered at
     /// least once, and the moment it comes round has passed.
     ///
