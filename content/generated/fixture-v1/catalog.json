@@ -7431,7 +7431,7 @@
       "childKey": "country.russia",
       "parentKey": "region.asia",
       "primary": false,
-      "relationType": "associated_with",
+      "relationType": "contains",
       "taxonomyKey": "taxonomy.editorial.v1"
     },
     {
@@ -7503,6 +7503,27 @@
       "primary": true,
       "relationType": "contains",
       "taxonomyKey": "taxonomy.un-m49"
+    },
+    {
+      "childKey": "territory.british-indian-ocean-territory",
+      "parentKey": "region.asia",
+      "primary": false,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
+    },
+    {
+      "childKey": "territory.christmas-island",
+      "parentKey": "region.asia",
+      "primary": false,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
+    },
+    {
+      "childKey": "territory.cocos-keeling-islands",
+      "parentKey": "region.asia",
+      "primary": false,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
     },
     {
       "childKey": "country.kosovo",
