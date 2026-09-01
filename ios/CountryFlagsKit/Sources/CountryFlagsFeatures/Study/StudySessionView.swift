@@ -227,7 +227,7 @@ public struct StudySessionView: View {
         .onTapGesture { if isShowingBack { toggleCard() } }
         .animation(reduceMotion ? nil : .default, value: state.isAnswerRevealed)
         // The one this moment is given in docs/16, §6.
-        .sensoryFeedback(.impact(flexibility: .soft), trigger: state.isAnswerRevealed) { _, revealed in
+        .hapticFeedback(.impact(flexibility: .soft), trigger: state.isAnswerRevealed) { _, revealed in
             revealed
         }
         .task(id: card.promptAssetID) { await loadPalette(for: card) }
@@ -411,8 +411,8 @@ struct StudySessionResultView: View {
                 }
             }
         }
-        .sensoryFeedback(.impact(weight: .light, intensity: 0.45), trigger: fillTick)
-        .sensoryFeedback(.impact(weight: .medium, intensity: 1.0), trigger: hasFilled) {
+        .hapticFeedback(.impact(weight: .light, intensity: 0.45), trigger: fillTick)
+        .hapticFeedback(.impact(weight: .medium, intensity: 1.0), trigger: hasFilled) {
             _, filled in filled
         }
     }

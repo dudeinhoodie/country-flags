@@ -291,7 +291,7 @@ struct ObjectiveResultView: View {
         // Raised once, behind the number: the shower celebrates the deck,
         // and the summary stays readable through it.
         .background { CelebrationView() }
-        .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
+        .hapticFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
     }
 }
 

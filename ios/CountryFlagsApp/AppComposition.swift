@@ -66,6 +66,8 @@ struct AppComposition: AppDependencies {
     let guestMigrations: GuestMigrationCoordinator
     let studySessions: StudySessionService
     let settingsSync: any SettingsSyncing
+    /// The preferences of this run, held once. See `makeSettingsStore()`.
+    let settings: SettingsStore
     let progressClearing: any ProgressClearing
     /// Identities, devices, the export and the deletion: one service, and
     /// the only caller is the account screen.
@@ -358,6 +360,16 @@ struct AppComposition: AppDependencies {
             guestMigrations: guestMigrations,
             studySessions: studySessions,
             settingsSync: progressService,
+            settings: SettingsStore(
+                learning: store.makeLearningRepository(),
+                scopes: sessions,
+                sync: progressService,
+                reminders: UserNotificationReminderScheduler(logger: logger),
+                // The hour lives beside the app's other device preferences:
+                // it is a property of this phone, not of the account.
+                reminderPreferences: UserDefaultsReminderPreferenceStore(),
+                dates: dates
+            ),
             progressClearing: progressService,
             accountService: AccountService(
                 clientFactory: apiClientFactory,
@@ -489,18 +501,15 @@ struct AppComposition: AppDependencies {
         )
     }
 
-    func makeSettingsStore() -> SettingsStore {
-        SettingsStore(
-            learning: store.makeLearningRepository(),
-            scopes: scopes,
-            sync: settingsSync,
-            reminders: UserNotificationReminderScheduler(logger: logger),
-            // The hour lives beside the app's other device preferences: it is
-            // a property of this phone, not of the account.
-            reminderPreferences: UserDefaultsReminderPreferenceStore(),
-            dates: dates
-        )
-    }
+    /// The one settings store of the run.
+    ///
+    /// It used to build a fresh one per screen, which was harmless while only
+    /// the settings screen read them: each instance loaded the same record
+    /// and converged. It stopped being harmless when the session started
+    /// reading the haptics preference — a toggle flipped on one instance is
+    /// invisible to another until it reloads, so a switch turned off would
+    /// have kept buzzing until the app was relaunched.
+    func makeSettingsStore() -> SettingsStore { settings }
 
     /// Whether this run may stand a fixture credential in for a provider sheet.
     private static func allowsFixtureCredentials(_ configuration: RuntimeConfiguration) -> Bool {

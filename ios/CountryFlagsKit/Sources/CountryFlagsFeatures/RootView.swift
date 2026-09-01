@@ -38,6 +38,10 @@ public struct RootView: View {
     /// closes, rather than guessed at from a pending count that has usually
     /// already drained by the time the home screen is looking.
     @State private var isSettlingRun = false
+    /// The preferences, read once for the whole shell so that a switch
+    /// flipped in the settings reaches the session it silences. The store is
+    /// the app's single one; asking it here costs nothing.
+    @State private var settings: SettingsStore?
 
     /// Whether the launch's own run is still on its way back.
     ///
@@ -210,6 +214,17 @@ public struct RootView: View {
     }
 
     private var shell: some View {
+        tabs
+            // Feedback is ambient: a screen deep in a session should not have
+            // to be handed the preference to know whether to buzz.
+            .environment(\.hapticsEnabled, settings?.settings.hapticsEnabled ?? true)
+            .task {
+                if settings == nil { settings = makeSettingsStore() }
+                await settings?.load()
+            }
+    }
+
+    private var tabs: some View {
         // A tab bar rather than buttons on Home: the catalog and the progress
         // are places, and iOS puts places on the bottom bar. The bar's glass
         // is the system's own.
