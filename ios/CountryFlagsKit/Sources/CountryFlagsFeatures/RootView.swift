@@ -57,6 +57,13 @@ public struct RootView: View {
     /// it, so a flag cleared after it was cleared before anything happened.
     private var isSettlingAtLaunch: Bool { !sync.hasSettledFirstRun }
 
+    /// The countries this learner knows, counted the way Home counts them:
+    /// over the curated decks only, because the regions overlap them and
+    /// adding both would count a flag twice.
+    private var learnedCountries: Int {
+        progress.decks.filter(\.isCurated).reduce(0) { $0 + $1.learnedCards }
+    }
+
     @Environment(\.scenePhase) private var scenePhase
 
     /// How old the catalogue may be before coming back to the app refreshes
@@ -450,7 +457,8 @@ public struct RootView: View {
                     makeAccount: makeAccountStore,
                     makeClearProgress: makeClearProgressStore,
                     privacyPolicyURL: configuration.privacyPolicyURL,
-                    termsURL: configuration.termsURL
+                    termsURL: configuration.termsURL,
+                    learnedCountries: learnedCountries
                 )
             }
         }

@@ -19,6 +19,10 @@ public struct AccountScreen: View {
     /// offer, the same rule the Google button follows.
     private let privacyPolicyURL: URL?
     private let termsURL: URL?
+    /// The learner's own count, for the guest note. Passed in rather than
+    /// read here: the numbers belong to the progress store, and this screen
+    /// is about identity.
+    private let learnedCountries: Int?
     /// Who is signed in, and the way in or out. It used to live in the
     /// settings; it belongs with the account it is about.
     @State private var account: AccountStore?
@@ -34,13 +38,15 @@ public struct AccountScreen: View {
         makeAccount: (() -> AccountStore)? = nil,
         makeClearProgress: (() -> ClearProgressStore)? = nil,
         privacyPolicyURL: URL? = nil,
-        termsURL: URL? = nil
+        termsURL: URL? = nil,
+        learnedCountries: Int? = nil
     ) {
         _store = State(wrappedValue: store)
         self.makeAccount = makeAccount
         self.makeClearProgress = makeClearProgress
         self.privacyPolicyURL = privacyPolicyURL
         self.termsURL = termsURL
+        self.learnedCountries = learnedCountries
     }
 
     public var body: some View {
@@ -49,7 +55,7 @@ public struct AccountScreen: View {
                 deletionNotice(deletion)
             }
             if let account {
-                AccountSection(store: account)
+                AccountSection(store: account, learnedCountries: learnedCountries)
                     .listRowBackground(rowBackground)
             }
             if let clearProgress {

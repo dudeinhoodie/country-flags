@@ -279,6 +279,17 @@ public enum L10n {
     public static var aboutCreditsSection: String { localized("about.credits") }
     public static var settingsAbout: String { localized("settings.about") }
 
+    /// What a guest stands to lose, said with the number when there is one.
+    /// Declined by the count — "1 выученная страна", "2 выученные страны",
+    /// "96 выученных стран" are three different words — so it goes through
+    /// the catalogue's plural machinery rather than a format string.
+    public static func accountGuestNoteCount(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("account.guest_note_count", bundle: bundle, comment: ""),
+            count
+        )
+    }
+
     public static var accountPrivacyPolicy: String { localized("account.privacy_policy") }
     public static var accountTerms: String { localized("account.terms") }
     public static var accountDangerSection: String { localized("account.danger_section") }

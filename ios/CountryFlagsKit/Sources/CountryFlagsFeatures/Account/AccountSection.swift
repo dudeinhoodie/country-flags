@@ -5,20 +5,30 @@ import CountryFlagsDomain
 
 /// The account, as a section of the settings form.
 ///
-/// A guest sees an offer, never a gate: the note under the button says what
-/// signing in buys — progress that survives the device — and everything else
-/// in the app works without it. Signing out with unsent answers is put to the
+/// A guest sees an offer, never a gate: the note under the buttons says what
+/// is at stake — the countries they have learned, counted, living on one
+/// phone — and everything else in the app works without it. Signing out with unsent answers is put to the
 /// user with the number, because stranding work silently is the one thing
 /// this section must never do.
 struct AccountSection: View {
     /// Owned for the same reason every screen owns its store.
     @State private var store: AccountStore
+    /// How many countries this guest has learned, when anybody knows. The
+    /// note says what is at stake rather than what an account is for, and
+    /// the difference is a number: "96 countries" is this learner's work,
+    /// "your progress" is a category.
+    private let learnedCountries: Int?
     /// Opens the account screen. Only a signed-in account has one worth
     /// opening, so the row appears with the person rather than with the offer.
     private let onOpenAccount: (() -> Void)?
 
-    init(store: AccountStore, onOpenAccount: (() -> Void)? = nil) {
+    init(
+        store: AccountStore,
+        learnedCountries: Int? = nil,
+        onOpenAccount: (() -> Void)? = nil
+    ) {
         _store = State(wrappedValue: store)
+        self.learnedCountries = learnedCountries
         self.onOpenAccount = onOpenAccount
     }
 
@@ -134,7 +144,13 @@ struct AccountSection: View {
     private var footer: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
             if case .guest = store.state {
-                Text(L10n.accountGuestNote)
+                // Somebody who has learned nothing yet is told what a guest
+                // account is, not that nothing is at stake.
+                Text(
+                    (learnedCountries ?? 0) > 0
+                        ? L10n.accountGuestNoteCount(learnedCountries ?? 0)
+                        : L10n.accountGuestNote
+                )
             }
             if let failure = store.lastFailure {
                 Text(failure == .offline ? L10n.accountSignInOffline : L10n.accountSignInFailed)
