@@ -112,6 +112,29 @@ if /usr/libexec/PlistBuddy -c "Print :NSUserTrackingUsageDescription" "${app}/In
   status=1
 fi
 
+# The legal links are shipped inside the build and cannot be corrected after
+# it leaves: an app that creates accounts owes its reader a privacy policy
+# that answers, and a link into nothing is worse than the hidden section it
+# replaced. Both must be set, and both must be reachable right now.
+for key in CFPrivacyPolicyURL CFTermsURL; do
+  url="$(/usr/libexec/PlistBuddy -c "Print :${key}" "${app}/Info.plist" 2>/dev/null || echo "")"
+  if [[ -z "${url}" ]]; then
+    echo "::error::${key} is empty; the app would hide its legal section." >&2
+    status=1
+    continue
+  fi
+  if [[ "${url}" != https://* ]]; then
+    echo "::error::${key} is '${url}', which is not an https address." >&2
+    status=1
+    continue
+  fi
+  code="$(curl -sS -m 20 -o /dev/null -w "%{http_code}" -L "${url}" || echo "000")"
+  if [[ "${code}" != "200" ]]; then
+    echo "::error::${key} (${url}) answered ${code}; a shipped link must answer 200." >&2
+    status=1
+  fi
+done
+
 if [[ "${status}" -eq 0 ]]; then
   echo "${name}: ${#binaries[@]} Mach-O file(s) scanned, no debug affordance, production endpoint, store declarations present."
 fi
