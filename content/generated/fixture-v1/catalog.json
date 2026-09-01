@@ -468,6 +468,7 @@
         "country.philippines",
         "country.qatar",
         "country.republic-of-korea",
+        "country.russia",
         "country.saudi-arabia",
         "country.singapore",
         "country.sri-lanka",
@@ -483,8 +484,11 @@
         "country.uzbekistan",
         "country.viet-nam",
         "country.yemen",
+        "territory.british-indian-ocean-territory",
         "territory.china-hong-kong-special-administrative-region",
-        "territory.china-macao-special-administrative-region"
+        "territory.china-macao-special-administrative-region",
+        "territory.christmas-island",
+        "territory.cocos-keeling-islands"
       ],
       "names": {
         "en": {
@@ -7427,7 +7431,7 @@
       "childKey": "country.russia",
       "parentKey": "region.asia",
       "primary": false,
-      "relationType": "associated_with",
+      "relationType": "contains",
       "taxonomyKey": "taxonomy.editorial.v1"
     },
     {
@@ -7499,6 +7503,27 @@
       "primary": true,
       "relationType": "contains",
       "taxonomyKey": "taxonomy.un-m49"
+    },
+    {
+      "childKey": "territory.british-indian-ocean-territory",
+      "parentKey": "region.asia",
+      "primary": false,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
+    },
+    {
+      "childKey": "territory.christmas-island",
+      "parentKey": "region.asia",
+      "primary": false,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
+    },
+    {
+      "childKey": "territory.cocos-keeling-islands",
+      "parentKey": "region.asia",
+      "primary": false,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
     },
     {
       "childKey": "country.kosovo",
