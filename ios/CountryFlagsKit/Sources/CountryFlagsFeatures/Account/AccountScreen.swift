@@ -128,9 +128,14 @@ public struct AccountScreen: View {
 
     // MARK: - Deletion
 
+    /// Offered to somebody who has an account, and to nobody else. A guest
+    /// used to see it too — the section only asked whether a deletion was
+    /// already pending — and tapping it sent an unauthenticated request that
+    /// could only fail. There is nothing of theirs on a server to delete:
+    /// a guest's work lives on this device alone.
     @ViewBuilder
     private var deletionSection: some View {
-        if store.pendingDeletion == nil {
+        if store.pendingDeletion == nil, account?.state.isAuthenticated == true {
             Section {
                 Button(L10n.accountDelete, role: .destructive) { store.requestDeletion() }
                     .accessibilityIdentifier(AccessibilityIdentifier.accountDelete)
