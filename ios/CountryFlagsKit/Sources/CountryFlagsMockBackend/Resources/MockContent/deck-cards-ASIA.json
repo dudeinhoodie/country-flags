@@ -3095,6 +3095,97 @@
       "contentVersion": "fixture-v1"
     },
     {
+      "id": "3cd6f0e8-1c0f-523c-9fdf-192275ee0d71",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "ce4b739d-5d5f-550d-b812-7c10742aafbb",
+          "type": "FLAG",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/russia.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "614699589fd86f07197520c0f156762babc4f864fb2dab66f2cf9a8dce649336",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/russia@2x.png",
+              "mimeType": "image/png",
+              "sha256": "3ccc479706292e6ce85d5fe26b0f97588b53ce19aa12d704818e6c32acec0c47",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/russia@3x.png",
+              "mimeType": "image/png",
+              "sha256": "d074ffc586a685a865749ae3399cd61a2ca7a0d20f06c63dea915511a772d958",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "bd3d4090-6f84-5c04-90cf-f62a78b1f19b",
+        "displayName": "Russia",
+        "aliases": [
+          "Россия"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Moscow",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Russian Ruble (RUB)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "Russian",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "POPULATION",
+          "displayValue": "143,669,648 (2024)",
+          "observedAt": null,
+          "source": {
+            "name": "World Bank Open Data",
+            "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
       "id": "082fc8b8-45b1-570a-82dc-39ed5700955e",
       "templateCode": "FLAG_TO_COUNTRY",
       "templateSchemaVersion": 1,
@@ -4451,6 +4542,88 @@
       "contentVersion": "fixture-v1"
     },
     {
+      "id": "a34a7252-41fe-5733-8cbe-a60e54a115f5",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "8f5639d1-b164-5374-80b0-713a80a8f348",
+          "type": "FLAG",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/british-indian-ocean-territory.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "616dfba871de9c24e9d376749186b39d8b87b8a9b032c0dd544b512fcf8cc65a",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/british-indian-ocean-territory@2x.png",
+              "mimeType": "image/png",
+              "sha256": "3ad1122f68c8f56cbb89200e37cfb4fb087f7a294ac8bfb7393d146d8676e96d",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/british-indian-ocean-territory@3x.png",
+              "mimeType": "image/png",
+              "sha256": "8bfa541f3c855626ad4dca8c679a135c94ff3728f2fb782aad66ced448835b85",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "0a2d2ffc-4811-5186-ba76-ae29260cf848",
+        "displayName": "British Indian Ocean Territory",
+        "aliases": [
+          "Британская территория в Индийском океане"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Diego Garcia",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "US Dollar (USD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
       "id": "7a18cee2-118f-5d26-a002-f6139f8d8474",
       "templateCode": "FLAG_TO_COUNTRY",
       "templateSchemaVersion": 1,
@@ -4618,6 +4791,170 @@
           "source": {
             "name": "World Bank Open Data",
             "url": "https://data.worldbank.org/"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "bb051800-f673-543a-82a2-4c42331acdf4",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "bb6e9192-07f3-5634-9226-16b19455ed78",
+          "type": "FLAG",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/christmas-island.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "1bc62de37c00f3ea141e8bbd75ba33cc09ef57573849915aacf5a858b5e192d2",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/christmas-island@2x.png",
+              "mimeType": "image/png",
+              "sha256": "6a5489f526a9014e50ab0f54f4e1a93d9179fc671766257f5e2357353b7cfbd6",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/christmas-island@3x.png",
+              "mimeType": "image/png",
+              "sha256": "87fcb4efdd5a6e243e6e5a3cae3f1bafad8730b10d2f458acbcee79025594007",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "17e5860d-93ee-5306-9bbf-3e52526af12c",
+        "displayName": "Christmas Island",
+        "aliases": [
+          "о-в Рождества"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "Flying Fish Cove",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        }
+      ],
+      "contentVersion": "fixture-v1"
+    },
+    {
+      "id": "071c7290-30e2-53f2-bed3-5a9871b3d3de",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1,
+      "semanticVersion": 1,
+      "revision": 1,
+      "answerMode": "SELF_RATED",
+      "prompt": {
+        "asset": {
+          "id": "4f9c06f1-5b62-5721-b544-f48e621f35fd",
+          "type": "FLAG",
+          "representations": [
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/svg/cocos-keeling-islands.svg",
+              "mimeType": "image/svg+xml",
+              "sha256": "dfda62571aa3de05047bb2006fe2e27261b6507e59feab0767b373b8c6a0291a",
+              "scale": null,
+              "widthPx": null,
+              "heightPx": null
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cocos-keeling-islands@2x.png",
+              "mimeType": "image/png",
+              "sha256": "21126602154b38efc8e8a32a393d87159ce5c2b1b7f4fae1d1355a1eb01d3c16",
+              "scale": 2,
+              "widthPx": 320,
+              "heightPx": 240
+            },
+            {
+              "url": "https://cdn.country-flags.app/content/fixture-v1/assets/png/cocos-keeling-islands@3x.png",
+              "mimeType": "image/png",
+              "sha256": "6da30c87b574470218088d6f1b2ccdab8700b4868b5d7de76bd5ff5013a56ef6",
+              "scale": 3,
+              "widthPx": 480,
+              "heightPx": 360
+            }
+          ],
+          "width": null,
+          "height": null,
+          "aspectRatio": 1.333333,
+          "licenseName": "MIT",
+          "attribution": "lipis/flag-icons contributors"
+        }
+      },
+      "answer": {
+        "entityId": "2bc04ab7-7f62-50b8-b809-66fe2ae9175a",
+        "displayName": "Cocos (Keeling) Islands",
+        "aliases": [
+          "Кокосовые о-ва"
+        ]
+      },
+      "backSideFacts": [
+        {
+          "type": "CAPITAL",
+          "displayValue": "West Island",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "displayValue": "Australian Dollar (AUD)",
+          "observedAt": null,
+          "source": {
+            "name": "Unicode CLDR",
+            "url": "https://github.com/unicode-org/cldr-json"
+          }
+        },
+        {
+          "type": "LANGUAGE",
+          "displayValue": "English",
+          "observedAt": null,
+          "source": {
+            "name": "annexare/Countries",
+            "url": "https://github.com/annexare/Countries"
           }
         }
       ],
