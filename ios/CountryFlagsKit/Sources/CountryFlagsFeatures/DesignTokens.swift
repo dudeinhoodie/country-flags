@@ -101,10 +101,17 @@ public enum DesignTokens {
         /// guidelines allow.
         public static let minimumTouchTarget: CGFloat = 44
         /// Both provider sign-in buttons, identical on purpose: two offers
-        /// of the same thing must read as equals. The same height as every
-        /// other action in the app, so a screen offering a way in does not
-        /// suddenly change its measure.
-        public static let providerButtonHeight: CGFloat = actionHeight
+        /// of the same thing must read as equals.
+        ///
+        /// Shorter than every other action in the app, and not by taste:
+        /// Apple draws its button's label itself and scales it to roughly
+        /// 43% of the height, with no API to set it. At the app's 56 that is
+        /// a 24-point label — half again the body text, and enormous beside
+        /// everything else on the screen. 44 is the smallest height iOS
+        /// considers a comfortable target, so it is the smallest label Apple
+        /// can be asked for: about 19 points, which is what the rest of this
+        /// screen sounds like.
+        public static let providerButtonHeight: CGFloat = minimumTouchTarget
         /// The height of a primary action. Larger than the minimum on purpose:
         /// the rating row is pressed hundreds of times in a session, and a miss
         /// there costs a wrong interval rather than a wrong screen.

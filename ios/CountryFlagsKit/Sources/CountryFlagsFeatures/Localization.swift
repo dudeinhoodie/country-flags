@@ -237,6 +237,10 @@ public enum L10n {
     // MARK: - Account
 
     public static var accountSection: String { localized("account.section") }
+    /// The same section, headed by what it offers rather than by what it is
+    /// about, for somebody who has no account yet. "Account" over a pair of
+    /// sign-in buttons, on a screen already titled Account, says nothing.
+    public static var accountSignInSection: String { localized("account.sign_in_section") }
     public static var accountSignedIn: String { localized("account.signed_in") }
     public static var accountExpired: String { localized("account.expired") }
     public static var accountSignOut: String { localized("account.sign_out") }

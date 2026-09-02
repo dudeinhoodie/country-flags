@@ -93,11 +93,25 @@ struct ProviderSignInButtons: View {
                     // On its own white keeper, as Google's guidelines ask
                     // when the mark sits on anything but white.
                     GoogleLogoMark()
-                        .frame(width: 18, height: 18)
-                        .padding(5)
+                        .frame(width: 22, height: 22)
+                        .padding(6)
                         .background(.white, in: Circle())
                     Text(L10n.accountSignInGoogle)
-                        .font(DesignTokens.Typography.body.weight(.medium))
+                        // Sized off the button's height rather than off the
+                        // type ramp, because the button beside it is: Apple
+                        // draws its own label and scales it to roughly 43%
+                        // of the height, with no API to set it. At 56 points
+                        // that is around 24 — half again our body text — so
+                        // a `.body` label next to it read as a different
+                        // button from a different app. Deriving ours from the
+                        // same rule keeps the two together if the height
+                        // token ever moves.
+                        .font(
+                            .system(
+                                size: DesignTokens.Layout.providerButtonHeight * 0.43,
+                                weight: .medium
+                            )
+                        )
                         .foregroundStyle(.white)
                 }
                 .frame(maxWidth: .infinity)

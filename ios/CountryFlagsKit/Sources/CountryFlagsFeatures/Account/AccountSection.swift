@@ -36,7 +36,10 @@ struct AccountSection: View {
         Section {
             content
         } header: {
-            SectionLabel(L10n.accountSection)
+            // Headed by what it offers, not by what it is about: "Account"
+            // over two sign-in buttons, on a screen already titled Account,
+            // says nothing.
+            SectionLabel(isSignedOut ? L10n.accountSignInSection : L10n.accountSection)
         } footer: {
             footer
         }
@@ -120,8 +123,41 @@ struct AccountSection: View {
         }
     }
 
+    /// Whether this is somebody with no account rather than somebody with
+    /// one — the sign-in block is headed and laid out differently.
+    private var isSignedOut: Bool {
+        switch store.state {
+        case .guest, .authenticationExpired: true
+        default: false
+        }
+    }
+
+    /// One row rather than one per button, on the scene rather than on a
+    /// material slab.
+    ///
+    /// Left to the form, each button became its own row: two capsules on two
+    /// grey rectangles, separated by the list's own spacing — which is not
+    /// what a pair of capsules is. They are one offer, so they are one row,
+    /// and the ground under them is the app's scene, which is what makes a
+    /// capsule read as a capsule.
     @ViewBuilder
     private var signInControls: some View {
+        VStack(spacing: DesignTokens.Spacing.small + 4) {
+            providerButtons
+        }
+        .listRowBackground(Color.clear)
+        .listRowInsets(
+            EdgeInsets(
+                top: DesignTokens.Spacing.small,
+                leading: 0,
+                bottom: DesignTokens.Spacing.small,
+                trailing: 0
+            )
+        )
+    }
+
+    @ViewBuilder
+    private var providerButtons: some View {
         ProviderSignInButtons(
             prepareNonce: { store.prepareNonce() },
             rawNonce: { store.preparedNonce?.raw ?? "" },

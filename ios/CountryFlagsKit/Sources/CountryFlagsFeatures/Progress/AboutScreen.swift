@@ -31,10 +31,10 @@ struct AboutScreen: View {
             if privacyPolicyURL != nil || termsURL != nil {
                 Section {
                     if let privacyPolicyURL {
-                        Link(L10n.accountPrivacyPolicy, destination: privacyPolicyURL)
+                        DocumentLink(title: L10n.accountPrivacyPolicy, url: privacyPolicyURL)
                     }
                     if let termsURL {
-                        Link(L10n.accountTerms, destination: termsURL)
+                        DocumentLink(title: L10n.accountTerms, url: termsURL)
                     }
                 }
                 .listRowBackground(rowBackground)

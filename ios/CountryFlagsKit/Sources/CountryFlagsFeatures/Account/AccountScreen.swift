@@ -118,11 +118,11 @@ public struct AccountScreen: View {
         if privacyPolicyURL != nil || termsURL != nil {
             Section {
                 if let privacyPolicyURL {
-                    Link(L10n.accountPrivacyPolicy, destination: privacyPolicyURL)
+                    DocumentLink(title: L10n.accountPrivacyPolicy, url: privacyPolicyURL)
                         .accessibilityIdentifier(AccessibilityIdentifier.accountPrivacyPolicy)
                 }
                 if let termsURL {
-                    Link(L10n.accountTerms, destination: termsURL)
+                    DocumentLink(title: L10n.accountTerms, url: termsURL)
                         .accessibilityIdentifier(AccessibilityIdentifier.accountTerms)
                 }
             } header: {
