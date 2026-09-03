@@ -294,42 +294,22 @@ private struct AccountAvatarView: View {
     }
 }
 
-/// Google's four-colour "G", drawn rather than shipped.
+/// Google's "G", as Google ships it.
 ///
-/// Four arcs and the bar, in the brand's own colours — a trademark keeps its
-/// palette the way a flag does, so the hex values here are the logo's, not
-/// ours. Drawing it keeps the mark crisp at any size with no asset to age.
+/// The one thing on the button that is not drawn here. Since 2025 the mark
+/// is a gradient — a conic sweep under a blur — that no vector format the
+/// toolchain renders can carry, so it travels as the bitmap Google publishes
+/// in its sign-in asset pack: the 20-point logo square cropped out of the
+/// icon-only light button, at 2x and 3x, white ground included. That ground
+/// is why the mark may sit only on a white button. A trademark keeps its
+/// shape and its colours the way a flag does; nothing here is ours to adjust.
 struct GoogleLogoMark: View {
     var body: some View {
-        GeometryReader { proxy in
-            let side = min(proxy.size.width, proxy.size.height)
-            let line = side * 0.21
-            let inset = line / 2
-
-            ZStack {
-                segment(0.00, 0.17, Color(red: 0.259, green: 0.522, blue: 0.957), line: line)
-                segment(0.17, 0.38, Color(red: 0.204, green: 0.659, blue: 0.325), line: line)
-                segment(0.38, 0.62, Color(red: 0.984, green: 0.737, blue: 0.020), line: line)
-                segment(0.62, 0.87, Color(red: 0.918, green: 0.263, blue: 0.208), line: line)
-
-                // The bar that turns the ring into a G.
-                Rectangle()
-                    .fill(Color(red: 0.259, green: 0.522, blue: 0.957))
-                    .frame(width: side / 2 - inset + line / 2, height: line)
-                    .offset(x: side / 4 - inset / 2 + line / 4)
-            }
-            .padding(inset)
-            .frame(width: side, height: side)
-        }
-    }
-
-    /// One arc of the ring. Trim runs from 3 o'clock, clockwise on screen.
-    private func segment(
-        _ from: CGFloat, _ to: CGFloat, _ color: Color, line: CGFloat
-    ) -> some View {
-        Circle()
-            .trim(from: from, to: to)
-            .stroke(color, lineWidth: line)
+        Image("google-g", bundle: .module)
+            .resizable()
+            .interpolation(.high)
+            .scaledToFit()
+            .accessibilityHidden(true)
     }
 }
 
