@@ -65,12 +65,25 @@ export function isDue(candidate: SessionCandidate, now: Date): boolean {
   );
 }
 
-function priority(reason: SelectionReason): number {
+/**
+ * The band a card is dealt from. Due cards first — overdue reviews, then
+ * learning steps whose time has come — then new cards, then everything that
+ * is merely available: reviews not yet due, and learning cards whose next
+ * step is still minutes away.
+ *
+ * That last band is the point. A learning card is "owed" only once its step
+ * has come round; ranked ahead of new cards regardless, the ten cards a
+ * learner answered a minute ago were the first ten of the next sitting, and a
+ * deck opened twice in a row dealt the same hand twice. The offline selector
+ * on the device already treats a not-yet-due learning card as filler, and the
+ * progress aggregate already counts it as not due; this is the same rule.
+ */
+function band(reason: SelectionReason, due: boolean): number {
   switch (reason) {
     case SelectionReason.OVERDUE:
       return 0;
     case SelectionReason.LEARNING:
-      return 1;
+      return due ? 1 : 4;
     case SelectionReason.ERROR:
       return 2;
     case SelectionReason.NEW:
@@ -80,6 +93,9 @@ function priority(reason: SelectionReason): number {
   }
 }
 
+/** The bands whose cards are owed, and are therefore dealt in due order. */
+const DUE_BANDS = new Set([0, 1]);
+
 export function selectSessionCandidates<T extends SessionCandidate>(
   candidates: T[],
   requestedCount: number,
@@ -87,21 +103,21 @@ export function selectSessionCandidates<T extends SessionCandidate>(
   now: Date,
 ): Array<SelectedCandidate<T>> {
   return candidates
-    .map((candidate) => ({
-      candidate,
-      reason: selectionReasonFor(candidate, now),
-      randomRank: deterministicRank(sessionId, candidate.learningCardId),
-    }))
+    .map((candidate) => {
+      const reason = selectionReasonFor(candidate, now);
+      return {
+        candidate,
+        reason,
+        band: band(reason, isDue(candidate, now)),
+        randomRank: deterministicRank(sessionId, candidate.learningCardId),
+      };
+    })
     .sort((left, right) => {
-      const priorityDifference = priority(left.reason) - priority(right.reason);
-      if (priorityDifference !== 0) {
-        return priorityDifference;
+      const bandDifference = left.band - right.band;
+      if (bandDifference !== 0) {
+        return bandDifference;
       }
-
-      if (
-        left.reason === SelectionReason.OVERDUE ||
-        left.reason === SelectionReason.LEARNING
-      ) {
+      if (DUE_BANDS.has(left.band)) {
         const dueDifference =
           (left.candidate.state?.dueAt.getTime() ?? 0) -
           (right.candidate.state?.dueAt.getTime() ?? 0);
@@ -115,7 +131,6 @@ export function selectSessionCandidates<T extends SessionCandidate>(
           return lapseDifference;
         }
       }
-
       const randomDifference = left.randomRank.localeCompare(right.randomRank);
       return randomDifference !== 0
         ? randomDifference
