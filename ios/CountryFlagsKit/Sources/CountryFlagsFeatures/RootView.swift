@@ -272,7 +272,9 @@ public struct RootView: View {
                                 composition: composition
                             )
                         )
-                    }
+                    },
+                    account: accountToolbar,
+                    onOpenAccount: { router.push(.account) }
                 )
                 .toolbar {
                     // Between the avatar and the gear, which is where a
@@ -331,6 +333,13 @@ public struct RootView: View {
         .task {
             if accountToolbar == nil { accountToolbar = makeAccountStore?() }
             await accountToolbar?.start()
+        }
+        // A run the backend refused is the moment a sign-in can have expired
+        // under an open screen: the coordinator has already ruled, and the
+        // store that the home row reads is asked to repeat the ruling.
+        .onChange(of: sync.status.lastFailure) { _, failure in
+            guard failure == .unauthorized else { return }
+            Task { await accountToolbar?.refreshState() }
         }
         // A warm launch opens straight into the shell, so the first read of
         // the counts happens here rather than on the waiting screen. Both
@@ -617,6 +626,8 @@ public enum AccessibilityIdentifier {
     public static let studyResultDone = "study.result.done"
     /// The one action the first screen recommends.
     public static let homeContinue = "home.continue"
+    public static let homeSignInExpired = "home.signInExpired"
+    public static let homeGuestPrompt = "home.guestPrompt"
     public static let deckResume = "deck.resume"
     public static let homeLoading = "home.loading"
 

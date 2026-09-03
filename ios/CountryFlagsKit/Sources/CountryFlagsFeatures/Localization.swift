@@ -454,6 +454,24 @@ public enum L10n {
 
     public static var syncOffline: String { localized("sync.offline") }
     public static var syncSignInRequired: String { localized("sync.sign_in_required") }
+    public static var syncSignInRequiredChip: String { localized("sync.sign_in_required.chip") }
+    public static var homeSignInExpiredTitle: String { localized("home.sign_in_expired.title") }
+    /// Declined by the count — "1 ответ ждёт", "2 ответа ждут", "12 ответов
+    /// ждут" — so it goes through the catalogue's plural machinery.
+    public static func homeSignInExpiredPending(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.sign_in_expired.pending", bundle: bundle, comment: ""),
+            count
+        )
+    }
+    public static var homeGuestPromptTitle: String { localized("home.guest_prompt.title") }
+    /// Declined by the count, as `accountGuestNoteCount` is.
+    public static func homeGuestPromptCount(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.guest_prompt.count", bundle: bundle, comment: ""),
+            count
+        )
+    }
 
     public static func syncPendingChip(_ count: Int) -> String {
         String(format: localized("sync.pending.chip"), count)

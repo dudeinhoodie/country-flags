@@ -30,6 +30,12 @@ public struct HomeView: View {
     /// rather than owned: the same numbers appear on four screens, and a
     /// screen holding its own copy is how they came to disagree.
     private let progress: ProgressStore?
+    /// Whose phone this is, for the one row that is about the person rather
+    /// than the queue. The shell's own store, observed for the same reason
+    /// the counts are.
+    private let account: AccountStore?
+    /// Opens the account screen, where the sign-in buttons live.
+    private let onOpenAccount: (() -> Void)?
     /// Whether the numbers on screen are known to be the previous word —
     /// after a sitting, or before the launch's own run has come back.
     ///
@@ -62,12 +68,16 @@ public struct HomeView: View {
         onOpenCatalog: (() -> Void)? = nil,
         onStartStudy: (
             (UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void
-        )? = nil
+        )? = nil,
+        account: AccountStore? = nil,
+        onOpenAccount: (() -> Void)? = nil
     ) {
         self.store = store
         self.sync = sync
         self.assets = assets
         self.progress = progress
+        self.account = account
+        self.onOpenAccount = onOpenAccount
         self.isSettling = isSettling
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
@@ -75,6 +85,11 @@ public struct HomeView: View {
         self.onOpenCatalog = onOpenCatalog
         self.onStartStudy = onStartStudy
     }
+
+    /// How many learned countries make a guest's work worth a word. Below it
+    /// the offer is noise on a fresh install; above it there is something to
+    /// lose, and the row says how much.
+    private static let guestPromptThreshold = 5
 
     public var body: some View {
         content
@@ -132,6 +147,8 @@ public struct HomeView: View {
             if isStale || failure != nil {
                 ContentStatusBanner(isStale: isStale, failure: failure)
             }
+
+            accountPrompt
 
             // The screen fills in the order its data arrives, which is two
             // waves and not one: the catalogue is already on the device — the
@@ -404,6 +421,55 @@ public struct HomeView: View {
                 run: { onOpenDeck(deck.id) }
             )
         }
+    }
+
+    /// The account, when it needs a word — above the day rather than in it,
+    /// because the row is about the person and not the queue.
+    ///
+    /// A sign-in the backend has stopped honouring comes first, and is not
+    /// conditional on anything else: from that moment every answer stays on
+    /// the phone, and the caption says how many already do. A guest is told
+    /// only once there is something to lose, with the number. Neither row
+    /// can be dismissed: the first goes away when the person signs in again,
+    /// the second when they sign in at all. Both lead to the account screen,
+    /// where the buttons already are, rather than repeating them here.
+    @ViewBuilder
+    private var accountPrompt: some View {
+        if let onOpenAccount {
+            if isSignInExpired {
+                AccountPromptRow(
+                    symbol: "person.crop.circle.badge.exclamationmark",
+                    title: L10n.homeSignInExpiredTitle,
+                    caption: sync.status.pendingCount > 0
+                        ? L10n.homeSignInExpiredPending(sync.status.pendingCount)
+                        : L10n.syncSignInRequired,
+                    identifier: AccessibilityIdentifier.homeSignInExpired,
+                    action: onOpenAccount
+                )
+            } else if isGuestWithSomethingToLose {
+                AccountPromptRow(
+                    symbol: "person.crop.circle",
+                    title: L10n.homeGuestPromptTitle,
+                    caption: L10n.homeGuestPromptCount(learnedCountries),
+                    identifier: AccessibilityIdentifier.homeGuestPrompt,
+                    action: onOpenAccount
+                )
+            }
+        }
+    }
+
+    /// The session coordinator is the judge of an expired sign-in, and the
+    /// account store repeats its verdict; the shell re-reads it whenever a
+    /// run comes back refused, so this screen never has to guess from a
+    /// failure code alone.
+    private var isSignInExpired: Bool {
+        if case .authenticationExpired? = account?.state { return true }
+        return false
+    }
+
+    private var isGuestWithSomethingToLose: Bool {
+        guard case .guest? = account?.state else { return false }
+        return learnedCountries >= Self.guestPromptThreshold
     }
 
     /// Whether the learner has ever answered anything: what separates a

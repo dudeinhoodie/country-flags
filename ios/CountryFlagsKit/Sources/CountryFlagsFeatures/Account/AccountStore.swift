@@ -121,6 +121,14 @@ public final class AccountStore {
     /// A failure leaves `avatar` nil and the screen draws its glyph, which is
     /// what it draws for an account that has no picture: a missing avatar is
     /// never worth a message.
+    /// Re-reads whose session this is, for a screen that stays open while a
+    /// session can end underneath it. `start()` does more — the profile, the
+    /// picture, a migration left unsettled — and is for the first read; this
+    /// is the one question a refused sync run reopens.
+    public func refreshState() async {
+        state = await session.currentState()
+    }
+
     private func loadAvatar() async {
         guard let url = profile?.avatarURL else {
             avatar = nil
