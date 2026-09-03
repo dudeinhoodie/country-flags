@@ -51,11 +51,15 @@ final class LaunchSmokeUITests: XCTestCase {
 
         // The Mock build says which build it is; Prod must not. It says it
         // here rather than on the first screen, whose corner belongs to the
-        // account now.
-        XCTAssertTrue(
-            app.staticTexts["root.shell.environmentBadge"].waitForExistence(timeout: 10),
-            app.debugDescription
-        )
+        // account now — at the foot of the form, under the About row. A list
+        // materialises only the rows on screen, so the form is scrolled to
+        // its end before the badge is asked for; on a phone it starts below
+        // the fold.
+        let badge = app.staticTexts["root.shell.environmentBadge"]
+        for _ in 0..<4 where !badge.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(badge.waitForExistence(timeout: 10), app.debugDescription)
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["home.deck.ALL"].waitForExistence(timeout: 5))
