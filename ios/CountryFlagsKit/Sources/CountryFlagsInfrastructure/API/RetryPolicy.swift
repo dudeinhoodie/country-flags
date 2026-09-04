@@ -89,6 +89,37 @@ public struct RetryPolicy: Sendable {
         RetryPolicy.retryableStatusCodes.contains(statusCode)
     }
 
+    /// The transport failures a second attempt can cure: the connection the
+    /// radio dropped as the phone woke, a host that did not answer in time, a
+    /// lookup that came back empty. Not the ones that say the request itself
+    /// is wrong, and not a cancellation, which is the caller changing its mind.
+    public static let transientTransportCodes: Set<URLError.Code> = [
+        .networkConnectionLost,
+        .timedOut,
+        .cannotConnectToHost,
+        .cannotFindHost,
+        .dnsLookupFailed,
+        .notConnectedToInternet,
+    ]
+
+    public func isRetryable(error: any Error) -> Bool {
+        guard let urlError = Self.urlError(in: error) else { return false }
+        return Self.transientTransportCodes.contains(urlError.code)
+    }
+
+    /// The runtime wraps what the transport threw; the cause is one level
+    /// down, under the same label `APIError.from` unwraps.
+    private static func urlError(in error: any Error) -> URLError? {
+        if let urlError = error as? URLError { return urlError }
+        let mirror = Mirror(reflecting: error)
+        for child in mirror.children where child.label == "underlyingError" {
+            if let underlying = child.value as? any Error {
+                return urlError(in: underlying)
+            }
+        }
+        return nil
+    }
+
     /// Exponential backoff, capped, with jitter on top. A `Retry-After` header
     /// wins: the server knows better than the client when to come back.
     public func delay(

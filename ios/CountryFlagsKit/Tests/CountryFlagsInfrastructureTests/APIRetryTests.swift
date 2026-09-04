@@ -1,3 +1,5 @@
+import Foundation
+import HTTPTypes
 import XCTest
 
 @testable import CountryFlagsInfrastructure
@@ -135,9 +137,99 @@ final class APIRetryTests: XCTestCase {
         let attempts = await transport.requests(for: "getAppConfig").count
         XCTAssertEqual(attempts, 1)
     }
+
+    /// The connection the radio drops as the phone wakes is the failure a
+    /// second attempt cures. It is repeated on the same terms as a 503 —
+    /// and it used to be surfaced at once, which is how the first request
+    /// after a long background failed while the pull a moment later worked.
+    func testADroppedConnectionIsRetried() async throws {
+        let scheduler = RecordingBackoffScheduler()
+        let attempts = AttemptCounter()
+        let middleware = RetryMiddleware(
+            policy: RetryPolicy(maximumAttempts: 3),
+            scheduler: scheduler,
+            jitter: ZeroJitterProvider()
+        )
+
+        let (response, _) = try await middleware.intercept(
+            Self.getRequest,
+            body: nil,
+            baseURL: Self.baseURL,
+            operationID: "getAppConfig"
+        ) { _, _, _ in
+            if await attempts.next() == 1 {
+                throw URLError(.networkConnectionLost)
+            }
+            return (HTTPResponse(status: .ok), nil)
+        }
+
+        XCTAssertEqual(response.status.code, 200)
+        await XCTAssertEqualAsync(await attempts.count(), 2)
+        let delays = await scheduler.recordedDelays()
+        XCTAssertEqual(delays, [.milliseconds(300)])
+    }
+
+    /// A failure that says the request is wrong is not one a second attempt
+    /// can cure; repeating it would only delay the answer.
+    func testAFailureThatIsNotTransientIsSurfacedAtOnce() async {
+        let attempts = AttemptCounter()
+        let middleware = RetryMiddleware(
+            policy: RetryPolicy(maximumAttempts: 3),
+            scheduler: RecordingBackoffScheduler(),
+            jitter: ZeroJitterProvider()
+        )
+
+        do {
+            _ = try await middleware.intercept(
+                Self.getRequest,
+                body: nil,
+                baseURL: Self.baseURL,
+                operationID: "getAppConfig"
+            ) { _, _, _ in
+                _ = await attempts.next()
+                throw URLError(.unsupportedURL)
+            }
+            XCTFail("a request the transport refuses outright must fail")
+        } catch {
+            XCTAssertEqual((error as? URLError)?.code, .unsupportedURL)
+        }
+        await XCTAssertEqualAsync(await attempts.count(), 1)
+    }
+
+    private static let baseURL = URL(string: "https://api.example.test")!
+    private static let getRequest = HTTPRequest(
+        method: .get,
+        scheme: "https",
+        authority: "api.example.test",
+        path: "/v1/app-config"
+    )
+}
+
+private actor AttemptCounter {
+    private var attempts = 0
+
+    func next() -> Int {
+        attempts += 1
+        return attempts
+    }
+
+    func count() -> Int { attempts }
 }
 
 final class RetryPolicyTests: XCTestCase {
+    /// Only the failures a moment's patience can cure: a dropped connection,
+    /// a timeout, a lookup that came back empty. Not a cancellation, which
+    /// is the caller changing its mind, and not a request that is wrong.
+    func testOnlyTransientTransportFailuresAreRetried() {
+        let policy = RetryPolicy()
+        XCTAssertTrue(policy.isRetryable(error: URLError(.networkConnectionLost)))
+        XCTAssertTrue(policy.isRetryable(error: URLError(.timedOut)))
+        XCTAssertTrue(policy.isRetryable(error: URLError(.notConnectedToInternet)))
+        XCTAssertFalse(policy.isRetryable(error: URLError(.cancelled)))
+        XCTAssertFalse(policy.isRetryable(error: URLError(.badServerResponse)))
+        XCTAssertFalse(policy.isRetryable(error: CancellationError()))
+    }
+
     func testOnlyContractuallyRepeatableWritesAreEligible() {
         let policy = RetryPolicy()
 

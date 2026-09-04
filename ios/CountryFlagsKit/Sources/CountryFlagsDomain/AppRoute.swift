@@ -26,6 +26,9 @@ public enum AppRoute: Hashable, Sendable {
     /// settings, because everything on it is about one account rather than
     /// about how this device behaves.
     case account
+    /// Which build this is, and the licences the app carries. Reached from
+    /// the settings, where somebody looking for a version number looks.
+    case about
 }
 
 /// Parses an incoming URL into a route. It lives in Domain because it depends

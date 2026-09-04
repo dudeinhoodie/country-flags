@@ -21,6 +21,8 @@ public enum RuntimeConfigurationLoader {
     public static let googleServerClientIDKey = "CFGoogleServerClientID"
     public static let privacyPolicyURLKey = "CFPrivacyPolicyURL"
     public static let termsURLKey = "CFTermsURL"
+    public static let versionKey = "CFBundleShortVersionString"
+    public static let buildKey = "CFBundleVersion"
 
     public static func configuration(
         from values: [String: Any]
@@ -58,13 +60,13 @@ public enum RuntimeConfigurationLoader {
             // build without a Google button, not a broken one.
             googleClientID: nonEmpty(values[googleClientIDKey]),
             googleServerClientID: nonEmpty(values[googleServerClientIDKey]),
-            // Optional for the same reason, and with a stronger one behind it:
-            // the documents themselves are not written yet, and a link to a
-            // page that does not exist is worse than no link at all. An
-            // address that is present but unreadable is a configuration
-            // mistake rather than an absent document, so it fails the load.
+            // Optional for the same reason. An address that is present but
+            // unreadable is a configuration mistake rather than an absent
+            // document, so it fails the load rather than hiding the link.
             privacyPolicyURL: try legalURL(nonEmpty(values[privacyPolicyURLKey])),
-            termsURL: try legalURL(nonEmpty(values[termsURLKey]))
+            termsURL: try legalURL(nonEmpty(values[termsURLKey])),
+            appVersion: nonEmpty(values[versionKey]) ?? "0",
+            appBuild: nonEmpty(values[buildKey]) ?? "0"
         )
     }
 

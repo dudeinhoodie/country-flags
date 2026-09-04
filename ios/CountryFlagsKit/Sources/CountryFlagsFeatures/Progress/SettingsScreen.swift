@@ -132,6 +132,14 @@ public struct SettingsScreen: View {
             // Clearing progress left this screen: it is an act of account
             // management, and it lives with the account behind the avatar.
 
+            Section {
+                NavigationLink(value: AppRoute.about) {
+                    Text(L10n.settingsAbout)
+                }
+                .accessibilityIdentifier(AccessibilityIdentifier.settingsAbout)
+            }
+            .listRowBackground(rowBackground)
+
             if let environmentBadge {
                 Section {
                     Text(environmentBadge)

@@ -110,10 +110,18 @@ struct SyncStatusChip: View {
         let spoken: String
     }
 
-    /// Unsent answers win over everything; the success word holds the spot
-    /// they just left; a missing signal comes after; a healthy, empty queue
-    /// says nothing at all.
+    /// A refused sign-in wins over everything: a counter would promise a
+    /// delivery that is not coming. Then unsent answers; the success word
+    /// holds the spot they just left; a missing signal comes after; a
+    /// healthy, empty queue says nothing at all.
     private var state: Presentation? {
+        if status.lastFailure == .unauthorized {
+            return Presentation(
+                symbol: "person.crop.circle.badge.exclamationmark",
+                title: L10n.syncSignInRequiredChip,
+                spoken: L10n.syncSignInRequired
+            )
+        }
         if status.pendingCount > 0 {
             return Presentation(
                 symbol: "arrow.up.circle",

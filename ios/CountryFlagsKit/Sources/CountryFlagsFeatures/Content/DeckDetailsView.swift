@@ -69,8 +69,10 @@ public struct DeckDetailsView: View {
             }
             .searchable(text: searchBinding, prompt: L10n.deckSearchPrompt)
             .refreshable {
-                await store.refresh()
-                await model.load()
+                await RefreshGesture.perform {
+                    await store.refresh()
+                    await model.load()
+                }
             }
             .task { await model.load() }
             // The learner chose a session size once, in the settings; a deck

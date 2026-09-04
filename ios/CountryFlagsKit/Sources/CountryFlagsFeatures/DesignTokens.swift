@@ -102,7 +102,19 @@ public enum DesignTokens {
         public static let minimumTouchTarget: CGFloat = 44
         /// Both provider sign-in buttons, identical on purpose: two offers
         /// of the same thing must read as equals.
-        public static let providerButtonHeight: CGFloat = 50
+        ///
+        /// Shorter than every other action in the app, and not by taste.
+        /// Apple fixes the proportions of a Sign in with Apple button — the
+        /// title is 43% of the height — for the system button and for any
+        /// custom one alike, reviews every custom one, and offers no API for
+        /// the label. So the height follows from the label rather than the
+        /// other way round: a title at the body size, 17 points, is a button
+        /// 40 points tall. At 44 the label was 19, the largest type on the
+        /// screen; at the app's 56 it was 24. The guidelines allow down to 30.
+        public static let providerButtonHeight: CGFloat = 40
+        /// The label on both provider buttons: 43% of the height, which is
+        /// what Apple draws on its own button and what ours matches beside it.
+        public static let providerLabelSize: CGFloat = providerButtonHeight * 0.43
         /// The height of a primary action. Larger than the minimum on purpose:
         /// the rating row is pressed hundreds of times in a session, and a miss
         /// there costs a wrong interval rather than a wrong screen.

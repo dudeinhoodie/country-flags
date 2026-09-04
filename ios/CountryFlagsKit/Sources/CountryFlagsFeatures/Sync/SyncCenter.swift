@@ -39,6 +39,9 @@ public final class SyncCenter {
     private let scopes: any AccountScopeResolving
     private let analytics: (any AnalyticsTracking)?
     private let dates: any DateProviding
+    /// Says when the network comes back, so a run that failed for want of
+    /// one is repeated then rather than at the next launch or the next pull.
+    private let reachability: (any NetworkReachabilityObserving)?
     /// Told once, after each run, that the canonical data moved. This is the
     /// single "the numbers changed" signal in the app: one publisher, and no
     /// screen deciding for itself when to read again.
@@ -50,12 +53,14 @@ public final class SyncCenter {
         coordinator: any SyncCoordinating,
         scopes: any AccountScopeResolving,
         analytics: (any AnalyticsTracking)? = nil,
-        dates: any DateProviding = SystemDateProvider()
+        dates: any DateProviding = SystemDateProvider(),
+        reachability: (any NetworkReachabilityObserving)? = nil
     ) {
         self.coordinator = coordinator
         self.scopes = scopes
         self.analytics = analytics
         self.dates = dates
+        self.reachability = reachability
     }
 
     /// Registered by the composition root, not by a view: what needs
@@ -93,6 +98,16 @@ public final class SyncCenter {
             return
         }
         hasStarted = true
+        // The network coming back is a trigger like any other. The monitor
+        // existed for a long time with nobody listening, which is how a run
+        // that met a dropped connection stayed unrepeated until the next
+        // pull: the path was satisfied throughout, only the first request
+        // after waking was not.
+        await reachability?.startObserving { [weak self] in
+            Task { @MainActor [weak self] in
+                await self?.synchronize(trigger: .networkAvailable)
+            }
+        }
         let scope = await resolvedScope()
         await coordinator.recoverInterruptedWork(for: scope)
         status = await coordinator.status(for: scope)

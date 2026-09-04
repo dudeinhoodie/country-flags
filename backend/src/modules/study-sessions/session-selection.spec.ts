@@ -57,6 +57,41 @@ describe("selectSessionCandidates", () => {
     ).toBe(5);
   });
 
+  it("deals a learning card whose step is still ahead after the new ones", () => {
+    // Answered a minute ago, due in ten: the schedule does not owe it yet,
+    // and a sitting opened right after the last one must not open on it.
+    const justAnswered: SessionCandidate = {
+      learningCardId: "00000000-0000-4000-8000-000000000007",
+      state: {
+        state: CardLearningState.LEARNING,
+        dueAt: new Date("2026-07-29T12:10:00.000Z"),
+        lastReviewedAt: new Date("2026-07-29T11:59:00.000Z"),
+        lapses: 0,
+        stateVersion: 1,
+      },
+    };
+
+    const selected = selectSessionCandidates(
+      [justAnswered, ...candidates],
+      7,
+      "10000000-0000-4000-8000-000000000001",
+      now,
+    );
+
+    expect(selected.map(({ reason }) => reason)).toEqual([
+      SelectionReason.OVERDUE,
+      SelectionReason.LEARNING,
+      SelectionReason.NEW,
+      SelectionReason.NEW,
+      SelectionReason.NEW,
+      SelectionReason.NEW,
+      SelectionReason.LEARNING,
+    ]);
+    expect(selected[6]?.candidate.learningCardId).toBe(
+      justAnswered.learningCardId,
+    );
+  });
+
   it("is reproducible for one session seed", () => {
     const first = selectSessionCandidates(
       candidates,

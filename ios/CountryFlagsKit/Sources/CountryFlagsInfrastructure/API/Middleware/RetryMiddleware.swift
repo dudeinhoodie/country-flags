@@ -27,11 +27,28 @@ struct RetryMiddleware: ClientMiddleware {
         var attempt = 1
         while true {
             try Task.checkCancellation()
-            let (response, responseBody) = try await next(
-                request,
-                buffered.makeBody(),
-                baseURL
-            )
+            let response: HTTPResponse
+            let responseBody: HTTPBody?
+            do {
+                (response, responseBody) = try await next(
+                    request,
+                    buffered.makeBody(),
+                    baseURL
+                )
+            } catch {
+                // A connection the radio dropped is the one failure a second
+                // attempt cures, and it is what the first request after the
+                // phone wakes usually meets. Repeated on the same terms as a
+                // 503: only requests that may be repeated, only so many times.
+                guard attempt < policy.maximumAttempts, policy.isRetryable(error: error) else {
+                    throw error
+                }
+                try await scheduler.sleep(
+                    for: policy.delay(forAttempt: attempt, retryAfter: nil, jitter: jitter)
+                )
+                attempt += 1
+                continue
+            }
             guard
                 attempt < policy.maximumAttempts,
                 policy.isRetryable(statusCode: response.status.code)

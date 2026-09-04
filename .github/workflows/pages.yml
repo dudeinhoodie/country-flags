@@ -1,0 +1,52 @@
+# Publishes the app's public documents — the privacy policy and the terms —
+# to GitHub Pages.
+#
+# They live here rather than behind the API because they must be readable
+# whether or not the backend is up: an App Store reviewer, and anybody who
+# taps the link in the app, is entitled to a page that answers.
+name: Publish the public site
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One publish at a time, and a run already going is left to finish: these
+# pages are linked from a shipped app, so a half-deployed site is worse than
+# a late one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Refuse to publish an unfilled placeholder
+        run: |
+          if grep -rq "\[CONTACT EMAIL\]" site/; then
+            echo "site/ still carries the [CONTACT EMAIL] placeholder." >&2
+            echo "A privacy policy without a way to reach anybody is not one." >&2
+            exit 1
+          fi
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

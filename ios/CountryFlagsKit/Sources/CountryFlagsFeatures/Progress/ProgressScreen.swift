@@ -172,7 +172,8 @@ public struct ProgressScreen: View {
 
             // The tier chip left this row: beside the name and the counts it
             // broke the line at ordinary widths, and the tier still shows on
-            // the award itself in the achievements tab.
+            // the award itself on the achievements screen, which is in the
+            // package but out of the tab bar (see RootView).
             Text(verbatim: "\(deck.learnedCards)/\(deck.totalCards)")
                 .font(DesignTokens.Typography.sectionTitle)
                 .monospacedDigit()

@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 
 import CountryFlagsDomain
@@ -53,6 +54,31 @@ final class DueSummaryTests: XCTestCase {
     }
 
     // MARK: - Storing it
+
+    /// The four documents ride in parallel. When the summary's request is the
+    /// one the radio drops, the download reports a part missing and hands
+    /// over the three that landed, rather than throwing everything away.
+    func testADroppedRequestYieldsAPartialDownload() async throws {
+        let transport = MockClientTransport()
+        await Self.registerEmptyProgress(on: transport)
+        await transport.always(
+            .transportFailure(URLError(.networkConnectionLost)),
+            for: "getDueSummary"
+        )
+
+        do {
+            _ = try await Self.makeService(transport: transport).download()
+            XCTFail("a dropped request must be reported")
+        } catch let partial as PartialProgressDownload {
+            XCTAssertEqual(partial.missing, [.dueSummary])
+            XCTAssertNotNil(partial.delivered.decks)
+            XCTAssertNotNil(partial.delivered.achievements)
+            XCTAssertNil(partial.delivered.dueSummary)
+            guard case .transport = APIError.from(partial.underlying) else {
+                return XCTFail("unexpected cause: \(partial.underlying)")
+            }
+        }
+    }
 
     func testASyncRunStoresTheDueSummary() async throws {
         let store = try LocalStore(location: .inMemory)

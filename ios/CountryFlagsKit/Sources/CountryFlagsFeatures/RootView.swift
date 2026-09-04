@@ -38,6 +38,10 @@ public struct RootView: View {
     /// closes, rather than guessed at from a pending count that has usually
     /// already drained by the time the home screen is looking.
     @State private var isSettlingRun = false
+    /// The preferences, read once for the whole shell so that a switch
+    /// flipped in the settings reaches the session it silences. The store is
+    /// the app's single one; asking it here costs nothing.
+    @State private var settings: SettingsStore?
 
     /// Whether the launch's own run is still on its way back.
     ///
@@ -52,6 +56,13 @@ public struct RootView: View {
     /// returns at once the second time, and both of the launch's screens make
     /// it, so a flag cleared after it was cleared before anything happened.
     private var isSettlingAtLaunch: Bool { !sync.hasSettledFirstRun }
+
+    /// The countries this learner knows, counted the way Home counts them:
+    /// over the curated decks only, because the regions overlap them and
+    /// adding both would count a flag twice.
+    private var learnedCountries: Int {
+        progress.decks.filter(\.isCurated).reduce(0) { $0 + $1.learnedCards }
+    }
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -210,6 +221,17 @@ public struct RootView: View {
     }
 
     private var shell: some View {
+        tabs
+            // Feedback is ambient: a screen deep in a session should not have
+            // to be handed the preference to know whether to buzz.
+            .environment(\.hapticsEnabled, settings?.settings.hapticsEnabled ?? true)
+            .task {
+                if settings == nil { settings = makeSettingsStore() }
+                await settings?.load()
+            }
+    }
+
+    private var tabs: some View {
         // A tab bar rather than buttons on Home: the catalog and the progress
         // are places, and iOS puts places on the bottom bar. The bar's glass
         // is the system's own.
@@ -250,7 +272,9 @@ public struct RootView: View {
                                 composition: composition
                             )
                         )
-                    }
+                    },
+                    account: accountToolbar,
+                    onOpenAccount: { router.push(.account) }
                 )
                 .toolbar {
                     // Between the avatar and the gear, which is where a
@@ -309,6 +333,13 @@ public struct RootView: View {
         .task {
             if accountToolbar == nil { accountToolbar = makeAccountStore?() }
             await accountToolbar?.start()
+        }
+        // A run the backend refused is the moment a sign-in can have expired
+        // under an open screen: the coordinator has already ruled, and the
+        // store that the home row reads is asked to repeat the ruling.
+        .onChange(of: sync.status.lastFailure) { _, failure in
+            guard failure == .unauthorized else { return }
+            Task { await accountToolbar?.refreshState() }
         }
         // A warm launch opens straight into the shell, so the first read of
         // the counts happens here rather than on the waiting screen. Both
@@ -421,6 +452,13 @@ public struct RootView: View {
                     ? configuration.environment.rawValue.uppercased()
                     : nil
             )
+        case .about:
+            AboutScreen(
+                version: configuration.appVersion,
+                build: configuration.appBuild,
+                privacyPolicyURL: configuration.privacyPolicyURL,
+                termsURL: configuration.termsURL
+            )
         case .account:
             if let makeAccountLifecycleStore {
                 AccountScreen(
@@ -428,7 +466,8 @@ public struct RootView: View {
                     makeAccount: makeAccountStore,
                     makeClearProgress: makeClearProgressStore,
                     privacyPolicyURL: configuration.privacyPolicyURL,
-                    termsURL: configuration.termsURL
+                    termsURL: configuration.termsURL,
+                    learnedCountries: learnedCountries
                 )
             }
         }
@@ -445,6 +484,8 @@ public enum AccessibilityIdentifier {
     public static let shellTitle = "root.shell.title"
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
+    public static let settingsAbout = "settings.about"
+    public static let aboutVersion = "about.version"
     /// The launch wait — for the catalogue or for an account's numbers — and
     /// the way out of it when the backend cannot be reached.
     public static let launchWait = "root.launchWait"
@@ -585,6 +626,8 @@ public enum AccessibilityIdentifier {
     public static let studyResultDone = "study.result.done"
     /// The one action the first screen recommends.
     public static let homeContinue = "home.continue"
+    public static let homeSignInExpired = "home.signInExpired"
+    public static let homeGuestPrompt = "home.guestPrompt"
     public static let deckResume = "deck.resume"
     public static let homeLoading = "home.loading"
 

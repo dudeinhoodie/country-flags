@@ -42,7 +42,7 @@ public struct CatalogView: View {
         content
             .navigationTitle(L10n.catalogTitle)
             .searchable(text: $searchText, prompt: L10n.catalogSearchPrompt)
-            .refreshable { await store.refresh() }
+            .refreshable { await RefreshGesture.perform { await store.refresh() } }
             .task { await store.start() }
             // On a cold launch the fan races `store.start()`:
             // the catalog is not `.ready` yet, `reloadFan` bails out, and the

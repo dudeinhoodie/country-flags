@@ -20,7 +20,31 @@ final class SyncCenterTests: XCTestCase {
         XCTAssertEqual(center.status.pendingCount, 2)
     }
 
-/// The launch has two possible first screens and both call `start()`, so
+    /// The network coming back is a trigger: a run that failed for want of
+    /// one is repeated the moment there is one, not at the next launch. The
+    /// monitor used to exist with nobody listening.
+    func testTheNetworkComingBackStartsARun() async throws {
+        let coordinator = RecordingCoordinator(status: SyncStatus())
+        let reachability = ScriptedReachability()
+        let center = SyncCenter(
+            coordinator: coordinator,
+            scopes: FixedScopeResolver(),
+            reachability: reachability
+        )
+
+        await center.start()
+        await reachability.networkCameBack()
+
+        // The callback hops to the main actor; give it its turn.
+        for _ in 0..<50 {
+            if await coordinator.calls().contains("sync:networkAvailable") { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        let calls = await coordinator.calls()
+        XCTAssertTrue(calls.contains("sync:networkAvailable"), "\(calls)")
+    }
+
+    /// The launch has two possible first screens and both call `start()`, so
     /// the second call returns at once. A screen that timed the launch by
     /// that call was timing nothing — which is how the home screen showed the
     /// numbers this device was last told and replaced them two seconds later
@@ -93,6 +117,23 @@ final class SyncCenterTests: XCTestCase {
         await center.synchronize(trigger: .launch)
 
         XCTAssertFalse(center.status.isWorthReporting)
+    }
+}
+
+/// A network monitor the test drives by hand.
+actor ScriptedReachability: NetworkReachabilityObserving {
+    private var onAvailable: (@Sendable () -> Void)?
+
+    func startObserving(_ onAvailable: @escaping @Sendable () -> Void) async {
+        self.onAvailable = onAvailable
+    }
+
+    func stopObserving() async {
+        onAvailable = nil
+    }
+
+    func networkCameBack() {
+        onAvailable?()
     }
 }
 

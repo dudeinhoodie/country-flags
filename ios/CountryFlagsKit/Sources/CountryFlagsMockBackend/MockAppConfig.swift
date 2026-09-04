@@ -25,8 +25,8 @@ public enum MockAppConfig {
             """
             {"configVersion":"mock-config-1",\
             "generatedAt":"\(generatedAt)","expiresAt":"\(expiresAt)",\
-            "minimumClientVersions":{"ios":{"minimumSupported":"1.0.0",\
-            "latest":"1.0.0","updateMode":"NONE"}},\
+            "minimumClientVersions":{"ios":{"minimumSupported":"0.1.0",\
+            "latest":"0.1.0","updateMode":"NONE"}},\
             "contentVersion":"mock-content-1","supportedTemplateSchemaVersions":[1],\
             "featureFlags":{\
             "study.review_submission.enabled":{"type":"boolean","value":true,\

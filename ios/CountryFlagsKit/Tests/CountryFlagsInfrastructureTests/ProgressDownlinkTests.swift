@@ -5,8 +5,9 @@ import CountryFlagsDomain
 
 /// The canonical answers ride home on the sync run: deck mastery and
 /// achievements are the backend's to compute, the store's to hold, and the
-/// screens' only source. These pin the wiring and its two guards — a miss
-/// does not fail the run, and older settings never roll a device back.
+/// screens' only source. These pin the wiring and its guards — a miss is
+/// reported without blocking the upload, what arrived is kept, and older
+/// settings never roll a device back.
 final class ProgressDownlinkTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
     private let account = AccountScope.authenticated(
@@ -30,18 +31,52 @@ final class ProgressDownlinkTests: XCTestCase {
         XCTAssertEqual(achievements.map(\.code), ["FIRST_SESSION"])
     }
 
-    /// A downlink that misses leaves yesterday's canon on screen; it must not
-    /// turn a delivered upload into a failed sync.
-    func testADownlinkMissDoesNotFailTheRun() async throws {
+    /// A downlink that misses leaves yesterday's canon on screen, and the run
+    /// says so: a screen re-reading the store would otherwise present the old
+    /// numbers as checked. The failure is the transport's, so the chip can
+    /// say "no network", and the run records no success time.
+    func testADownlinkMissIsReportedAsTheRunsFailure() async throws {
         let store = try LocalStore(location: .inMemory)
         let coordinator = makeCoordinator(
             store: store,
-            download: ScriptedDownload(result: .failure(Fixtures.Offline()))
+            download: ScriptedDownload(result: .failure(APIError.transport("-1005")))
         )
 
         let status = await coordinator.synchronize(scope: account, trigger: .launch)
 
-        XCTAssertNil(status.lastFailure)
+        XCTAssertEqual(status.lastFailure, .offline)
+        XCTAssertNil(status.lastSuccessAt)
+    }
+
+    /// The documents ride in parallel; the one request the radio dropped must
+    /// not cost the three that landed. What arrived is stored, and the miss
+    /// is still the run's failure.
+    func testAPartialDownloadKeepsWhatArrivedAndStillReportsTheMiss() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        let whole = Fixtures.snapshot(now: now)
+        let partial = PartialProgressDownload(
+            delivered: ProgressSnapshot(
+                decks: whole.decks,
+                achievements: nil,
+                settings: nil,
+                dueSummary: nil
+            ),
+            missing: [.achievements, .settings, .dueSummary],
+            underlying: APIError.transport("-1005")
+        )
+        let coordinator = makeCoordinator(
+            store: store,
+            download: ScriptedDownload(result: .failure(partial))
+        )
+
+        let status = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        XCTAssertEqual(status.lastFailure, .offline)
+        let decks = try await learning.deckProgress(for: account)
+        XCTAssertEqual(decks.map(\.currentMasteryTier), ["SILVER"])
+        let achievements = try await learning.achievements(for: account)
+        XCTAssertTrue(achievements.isEmpty)
     }
 
     /// The version moves when the server accepts a change, so an older number

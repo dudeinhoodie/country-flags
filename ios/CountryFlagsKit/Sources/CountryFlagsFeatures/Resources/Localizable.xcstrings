@@ -1,6 +1,74 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "about.build": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сборка"
+          }
+        }
+      }
+    },
+    "about.credits": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Credits and licences"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Благодарности и лицензии"
+          }
+        }
+      }
+    },
+    "about.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "О приложении"
+          }
+        }
+      }
+    },
+    "about.version": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Версия"
+          }
+        }
+      }
+    },
     "account.cancel": {
       "extractionState": "manual",
       "localizations": {
@@ -364,13 +432,66 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "With an account your progress survives the phone."
+            "value": "Your progress lives only on this phone."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "С аккаунтом прогресс не пропадёт — даже если потеряешь телефон."
+            "value": "Прогресс живёт только на этом телефоне."
+          }
+        }
+      }
+    },
+    "account.guest_note_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld country you have learned lives only on this phone."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld countries you have learned live only on this phone."
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld выученные страны живут только на этом телефоне."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld выученных стран живут только на этом телефоне."
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld выученная страна живёт только на этом телефоне."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld выученных стран живут только на этом телефоне."
+                }
+              }
+            }
           }
         }
       }
@@ -813,6 +934,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нет сети. Попробуй, когда появится."
+          }
+        }
+      }
+    },
+    "account.sign_in_section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вход"
           }
         }
       }
@@ -2038,6 +2176,76 @@
         }
       }
     },
+    "home.guest_prompt.count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld country lives only on this phone so far"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld countries live only on this phone so far"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld страна пока только на этом телефоне"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld страны пока только на этом телефоне"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld стран пока только на этом телефоне"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld стран пока только на этом телефоне"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "home.guest_prompt.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep your progress in an account"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить прогресс в аккаунте"
+          }
+        }
+      }
+    },
     "home.loading": {
       "extractionState": "manual",
       "localizations": {
@@ -2153,6 +2361,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "осталось карточек: %lld"
+          }
+        }
+      }
+    },
+    "home.sign_in_expired.pending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld answer is waiting on this phone"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld answers are waiting on this phone"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ответ ждёт отправки на этом телефоне"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ответа ждут отправки на этом телефоне"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ответов ждут отправки на этом телефоне"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ответов ждут отправки на этом телефоне"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "home.sign_in_expired.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your sign-in has expired"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вход устарел"
           }
         }
       }
@@ -2714,6 +2992,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Флаги заждались"
+          }
+        }
+      }
+    },
+    "settings.about": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "О приложении"
           }
         }
       }
@@ -3872,6 +4167,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Войди, чтобы прогресс синхронизировался между устройствами."
+          }
+        }
+      }
+    },
+    "sync.sign_in_required.chip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нужен вход"
           }
         }
       }

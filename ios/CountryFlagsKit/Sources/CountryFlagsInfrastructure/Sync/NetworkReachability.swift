@@ -3,17 +3,6 @@ import Network
 
 import CountryFlagsDomain
 
-/// Tells the app when a network path has come back.
-///
-/// It is a trigger, never proof: a satisfied path means a request is worth
-/// trying, not that the API is reachable. Nothing here decides whether the app
-/// is "online" — the request that follows decides that.
-public protocol NetworkReachabilityObserving: Sendable {
-    /// Calls back each time a usable path appears, having been unavailable.
-    func startObserving(_ onAvailable: @escaping @Sendable () -> Void) async
-    func stopObserving() async
-}
-
 public actor NetworkReachabilityMonitor: NetworkReachabilityObserving {
     private let monitor: NWPathMonitor
     private let queue = DispatchQueue(label: "app.countryflags.network-monitor")

@@ -237,6 +237,10 @@ public enum L10n {
     // MARK: - Account
 
     public static var accountSection: String { localized("account.section") }
+    /// The same section, headed by what it offers rather than by what it is
+    /// about, for somebody who has no account yet. "Account" over a pair of
+    /// sign-in buttons, on a screen already titled Account, says nothing.
+    public static var accountSignInSection: String { localized("account.sign_in_section") }
     public static var accountSignedIn: String { localized("account.signed_in") }
     public static var accountExpired: String { localized("account.expired") }
     public static var accountSignOut: String { localized("account.sign_out") }
@@ -272,6 +276,24 @@ public enum L10n {
     public static var accountExportShare: String { localized("account.export_share") }
     public static var accountExportFailed: String { localized("account.export_failed") }
     public static var accountLegalSection: String { localized("account.legal_section") }
+    /// The about screen: which build this is, and whose work it carries.
+    public static var aboutTitle: String { localized("about.title") }
+    public static var aboutVersion: String { localized("about.version") }
+    public static var aboutBuild: String { localized("about.build") }
+    public static var aboutCreditsSection: String { localized("about.credits") }
+    public static var settingsAbout: String { localized("settings.about") }
+
+    /// What a guest stands to lose, said with the number when there is one.
+    /// Declined by the count — "1 выученная страна", "2 выученные страны",
+    /// "96 выученных стран" are three different words — so it goes through
+    /// the catalogue's plural machinery rather than a format string.
+    public static func accountGuestNoteCount(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("account.guest_note_count", bundle: bundle, comment: ""),
+            count
+        )
+    }
+
     public static var accountPrivacyPolicy: String { localized("account.privacy_policy") }
     public static var accountTerms: String { localized("account.terms") }
     public static var accountDangerSection: String { localized("account.danger_section") }
@@ -432,6 +454,24 @@ public enum L10n {
 
     public static var syncOffline: String { localized("sync.offline") }
     public static var syncSignInRequired: String { localized("sync.sign_in_required") }
+    public static var syncSignInRequiredChip: String { localized("sync.sign_in_required.chip") }
+    public static var homeSignInExpiredTitle: String { localized("home.sign_in_expired.title") }
+    /// Declined by the count — "1 ответ ждёт", "2 ответа ждут", "12 ответов
+    /// ждут" — so it goes through the catalogue's plural machinery.
+    public static func homeSignInExpiredPending(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.sign_in_expired.pending", bundle: bundle, comment: ""),
+            count
+        )
+    }
+    public static var homeGuestPromptTitle: String { localized("home.guest_prompt.title") }
+    /// Declined by the count, as `accountGuestNoteCount` is.
+    public static func homeGuestPromptCount(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.guest_prompt.count", bundle: bundle, comment: ""),
+            count
+        )
+    }
 
     public static func syncPendingChip(_ count: Int) -> String {
         String(format: localized("sync.pending.chip"), count)

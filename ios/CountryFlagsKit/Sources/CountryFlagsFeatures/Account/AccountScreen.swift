@@ -19,6 +19,10 @@ public struct AccountScreen: View {
     /// offer, the same rule the Google button follows.
     private let privacyPolicyURL: URL?
     private let termsURL: URL?
+    /// The learner's own count, for the guest note. Passed in rather than
+    /// read here: the numbers belong to the progress store, and this screen
+    /// is about identity.
+    private let learnedCountries: Int?
     /// Who is signed in, and the way in or out. It used to live in the
     /// settings; it belongs with the account it is about.
     @State private var account: AccountStore?
@@ -34,13 +38,15 @@ public struct AccountScreen: View {
         makeAccount: (() -> AccountStore)? = nil,
         makeClearProgress: (() -> ClearProgressStore)? = nil,
         privacyPolicyURL: URL? = nil,
-        termsURL: URL? = nil
+        termsURL: URL? = nil,
+        learnedCountries: Int? = nil
     ) {
         _store = State(wrappedValue: store)
         self.makeAccount = makeAccount
         self.makeClearProgress = makeClearProgress
         self.privacyPolicyURL = privacyPolicyURL
         self.termsURL = termsURL
+        self.learnedCountries = learnedCountries
     }
 
     public var body: some View {
@@ -49,7 +55,7 @@ public struct AccountScreen: View {
                 deletionNotice(deletion)
             }
             if let account {
-                AccountSection(store: account)
+                AccountSection(store: account, learnedCountries: learnedCountries)
                     .listRowBackground(rowBackground)
             }
             if let clearProgress {
@@ -112,11 +118,11 @@ public struct AccountScreen: View {
         if privacyPolicyURL != nil || termsURL != nil {
             Section {
                 if let privacyPolicyURL {
-                    Link(L10n.accountPrivacyPolicy, destination: privacyPolicyURL)
+                    DocumentLink(title: L10n.accountPrivacyPolicy, url: privacyPolicyURL)
                         .accessibilityIdentifier(AccessibilityIdentifier.accountPrivacyPolicy)
                 }
                 if let termsURL {
-                    Link(L10n.accountTerms, destination: termsURL)
+                    DocumentLink(title: L10n.accountTerms, url: termsURL)
                         .accessibilityIdentifier(AccessibilityIdentifier.accountTerms)
                 }
             } header: {
@@ -128,9 +134,14 @@ public struct AccountScreen: View {
 
     // MARK: - Deletion
 
+    /// Offered to somebody who has an account, and to nobody else. A guest
+    /// used to see it too — the section only asked whether a deletion was
+    /// already pending — and tapping it sent an unauthenticated request that
+    /// could only fail. There is nothing of theirs on a server to delete:
+    /// a guest's work lives on this device alone.
     @ViewBuilder
     private var deletionSection: some View {
-        if store.pendingDeletion == nil {
+        if store.pendingDeletion == nil, account?.state.isAuthenticated == true {
             Section {
                 Button(L10n.accountDelete, role: .destructive) { store.requestDeletion() }
                     .accessibilityIdentifier(AccessibilityIdentifier.accountDelete)

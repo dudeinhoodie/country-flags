@@ -5,20 +5,30 @@ import CountryFlagsDomain
 
 /// The account, as a section of the settings form.
 ///
-/// A guest sees an offer, never a gate: the note under the button says what
-/// signing in buys — progress that survives the device — and everything else
-/// in the app works without it. Signing out with unsent answers is put to the
+/// A guest sees an offer, never a gate: the note under the buttons says what
+/// is at stake — the countries they have learned, counted, living on one
+/// phone — and everything else in the app works without it. Signing out with unsent answers is put to the
 /// user with the number, because stranding work silently is the one thing
 /// this section must never do.
 struct AccountSection: View {
     /// Owned for the same reason every screen owns its store.
     @State private var store: AccountStore
+    /// How many countries this guest has learned, when anybody knows. The
+    /// note says what is at stake rather than what an account is for, and
+    /// the difference is a number: "96 countries" is this learner's work,
+    /// "your progress" is a category.
+    private let learnedCountries: Int?
     /// Opens the account screen. Only a signed-in account has one worth
     /// opening, so the row appears with the person rather than with the offer.
     private let onOpenAccount: (() -> Void)?
 
-    init(store: AccountStore, onOpenAccount: (() -> Void)? = nil) {
+    init(
+        store: AccountStore,
+        learnedCountries: Int? = nil,
+        onOpenAccount: (() -> Void)? = nil
+    ) {
         _store = State(wrappedValue: store)
+        self.learnedCountries = learnedCountries
         self.onOpenAccount = onOpenAccount
     }
 
@@ -26,7 +36,10 @@ struct AccountSection: View {
         Section {
             content
         } header: {
-            SectionLabel(L10n.accountSection)
+            // Headed by what it offers, not by what it is about: "Account"
+            // over two sign-in buttons, on a screen already titled Account,
+            // says nothing.
+            SectionLabel(isSignedOut ? L10n.accountSignInSection : L10n.accountSection)
         } footer: {
             footer
         }
@@ -110,8 +123,41 @@ struct AccountSection: View {
         }
     }
 
+    /// Whether this is somebody with no account rather than somebody with
+    /// one — the sign-in block is headed and laid out differently.
+    private var isSignedOut: Bool {
+        switch store.state {
+        case .guest, .authenticationExpired: true
+        default: false
+        }
+    }
+
+    /// One row rather than one per button, on the scene rather than on a
+    /// material slab.
+    ///
+    /// Left to the form, each button became its own row: two capsules on two
+    /// grey rectangles, separated by the list's own spacing — which is not
+    /// what a pair of capsules is. They are one offer, so they are one row,
+    /// and the ground under them is the app's scene, which is what makes a
+    /// capsule read as a capsule.
     @ViewBuilder
     private var signInControls: some View {
+        VStack(spacing: DesignTokens.Spacing.small + 4) {
+            providerButtons
+        }
+        .listRowBackground(Color.clear)
+        .listRowInsets(
+            EdgeInsets(
+                top: DesignTokens.Spacing.small,
+                leading: 0,
+                bottom: DesignTokens.Spacing.small,
+                trailing: 0
+            )
+        )
+    }
+
+    @ViewBuilder
+    private var providerButtons: some View {
         ProviderSignInButtons(
             prepareNonce: { store.prepareNonce() },
             rawNonce: { store.preparedNonce?.raw ?? "" },
@@ -134,7 +180,13 @@ struct AccountSection: View {
     private var footer: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
             if case .guest = store.state {
-                Text(L10n.accountGuestNote)
+                // Somebody who has learned nothing yet is told what a guest
+                // account is, not that nothing is at stake.
+                Text(
+                    (learnedCountries ?? 0) > 0
+                        ? L10n.accountGuestNoteCount(learnedCountries ?? 0)
+                        : L10n.accountGuestNote
+                )
             }
             if let failure = store.lastFailure {
                 Text(failure == .offline ? L10n.accountSignInOffline : L10n.accountSignInFailed)
@@ -242,42 +294,22 @@ private struct AccountAvatarView: View {
     }
 }
 
-/// Google's four-colour "G", drawn rather than shipped.
+/// Google's "G", as Google ships it.
 ///
-/// Four arcs and the bar, in the brand's own colours — a trademark keeps its
-/// palette the way a flag does, so the hex values here are the logo's, not
-/// ours. Drawing it keeps the mark crisp at any size with no asset to age.
+/// The one thing on the button that is not drawn here. Since 2025 the mark
+/// is a gradient — a conic sweep under a blur — that no vector format the
+/// toolchain renders can carry, so it travels as the bitmap Google publishes
+/// in its sign-in asset pack: the 20-point logo square cropped out of the
+/// icon-only light button, at 2x and 3x, white ground included. That ground
+/// is why the mark may sit only on a white button. A trademark keeps its
+/// shape and its colours the way a flag does; nothing here is ours to adjust.
 struct GoogleLogoMark: View {
     var body: some View {
-        GeometryReader { proxy in
-            let side = min(proxy.size.width, proxy.size.height)
-            let line = side * 0.21
-            let inset = line / 2
-
-            ZStack {
-                segment(0.00, 0.17, Color(red: 0.259, green: 0.522, blue: 0.957), line: line)
-                segment(0.17, 0.38, Color(red: 0.204, green: 0.659, blue: 0.325), line: line)
-                segment(0.38, 0.62, Color(red: 0.984, green: 0.737, blue: 0.020), line: line)
-                segment(0.62, 0.87, Color(red: 0.918, green: 0.263, blue: 0.208), line: line)
-
-                // The bar that turns the ring into a G.
-                Rectangle()
-                    .fill(Color(red: 0.259, green: 0.522, blue: 0.957))
-                    .frame(width: side / 2 - inset + line / 2, height: line)
-                    .offset(x: side / 4 - inset / 2 + line / 4)
-            }
-            .padding(inset)
-            .frame(width: side, height: side)
-        }
-    }
-
-    /// One arc of the ring. Trim runs from 3 o'clock, clockwise on screen.
-    private func segment(
-        _ from: CGFloat, _ to: CGFloat, _ color: Color, line: CGFloat
-    ) -> some View {
-        Circle()
-            .trim(from: from, to: to)
-            .stroke(color, lineWidth: line)
+        Image("google-g", bundle: .module)
+            .resizable()
+            .interpolation(.high)
+            .scaledToFit()
+            .accessibilityHidden(true)
     }
 }
 

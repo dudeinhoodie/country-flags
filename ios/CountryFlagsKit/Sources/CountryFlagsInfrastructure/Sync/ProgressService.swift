@@ -21,16 +21,54 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, ProgressCle
 
     public func download() async throws -> ProgressSnapshot {
         let client = clientFactory.makeClient()
-        async let decks = deckProgress(using: client)
-        async let achievements = achievements(using: client)
-        async let settings = settings(using: client)
-        async let dueSummary = dueSummary(using: client)
-        return try await ProgressSnapshot(
-            decks: decks,
-            achievements: achievements,
-            settings: settings,
-            dueSummary: dueSummary
+        // Each document on its own request and each outcome kept: the four
+        // ride in parallel, and the one the radio drops must not cost the
+        // three that land. What did not arrive is reported, not swallowed.
+        async let decksResult = Self.attempt { try await deckProgress(using: client) }
+        async let achievementsResult = Self.attempt { try await achievements(using: client) }
+        async let settingsResult = Self.attempt { try await settings(using: client) }
+        async let dueSummaryResult = Self.attempt { try await dueSummary(using: client) }
+        let results = await (decksResult, achievementsResult, settingsResult, dueSummaryResult)
+
+        var missing: Set<ProgressSnapshot.Part> = []
+        var firstFailure: (any Error)?
+        func delivered<Value>(
+            _ result: Result<Value, any Error>,
+            _ part: ProgressSnapshot.Part
+        ) -> Value? {
+            switch result {
+            case .success(let value):
+                return value
+            case .failure(let error):
+                missing.insert(part)
+                if firstFailure == nil { firstFailure = error }
+                return nil
+            }
+        }
+        let snapshot = ProgressSnapshot(
+            decks: delivered(results.0, .decks),
+            achievements: delivered(results.1, .achievements),
+            settings: delivered(results.2, .settings) ?? nil,
+            dueSummary: delivered(results.3, .dueSummary) ?? nil
         )
+        if let firstFailure {
+            throw PartialProgressDownload(
+                delivered: snapshot,
+                missing: missing,
+                underlying: firstFailure
+            )
+        }
+        return snapshot
+    }
+
+    private static func attempt<Value: Sendable>(
+        _ work: @Sendable () async throws -> Value
+    ) async -> Result<Value, any Error> {
+        do {
+            return .success(try await work())
+        } catch {
+            return .failure(error)
+        }
     }
 
     public func update(_ settings: UserSettingsRecord) async throws -> SettingsUpdateOutcome {

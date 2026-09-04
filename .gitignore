@@ -37,3 +37,7 @@ DerivedData/
 # Playwright output
 admin/test-results/
 admin/playwright-report/
+
+# Store screenshots are rebuilt by ios/Scripts/capture-screenshots.sh,
+# never committed: the copy beside them is what is versioned.
+ios/StoreMetadata/screenshots/
