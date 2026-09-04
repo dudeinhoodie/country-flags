@@ -8,7 +8,7 @@ Schema: [catalog.schema.json](../content/schemas/catalog.schema.json)
 
 Список следует передавать как один versioned JSON-документ, разделённый на три независимые секции:
 
-- `entities` — страны, территории, регионы и субрегионы;
+- `entities` — страны, территории, административные подразделения, регионы и субрегионы;
 - `relations` — принадлежность стран к регионам в конкретной классификации;
 - `decks` — редакционные подборки, например «Все» и «Популярные».
 
@@ -47,6 +47,7 @@ Schema: [catalog.schema.json](../content/schemas/catalog.schema.json)
 - `territory.greenland`
 - `region.europe`
 - `subregion.western_europe`
+- `subdivision.us.california`
 
 ## 3. Минимальная запись страны
 
@@ -89,10 +90,11 @@ Schema: [catalog.schema.json](../content/schemas/catalog.schema.json)
 
 Семантика `includeInCountryCatalog` зафиксирована
 [ADR-015](adr/ADR-015-entity-config-and-learnable-pool.md): флаг управляет
-**только** членством в колоде «Все страны» (`all-current`). Учебный пул —
-карточка, факты, участие в остальных колодах — определяется иначе: активная
-сущность типа `country`, `territory` или `area` обучаема всегда, что бы флаг
-ни говорил. В editorial-слое (`editorial/catalog.json`, schema v2) флаг живёт
+**только** членством в колоде «Все страны» (`all-current`). Учебный пул базовых
+flag-карточек определяется иначе: активная сущность типа `country`, `territory`
+или `area` обучаема всегда, что бы флаг ни говорил. `subdivision` обучается
+только через явно опубликованный card template/deck и никогда не входит в
+`all-current`. В editorial-слое (`editorial/catalog.json`, schema v2) флаг живёт
 внутри объекта `config` сущности; в собранном каталоге публикуется плоско,
 как показано выше.
 
@@ -211,12 +213,38 @@ Fallback locale задаётся клиентом и manifest:
 
 Одна страна может иметь несколько relations. `taxonomyKey` объясняет, почему страна отнесена к этому региону.
 
+### 7.1 Административные подразделения
+
+Штат хранится в той же секции `entities`, но не маскируется под страну:
+
+~~~json
+{
+  "key": "subdivision.us.california",
+  "type": "subdivision",
+  "status": "active",
+  "parentKey": "country.united_states",
+  "config": { "includeInCountryCatalog": false },
+  "recognitionStatus": "not_applicable",
+  "identifiers": { "isoSubdivision": "US-CA", "fipsCode": "06" },
+  "names": {
+    "ru": { "short": "Калифорния" },
+    "en": { "short": "California" }
+  }
+}
+~~~
+
+`parentKey` является удобной authoring-формой и публикуется как
+`GeoRelation(CONTAINS)` taxonomy `ADMINISTRATIVE`. Полные правила и schema v3:
+[18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md).
+
 ## 8. Колоды
 
 ```json
 {
   "key": "deck.popular",
   "kind": "curated",
+  "defaultTemplateCode": "FLAG_TO_COUNTRY",
+  "defaultTemplateSchemaVersion": 1,
   "names": {
     "ru": {
       "name": "Популярные",
@@ -227,11 +255,11 @@ Fallback locale задаётся клиентом и manifest:
       "description": "Commonly encountered flags"
     }
   },
-  "memberEntityKeys": ["country.france", "country.japan"]
+  "members": ["country.france", "country.japan"]
 }
 ```
 
-Порядок `memberEntityKeys` MAY использоваться как редакционный порядок. Состав колоды версионируется вместе с `catalogVersion`.
+Порядок `members` MAY использоваться как редакционный порядок. Состав колоды версионируется вместе с `catalogVersion`.
 
 `key` — единственное имя колоды: API отдаёт её под кодом, выведенным из ключа
 (`deck.europe` → `EUROPE`), потому что контракт требует `^[A-Z][A-Z0-9_]*$`.
@@ -240,7 +268,34 @@ Fallback locale задаётся клиентом и manifest:
 `deck.south-america` и `deck.south_america` дают `SOUTH_AMERICA` оба. Публикация
 такого бандла останавливается на validation с указанием, какой ключ переименовать.
 
-### 8.1 Будущая колода исторических государств
+### 8.1 Card variants и смешанные колоды
+
+Строковый member означает вариант с `defaultTemplateCode` и
+`defaultTemplateSchemaVersion`. Когда в одной колоде
+нужны разные вопросы, members задаются явно:
+
+~~~json
+{
+  "members": [
+    {
+      "entityKey": "country.germany",
+      "templateCode": "FLAG_TO_COUNTRY",
+      "templateSchemaVersion": 1
+    },
+    {
+      "entityKey": "country.germany",
+      "templateCode": "COAT_OF_ARMS_TO_COUNTRY",
+      "templateSchemaVersion": 1
+    }
+  ]
+}
+~~~
+
+Флаг и герб одной страны при этом становятся двумя LearningCard и имеют
+раздельный progress. Схема v2 читается migration adapter-ом; её строковые
+members получают `FLAG_TO_COUNTRY` v1.
+
+### 8.2 Будущая колода исторических государств
 
 Формат заранее поддерживает категорию «Прекратившие существование государства», но её наполнение не входит в MVP. Историческое государство хранится отдельной сущностью с неизменяемым редакционным `key`, обычным географическим `type`, `status: "historical"`, периодом существования в `validFrom`/`validTo` и `includeInCountryCatalog: false`.
 

@@ -1,9 +1,11 @@
 # Документация проекта Country Flags
 
-Статус: `Backend implementation baseline 0.2`  
-Дата: 27 июля 2026 года
+Статус: `Product and implementation baseline 0.3`
+Дата: 4 сентября 2026 года
 
 Комплект предназначен для обсуждения продукта и последующей передачи агентам разработки.
+
+Актуальный визуальный контракт приложения находится в [DESIGN.md](../DESIGN.md).
 
 ## Документы
 
@@ -24,6 +26,8 @@
 - [14-deployment-agent-handoff.md](./14-deployment-agent-handoff.md) — последовательность и критерии deployment work packages.
 - [15-ios-client-readiness.md](./15-ios-client-readiness.md) — сопоставление iOS-сценариев с операциями контракта, решения по planned-операциям и client fixtures.
 - [16-ios-design-language.md](./16-ios-design-language.md) — визуальный язык iOS-клиента: референсы, принципы, tokens, motion, haptics и словарь нативных компонентов.
+- [17-paid-decks-storekit.md](./17-paid-decks-storekit.md) — разовые покупки платных колод через StoreKit, backend entitlements, админка, refunds, restore и dev/prod separation.
+- [18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md) — гербы, штаты США, multi-template состав колод, расширения backend/admin/iOS и post-purchase UI.
 - [ios/README.md](./ios/README.md) — порядок iOS-разработки и отдельные agent-ready спецификации IOS-000…IOS-013.
 - [ADR-002](./adr/ADR-002-auth-and-refresh-token-rotation.md) — provider identities и refresh-token rotation.
 - [ADR-003](./adr/ADR-003-review-ordering-and-idempotency.md) — canonical ordering, clock normalization и idempotency review.
@@ -33,6 +37,8 @@
 - [ADR-009](./adr/ADR-009-generated-client-contract-shape.md) — extensible enum и nullable-структуры для генерируемых клиентов.
 - [ADR-010](./adr/ADR-010-offline-study-session-import.md) — импорт офлайн-сессии: доверенные и перестраиваемые поля, отказ для объективного режима, поведение при устаревшем контенте.
 - [ADR-011](./adr/ADR-011-bundled-flag-baseline.md) — флаги релиза зашиты в приложение как базовый слой, а исправления по-прежнему приезжают через content release.
+- [ADR-019](./adr/ADR-019-paid-deck-entitlements.md) — Apple non-consumable product выдаёт стабильные backend entitlements, а не открывает Deck напрямую.
+- [ADR-020](./adr/ADR-020-geo-entities-and-card-variants.md) — страны и штаты используют общую GeoEntity-модель, а флаг/герб являются независимыми card variants.
 
 ## Подтверждённые продуктовые решения
 
@@ -49,6 +55,9 @@
 11. Техническая замена изображения сохраняет progress; существенная смена официального флага создаёт новую learning card.
 12. Backend можно начинать с deterministic content/auth fixtures и NoOp providers, не ожидая production-каталог, credentials и внешнюю инфраструктуру.
 13. Deployment разделяет local, CI, dev и production; release image один раз публикуется в GHCR, проверяется в dev и тем же artifact продвигается в production.
+14. Платные колоды проектируются как разовые Apple Non-Consumable IAP: Store product выдаёт backend entitlement, Family Sharing и subscriptions не входят в первую версию.
+15. Гербы являются assets страны; штаты хранятся в `geo_entities` как `SUBDIVISION` с parent relation и не считаются странами.
+16. Состав колоды адресует пару `entity + card template`, поэтому флаг и герб одной страны имеют независимые карточки и progress.
 
 ## Решения по умолчанию в текущем черновике
 
