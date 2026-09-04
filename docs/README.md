@@ -36,7 +36,14 @@
 - [ADR-008](./adr/ADR-008-deployment-topology-and-promotion.md) — Koyeb/Neon/R2 и immutable promotion dev → production.
 - [ADR-009](./adr/ADR-009-generated-client-contract-shape.md) — extensible enum и nullable-структуры для генерируемых клиентов.
 - [ADR-010](./adr/ADR-010-offline-study-session-import.md) — импорт офлайн-сессии: доверенные и перестраиваемые поля, отказ для объективного режима, поведение при устаревшем контенте.
-- [ADR-011](./adr/ADR-011-bundled-flag-baseline.md) — флаги релиза зашиты в приложение как базовый слой, а исправления по-прежнему приезжают через content release.
+- [ADR-011](./adr/ADR-011-bundled-flag-baseline.md) — флаги релиза зашиты в приложение как базовый слой, а исправления по-прежнему приезжают через content release; бандл покрывает только бесплатные колоды.
+- [ADR-012](./adr/ADR-012-dark-scene-design-language.md) — всегда тёмная сцена как визуальный язык и iOS 26 как минимальная версия.
+- [ADR-013](./adr/ADR-013-first-repetition-after-an-hour.md) — первый повтор назначается через час, а не через минуту.
+- [ADR-014](./adr/ADR-014-admin-console-architecture.md) — архитектура админки и путь контента до релиза.
+- [ADR-015](./adr/ADR-015-entity-config-and-learnable-pool.md) — учебный пул не зависит от списка «Все страны»; конфигурация сущности живёт в `config`.
+- [ADR-016](./adr/ADR-016-backend-is-the-only-source-of-truth-on-the-client.md) — бэкенд единственный источник чисел на клиенте, и у каждого числа один владелец.
+- [ADR-017](./adr/ADR-017-in-product-publisher-and-rollback.md) — публикация и откат из продукта: publisher-job, свой контур прав, блокировка на указателе.
+- [ADR-018](./adr/ADR-018-un-policy-taught-set.md) — приложение учит 197 государств по политике ООН.
 - [ADR-019](./adr/ADR-019-paid-deck-entitlements.md) — Apple non-consumable product выдаёт стабильные backend entitlements, а не открывает Deck напрямую.
 - [ADR-020](./adr/ADR-020-geo-entities-and-card-variants.md) — страны и штаты используют общую GeoEntity-модель, а флаг/герб являются независимыми card variants.
 

@@ -27,9 +27,9 @@
 2. В `GeoEntityKind` добавляется `SUBDIVISION`. Штат США — `SUBDIVISION`, а не
    `COUNTRY`.
 3. Родитель подразделения хранится канонической `GeoRelation(CONTAINS)`:
-   `country.united_states -> subdivision.us.california`. Editorial/admin
-   контракт MAY предоставлять удобное поле `parentKey`, но publisher
-   нормализует его в relation.
+   `country.united_states -> subdivision.us.california` в таксономии
+   `taxonomy.administrative.v1`. Editorial/admin контракт MAY предоставлять
+   удобное поле `parentKey`, но publisher нормализует его в relation.
 4. Флаг и герб не являются отдельными геосущностями. Это разные `Asset` одной
    сущности: `FLAG`, `COAT_OF_ARMS`; у каждого ассета свои variant, период
    действия, источник, лицензия и локализованное описание.
@@ -102,10 +102,13 @@ publishing lifecycle `GeoEntity`.
 ## Совместимость
 
 - Существующие UUID стран, карточек и review events не меняются.
-- Старый строковый `memberEntityKeys` мигрируется с
+- Старый строковый список `members` мигрируется с
   `defaultTemplateCode = FLAG_TO_COUNTRY` и
   `defaultTemplateSchemaVersion = 1`.
 - Клиент ниже `minimumClientVersion`, не поддерживающий новый template, не
-  получает несовместимый content release.
+  получает несовместимый content release. Существующий gate сравнивает только
+  номер версии схемы, поэтому manifest дополняется парами
+  `{ templateCode, schemaVersion }`: иначе `COAT_OF_ARMS_TO_COUNTRY` v1 прошёл
+  бы как поддерживаемый и был бы нарисован flag-рендерером.
 - ADR-015 сохраняет семантику `includeInCountryCatalog`; этот ADR добавляет
   явное исключение для `SUBDIVISION`.

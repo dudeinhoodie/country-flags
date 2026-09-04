@@ -1,7 +1,9 @@
 # ТЗ: гербы, штаты и платные multi-content колоды
 
-Статус: `Draft 0.1 — implementation ready after contract approval`  
-Дата: 4 сентября 2026 года  
+Статус: `Draft 0.2 — implementation ready after contract approval`  
+Дата: 4 сентября 2026 года. Ревизия 0.2 закрывает замечания технического ревью:
+gate шаблонов по паре код и версия, состав `deck.all`, секции каталога и
+согласование имён с документом 17.  
 Связанные решения: [ADR-019](./adr/ADR-019-paid-deck-entitlements.md),
 [ADR-020](./adr/ADR-020-geo-entities-and-card-variants.md)  
 Визуальный контракт: [DESIGN.md](../DESIGN.md)
@@ -41,7 +43,7 @@
 
 - code: `EUROPEAN_COATS`;
 - editorial key: `deck.european_coats`;
-- entitlement: `deck.europe_coats`;
+- entitlement: `entitlement.european_coats`;
 - 52 карточки на момент первого контентного релиза; точный список утверждается
   редакционно и не зашивается в код;
 - subject kind: `COUNTRY`, `TERRITORY` или утверждённая special-area entity;
@@ -53,24 +55,24 @@
 Рабочая коммерческая конфигурация:
 
 ~~~text
-offer:       EUROPE_COATS_LIFETIME
-entitlement: deck.europe_coats
-prod IAP:    app.countryflags.deck.europe_coats.lifetime.v1
-dev IAP:     app.countryflags.dev.deck.europe_coats.lifetime.v1
+offer:       EUROPEAN_COATS_LIFETIME
+entitlement: entitlement.european_coats
+prod IAP:    app.countryflags.deck.european_coats.lifetime.v1
+dev IAP:     app.countryflags.dev.deck.european_coats.lifetime.v1
 ~~~
 
 ### 3.2 U.S. State Flags
 
 - code: `US_STATE_FLAGS`;
 - editorial key: `deck.us_state_flags`;
-- entitlement: `deck.us_state_flags`;
+- entitlement: `entitlement.us_state_flags`;
 - ровно 50 штатов в v1;
 - Washington, D.C. и территории США в v1 не входят;
 - subject kind: `SUBDIVISION`;
 - parent: `country.united_states`;
-- template: `FLAG_TO_COUNTRY`, schema version `1`, или совместимый
-  subdivision-вариант того же
-  renderer;
+- template: `FLAG_TO_COUNTRY`, schema version `1`. Отдельный
+  subdivision-вариант шаблона не вводится: один renderer обслуживает и страны,
+  и подразделения (ADR-020 §5, DESIGN.md «Study cards by content type»);
 - prompt: флаг штата без подписи;
 - answer: штат, столица, дата вступления и короткая история символа;
 - выбранный public-preview fan: Washington, California, Texas; California в
@@ -80,7 +82,7 @@ dev IAP:     app.countryflags.dev.deck.europe_coats.lifetime.v1
 
 ~~~text
 offer:       US_STATE_FLAGS_LIFETIME
-entitlement: deck.us_state_flags
+entitlement: entitlement.us_state_flags
 prod IAP:    app.countryflags.deck.us_state_flags.lifetime.v1
 dev IAP:     app.countryflags.dev.deck.us_state_flags.lifetime.v1
 ~~~
@@ -107,9 +109,15 @@ SUBDIVISION
 ~~~text
 parent:       country.united_states
 child:        subdivision.us.california
-taxonomyCode: ADMINISTRATIVE
-relationType: CONTAINS
+taxonomyKey:  taxonomy.administrative.v1
+relationType: contains
+primary:      true
 ~~~
+
+Ключ таксономии следует существующей конвенции (`taxonomy.editorial.v1`,
+`taxonomy.cldr`, `taxonomy.un-m49`); publisher кладёт его в
+`geo_relations.taxonomy_code` без преобразования, как уже делает
+`backend/src/modules/content/bundle/bundle-publisher.ts:208`.
 
 Backend MUST валидировать:
 
@@ -254,10 +262,14 @@ editorial/overrides/assets/<entityKey>/<assetType>/<variant>.svg
 
 ## 6. Контракт состава колоды
 
-Текущий `memberEntityKeys` недостаточен: у одной entity несколько learning
-cards. `EditorialDeck` v3 получает `defaultTemplateCode` и
-`defaultTemplateSchemaVersion`, а members поддерживает
-явные card refs.
+Поле в editorial schema v2 называется `members` и принимает либо строку
+`"all-current"`, либо список entity keys, либо объект `{ "taxonomy": ... }`
+(`contracts/schemas/content/editorial-catalog.v2.schema.json`). Ни одна из трёх
+форм не различает карточки одной сущности, а их теперь несколько.
+
+`EditorialDeck` v3 сохраняет имя `members` и все три существующие формы, но
+добавляет `defaultTemplateCode`, `defaultTemplateSchemaVersion` и явные card
+refs в списочной форме.
 
 Однородная колода:
 
@@ -301,6 +313,14 @@ cards. `EditorialDeck` v3 получает `defaultTemplateCode` и
 - порядок members является редакционным `sortOrder`;
 - `all-current` по умолчанию использует `FLAG_TO_COUNTRY` v1 и исключает
   `SUBDIVISION`;
+- исключение подразделений действует не только на селектор `all-current`, но и
+  на любой курируемый список, который его заменяет. Сегодня «Все страны» —
+  это `deck.all` с явным списком ключей, а не селектор
+  (`tools/content-pipeline/editorial/catalog.json`), поэтому валидация MUST
+  отклонять `SUBDIVISION` в составе `deck.all` независимо от формы members.
+  Сам состав каталога остаётся редакционным решением по
+  [ADR-018](./adr/ADR-018-un-policy-taught-set.md) и этим документом не
+  меняется;
 - taxonomy selection задаёт template явно;
 - publisher резолвит members в `DeckCard.learningCardId`, после чего runtime не
   угадывает template.
@@ -352,8 +372,8 @@ license/attribution поля.
   "contentKinds": ["COAT_OF_ARMS"],
   "access": {
     "model": "ENTITLEMENT",
-    "requiredEntitlementKey": "deck.europe_coats",
-    "offerCodes": ["EUROPE_COATS_LIFETIME"]
+    "requiredEntitlementKey": "entitlement.european_coats",
+    "offerCodes": ["EUROPEAN_COATS_LIFETIME"]
   },
   "previewCards": []
 }
@@ -378,11 +398,32 @@ template, а не по Deck name или entity kind.
 
 ### 7.3 Версионирование
 
-- OpenAPI сначала расширяется additive nullable/extensible полями.
+- OpenAPI сначала расширяется additive nullable/extensible полями. `access` и
+  `contentKinds` optional в схеме; отсутствие `access` клиент читает как `FREE`
+  (документ 17 §7.2).
 - `SUBDIVISION` добавляется в `x-extensible-enum`.
 - release с новым обязательным template публикуется только после поднятия
   `minimumClientVersion`.
 - iOS generated contract и mock fixtures обновляются одной PR с OpenAPI.
+
+#### Gate совместимости шаблонов знает код, а не только версию
+
+Существующий механизм проверяет только номер версии схемы: manifest отдаёт
+`supportedTemplateSchemaVersions: [1]` (`tools/content-pipeline/src/build.ts:218`),
+а клиент пропускает карточку по `supported.contains(card.templateSchemaVersion)`
+(`ios/CountryFlagsKit/Sources/CountryFlagsInfrastructure/Content/ContentService.swift:244`).
+`COAT_OF_ARMS_TO_COUNTRY` тоже версии `1`, поэтому старый клиент признал бы его
+поддерживаемым и нарисовал герб flag-рендерером с подписью страны.
+
+Manifest получает additive поле `supportedCardTemplates` — список пар
+`{ templateCode, schemaVersion }`. Клиент, который его понимает, фильтрует
+карточки по паре. Старый клиент поля не читает, поэтому первый релиз с новым
+шаблоном всё равно закрывается поднятием `minimumClientVersion`; пара нужна для
+того, чтобы следующий шаблон уже не требовал поднимать минимальную версию и
+отсекать пользователей.
+
+`supportedTemplateSchemaVersions` остаётся в контракте как deprecated, пока
+живы клиенты, которые читают только его.
 
 ## 8. Backend и pipeline
 
@@ -397,15 +438,19 @@ Backend MUST:
 7. создавать learning cards для каждой допустимой пары entity/template;
 8. резолвить deck members в пары entity/template;
 9. публиковать/валидировать public preview отдельно от закрытого deck payload;
-10. применять `DeckAccessService` к cards и session creation;
+10. применять `DeckAccessService` к cards и session creation, различая
+    `origin = SERVER` и `origin = CLIENT_OFFLINE` (документ 17 §7.3);
 11. не блокировать review sync после refund;
-12. включить content/card/asset changes в существующий cursor feed.
+12. включить content/card/asset changes в существующий cursor feed;
+13. отдавать в manifest `supportedCardTemplates` парами
+    `{ templateCode, schemaVersion }` (§7.3).
 
 Обязательные validation codes:
 
 - `SUBDIVISION_PARENT_REQUIRED`;
 - `SUBDIVISION_PARENT_INVALID`;
-- `SUBDIVISION_IN_COUNTRY_CATALOG`;
+- `SUBDIVISION_IN_COUNTRY_CATALOG` — включая попадание подразделения в
+  `deck.all` или в другой список, играющий роль «Всех стран»;
 - `ADMINISTRATIVE_RELATION_CYCLE`;
 - `CARD_TEMPLATE_UNKNOWN`;
 - `CARD_TEMPLATE_SUBJECT_KIND_UNSUPPORTED`;
@@ -558,19 +603,37 @@ regeneration `admin/src/api/generated` и drift check в CI.
   subdivision;
 - `COAT_OF_ARMS_TO_COUNTRY` v1 — neutral dark front, aspect-fit герб; answer с
   country/asset title/facts;
-- неизвестный template не падает: карточка получает unsupported state и не
-  входит в новую session.
+- неизвестная пара `templateCode + schemaVersion` отсеивается на импорте, ровно
+  как сегодня отсеивается неподдерживаемая версия схемы: карточка не попадает в
+  локальный состав колоды, renderer registry для неё не вызывается, и до UI она
+  не доходит.
+
+Отдельного «unsupported card» экрана нет: колода показывает фактическое число
+загруженных карточек, а сам факт отсева уходит в operational-аналитику
+(§12). Так поведение остаётся тем же, что у существующего клиента, и один
+незнакомый шаблон не может опустошить колоду.
 
 Нельзя выбирать renderer по названию колоды.
 
 ### 10.3 Catalog и locked deck
 
-- locked deck отображается среди обычных deck rows;
+- locked deck использует тот же row template, что и бесплатная колода, и
+  отличается только access-бейджем и строкой цены;
+- платные колоды собраны в секции `Featured decks` над бесплатным контентом,
+  как зафиксировано в `DESIGN.md` («Catalog»);
 - metadata и public fan доступны без entitlement;
 - полный card list отсутствует;
 - CTA открывает details, но не запускает StoreKit напрямую;
 - purchase action использует только `Product.displayPrice`;
 - выбранные visual references и состояния находятся в `DESIGN.md`.
+
+Секция `Featured decks` меняет текущую модель каталога: сейчас `CatalogView`
+делит колоды по `kind` — curated и taxonomy
+(`ios/CountryFlagsKit/Sources/CountryFlagsFeatures/Content/CatalogView.swift:176`),
+и access model в источнике секций отсутствует. Поэтому catalog store MUST
+начать нести access вместе с `kind`, а группировка секций перестаёт быть
+производной только от `kind`. Бесплатные колоды не получают бейджа
+«Бесплатно»: неизменившийся контент должен остаться визуально тихим.
 
 ### 10.4 После покупки
 
@@ -601,11 +664,16 @@ Reference: `docs/design/paid-decks/european-coats-owned-list-v1.png`.
 ### 10.6 Offline
 
 - non-owner кеширует только discovery metadata/public preview;
+- платная колода остаётся в состоянии `awaiting-entitlement`, и её `403` не
+  ломает синхронизацию каталога (документ 17 §10.2);
+- изображения платных колод не входят в бандл приложения и приезжают только
+  после покупки (документ 17 §10.3);
 - owner может открыть ранее скачанную колоду и продолжить offline;
 - локально verified новая покупка MAY открыть immediate UX, transaction уходит в
   outbox для backend verification;
 - logout удаляет account-scoped paid payload с устройства;
-- refund блокирует новую session после authoritative refresh, progress остаётся.
+- refund блокирует новую session после authoritative refresh, progress остаётся,
+  а уже собранная офлайн-сессия по-прежнему импортируется.
 
 ## 11. Commerce и доступ
 
@@ -614,7 +682,8 @@ Reference: `docs/design/paid-decks/european-coats-owned-list-v1.png`.
 
 - один entitlement открывает Deck независимо от состава и будущих обновлений;
 - изменение card count/content не требует нового Apple product;
-- bundle offer MAY выдавать оба `deck.europe_coats` и `deck.us_state_flags`;
+- bundle offer MAY выдавать оба `entitlement.european_coats` и
+  `entitlement.us_state_flags`;
 - entitlement не открывает отдельные assets вне доступных пользователю decks;
 - если одна и та же card входит в free и paid deck, она доступна через free deck;
   guard защищает маршрут paid deck, а не глобально «секретную страну»;
@@ -623,28 +692,39 @@ Reference: `docs/design/paid-decks/european-coats-owned-list-v1.png`.
 
 ## 12. Feature flags и аналитика
 
-Предлагаемые flags:
+Этот раздел — единственный источник имён для обоих документов; документ 17 §10
+ссылается на него, а не заводит свои.
+
+Флаги следуют существующей конвенции проекта `<область>.<фича>.enabled`
+(`study.review_submission.enabled`, `ads.enabled`):
 
 - `content.coats_of_arms.enabled`;
 - `content.subdivisions.enabled`;
-- `commerce.paid_decks.discovery.enabled`;
-- `commerce.apple_iap.enabled`;
-- `commerce.deck.europe_coats.enabled`;
+- `commerce.paid_decks.discovery.enabled` — показ платных колод в каталоге;
+- `commerce.apple_iap.enabled` — показ кнопки покупки;
+- `commerce.deck.european_coats.enabled`;
 - `commerce.deck.us_state_flags.enabled`.
 
 Flags управляют rollout/discovery, но не entitlement. Owner не теряет доступ к
 уже купленному контенту из-за выключенного storefront flag.
 
-События без PII:
+События именуются точкой, как уже существующие `deck.opened` и
+`study.session_started` (`ios/CountryFlagsKit/Sources/CountryFlagsDomain/Observability/AnalyticsRegistry.swift`).
+Базовый набор задан в документе 17 §17.2: `paywall.viewed`, `purchase.started`,
+`purchase.completed`, `purchase.pending`, `purchase.cancelled`,
+`purchase.failed`, `purchase.restore_completed`, `paid_deck.opened`.
 
-- `paid_deck_impression`;
-- `paid_deck_opened`;
-- `purchase_started/completed/cancelled/pending/failed`;
-- `purchase_restored`;
-- `paid_deck_content_loaded`;
-- `paid_deck_study_started`;
-- `card_detail_opened` с `contentKind`, но без свободного текста;
-- `unsupported_card_template` как operational error.
+Этот документ добавляет к нему:
+
+- `paid_deck.impression`;
+- `paid_deck.content_loaded`;
+- `paid_deck.study_started`;
+- `card.detail_opened` с `contentKind`, но без свободного текста;
+- `content.unsupported_card_template` — operational-событие категории
+  `essential_operations`, а не продуктовая метрика.
+
+Ни одно событие не несёт transaction ID, `appAccountToken`, цену строкой или
+данные Apple Account.
 
 ## 13. Миграция и порядок реализации
 
@@ -692,6 +772,8 @@ Flags управляют rollout/discovery, но не entitlement. Owner не т
 - locked cards/session return `ENTITLEMENT_REQUIRED`.
 - preview endpoint never returns full paid payload.
 - dev/prod transaction mismatch is rejected.
+- a subdivision is rejected in `deck.all` in every members form.
+- the manifest lists `supportedCardTemplates` as code/version pairs.
 
 ### Admin
 
@@ -711,6 +793,10 @@ Flags управляют rollout/discovery, но не entitlement. Owner не т
 - post-purchase list/search/detail/start;
 - separate progress for Germany flag and coat;
 - offline owner/non-owner/logout/refund;
+- catalog bootstrap completes for a guest while a paid deck answers `403`;
+- a card whose template code is unknown is dropped on import and never reaches a
+  renderer;
+- the built app bundle carries no image that only a paid deck uses;
 - Dynamic Type, VoiceOver, Reduce Motion, smallest iPhone and Pro Max.
 
 ## 15. Definition of Done
@@ -725,6 +811,9 @@ Flags управляют rollout/discovery, но не entitlement. Owner не т
 - Штаты не загрязняют country catalog/taxonomy/distractors.
 - StoreKit/backend restore/refund/reversal работают идемпотентно.
 - Dev/Sandbox и production разделены конфигурацией, DB и product mapping.
+- Гость и free account проходят синхронизацию каталога целиком.
+- Бандл приложения не содержит изображений платных колод.
+- Неизвестный шаблон карточки не доходит до renderer и не ломает колоду.
 - UI соответствует выбранным references в `DESIGN.md`.
 
 ## 16. Не входит в первую итерацию

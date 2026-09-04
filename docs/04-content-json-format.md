@@ -234,7 +234,8 @@ Fallback locale задаётся клиентом и manifest:
 ~~~
 
 `parentKey` является удобной authoring-формой и публикуется как
-`GeoRelation(CONTAINS)` taxonomy `ADMINISTRATIVE`. Полные правила и schema v3:
+`GeoRelation(CONTAINS)` таксономии `taxonomy.administrative.v1`. Полные правила
+и schema v3:
 [18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md).
 
 ## 8. Колоды

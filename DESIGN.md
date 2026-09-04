@@ -51,6 +51,16 @@ These images fix the proposed hierarchy and mood, not literal production copy
 or asset ownership. SwiftUI implementation remains authoritative for native
 glass, Dynamic Type and accessibility behavior.
 
+**The prototype images are not in version control yet.** They sit in
+`docs/design/paid-decks/` in the authoring checkout and come to roughly 43 MB,
+against a 69 MB repository. Committing them would be the single largest addition
+this repository has taken and cannot be undone without rewriting history, so it
+is a deliberate decision rather than a side effect of writing this document.
+Until it is made, every link above resolves only on the machine that produced
+them. The alternatives are to commit them anyway, to keep a smaller set of the
+approved directions and drop the rejected experiments, or to host them outside
+the repository and link by URL.
+
 `ADR-012` overrides the historical light/system-theme guidance in
 `docs/16-ios-design-language.md`. The active iOS language is an always-dark
 scene with native iOS 26 glass, content-led hero elements and a single
@@ -206,66 +216,44 @@ downloading the paid payload.
 - Mixed decks may fan flags and coats, each preserving its own aspect ratio.
 - A small lock belongs beside the title, not on top of imagery.
 
-#### `DeckLearningPath`
+#### Middle panel of the paywall: none
 
-- One non-interactive glass surface titled `What you'll master`.
-- Three dark glass medallions use quiet tinted rims and softly colored symbols;
-  they are connected by one low-contrast cool-to-warm hairline.
-- Each step has a symbol, verb and short content-specific noun; it is not a
-  button, carousel or navigation control.
-- Flags use Recognize / Locate / Remember. Coats use Recognize / Connect /
-  Remember. Geometry remains identical across deck types.
-- Do not use neon, bloom, particles, cast light or electric saturation. Depth
-  comes from native glass reflection, inner highlight, shadow and spacing.
+The locked screen goes from the public three-card hero and the short editorial
+description straight to the purchase explanation. There is no learning-path,
+mechanic-preview, interactive-sample or story-spotlight panel between them.
 
-This concept was rejected in design review and must not be implemented. The
-current replacement candidate is `DeckMechanicPreview`.
-
-#### `DeckMechanicPreview`
-
-- Shows the real product mechanic inside one non-interactive glass panel:
-  miniature question card, restrained flip indicator and miniature answer card.
-- Uses the same 4:3 geometry, stack edges, flag/emblem renderer and warm answer
-  surface as the study session. It must not introduce a separate illustration
-  language.
-- The panel title is `Preview a card`; the supporting rhythm is
-  `See it · Name it · Remember it`.
-- Flags preview the state, capital and admission. Coats preview country, emblem
-  name and capital. All preview content is explicit public metadata.
-- The icon-heavy count row is removed in this candidate. A two-line editorial
-  description states the deck value above the preview.
-
-The mechanic preview, interactive sample-card and story-spotlight experiments
-were rejected for the current paywall. Do not render a middle preview block for
-now. Keep the public three-card hero and concise description, then move directly
-to the purchase explanation. The rejected components remain documented only as
-future A/B-test material.
+Four candidates for that slot were built and rejected in design review. They are
+kept in **Appendix A** as future A/B material and must not be implemented from
+this section.
 
 #### `FeaturedDeckCTA`
 
-- Compact catalog-only `View deck` action using a satin
-  amber-to-champagne gradient, dark label and fine warm rim. It has no outer
-  glow and must not dominate the deck title or artwork.
-- Gold is confined to this control; it does not recolor the paid badge, row,
-  paywall or purchase CTA.
-- A subtle 900-ms diagonal specular sweep runs once after first appearance; it
-  does not loop or pulse.
-- Reduce Motion removes the sweep and keeps the static gold gradient. Text keeps
-  WCAG AA contrast in both states.
+A compact catalog-only action on a paid row. Whatever the final treatment, it
+holds to these rules:
 
-The filled champagne version was rejected as visually cheap. Two current
-candidates remain unselected, and one newer candidate is preferred for the next
-review:
+- it opens the deck details screen and never starts StoreKit;
+- it must not dominate the deck title or artwork, and carries no outer glow or
+  halo;
+- any accent is confined to this one control and does not recolor the badge,
+  the row, the paywall or the purchase action;
+- any entrance animation runs once, never loops or pulses, and Reduce Motion
+  removes it while keeping the static treatment;
+- the label keeps WCAG AA contrast in every state.
 
-- A: smoked-glass capsule with a fine champagne outline and integrated circular
-  chevron;
-- B: inset dark action shelf with a separate champagne chevron control.
-- C: wider liquid-glass capsule with a contained cobalt-to-indigo-to-plum
-  material bloom, white `Explore deck` label and a small integrated chevron orb.
-  It has no outer halo, looped animation or metallic/gold fill.
+The filled champagne version was rejected as visually cheap. Three candidates
+are open, and **C is the current default** unless review picks otherwise:
 
-All open deck details and never start StoreKit. Candidates A and B keep
-`View deck`; candidate C uses `Explore deck`.
+- **A** — smoked-glass capsule, fine champagne outline, integrated circular
+  chevron. Label `View deck`.
+- **B** — inset dark action shelf with a separate champagne chevron control.
+  Label `View deck`.
+- **C** — wider liquid-glass capsule with a contained
+  cobalt-to-indigo-to-plum material bloom, white label and a small integrated
+  chevron orb, no metallic or gold fill. Label `Explore deck`.
+
+Picking among them is a visual decision, not an implementation blocker: the
+component's contract above is settled, so the surrounding screens can be built
+before the treatment is chosen.
 
 #### `PurchaseActionBar`
 
@@ -281,9 +269,11 @@ All open deck details and never start StoreKit. Candidates A and B keep
 
 Interaction contract:
 
-- Tapping `Unlock for {price}` refreshes StoreKit product and eligibility data,
+- Tapping the purchase action — “Купить за {price}” in Russian, “Buy for
+  {price}” in English — refreshes StoreKit product and eligibility data,
   disables repeat taps and presents the native StoreKit 2 confirmation. It never
-  opens a custom payment form.
+  opens a custom payment form. There is no “Unlock” wording: the action says
+  plainly that this is a purchase.
 - A verified purchase refreshes the backend entitlement, downloads the deck and
   replaces the purchase action with the existing Start action.
 - User cancellation returns to the unchanged locked screen without an error.
@@ -526,6 +516,10 @@ templates.
 - Performance: product metadata loads lazily for visible paid decks; catalog
   scrolling does not wait for all products.
 - Security: locked presentation never substitutes backend entitlement checks.
+- Assets: paid artwork is not bundled in the app and arrives only after
+  purchase, so the owned deck has a real loading state between the verified
+  transaction and the first drawn emblem. Design it as content loading, not as
+  a spinner over an empty screen.
 - Compatibility: iOS 26+, existing dark scene only.
 - Tests:
   - SwiftUI previews for every state in the table;
@@ -536,11 +530,58 @@ templates.
 
 ## Open questions
 
-- [ ] Select the actual first paid deck and its three public preview assets;
-  owner: product/content; affects the first visual prototype only.
+- [ ] Choose the `FeaturedDeckCTA` treatment among candidates A, B and C;
+  owner: product/design; C is the working default, and the choice blocks
+  nothing else.
 - [ ] Decide whether bundle offers are visible in the first UI or remain
   backend-ready; owner: product; does not block single-deck components.
 - [ ] Approve final RU/EN purchase promise and refund wording with legal/store
   metadata; owner: product/legal; blocks release, not prototyping.
+- [x] Select the first paid decks and their three public preview assets;
+  settled in `docs/18-multi-content-paid-decks.md` §3 — European Coats previews
+  Austria, Poland and Czechia with Poland centered, U.S. State Flags previews
+  Washington, California and Texas with California centered.
 - [x] Capture the current Home and Catalog screens from the Mock release
   simulator for visual comparison; completed 2026-09-04.
+
+## Appendix A — rejected paywall middle panels
+
+These were built, reviewed and rejected. They are recorded so the same ideas are
+not re-proposed from scratch, and as material for a later A/B test. Nothing here
+is part of the current design; the paywall has no middle panel.
+
+### Rejected: `DeckLearningPath`
+
+- One non-interactive glass surface titled `What you'll master`.
+- Three dark glass medallions use quiet tinted rims and softly colored symbols;
+  they are connected by one low-contrast cool-to-warm hairline.
+- Each step has a symbol, verb and short content-specific noun; it is not a
+  button, carousel or navigation control.
+- Flags use Recognize / Locate / Remember. Coats use Recognize / Connect /
+  Remember. Geometry remains identical across deck types.
+- Do not use neon, bloom, particles, cast light or electric saturation. Depth
+  comes from native glass reflection, inner highlight, shadow and spacing.
+
+Rejected first, for teaching a vocabulary the product does not otherwise use.
+`DeckMechanicPreview` replaced it and was rejected in turn.
+
+### Rejected: `DeckMechanicPreview`
+
+- Shows the real product mechanic inside one non-interactive glass panel:
+  miniature question card, restrained flip indicator and miniature answer card.
+- Uses the same 4:3 geometry, stack edges, flag/emblem renderer and warm answer
+  surface as the study session. It must not introduce a separate illustration
+  language.
+- The panel title is `Preview a card`; the supporting rhythm is
+  `See it · Name it · Remember it`.
+- Flags preview the state, capital and admission. Coats preview country, emblem
+  name and capital. All preview content is explicit public metadata.
+- The icon-heavy count row is removed in this candidate. A two-line editorial
+  description states the deck value above the preview.
+
+### Rejected: interactive sample card and story spotlight
+
+Two further experiments filled the same slot: a miniature card the reader could
+flip in place, and an editorial spotlight telling the story of one emblem. Both
+were rejected for the same reason as the panels above — they delay the purchase
+explanation and compete with the hero.

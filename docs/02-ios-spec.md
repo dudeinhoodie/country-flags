@@ -436,8 +436,9 @@ Guest import использует стабильный `migrationId` и повт
 Renderer выбирается по `templateCode + templateSchemaVersion`.
 `FLAG_TO_COUNTRY` v1 поддерживает страны и subdivisions;
 `COAT_OF_ARMS_TO_COUNTRY` v1 рисует герб
-aspect-fit на нейтральной поверхности. Неизвестный template не приводит к crash
-и не включается в новую session.
+aspect-fit на нейтральной поверхности. Карточка неизвестной пары
+`templateCode + schemaVersion` отсеивается на импорте контента и до renderer не
+доходит, поэтому нарисовать герб flag-рендерером невозможно.
 
 ### 9.6 Objective quiz
 
