@@ -25,6 +25,7 @@ contracts/swift-client-check/Package.resolved
 
 # iOS
 ios/Config/Local.xcconfig
+/build/
 ios/build/
 ios/**/*.xcresult
 ios/CountryFlagsKit/.build/
