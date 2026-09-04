@@ -307,7 +307,8 @@ struct AppComposition: AppDependencies {
             coordinator: syncCoordinator,
             scopes: sessions,
             analytics: analyticsCoordinator,
-            dates: dates
+            dates: dates,
+            reachability: NetworkReachabilityMonitor()
         )
         // The single "the numbers changed" signal: a run finishes, the store
         // re-reads, every screen observing it moves. No screen decides for
