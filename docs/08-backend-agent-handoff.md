@@ -3,6 +3,12 @@
 Статус: `Ready to start`  
 Цель: начать backend-разработку без ожидания production-каталога, credentials и внешних providers.
 
+> **Дополнение 2026-09-04.** Исключение paid entitlements ниже относится к
+> первоначальному backend MVP. Для следующего инкремента платных multi-content
+> колод документы [17-paid-decks-storekit.md](./17-paid-decks-storekit.md),
+> [18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md), ADR-019 и
+> ADR-020 имеют приоритет над прежним исключением.
+
 ## 1. Порядок чтения
 
 Backend-агент должен прочитать полностью:
@@ -303,7 +309,8 @@ Repository содержит `.env.example` без секретов. Production s
 - собственную CMS;
 - собственную feature flag UI;
 - реальные advertising integrations;
-- paid subscription/entitlements;
+- subscriptions; paid deck entitlements реализуются только в отдельном
+  инкременте по документам 17/18, не внутри первоначального vertical slice;
 - public leaderboards;
 - персональную оптимизацию FSRS parameters;
 - production analytics/crash vendor до выбора provider;
