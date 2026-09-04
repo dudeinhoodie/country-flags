@@ -86,6 +86,52 @@ final class APIAuthenticationTests: XCTestCase {
         XCTAssertEqual(attempts, 1)
     }
 
+    /// A launch that could not reach the backend leaves a session with no
+    /// access token in hand. The first request then goes out bare and is
+    /// refused — and that refusal is the moment to refresh, not a reason to
+    /// give up: gated on a token, every request after such a launch was
+    /// refused until a relaunch.
+    func testARequestWithNoTokenInHandIsRefreshedWhenASessionExists() async throws {
+        let transport = MockClientTransport()
+        await transport.enqueue(
+            .errorEnvelope(statusCode: 401, code: "MISSING_TOKEN"),
+            .json(TestFixtures.appConfigJSON),
+            for: "getAppConfig"
+        )
+        let tokens = StubTokenProvider(initialToken: nil, refreshedToken: "fresh")
+        let client = APITestClient.make(transport: transport, tokens: tokens)
+
+        _ = try await client.getAppConfig(APITestClient.appConfigInput())
+
+        let requests = await transport.requests(for: "getAppConfig")
+        XCTAssertEqual(requests.count, 2)
+        XCTAssertNil(requests[0].header("authorization"))
+        XCTAssertEqual(requests[1].header("authorization"), "Bearer fresh")
+        await XCTAssertEqualAsync(await tokens.observedRefreshCount(), 1)
+    }
+
+    /// A guest has nothing to refresh, and says so by throwing: the 401 is
+    /// the answer, and the request is not repeated.
+    func testAGuestRejectionIsNotRepeated() async {
+        let transport = MockClientTransport()
+        await transport.always(
+            .errorEnvelope(statusCode: 401, code: "MISSING_TOKEN"),
+            for: "getAppConfig"
+        )
+        let client = APITestClient.make(transport: transport, tokens: GuestTokenProvider())
+
+        do {
+            _ = try await client.getAppConfig(APITestClient.appConfigInput())
+            XCTFail("a guest's rejection must surface")
+        } catch {
+            guard case .unauthorized = APIError.from(error) else {
+                return XCTFail("unexpected error: \(error)")
+            }
+        }
+        let attempts = await transport.requests(for: "getAppConfig").count
+        XCTAssertEqual(attempts, 1)
+    }
+
     /// Every request that meets a 401 at the same time must share one refresh.
     /// A second refresh would present an already rotated refresh token and the
     /// backend would reject it, logging everyone out.

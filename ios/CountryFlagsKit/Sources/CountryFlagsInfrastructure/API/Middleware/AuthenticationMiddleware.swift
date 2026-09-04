@@ -31,8 +31,14 @@ struct AuthenticationMiddleware: ClientMiddleware {
             buffered.makeBody(),
             baseURL
         )
-        // A guest has nothing to refresh: the 401 is the answer, not a hint.
-        guard response.status.code == 401, token != nil else {
+        // Any 401 is worth one refresh — including the request that went out
+        // with no token at all, which is what a launch that could not reach
+        // the backend leaves behind: a session with nothing in hand. Gated on
+        // the token, the first request after such a launch was refused, and
+        // so was every one after it until a relaunch. A guest has nothing to
+        // refresh and the provider says so by throwing; for them the 401 is
+        // the answer, not a hint.
+        guard response.status.code == 401 else {
             return (response, responseBody)
         }
 
