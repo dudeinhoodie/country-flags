@@ -13,11 +13,25 @@ public actor MockClientTransport: ClientTransport {
         public let statusCode: Int
         public let headerFields: [String: String]
         public let body: Data?
+        /// What the transport throws instead of answering: a connection the
+        /// radio dropped, a host that did not resolve. No response then.
+        public let failure: (any Error)?
 
-        public init(statusCode: Int, headerFields: [String: String] = [:], body: Data? = nil) {
+        public init(
+            statusCode: Int,
+            headerFields: [String: String] = [:],
+            body: Data? = nil,
+            failure: (any Error)? = nil
+        ) {
             self.statusCode = statusCode
             self.headerFields = headerFields
             self.body = body
+            self.failure = failure
+        }
+
+        /// The request never got an answer.
+        public static func transportFailure(_ error: any Error) -> Response {
+            Response(statusCode: 0, failure: error)
         }
 
         public static func json(
@@ -150,6 +164,9 @@ public actor MockClientTransport: ClientTransport {
             response = handler(recorded)
         } else {
             throw Failure.noResponseRegistered(operationID: operationID)
+        }
+        if let failure = response.failure {
+            throw failure
         }
 
         var httpResponse = HTTPResponse(status: .init(code: response.statusCode))

@@ -2,12 +2,22 @@ import Foundation
 
 /// What one download of the canonical progress brought back.
 ///
-/// The three documents travel together because they are read together: a
-/// screen that showed new deck numbers beside yesterday's achievements would be
-/// reporting two different moments as one.
+/// The documents travel together because they are read together: a screen
+/// that showed new deck numbers beside yesterday's achievements would be
+/// reporting two different moments as one. Each rides its own request,
+/// though, and a part that did not arrive is nil rather than empty: an empty
+/// list is an answer, "nothing came" is not.
 public struct ProgressSnapshot: Sendable, Equatable {
-    public let decks: [DeckProgressRecord]
-    public let achievements: [AchievementRecord]
+    /// The documents a download is made of, each fetched on its own.
+    public enum Part: String, Sendable, Hashable, CaseIterable {
+        case decks
+        case achievements
+        case settings
+        case dueSummary
+    }
+
+    public let decks: [DeckProgressRecord]?
+    public let achievements: [AchievementRecord]?
     public let settings: UserSettingsRecord?
     /// What the server says is waiting right now, or nil when this release of
     /// the backend did not answer. Optional rather than zeroed: a queue nobody
@@ -15,8 +25,8 @@ public struct ProgressSnapshot: Sendable, Equatable {
     public let dueSummary: DueSummaryRecord?
 
     public init(
-        decks: [DeckProgressRecord],
-        achievements: [AchievementRecord],
+        decks: [DeckProgressRecord]?,
+        achievements: [AchievementRecord]?,
         settings: UserSettingsRecord?,
         dueSummary: DueSummaryRecord? = nil
     ) {
@@ -24,6 +34,29 @@ public struct ProgressSnapshot: Sendable, Equatable {
         self.achievements = achievements
         self.settings = settings
         self.dueSummary = dueSummary
+    }
+}
+
+/// A download that brought back some of the documents and not the others.
+///
+/// Thrown rather than returned, so a caller that only knows success still
+/// sees a failure — and a caller that knows better keeps what arrived. The
+/// documents ride in parallel, and the one request the radio dropped must not
+/// cost the three that landed.
+public struct PartialProgressDownload: Error, Sendable {
+    public let delivered: ProgressSnapshot
+    public let missing: Set<ProgressSnapshot.Part>
+    /// What stopped the first part that failed.
+    public let underlying: any Error
+
+    public init(
+        delivered: ProgressSnapshot,
+        missing: Set<ProgressSnapshot.Part>,
+        underlying: any Error
+    ) {
+        self.delivered = delivered
+        self.missing = missing
+        self.underlying = underlying
     }
 }
 

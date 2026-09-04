@@ -129,7 +129,9 @@ final class CanonicalStatesPullTests: XCTestCase {
     }
 
     /// A rejected cursor whose restart also fails must not destroy anything:
-    /// the wipe waits until the fresh stream actually answers.
+    /// the wipe waits until the fresh stream actually answers. The run says
+    /// the stream was not read, though — the local states are standing, not
+    /// checked.
     func testAFailedRestartLeavesLocalStatesStanding() async throws {
         let store = try LocalStore(location: .inMemory)
         let learning = store.makeLearningRepository()
@@ -147,7 +149,7 @@ final class CanonicalStatesPullTests: XCTestCase {
 
         let status = await coordinator.synchronize(scope: account, trigger: .launch)
 
-        XCTAssertNil(status.lastFailure)
+        XCTAssertEqual(status.lastFailure, .offline)
         let states = try await learning.cardStates(for: account)
         XCTAssertEqual(states.first { $0.learningCardID == cardA }?.stateVersion, 9)
     }
@@ -214,15 +216,19 @@ final class CanonicalStatesPullTests: XCTestCase {
         XCTAssertEqual(states.first { $0.learningCardID == cardA }?.state, "REVIEW")
     }
 
-    /// A feed that misses leaves the local states standing and the run green.
-    func testAFeedMissDoesNotFailTheRun() async throws {
+    /// A feed that misses leaves the local states standing, and the run
+    /// reports the miss rather than passing as a success: a screen re-reading
+    /// the store would otherwise present yesterday's states as checked, and
+    /// nothing would ask again until the next pull.
+    func testAFeedMissIsReportedAsTheRunsFailure() async throws {
         let store = try LocalStore(location: .inMemory)
         let feed = ScriptedChangesFeed(pages: [:])
         let coordinator = makeCoordinator(store: store, feed: feed)
 
         let status = await coordinator.synchronize(scope: account, trigger: .launch)
 
-        XCTAssertNil(status.lastFailure)
+        XCTAssertEqual(status.lastFailure, .offline)
+        XCTAssertNil(status.lastSuccessAt)
     }
 
     // MARK: - Harness

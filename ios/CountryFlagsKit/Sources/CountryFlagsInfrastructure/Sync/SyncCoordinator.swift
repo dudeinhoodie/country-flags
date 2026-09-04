@@ -139,13 +139,27 @@ public actor SyncCoordinator: SyncCoordinating {
         // The canonical answers ride home on the same run that delivered
         // the questions: deck mastery, achievements and settings are the
         // backend's to compute, and the screens only ever read the store.
-        await pullCanonicalStates(scope: scope)
-        await pullCanonicalProgress(scope: scope)
+        let statesMiss = await pullCanonicalStates(scope: scope)
+        let progressMiss = await pullCanonicalProgress(scope: scope)
         if let uploadError {
             return await publish(
                 scope: scope,
                 phase: .idle,
                 failure: Self.failure(from: uploadError)
+            )
+        }
+        // The queue went up, so nothing of the learner's is lost — but what
+        // should have come back did not, and every screen re-reading the
+        // store now reads yesterday. To the person looking that is a failed
+        // run, whatever the upload did: the chip says so, the success time
+        // stays where it was, and the network coming back asks again. This
+        // used to pass as a success, which is how a day's queue went missing
+        // behind a spinner that claimed to have checked.
+        if let miss = progressMiss ?? statesMiss {
+            return await publish(
+                scope: scope,
+                phase: .idle,
+                failure: Self.failure(from: miss)
             )
         }
         return await publish(
@@ -165,8 +179,9 @@ public actor SyncCoordinator: SyncCoordinating {
     /// The cursor moves only after its page has been applied, so a crash in
     /// between replays rather than skips — and replaying is safe because the
     /// merge keeps whichever state is newer.
-    private func pullCanonicalStates(scope: AccountScope) async {
-        guard let userChanges, case .authenticated = scope else { return }
+    /// - Returns: what stopped the walk, or nil when the stream was read.
+    private func pullCanonicalStates(scope: AccountScope) async -> (any Error)? {
+        guard let userChanges, case .authenticated = scope else { return nil }
         do {
             var cursor = try await outbox.cursor(.userChanges, for: scope)?.cursor
             var didRestart = false
@@ -225,13 +240,14 @@ public actor SyncCoordinator: SyncCoordinating {
                     for: scope
                 )
                 cursor = page.nextCursor
-                if !page.hasMore { return }
+                if !page.hasMore { return nil }
             }
             logger.log(
                 .notice,
                 .sync,
                 "The change stream is longer than one run walks; the rest follows next run"
             )
+            return nil
         } catch {
             logger.log(
                 .notice,
@@ -239,6 +255,7 @@ public actor SyncCoordinator: SyncCoordinating {
                 "The canonical card states could not be downloaded this run",
                 ["code": .safe(String(describing: Self.failure(from: error)))]
             )
+            return error
         }
     }
 
@@ -253,30 +270,32 @@ public actor SyncCoordinator: SyncCoordinating {
         }
     }
 
-    /// Best effort by design: a downlink that misses leaves yesterday's
-    /// canon on screen, which the next run replaces. Failing the whole sync
-    /// for it would block the upload path over a read.
-    private func pullCanonicalProgress(scope: AccountScope) async {
-        guard let progressDownload else { return }
+    /// Kept apart from the upload by design: a downlink that misses must not
+    /// block the queue going up, so the upload runs first and this reports
+    /// rather than throws. But a miss is a miss — the run that carries it is
+    /// published as failed, and yesterday's canon stays on screen only until
+    /// the network comes back and the next run replaces it.
+    ///
+    /// - Returns: what stopped the download, or nil when everything arrived.
+    private func pullCanonicalProgress(scope: AccountScope) async -> (any Error)? {
+        guard let progressDownload else { return nil }
         do {
-            let snapshot = try await progressDownload.download()
-            try await learning.saveDeckProgress(snapshot.decks, for: scope)
-            try await learning.saveAchievements(snapshot.achievements, for: scope)
-            // Stored rather than held: the breakdown is what the screen shows
-            // beside its own count, and a relaunch should not have to wait for
-            // a network before it can show anything but the local projection.
-            if let dueSummary = snapshot.dueSummary {
-                try await learning.saveDueSummary(dueSummary, for: scope)
-            }
-            if let serverSettings = snapshot.settings {
-                // The server's settings win only by being newer: the version
-                // moves when the server accepts a change, so an older number
-                // must not roll back what another device just wrote through.
-                let local = try await learning.settings(for: scope)
-                if local == nil || serverSettings.version > (local?.version ?? 0) {
-                    try await learning.saveSettings(serverSettings, for: scope)
-                }
-            }
+            try await store(try await progressDownload.download(), scope: scope)
+            return nil
+        } catch let partial as PartialProgressDownload {
+            // What arrived is kept — the one request the radio dropped must
+            // not cost the three that landed — and the miss is still a miss.
+            try? await store(partial.delivered, scope: scope)
+            logger.log(
+                .notice,
+                .sync,
+                "The canonical progress arrived in part this run",
+                [
+                    "missing": .safe(partial.missing.map(\.rawValue).sorted().joined(separator: ",")),
+                    "code": .safe(String(describing: Self.failure(from: partial.underlying))),
+                ]
+            )
+            return partial.underlying
         } catch {
             logger.log(
                 .notice,
@@ -284,6 +303,32 @@ public actor SyncCoordinator: SyncCoordinating {
                 "The canonical progress could not be downloaded this run",
                 ["code": .safe(String(describing: Self.failure(from: error)))]
             )
+            return error
+        }
+    }
+
+    /// Writes whichever documents a download brought.
+    private func store(_ snapshot: ProgressSnapshot, scope: AccountScope) async throws {
+        if let decks = snapshot.decks {
+            try await learning.saveDeckProgress(decks, for: scope)
+        }
+        if let achievements = snapshot.achievements {
+            try await learning.saveAchievements(achievements, for: scope)
+        }
+        // Stored rather than held: the breakdown is what the screen shows
+        // beside its own count, and a relaunch should not have to wait for
+        // a network before it can show anything but the local projection.
+        if let dueSummary = snapshot.dueSummary {
+            try await learning.saveDueSummary(dueSummary, for: scope)
+        }
+        if let serverSettings = snapshot.settings {
+            // The server's settings win only by being newer: the version
+            // moves when the server accepts a change, so an older number
+            // must not roll back what another device just wrote through.
+            let local = try await learning.settings(for: scope)
+            if local == nil || serverSettings.version > (local?.version ?? 0) {
+                try await learning.saveSettings(serverSettings, for: scope)
+            }
         }
     }
 
