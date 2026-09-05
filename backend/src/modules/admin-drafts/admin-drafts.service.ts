@@ -20,6 +20,41 @@ function draftNotFound(): never {
   );
 }
 
+/** What the draft looked like when a stale write lost the race. */
+interface ConflictingDraft {
+  id: string;
+  revision: number;
+  updatedAt: Date;
+  updatedByAdminUserId: string;
+}
+
+/**
+ * The refusal a stale write gets, with enough in it to recover from.
+ *
+ * A bare 409 leaves the console with a form full of unsaved words and no way
+ * to say what happened, so the editor either loses the work or overwrites a
+ * colleague. The body names both revisions, when the draft moved and who
+ * moved it, which is what the reload-or-copy dialog is built out of
+ * (docs/19-admin-redesign.md §9). Silent last-write-wins is forbidden.
+ */
+function draftRevisionConflict(
+  draft: ConflictingDraft,
+  expectedRevision: number,
+): never {
+  throw new ApiException(
+    HttpStatus.CONFLICT,
+    "DRAFT_REVISION_CONFLICT",
+    "The draft changed since it was read; reload before editing",
+    {
+      draftId: draft.id,
+      expectedRevision,
+      currentRevision: draft.revision,
+      updatedAt: draft.updatedAt.toISOString(),
+      updatedByAdminUserId: draft.updatedByAdminUserId,
+    },
+  );
+}
+
 @Injectable()
 export class AdminDraftsService {
   constructor(
@@ -190,7 +225,14 @@ export class AdminDraftsService {
     return this.database.$transaction(async (transaction) => {
       const draft = await transaction.contentDraft.findUnique({
         where: { id: draftId },
-        select: { id: true, revision: true, status: true, document: true },
+        select: {
+          id: true,
+          revision: true,
+          status: true,
+          document: true,
+          updatedAt: true,
+          updatedByAdminUserId: true,
+        },
       });
       if (draft === null) {
         draftNotFound();
@@ -203,12 +245,7 @@ export class AdminDraftsService {
         );
       }
       if (draft.revision !== expectedRevision) {
-        throw new ApiException(
-          HttpStatus.CONFLICT,
-          "DRAFT_REVISION_CONFLICT",
-          "The draft changed since it was read; reload before editing",
-          { currentRevision: draft.revision },
-        );
+        draftRevisionConflict(draft, expectedRevision);
       }
 
       const extra = await change(
@@ -226,11 +263,22 @@ export class AdminDraftsService {
         },
       });
       if (updated.count === 0) {
-        throw new ApiException(
-          HttpStatus.CONFLICT,
-          "DRAFT_REVISION_CONFLICT",
-          "The draft changed since it was read; reload before editing",
-        );
+        // The revision moved between the read and the write. Re-read it so
+        // the answer carries the same detail the first check gives, rather
+        // than a bare 409 the console cannot recover from.
+        const current = await transaction.contentDraft.findUnique({
+          where: { id: draftId },
+          select: {
+            id: true,
+            revision: true,
+            updatedAt: true,
+            updatedByAdminUserId: true,
+          },
+        });
+        if (current === null) {
+          draftNotFound();
+        }
+        draftRevisionConflict(current, expectedRevision);
       }
       await this.audit.record(transaction, {
         actorAdminUserId: actor.id,
