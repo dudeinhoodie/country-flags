@@ -452,7 +452,10 @@ private struct StudyCardBack: View {
                 store: store
             )
             symbolName = await SymbolNameLookup.name(
-                forPromptAsset: card.promptAssetID, face: face, store: store
+                forPromptAsset: card.promptAssetID,
+                face: face,
+                subject: card.displayName,
+                store: store
             )
             outline = await CountryOutlineLookup.outline(
                 forPromptAsset: card.promptAssetID, cardID: card.learningCardID, store: store
@@ -502,11 +505,20 @@ private struct CardBackRow: View {
 /// nothing. A coat of arms is the other case — the Federal Eagle is the
 /// answer's substance, not a caption on it.
 enum SymbolNameLookup {
+    /// - Parameter subject: what the card is about, so a drawing named after
+    ///   the place it belongs to is left out: "Germany — Germany" is a row
+    ///   that says nothing twice.
     static func name(
-        forPromptAsset assetID: UUID, face: CardFace, store: ContentStore
+        forPromptAsset assetID: UUID,
+        face: CardFace,
+        subject: String,
+        store: ContentStore
     ) async -> String? {
         guard case .template(.coatOfArmsToCountry) = face else { return nil }
-        let name = await store.asset(id: assetID)?.displayName
-        return name?.isEmpty == false ? name : nil
+        guard let name = await store.asset(id: assetID)?.displayName,
+            !name.isEmpty,
+            name != subject
+        else { return nil }
+        return name
     }
 }

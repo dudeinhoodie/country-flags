@@ -65,16 +65,6 @@ public enum CardTemplate: String, Hashable, Sendable, CaseIterable {
     case flagToCountry = "FLAG_TO_COUNTRY"
     /// The coat of arms, and the country it belongs to.
     case coatOfArmsToCountry = "COAT_OF_ARMS_TO_COUNTRY"
-
-    /// What the prompt draws. It is the template's property rather than the
-    /// asset's: the template is what decides which drawing is the question,
-    /// and an entity now holds several.
-    public var promptAssetType: AssetType {
-        switch self {
-        case .flagToCountry: .flag
-        case .coatOfArmsToCountry: .coatOfArms
-        }
-    }
 }
 
 /// Which two cards may stand in one question.

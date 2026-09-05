@@ -152,6 +152,7 @@ public struct ObjectiveSessionView: View {
                             learningCardID: question.learningCardID,
                             promptAssetID: question.promptAssetID,
                             face: templates.face(for: question.learningCardID),
+                            subject: question.displayName,
                             store: store
                         )
                             .foregroundStyle(.white)

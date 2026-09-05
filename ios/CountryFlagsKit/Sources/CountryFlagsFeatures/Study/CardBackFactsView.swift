@@ -18,6 +18,8 @@ struct CardBackFactsView: View {
     /// and the answer owes it to a learner who has just been shown one.
     var promptAssetID: UUID?
     var face: CardFace = .pending
+    /// What the card is about, so a symbol named after it is not repeated.
+    var subject: String = ""
     let store: ContentStore
 
     @State private var facts: [FactRecord] = []
@@ -43,7 +45,10 @@ struct CardBackFactsView: View {
             facts = await store.card(id: learningCardID)?.backSideFacts ?? []
             guard let promptAssetID else { return }
             symbolName = await SymbolNameLookup.name(
-                forPromptAsset: promptAssetID, face: face, store: store
+                forPromptAsset: promptAssetID,
+                face: face,
+                subject: subject,
+                store: store
             )
         }
     }
