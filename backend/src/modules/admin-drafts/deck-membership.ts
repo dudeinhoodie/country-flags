@@ -2,13 +2,36 @@ import { HttpStatus } from "@nestjs/common";
 
 import { ApiException } from "../../common/http/api.exception";
 
-export type DeckMembers = "all-current" | string[] | { taxonomy: string };
+/**
+ * One card variant: an entity taught through a named template.
+ *
+ * A bare key takes the deck's default template. Germany under two templates
+ * is two cards with two schedules, and a deck says which of them it holds
+ * (ADR-020).
+ */
+export type DeckCardRef =
+  | string
+  | { entityKey: string; templateCode: string; templateSchemaVersion: number };
+
+export type DeckMembers = "all-current" | DeckCardRef[] | { taxonomy: string };
+
+export const DEFAULT_TEMPLATE_CODE = "FLAG_TO_COUNTRY";
+export const DEFAULT_TEMPLATE_SCHEMA_VERSION = 1;
+
+export interface EditorialDeckAccess {
+  model: "FREE" | "ENTITLEMENT";
+  requiredEntitlementKey?: string | null;
+}
 
 export interface EditorialDeck {
   key: string;
   kind: "curated" | "taxonomy";
   names: Record<string, { name: string; description: string }>;
   members: DeckMembers;
+  defaultTemplateCode?: string;
+  defaultTemplateSchemaVersion?: number;
+  access?: EditorialDeckAccess;
+  previewCards?: DeckCardRef[];
 }
 
 export interface EditorialEntity {
@@ -16,6 +39,28 @@ export interface EditorialEntity {
   type: string;
   status: string;
   config: { includeInCountryCatalog: boolean };
+  parentKey?: string | null;
+}
+
+/** The entity a member is about, whichever way it was written. */
+export function memberEntityKey(member: DeckCardRef): string {
+  return typeof member === "string" ? member : member.entityKey;
+}
+
+/** The card variant a member stands for, with the deck's defaults applied. */
+export function memberCardRef(
+  deck: EditorialDeck,
+  member: DeckCardRef,
+): { entityKey: string; templateCode: string; templateSchemaVersion: number } {
+  if (typeof member !== "string") {
+    return member;
+  }
+  return {
+    entityKey: member,
+    templateCode: deck.defaultTemplateCode ?? DEFAULT_TEMPLATE_CODE,
+    templateSchemaVersion:
+      deck.defaultTemplateSchemaVersion ?? DEFAULT_TEMPLATE_SCHEMA_VERSION,
+  };
 }
 
 export interface TaxonomyRelation {
@@ -90,7 +135,10 @@ export function resolveDeckMembers(
     return currentEntityKeys(context.entities);
   }
   if (Array.isArray(deck.members)) {
-    return [...deck.members].sort();
+    // Sorted, and by the entity a member is about: the build sorts an
+    // explicit list the same way, and this preview would be a preview of
+    // nothing if the two disagreed.
+    return [...new Set(deck.members.map(memberEntityKey))].sort();
   }
 
   const root = deck.members.taxonomy;
@@ -160,22 +208,32 @@ export function assertDeckIsSound(
   }
 
   if (Array.isArray(deck.members)) {
+    // Duplicated by card variant rather than by entity: a deck may teach
+    // Germany's flag and Germany's coat of arms, and those are two
+    // questions, not one country listed twice.
     const seen = new Set<string>();
-    const duplicates = deck.members.filter((key) => {
-      if (seen.has(key)) {
-        return true;
-      }
-      seen.add(key);
-      return false;
-    });
+    const duplicates = deck.members
+      .map((member) => {
+        const ref = memberCardRef(deck, member);
+        return `${ref.entityKey}#${ref.templateCode}@${String(ref.templateSchemaVersion)}`;
+      })
+      .filter((key) => {
+        if (seen.has(key)) {
+          return true;
+        }
+        seen.add(key);
+        return false;
+      });
     if (duplicates.length > 0) {
       membershipError(
         "DECK_MEMBER_DUPLICATE",
-        `The deck lists the same entity more than once: ${[...new Set(duplicates)].join(", ")}`,
+        `The deck lists the same card more than once: ${[...new Set(duplicates)].join(", ")}`,
       );
     }
     const known = new Set(context.entities.map((entity) => entity.key));
-    const unknown = deck.members.filter((key) => !known.has(key));
+    const unknown = deck.members
+      .map((member) => memberEntityKey(member))
+      .filter((key) => !known.has(key));
     if (unknown.length > 0) {
       membershipError(
         "DECK_MEMBER_UNKNOWN",

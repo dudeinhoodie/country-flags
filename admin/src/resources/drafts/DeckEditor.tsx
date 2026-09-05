@@ -2,6 +2,7 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Divider from "@mui/material/Divider";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -10,13 +11,19 @@ import { useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { useNavigate, useParams } from "react-router-dom";
 import { LoadingState } from "../../components/LoadingState";
+import { DEFAULT_TEMPLATE, deckCodeFromKey, templateOf } from "./deck-cards";
+import { DeckAccessEditor } from "./DeckAccessEditor";
+import type { DeckAccessValue, PublishedAccess } from "./DeckAccessEditor";
 import { DeckMembersEditor } from "./DeckMembersEditor";
+import type { DeckMembership } from "./DeckMembersEditor";
 import {
+  useCommerceContour,
   useDeckWriter,
   useDraftDeck,
+  usePublishedDeckCodes,
   useDraftWithDecks,
 } from "./useDraftDecks";
-import type { DeckMembers } from "./useDraftDecks";
+import type { DeckCardFields, DraftDeckDetail } from "./useDraftDecks";
 
 interface LocalizedText {
   name: string;
@@ -32,12 +39,60 @@ function emptyNames(): Record<string, LocalizedText> {
   };
 }
 
+function emptyMembership(): DeckMembership {
+  return {
+    members: "all-current",
+    defaults: {
+      templateCode: DEFAULT_TEMPLATE.code,
+      templateSchemaVersion: DEFAULT_TEMPLATE.schemaVersion,
+    },
+    previewCardIds: [],
+  };
+}
+
+function membershipOf(deck: DraftDeckDetail): DeckMembership {
+  const template =
+    templateOf(deck.defaultTemplateCode ?? "") ?? DEFAULT_TEMPLATE;
+  return {
+    members: deck.members,
+    defaults: {
+      templateCode: template.code,
+      templateSchemaVersion:
+        deck.defaultTemplateSchemaVersion ?? template.schemaVersion,
+    },
+    previewCardIds: deck.previewCardIds ?? [],
+  };
+}
+
+function accessOf(deck: DraftDeckDetail | null): DeckAccessValue {
+  return {
+    model: deck?.access?.model ?? "FREE",
+    requiredEntitlementKey: deck?.access?.requiredEntitlementKey ?? "",
+  };
+}
+
 function canEdit(permissions: unknown): boolean {
   return (
     permissions === "EDITOR" ||
     permissions === "PUBLISHER" ||
     permissions === "ADMIN"
   );
+}
+
+/** The commerce fields a deck's own history has already fixed. */
+function publishedAccessOf(
+  deck: DraftDeckDetail | null,
+  publishedCodes: ReadonlySet<string> | null,
+): PublishedAccess {
+  if (deck === null || publishedCodes === null) {
+    return "unpublished";
+  }
+  if (!publishedCodes.has(deckCodeFromKey(deck.key))) {
+    return "unpublished";
+  }
+  // What the deck last saved says, not what the form is now showing: the
+  // server refuses a change away from it either way.
+  return deck.access?.model === "ENTITLEMENT" ? "paid" : "free";
 }
 
 export function DeckEditor() {
@@ -53,12 +108,16 @@ export function DeckEditor() {
     isNew ? undefined : deckKey,
   );
   const { create, update } = useDeckWriter(draftId ?? "");
+  const publishedCodes = usePublishedDeckCodes();
+  const contour = useCommerceContour();
 
   const [key, setKey] = useState("");
   const [kind, setKind] = useState<"curated" | "taxonomy">("curated");
   const [names, setNames] =
     useState<Record<string, LocalizedText>>(emptyNames());
-  const [members, setMembers] = useState<DeckMembers>("all-current");
+  const [membership, setMembership] =
+    useState<DeckMembership>(emptyMembership());
+  const [access, setAccess] = useState<DeckAccessValue>(accessOf(null));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -70,7 +129,8 @@ export function DeckEditor() {
     setKey(deck.key);
     setKind(deck.kind);
     setNames({ ...emptyNames(), ...deck.names });
-    setMembers(deck.members);
+    setMembership(membershipOf(deck));
+    setAccess(accessOf(deck));
   }
 
   if (draftError !== null || deckError !== null) {
@@ -78,6 +138,23 @@ export function DeckEditor() {
   }
   if (draft === null || (!isNew && deck === null)) {
     return <LoadingState label="Loading the deck…" />;
+  }
+
+  const published = publishedAccessOf(deck, publishedCodes);
+
+  function cardFields(): DeckCardFields {
+    return {
+      defaultTemplateCode: membership.defaults.templateCode,
+      defaultTemplateSchemaVersion: membership.defaults.templateSchemaVersion,
+      access:
+        access.model === "ENTITLEMENT"
+          ? {
+              model: "ENTITLEMENT",
+              requiredEntitlementKey: access.requiredEntitlementKey.trim(),
+            }
+          : { model: "FREE" },
+      previewCardIds: membership.previewCardIds,
+    };
   }
 
   function save(): void {
@@ -97,19 +174,24 @@ export function DeckEditor() {
       );
     };
     if (isNew) {
-      void create(draft.revision, { key, kind, names, members }).then(
-        done,
-        failed,
-      );
+      void create(draft.revision, {
+        key,
+        kind,
+        names,
+        members: membership.members,
+        ...cardFields(),
+      }).then(done, failed);
       return;
     }
     if (deck === null) {
       return;
     }
-    void update(draft.revision, deck.key, { kind, names, members }).then(
-      done,
-      failed,
-    );
+    void update(draft.revision, deck.key, {
+      kind,
+      names,
+      members: membership.members,
+      ...cardFields(),
+    }).then(done, failed);
   }
 
   return (
@@ -195,10 +277,21 @@ export function DeckEditor() {
           ))}
 
           <DeckMembersEditor
-            members={members}
-            memberCount={deck?.memberCount ?? null}
+            draftId={draft.id}
+            value={membership}
+            savedMemberCount={deck?.memberCount ?? null}
             disabled={!editable}
-            onChange={setMembers}
+            onChange={setMembership}
+          />
+
+          <Divider />
+
+          <DeckAccessEditor
+            value={access}
+            published={published}
+            contour={contour}
+            disabled={!editable}
+            onChange={setAccess}
           />
 
           <Stack direction="row" spacing={2}>
