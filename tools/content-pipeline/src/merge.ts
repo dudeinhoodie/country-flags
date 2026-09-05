@@ -159,7 +159,19 @@ const LEARNABLE_TYPES = new Set(["country", "territory", "area"]);
 
 /// The fact types a release publishes, in the order the back of a card
 /// reads them.
-const FACT_TYPES = ["capitals", "currencies", "languages", "population"];
+///
+/// The first four come from the sources for every entity, so they are always
+/// published — a gap is itself an answer there. The rest exist only because
+/// a curator stated them: a collection nobody has a value for would be two
+/// hundred gaps saying nothing, so it is published only when somebody does.
+const SOURCED_FACT_TYPES = [
+  "capitals",
+  "currencies",
+  "languages",
+  "population",
+];
+const EDITORIAL_FACT_TYPES = ["statehoodDate", "motto", "largestCity"];
+const FACT_TYPES = [...SOURCED_FACT_TYPES, ...EDITORIAL_FACT_TYPES];
 
 /// A source that answers "none" — `[]`, `{}`, `""` — has answered. It is
 /// saying the entity does not have the thing, which is a gap rather than a
@@ -748,8 +760,17 @@ export async function mergeContent(
     learnableKeys.map((entityKey) => [entityKey, new Set<string>()]),
   );
 
+  // A curator-only type joins the release the moment one entity carries it.
+  const statedFactTypes = new Set(
+    editorial.entities.flatMap((entity) => Object.keys(entity.facts ?? {})),
+  );
+  const publishedFactTypes = FACT_TYPES.filter(
+    (factType) =>
+      SOURCED_FACT_TYPES.includes(factType) || statedFactTypes.has(factType),
+  );
+
   const facts = Object.fromEntries(
-    FACT_TYPES.map((factType) => [
+    publishedFactTypes.map((factType) => [
       factType,
       {
         schemaVersion: 1,
@@ -805,7 +826,12 @@ export async function mergeContent(
       continue;
     }
     const declared = notApplicableByEntity.get(entityKey) ?? new Set<string>();
-    const undeclared = FACT_TYPES.filter((factType) => !declared.has(factType));
+    // Only the types every entity is expected to have. A curator-only fact
+    // is not something an entity can be missing: nobody has stated it, and
+    // declaring its absence would be declaring nothing.
+    const undeclared = SOURCED_FACT_TYPES.filter(
+      (factType) => !declared.has(factType),
+    );
     reports.factlessEntities.push({
       entityKey,
       undeclared,
