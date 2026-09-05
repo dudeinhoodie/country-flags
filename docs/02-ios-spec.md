@@ -6,6 +6,7 @@
 
 - [00-product-spec.md](./00-product-spec.md)
 - OpenAPI-контракт backend из [01-backend-spec.md](./01-backend-spec.md)
+- Multi-content и commerce contract из [18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md)
 
 ## 1. Результат работы
 
@@ -21,6 +22,10 @@
 - синхронизировать review и настройки;
 - видеть mastery и достижения;
 - управлять аккаунтом и инициировать его удаление.
+- покупать отдельные колоды через StoreKit, восстанавливать доступ и после
+  entitlement видеть полный список карточек;
+- изучать флаги стран/штатов и гербы через разные template renderers с
+  независимым progress.
 
 Приложение должно корректно переживать закрытие процесса, потерю сети, повторные ответы API и смену аккаунта.
 
@@ -118,6 +123,11 @@ App
 Имена условны; важна семантика.
 
 ### Контент
+
+Локальная модель MUST хранить extensible `GeoEntityKind` с `SUBDIVISION`,
+nullable parent summary, несколько typed assets одной entity, template code у
+карточки и deck access/public-preview metadata. Cache key включает asset ID/type
+и не позволяет гербу перезаписать флаг.
 
 - `LocalContentManifest`
 - `LocalGeoEntity`
@@ -373,6 +383,8 @@ Guest import использует стабильный `migrationId` и повт
 - поиск по локализованному и альтернативному названию;
 - карточка колоды: title, число карточек, due count, current mastery;
 - empty, loading, offline и error states.
+- locked paid deck показывает public metadata/preview и открывает paywall;
+  storefront CTA не запускает StoreKit напрямую.
 
 ### 9.4 Deck Details
 
@@ -384,6 +396,12 @@ Guest import использует стабильный `migrationId` и повт
 - запуск self-rated режима;
 - запуск objective режима, если feature включён;
 - список стран MAY быть сворачиваемым.
+- для locked deck полный список отсутствует, а Start заменяется purchase/restore
+  state;
+- после entitlement purchase chrome исчезает, показываются compact hero,
+  progress, search, полный lazy list и закреплённый `Start learning`/`Continue`;
+- строка списка поддерживает flag/coat thumbnail, entity name, asset display
+  name и detail disclosure.
 
 Если сеть недоступна, запуск разрешён при наличии локального состава колоды и assets. Локальный selector обязан соблюдать due priority, лимит уникальных карточек, отсутствие retired cards и дублей; точные правила проверяются общими golden fixtures с backend.
 
@@ -391,7 +409,7 @@ Guest import использует стабильный `migrationId` и повт
 
 Лицевая сторона:
 
-- флаг в контейнере без искажения aspect ratio;
+- prompt asset (`FLAG` или `COAT_OF_ARMS`) в контейнере без искажения aspect ratio;
 - прогресс `3 / 10`;
 - кнопка раскрытия;
 - закрытие/пауза с подтверждением;
@@ -414,6 +432,13 @@ Guest import использует стабильный `migrationId` и повт
 - background/termination сохраняют точную позицию;
 - Reduce Motion заменяет 3D flip на crossfade/no animation;
 - haptics подчиняется settings и системным ограничениям.
+
+Renderer выбирается по `templateCode + templateSchemaVersion`.
+`FLAG_TO_COUNTRY` v1 поддерживает страны и subdivisions;
+`COAT_OF_ARMS_TO_COUNTRY` v1 рисует герб
+aspect-fit на нейтральной поверхности. Карточка неизвестной пары
+`templateCode + schemaVersion` отсеивается на импорте контента и до renderer не
+доходит, поэтому нарисовать герб flag-рендерером невозможно.
 
 ### 9.6 Objective quiz
 
@@ -761,6 +786,9 @@ Snapshot tests MAY применяться к design system и ключевым �
 - Release build загружает dSYM и не логирует tokens/PII.
 - Privacy settings управляют optional analytics outbox, а logout/account deletion очищают идентифицированный telemetry context.
 - Unit/integration/UI smoke tests проходят в CI.
+- StoreKit purchase/restore/pending/refund покрыты тестами с dev/prod isolation.
+- Flag и coat одной страны сохраняют независимые card states; subdivisions не
+  попадают в country-only distractors.
 - README содержит настройку bundle ID, URL schemes, environments, запуск и тесты.
 
 ## 18. Порядок реализации для агента

@@ -97,3 +97,27 @@ and the release mechanism remains the way a flag is corrected.
   would make the bundled baseline dead weight.
 - A second client platform needs the same baseline and cannot share the build
   step, making the pipeline output the wrong place to generate it from.
+
+## Addendum 2026-09-04 — the baseline covers free decks only
+
+Paid decks ([ADR-019](./ADR-019-paid-deck-entitlements.md)) put content in the
+catalogue that a user has not bought. The bundling step does not know that:
+`ios/Scripts/sync-flag-assets.mjs` copies the assets of a content release into
+`Flags.xcassets` keyed by checksum, with no notion of which deck an asset
+belongs to. Left alone it would ship the European coats and the state flags
+inside the free download, so the paid artwork would sit on every device before
+anyone paid for it.
+
+The baseline is therefore scoped, not abandoned:
+
+- the bundled set contains only assets used by a card that belongs to at least
+  one deck with `access.model = FREE`;
+- `--check` fails in CI when an asset reachable only through a paid deck is
+  present in the catalog;
+- assets of a paid deck arrive over the existing download path once the account
+  holds the entitlement, which is exactly the path this ADR kept alive;
+- everything else here is unchanged: checksum matching, the correction flow and
+  the reasons for bundling at all still apply to the free catalogue.
+
+This is about not giving paid artwork away in a free binary. It is not a
+protection against a modified client, and this ADR does not claim one.

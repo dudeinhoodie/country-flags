@@ -31,6 +31,11 @@ tags:
       Read-only view over the active published release, exactly what
       clients can see plus provenance metadata. Open to every
       authenticated admin.
+  - name: AdminCommerce
+    description: >-
+      Entitlements, offers and the store products that sell them. The console
+      records the mapping and reads the store; it never creates a product and
+      never sets a price.
   - name: AdminReleases
     description: >-
       Starting and watching the publish workflow. The console requests a
@@ -727,6 +732,51 @@ paths:
         required: true
         schema:
           $ref: ./openapi/components.yaml#/schemas/Uuid
+    patch:
+      tags: [AdminDrafts]
+      summary: Change an uploaded asset's metadata
+      operationId: adminUpdateDraftAsset
+      x-implementation-status: planned
+      description: >-
+        Provenance, validity and the symbol's localized name and story. New
+        bytes still arrive through the upload endpoint: correcting a licence
+        is a different act from replacing a drawing, and only one of them
+        changes what the reader sees.
+      parameters:
+        - $ref: "#/components/parameters/DraftIfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminDraftAssetPatchRequest"
+      responses:
+        "200":
+          description: The asset was changed; the draft's revision moved on.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDraftStamp"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the EDITOR role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "428":
+          $ref: "#/components/responses/DraftIfMatchRequired"
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
     delete:
       tags: [AdminDrafts]
       summary: Remove an uploaded asset from a draft
@@ -1212,6 +1262,404 @@ paths:
                 $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/status:
+    get:
+      tags: [AdminCommerce]
+      summary: Read the health of the commerce contour
+      operationId: adminGetCommerceStatus
+      x-implementation-status: planned
+      description: >-
+        What an operator checks before believing a storefront works: which
+        environment this deployment talks to, how many offers are active,
+        whether every active offer has a validated product, and when
+        reconciliation last succeeded. Open to `VIEWER`.
+      responses:
+        "200":
+          description: Commerce health for this environment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCommerceStatus"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/entitlements:
+    get:
+      tags: [AdminCommerce]
+      summary: List entitlement keys and what they open
+      operationId: adminListEntitlements
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: Every entitlement and the decks that require it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminEntitlementList"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    post:
+      tags: [AdminCommerce]
+      summary: Declare an entitlement key
+      operationId: adminCreateEntitlement
+      x-implementation-status: planned
+      description: >-
+        The key is a business boundary, not a publishing detail: it is never
+        renamed once anything has been sold against it. Requires `PUBLISHER`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminEntitlementCreateRequest"
+      responses:
+        "201":
+          description: The entitlement now exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminEntitlement"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller is below the PUBLISHER role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/offers:
+    get:
+      tags: [AdminCommerce]
+      summary: List commerce offers
+      operationId: adminListCommerceOffers
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: Offers with their grants and store products.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCommerceOfferList"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    post:
+      tags: [AdminCommerce]
+      summary: Create a draft offer
+      operationId: adminCreateCommerceOffer
+      x-implementation-status: planned
+      description: >-
+        An offer starts as a draft: it grants nothing until a `PUBLISHER`
+        activates it. Requires `EDITOR`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCommerceOfferCreateRequest"
+      responses:
+        "201":
+          description: The draft offer was created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCommerceOffer"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller is below the EDITOR role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/offers/{offerId}:
+    parameters:
+      - name: offerId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    get:
+      tags: [AdminCommerce]
+      summary: Get one offer with its products and grants
+      operationId: adminGetCommerceOffer
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: The offer.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCommerceOffer"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+    patch:
+      tags: [AdminCommerce]
+      summary: Change an offer or its lifecycle
+      operationId: adminUpdateCommerceOffer
+      x-implementation-status: planned
+      description: >-
+        Activation and retirement require `PUBLISHER`; copy and sort order
+        require `EDITOR`. The grants of an offer that has already sold may
+        grow through an audited migration and never shrink: a different set
+        of rights is a different product.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCommerceOfferUpdateRequest"
+      responses:
+        "200":
+          description: The offer as it now stands.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCommerceOffer"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller lacks the role this change requires.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/offers/{offerId}/products:
+    parameters:
+      - name: offerId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    post:
+      tags: [AdminCommerce]
+      summary: Map a store product to an offer
+      operationId: adminCreateStoreProduct
+      x-implementation-status: planned
+      description: >-
+        The console records the mapping; it does not create the product. The
+        product id and its type are immutable once activated, and the same id
+        in Sandbox and in Production are two different products. Requires
+        `PUBLISHER`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminStoreProductCreateRequest"
+      responses:
+        "201":
+          description: The product mapping was recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStoreProduct"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller is below the PUBLISHER role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/products/{productId}:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    patch:
+      tags: [AdminCommerce]
+      summary: Change a store product mapping
+      operationId: adminUpdateStoreProduct
+      x-implementation-status: planned
+      description: >-
+        Status and notes only. The product id, its type, its bundle and its
+        environment are what identify it, and none of them can be edited into
+        something else. Requires `PUBLISHER`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminStoreProductUpdateRequest"
+      responses:
+        "200":
+          description: The product as it now stands.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStoreProduct"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller is below the PUBLISHER role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/store-sync-runs:
+    post:
+      tags: [AdminCommerce]
+      summary: Start a read-only sync with the store
+      operationId: adminStartStoreSyncRun
+      x-implementation-status: planned
+      description: >-
+        Asks the store what it knows about the mapped products. Read-only by
+        design: the console never creates an in-app purchase and never
+        changes a price. The store API key belongs to the job, not to the
+        browser. Requires `ADMIN`.
+      responses:
+        "202":
+          description: The run was accepted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStoreSyncRun"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller is below the ADMIN role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/store-sync-runs/{runId}:
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    get:
+      tags: [AdminCommerce]
+      summary: Watch a store sync run
+      operationId: adminGetStoreSyncRun
+      x-implementation-status: planned
+      responses:
+        "200":
+          description: The run and what it found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStoreSyncRun"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/transactions/{transactionId}:
+    parameters:
+      - name: transactionId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    get:
+      tags: [AdminCommerce]
+      summary: Read one transaction for support
+      operationId: adminGetStoreTransaction
+      x-implementation-status: planned
+      description: >-
+        Support diagnostics only. Store identifiers are masked and the signed
+        payload is never returned: what a support agent needs is whether a
+        purchase landed and what it granted. Requires `ADMIN`.
+      responses:
+        "200":
+          description: The transaction, with masked identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStoreTransaction"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller is below the ADMIN role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/commerce/transactions/{transactionId}/reconcile:
+    parameters:
+      - name: transactionId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    post:
+      tags: [AdminCommerce]
+      summary: Re-read one transaction from the store
+      operationId: adminReconcileStoreTransaction
+      x-implementation-status: planned
+      description: >-
+        Asks the store for the current truth about this transaction and
+        applies it. The repair path for a notification that never arrived.
+        Requires `ADMIN`.
+      responses:
+        "200":
+          description: The transaction after reconciliation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStoreTransaction"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: The caller is below the ADMIN role.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/users:
     get:
       tags: [AdminAccess]
@@ -1543,19 +1991,42 @@ components:
           type: string
           minLength: 1
           maxLength: 2000
+    AdminDeckCardRef:
+      description: >-
+        One card variant: an entity taught through a named template. A bare
+        key takes the deck's default template, which is why a deck that lists
+        bare keys must declare one. Germany under two templates is two cards
+        with two schedules, and a deck says which of them it holds.
+      oneOf:
+        - type: string
+          minLength: 1
+          maxLength: 200
+        - type: object
+          additionalProperties: false
+          required: [entityKey, templateCode, templateSchemaVersion]
+          properties:
+            entityKey:
+              type: string
+              minLength: 1
+              maxLength: 200
+            templateCode:
+              type: string
+              pattern: ^[A-Z][A-Z0-9_]*$
+              maxLength: 100
+            templateSchemaVersion:
+              type: integer
+              minimum: 1
     AdminDeckMembers:
       description: >-
         The three shapes the editorial model supports: the whole approved
-        catalog, an explicit list of entity keys, or a taxonomy node whose
+        catalog, an explicit list of card variants, or a taxonomy node whose
         descendants form the deck.
       oneOf:
         - type: string
           const: all-current
         - type: array
           items:
-            type: string
-            minLength: 1
-            maxLength: 200
+            $ref: "#/components/schemas/AdminDeckCardRef"
         - type: object
           additionalProperties: false
           required: [taxonomy]
@@ -1564,6 +2035,51 @@ components:
               type: string
               minLength: 1
               maxLength: 200
+    AdminDeckAccess:
+      description: >-
+        Who may open the deck. Absent means free. No price: the store owns
+        what a thing costs, and the console never promises one.
+      type: object
+      additionalProperties: false
+      required: [model]
+      properties:
+        model:
+          type: string
+          enum: [FREE, ENTITLEMENT]
+        requiredEntitlementKey:
+          description: >-
+            Present exactly when the model is `ENTITLEMENT`. Read-only once
+            the deck is published: changing it is an entitlement migration,
+            not an edit.
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 120
+    AdminDeckResolvedCard:
+      description: >-
+        One member as the publisher would materialize it. This is what the
+        editor shows instead of guessing: `memberKeys` could not say which of
+        an entity's cards a deck holds.
+      type: object
+      required: [entityKey, templateCode, templateSchemaVersion, sortOrder]
+      properties:
+        learningCardId:
+          description: >-
+            The published card this member resolves to, null while the pair
+            has never been published.
+          type: [string, "null"]
+        entityKey:
+          type: string
+        templateCode:
+          type: string
+        templateSchemaVersion:
+          type: integer
+          minimum: 1
+        assetType:
+          type: [string, "null"]
+          description: The prompt asset the template reads, when it has one.
+        sortOrder:
+          type: integer
+          minimum: 0
     AdminDraftDeck:
       type: object
       required: [key, kind, names, membersMode, members, memberCount]
@@ -1588,6 +2104,29 @@ components:
         memberCount:
           type: integer
           minimum: 0
+        defaultTemplateCode:
+          description: >-
+            The template a bare member key is taught through. Required when
+            the deck lists bare keys; a catalog written before templates
+            existed reads as `FLAG_TO_COUNTRY` v1.
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]*$
+          maxLength: 100
+        defaultTemplateSchemaVersion:
+          type: integer
+          minimum: 1
+        access:
+          $ref: "#/components/schemas/AdminDeckAccess"
+        previewCardIds:
+          description: >-
+            Up to three cards a locked deck may show before it is bought.
+            Each must be a member, and each is published as public on
+            purpose.
+          type: array
+          maxItems: 3
+          items:
+            type: string
+            minLength: 1
     AdminDraftDeckList:
       type: object
       required: [items, total]
@@ -1606,12 +2145,23 @@ components:
           required: [memberKeys]
           properties:
             memberKeys:
+              deprecated: true
               type: array
               description: >-
                 The entity keys the deck resolves to right now, sorted the
-                way the release build sorts them.
+                way the release build sorts them. Ambiguous once an entity
+                has several cards — it cannot say which of them the deck
+                holds — and kept only while the console migrates to
+                `resolvedMemberCards`.
               items:
                 type: string
+            resolvedMemberCards:
+              description: >-
+                The members as the publisher would materialize them, in
+                editorial order.
+              type: array
+              items:
+                $ref: "#/components/schemas/AdminDeckResolvedCard"
     AdminDraftDeckCreateRequest:
       type: object
       additionalProperties: false
@@ -1632,6 +2182,29 @@ components:
             $ref: "#/components/schemas/AdminDeckLocalizedText"
         members:
           $ref: "#/components/schemas/AdminDeckMembers"
+        defaultTemplateCode:
+          description: >-
+            The template a bare member key is taught through. Required when
+            the deck lists bare keys; a catalog written before templates
+            existed reads as `FLAG_TO_COUNTRY` v1.
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]*$
+          maxLength: 100
+        defaultTemplateSchemaVersion:
+          type: integer
+          minimum: 1
+        access:
+          $ref: "#/components/schemas/AdminDeckAccess"
+        previewCardIds:
+          description: >-
+            Up to three cards a locked deck may show before it is bought.
+            Each must be a member, and each is published as public on
+            purpose.
+          type: array
+          maxItems: 3
+          items:
+            type: string
+            minLength: 1
     AdminDraftDeckUpdateRequest:
       type: object
       additionalProperties: false
@@ -1647,9 +2220,36 @@ components:
             $ref: "#/components/schemas/AdminDeckLocalizedText"
         members:
           $ref: "#/components/schemas/AdminDeckMembers"
+        defaultTemplateCode:
+          description: >-
+            The template a bare member key is taught through. Required when
+            the deck lists bare keys; a catalog written before templates
+            existed reads as `FLAG_TO_COUNTRY` v1.
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]*$
+          maxLength: 100
+        defaultTemplateSchemaVersion:
+          type: integer
+          minimum: 1
+        access:
+          $ref: "#/components/schemas/AdminDeckAccess"
+        previewCardIds:
+          description: >-
+            Up to three cards a locked deck may show before it is bought.
+            Each must be a member, and each is published as public on
+            purpose.
+          type: array
+          maxItems: 3
+          items:
+            type: string
+            minLength: 1
     AdminEntityType:
+      description: >-
+        What the entity is. `subdivision` is an administrative unit of a
+        country — a U.S. state — and it needs a `parentKey`, stays out of the
+        country catalog, and is taught only through a deck that names it.
       type: string
-      enum: [country, territory, area, region, subregion]
+      enum: [country, territory, area, subdivision, region, subregion]
     AdminEntityStatus:
       type: string
       enum: [active, historical, retired, hidden]
@@ -1666,6 +2266,23 @@ components:
         m49:
           type: string
           pattern: ^[0-9]{3}$
+        isoSubdivision:
+          description: >-
+            ISO 3166-2, such as `US-CA`. It has a field of its own because it
+            is not a country code: written into `isoAlpha2` it would put a
+            state everywhere a reader expects a country.
+          type: string
+          pattern: ^[A-Za-z]{2}-[A-Za-z0-9]{1,3}$
+        localCode:
+          description: The official code the parent country uses for the unit.
+          type: string
+          minLength: 1
+          maxLength: 40
+        fipsCode:
+          description: Only where the source publishes one; never derived.
+          type: string
+          minLength: 1
+          maxLength: 10
         wikidataId:
           type: string
           minLength: 1
@@ -1675,6 +2292,57 @@ components:
         customCode:
           type: string
           minLength: 1
+    AdminEntityLocalizedValue:
+      description: Locale → the value in that locale.
+      type: object
+      minProperties: 1
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 200
+    AdminEntityMeasuredValue:
+      type: object
+      additionalProperties: false
+      required: [value]
+      properties:
+        value:
+          type: number
+        unit:
+          type: string
+          minLength: 1
+          maxLength: 40
+        observedAt:
+          type: string
+          format: date
+    AdminEntityFacts:
+      description: >-
+        The facts a curator edits by hand. They are typed rather than hidden
+        in the override map because a state's admission date and a country's
+        capital are answers to questions, not free-form strings, and the card
+        back renders them by type.
+      type: object
+      additionalProperties: false
+      properties:
+        capital:
+          $ref: "#/components/schemas/AdminEntityLocalizedValue"
+        largestCity:
+          $ref: "#/components/schemas/AdminEntityLocalizedValue"
+        motto:
+          $ref: "#/components/schemas/AdminEntityLocalizedValue"
+        statehoodDate:
+          description: >-
+            When the unit joined the entity above it. Meaningful for a
+            subdivision; left unset for everything else.
+          type: string
+          format: date
+        population:
+          $ref: "#/components/schemas/AdminEntityMeasuredValue"
+        area:
+          $ref: "#/components/schemas/AdminEntityMeasuredValue"
+        languages:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminEntityLocalizedValue"
     AdminEntityOverrides:
       type: object
       description: >-
@@ -1707,6 +2375,16 @@ components:
           type: string
         identifiers:
           $ref: "#/components/schemas/AdminEntityIdentifiers"
+        parentKey:
+          type: [string, "null"]
+        hasFlag:
+          description: >-
+            Whether the entity already has a flag in this draft. Carried by
+            the list so "missing a coat of arms" is a filter rather than a
+            request per row.
+          type: boolean
+        hasCoatOfArms:
+          type: boolean
         overrideCount:
           type: integer
           minimum: 0
@@ -1749,6 +2427,16 @@ components:
         validTo:
           type: string
           format: date
+        parentKey:
+          description: >-
+            The country or territory an administrative unit belongs to.
+            Required of a `subdivision` and meaningless anywhere else; the
+            publisher turns it into the canonical administrative relation.
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 200
+        facts:
+          $ref: "#/components/schemas/AdminEntityFacts"
         identifiers:
           $ref: "#/components/schemas/AdminEntityIdentifiers"
         overrides:
@@ -1788,6 +2476,15 @@ components:
           type: [string, "null"]
         validTo:
           type: [string, "null"]
+        parentKey:
+          description: >-
+            An entity key, or null to clear it. Non-null is required of a
+            `subdivision`, and null is required of anything else.
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 200
+        facts:
+          $ref: "#/components/schemas/AdminEntityFacts"
         identifiers:
           $ref: "#/components/schemas/AdminEntityIdentifiers"
         overrides:
@@ -1851,10 +2548,76 @@ components:
         validationStatus:
           type: string
           enum: [PENDING, VALID, INVALID]
+        validFrom:
+          description: >-
+            When this drawing came into force. Null for one that simply is
+            the current symbol.
+          type: [string, "null"]
+          format: date
+        validTo:
+          type: [string, "null"]
+          format: date
+        localizations:
+          $ref: "#/components/schemas/AdminAssetLocalizations"
         createdAt:
           $ref: ./openapi/components.yaml#/schemas/DateTime
         updatedAt:
           $ref: ./openapi/components.yaml#/schemas/DateTime
+    AdminAssetLocalization:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+    AdminAssetLocalizations:
+      description: >-
+        What this drawing is called and what it means, per locale. It belongs
+        to the asset rather than to the entity: the story of the German
+        federal eagle is the story of one symbol, and replacing that symbol
+        replaces its story without touching the flag beside it.
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/AdminAssetLocalization"
+    AdminDraftAssetPatchRequest:
+      description: >-
+        Metadata, validity and localizations only. New bytes still arrive
+        through the upload endpoint, because replacing a drawing is a
+        different act from correcting its licence.
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        sourceUrl:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        licenseName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        licenseUrl:
+          type: [string, "null"]
+          maxLength: 2000
+        attribution:
+          type: [string, "null"]
+          maxLength: 300
+        replacementReason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        validFrom:
+          type: [string, "null"]
+        validTo:
+          type: [string, "null"]
+        localizations:
+          $ref: "#/components/schemas/AdminAssetLocalizations"
     AdminDraftAssetList:
       type: object
       required: [items, total]
@@ -1886,7 +2649,7 @@ components:
           maxLength: 200
         assetType:
           type: string
-          enum: [FLAG, COAT_OF_ARMS]
+          enum: [FLAG, COAT_OF_ARMS, MAP]
         variant:
           type: string
           minLength: 1
@@ -1915,6 +2678,322 @@ components:
           type: string
           minLength: 1
           maxLength: 2000
+        validFrom:
+          type: string
+          format: date
+        validTo:
+          type: string
+          format: date
+        localizations:
+          description: >-
+            `AdminAssetLocalizations` as a JSON string, because this is a
+            multipart form and a form field carries text.
+          type: string
+          maxLength: 8000
+    AdminCommerceStatus:
+      type: object
+      required:
+        [storeEnvironment, activeOfferCount, offersWithoutValidatedProduct]
+      properties:
+        storeEnvironment:
+          description: >-
+            Which store this deployment talks to. Shown on every commerce
+            screen, because mapping a Sandbox product while looking at
+            production is the mistake this section has to make impossible.
+          type: string
+          x-extensible-enum: [LOCAL_TEST, SANDBOX, PRODUCTION]
+        activeOfferCount:
+          type: integer
+          minimum: 0
+        offersWithoutValidatedProduct:
+          description: >-
+            Active offers that cannot be sold on this platform yet. A paid
+            deck may not reach READY while it has one.
+          type: integer
+          minimum: 0
+        lastReconciliationAt:
+          type: [string, "null"]
+          format: date-time
+        lastReconciliationError:
+          type: [string, "null"]
+    AdminEntitlement:
+      type: object
+      required: [key, status, deckCodes]
+      properties:
+        key:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          x-extensible-enum: [ACTIVE, RETIRED]
+        description:
+          type: [string, "null"]
+        deckCodes:
+          description: The published decks this key opens.
+          type: array
+          items:
+            type: string
+    AdminEntitlementList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminEntitlement"
+        total:
+          type: integer
+          minimum: 0
+    AdminEntitlementCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [key]
+      properties:
+        key:
+          type: string
+          pattern: ^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+$
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 500
+    AdminCommerceOffer:
+      type: object
+      required: [id, code, kind, status, grants, products]
+      properties:
+        id:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        code:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]*$
+        kind:
+          type: string
+          x-extensible-enum: [ONE_TIME]
+        status:
+          type: string
+          x-extensible-enum: [DRAFT, ACTIVE, RETIRED]
+        sortOrder:
+          type: [integer, "null"]
+        notes:
+          type: [string, "null"]
+        grants:
+          description: >-
+            The entitlement keys a purchase grants. More than one is a
+            bundle, which is why an offer is not a deck.
+          type: array
+          items:
+            type: string
+        localizations:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/AdminDeckLocalizedText"
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminStoreProduct"
+    AdminCommerceOfferList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminCommerceOffer"
+        total:
+          type: integer
+          minimum: 0
+    AdminCommerceOfferCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [code, grants]
+      properties:
+        code:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]*$
+          maxLength: 100
+        kind:
+          type: string
+          enum: [ONE_TIME]
+        grants:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+        sortOrder:
+          type: integer
+        notes:
+          type: string
+          maxLength: 2000
+        localizations:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/AdminDeckLocalizedText"
+    AdminCommerceOfferUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        status:
+          type: string
+          enum: [DRAFT, ACTIVE, RETIRED]
+        grants:
+          description: >-
+            May only grow once the offer has sold. Shrinking it is refused:
+            a different set of rights is a different product.
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+        sortOrder:
+          type: [integer, "null"]
+        notes:
+          type: [string, "null"]
+        localizations:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/AdminDeckLocalizedText"
+    AdminStoreProduct:
+      type: object
+      required:
+        [
+          id,
+          provider,
+          storeEnvironment,
+          bundleId,
+          productId,
+          productType,
+          status,
+        ]
+      properties:
+        id:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        provider:
+          type: string
+          x-extensible-enum: [APPLE_APP_STORE, GOOGLE_PLAY, WEB]
+        storeEnvironment:
+          type: string
+          x-extensible-enum: [LOCAL_TEST, SANDBOX, PRODUCTION]
+        bundleId:
+          type: string
+        productId:
+          type: string
+        productType:
+          type: string
+          x-extensible-enum: [NON_CONSUMABLE]
+        status:
+          type: string
+          x-extensible-enum: [DRAFT, VALIDATED, ACTIVE, RETIRED, INVALID]
+        storeStatus:
+          description: >-
+            Whatever the store last said, kept opaque: it is a diagnostic,
+            and nothing decides access by reading it.
+          type: [string, "null"]
+        lastValidatedAt:
+          type: [string, "null"]
+          format: date-time
+        validationError:
+          type: [string, "null"]
+    AdminStoreProductCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [provider, storeEnvironment, bundleId, productId]
+      properties:
+        provider:
+          type: string
+          enum: [APPLE_APP_STORE, GOOGLE_PLAY, WEB]
+        storeEnvironment:
+          type: string
+          enum: [LOCAL_TEST, SANDBOX, PRODUCTION]
+        bundleId:
+          type: string
+          minLength: 1
+          maxLength: 200
+        productId:
+          type: string
+          minLength: 1
+          maxLength: 200
+        productType:
+          type: string
+          enum: [NON_CONSUMABLE]
+    AdminStoreProductUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        status:
+          type: string
+          enum: [DRAFT, VALIDATED, ACTIVE, RETIRED, INVALID]
+    AdminStoreSyncRun:
+      type: object
+      required: [id, status, startedAt]
+      properties:
+        id:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        status:
+          type: string
+          x-extensible-enum: [QUEUED, RUNNING, SUCCEEDED, FAILED]
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: [string, "null"]
+          format: date-time
+        checkedProductCount:
+          type: [integer, "null"]
+          minimum: 0
+        failureMessage:
+          type: [string, "null"]
+    AdminStoreTransaction:
+      description: >-
+        A transaction as support may see it: masked identifiers, no signed
+        payload, and what it granted.
+      type: object
+      required:
+        [
+          id,
+          provider,
+          storeEnvironment,
+          maskedTransactionId,
+          productId,
+          claimState,
+          purchasedAt,
+        ]
+      properties:
+        id:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        provider:
+          type: string
+          x-extensible-enum: [APPLE_APP_STORE, GOOGLE_PLAY, WEB]
+        storeEnvironment:
+          type: string
+          x-extensible-enum: [LOCAL_TEST, SANDBOX, PRODUCTION]
+        maskedTransactionId:
+          description: >-
+            Enough of the store's identifier to match a support ticket, and
+            not enough to be replayed anywhere.
+          type: string
+        productId:
+          type: string
+        claimState:
+          type: string
+          x-extensible-enum:
+            [CLAIMED, RELEASED_BY_ACCOUNT_DELETION, CONFLICT, QUARANTINED]
+        ownershipType:
+          type: string
+          x-extensible-enum: [PURCHASED, FAMILY_SHARED, UNKNOWN]
+        purchasedAt:
+          type: string
+          format: date-time
+        revokedAt:
+          type: [string, "null"]
+          format: date-time
+        revocationReason:
+          type: [string, "null"]
+        grantedEntitlementKeys:
+          type: array
+          items:
+            type: string
     AdminValidationFinding:
       type: object
       required: [level, code, subject, message]

@@ -8,7 +8,13 @@ export interface DomainEntityName {
 
 export interface DomainEntity {
   key: string;
-  type: "country" | "territory" | "area" | "region" | "subregion";
+  type:
+    | "country"
+    | "territory"
+    | "area"
+    | "subdivision"
+    | "region"
+    | "subregion";
   status: "active" | "historical" | "retired" | "hidden";
   includeInCountryCatalog: boolean;
   recognition: { status: string; asOf?: string; note?: Record<string, string> };

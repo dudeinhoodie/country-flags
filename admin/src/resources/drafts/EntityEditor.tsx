@@ -23,7 +23,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { LoadingState } from "../../components/LoadingState";
 import { useDraftWithDecks } from "./useDraftDecks";
 import { useDraftEntity, useEntityWriter } from "./useDraftEntities";
+import type { DraftEntityDetail } from "./useDraftEntities";
 
+/**
+ * The types this editor can create. The contract also carries
+ * `subdivision`, which needs a parent selector and a disabled catalog
+ * toggle before it can be offered here (#317); until then a subdivision
+ * loaded from the API still displays, and the picker does not invent one.
+ */
 const ENTITY_TYPES = [
   "country",
   "territory",
@@ -31,6 +38,8 @@ const ENTITY_TYPES = [
   "region",
   "subregion",
 ] as const;
+
+type EntityType = NonNullable<DraftEntityDetail["entity"]["type"]>;
 const ENTITY_STATUSES = ["active", "historical", "retired", "hidden"] as const;
 const IDENTIFIER_KEYS = [
   "isoAlpha2",
@@ -86,7 +95,7 @@ export function EntityEditor() {
   );
   const { update } = useEntityWriter(draftId ?? "");
 
-  const [type, setType] = useState<(typeof ENTITY_TYPES)[number]>("country");
+  const [type, setType] = useState<EntityType>("country");
   const [status, setStatus] =
     useState<(typeof ENTITY_STATUSES)[number]>("active");
   const [inCatalog, setInCatalog] = useState(true);
@@ -224,9 +233,7 @@ export function EntityEditor() {
               select
               label="Type"
               value={type}
-              onChange={(event) =>
-                setType(event.target.value as (typeof ENTITY_TYPES)[number])
-              }
+              onChange={(event) => setType(event.target.value as EntityType)}
               size="small"
               disabled={!editable}
               sx={{ minWidth: 160 }}

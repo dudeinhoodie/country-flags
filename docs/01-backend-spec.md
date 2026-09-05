@@ -11,6 +11,8 @@
 - аутентифицирует пользователей через Apple и Google;
 - хранит профиль, настройки и несколько auth identities;
 - отдаёт версионируемый каталог географических сущностей, колод и карточек;
+- поддерживает страны, административные подразделения и несколько card variants
+  на одну сущность согласно [18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md);
 - формирует учебные сессии;
 - идемпотентно принимает review, в том числе после офлайн-работы;
 - рассчитывает интервальное повторение, прогресс, mastery и достижения;
@@ -243,7 +245,7 @@ Unique `(user_id, id)` и `(user_id, source_install_id_hash, id)`. Повтор 
 #### `geo_entities`
 
 - `id UUID PK`
-- `kind COUNTRY | TERRITORY | DEPENDENCY | DISPUTED_AREA | REGION | SUBREGION | OTHER`
+- `kind COUNTRY | TERRITORY | DEPENDENCY | DISPUTED_AREA | SUBDIVISION | REGION | SUBREGION | OTHER`
 - `slug`
 - `iso_alpha2 nullable`
 - `iso_alpha3 nullable`
@@ -254,6 +256,10 @@ Unique `(user_id, id)` и `(user_id, source_install_id_hash, id)`. Повтор 
 - `metadata JSONB`
 - `content_version`
 - timestamps
+
+`SUBDIVISION` хранится в этой же таблице. Для неё обязательна одна active
+primary administrative `GeoRelation(CONTAINS)` к родительской стране/территории;
+`include_in_country_catalog=false`, recognition status `NOT_APPLICABLE`.
 
 Внешние коды имеют partial unique indexes только там, где они не `NULL`. Они не используются как FK.
 
@@ -297,7 +303,7 @@ Unique `(parent_entity_id, child_entity_id, taxonomy_code, relation_type, valid_
 
 - `id UUID PK`
 - `geo_entity_id FK`
-- `fact_type POPULATION | CAPITAL | AREA | LANGUAGE | OTHER`
+- `fact_type POPULATION | CAPITAL | AREA | LANGUAGE | CURRENCY | STATEHOOD_DATE | MOTTO | LARGEST_CITY | OTHER`
 - `value JSONB`
 - `unit nullable`
 - `observed_at nullable`
@@ -354,6 +360,11 @@ Unique `(parent_entity_id, child_entity_id, taxonomy_code, relation_type, valid_
 
 SVG проходит санитизацию до публикации.
 
+Asset identity учитывает `geo_entity_id + asset_type + variant + validity`.
+Флаг и герб одной страны не используют общий object key и не заменяют друг
+друга. Локализованные название/описание символа хранятся в
+`asset_localizations(asset_id, locale, display_name, description)`.
+
 Кодировку описывает только `asset_representations`. Колонки `url`, `mime_type`
 и `sha256` дублировали вектор ради клиентов, появившихся раньше этой таблицы;
 таких клиентов не выпустили, и колонки удалены вместе с индексом по `sha256`
@@ -376,6 +387,15 @@ SVG проходит санитизацию до публикации.
 `sha256` принадлежит представлению, а не ассету: клиент проверяет те байты, которые скачал, и контрольная сумма вектора не отвечает за растр. `scale` пуст только у вектора, у которого нет фиксированного экранного масштаба.
 
 ### 4.3 Учебный контент
+
+Одна entity MAY иметь несколько `LearningCard`: минимум отдельные пары для
+`FLAG_TO_COUNTRY` и `COAT_OF_ARMS_TO_COUNTRY`. Progress identity —
+`learning_card.id`; `subject_entity_id` не объединяет их расписание.
+
+Состав Deck материализуется из
+`(entityKey, templateCode, templateSchemaVersion)`. Старые строковые members
+мигрируют с `FLAG_TO_COUNTRY` v1; runtime не угадывает template по
+названию колоды или asset availability.
 
 #### `card_templates`
 
@@ -1101,6 +1121,12 @@ Backend не реализует собственную администрати�
 
 ## 12. Импорт контента
 
+Editorial schema v3, multi-asset pipeline, subdivision relations, card refs и
+paid preview projection определены в
+[18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md). Публикация
+MUST блокироваться при отсутствии parent, template asset, provenance или
+совместимого entitlement/store mapping.
+
 Импорт должен быть повторяемым и идемпотентным:
 
 1. Получить исходные данные.
@@ -1288,6 +1314,9 @@ Provider token verification в CI использует тестовый signer/a
 - Реализованы token rotation, logout-all и account deletion.
 - Guest import идемпотентен; identity collision не объединяет аккаунты; data export защищён re-authentication и TTL.
 - Content importer валидирует schemas, checksum/signature, preview и atomic publish.
+- Content importer публикует `SUBDIVISION`, `COAT_OF_ARMS` и смешанные deck card refs без коллизий с существующими flag cards.
+- Deck cards и session creation централизованно защищены `DeckAccessService`;
+  discovery/public preview не раскрывает полный paid payload.
 - Сервис стартует локально одной документированной командой.
 - README содержит env contract, запуск, тесты, миграции, импорт и архитектурные решения.
 

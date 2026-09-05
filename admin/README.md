@@ -1,9 +1,14 @@
 # Country Flags Admin
 
-Internal console for managing catalog data: decks, localized names, deck
-membership, flags and future coats of arms. It is not a general-purpose CMS
-and it never edits published content directly — see
+Internal console for managing catalog data: geo entities, subdivisions,
+localized names, typed deck membership, flags and coats of arms. It is not a
+general-purpose CMS and it never edits published content directly — see
 `docs/adr/ADR-014-admin-console-architecture.md`.
+
+The next multi-content/paid-deck increment is specified in
+`docs/18-multi-content-paid-decks.md`. In particular, states remain shared
+`GeoEntity` records with kind `SUBDIVISION`, symbols remain typed assets of an
+entity, and deck membership selects `entity + templateCode + schemaVersion`.
 
 ## Commands
 

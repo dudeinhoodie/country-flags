@@ -62,7 +62,7 @@
     },
     "entityKey": {
       "type": "string",
-      "pattern": "^(country|territory|area|region|subregion)\\.[a-z0-9][a-z0-9._-]*$"
+      "pattern": "^(country|territory|area|subdivision|region|subregion)\\.[a-z0-9][a-z0-9._-]*$"
     },
     "localizedName": {
       "type": "object",
@@ -172,7 +172,14 @@
           "$ref": "#/$defs/entityKey"
         },
         "type": {
-          "enum": ["country", "territory", "area", "region", "subregion"]
+          "enum": [
+            "country",
+            "territory",
+            "area",
+            "subdivision",
+            "region",
+            "subregion"
+          ]
         },
         "status": {
           "enum": ["active", "historical", "retired", "hidden"]

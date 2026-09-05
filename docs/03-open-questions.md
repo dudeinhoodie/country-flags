@@ -274,14 +274,34 @@ Review хранит raw client time, estimated server time, canonical `effective
 - допустимы ли rewarded ads и что именно они дают;
 - возрастную аудиторию и применимую privacy policy.
 
-До добавления платежей необходимо решить:
+Для платных колод принят proposed baseline, подробно описанный в
+[17-paid-decks-storekit.md](./17-paid-decks-storekit.md), а модель гербов,
+административных единиц и multi-content membership — в
+[18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md):
 
-- бесплатная модель, подписка или one-time unlock;
-- что остаётся доступно после истечения подписки;
-- семейный доступ;
-- восстановление покупок;
-- удаление аккаунта при активной подписке;
-- StoreKit и серверная проверка entitlement.
+- отдельные колоды продаются как one-time Apple Non-Consumable IAP;
+- Apple product выдаёт стабильный backend entitlement, а не Deck ID напрямую;
+- покупка требует Country Flags account и связывается через `appAccountToken`;
+- restore выполняется StoreKit + независимой server verification;
+- refund/revocation снимает новый доступ, но не удаляет прогресс;
+- Family Sharing и subscriptions не входят в первую версию;
+- account deletion освобождает transaction claim для последующего verified restore,
+  не позволяя перенести покупку между двумя активными аккаунтами.
+
+Зафиксировано для первых content packs:
+
+- герб является `COAT_OF_ARMS` asset страны, а не отдельной сущностью;
+- штат хранится в общей таблице `geo_entities` как `SUBDIVISION` с parent США,
+  а не как `COUNTRY`;
+- членство колоды указывает `entityKey + templateCode +
+  templateSchemaVersion`, поэтому флаг и герб одной страны имеют разные
+  learning cards и progress;
+- первые planned decks — `European Coats` и `U.S. State Flags`; точный
+  редакционный состав гербов и лицензированные production assets остаются
+  content sign-off, а не архитектурным вопросом.
+
+До production остаются business/legal sign-off для цены, Family Sharing policy,
+transaction retention и App Store Small Business Program eligibility.
 
 Также нужно решить, ориентирован ли продукт на детей. Это влияет на:
 

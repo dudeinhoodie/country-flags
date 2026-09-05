@@ -1,0 +1,17 @@
+{
+  "id": "70000000-0000-4000-8000-000000000002",
+  "code": "EUROPEAN_COATS",
+  "kind": "CURATED",
+  "name": "Гербы Европы",
+  "description": "Гербы стран Европы",
+  "cardCount": 52,
+  "dueCount": null,
+  "contentVersion": "test-only-fixture-v1",
+  "contentKinds": ["COAT_OF_ARMS"],
+  "access": {
+    "model": "ENTITLEMENT",
+    "requiredEntitlementKey": "deck.europe_coats",
+    "offerCodes": ["EUROPE_COATS_LIFETIME"]
+  },
+  "previewCards": []
+}

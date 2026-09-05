@@ -292,6 +292,21 @@ public struct ContentService: Sendable {
                 hasMore: payload.page.hasMore,
                 unsupportedCardIDs: unsupported
             )
+        case .forbidden(let response):
+            // A paid deck refuses its cards rather than serving a shorter
+            // list, so the caller can tell "not bought" from "empty deck".
+            // The body names the deck and the offers that grant it; the
+            // screen that reads them arrives with the storefront.
+            let envelope = try? response.body.json.error
+            throw APIError.status(
+                APIErrorDetails(
+                    statusCode: 403,
+                    code: envelope?.code ?? "ENTITLEMENT_REQUIRED",
+                    message: envelope?.message
+                        ?? "This deck requires a purchase",
+                    requestID: envelope?.requestId
+                )
+            )
         case .notFound:
             throw APIError.status(
                 APIErrorDetails(

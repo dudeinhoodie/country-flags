@@ -263,6 +263,129 @@ function collectReferenceIssues(domain: BundleDomain): string[] {
   return issues;
 }
 
+/**
+ * The taxonomy that says which country an administrative unit belongs to.
+ *
+ * Published verbatim as `geo_relations.taxonomy_code`, and kept apart from
+ * the geographic classifications: Europe contains France as a matter of
+ * where it is, the United States contains California as a matter of what it
+ * is (ADR-020).
+ */
+export const ADMINISTRATIVE_TAXONOMY_KEY = "taxonomy.administrative";
+
+const ADMINISTRATIVE_PARENT_TYPES = new Set(["country", "territory"]);
+
+/**
+ * What has to be true of a subdivision before it can be published.
+ *
+ * A state sits in the same table as a country, so nothing but these rules
+ * stops it from behaving like one: appearing in the all-countries deck,
+ * claiming a recognition status that means nothing for it, or floating with
+ * no country above it at all. The checks run here, over the whole bundle,
+ * because that is where every entity and every relation is visible at once.
+ */
+function collectSubdivisionIssues(domain: BundleDomain): string[] {
+  const issues: string[] = [];
+  const entityByKey = new Map(domain.catalog.entities.map((e) => [e.key, e]));
+  const administrative = domain.catalog.relations.filter(
+    (relation) =>
+      relation.taxonomyKey === ADMINISTRATIVE_TAXONOMY_KEY &&
+      relation.relationType === "contains",
+  );
+
+  const parentsByChild = new Map<string, string[]>();
+  for (const relation of administrative) {
+    const child = entityByKey.get(relation.childKey);
+    if (child !== undefined && child.type !== "subdivision") {
+      issues.push(
+        `administrative relation places ${relation.childKey} under ${relation.parentKey}, but ${relation.childKey} is a ${child.type} rather than a subdivision`,
+      );
+    }
+    if (!relation.primary) {
+      continue;
+    }
+    parentsByChild.set(relation.childKey, [
+      ...(parentsByChild.get(relation.childKey) ?? []),
+      relation.parentKey,
+    ]);
+  }
+
+  for (const entity of domain.catalog.entities) {
+    if (entity.type !== "subdivision") {
+      continue;
+    }
+    if (entity.includeInCountryCatalog) {
+      issues.push(
+        `subdivision ${entity.key} is listed in the country catalog; a state is not a country`,
+      );
+    }
+    if (entity.recognition.status !== "not_applicable") {
+      issues.push(
+        `subdivision ${entity.key} declares recognition status ${entity.recognition.status}; recognition is not applicable to an administrative unit`,
+      );
+    }
+
+    const parents = parentsByChild.get(entity.key) ?? [];
+    if (parents.length === 0) {
+      issues.push(
+        `subdivision ${entity.key} has no primary administrative parent`,
+      );
+      continue;
+    }
+    if (parents.length > 1) {
+      issues.push(
+        `subdivision ${entity.key} has ${String(parents.length)} primary administrative parents (${parents.join(", ")}); it belongs to exactly one`,
+      );
+    }
+    for (const parentKey of parents) {
+      const parent = entityByKey.get(parentKey);
+      if (parent === undefined) {
+        // Already reported as an unknown parentKey by the reference checks.
+        continue;
+      }
+      if (!ADMINISTRATIVE_PARENT_TYPES.has(parent.type)) {
+        issues.push(
+          `subdivision ${entity.key} belongs to ${parentKey}, which is a ${parent.type} rather than a country or territory`,
+        );
+      }
+    }
+  }
+
+  issues.push(...administrativeCycleIssues(parentsByChild));
+
+  return issues;
+}
+
+/**
+ * A unit cannot contain the country that contains it.
+ *
+ * The walk is bounded by the number of relations, so a cycle is reported
+ * rather than followed: publishing one would hang every reader that asks
+ * what a subdivision belongs to.
+ */
+function administrativeCycleIssues(
+  parentsByChild: Map<string, string[]>,
+): string[] {
+  const issues: string[] = [];
+  for (const start of parentsByChild.keys()) {
+    const seen = new Set<string>([start]);
+    let current = start;
+    for (;;) {
+      const [parent] = parentsByChild.get(current) ?? [];
+      if (parent === undefined) {
+        break;
+      }
+      if (seen.has(parent)) {
+        issues.push(`administrative relations form a cycle through ${parent}`);
+        break;
+      }
+      seen.add(parent);
+      current = parent;
+    }
+  }
+  return [...new Set(issues)];
+}
+
 function collectLocaleIssues(
   domain: BundleDomain,
   manifestSupportedLocales: string[],
@@ -307,6 +430,7 @@ export async function validateBundle(
   const domain = parseBundleDomain(bundle);
   const issues = [
     ...collectReferenceIssues(domain),
+    ...collectSubdivisionIssues(domain),
     ...collectLocaleIssues(domain, bundle.manifest.supportedLocales),
   ];
 

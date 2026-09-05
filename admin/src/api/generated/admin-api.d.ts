@@ -298,7 +298,11 @@ export interface paths {
         delete: operations["adminDeleteDraftAsset"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Change an uploaded asset's metadata
+         * @description Provenance, validity and the symbol's localized name and story. New bytes still arrive through the upload endpoint: correcting a licence is a different act from replacing a drawing, and only one of them changes what the reader sees.
+         */
+        patch: operations["adminUpdateDraftAsset"];
         trace?: never;
     };
     "/v1/admin/content/drafts/{draftId}/assets/{assetId}/preview": {
@@ -519,6 +523,218 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/commerce/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the health of the commerce contour
+         * @description What an operator checks before believing a storefront works: which environment this deployment talks to, how many offers are active, whether every active offer has a validated product, and when reconciliation last succeeded. Open to `VIEWER`.
+         */
+        get: operations["adminGetCommerceStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/commerce/entitlements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List entitlement keys and what they open */
+        get: operations["adminListEntitlements"];
+        put?: never;
+        /**
+         * Declare an entitlement key
+         * @description The key is a business boundary, not a publishing detail: it is never renamed once anything has been sold against it. Requires `PUBLISHER`.
+         */
+        post: operations["adminCreateEntitlement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/commerce/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List commerce offers */
+        get: operations["adminListCommerceOffers"];
+        put?: never;
+        /**
+         * Create a draft offer
+         * @description An offer starts as a draft: it grants nothing until a `PUBLISHER` activates it. Requires `EDITOR`.
+         */
+        post: operations["adminCreateCommerceOffer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/commerce/offers/{offerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offerId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /** Get one offer with its products and grants */
+        get: operations["adminGetCommerceOffer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change an offer or its lifecycle
+         * @description Activation and retirement require `PUBLISHER`; copy and sort order require `EDITOR`. The grants of an offer that has already sold may grow through an audited migration and never shrink: a different set of rights is a different product.
+         */
+        patch: operations["adminUpdateCommerceOffer"];
+        trace?: never;
+    };
+    "/v1/admin/commerce/offers/{offerId}/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offerId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Map a store product to an offer
+         * @description The console records the mapping; it does not create the product. The product id and its type are immutable once activated, and the same id in Sandbox and in Production are two different products. Requires `PUBLISHER`.
+         */
+        post: operations["adminCreateStoreProduct"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/commerce/products/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change a store product mapping
+         * @description Status and notes only. The product id, its type, its bundle and its environment are what identify it, and none of them can be edited into something else. Requires `PUBLISHER`.
+         */
+        patch: operations["adminUpdateStoreProduct"];
+        trace?: never;
+    };
+    "/v1/admin/commerce/store-sync-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a read-only sync with the store
+         * @description Asks the store what it knows about the mapped products. Read-only by design: the console never creates an in-app purchase and never changes a price. The store API key belongs to the job, not to the browser. Requires `ADMIN`.
+         */
+        post: operations["adminStartStoreSyncRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/commerce/store-sync-runs/{runId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /** Watch a store sync run */
+        get: operations["adminGetStoreSyncRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/commerce/transactions/{transactionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /**
+         * Read one transaction for support
+         * @description Support diagnostics only. Store identifiers are masked and the signed payload is never returned: what a support agent needs is whether a purchase landed and what it granted. Requires `ADMIN`.
+         */
+        get: operations["adminGetStoreTransaction"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/commerce/transactions/{transactionId}/reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Re-read one transaction from the store
+         * @description Asks the store for the current truth about this transaction and applies it. The repair path for a notification that never arrived. Requires `ADMIN`.
+         */
+        post: operations["adminReconcileStoreTransaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/users": {
         parameters: {
             query?: never;
@@ -652,9 +868,33 @@ export interface components {
             name: string;
             description: string;
         };
-        /** @description The three shapes the editorial model supports: the whole approved catalog, an explicit list of entity keys, or a taxonomy node whose descendants form the deck. */
-        AdminDeckMembers: "all-current" | string[] | {
+        /** @description One card variant: an entity taught through a named template. A bare key takes the deck's default template, which is why a deck that lists bare keys must declare one. Germany under two templates is two cards with two schedules, and a deck says which of them it holds. */
+        AdminDeckCardRef: string | {
+            entityKey: string;
+            templateCode: string;
+            templateSchemaVersion: number;
+        };
+        /** @description The three shapes the editorial model supports: the whole approved catalog, an explicit list of card variants, or a taxonomy node whose descendants form the deck. */
+        AdminDeckMembers: "all-current" | components["schemas"]["AdminDeckCardRef"][] | {
             taxonomy: string;
+        };
+        /** @description Who may open the deck. Absent means free. No price: the store owns what a thing costs, and the console never promises one. */
+        AdminDeckAccess: {
+            /** @enum {string} */
+            model: "FREE" | "ENTITLEMENT";
+            /** @description Present exactly when the model is `ENTITLEMENT`. Read-only once the deck is published: changing it is an entitlement migration, not an edit. */
+            requiredEntitlementKey?: string | null;
+        };
+        /** @description One member as the publisher would materialize it. This is what the editor shows instead of guessing: `memberKeys` could not say which of an entity's cards a deck holds. */
+        AdminDeckResolvedCard: {
+            /** @description The published card this member resolves to, null while the pair has never been published. */
+            learningCardId?: string | null;
+            entityKey: string;
+            templateCode: string;
+            templateSchemaVersion: number;
+            /** @description The prompt asset the template reads, when it has one. */
+            assetType?: string | null;
+            sortOrder: number;
         };
         AdminDraftDeck: {
             key: string;
@@ -667,14 +907,25 @@ export interface components {
             membersMode: "all-current" | "explicit" | "taxonomy";
             members: components["schemas"]["AdminDeckMembers"];
             memberCount: number;
+            /** @description The template a bare member key is taught through. Required when the deck lists bare keys; a catalog written before templates existed reads as `FLAG_TO_COUNTRY` v1. */
+            defaultTemplateCode?: string;
+            defaultTemplateSchemaVersion?: number;
+            access?: components["schemas"]["AdminDeckAccess"];
+            /** @description Up to three cards a locked deck may show before it is bought. Each must be a member, and each is published as public on purpose. */
+            previewCardIds?: string[];
         };
         AdminDraftDeckList: {
             items: components["schemas"]["AdminDraftDeck"][];
             total: number;
         };
         AdminDraftDeckDetail: components["schemas"]["AdminDraftDeck"] & {
-            /** @description The entity keys the deck resolves to right now, sorted the way the release build sorts them. */
+            /**
+             * @deprecated
+             * @description The entity keys the deck resolves to right now, sorted the way the release build sorts them. Ambiguous once an entity has several cards — it cannot say which of them the deck holds — and kept only while the console migrates to `resolvedMemberCards`.
+             */
             memberKeys: string[];
+            /** @description The members as the publisher would materialize them, in editorial order. */
+            resolvedMemberCards?: components["schemas"]["AdminDeckResolvedCard"][];
         };
         AdminDraftDeckCreateRequest: {
             key: string;
@@ -684,6 +935,12 @@ export interface components {
                 [key: string]: components["schemas"]["AdminDeckLocalizedText"];
             };
             members: components["schemas"]["AdminDeckMembers"];
+            /** @description The template a bare member key is taught through. Required when the deck lists bare keys; a catalog written before templates existed reads as `FLAG_TO_COUNTRY` v1. */
+            defaultTemplateCode?: string;
+            defaultTemplateSchemaVersion?: number;
+            access?: components["schemas"]["AdminDeckAccess"];
+            /** @description Up to three cards a locked deck may show before it is bought. Each must be a member, and each is published as public on purpose. */
+            previewCardIds?: string[];
         };
         AdminDraftDeckUpdateRequest: {
             /** @enum {string} */
@@ -692,18 +949,57 @@ export interface components {
                 [key: string]: components["schemas"]["AdminDeckLocalizedText"];
             };
             members?: components["schemas"]["AdminDeckMembers"];
+            /** @description The template a bare member key is taught through. Required when the deck lists bare keys; a catalog written before templates existed reads as `FLAG_TO_COUNTRY` v1. */
+            defaultTemplateCode?: string;
+            defaultTemplateSchemaVersion?: number;
+            access?: components["schemas"]["AdminDeckAccess"];
+            /** @description Up to three cards a locked deck may show before it is bought. Each must be a member, and each is published as public on purpose. */
+            previewCardIds?: string[];
         };
-        /** @enum {string} */
-        AdminEntityType: "country" | "territory" | "area" | "region" | "subregion";
+        /**
+         * @description What the entity is. `subdivision` is an administrative unit of a country — a U.S. state — and it needs a `parentKey`, stays out of the country catalog, and is taught only through a deck that names it.
+         * @enum {string}
+         */
+        AdminEntityType: "country" | "territory" | "area" | "subdivision" | "region" | "subregion";
         /** @enum {string} */
         AdminEntityStatus: "active" | "historical" | "retired" | "hidden";
         AdminEntityIdentifiers: {
             isoAlpha2?: string;
             isoAlpha3?: string;
             m49?: string;
+            /** @description ISO 3166-2, such as `US-CA`. It has a field of its own because it is not a country code: written into `isoAlpha2` it would put a state everywhere a reader expects a country. */
+            isoSubdivision?: string;
+            /** @description The official code the parent country uses for the unit. */
+            localCode?: string;
+            /** @description Only where the source publishes one; never derived. */
+            fipsCode?: string;
             wikidataId?: string;
             editorialKey?: string;
             customCode?: string;
+        };
+        /** @description Locale → the value in that locale. */
+        AdminEntityLocalizedValue: {
+            [key: string]: string;
+        };
+        AdminEntityMeasuredValue: {
+            value: number;
+            unit?: string;
+            /** Format: date */
+            observedAt?: string;
+        };
+        /** @description The facts a curator edits by hand. They are typed rather than hidden in the override map because a state's admission date and a country's capital are answers to questions, not free-form strings, and the card back renders them by type. */
+        AdminEntityFacts: {
+            capital?: components["schemas"]["AdminEntityLocalizedValue"];
+            largestCity?: components["schemas"]["AdminEntityLocalizedValue"];
+            motto?: components["schemas"]["AdminEntityLocalizedValue"];
+            /**
+             * Format: date
+             * @description When the unit joined the entity above it. Meaningful for a subdivision; left unset for everything else.
+             */
+            statehoodDate?: string;
+            population?: components["schemas"]["AdminEntityMeasuredValue"];
+            area?: components["schemas"]["AdminEntityMeasuredValue"];
+            languages?: components["schemas"]["AdminEntityLocalizedValue"][];
         };
         /** @description Dotted-path patches the editorial layer pins on purpose (`names.ru.short` → value), applied with the pipeline's highest priority. Absence of the field means no overrides; an empty object is never stored. */
         AdminEntityOverrides: {
@@ -716,6 +1012,10 @@ export interface components {
             includeInCountryCatalog: boolean;
             recognitionStatus: string;
             identifiers: components["schemas"]["AdminEntityIdentifiers"];
+            parentKey?: string | null;
+            /** @description Whether the entity already has a flag in this draft. Carried by the list so "missing a coat of arms" is a filter rather than a request per row. */
+            hasFlag?: boolean;
+            hasCoatOfArms?: boolean;
             overrideCount: number;
             /** @description The short name the active release serves, null when the release does not carry the entity yet. */
             publishedName: string | null;
@@ -736,6 +1036,9 @@ export interface components {
             validFrom?: string;
             /** Format: date */
             validTo?: string;
+            /** @description The country or territory an administrative unit belongs to. Required of a `subdivision` and meaningless anywhere else; the publisher turns it into the canonical administrative relation. */
+            parentKey?: string | null;
+            facts?: components["schemas"]["AdminEntityFacts"];
             identifiers?: components["schemas"]["AdminEntityIdentifiers"];
             overrides?: components["schemas"]["AdminEntityOverrides"];
         };
@@ -755,6 +1058,9 @@ export interface components {
             recognitionAsOf?: string | null;
             validFrom?: string | null;
             validTo?: string | null;
+            /** @description An entity key, or null to clear it. Non-null is required of a `subdivision`, and null is required of anything else. */
+            parentKey?: string | null;
+            facts?: components["schemas"]["AdminEntityFacts"];
             identifiers?: components["schemas"]["AdminEntityIdentifiers"];
             overrides?: components["schemas"]["AdminEntityOverrides"];
         };
@@ -777,8 +1083,35 @@ export interface components {
             replacementReason: string | null;
             /** @enum {string} */
             validationStatus: "PENDING" | "VALID" | "INVALID";
+            /**
+             * Format: date
+             * @description When this drawing came into force. Null for one that simply is the current symbol.
+             */
+            validFrom?: string | null;
+            /** Format: date */
+            validTo?: string | null;
+            localizations?: components["schemas"]["AdminAssetLocalizations"];
             createdAt: components["schemas"]["DateTime"];
             updatedAt: components["schemas"]["DateTime"];
+        };
+        AdminAssetLocalization: {
+            displayName?: string;
+            description?: string;
+        };
+        /** @description What this drawing is called and what it means, per locale. It belongs to the asset rather than to the entity: the story of the German federal eagle is the story of one symbol, and replacing that symbol replaces its story without touching the flag beside it. */
+        AdminAssetLocalizations: {
+            [key: string]: components["schemas"]["AdminAssetLocalization"];
+        };
+        /** @description Metadata, validity and localizations only. New bytes still arrive through the upload endpoint, because replacing a drawing is a different act from correcting its licence. */
+        AdminDraftAssetPatchRequest: {
+            sourceUrl?: string;
+            licenseName?: string;
+            licenseUrl?: string | null;
+            attribution?: string | null;
+            replacementReason?: string;
+            validFrom?: string | null;
+            validTo?: string | null;
+            localizations?: components["schemas"]["AdminAssetLocalizations"];
         };
         AdminDraftAssetList: {
             items: components["schemas"]["AdminDraftAsset"][];
@@ -789,7 +1122,7 @@ export interface components {
             file: string;
             entityContentKey: string;
             /** @enum {string} */
-            assetType: "FLAG" | "COAT_OF_ARMS";
+            assetType: "FLAG" | "COAT_OF_ARMS" | "MAP";
             /** @default default */
             variant: string;
             sourceUrl: string;
@@ -798,6 +1131,132 @@ export interface components {
             attribution?: string;
             /** @description Why a human replaced the upstream drawing. Required: it travels into the proposal and the audit trail. */
             replacementReason: string;
+            /** Format: date */
+            validFrom?: string;
+            /** Format: date */
+            validTo?: string;
+            /** @description `AdminAssetLocalizations` as a JSON string, because this is a multipart form and a form field carries text. */
+            localizations?: string;
+        };
+        AdminCommerceStatus: {
+            /** @description Which store this deployment talks to. Shown on every commerce screen, because mapping a Sandbox product while looking at production is the mistake this section has to make impossible. */
+            storeEnvironment: string;
+            activeOfferCount: number;
+            /** @description Active offers that cannot be sold on this platform yet. A paid deck may not reach READY while it has one. */
+            offersWithoutValidatedProduct: number;
+            /** Format: date-time */
+            lastReconciliationAt?: string | null;
+            lastReconciliationError?: string | null;
+        };
+        AdminEntitlement: {
+            key: string;
+            status: string;
+            description?: string | null;
+            /** @description The published decks this key opens. */
+            deckCodes: string[];
+        };
+        AdminEntitlementList: {
+            items: components["schemas"]["AdminEntitlement"][];
+            total: number;
+        };
+        AdminEntitlementCreateRequest: {
+            key: string;
+            description?: string;
+        };
+        AdminCommerceOffer: {
+            id: components["schemas"]["Uuid"];
+            code: string;
+            kind: string;
+            status: string;
+            sortOrder?: number | null;
+            notes?: string | null;
+            /** @description The entitlement keys a purchase grants. More than one is a bundle, which is why an offer is not a deck. */
+            grants: string[];
+            localizations?: {
+                [key: string]: components["schemas"]["AdminDeckLocalizedText"];
+            };
+            products: components["schemas"]["AdminStoreProduct"][];
+        };
+        AdminCommerceOfferList: {
+            items: components["schemas"]["AdminCommerceOffer"][];
+            total: number;
+        };
+        AdminCommerceOfferCreateRequest: {
+            code: string;
+            /** @enum {string} */
+            kind?: "ONE_TIME";
+            grants: string[];
+            sortOrder?: number;
+            notes?: string;
+            localizations?: {
+                [key: string]: components["schemas"]["AdminDeckLocalizedText"];
+            };
+        };
+        AdminCommerceOfferUpdateRequest: {
+            /** @enum {string} */
+            status?: "DRAFT" | "ACTIVE" | "RETIRED";
+            /** @description May only grow once the offer has sold. Shrinking it is refused: a different set of rights is a different product. */
+            grants?: string[];
+            sortOrder?: number | null;
+            notes?: string | null;
+            localizations?: {
+                [key: string]: components["schemas"]["AdminDeckLocalizedText"];
+            };
+        };
+        AdminStoreProduct: {
+            id: components["schemas"]["Uuid"];
+            provider: string;
+            storeEnvironment: string;
+            bundleId: string;
+            productId: string;
+            productType: string;
+            status: string;
+            /** @description Whatever the store last said, kept opaque: it is a diagnostic, and nothing decides access by reading it. */
+            storeStatus?: string | null;
+            /** Format: date-time */
+            lastValidatedAt?: string | null;
+            validationError?: string | null;
+        };
+        AdminStoreProductCreateRequest: {
+            /** @enum {string} */
+            provider: "APPLE_APP_STORE" | "GOOGLE_PLAY" | "WEB";
+            /** @enum {string} */
+            storeEnvironment: "LOCAL_TEST" | "SANDBOX" | "PRODUCTION";
+            bundleId: string;
+            productId: string;
+            /** @enum {string} */
+            productType?: "NON_CONSUMABLE";
+        };
+        AdminStoreProductUpdateRequest: {
+            /** @enum {string} */
+            status?: "DRAFT" | "VALIDATED" | "ACTIVE" | "RETIRED" | "INVALID";
+        };
+        AdminStoreSyncRun: {
+            id: components["schemas"]["Uuid"];
+            status: string;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            finishedAt?: string | null;
+            checkedProductCount?: number | null;
+            failureMessage?: string | null;
+        };
+        /** @description A transaction as support may see it: masked identifiers, no signed payload, and what it granted. */
+        AdminStoreTransaction: {
+            id: components["schemas"]["Uuid"];
+            provider: string;
+            storeEnvironment: string;
+            /** @description Enough of the store's identifier to match a support ticket, and not enough to be replayed anywhere. */
+            maskedTransactionId: string;
+            productId: string;
+            claimState: string;
+            ownershipType?: string;
+            /** Format: date-time */
+            purchasedAt: string;
+            /** Format: date-time */
+            revokedAt?: string | null;
+            revocationReason?: string | null;
+            grantedEntitlementKeys?: string[];
         };
         AdminValidationFinding: {
             /** @enum {string} */
@@ -1879,6 +2338,51 @@ export interface operations {
             default: components["responses"]["ErrorResponse"];
         };
     };
+    adminUpdateDraftAsset: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The draft revision the editor read, for optimistic concurrency. */
+                "If-Match": components["parameters"]["DraftIfMatch"];
+            };
+            path: {
+                draftId: components["schemas"]["Uuid"];
+                assetId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminDraftAssetPatchRequest"];
+            };
+        };
+        responses: {
+            /** @description The asset was changed; the draft's revision moved on. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDraftStamp"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            409: components["responses"]["ConflictResponse"];
+            422: components["responses"]["ValidationResponse"];
+            428: components["responses"]["DraftIfMatchRequired"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
     adminPreviewDraftAsset: {
         parameters: {
             query?: never;
@@ -2308,6 +2812,412 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetCommerceStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Commerce health for this environment. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCommerceStatus"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListEntitlements: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Every entitlement and the decks that require it. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEntitlementList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminCreateEntitlement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminEntitlementCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description The entitlement now exists. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEntitlement"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            409: components["responses"]["ConflictResponse"];
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListCommerceOffers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Offers with their grants and store products. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCommerceOfferList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminCreateCommerceOffer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCommerceOfferCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description The draft offer was created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCommerceOffer"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            409: components["responses"]["ConflictResponse"];
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetCommerceOffer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offerId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The offer. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCommerceOffer"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUpdateCommerceOffer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offerId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCommerceOfferUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description The offer as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCommerceOffer"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller lacks the role this change requires. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminCreateStoreProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offerId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminStoreProductCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description The product mapping was recorded. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStoreProduct"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            409: components["responses"]["ConflictResponse"];
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUpdateStoreProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminStoreProductUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description The product as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStoreProduct"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminStartStoreSyncRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The run was accepted. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStoreSyncRun"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the ADMIN role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetStoreSyncRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The run and what it found. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStoreSyncRun"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetStoreTransaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The transaction, with masked identifiers. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStoreTransaction"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the ADMIN role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminReconcileStoreTransaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The transaction after reconciliation. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStoreTransaction"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the ADMIN role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
             default: components["responses"]["ErrorResponse"];
         };
     };
