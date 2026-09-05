@@ -29,9 +29,7 @@ import {
   parseIfMatchRevision,
 } from "./admin-drafts.request";
 import { DraftDecksService } from "./draft-decks.service";
-import type { DeckView } from "./draft-decks.service";
-
-type DeckDetail = DeckView & { memberKeys: string[] };
+import type { DeckDetailView } from "./draft-decks.service";
 
 function toDraftStamp(draft: ContentDraft): Record<string, unknown> {
   return {
@@ -62,7 +60,7 @@ export class DraftDecksController {
   async getOne(
     @Param("draftId") rawDraftId: string,
     @Param("deckKey") deckKey: string,
-  ): Promise<DeckDetail> {
+  ): Promise<DeckDetailView> {
     return this.decks.getOne(uuid(rawDraftId, "draftId"), deckKey);
   }
 

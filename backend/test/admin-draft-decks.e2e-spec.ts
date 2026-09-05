@@ -31,8 +31,22 @@ interface DeckView {
   memberCount: number;
 }
 
+interface ResolvedCard {
+  learningCardId: string | null;
+  entityKey: string;
+  templateCode: string;
+  templateSchemaVersion: number;
+  assetType: string | null;
+  sortOrder: number;
+}
+
 interface DeckDetail extends DeckView {
   memberKeys: string[];
+  resolvedMemberCards: ResolvedCard[];
+  defaultTemplateCode?: string;
+  defaultTemplateSchemaVersion?: number;
+  access?: { model: string; requiredEntitlementKey?: string | null };
+  previewCardIds?: string[];
 }
 
 interface DraftStamp {
@@ -44,7 +58,14 @@ interface DraftBody {
   id: string;
   revision: number;
   document: {
-    decks: { key: string; members: unknown }[];
+    schemaVersion: number;
+    decks: {
+      key: string;
+      members: unknown;
+      access?: { model: string; requiredEntitlementKey?: string | null };
+      previewCards?: unknown[];
+      defaultTemplateCode?: string;
+    }[];
     entities: {
       key: string;
       type: string;
@@ -447,6 +468,218 @@ describe("Admin draft deck editor (integration)", () => {
     expect(missing.status).toBe(428);
   });
 
+  it("holds one country's flag and its coat of arms as two separate cards", async () => {
+    const draft = await currentDraft();
+    const subject = draft.document.entities.find(
+      (entity) =>
+        entity.status === "active" && entity.config.includeInCountryCatalog,
+    )!.key;
+
+    const created = await request(httpServer)
+      .post(`/v1/admin/content/drafts/${draftId}/decks`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", String(draft.revision))
+      .send({
+        key: "deck.symbols-sampler",
+        kind: "curated",
+        names: {
+          ru: { name: "Символы", description: "Оба символа одной страны" },
+          en: { name: "Symbols", description: "Both symbols of one country" },
+        },
+        defaultTemplateCode: "FLAG_TO_COUNTRY",
+        defaultTemplateSchemaVersion: 1,
+        members: [
+          {
+            entityKey: subject,
+            templateCode: "FLAG_TO_COUNTRY",
+            templateSchemaVersion: 1,
+          },
+          {
+            entityKey: subject,
+            templateCode: "COAT_OF_ARMS_TO_COUNTRY",
+            templateSchemaVersion: 1,
+          },
+        ],
+      });
+    expect(created.status).toBe(201);
+
+    const detail = await request(httpServer)
+      .get(`/v1/admin/content/drafts/${draftId}/decks/deck.symbols-sampler`)
+      .set("Cookie", viewerCookie);
+    expect(detail.status).toBe(200);
+    const body = bodyOf<DeckDetail>(detail);
+    // One country, two questions: the deprecated key list cannot say that,
+    // and the resolved cards can.
+    expect(body.memberKeys).toEqual([subject]);
+    expect(body.resolvedMemberCards).toHaveLength(2);
+    expect(
+      body.resolvedMemberCards.map((card) => [
+        card.templateCode,
+        card.assetType,
+      ]),
+    ).toEqual([
+      ["FLAG_TO_COUNTRY", "FLAG"],
+      ["COAT_OF_ARMS_TO_COUNTRY", "COAT_OF_ARMS"],
+    ]);
+    expect(body.resolvedMemberCards.map((card) => card.sortOrder)).toEqual([
+      0, 1,
+    ]);
+    // The flag card exists in the release the draft started from; the coat
+    // has never been built, and the editor is told so rather than guessing.
+    expect(body.resolvedMemberCards[1]?.learningCardId).toBeNull();
+
+    // A card variant is v2-inexpressible, so the document moved on.
+    expect((await currentDraft()).document.schemaVersion).toBe(3);
+  });
+
+  it("keeps at most three previews and refuses one the deck does not hold", async () => {
+    const before = await currentDraft();
+    const subject = before.document.entities.find(
+      (entity) =>
+        entity.status === "active" && entity.config.includeInCountryCatalog,
+    )!.key;
+
+    const stranger = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draftId}/decks/deck.symbols-sampler`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", String(before.revision))
+      .send({ previewCardIds: ["country.nowhere#FLAG_TO_COUNTRY@1"] });
+    expect(stranger.status).toBe(422);
+    expect(bodyOf<ErrorBody>(stranger).error.code).toBe(
+      "DECK_PREVIEW_NOT_MEMBER",
+    );
+
+    const tooMany = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draftId}/decks/deck.symbols-sampler`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", String(before.revision))
+      .send({
+        previewCardIds: [
+          `${subject}#FLAG_TO_COUNTRY@1`,
+          `${subject}#COAT_OF_ARMS_TO_COUNTRY@1`,
+          `${subject}#FLAG_TO_COUNTRY@2`,
+          `${subject}#FLAG_TO_COUNTRY@3`,
+        ],
+      });
+    expect(tooMany.status).toBe(422);
+
+    const chosen = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draftId}/decks/deck.symbols-sampler`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", String(before.revision))
+      .send({
+        previewCardIds: [`${subject}#COAT_OF_ARMS_TO_COUNTRY@1`],
+      });
+    expect(chosen.status).toBe(200);
+
+    const detail = await request(httpServer)
+      .get(`/v1/admin/content/drafts/${draftId}/decks/deck.symbols-sampler`)
+      .set("Cookie", viewerCookie);
+    expect(bodyOf<DeckDetail>(detail).previewCardIds).toEqual([
+      `${subject}#COAT_OF_ARMS_TO_COUNTRY@1`,
+    ]);
+  });
+
+  it("refuses making a published free deck paid", async () => {
+    const draft = await currentDraft();
+    // A deck the deployed catalog already publishes, free.
+    const madeHere = new Set([
+      "deck.symbols-sampler",
+      "deck.editorial-picks",
+      "deck.european-coats",
+    ]);
+    const published = draft.document.decks.find(
+      (deck) => !madeHere.has(deck.key) && deck.access === undefined,
+    )!;
+
+    const response = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draftId}/decks/${published.key}`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", String(draft.revision))
+      .send({
+        access: {
+          model: "ENTITLEMENT",
+          requiredEntitlementKey: "deck.after_the_fact",
+        },
+      });
+    expect(response.status).toBe(422);
+    const error = bodyOf<ErrorBody>(response).error;
+    expect(error.code).toBe("DECK_ACCESS_TIGHTENED");
+    expect(error.message).toContain("published free");
+  });
+
+  it("sells a new deck through an entitlement and never through a price", async () => {
+    const draft = await currentDraft();
+    const subject = draft.document.entities.find(
+      (entity) =>
+        entity.status === "active" && entity.config.includeInCountryCatalog,
+    )!.key;
+
+    const created = await request(httpServer)
+      .post(`/v1/admin/content/drafts/${draftId}/decks`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", String(draft.revision))
+      .send({
+        key: "deck.european-coats",
+        kind: "curated",
+        names: {
+          ru: { name: "Гербы Европы", description: "Гербы стран Европы" },
+          en: { name: "European Coats", description: "The coats of Europe" },
+        },
+        defaultTemplateCode: "COAT_OF_ARMS_TO_COUNTRY",
+        defaultTemplateSchemaVersion: 1,
+        members: [subject],
+        access: {
+          model: "ENTITLEMENT",
+          requiredEntitlementKey: "deck.european_coats",
+        },
+      });
+    expect(created.status).toBe(201);
+
+    const stored = (await currentDraft()).document.decks.find(
+      (deck) => deck.key === "deck.european-coats",
+    );
+    expect(stored?.access).toEqual({
+      model: "ENTITLEMENT",
+      requiredEntitlementKey: "deck.european_coats",
+    });
+    // No price, anywhere: the store owns what a thing costs.
+    expect(JSON.stringify(stored)).not.toContain("price");
+
+    const detail = await request(httpServer)
+      .get(`/v1/admin/content/drafts/${draftId}/decks/deck.european-coats`)
+      .set("Cookie", viewerCookie);
+    const body = bodyOf<DeckDetail>(detail);
+    expect(body.access?.requiredEntitlementKey).toBe("deck.european_coats");
+    expect(body.defaultTemplateCode).toBe("COAT_OF_ARMS_TO_COUNTRY");
+    expect(body.resolvedMemberCards[0]?.assetType).toBe("COAT_OF_ARMS");
+  });
+
+  it("refuses an entitlement key that is not one", async () => {
+    const draft = await currentDraft();
+    const response = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draftId}/decks/deck.european-coats`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", String(draft.revision))
+      .send({
+        access: {
+          model: "ENTITLEMENT",
+          requiredEntitlementKey: "European Coats",
+        },
+      });
+    expect(response.status).toBe(422);
+    expect(bodyOf<ErrorBody>(response).error.code).toBe(
+      "DECK_ACCESS_ENTITLEMENT_INVALID",
+    );
+  });
+
   it("deletes a deck and refuses to empty the catalog", async () => {
     const draft = await currentDraft();
     const removed = await request(httpServer)
@@ -487,8 +720,8 @@ describe("Admin draft deck editor (integration)", () => {
     const deleted = await database.adminAuditEvent.count({
       where: { action: "admin.draft.deck_deleted" },
     });
-    expect(created).toBe(1);
-    expect(updated).toBe(1);
+    expect(created).toBe(3);
+    expect(updated).toBe(2);
     expect(deleted).toBe(1);
   });
 });

@@ -53,11 +53,11 @@ export interface DeckLocalizationInput {
   description: string;
 }
 
-export interface DeckInput {
+export interface DeckInput extends DeckCardFieldsInput {
   key: string;
   kind: (typeof DECK_KINDS)[number];
   names: Record<string, DeckLocalizationInput>;
-  members: "all-current" | string[] | { taxonomy: string };
+  members: "all-current" | (string | DeckCardRefInput)[] | { taxonomy: string };
 }
 
 function parseDeckNames(
@@ -94,7 +94,7 @@ function parseDeckMembers(value: unknown, field: string): DeckInput["members"] {
   }
   if (Array.isArray(value)) {
     return value.map((entry, index) =>
-      requiredString(entry, `${field}[${String(index)}]`, 1, 200),
+      parseDeckCardRef(entry, `${field}[${String(index)}]`),
     );
   }
   const record = requestRecord(value, field);
@@ -106,7 +106,11 @@ function parseDeckMembers(value: unknown, field: string): DeckInput["members"] {
 
 export function parseDeckCreateRequest(body: unknown): DeckInput {
   const root = requestRecord(body, "body");
-  exactRequestKeys(root, ["key", "kind", "names", "members"], "body");
+  exactRequestKeys(
+    root,
+    ["key", "kind", "names", "members", ...DECK_CARD_FIELD_KEYS],
+    "body",
+  );
   const kind = root.kind;
   if (typeof kind !== "string" || !DECK_KINDS.includes(kind as never)) {
     validationError("kind", `must be one of: ${DECK_KINDS.join(", ")}`);
@@ -116,6 +120,7 @@ export function parseDeckCreateRequest(body: unknown): DeckInput {
     kind: kind as DeckInput["kind"],
     names: parseDeckNames(root.names, "names"),
     members: parseDeckMembers(root.members, "members"),
+    ...parseDeckCardFields(root),
   };
 }
 
@@ -123,7 +128,11 @@ export function parseDeckUpdateRequest(
   body: unknown,
 ): Partial<Omit<DeckInput, "key">> {
   const root = requestRecord(body, "body");
-  exactRequestKeys(root, ["kind", "names", "members"], "body");
+  exactRequestKeys(
+    root,
+    ["kind", "names", "members", ...DECK_CARD_FIELD_KEYS],
+    "body",
+  );
   const changes: Partial<Omit<DeckInput, "key">> = {};
   if (root.kind !== undefined) {
     const kind = root.kind;
@@ -138,8 +147,12 @@ export function parseDeckUpdateRequest(
   if (root.members !== undefined) {
     changes.members = parseDeckMembers(root.members, "members");
   }
+  Object.assign(changes, parseDeckCardFields(root));
   if (Object.keys(changes).length === 0) {
-    validationError("body", "must contain kind, names or members");
+    validationError(
+      "body",
+      `must contain kind, names, members, ${DECK_CARD_FIELD_KEYS.join(", ")}`,
+    );
   }
   return changes;
 }
@@ -474,4 +487,160 @@ export function parseDraftAssetUpload(body: unknown): DraftAssetUploadInput {
       2000,
     ),
   };
+}
+
+// --- #319 deck editor: card refs, access and previews ------------------------
+
+export interface DeckCardRefInput {
+  entityKey: string;
+  templateCode: string;
+  templateSchemaVersion: number;
+}
+
+export interface DeckAccessInput {
+  model: "FREE" | "ENTITLEMENT";
+  requiredEntitlementKey?: string | null;
+}
+
+/** The fields a deck gained with card variants and paid access (ADR-020). */
+export interface DeckCardFieldsInput {
+  defaultTemplateCode?: string;
+  defaultTemplateSchemaVersion?: number;
+  access?: DeckAccessInput;
+  previewCardIds?: string[];
+}
+
+const TEMPLATE_CODE_PATTERN = /^[A-Z][A-Z0-9_]*$/;
+const DECK_ACCESS_MODELS = ["FREE", "ENTITLEMENT"] as const;
+const MAX_PREVIEW_CARD_IDS = 3;
+
+/** What a deck body may carry beyond the three fields v2 knew about. */
+export const DECK_CARD_FIELD_KEYS = [
+  "defaultTemplateCode",
+  "defaultTemplateSchemaVersion",
+  "access",
+  "previewCardIds",
+] as const;
+
+function parseTemplateSchemaVersion(value: unknown, field: string): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isInteger(value) ||
+    value < 1 ||
+    value > 1000
+  ) {
+    validationError(field, "must be a template schema version of 1 or more");
+  }
+  return value;
+}
+
+/**
+ * A member is a card variant, and it is written either as a bare entity key
+ * — which takes the deck's default template — or as the entity and the
+ * template spelled out. Germany's flag and Germany's coat of arms are two
+ * members, not one country listed twice.
+ */
+export function parseDeckCardRef(
+  value: unknown,
+  field: string,
+): string | DeckCardRefInput {
+  if (typeof value === "string") {
+    return requiredString(value, field, 1, 200);
+  }
+  const record = requestRecord(value, field);
+  exactRequestKeys(
+    record,
+    ["entityKey", "templateCode", "templateSchemaVersion"],
+    field,
+  );
+  return {
+    entityKey: requiredString(record.entityKey, `${field}.entityKey`, 1, 200),
+    templateCode: requiredString(
+      record.templateCode,
+      `${field}.templateCode`,
+      1,
+      100,
+      TEMPLATE_CODE_PATTERN,
+    ),
+    templateSchemaVersion: parseTemplateSchemaVersion(
+      record.templateSchemaVersion,
+      `${field}.templateSchemaVersion`,
+    ),
+  };
+}
+
+function parseDeckAccess(value: unknown, field: string): DeckAccessInput {
+  const record = requestRecord(value, field);
+  exactRequestKeys(record, ["model", "requiredEntitlementKey"], field);
+  const model = record.model;
+  if (
+    typeof model !== "string" ||
+    !DECK_ACCESS_MODELS.includes(model as never)
+  ) {
+    validationError(
+      `${field}.model`,
+      `must be one of: ${DECK_ACCESS_MODELS.join(", ")}`,
+    );
+  }
+  const key = record.requiredEntitlementKey;
+  return {
+    model: model as DeckAccessInput["model"],
+    // Null is how the console clears the key when a deck goes back to free;
+    // the editorial rules decide whether that pairing is allowed.
+    ...(key === undefined
+      ? {}
+      : {
+          requiredEntitlementKey:
+            key === null
+              ? null
+              : requiredString(key, `${field}.requiredEntitlementKey`, 1, 120),
+        }),
+  };
+}
+
+function parseDeckPreviewCardIds(value: unknown, field: string): string[] {
+  if (!Array.isArray(value)) {
+    validationError(field, "must be an array of card ids");
+  }
+  if (value.length > MAX_PREVIEW_CARD_IDS) {
+    validationError(
+      field,
+      `must name at most ${String(MAX_PREVIEW_CARD_IDS)} cards`,
+    );
+  }
+  return value.map((entry, index) =>
+    requiredString(entry, `${field}[${String(index)}]`, 1, 400),
+  );
+}
+
+/** The optional deck fields, read the same way for a create and an update. */
+export function parseDeckCardFields(
+  root: Record<string, unknown>,
+): DeckCardFieldsInput {
+  const fields: DeckCardFieldsInput = {};
+  if (root.defaultTemplateCode !== undefined) {
+    fields.defaultTemplateCode = requiredString(
+      root.defaultTemplateCode,
+      "defaultTemplateCode",
+      1,
+      100,
+      TEMPLATE_CODE_PATTERN,
+    );
+  }
+  if (root.defaultTemplateSchemaVersion !== undefined) {
+    fields.defaultTemplateSchemaVersion = parseTemplateSchemaVersion(
+      root.defaultTemplateSchemaVersion,
+      "defaultTemplateSchemaVersion",
+    );
+  }
+  if (root.access !== undefined) {
+    fields.access = parseDeckAccess(root.access, "access");
+  }
+  if (root.previewCardIds !== undefined) {
+    fields.previewCardIds = parseDeckPreviewCardIds(
+      root.previewCardIds,
+      "previewCardIds",
+    );
+  }
+  return fields;
 }

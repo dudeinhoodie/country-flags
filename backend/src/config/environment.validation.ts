@@ -44,6 +44,7 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   ADMIN_SESSION_ABSOLUTE_TTL_SECONDS: number;
   ADMIN_CATALOG_PATH: string;
   ADMIN_EDITORIAL_SCHEMA_PATH: string;
+  ADMIN_EDITORIAL_SCHEMA_V3_PATH: string;
   ADMIN_ASSET_MAX_BYTES: number;
   SHUTDOWN_DRAIN_MS: number;
 }
@@ -545,6 +546,13 @@ export function validateEnvironment(
       config.ADMIN_EDITORIAL_SCHEMA_PATH,
       "../contracts/schemas/content/editorial-catalog.v2.schema.json",
       "ADMIN_EDITORIAL_SCHEMA_PATH",
+    ),
+    // A draft is lifted to v3 where an edit needs what v3 added — an
+    // administrative parent — so both schemas have to be readable at once.
+    ADMIN_EDITORIAL_SCHEMA_V3_PATH: optionalString(
+      config.ADMIN_EDITORIAL_SCHEMA_V3_PATH,
+      "../contracts/schemas/content/editorial-catalog.v3.schema.json",
+      "ADMIN_EDITORIAL_SCHEMA_V3_PATH",
     ),
     // Flags and coats of arms are small; the limit exists to stop a
     // pathological upload rather than to size a real one.
