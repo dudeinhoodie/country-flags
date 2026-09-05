@@ -492,16 +492,16 @@ describe("Admin aggregated read models (integration)", () => {
     });
     expect(entity).not.toBeNull();
 
-    const published = await request(httpServer).get(
-      `/v1/entities/${entity?.id ?? ""}`,
-    );
+    const published = await request(httpServer)
+      .get(`/v1/entities/${entity?.id ?? ""}`)
+      .query({ locale: "en" });
     expect(published.status).toBe(200);
-    const body = bodyOf<{ assets: { assetType: string }[] }>(published);
+    const body = bodyOf<{ assets: { type: string }[] }>(published);
     // A draft upload is not content. Nothing an editor stages reaches a
     // reader before the release that publishes it.
-    expect(
-      body.assets.some((asset) => asset.assetType === "COAT_OF_ARMS"),
-    ).toBe(false);
+    expect(body.assets.some((asset) => asset.type === "COAT_OF_ARMS")).toBe(
+      false,
+    );
   });
 
   it("turns the same coat into a public preview when the deck shows it", async () => {
