@@ -338,4 +338,91 @@ describe("content bundle publish/rollback pipeline (integration)", () => {
     });
     expect(pointer.contentVersion).toBe("bundle-v2");
   });
+
+  /**
+   * A deck the catalogue sells is published as sold.
+   *
+   * The publisher wrote a deck's code, kind, status and version and nothing
+   * else, so a catalogue could declare a deck opened by an entitlement and the
+   * published row would still say `FREE`. Every guard downstream reads that
+   * row — the cards route, session creation, the public content projection —
+   * so the release would have handed the deck to anybody who asked.
+   */
+  it("publishes the access policy and the previews the catalogue declares", async () => {
+    await database.entitlementDefinition.create({
+      data: { key: "entitlement.e2e_paid", description: "E2E paid deck" },
+    });
+    buildBundle(
+      join(tempDir, "bundle-v3"),
+      { keyId, privateKeyPem },
+      {
+        contentVersion: "bundle-v3",
+        entities: [testland, testopia],
+        deckAccess: {
+          model: "ENTITLEMENT",
+          requiredEntitlementKey: "entitlement.e2e_paid",
+        },
+        previewMemberKeys: [testland.key],
+      },
+    );
+
+    await publishBundle(
+      join(tempDir, "bundle-v3"),
+      publicKeys,
+      database,
+      storage,
+    );
+
+    const deck = await database.deck.findUniqueOrThrow({
+      where: { code: "ALL" },
+      include: {
+        cards: {
+          include: { learningCard: { include: { subject: true } } },
+          orderBy: { sortOrder: "asc" },
+        },
+      },
+    });
+    expect(deck).toMatchObject({
+      accessModel: "ENTITLEMENT",
+      requiredEntitlementKey: "entitlement.e2e_paid",
+    });
+    expect(
+      deck.cards.map((card) => [
+        card.learningCard.subject.contentKey,
+        card.isPreview,
+      ]),
+    ).toEqual([
+      [testland.key, true],
+      [testopia.key, false],
+    ]);
+  });
+
+  /**
+   * The entitlement is a commerce object, not an editorial one. A release that
+   * names a right nobody has defined would otherwise die on a foreign key
+   * halfway through a long transaction.
+   */
+  it("refuses a release that sells a deck by an entitlement nobody defined", async () => {
+    buildBundle(
+      join(tempDir, "bundle-v4"),
+      { keyId, privateKeyPem },
+      {
+        contentVersion: "bundle-v4",
+        entities: [testland],
+        deckAccess: {
+          model: "ENTITLEMENT",
+          requiredEntitlementKey: "entitlement.never_defined",
+        },
+      },
+    );
+
+    await expect(
+      publishBundle(join(tempDir, "bundle-v4"), publicKeys, database, storage),
+    ).rejects.toThrow(/entitlement\.never_defined/);
+
+    const pointer = await database.contentPointer.findUniqueOrThrow({
+      where: { key: "active" },
+    });
+    expect(pointer.contentVersion).toBe("bundle-v3");
+  });
 });

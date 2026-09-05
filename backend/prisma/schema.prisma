@@ -889,6 +889,12 @@ model DeckCard {
   learningCardId    String       @map("learning_card_id") @db.Uuid
   sortOrder         Int?         @map("sort_order")
   membershipVersion Int          @default(1) @map("membership_version")
+  /// Whether this deck publishes this card as one of its previews. The one
+  /// deliberate exception to a locked deck keeping its material to itself:
+  /// choosing a preview means choosing to make that card, and the drawing it
+  /// prompts with, public (ADR-019). Meaningless on a free deck, where every
+  /// card is public anyway.
+  isPreview         Boolean      @default(false) @map("is_preview")
   deck              Deck         @relation(fields: [deckId], references: [id], onDelete: Cascade)
   learningCard      LearningCard @relation(fields: [learningCardId], references: [id], onDelete: Restrict)
 
