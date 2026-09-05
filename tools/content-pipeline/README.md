@@ -116,7 +116,11 @@ For a manual decision:
    disagreement with `resolution: editorial_override` and `blocking: false`.
 
 Editorial files are applied after every source refresh, so reviewed decisions
-survive subsequent pulls.
+survive subsequent pulls. A refresh also rewrites the document in the version it
+declares: `catalog.json` is still a v2 document, the pipeline lifts it to v3 on
+read (a deck without a template teaches `FLAG_TO_COUNTRY` v1, an override
+without a variant replaces `current`), and the flip to v3 on disk happens once
+the admin console writes it too.
 
 ## Output
 
@@ -129,15 +133,25 @@ so multiple values, roles, and validity periods can be represented.
 ## Editorial asset overrides
 
 Flags normally come from a pinned upstream project. When an editor supplies a
-drawing instead — a corrected shade, a flag no project draws — it goes in the
-editorial layer rather than on top of the build:
+drawing instead — a corrected shade, a flag no project draws, a coat of arms no
+project carries at all — it goes in the editorial layer rather than on top of
+the build:
 
-- the drawing lives at `editorial/overrides/assets/<entityKey>.svg`;
-- its provenance (license, source, attribution, and the reason a human
-  replaced the upstream drawing) lives in `catalog.json` under
-  `assetOverrides`, validated by the editorial-catalog JSON Schema.
+- the drawing lives at
+  `editorial/overrides/assets/<entityKey>/<assetType>/<variant>.svg`;
+- its provenance (license, source, attribution, the reason a human replaced
+  the upstream drawing, and what the symbol is called in each locale) lives in
+  `catalog.json` under `assetOverrides`, validated by the editorial-catalog
+  JSON Schema.
 
-An override outranks every adapter candidate for that entity, deterministically.
+The type and variant are in the path because one entity has several symbols at
+once: under the old flat `<entityKey>.svg` a coat of arms and a flag would have
+fought over one file. A document still written as v2 names one flag per entity
+and keeps its drawings in the flat layout; both are read until the catalog
+itself is written as v3.
+
+An override outranks every adapter candidate for that entity, type and variant,
+deterministically.
 Without this layer the next source refresh would silently overwrite the
 hand-picked flag; with it, `reports/asset-overrides.json` names every override,
 the sources it displaced and the checksum of the drawing it replaced, and the

@@ -247,7 +247,7 @@ void test("approved selection contains every current MVP country and territory",
 
 void test("matching uses reliable identifiers and explicit aliases only", () => {
   const editorial: EditorialCatalog = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     defaultLocale: "ru",
     supportedLocales: ["ru", "en"],
     entities: [

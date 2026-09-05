@@ -37,7 +37,7 @@ function catalog(
   overrides?: EditorialCatalog["assetOverrides"],
 ): EditorialCatalog {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     defaultLocale: "ru",
     supportedLocales: ["ru", "en"],
     entities: [
@@ -141,9 +141,11 @@ async function build(
 
 void test("an editorial override outranks the adapter candidate", async () => {
   const root = await temporaryRoot();
-  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await mkdir(join(root, "editorial/overrides/assets/country.alpha/flag"), {
+    recursive: true,
+  });
   await writeFile(
-    join(root, "editorial/overrides/assets/country.alpha.svg"),
+    join(root, "editorial/overrides/assets/country.alpha/flag/current.svg"),
     OVERRIDE_SVG,
     "utf8",
   );
@@ -153,6 +155,7 @@ void test("an editorial override outranks the adapter candidate", async () => {
       {
         entityKey: "country.alpha",
         assetType: "flag",
+        variant: "current",
         aspectRatio: 1.5,
         license: "CC-BY-4.0",
         sourceUrl: "https://commons.example.test/alpha.svg",
@@ -185,9 +188,11 @@ void test("an editorial override outranks the adapter candidate", async () => {
 
 void test("an override that displaces a source is reported, never silent", async () => {
   const root = await temporaryRoot();
-  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await mkdir(join(root, "editorial/overrides/assets/country.alpha/flag"), {
+    recursive: true,
+  });
   await writeFile(
-    join(root, "editorial/overrides/assets/country.alpha.svg"),
+    join(root, "editorial/overrides/assets/country.alpha/flag/current.svg"),
     OVERRIDE_SVG,
     "utf8",
   );
@@ -197,6 +202,7 @@ void test("an override that displaces a source is reported, never silent", async
       {
         entityKey: "country.alpha",
         assetType: "flag",
+        variant: "current",
         aspectRatio: 1.5,
         license: "CC-BY-4.0",
         sourceUrl: "https://commons.example.test/alpha.svg",
@@ -219,9 +225,11 @@ void test("an override that displaces a source is reported, never silent", async
 
 void test("an override for an entity no source covers displaces nothing", async () => {
   const root = await temporaryRoot();
-  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await mkdir(join(root, "editorial/overrides/assets/country.gamma/flag"), {
+    recursive: true,
+  });
   await writeFile(
-    join(root, "editorial/overrides/assets/country.gamma.svg"),
+    join(root, "editorial/overrides/assets/country.gamma/flag/current.svg"),
     OVERRIDE_SVG,
     "utf8",
   );
@@ -230,6 +238,7 @@ void test("an override for an entity no source covers displaces nothing", async 
     {
       entityKey: "country.gamma",
       assetType: "flag",
+      variant: "current",
       aspectRatio: 1.5,
       license: "CC0-1.0",
       sourceUrl: "https://commons.example.test/gamma.svg",
@@ -266,6 +275,7 @@ void test("a declared override with no file fails the build", async () => {
         {
           entityKey: "country.alpha",
           assetType: "flag",
+          variant: "current",
           aspectRatio: 1.5,
           license: "CC0-1.0",
           sourceUrl: "https://commons.example.test/alpha.svg",
@@ -280,9 +290,11 @@ void test("a declared override with no file fails the build", async () => {
 
 void test("an unsafe override drawing is refused", async () => {
   const root = await temporaryRoot();
-  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await mkdir(join(root, "editorial/overrides/assets/country.alpha/flag"), {
+    recursive: true,
+  });
   await writeFile(
-    join(root, "editorial/overrides/assets/country.alpha.svg"),
+    join(root, "editorial/overrides/assets/country.alpha/flag/current.svg"),
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" onload="steal()"><rect/></svg>',
     "utf8",
   );
@@ -292,6 +304,7 @@ void test("an unsafe override drawing is refused", async () => {
         {
           entityKey: "country.alpha",
           assetType: "flag",
+          variant: "current",
           aspectRatio: 1.5,
           license: "CC0-1.0",
           sourceUrl: "https://commons.example.test/alpha.svg",
@@ -317,9 +330,11 @@ function pngBytes(widthPx: number, heightPx: number): Buffer {
 
 void test("a PNG override publishes a raster original and no invented vector", async () => {
   const root = await temporaryRoot();
-  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await mkdir(join(root, "editorial/overrides/assets/country.alpha/flag"), {
+    recursive: true,
+  });
   await writeFile(
-    join(root, "editorial/overrides/assets/country.alpha.png"),
+    join(root, "editorial/overrides/assets/country.alpha/flag/current.png"),
     pngBytes(300, 200),
   );
 
@@ -328,6 +343,7 @@ void test("a PNG override publishes a raster original and no invented vector", a
       {
         entityKey: "country.alpha",
         assetType: "flag",
+        variant: "current",
         aspectRatio: 1.5,
         license: "CC-BY-4.0",
         sourceUrl: "https://commons.example.test/alpha.png",
@@ -352,15 +368,17 @@ void test("a PNG override publishes a raster original and no invented vector", a
   assert.equal(raster.heightPx, 200);
   assert.equal(
     overridden.sourcePath,
-    "editorial/overrides/assets/country.alpha.png",
+    "editorial/overrides/assets/country.alpha/flag/current.png",
   );
 });
 
 void test("a PNG override whose declared ratio lies is refused", async () => {
   const root = await temporaryRoot();
-  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await mkdir(join(root, "editorial/overrides/assets/country.alpha/flag"), {
+    recursive: true,
+  });
   await writeFile(
-    join(root, "editorial/overrides/assets/country.alpha.png"),
+    join(root, "editorial/overrides/assets/country.alpha/flag/current.png"),
     pngBytes(300, 300),
   );
 
@@ -369,6 +387,7 @@ void test("a PNG override whose declared ratio lies is refused", async () => {
       {
         entityKey: "country.alpha",
         assetType: "flag",
+        variant: "current",
         aspectRatio: 1.5,
         license: "CC-BY-4.0",
         sourceUrl: "https://commons.example.test/alpha.png",
@@ -392,14 +411,16 @@ void test("a PNG override whose declared ratio lies is refused", async () => {
 
 void test("an override with both an svg and a png file is refused outright", async () => {
   const root = await temporaryRoot();
-  await mkdir(join(root, "editorial/overrides/assets"), { recursive: true });
+  await mkdir(join(root, "editorial/overrides/assets/country.alpha/flag"), {
+    recursive: true,
+  });
   await writeFile(
-    join(root, "editorial/overrides/assets/country.alpha.svg"),
+    join(root, "editorial/overrides/assets/country.alpha/flag/current.svg"),
     OVERRIDE_SVG,
     "utf8",
   );
   await writeFile(
-    join(root, "editorial/overrides/assets/country.alpha.png"),
+    join(root, "editorial/overrides/assets/country.alpha/flag/current.png"),
     pngBytes(300, 200),
   );
 
@@ -410,6 +431,7 @@ void test("an override with both an svg and a png file is refused outright", asy
         {
           entityKey: "country.alpha",
           assetType: "flag",
+          variant: "current",
           aspectRatio: 1.5,
           license: "CC-BY-4.0",
           sourceUrl: "https://commons.example.test/alpha.svg",

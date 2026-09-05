@@ -1,0 +1,234 @@
+{
+  "additionalRelations": [
+    {
+      "childKey": "country.kosovo",
+      "parentKey": "region.europe",
+      "primary": true,
+      "relationType": "contains",
+      "taxonomyKey": "taxonomy.editorial.v1"
+    }
+  ],
+  "decks": [
+    {
+      "key": "deck.all",
+      "kind": "curated",
+      "members": "all-current",
+      "names": {
+        "en": {
+          "description": "Every flag, with no regions to lean on.",
+          "name": "All countries"
+        },
+        "ru": {
+          "description": "Все флаги подряд, без разбивки по регионам.",
+          "name": "Все страны"
+        }
+      }
+    },
+    {
+      "defaultTemplateCode": "FLAG_TO_COUNTRY",
+      "defaultTemplateSchemaVersion": 1,
+      "key": "deck.europe",
+      "kind": "taxonomy",
+      "members": {
+        "taxonomy": "region.europe"
+      },
+      "names": {
+        "en": {
+          "description": "European flags.",
+          "name": "Europe"
+        },
+        "ru": {
+          "description": "Флаги Европы.",
+          "name": "Европа"
+        }
+      }
+    },
+    {
+      "defaultTemplateCode": "FLAG_TO_COUNTRY",
+      "defaultTemplateSchemaVersion": 1,
+      "key": "deck.editorial-picks",
+      "kind": "curated",
+      "members": ["country.france", "country.japan"],
+      "names": {
+        "en": {
+          "description": "A hand-picked pair.",
+          "name": "Picks"
+        }
+      }
+    },
+    {
+      "access": {
+        "model": "ENTITLEMENT",
+        "requiredEntitlementKey": "deck.europe_coats"
+      },
+      "defaultTemplateCode": "COAT_OF_ARMS_TO_COUNTRY",
+      "defaultTemplateSchemaVersion": 1,
+      "key": "deck.european_coats",
+      "kind": "curated",
+      "members": ["country.france", "country.germany"],
+      "names": {
+        "en": {
+          "description": "The coats of arms of Europe.",
+          "name": "European Coats"
+        },
+        "ru": {
+          "description": "Гербы стран Европы.",
+          "name": "Гербы Европы"
+        }
+      },
+      "previewCards": ["country.france"]
+    },
+    {
+      "access": {
+        "model": "ENTITLEMENT",
+        "requiredEntitlementKey": "deck.us_state_flags"
+      },
+      "defaultTemplateCode": "FLAG_TO_COUNTRY",
+      "defaultTemplateSchemaVersion": 1,
+      "key": "deck.us_state_flags",
+      "kind": "curated",
+      "members": ["subdivision.us.california"],
+      "names": {
+        "en": {
+          "description": "The flags of the fifty states.",
+          "name": "U.S. State Flags"
+        }
+      }
+    },
+    {
+      "key": "deck.symbols_sampler",
+      "kind": "curated",
+      "members": [
+        {
+          "entityKey": "country.germany",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.germany",
+          "templateCode": "COAT_OF_ARMS_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        }
+      ],
+      "names": {
+        "en": {
+          "description": "One country, both of its symbols, two separate cards.",
+          "name": "Symbols sampler"
+        }
+      }
+    }
+  ],
+  "defaultLocale": "ru",
+  "entities": [
+    {
+      "config": {
+        "includeInCountryCatalog": true
+      },
+      "identifiers": {
+        "isoAlpha2": "FR",
+        "isoAlpha3": "FRA"
+      },
+      "key": "country.france",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "config": {
+        "includeInCountryCatalog": true
+      },
+      "identifiers": {
+        "isoAlpha2": "DE",
+        "isoAlpha3": "DEU"
+      },
+      "key": "country.germany",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "config": {
+        "includeInCountryCatalog": true
+      },
+      "key": "country.japan",
+      "overrides": {
+        "names.ru.short": "Япония"
+      },
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "config": {
+        "includeInCountryCatalog": true
+      },
+      "identifiers": {
+        "isoAlpha2": "US",
+        "isoAlpha3": "USA"
+      },
+      "key": "country.united_states",
+      "recognitionStatus": "un_member",
+      "status": "active",
+      "type": "country"
+    },
+    {
+      "config": {
+        "includeInCountryCatalog": false
+      },
+      "identifiers": {
+        "fipsCode": "06",
+        "isoSubdivision": "US-CA"
+      },
+      "key": "subdivision.us.california",
+      "parentKey": "country.united_states",
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "subdivision"
+    },
+    {
+      "config": {
+        "includeInCountryCatalog": false
+      },
+      "key": "region.europe",
+      "recognitionStatus": "not_applicable",
+      "status": "active",
+      "type": "region"
+    }
+  ],
+  "schemaVersion": 3,
+  "sourceAliases": {
+    "flagcdn": "flag-icons"
+  },
+  "supportedLocales": ["ru", "en"],
+  "assetOverrides": [
+    {
+      "entityKey": "country.france",
+      "assetType": "flag",
+      "variant": "current",
+      "aspectRatio": 1.5,
+      "license": "CC0-1.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+      "attribution": "Wikimedia Commons",
+      "reason": "The upstream drawing used the wrong shade of blue."
+    },
+    {
+      "entityKey": "country.germany",
+      "assetType": "coat_of_arms",
+      "variant": "current",
+      "aspectRatio": 0.8,
+      "license": "Public domain",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Germany.svg",
+      "reason": "Verified official artwork.",
+      "localizations": {
+        "en": {
+          "description": "The official federal emblem of Germany.",
+          "displayName": "Federal Eagle"
+        },
+        "ru": {
+          "description": "Официальная федеральная эмблема Германии.",
+          "displayName": "Федеральный орёл"
+        }
+      }
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { mkdir, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 
 import { normalizeSource } from "./adapters.js";
+import { migrateEditorialCatalog } from "./editorial-schema.js";
 import { buildLearningContent } from "./learning.js";
 import { createMatcher } from "./matching.js";
 import { loadAssetOverrides } from "./asset-overrides.js";
@@ -11,7 +12,7 @@ import { readJson, sha256, writeJson } from "./stable-json.js";
 import type {
   BuildOptions,
   BuildResult,
-  EditorialCatalog,
+  EditorialDocument,
   PipelineReports,
   Provenance,
 } from "./types.js";
@@ -96,9 +97,12 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
   if (editorialSource === undefined) {
     throw new Error("Editorial source is required");
   }
-  const editorial = await loadVerifiedSnapshot<EditorialCatalog>(
-    options.root,
-    editorialSource,
+  // Whatever version the document was written in; the pipeline works in v3.
+  const editorial = migrateEditorialCatalog(
+    await loadVerifiedSnapshot<EditorialDocument>(
+      options.root,
+      editorialSource,
+    ),
   );
   const sourceSnapshots = await Promise.all(
     registry.sources
