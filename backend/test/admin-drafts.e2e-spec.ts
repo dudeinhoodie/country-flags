@@ -342,6 +342,148 @@ describe("Admin editorial drafts (integration)", () => {
     expect(bodyOf<ErrorBody>(patch).error.code).toBe("ADMIN_ROLE_FORBIDDEN");
   });
 
+  it("makes an entity a subdivision of a country, with its own facts", async () => {
+    const created = await request(httpServer)
+      .post("/v1/admin/content/drafts")
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN);
+    const draft = bodyOf<DraftBody>(created);
+    // Two keys the release fixture also publishes, so the list can say what
+    // is already drawn for them. Which country plays the state does not
+    // matter here; that it needs a parent, and gets one, does.
+    const parent = "country.france";
+    const unit = "country.belgium";
+
+    const patched = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draft.id}/entities/${unit}`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", '"1"')
+      .send({
+        type: "subdivision",
+        parentKey: parent,
+        includeInCountryCatalog: false,
+        identifiers: { isoSubdivision: "US-CA", localCode: "CA" },
+        facts: {
+          capital: { en: "Sacramento" },
+          statehoodDate: "1850-09-09",
+          population: { value: 39_400_000, observedAt: "2026-01-01" },
+          languages: [{ en: "English" }],
+        },
+      });
+    expect(patched.status).toBe(200);
+
+    // v2 cannot express an administrative parent, so a document that now
+    // carries one is written in v3 from here on (ADR-020).
+    const reread = bodyOf<DraftBody>(
+      await request(httpServer)
+        .get(`/v1/admin/content/drafts/${draft.id}`)
+        .set("Cookie", editorCookie),
+    );
+    expect(reread.schemaVersion).toBe(3);
+
+    const detail = bodyOf<{
+      entity: {
+        type: string;
+        parentKey: string | null;
+        includeInCountryCatalog: boolean;
+        recognitionStatus: string;
+        facts?: Record<string, unknown>;
+      };
+    }>(
+      await request(httpServer)
+        .get(`/v1/admin/content/drafts/${draft.id}/entities/${unit}`)
+        .set("Cookie", editorCookie),
+    );
+    expect(detail.entity.type).toBe("subdivision");
+    expect(detail.entity.parentKey).toBe(parent);
+    expect(detail.entity.includeInCountryCatalog).toBe(false);
+    expect(detail.entity.recognitionStatus).toBe("not_applicable");
+    expect(detail.entity.facts).toEqual({
+      capital: { en: "Sacramento" },
+      statehoodDate: "1850-09-09",
+      population: { value: 39_400_000, observedAt: "2026-01-01" },
+      languages: [{ en: "English" }],
+    });
+
+    const list = bodyOf<{
+      items: {
+        key: string;
+        parentKey: string | null;
+        hasFlag: boolean;
+        hasCoatOfArms: boolean;
+      }[];
+    }>(
+      await request(httpServer)
+        .get(`/v1/admin/content/drafts/${draft.id}/entities`)
+        .set("Cookie", editorCookie),
+    );
+    // A second tab still holding revision 1 must not overwrite the first.
+    const stale = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draft.id}/entities/${unit}`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", '"1"')
+      .send({ status: "hidden" });
+    expect(stale.status).toBe(409);
+    expect(bodyOf<ErrorBody>(stale).error.code).toBe("DRAFT_REVISION_CONFLICT");
+
+    const row = list.items.find((item) => item.key === unit);
+    expect(row?.parentKey).toBe(parent);
+    // The release publishes flags and no coats, so the unit shows as missing
+    // one until an editor uploads it.
+    expect(row?.hasFlag).toBe(true);
+    expect(row?.hasCoatOfArms).toBe(false);
+  });
+
+  it("refuses a parent that contradicts the entity's type", async () => {
+    const created = await request(httpServer)
+      .post("/v1/admin/content/drafts")
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN);
+    const draft = bodyOf<DraftBody>(created);
+
+    const orphan = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draft.id}/entities/country.belgium`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", '"1"')
+      .send({ type: "subdivision" });
+    expect(orphan.status).toBe(422);
+    expect(bodyOf<ErrorBody>(orphan).error.code).toBe(
+      "SUBDIVISION_PARENT_REQUIRED",
+    );
+
+    const stray = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draft.id}/entities/country.belgium`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", '"1"')
+      .send({ parentKey: "country.france" });
+    expect(stray.status).toBe(422);
+    expect(bodyOf<ErrorBody>(stray).error.code).toBe(
+      "ENTITY_PARENT_NOT_APPLICABLE",
+    );
+
+    // A subdivision code is not a country code, whichever field it is typed
+    // into: `US-CA` in `isoAlpha2` would put a state everywhere a reader
+    // expects a country.
+    const wrongField = await request(httpServer)
+      .patch(`/v1/admin/content/drafts/${draft.id}/entities/country.belgium`)
+      .set("Cookie", editorCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .set("If-Match", '"1"')
+      .send({ identifiers: { isoAlpha2: "US-CA" } });
+    expect(wrongField.status).toBe(422);
+    expect(bodyOf<ErrorBody>(wrongField).error.code).toBe("VALIDATION_FAILED");
+
+    // None of the three moved the draft on.
+    const untouched = await request(httpServer)
+      .get(`/v1/admin/content/drafts/${draft.id}`)
+      .set("Cookie", editorCookie);
+    expect(bodyOf<DraftBody>(untouched).revision).toBe(1);
+  });
+
   it("writes the draft lifecycle into the audit trail", async () => {
     const created = await database.adminAuditEvent.count({
       where: { action: "admin.draft.created" },

@@ -7,6 +7,7 @@ export type DraftEntityListItem =
 export type DraftEntityDetail = components["schemas"]["AdminDraftEntityDetail"];
 export type EntityUpdateBody =
   components["schemas"]["AdminDraftEntityUpdateRequest"];
+export type EntityFacts = components["schemas"]["AdminEntityFacts"];
 
 function messageOf(error: unknown, fallback: string): string {
   const envelope = error as { error?: { message?: string } } | undefined;

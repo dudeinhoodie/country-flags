@@ -148,6 +148,7 @@ const ENTITY_TYPES = [
   "country",
   "territory",
   "area",
+  "subdivision",
   "region",
   "subregion",
 ] as const;
@@ -156,6 +157,9 @@ const ENTITY_IDENTIFIER_KEYS = [
   "isoAlpha2",
   "isoAlpha3",
   "m49",
+  "isoSubdivision",
+  "localCode",
+  "fipsCode",
   "wikidataId",
   "editorialKey",
   "customCode",
@@ -173,6 +177,9 @@ export interface EntityUpdateInput {
   recognitionAsOf?: string | null;
   validFrom?: string | null;
   validTo?: string | null;
+  /** `null` clears the administrative parent. */
+  parentKey?: string | null;
+  facts?: EntityFactsInput;
   identifiers?: Record<string, string>;
   overrides?: Record<string, unknown>;
 }
@@ -232,6 +239,8 @@ export function parseEntityUpdateRequest(body: unknown): EntityUpdateInput {
       "recognitionAsOf",
       "validFrom",
       "validTo",
+      "parentKey",
+      "facts",
       "identifiers",
       "overrides",
     ],
@@ -289,9 +298,18 @@ export function parseEntityUpdateRequest(body: unknown): EntityUpdateInput {
     changes.validTo =
       root.validTo === null ? null : parseIsoDate(root.validTo, "validTo");
   }
+  if (root.parentKey !== undefined) {
+    changes.parentKey =
+      root.parentKey === null
+        ? null
+        : requiredString(root.parentKey, "parentKey", 1, 200);
+  }
+  if (root.facts !== undefined) {
+    changes.facts = parseEntityFacts(root.facts, "facts");
+  }
   if (root.identifiers !== undefined) {
-    changes.identifiers = parseEntityIdentifiers(
-      root.identifiers,
+    changes.identifiers = assertIdentifierShapes(
+      parseEntityIdentifiers(root.identifiers, "identifiers"),
       "identifiers",
     );
   }
@@ -474,4 +492,169 @@ export function parseDraftAssetUpload(body: unknown): DraftAssetUploadInput {
       2000,
     ),
   };
+}
+
+// ---------------------------------------------------------------------------
+// PD-08 (#317): administrative parents, subdivision identifiers and the facts
+// a curator writes by hand. Kept as one block at the end of the file so it
+// merges cleanly beside the other work in flight on this parser.
+// ---------------------------------------------------------------------------
+
+/**
+ * What each identifier is allowed to look like, mirroring the editorial
+ * schema. The point of the patterns is that `US-CA` cannot be typed into an
+ * ISO country field: written into `isoAlpha2` it would put a state
+ * everywhere a reader expects a country.
+ */
+const ENTITY_IDENTIFIER_RULES: Record<
+  string,
+  { pattern?: RegExp; maxLength?: number; expected: string }
+> = {
+  isoAlpha2: {
+    pattern: /^[A-Za-z]{2}$/,
+    expected: "must be a two-letter ISO 3166-1 country code",
+  },
+  isoAlpha3: {
+    pattern: /^[A-Za-z]{3}$/,
+    expected: "must be a three-letter ISO 3166-1 country code",
+  },
+  m49: { pattern: /^[0-9]{3}$/, expected: "must be a three-digit M49 code" },
+  isoSubdivision: {
+    pattern: /^[A-Za-z]{2}-[A-Za-z0-9]{1,3}$/,
+    expected: "must be an ISO 3166-2 subdivision code such as US-CA",
+  },
+  localCode: { maxLength: 40, expected: "must be at most 40 characters" },
+  fipsCode: { maxLength: 10, expected: "must be at most 10 characters" },
+};
+
+export function assertIdentifierShapes(
+  identifiers: Record<string, string>,
+  field: string,
+): Record<string, string> {
+  for (const [key, value] of Object.entries(identifiers)) {
+    const rule = ENTITY_IDENTIFIER_RULES[key];
+    if (rule === undefined) {
+      continue;
+    }
+    if (
+      (rule.pattern !== undefined && !rule.pattern.test(value)) ||
+      (rule.maxLength !== undefined && value.length > rule.maxLength)
+    ) {
+      validationError(`${field}.${key}`, rule.expected);
+    }
+  }
+  return identifiers;
+}
+
+/** Locale → value, the way a fact is written in more than one language. */
+export type EntityLocalizedInput = Record<string, string>;
+
+export interface EntityMeasuredInput {
+  value: number;
+  unit?: string;
+  observedAt?: string;
+}
+
+export interface EntityFactsInput {
+  capital?: EntityLocalizedInput;
+  largestCity?: EntityLocalizedInput;
+  motto?: EntityLocalizedInput;
+  statehoodDate?: string;
+  population?: EntityMeasuredInput;
+  area?: EntityMeasuredInput;
+  languages?: EntityLocalizedInput[];
+}
+
+const FACT_LOCALE_PATTERN = /^[A-Za-z]{2}(?:-[A-Za-z0-9]{2,8})?$/;
+
+function parseLocalizedValue(
+  value: unknown,
+  field: string,
+): EntityLocalizedInput {
+  const record = requestRecord(value, field);
+  const localized: EntityLocalizedInput = {};
+  for (const [locale, raw] of Object.entries(record)) {
+    if (!FACT_LOCALE_PATTERN.test(locale)) {
+      validationError(`${field}.${locale}`, "is not a locale");
+    }
+    localized[locale] = requiredString(raw, `${field}.${locale}`, 1, 200);
+  }
+  if (Object.keys(localized).length === 0) {
+    validationError(field, "must carry at least one locale");
+  }
+  return localized;
+}
+
+function parseMeasuredValue(
+  value: unknown,
+  field: string,
+): EntityMeasuredInput {
+  const record = requestRecord(value, field);
+  exactRequestKeys(record, ["value", "unit", "observedAt"], field);
+  if (typeof record.value !== "number" || !Number.isFinite(record.value)) {
+    validationError(`${field}.value`, "must be a number");
+  }
+  return {
+    value: record.value,
+    ...(record.unit === undefined
+      ? {}
+      : { unit: requiredString(record.unit, `${field}.unit`, 1, 40) }),
+    ...(record.observedAt === undefined
+      ? {}
+      : { observedAt: parseIsoDate(record.observedAt, `${field}.observedAt`) }),
+  };
+}
+
+/**
+ * The facts a curator owns. They replace as a whole: the form always sends
+ * every field it edits, so clearing a motto is sending the object without
+ * one, exactly as the override map behaves.
+ */
+export function parseEntityFacts(
+  value: unknown,
+  field: string,
+): EntityFactsInput {
+  const record = requestRecord(value, field);
+  exactRequestKeys(
+    record,
+    [
+      "capital",
+      "largestCity",
+      "motto",
+      "statehoodDate",
+      "population",
+      "area",
+      "languages",
+    ],
+    field,
+  );
+  const facts: EntityFactsInput = {};
+  for (const name of ["capital", "largestCity", "motto"] as const) {
+    if (record[name] !== undefined) {
+      facts[name] = parseLocalizedValue(record[name], `${field}.${name}`);
+    }
+  }
+  for (const name of ["population", "area"] as const) {
+    if (record[name] !== undefined) {
+      facts[name] = parseMeasuredValue(record[name], `${field}.${name}`);
+    }
+  }
+  if (record.statehoodDate !== undefined) {
+    facts.statehoodDate = parseIsoDate(
+      record.statehoodDate,
+      `${field}.statehoodDate`,
+    );
+  }
+  if (record.languages !== undefined) {
+    if (!Array.isArray(record.languages)) {
+      validationError(`${field}.languages`, "must be an array");
+    }
+    if (record.languages.length > 20) {
+      validationError(`${field}.languages`, "must hold at most 20 languages");
+    }
+    facts.languages = record.languages.map((language, index) =>
+      parseLocalizedValue(language, `${field}.languages[${String(index)}]`),
+    );
+  }
+  return facts;
 }
