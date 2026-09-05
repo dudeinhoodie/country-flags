@@ -127,6 +127,39 @@ function validateFeatureRegistry(featureRegistry) {
   }
 }
 
+// PD-21: the storefront and the new-content flags gate rollout and discovery
+// only, never an entitlement (docs/05-feature-flags.md §18,
+// docs/17-paid-decks-storekit.md §10). Whether a non-owner can reach a paid
+// deck's cards is decided by the backend access guard, not by this registry —
+// this check only guards the contract-level half of that invariant: these
+// keys exist and stay boolean, default-off switches until the rollout gate.
+function validatePaidDecksRolloutFlags(featureRegistry) {
+  const rolloutFlagKeys = [
+    "monetization.paid_decks.storefront_enabled",
+    "commerce.apple_iap.enabled",
+    "commerce.paid_decks.discovery.enabled",
+    "commerce.deck.europe_coats.enabled",
+    "commerce.deck.us_state_flags.enabled",
+    "content.coats_of_arms.enabled",
+    "content.subdivisions.enabled",
+  ];
+  const flagsByKey = new Map(
+    featureRegistry.flags.map((flag) => [flag.key, flag]),
+  );
+
+  for (const key of rolloutFlagKeys) {
+    const flag = flagsByKey.get(key);
+    assert(
+      flag !== undefined,
+      `Paid-decks rollout flag ${key} is missing from the registry`,
+    );
+    assert(
+      flag.type === "boolean" && flag.defaultValue === false,
+      `${key} governs paid-decks rollout/discovery and must stay a boolean defaulting to false`,
+    );
+  }
+}
+
 function validateAdRegistry(adRegistry, featureRegistry) {
   const flagsByKey = new Map(
     featureRegistry.flags.map((flag) => [flag.key, flag]),
@@ -329,6 +362,7 @@ const analyticsBatches = await Promise.all(
 );
 
 validateFeatureRegistry(featureRegistry);
+validatePaidDecksRolloutFlags(featureRegistry);
 validateAdRegistry(adRegistry, featureRegistry);
 validateAnalyticsBatches(eventRegistry, analyticsBatches);
 
