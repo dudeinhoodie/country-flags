@@ -3,6 +3,7 @@ import { AssetType, ContentDraftStatus } from "@prisma/client";
 import type { AdminUser, ContentDraft, DraftAsset } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
+import { liftEditorialDocumentToV3 } from "./editorial-document.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AdminAuditService } from "../admin-auth/admin-audit.service";
 import { AdminDraftsService } from "./admin-drafts.service";
@@ -197,8 +198,16 @@ export class DraftProposalService {
       symbolKey(left).localeCompare(symbolKey(right), "en"),
     );
 
+    // An override entry now names what the drawing depicts and which variant
+    // it is, and v2 knows neither: its `assetType` is the single value
+    // `flag` and it refuses an unknown field outright. So a document that
+    // carries one is lifted, which is also the flip the catalog has been
+    // waiting for — the console can read and write both versions since #350,
+    // and the pipeline has read both since #342.
     const committedDocument =
-      merged.length === 0 ? document : { ...document, assetOverrides: merged };
+      merged.length === 0
+        ? document
+        : { ...liftEditorialDocumentToV3(document), assetOverrides: merged };
     files.unshift({
       path: CATALOG_PATH,
       content: Buffer.from(stableJson(committedDocument), "utf8"),

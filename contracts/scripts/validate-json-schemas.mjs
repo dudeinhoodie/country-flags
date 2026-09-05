@@ -44,15 +44,7 @@ const validationTargets = [
   },
   {
     schema: "schemas/content/editorial-catalog.v2.schema.json",
-    // The real editorial catalog is validated alongside the fixture: the
-    // admin console saves drafts against this schema, so the schema must
-    // keep describing the document the pipeline actually maintains. The
-    // catalog is still a v2 document; the pipeline lifts it to v3 on read
-    // and it stays here until the console writes v3 (#314).
-    data: [
-      "fixtures/content/editorial-catalog.v2.valid.json",
-      "../tools/content-pipeline/editorial/catalog.json",
-    ],
+    data: ["fixtures/content/editorial-catalog.v2.valid.json"],
   },
   {
     schema: "schemas/content/editorial-catalog.v3.schema.json",
@@ -373,6 +365,45 @@ for (const target of validationTargets.filter(({ schema }) =>
     validateEditorialDecks(await readJson(dataPath), dataPath);
   }
 }
+
+// The real editorial catalog, against the version it says it is.
+//
+// It is checked here rather than pinned to one schema above because it moves
+// between versions on its own schedule: the console writes v3 the moment an
+// edit needs it, and a check that named v2 would fail the very pull request
+// that made the move. The admin console saves drafts against these schemas,
+// so they must keep describing the document the pipeline actually maintains.
+const catalogPath = "../tools/content-pipeline/editorial/catalog.json";
+const catalog = await readJson(catalogPath);
+const catalogSchemaPath = `schemas/content/editorial-catalog.v${String(
+  catalog.schemaVersion,
+)}.schema.json`;
+const catalogSchema = await readJson(catalogSchemaPath).catch(() => {
+  throw new Error(
+    `${catalogPath} declares schema version ${String(
+      catalog.schemaVersion,
+    )}, which has no schema in contracts/`,
+  );
+});
+const validateCatalog = ajv.getSchema(catalogSchema.$id);
+assert(
+  validateCatalog !== undefined,
+  `Schema was not compiled: ${catalogSchemaPath}`,
+);
+if (!validateCatalog(catalog)) {
+  throw new Error(
+    `${catalogPath} does not match ${catalogSchemaPath}:\n${ajv.errorsText(
+      validateCatalog.errors,
+      { separator: "\n" },
+    )}`,
+  );
+}
+if (catalog.schemaVersion === 3) {
+  validateEditorialDecks(catalog, catalogPath);
+}
+console.log(
+  `Validated the editorial catalog against v${String(catalog.schemaVersion)}.`,
+);
 
 console.log(
   `Validated ${schemas.length} schemas and ${validationTargets.reduce(
