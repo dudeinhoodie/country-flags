@@ -1,7 +1,7 @@
 # Документация проекта Country Flags
 
-Статус: `Product and implementation baseline 0.3`
-Дата: 4 сентября 2026 года
+Статус: `Product and implementation baseline 0.4`
+Дата: 5 сентября 2026 года
 
 Комплект предназначен для обсуждения продукта и последующей передачи агентам разработки.
 
@@ -28,6 +28,7 @@
 - [16-ios-design-language.md](./16-ios-design-language.md) — визуальный язык iOS-клиента: референсы, принципы, tokens, motion, haptics и словарь нативных компонентов.
 - [17-paid-decks-storekit.md](./17-paid-decks-storekit.md) — разовые покупки платных колод через StoreKit, backend entitlements, админка, refunds, restore и dev/prod separation.
 - [18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md) — гербы, штаты США, multi-template состав колод, расширения backend/admin/iOS и post-purchase UI.
+- [19-admin-redesign.md](./19-admin-redesign.md) — task-oriented редизайн админки: draft workspace, entity/media editor, deck builder, validation и release UX.
 - [ios/README.md](./ios/README.md) — порядок iOS-разработки и отдельные agent-ready спецификации IOS-000…IOS-013.
 - [ADR-002](./adr/ADR-002-auth-and-refresh-token-rotation.md) — provider identities и refresh-token rotation.
 - [ADR-003](./adr/ADR-003-review-ordering-and-idempotency.md) — canonical ordering, clock normalization и idempotency review.

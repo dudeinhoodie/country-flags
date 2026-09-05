@@ -12,6 +12,8 @@ consumer projection; paid-only assets вынесены в guarded deck delivery.
 [ADR-020](./adr/ADR-020-geo-entities-and-card-variants.md)  
 Визуальный контракт: [DESIGN.md](../DESIGN.md)
 
+Подробный UX-контракт админки: [19-admin-redesign.md](./19-admin-redesign.md)
+
 ## 1. Цель
 
 Расширить существующие backend, content pipeline, admin и iOS так, чтобы:
@@ -513,6 +515,10 @@ Backend MUST:
 - существующие entitlement/store validation errors из §12 документа 17.
 
 ## 9. Admin console
+
+Этот раздел задаёт доменные и contract requirements. Информационная
+архитектура, экранные сценарии, состояния и acceptance criteria редизайна
+зафиксированы в [19-admin-redesign.md](./19-admin-redesign.md).
 
 ### 9.1 Entity editor
 
