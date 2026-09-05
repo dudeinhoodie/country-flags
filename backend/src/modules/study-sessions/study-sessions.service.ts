@@ -23,6 +23,7 @@ import {
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { DeckAccessService } from "../commerce/deck-access.service";
 import { generateMultipleChoiceOptions } from "./multiple-choice-options";
 import {
   type SessionCandidate,
@@ -130,7 +131,10 @@ function optionDisplayName(snapshot: Prisma.JsonValue): string {
 
 @Injectable()
 export class StudySessionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly deckAccess: DeckAccessService,
+  ) {}
 
   create(
     userId: string,
@@ -168,7 +172,12 @@ export class StudySessionsService {
           }),
           transaction.deck.findFirst({
             where: { id: request.deckId, status: DeckStatus.PUBLISHED },
-            select: { id: true, contentVersion: true },
+            select: {
+              id: true,
+              contentVersion: true,
+              accessModel: true,
+              requiredEntitlementKey: true,
+            },
           }),
           transaction.schedulerDefinition.findFirst({
             where: { status: SchedulerDefinitionStatus.ACTIVE },
@@ -185,6 +194,14 @@ export class StudySessionsService {
         if (deck === null) {
           throw new NotFoundException("Deck was not found");
         }
+        // The same guard the cards endpoint uses, asked inside this
+        // transaction so the answer belongs to the same snapshot the session
+        // is built from. A session is the second way to read a deck's
+        // contents, and it used to check only that the deck was published.
+        //
+        // A session already open is not touched by this: a revocation stops
+        // the next one, and the learner finishes the sitting they started.
+        await this.deckAccess.requireAccess(deck, userId, transaction);
         if (scheduler === null) {
           throw new ServiceUnavailableException(
             "No active scheduler definition is available",
@@ -371,6 +388,12 @@ export class StudySessionsService {
           return { created: false, session: existing };
         }
 
+        // No entitlement check here, deliberately. The import records
+        // repetitions a learner already did on a device that was offline;
+        // refusing them after a refund would delete work honestly done while
+        // the deck was owned, and the specification promises the opposite.
+        // The import opens nothing either: it grants no entitlement, returns
+        // no deck composition and permits no next session.
         const [user, deck, scheduler, release] = await Promise.all([
           transaction.user.findFirst({
             where: { id: userId, status: UserStatus.ACTIVE },

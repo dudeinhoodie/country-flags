@@ -40,6 +40,7 @@ interface DeckPageBody {
     name: string;
     description: string;
     cardCount: number;
+    access: { model: string };
     contentVersion: string;
   }>;
   page: Page;
@@ -330,6 +331,8 @@ describe("content fixture and read API (integration)", () => {
           name: "Europe",
           description: "European and transcontinental countries",
           cardCount: 7,
+          // Every published deck says who may open it; the fixture's are free.
+          access: { model: "FREE" },
           contentVersion: "test-only-fixture-v1",
         },
       ],

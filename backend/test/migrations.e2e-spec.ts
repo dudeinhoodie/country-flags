@@ -19,13 +19,18 @@ const REQUIRED_TABLES = [
   "analytics_outbox",
   "content_drafts",
   "draft_assets",
+  "asset_localizations",
   "audit_events",
   "auth_rate_limit_buckets",
   "auth_identities",
+  "commerce_offer_grants",
+  "commerce_offer_localizations",
+  "commerce_offers",
   "content_changes",
   "content_releases",
   "decks",
   "devices",
+  "entitlement_definitions",
   "geo_entities",
   "guest_import_operations",
   "idempotency_records",
@@ -38,8 +43,13 @@ const REQUIRED_TABLES = [
   "scheduler_definitions",
   "scheduler_migration_checkpoints",
   "scheduler_migration_runs",
+  "store_notifications",
+  "store_products",
+  "store_reconciliation_state",
+  "store_transactions",
   "study_sessions",
   "user_achievements",
+  "user_entitlement_grants",
   "user_card_states",
   "user_changes",
   "users",
@@ -444,5 +454,158 @@ describe("baseline database migration (integration)", () => {
     await expect(
       insertJob("52000000-0000-4000-8000-000000000002"),
     ).resolves.toBe(1);
+  });
+
+  it("makes a purchase land once and a right survive one of its sources", async () => {
+    const userId = "60000000-0000-4000-8000-000000000001";
+    const contentRelease = "commerce-content-v1";
+    const offerId = "61000000-0000-4000-8000-000000000001";
+    const firstTransactionId = "62000000-0000-4000-8000-000000000001";
+    const secondTransactionId = "62000000-0000-4000-8000-000000000002";
+
+    await database!.$executeRawUnsafe(`
+      INSERT INTO users (id, preferred_locale, status, created_at, updated_at)
+      VALUES ('${userId}', 'ru', 'ACTIVE', now(), now())
+    `);
+    await database!.$executeRawUnsafe(`
+      INSERT INTO content_releases (
+        version, schema_version, status, manifest_checksum, metadata, created_at
+      )
+      VALUES (
+        '${contentRelease}', 1, 'DRAFT', '${"c".repeat(64)}', '{}'::jsonb, now()
+      )
+    `);
+    await database!.$executeRawUnsafe(`
+      INSERT INTO entitlement_definitions (key, status, created_at, updated_at)
+      VALUES ('deck.europe_coats', 'ACTIVE', now(), now())
+    `);
+    await database!.$executeRawUnsafe(`
+      INSERT INTO commerce_offers (id, code, kind, status, created_at, updated_at)
+      VALUES ('${offerId}', 'EUROPE_COATS_LIFETIME', 'ONE_TIME', 'ACTIVE', now(), now())
+    `);
+    await database!.$executeRawUnsafe(`
+      INSERT INTO commerce_offer_grants (offer_id, entitlement_key)
+      VALUES ('${offerId}', 'deck.europe_coats')
+    `);
+
+    // A store account token is minted for every account, including the ones
+    // that existed before there was anything to buy.
+    const tokens = await database!.$queryRawUnsafe<{ token: string | null }[]>(`
+      SELECT store_account_token::text AS token FROM users WHERE id = '${userId}'
+    `);
+    expect(tokens[0]?.token).toMatch(/^[0-9a-f-]{36}$/);
+
+    const insertTransaction = (
+      id: string,
+      transactionId: string,
+    ): Promise<number> =>
+      database!.$executeRawUnsafe(`
+        INSERT INTO store_transactions (
+          id, provider, store_environment, transaction_id, product_id,
+          user_id, purchased_at, signed_payload_hash, verified_at,
+          created_at, updated_at
+        ) VALUES (
+          '${id}', 'APPLE_APP_STORE', 'SANDBOX', '${transactionId}',
+          'app.countryflags.dev.deck.europe_coats.lifetime.v1',
+          '${userId}', now(), '${"d".repeat(64)}', now(), now(), now()
+        )
+      `);
+
+    await insertTransaction(firstTransactionId, "2000000000000001");
+    // The same purchase delivered again — by the app, by a notification, by
+    // the repair job — must not become a second row.
+    await expect(
+      insertTransaction(
+        "62000000-0000-4000-8000-0000000000ff",
+        "2000000000000001",
+      ),
+    ).rejects.toThrow();
+    await insertTransaction(secondTransactionId, "2000000000000002");
+
+    const grant = (id: string, transactionId: string): Promise<number> =>
+      database!.$executeRawUnsafe(`
+        INSERT INTO user_entitlement_grants (
+          id, user_id, entitlement_key, source_type, source_transaction_id,
+          status, granted_at, created_at, updated_at
+        ) VALUES (
+          '${id}', '${userId}', 'deck.europe_coats', 'STORE_TRANSACTION',
+          '${transactionId}', 'ACTIVE', now(), now(), now()
+        )
+      `);
+    await grant("63000000-0000-4000-8000-000000000001", firstTransactionId);
+    await grant("63000000-0000-4000-8000-000000000002", secondTransactionId);
+
+    // A refund of one product does not close a right the other still grants.
+    await database!.$executeRawUnsafe(`
+      UPDATE user_entitlement_grants
+      SET status = 'REVOKED', revoked_at = now(), revocation_reason = 'REFUND',
+          updated_at = now()
+      WHERE source_transaction_id = '${firstTransactionId}'
+    `);
+    const active = await database!.$queryRawUnsafe<CountRow[]>(`
+      SELECT COUNT(*)::bigint AS count
+      FROM user_entitlement_grants
+      WHERE user_id = '${userId}'
+        AND entitlement_key = 'deck.europe_coats'
+        AND status = 'ACTIVE'
+    `);
+    expect(active[0]?.count).toBe(1n);
+
+    // A grant with no transaction behind it still cannot be issued twice:
+    // the index is NULLS NOT DISTINCT, or nothing would stop a migration
+    // from running itself into duplicates.
+    const migrationGrant = (id: string): Promise<number> =>
+      database!.$executeRawUnsafe(`
+        INSERT INTO user_entitlement_grants (
+          id, user_id, entitlement_key, source_type, status,
+          granted_at, created_at, updated_at
+        ) VALUES (
+          '${id}', '${userId}', 'deck.europe_coats', 'MIGRATION', 'ACTIVE',
+          now(), now(), now()
+        )
+      `);
+    await migrationGrant("63000000-0000-4000-8000-000000000003");
+    await expect(
+      migrationGrant("63000000-0000-4000-8000-000000000004"),
+    ).rejects.toThrow();
+
+    // Access policy and the right it names travel together.
+    const deck = (
+      id: string,
+      code: string,
+      model: string,
+      key: string,
+    ): Promise<number> =>
+      database!.$executeRawUnsafe(`
+        INSERT INTO decks (
+          id, code, kind, status, access_model, required_entitlement_key,
+          content_version, created_at, updated_at
+        ) VALUES (
+          '${id}', '${code}', 'CURATED', 'PUBLISHED', '${model}', ${key},
+          '${contentRelease}', now(), now()
+        )
+      `);
+    await deck(
+      "64000000-0000-4000-8000-000000000001",
+      "EUROPEAN_COATS",
+      "ENTITLEMENT",
+      "'deck.europe_coats'",
+    );
+    await expect(
+      deck(
+        "64000000-0000-4000-8000-000000000002",
+        "FREE_WITH_A_KEY",
+        "FREE",
+        "'deck.europe_coats'",
+      ),
+    ).rejects.toThrow();
+    await expect(
+      deck(
+        "64000000-0000-4000-8000-000000000003",
+        "PAID_WITH_NO_KEY",
+        "ENTITLEMENT",
+        "NULL",
+      ),
+    ).rejects.toThrow();
   });
 });
