@@ -215,7 +215,7 @@ enum LocalSchemaV1: VersionedSchema {
             LocalSchemaV1.StoredGeoName.self,
             LocalSchemaV1.StoredAsset.self,
             LocalSchemaV1.StoredFact.self,
-            StoredDeck.self,
+            LocalSchemaV5.StoredDeck.self,
             LocalSchemaV1.StoredLearningCard.self,
             StoredDeckCard.self,
             StoredUserSettings.self,
@@ -314,6 +314,21 @@ final class StoredGeoEntity {
     var recognitionStatus: String = ""
     var contentVersion: String = ""
     var isRetired: Bool = false
+    /// The country an administrative unit belongs to, as much of it as a
+    /// screen needs to name it. Added in `LocalSchemaV6`; nil for everything
+    /// that is not a subdivision, and for every entity stored before it.
+    ///
+    /// A stored value rather than a relationship to the parent's own row:
+    /// naming "California, United States" must not wait for the United States
+    /// to have been downloaded, and a relationship would make it.
+    var parent: StoredEntityParent?
+    /// ISO 3166-2, such as `US-CA`. Never written into an ISO country code:
+    /// that would put a state everywhere a reader expects a country.
+    var isoSubdivision: String?
+    /// The official code the parent country uses for the unit.
+    var localCode: String?
+    /// Present only where the source publishes one; never derived.
+    var fipsCode: String?
     @Relationship(deleteRule: .cascade, inverse: \StoredGeoName.entity)
     var names: [StoredGeoName]? = []
     @Relationship(deleteRule: .cascade, inverse: \StoredAsset.entity)
@@ -327,7 +342,11 @@ final class StoredGeoEntity {
         status: String,
         recognitionStatus: String,
         contentVersion: String,
-        isRetired: Bool = false
+        isRetired: Bool = false,
+        parent: StoredEntityParent? = nil,
+        isoSubdivision: String? = nil,
+        localCode: String? = nil,
+        fipsCode: String? = nil
     ) {
         self.id = id
         self.kind = kind
@@ -335,7 +354,22 @@ final class StoredGeoEntity {
         self.recognitionStatus = recognitionStatus
         self.contentVersion = contentVersion
         self.isRetired = isRetired
+        self.parent = parent
+        self.isoSubdivision = isoSubdivision
+        self.localCode = localCode
+        self.fipsCode = fipsCode
     }
+}
+
+/// The parent an administrative unit names, stored as a value.
+///
+/// A struct rather than a model for the same reason the card's facts are one:
+/// it is read with the entity and never queried on its own, and a model would
+/// buy an index nothing looks anything up by.
+struct StoredEntityParent: Codable, Hashable {
+    var id: UUID
+    var kind: String
+    var name: String
 }
 
 @Model
@@ -356,10 +390,20 @@ final class StoredGeoName {
 final class StoredAsset {
     var id: UUID = UUID()
     var type: String = ""
+    /// Which drawing of this type it is. Added in `LocalSchemaV6`; an asset
+    /// stored before it reads as `current`, which is what every release
+    /// published so far carries.
+    var variant: String = "current"
     var url: URL = URL(fileURLWithPath: "/")
     var mimeType: String = ""
     var sha256: String = ""
     var contentVersion: String = ""
+    /// What this drawing is called in the reader's locale — "Federal Eagle"
+    /// rather than "Germany". Added in `LocalSchemaV6`, and nil for a symbol
+    /// with no name of its own.
+    var displayName: String?
+    /// What the symbol means, in the reader's locale.
+    var assetDescription: String?
     var entity: StoredGeoEntity?
 
     init(
@@ -368,14 +412,20 @@ final class StoredAsset {
         url: URL,
         mimeType: String,
         sha256: String,
-        contentVersion: String
+        contentVersion: String,
+        variant: String = "current",
+        displayName: String? = nil,
+        assetDescription: String? = nil
     ) {
         self.id = id
         self.type = type
+        self.variant = variant
         self.url = url
         self.mimeType = mimeType
         self.sha256 = sha256
         self.contentVersion = contentVersion
+        self.displayName = displayName
+        self.assetDescription = assetDescription
     }
 }
 
@@ -417,6 +467,20 @@ final class StoredDeck {
     var cardCount: Int = 0
     var contentVersion: String = ""
     var sortOrder: Int = 0
+    /// What opens the deck. Added in `LocalSchemaV6` with a default of `FREE`,
+    /// which is what every deck published before it is: the default is also
+    /// what makes the stage lightweight, so a device carries its unsent outbox
+    /// across the update.
+    var accessModel: String = "FREE"
+    /// The right that opens it, set exactly when the model is `ENTITLEMENT`.
+    var requiredEntitlementKey: String?
+    /// The offers that grant that right, in the order they should be shown.
+    var offerCodes: [String] = []
+    /// What the deck teaches — `FLAG`, `COAT_OF_ARMS` — derived by the
+    /// publisher from the cards it holds rather than authored.
+    var contentKinds: [String] = []
+    /// The cards a locked deck may show before it is bought, as identifiers.
+    var previewCardIDs: [UUID] = []
 
     init(
         id: UUID,
@@ -426,7 +490,12 @@ final class StoredDeck {
         deckDescription: String,
         cardCount: Int,
         contentVersion: String,
-        sortOrder: Int
+        sortOrder: Int,
+        accessModel: String = "FREE",
+        requiredEntitlementKey: String? = nil,
+        offerCodes: [String] = [],
+        contentKinds: [String] = [],
+        previewCardIDs: [UUID] = []
     ) {
         self.id = id
         self.code = code
@@ -436,6 +505,11 @@ final class StoredDeck {
         self.cardCount = cardCount
         self.contentVersion = contentVersion
         self.sortOrder = sortOrder
+        self.accessModel = accessModel
+        self.requiredEntitlementKey = requiredEntitlementKey
+        self.offerCodes = offerCodes
+        self.contentKinds = contentKinds
+        self.previewCardIDs = previewCardIDs
     }
 }
 

@@ -421,16 +421,19 @@ export function parsePublishRunRequest(body: unknown): PublishRunInput {
 
 export interface DraftAssetUploadInput {
   entityContentKey: string;
-  assetType: "FLAG" | "COAT_OF_ARMS";
+  assetType: "FLAG" | "COAT_OF_ARMS" | "MAP";
   variant: string;
   sourceUrl: string;
   licenseName: string;
   licenseUrl?: string;
   attribution?: string;
   replacementReason: string;
+  validFrom?: string;
+  validTo?: string;
+  localizations?: AssetLocalizations;
 }
 
-const UPLOADABLE_ASSET_TYPES = ["FLAG", "COAT_OF_ARMS"] as const;
+const UPLOADABLE_ASSET_TYPES = ["FLAG", "COAT_OF_ARMS", "MAP"] as const;
 
 /**
  * Multipart fields arrive as strings. Source, license and the reason a human
@@ -450,6 +453,9 @@ export function parseDraftAssetUpload(body: unknown): DraftAssetUploadInput {
       "licenseUrl",
       "attribution",
       "replacementReason",
+      "validFrom",
+      "validTo",
+      "localizations",
     ],
     "body",
   );
@@ -491,6 +497,20 @@ export function parseDraftAssetUpload(body: unknown): DraftAssetUploadInput {
       1,
       2000,
     ),
+    ...(root.validFrom === undefined
+      ? {}
+      : { validFrom: parseIsoDate(root.validFrom, "validFrom") }),
+    ...(root.validTo === undefined
+      ? {}
+      : { validTo: parseIsoDate(root.validTo, "validTo") }),
+    ...(root.localizations === undefined
+      ? {}
+      : {
+          localizations: parseAssetLocalizationsField(
+            root.localizations,
+            "localizations",
+          ),
+        }),
   };
 }
 
@@ -657,4 +677,187 @@ export function parseEntityFacts(
     );
   }
   return facts;
+}
+
+/* -------------------------------------------------------------------------
+ * Asset metadata, validity and localizations (PD-09). Added as one block at
+ * the end of this shared file so it stays out of the parsers above.
+ * ---------------------------------------------------------------------- */
+
+const ASSET_LOCALE_PATTERN = /^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/;
+
+export interface AssetLocalizationInput {
+  displayName?: string;
+  description?: string;
+}
+
+export type AssetLocalizations = Record<string, AssetLocalizationInput>;
+
+/**
+ * What a drawing is called and what it means, per locale.
+ *
+ * The name and the story belong to the symbol rather than to the country: a
+ * coat of arms has a name of its own, and replacing the drawing replaces the
+ * story with it while the flag beside it keeps its own (ADR-020).
+ *
+ * A locale that carries neither is refused rather than stored: an empty
+ * entry is an editing slip, and the way to drop a locale is to send the map
+ * without it.
+ */
+export function parseAssetLocalizations(
+  value: unknown,
+  field: string,
+): AssetLocalizations {
+  const record = requestRecord(value, field);
+  const localizations: AssetLocalizations = {};
+  for (const [locale, localized] of Object.entries(record)) {
+    if (!ASSET_LOCALE_PATTERN.test(locale)) {
+      validationError(`${field}.${locale}`, "is not a valid locale");
+    }
+    const entry = requestRecord(localized, `${field}.${locale}`);
+    exactRequestKeys(
+      entry,
+      ["displayName", "description"],
+      `${field}.${locale}`,
+    );
+    const localization: AssetLocalizationInput = {
+      ...(entry.displayName === undefined
+        ? {}
+        : {
+            displayName: requiredString(
+              entry.displayName,
+              `${field}.${locale}.displayName`,
+              1,
+              200,
+            ),
+          }),
+      ...(entry.description === undefined
+        ? {}
+        : {
+            description: requiredString(
+              entry.description,
+              `${field}.${locale}.description`,
+              1,
+              2000,
+            ),
+          }),
+    };
+    if (Object.keys(localization).length === 0) {
+      validationError(
+        `${field}.${locale}`,
+        "must carry a display name or a description",
+      );
+    }
+    localizations[locale] = localization;
+  }
+  return localizations;
+}
+
+/**
+ * The same map arriving through the upload form, where every field is text.
+ * The contract says as much: multipart carries strings, so the localizations
+ * travel as JSON inside one.
+ */
+function parseAssetLocalizationsField(
+  value: unknown,
+  field: string,
+): AssetLocalizations {
+  if (typeof value !== "string") {
+    return parseAssetLocalizations(value, field);
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    validationError(field, "must be a JSON object");
+  }
+  return parseAssetLocalizations(parsed, field);
+}
+
+export interface DraftAssetPatchInput {
+  sourceUrl?: string;
+  licenseName?: string;
+  licenseUrl?: string | null;
+  attribution?: string | null;
+  replacementReason?: string;
+  validFrom?: string | null;
+  validTo?: string | null;
+  localizations?: AssetLocalizations;
+}
+
+/**
+ * Provenance, validity and the symbol's own words — and nothing else.
+ *
+ * New bytes keep arriving through the upload endpoint. Correcting a licence
+ * and replacing a drawing are different acts, and only one of them changes
+ * what the reader sees, so only one of them may change the checksum.
+ */
+export function parseDraftAssetPatch(body: unknown): DraftAssetPatchInput {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(
+    root,
+    [
+      "sourceUrl",
+      "licenseName",
+      "licenseUrl",
+      "attribution",
+      "replacementReason",
+      "validFrom",
+      "validTo",
+      "localizations",
+    ],
+    "body",
+  );
+  const changes: DraftAssetPatchInput = {};
+  if (root.sourceUrl !== undefined) {
+    changes.sourceUrl = requiredString(root.sourceUrl, "sourceUrl", 1, 2000);
+  }
+  if (root.licenseName !== undefined) {
+    changes.licenseName = requiredString(
+      root.licenseName,
+      "licenseName",
+      1,
+      200,
+    );
+  }
+  if (root.licenseUrl !== undefined) {
+    changes.licenseUrl =
+      root.licenseUrl === null
+        ? null
+        : requiredString(root.licenseUrl, "licenseUrl", 1, 2000);
+  }
+  if (root.attribution !== undefined) {
+    changes.attribution =
+      root.attribution === null
+        ? null
+        : requiredString(root.attribution, "attribution", 1, 300);
+  }
+  if (root.replacementReason !== undefined) {
+    changes.replacementReason = requiredString(
+      root.replacementReason,
+      "replacementReason",
+      1,
+      2000,
+    );
+  }
+  if (root.validFrom !== undefined) {
+    changes.validFrom =
+      root.validFrom === null
+        ? null
+        : parseIsoDate(root.validFrom, "validFrom");
+  }
+  if (root.validTo !== undefined) {
+    changes.validTo =
+      root.validTo === null ? null : parseIsoDate(root.validTo, "validTo");
+  }
+  if (root.localizations !== undefined) {
+    changes.localizations = parseAssetLocalizations(
+      root.localizations,
+      "localizations",
+    );
+  }
+  if (Object.keys(changes).length === 0) {
+    validationError("body", "must change at least one field");
+  }
+  return changes;
 }

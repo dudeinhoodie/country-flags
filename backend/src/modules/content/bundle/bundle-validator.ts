@@ -176,6 +176,29 @@ function collectReferenceIssues(domain: BundleDomain): string[] {
         issues.push(`deck ${deck.key} references unknown entity ${memberKey}`);
       }
     }
+
+    // A member names a card variant, and the publisher materializes it by
+    // that name. One that resolves to nothing would drop out of the deck at
+    // publish time without a word, which is how a deck of fifty states
+    // could be released holding thirty.
+    for (const member of deck.memberCards) {
+      const key = cardKey(member.entityKey, member.templateCode, 1);
+      if (
+        ![...cardsByKey.keys()].some((candidate) =>
+          candidate.startsWith(`${member.entityKey}:${member.templateCode}:`),
+        )
+      ) {
+        issues.push(
+          `deck ${deck.key} holds ${key}, which this release does not publish`,
+        );
+      }
+    }
+
+    if (deck.cardCount !== deck.memberCards.length) {
+      issues.push(
+        `deck ${deck.key} says it holds ${String(deck.cardCount)} cards and lists ${String(deck.memberCards.length)}`,
+      );
+    }
   }
 
   for (const asset of domain.assets) {

@@ -4,13 +4,18 @@ import {
   sha256,
   UnsafeAssetError,
 } from "@country-flags/asset-core";
-import { AssetType, DraftAssetValidationStatus } from "@prisma/client";
-import type { AdminUser, DraftAsset } from "@prisma/client";
+import { AssetType, DraftAssetValidationStatus, Prisma } from "@prisma/client";
+import type { AdminUser, ContentDraft, DraftAsset } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AdminAuditService } from "../admin-auth/admin-audit.service";
 import { AdminDraftsService } from "./admin-drafts.service";
+import type {
+  AssetLocalizations,
+  DraftAssetPatchInput,
+} from "./admin-drafts.request";
+import { inspectSafeArea } from "./asset-safe-area";
 import { DraftObjectStore } from "./draft-object-storage";
 
 export interface DraftAssetUpload {
@@ -22,11 +27,62 @@ export interface DraftAssetUpload {
   licenseUrl?: string;
   attribution?: string;
   replacementReason: string;
+  validFrom?: string;
+  validTo?: string;
+  localizations?: AssetLocalizations;
   idempotencyKey?: string;
 }
 
 function rejected(code: string, message: string): never {
   throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, code, message);
+}
+
+function assetNotFound(): never {
+  throw new ApiException(
+    HttpStatus.NOT_FOUND,
+    "RESOURCE_NOT_FOUND",
+    "The requested resource was not found",
+  );
+}
+
+/** A validity date is a calendar day, stored midnight UTC in a DATE column. */
+function calendarDay(iso: string | null): Date | null {
+  return iso === null ? null : new Date(`${iso}T00:00:00.000Z`);
+}
+
+/** The same day on the way out. A DATE has no time of day to report. */
+export function isoDay(value: Date): string {
+  return value.toISOString().slice(0, 10);
+}
+
+/**
+ * Localizations are stored as one document. Absent means "leave the words
+ * alone", so it contributes no column at all rather than an explicit null,
+ * which Prisma would read as an instruction to erase them.
+ */
+function localizationsOf(localizations: AssetLocalizations | undefined): {
+  localizations?: Prisma.InputJsonValue;
+} {
+  return localizations === undefined
+    ? {}
+    : { localizations: localizations as Prisma.InputJsonValue };
+}
+
+/**
+ * A drawing may not stop being the symbol before it became one. Checked
+ * against what the row will hold after the change, not only against what
+ * the request carried: closing a period is usually a one-field patch.
+ */
+function assertValidityOrdered(
+  validFrom: Date | null,
+  validTo: Date | null,
+): void {
+  if (validFrom !== null && validTo !== null && validFrom > validTo) {
+    rejected(
+      "ASSET_VALIDITY_INVERTED",
+      "The drawing would stop being the symbol before it became one",
+    );
+  }
 }
 
 @Injectable()
@@ -52,11 +108,7 @@ export class DraftAssetsService {
       where: { id: assetId, draftId },
     });
     if (asset === null) {
-      throw new ApiException(
-        HttpStatus.NOT_FOUND,
-        "RESOURCE_NOT_FOUND",
-        "The requested resource was not found",
-      );
+      assetNotFound();
     }
     return asset;
   }
@@ -110,6 +162,18 @@ export class DraftAssetsService {
       throw error;
     }
 
+    // Safe enough to store is not the same as usable on a card. A coat of
+    // arms is held to the aspect-fit safe area here, while the editor can
+    // still choose a different drawing, rather than at publish time.
+    const refusal = inspectSafeArea(upload.assetType, inspection);
+    if (refusal !== null) {
+      rejected(refusal.code, refusal.message);
+    }
+
+    const validFrom = calendarDay(upload.validFrom ?? null);
+    const validTo = calendarDay(upload.validTo ?? null);
+    assertValidityOrdered(validFrom, validTo);
+
     const body =
       inspection.svg === undefined
         ? file.buffer
@@ -122,7 +186,21 @@ export class DraftAssetsService {
       where: { objectKey },
     });
     if (existing !== null) {
-      // The same bytes for the same draft are the same asset: a retried
+      if (
+        existing.entityContentKey !== upload.entityContentKey ||
+        existing.assetType !== upload.assetType ||
+        existing.variant !== upload.variant
+      ) {
+        // The object key is the checksum, so these exact bytes are already
+        // in this draft as a different symbol. Handing that row back would
+        // tell the editor their coat of arms was saved while what they are
+        // looking at is somebody else's flag.
+        rejected(
+          "ASSET_BYTES_ALREADY_USED",
+          `These bytes are already in this draft as ${existing.entityContentKey} ${existing.assetType} (${existing.variant})`,
+        );
+      }
+      // The same bytes for the same symbol are the same asset: a retried
       // upload must not leave a second row or a second object behind.
       return existing;
     }
@@ -155,6 +233,9 @@ export class DraftAssetsService {
           licenseUrl: upload.licenseUrl ?? null,
           attribution: upload.attribution ?? null,
           replacementReason: upload.replacementReason,
+          validFrom,
+          validTo,
+          ...localizationsOf(upload.localizations),
           validationStatus: DraftAssetValidationStatus.VALID,
         },
         update: {
@@ -169,6 +250,9 @@ export class DraftAssetsService {
           licenseUrl: upload.licenseUrl ?? null,
           attribution: upload.attribution ?? null,
           replacementReason: upload.replacementReason,
+          validFrom,
+          validTo,
+          ...localizationsOf(upload.localizations),
           validationStatus: DraftAssetValidationStatus.VALID,
         },
       });
@@ -182,12 +266,104 @@ export class DraftAssetsService {
           draftId: draft.id,
           entityContentKey: upload.entityContentKey,
           assetType: upload.assetType,
+          variant: upload.variant,
           sha256: checksum,
           reason: upload.replacementReason,
         },
       });
       return created;
     });
+  }
+
+  /**
+   * Provenance, validity and the symbol's own name and story.
+   *
+   * The bytes are untouched — replacing a drawing goes through the upload —
+   * so this is where a symbol is retired: an editor closes the period, and
+   * the row stays where it is with the drawing, the checksum and the licence
+   * intact. Deleting it would take the answer out of the draft and leave the
+   * audit trail pointing at nothing.
+   *
+   * The asset lives in its own table, but the draft it belongs to has moved,
+   * so the change goes through the same revision guard every other editorial
+   * mutation uses and answers with the new draft stamp.
+   */
+  async update(
+    actor: AdminUser,
+    draftId: string,
+    assetId: string,
+    expectedRevision: number,
+    changes: DraftAssetPatchInput,
+    requestId: string,
+  ): Promise<ContentDraft> {
+    const asset = await this.getOne(draftId, assetId);
+    const validFrom =
+      changes.validFrom === undefined
+        ? asset.validFrom
+        : calendarDay(changes.validFrom);
+    const validTo =
+      changes.validTo === undefined
+        ? asset.validTo
+        : calendarDay(changes.validTo);
+    assertValidityOrdered(validFrom, validTo);
+
+    // Closing an open period is the act of retiring a symbol, and it reads
+    // as one in the audit trail rather than as another metadata edit.
+    const retired = asset.validTo === null && validTo !== null;
+
+    return this.drafts.applyDraftChange(
+      actor,
+      draftId,
+      expectedRevision,
+      async (transaction) => {
+        const changed = await transaction.draftAsset.updateMany({
+          where: { id: assetId, draftId },
+          data: {
+            ...(changes.sourceUrl === undefined
+              ? {}
+              : { sourceUrl: changes.sourceUrl }),
+            ...(changes.licenseName === undefined
+              ? {}
+              : { licenseName: changes.licenseName }),
+            ...(changes.licenseUrl === undefined
+              ? {}
+              : { licenseUrl: changes.licenseUrl }),
+            ...(changes.attribution === undefined
+              ? {}
+              : { attribution: changes.attribution }),
+            ...(changes.replacementReason === undefined
+              ? {}
+              : { replacementReason: changes.replacementReason }),
+            ...(changes.validFrom === undefined ? {} : { validFrom }),
+            ...(changes.validTo === undefined ? {} : { validTo }),
+            ...localizationsOf(changes.localizations),
+          },
+        });
+        if (changed.count === 0) {
+          // Read a moment ago, gone now: something removed it between the
+          // two statements, and the revision bump would be a lie.
+          assetNotFound();
+        }
+        return {};
+      },
+      {
+        action: retired
+          ? "admin.draft.asset_retired"
+          : "admin.draft.asset_updated",
+        targetType: "draft_asset",
+        targetId: asset.id,
+        metadata: {
+          draftId,
+          entityContentKey: asset.entityContentKey,
+          assetType: asset.assetType,
+          variant: asset.variant,
+          fields: Object.keys(changes).sort(),
+          validFrom: validFrom === null ? null : isoDay(validFrom),
+          validTo: validTo === null ? null : isoDay(validTo),
+        },
+      },
+      requestId,
+    );
   }
 
   async remove(

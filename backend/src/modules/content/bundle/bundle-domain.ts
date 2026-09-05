@@ -38,11 +38,34 @@ export interface DomainRelation {
   primary: boolean;
 }
 
+export interface DomainCardRef {
+  entityKey: string;
+  templateCode: string;
+  templateSchemaVersion: number;
+}
+
+export interface DomainDeckAccess {
+  model: "FREE" | "ENTITLEMENT";
+  requiredEntitlementKey?: string;
+}
+
 export interface DomainDeck {
   key: string;
   kind: "curated" | "taxonomy";
   names: Record<string, { name: string; description?: string }>;
+  /**
+   * Which entities the deck covers. Still a real answer — which countries
+   * does this deck teach — but no longer the thing membership is built
+   * from: an entity with two symbols is two cards, and this list cannot say
+   * which of them a deck holds.
+   */
   memberEntityKeys: string[];
+  /** What the deck actually holds, in editorial order. */
+  memberCards: DomainCardRef[];
+  contentKinds: string[];
+  cardCount: number;
+  access?: DomainDeckAccess;
+  previewCards?: DomainCardRef[];
 }
 
 export interface DomainCatalog {
@@ -67,6 +90,8 @@ export interface DomainAssetRepresentation {
 export interface DomainAsset {
   key: string;
   entityKey: string;
+  assetType: "flag" | "coat_of_arms" | "map";
+  variant: string;
   /**
    * Every published encoding, in the order a client should prefer them: the
    * vector original first, then raster by ascending scale.

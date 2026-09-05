@@ -6,10 +6,10 @@
   "defaultLocale": "ru",
   "files": [
     {
-      "bytes": 302065,
+      "bytes": 315815,
       "path": "assets/assets.json",
       "schemaId": "https://country-flags.app/content/v1/asset-registry.schema.json",
-      "sha256": "6f7c69611cbdf3368ad1e5c0625ad9743f45be44611c16014c9b88a7897e0d18"
+      "sha256": "8f0b340e1b7e33b5fd7567c7f6ec44baf4e2b539b66f4ee9260e50858a1f3e3f"
     },
     {
       "bytes": 547,
@@ -18,10 +18,10 @@
       "sha256": "8b0494f8370cc10ad5079a7adc498c205f177dda65b1ed1a19b2effa4ae35acc"
     },
     {
-      "bytes": 265639,
+      "bytes": 334302,
       "path": "catalog.json",
       "schemaId": "https://country-flags.example/schemas/catalog.schema.json",
-      "sha256": "2073fa79a239158cd4b5ed0db2201a96b8f1778da6d4f2fe278b6edae766cdf0"
+      "sha256": "d9203b8b852f8a6124a2f70d189318df2418778ad3160c0d309c98797e46797e"
     },
     {
       "bytes": 104889,

@@ -25,7 +25,7 @@ enum LocalSchemaV2: VersionedSchema {
             LocalSchemaV1.StoredGeoName.self,
             LocalSchemaV1.StoredAsset.self,
             LocalSchemaV1.StoredFact.self,
-            StoredDeck.self,
+            LocalSchemaV5.StoredDeck.self,
             // The one type this version changes; everything else is shared with
             // version 1, which is what makes the difference between them legible.
             StoredLearningCard.self,

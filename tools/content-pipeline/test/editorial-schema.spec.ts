@@ -248,6 +248,8 @@ void test("a coat of arms and a flag no longer fight over one file", async () =>
 function upstreamAsset(isoAlpha2: string): AssetCandidate {
   return {
     entity: { isoAlpha2 },
+    assetType: "flag",
+    variant: "current",
     upstreamPath: `flags/${isoAlpha2.toLowerCase()}.svg`,
     svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#111111"/></svg>',
     aspectRatio: 1.5,
@@ -308,7 +310,19 @@ void test("a subdivision never joins the all-countries deck", async () => {
     ],
   };
   const normalized: NormalizedSource[] = [
-    { patches: [], relations: [], assets: [upstreamAsset("AA")] },
+    {
+      patches: [],
+      relations: [],
+      // The state has a flag of its own; without one it would have no card
+      // and its deck would hold nothing.
+      assets: [
+        upstreamAsset("AA"),
+        {
+          ...upstreamAsset("NN"),
+          entity: { editorialKey: "subdivision.alpha.north" },
+        },
+      ],
+    },
   ];
 
   const merged = await mergeContent(
@@ -335,14 +349,41 @@ void test("a subdivision never joins the all-countries deck", async () => {
     merged.learnableEntityKeys.includes("subdivision.alpha.north"),
     false,
   );
+  // Outside the learnable pool and still taught, because a deck names it.
+  assert.ok(
+    merged.cardVariants.some(
+      ({ entityKey }) => entityKey === "subdivision.alpha.north",
+    ),
+  );
 });
 
-void test("one entity written twice under one template is one member", async () => {
+void test("a country with two symbols publishes two cards, not one", async () => {
   const root = await temporaryRoot();
   const outputDirectory = join(root, "out");
   await mkdir(outputDirectory, { recursive: true });
+  await mkdir(
+    join(root, "editorial/overrides/assets/country.alpha/coat_of_arms"),
+    { recursive: true },
+  );
+  await writeFile(
+    join(
+      root,
+      "editorial/overrides/assets/country.alpha/coat_of_arms/current.svg",
+    ),
+    OVERRIDE_SVG.replace("#2222ff", "#cc9900"),
+    "utf8",
+  );
 
   const base = migrateEditorialCatalog(v2Catalog());
+  const coatOverride = {
+    entityKey: "country.alpha",
+    assetType: "coat_of_arms" as const,
+    variant: "current",
+    aspectRatio: 1.5,
+    license: "Public domain",
+    sourceUrl: "https://commons.example.test/alpha-coat.svg",
+    reason: "Verified official artwork.",
+  };
   const editorial: EditorialCatalog = {
     ...base,
     entities: [
@@ -354,6 +395,15 @@ void test("one entity written twice under one template is one member", async () 
         recognitionStatus: "un_member",
         identifiers: { isoAlpha2: "AA" },
         overrides: { "names.en.short": "Alpha", "names.ru.short": "Альфа" },
+      },
+      {
+        key: "country.beta",
+        type: "country",
+        status: "active",
+        config: { includeInCountryCatalog: true },
+        recognitionStatus: "un_member",
+        identifiers: { isoAlpha2: "BB" },
+        overrides: { "names.en.short": "Beta", "names.ru.short": "Бета" },
       },
     ],
     decks: [
@@ -370,12 +420,25 @@ void test("one entity written twice under one template is one member", async () 
             templateCode: "COAT_OF_ARMS_TO_COUNTRY",
             templateSchemaVersion: 1,
           },
+          // Beta has no coat of arms; asking for one must cost it nothing
+          // but that card.
+          {
+            entityKey: "country.beta",
+            templateCode: "COAT_OF_ARMS_TO_COUNTRY",
+            templateSchemaVersion: 1,
+          },
+          "country.beta",
         ],
       },
     ],
+    assetOverrides: [coatOverride],
   };
   const normalized: NormalizedSource[] = [
-    { patches: [], relations: [], assets: [upstreamAsset("AA")] },
+    {
+      patches: [],
+      relations: [],
+      assets: [upstreamAsset("AA"), upstreamAsset("BB")],
+    },
   ];
 
   const merged = await mergeContent(
@@ -385,16 +448,53 @@ void test("one entity written twice under one template is one member", async () 
     normalized,
     createMatcher(editorial, normalized),
     editorialProvenance,
+    await loadAssetOverrides(root, [coatOverride], editorialProvenance),
   );
 
-  // Two card variants of one country, and the published catalog still lists
-  // entities: the second card appears once membership is materialized per
-  // template (#315).
   const decks = merged.catalog.decks as {
     key: string;
     memberEntityKeys: string[];
+    memberCards: { entityKey: string; templateCode: string }[];
+    contentKinds: string[];
+    cardCount: number;
   }[];
-  assert.deepEqual(decks[0]?.memberEntityKeys, ["country.alpha"]);
+  const deck = decks[0];
+  assert.ok(deck);
+
+  // Alpha is in the deck twice, as two different questions.
+  assert.deepEqual(
+    deck.memberCards.map(
+      ({ entityKey, templateCode }) => `${entityKey}/${templateCode}`,
+    ),
+    [
+      "country.alpha/FLAG_TO_COUNTRY",
+      "country.alpha/COAT_OF_ARMS_TO_COUNTRY",
+      "country.beta/FLAG_TO_COUNTRY",
+    ],
+  );
+  assert.equal(deck.cardCount, 3);
+  assert.deepEqual(deck.contentKinds, ["COAT_OF_ARMS", "FLAG"]);
+  assert.deepEqual(deck.memberEntityKeys, ["country.alpha", "country.beta"]);
+
+  // The coat nobody uploaded is reported rather than silently dropped, and
+  // Beta's flag card is untouched by its absence.
+  assert.deepEqual(
+    merged.reports.missingCardVariants.map(({ entityKey }) => entityKey),
+    ["country.beta"],
+  );
+
+  // One entity, two drawings, neither overwriting the other.
+  const alphaAssets = merged.assets.filter(
+    ({ entityKey }) => entityKey === "country.alpha",
+  );
+  assert.deepEqual(alphaAssets.map(({ key }) => key).sort(), [
+    "coat_of_arms.alpha.current",
+    "flag.alpha.current",
+  ]);
+  const paths = alphaAssets.flatMap(({ representations }) =>
+    representations.map(({ path }) => path),
+  );
+  assert.equal(new Set(paths).size, paths.length, "no two files share a path");
 });
 
 async function v3Validator(): Promise<ValidateFunction> {

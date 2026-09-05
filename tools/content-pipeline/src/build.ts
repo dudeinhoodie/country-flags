@@ -153,7 +153,7 @@ export async function buildBundle(options: BuildOptions): Promise<BuildResult> {
     .sort()
     .at(-1);
   const learning = buildLearningContent(
-    merged.learnableEntityKeys,
+    merged.cardVariants,
     merged.assets,
     String(createdAt),
   );

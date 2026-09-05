@@ -76,7 +76,7 @@ export function DraftShow() {
               size="small"
               variant="outlined"
             >
-              Flags
+              Symbols
             </Button>
             <Button
               component="a"

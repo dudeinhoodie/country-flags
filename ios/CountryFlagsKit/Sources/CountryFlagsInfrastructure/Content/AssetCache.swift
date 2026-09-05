@@ -31,23 +31,63 @@ public struct URLSessionAssetFetcher: AssetDataFetching {
     }
 }
 
+/// What a cached asset is filed under.
+///
+/// The checksum on its own was enough while an entity had a single drawing.
+/// It is not now: a country has a flag and a coat of arms at the same time,
+/// and a key that named only the bytes would let one asset type land on
+/// another's file — two symbols that happen to be published as identical
+/// bytes would share one entry, and evicting either would take both. The
+/// identifier and the type are in the key so the two cannot meet; the checksum
+/// stays in it so a re-published drawing is a new file rather than a stale
+/// hit.
+public struct AssetCacheKey: Hashable, Sendable {
+    public let assetID: UUID
+    public let type: String
+    public let sha256: String
+
+    public init(asset: AssetRecord) {
+        assetID = asset.id
+        type = asset.type
+        sha256 = asset.sha256
+    }
+
+    /// The name the bytes are stored under.
+    ///
+    /// The type comes from the content pipeline and is not a file name, so it
+    /// is reduced to characters every file system takes. Two types that
+    /// reduced to the same text would still be told apart by the identifier
+    /// in front of it.
+    var storageName: String {
+        "\(assetID.uuidString.lowercased())-\(Self.slug(type))-\(sha256.lowercased())"
+    }
+
+    private static func slug(_ value: String) -> String {
+        let reduced = value.unicodeScalars.map { scalar in
+            CharacterSet.alphanumerics.contains(scalar) ? Character(scalar) : "-"
+        }
+        return String(reduced.prefix(64)).lowercased()
+    }
+}
+
 /// `AssetLoading` plus the eviction only the owner of the files can do.
 public protocol AssetCaching: AssetLoading {
     /// Drops cached files that nothing needs.
     ///
-    /// - Parameter pinnedChecksums: the `sha256` of every asset that must
-    ///   survive, which is how a session still in progress keeps the flags it
-    ///   is going to show. Files are stored under their checksum, so that is
-    ///   what the caller pins.
-    func evict(keepingChecksums pinnedChecksums: Set<String>) async
+    /// - Parameter pinned: every asset that must survive, which is how a
+    ///   session still in progress keeps the drawings it is going to show.
+    ///   Assets are pinned whole rather than by checksum: the checksum no
+    ///   longer names a file on its own.
+    func evict(keeping pinned: Set<AssetCacheKey>) async
 }
 
-/// Stores verified asset bytes on disk, keyed by the checksum the content
-/// release published.
+/// Stores verified asset bytes on disk under the asset's identifier, its type
+/// and the checksum the content release published.
 ///
-/// Keying by checksum rather than by asset identifier is what makes a
-/// re-published flag land as a new file instead of a stale hit, and what lets
-/// the same bytes serve two records that share them.
+/// Keeping the checksum in the key is what makes a re-published flag land as a
+/// new file instead of a stale hit. Keeping the identifier and the type there
+/// as well is what stops a coat of arms from being served where a flag was
+/// asked for.
 public actor FileAssetCache: AssetCaching {
     private let directory: URL
     private let fetcher: any AssetDataFetching
@@ -99,7 +139,11 @@ public actor FileAssetCache: AssetCaching {
             return cached
         }
 
-        let key = asset.sha256.lowercased()
+        // Coalesced on the same key the file is stored under: two views
+        // asking for one flag at the same moment share a request, while a
+        // flag and a coat published as identical bytes do not — they are two
+        // assets with two URLs, and only one of them would be downloaded.
+        let key = AssetCacheKey(asset: asset).storageName
         if let running = inFlight[key] {
             return try await running.value
         }
@@ -118,7 +162,7 @@ public actor FileAssetCache: AssetCaching {
             throw AssetCacheError.unavailable(assetID: asset.id)
         }
 
-        guard Self.digest(of: data) == key else {
+        guard Self.digest(of: data) == asset.sha256.lowercased() else {
             // A mismatch is not a network hiccup: either the CDN is serving
             // something else or the release is wrong. Neither is safe to draw
             // as a flag, and both are worth a diagnostic.
@@ -130,7 +174,7 @@ public actor FileAssetCache: AssetCaching {
         return data
     }
 
-    public func evict(keepingChecksums pinnedChecksums: Set<String>) async {
+    public func evict(keeping pinned: Set<AssetCacheKey>) async {
         // Nothing is removed while it might still be needed: the caller names
         // what an unfinished session is holding, and only the rest goes.
         guard
@@ -141,8 +185,8 @@ public actor FileAssetCache: AssetCaching {
         else {
             return
         }
-        let pinned = Set(pinnedChecksums.map { $0.lowercased() })
-        for file in files where !pinned.contains(file.lastPathComponent) {
+        let kept = Set(pinned.map(\.storageName))
+        for file in files where !kept.contains(file.lastPathComponent) {
             try? fileManager.removeItem(at: file)
         }
     }
@@ -150,7 +194,7 @@ public actor FileAssetCache: AssetCaching {
     // MARK: - Disk
 
     private func fileURL(for asset: AssetRecord) -> URL {
-        directory.appending(path: asset.sha256.lowercased())
+        directory.appending(path: AssetCacheKey(asset: asset).storageName)
     }
 
     private func store(_ data: Data, for asset: AssetRecord) {

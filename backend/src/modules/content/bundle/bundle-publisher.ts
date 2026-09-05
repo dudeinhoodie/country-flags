@@ -59,7 +59,7 @@ interface ResolvedIds {
   assetIdByKey: Map<string, string>;
   templateIdByKey: Map<string, string>;
   learningCardIdByKey: Map<string, string>;
-  activeCardIdByEntityKey: Map<string, string>;
+  activeCardIdByVariant: Map<string, string>;
   deckIdByKey: Map<string, string>;
 }
 
@@ -251,8 +251,8 @@ async function upsertAssets(
       where: { objectKey: asset.key },
       create: {
         geoEntityId,
-        assetType: mapper.mapAssetType(),
-        variant: "current",
+        assetType: mapper.mapAssetType(asset.assetType),
+        variant: asset.variant,
         objectKey: asset.key,
         aspectRatio: asset.aspectRatio ?? null,
         sourceId,
@@ -358,10 +358,13 @@ async function upsertLearningCards(
   assetIdByKey: Map<string, string>,
 ): Promise<{
   learningCardIdByKey: Map<string, string>;
-  activeCardIdByEntityKey: Map<string, string>;
+  activeCardIdByVariant: Map<string, string>;
 }> {
   const learningCardIdByKey = new Map<string, string>();
-  const activeCardIdByEntityKey = new Map<string, string>();
+  /// An entity taught through two templates is two active cards, so the
+  /// index is keyed by the variant. Keyed by entity it would have kept
+  /// whichever card was published last and quietly lost the other.
+  const activeCardIdByVariant = new Map<string, string>();
 
   const orderedCards = [...domain.learningCards].sort(
     (left, right) => left.semanticVersion - right.semanticVersion,
@@ -408,7 +411,14 @@ async function upsertLearningCards(
     const cardKey = `${card.entityKey}:${card.templateCode}:${String(card.semanticVersion)}`;
     learningCardIdByKey.set(cardKey, row.id);
     if (card.status === "active") {
-      activeCardIdByEntityKey.set(card.entityKey, row.id);
+      activeCardIdByVariant.set(
+        variantKey(
+          card.entityKey,
+          card.templateCode,
+          card.templateSchemaVersion,
+        ),
+        row.id,
+      );
     }
 
     for (const revision of card.revisions) {
@@ -452,14 +462,14 @@ async function upsertLearningCards(
     }
   }
 
-  return { learningCardIdByKey, activeCardIdByEntityKey };
+  return { learningCardIdByKey, activeCardIdByVariant };
 }
 
 async function upsertDecks(
   tx: Prisma.TransactionClient,
   domain: BundleDomain,
   version: string,
-  activeCardIdByEntityKey: Map<string, string>,
+  activeCardIdByVariant: Map<string, string>,
 ): Promise<Map<string, string>> {
   const deckIdByKey = new Map<string, string>();
   for (const deck of domain.catalog.decks) {
@@ -500,8 +510,14 @@ async function upsertDecks(
 
     let sortOrder = 1;
     const memberCardIds: string[] = [];
-    for (const memberKey of deck.memberEntityKeys) {
-      const learningCardId = activeCardIdByEntityKey.get(memberKey);
+    for (const member of deck.memberCards) {
+      const learningCardId = activeCardIdByVariant.get(
+        variantKey(
+          member.entityKey,
+          member.templateCode,
+          member.templateSchemaVersion,
+        ),
+      );
       if (learningCardId === undefined) {
         continue;
       }
@@ -738,6 +754,21 @@ export interface BundleApplication {
  * The diff runs on the same transaction client, so under Serializable
  * isolation it cannot race a concurrent publish or rollback.
  */
+/**
+ * A card variant as one key: the entity and the template that teaches it.
+ *
+ * Germany's flag and Germany's coat of arms are two active cards, so an
+ * index keyed by the entity alone would keep whichever was published last
+ * and quietly lose the other.
+ */
+function variantKey(
+  entityKey: string,
+  templateCode: string,
+  templateSchemaVersion: number,
+): string {
+  return `${entityKey}:${templateCode}:${String(templateSchemaVersion)}`;
+}
+
 export async function applyBundleToDatabase(
   tx: Prisma.TransactionClient,
   bundle: LoadedBundle,
@@ -777,7 +808,7 @@ export async function applyBundleToDatabase(
     servedAssetBaseUrl,
   );
   const templateIdByKey = await upsertCardTemplates(tx, domain);
-  const { learningCardIdByKey, activeCardIdByEntityKey } =
+  const { learningCardIdByKey, activeCardIdByVariant } =
     await upsertLearningCards(
       tx,
       domain,
@@ -790,7 +821,7 @@ export async function applyBundleToDatabase(
     tx,
     domain,
     version,
-    activeCardIdByEntityKey,
+    activeCardIdByVariant,
   );
   const factCount = await replaceFacts(
     tx,
@@ -807,7 +838,7 @@ export async function applyBundleToDatabase(
     assetIdByKey,
     templateIdByKey,
     learningCardIdByKey,
-    activeCardIdByEntityKey,
+    activeCardIdByVariant,
     deckIdByKey,
   };
   const changeCount = await recordContentChanges(tx, version, diff, resolved);
