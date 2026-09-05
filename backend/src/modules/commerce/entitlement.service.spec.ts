@@ -31,6 +31,7 @@ function storeConfig(): AppleStoreConfig {
     appAppleId: null,
     rootCertificates: [],
     onlineChecks: false,
+    localTestAllowed: true,
     configured: true,
   };
 }

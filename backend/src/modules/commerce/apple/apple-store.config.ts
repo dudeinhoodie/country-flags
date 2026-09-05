@@ -39,6 +39,16 @@ export class AppleStoreConfig {
    * StoreKit configuration, whose payloads are not signed by Apple at all.
    */
   readonly onlineChecks: boolean;
+  /**
+   * Whether this build may run the local test verifier at all.
+   *
+   * A production artifact never enables it (§14), whatever deployment it is
+   * pointed at. `DEPLOYMENT_ENV` already keeps `LOCAL_TEST` away from dev and
+   * prod; this keeps it away from the release image itself, so a production
+   * container started against a disposable deployment boots and verifies
+   * nothing rather than believing payloads Apple never signed.
+   */
+  readonly localTestAllowed: boolean;
 
   constructor(config: ConfigService<EnvironmentVariables, true>) {
     const environment = config.getOrThrow<AppleStoreEnvironment>(
@@ -54,6 +64,8 @@ export class AppleStoreConfig {
       .getOrThrow<string[]>("COMMERCE_APPLE_ROOT_CERTIFICATES")
       .map((certificate) => Buffer.from(certificate, "base64"));
     this.onlineChecks = this.storeEnvironment !== StoreEnvironment.LOCAL_TEST;
+    this.localTestAllowed =
+      config.getOrThrow<string>("NODE_ENV") !== "production";
   }
 
   /**
@@ -68,7 +80,7 @@ export class AppleStoreConfig {
       return false;
     }
     if (this.storeEnvironment === StoreEnvironment.LOCAL_TEST) {
-      return true;
+      return this.localTestAllowed;
     }
     if (this.rootCertificates.length === 0) {
       return false;

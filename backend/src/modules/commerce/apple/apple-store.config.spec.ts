@@ -102,4 +102,30 @@ describe("AppleStoreConfig", () => {
     expect(store.configured).toBe(true);
     expect(store.bundleId).toBe("app.countryflags.mobile.local");
   });
+
+  it("never runs the local test verifier from a production artifact", () => {
+    // The release image started against a disposable deployment: it boots,
+    // and it verifies nothing. The local test store skips signature checking
+    // altogether, so a production build that could select it would believe
+    // payloads Apple never signed (§14).
+    const store = storeConfig({
+      ...LOCAL,
+      NODE_ENV: "production",
+      DEPLOYMENT_ENV: "ci",
+      SERVICE_RELEASE: "0e7c1a9",
+      AUTH_PROVIDER_TEST_TOKENS_ENABLED: "false",
+      TEST_AUTH_ENABLED: "false",
+      AUTH_ACCESS_TOKEN_SECRET: "production-access-secret-with-at-least-32-ch",
+      AUTH_ACCESS_TOKEN_ISSUER: "ci",
+      AUTH_ACCESS_TOKEN_AUDIENCE: "ci",
+      AUTH_RATE_LIMIT_SECRET: "production-rate-limit-secret-with-at-least-32c",
+      ACCOUNT_DATA_HASH_SECRET: "production-account-secret-with-at-least-32-ch",
+      PUBLIC_BASE_URL: "http://localhost:3000",
+      APPLE_CLIENT_IDS: "ci",
+      GOOGLE_CLIENT_IDS: "ci",
+    });
+
+    expect(store.storeEnvironment).toBe(StoreEnvironment.LOCAL_TEST);
+    expect(store.configured).toBe(false);
+  });
 });

@@ -20,6 +20,7 @@ function storeConfig(
     appAppleId: null,
     rootCertificates: [],
     onlineChecks: false,
+    localTestAllowed: true,
     configured: true,
     ...overrides,
   };
