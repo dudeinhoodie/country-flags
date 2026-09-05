@@ -33,8 +33,10 @@ import {
   parseDraftAssetPatch,
   parseDraftAssetUpload,
   parseIfMatchRevision,
+  parseOptionalIfMatchRevision,
 } from "./admin-drafts.request";
 import { DraftAssetsService, isoDay } from "./draft-assets.service";
+import { processingStateOf } from "./draft-read-model.service";
 
 interface UploadedMultipartFile {
   buffer: Buffer;
@@ -95,6 +97,13 @@ export class DraftAssetsController {
     return { items: items.map(toAssetResponse), total: items.length };
   }
 
+  /**
+   * A drawing into a slot, with the state it is in and the draft it moved.
+   *
+   * The answer carries the new draft stamp because the upload is an
+   * editorial write like any other: a console that kept editing against the
+   * revision it had before would be refused on its next save (#356).
+   */
   @Post()
   @RequireAdminRole(AdminRole.EDITOR)
   @HttpCode(HttpStatus.CREATED)
@@ -102,6 +111,7 @@ export class DraftAssetsController {
   async upload(
     @Req() request: AdminAuthenticatedRequest,
     @Param("draftId") rawDraftId: string,
+    @Headers("if-match") ifMatch: string | undefined,
     @UploadedFile() file: UploadedMultipartFile | undefined,
     @Body() body: unknown,
   ): Promise<Record<string, unknown>> {
@@ -114,14 +124,19 @@ export class DraftAssetsController {
         { fields: [{ field: "file", message: "is required" }] },
       );
     }
-    const asset = await this.assets.upload(
+    const { asset, draft } = await this.assets.upload(
       request.adminUser,
       uuid(rawDraftId, "draftId"),
       file,
       parseDraftAssetUpload(body),
       request.requestId,
+      parseOptionalIfMatchRevision(ifMatch),
     );
-    return toAssetResponse(asset);
+    return {
+      asset: toAssetResponse(asset),
+      processing: { state: processingStateOf(asset) },
+      draft: toDraftStamp(draft),
+    };
   }
 
   /**
