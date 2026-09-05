@@ -223,6 +223,17 @@ export interface EditorialEntity {
   validFrom?: string;
   validTo?: string;
   identifiers?: EntityReference;
+  /**
+   * Facts a curator states outright, in the shape the release publishes
+   * them.
+   *
+   * Separate from `overrides` on purpose: an override is a dotted path into
+   * the merged record and says nothing about whether anything reads it, so
+   * a fact written that way can be saved, published and quietly ignored
+   * (#351). These are patched onto the entity by key, at editorial
+   * priority, and every one of them lands in a published collection.
+   */
+  facts?: Record<string, unknown>;
   overrides?: Record<string, unknown>;
 }
 

@@ -138,13 +138,24 @@ export function editorialPatches(
   editorial: EditorialCatalog,
   source: FieldPatch["provenance"],
 ): FieldPatch[] {
-  return editorial.entities.flatMap((entity) =>
-    Object.entries(entity.overrides ?? {}).map(([path, value]) => ({
+  return editorial.entities.flatMap((entity) => [
+    ...Object.entries(entity.overrides ?? {}).map(([path, value]) => ({
       entity: { editorialKey: entity.key },
       path,
       value,
       priority: 100,
       provenance: source,
     })),
-  );
+    // A stated fact is a patch on the fact the sources supply, at the same
+    // editorial priority as a name override — and it goes in by fact type
+    // rather than by a path somebody typed, so it cannot land somewhere
+    // nothing reads (#351).
+    ...Object.entries(entity.facts ?? {}).map(([factType, value]) => ({
+      entity: { editorialKey: entity.key },
+      path: `facts.${factType}`,
+      value,
+      priority: 100,
+      provenance: source,
+    })),
+  ]);
 }

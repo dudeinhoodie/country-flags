@@ -636,3 +636,76 @@ void test("the v3 schema refuses the documents that would break the model", asyn
     assert.equal(validate(document), false, `${name} should be refused`);
   }
 });
+
+void test("a fact a curator states is a fact the release publishes", async () => {
+  const root = await temporaryRoot();
+  const outputDirectory = join(root, "out");
+  await mkdir(outputDirectory, { recursive: true });
+
+  const base = migrateEditorialCatalog(v2Catalog());
+  const editorial: EditorialCatalog = {
+    ...base,
+    entities: [
+      {
+        key: "country.alpha",
+        type: "country",
+        status: "active",
+        config: { includeInCountryCatalog: true },
+        recognitionStatus: "un_member",
+        identifiers: { isoAlpha2: "AA" },
+        overrides: { "names.en.short": "Alpha", "names.ru.short": "Альфа" },
+        facts: {
+          capitals: [{ names: { en: "Alphaville", ru: "Альфавиль" } }],
+          statehoodDate: { date: "1850-09-09" },
+        },
+      },
+    ],
+    decks: [
+      {
+        key: "deck.all",
+        kind: "curated",
+        names: { en: { name: "All", description: "All countries" } },
+        defaultTemplateCode: "FLAG_TO_COUNTRY",
+        defaultTemplateSchemaVersion: 1,
+        members: "all-current",
+      },
+    ],
+  };
+  const normalized: NormalizedSource[] = [
+    { patches: [], relations: [], assets: [upstreamAsset("AA")] },
+  ];
+
+  const merged = await mergeContent(
+    outputDirectory,
+    "stated-facts-v1",
+    editorial,
+    normalized,
+    createMatcher(editorial, normalized),
+    editorialProvenance,
+  );
+
+  // The stated capital is published, rather than written to a path nothing
+  // reads (#351).
+  const capitals = merged.facts.capitals as {
+    records: { entityKey: string; gap: boolean; value?: unknown }[];
+  };
+  const capital = capitals.records.find(
+    ({ entityKey }) => entityKey === "country.alpha",
+  );
+  assert.ok(capital);
+  assert.equal(capital.gap, false);
+  assert.deepEqual(capital.value, [
+    { names: { en: "Alphaville", ru: "Альфавиль" } },
+  ]);
+
+  // A type only a curator can state joins the release because one did.
+  const statehood = merged.facts.statehoodDate as {
+    records: { entityKey: string; value?: { date?: string } }[];
+  };
+  assert.equal(statehood.records[0]?.value?.date, "1850-09-09");
+
+  // The ones nobody stated stay out of the bundle entirely: two hundred
+  // gaps saying nothing help no one.
+  assert.equal("motto" in merged.facts, false);
+  assert.equal("largestCity" in merged.facts, false);
+});

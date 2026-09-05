@@ -4,11 +4,25 @@
   "title": "Country Flags fact collection",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "factType", "records"],
+  "required": [
+    "schemaVersion",
+    "factType",
+    "records"
+  ],
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "schemaVersion": {
+      "const": 1
+    },
     "factType": {
-      "enum": ["capitals", "currencies", "languages", "population"]
+      "enum": [
+        "capitals",
+        "currencies",
+        "languages",
+        "population",
+        "statehoodDate",
+        "motto",
+        "largestCity"
+      ]
     },
     "records": {
       "type": "array",
@@ -17,22 +31,44 @@
           {
             "type": "object",
             "additionalProperties": false,
-            "required": ["entityKey", "gap", "reason"],
+            "required": [
+              "entityKey",
+              "gap",
+              "reason"
+            ],
             "properties": {
-              "entityKey": { "type": "string" },
-              "gap": { "const": true },
-              "reason": { "type": "string", "minLength": 1 }
+              "entityKey": {
+                "type": "string"
+              },
+              "gap": {
+                "const": true
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           },
           {
             "type": "object",
             "additionalProperties": false,
-            "required": ["entityKey", "gap", "value", "provenance"],
+            "required": [
+              "entityKey",
+              "gap",
+              "value",
+              "provenance"
+            ],
             "properties": {
-              "entityKey": { "type": "string" },
-              "gap": { "const": false },
+              "entityKey": {
+                "type": "string"
+              },
+              "gap": {
+                "const": false
+              },
               "value": {},
-              "provenance": { "$ref": "#/$defs/provenance" }
+              "provenance": {
+                "$ref": "#/$defs/provenance"
+              }
             }
           }
         ]
@@ -41,45 +77,134 @@
   },
   "allOf": [
     {
-      "if": { "properties": { "factType": { "const": "capitals" } } },
+      "if": {
+        "properties": {
+          "factType": {
+            "const": "capitals"
+          }
+        }
+      },
       "then": {
         "properties": {
           "records": {
             "type": "array",
-            "items": { "$ref": "#/$defs/capitalRecord" }
+            "items": {
+              "$ref": "#/$defs/capitalRecord"
+            }
           }
         }
       }
     },
     {
-      "if": { "properties": { "factType": { "const": "currencies" } } },
+      "if": {
+        "properties": {
+          "factType": {
+            "const": "currencies"
+          }
+        }
+      },
       "then": {
         "properties": {
           "records": {
             "type": "array",
-            "items": { "$ref": "#/$defs/currencyRecord" }
+            "items": {
+              "$ref": "#/$defs/currencyRecord"
+            }
           }
         }
       }
     },
     {
-      "if": { "properties": { "factType": { "const": "languages" } } },
+      "if": {
+        "properties": {
+          "factType": {
+            "const": "languages"
+          }
+        }
+      },
       "then": {
         "properties": {
           "records": {
             "type": "array",
-            "items": { "$ref": "#/$defs/languageRecord" }
+            "items": {
+              "$ref": "#/$defs/languageRecord"
+            }
           }
         }
       }
     },
     {
-      "if": { "properties": { "factType": { "const": "population" } } },
+      "if": {
+        "properties": {
+          "factType": {
+            "const": "population"
+          }
+        }
+      },
       "then": {
         "properties": {
           "records": {
             "type": "array",
-            "items": { "$ref": "#/$defs/populationRecord" }
+            "items": {
+              "$ref": "#/$defs/populationRecord"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "factType": {
+            "const": "statehoodDate"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/statehoodDateRecord"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "factType": {
+            "const": "motto"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/mottoRecord"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "factType": {
+            "const": "largestCity"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/largestCityRecord"
+            }
           }
         }
       }
@@ -89,151 +214,416 @@
     "localizedNames": {
       "description": "A name per locale. The default locale can be absent from a source, but English is always there to fall back to.",
       "type": "object",
-      "required": ["en"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "string", "minLength": 1 }
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
       },
-      "additionalProperties": { "type": "string", "minLength": 1 }
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "provenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["sourceKey", "revision", "retrievedAt"],
+      "required": [
+        "sourceKey",
+        "revision",
+        "retrievedAt"
+      ],
       "properties": {
-        "sourceKey": { "type": "string", "minLength": 1 },
-        "revision": { "type": "string", "minLength": 1 },
-        "retrievedAt": { "type": "string", "format": "date-time" }
+        "sourceKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "retrievedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "period": {
       "type": "object",
       "properties": {
-        "validFrom": { "type": "string", "format": "date" },
-        "validTo": { "type": "string", "format": "date" }
+        "validFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "validTo": {
+          "type": "string",
+          "format": "date"
+        }
       }
     },
     "gapRecord": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["entityKey", "gap", "reason"],
+      "required": [
+        "entityKey",
+        "gap",
+        "reason"
+      ],
       "properties": {
-        "entityKey": { "type": "string" },
-        "gap": { "const": true },
-        "reason": { "type": "string", "minLength": 1 }
+        "entityKey": {
+          "type": "string"
+        },
+        "gap": {
+          "const": true
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "capitalRecord": {
       "oneOf": [
-        { "$ref": "#/$defs/gapRecord" },
+        {
+          "$ref": "#/$defs/gapRecord"
+        },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["entityKey", "gap", "value", "provenance"],
+          "required": [
+            "entityKey",
+            "gap",
+            "value",
+            "provenance"
+          ],
           "properties": {
-            "entityKey": { "type": "string" },
-            "gap": { "const": false },
+            "entityKey": {
+              "type": "string"
+            },
+            "gap": {
+              "const": false
+            },
             "value": {
               "type": "array",
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["names", "role"],
+                "required": [
+                  "names",
+                  "role"
+                ],
                 "properties": {
-                  "names": { "$ref": "#/$defs/localizedNames" },
-                  "role": { "type": "string", "minLength": 1 },
-                  "validFrom": { "type": "string", "format": "date" },
-                  "validTo": { "type": "string", "format": "date" }
+                  "names": {
+                    "$ref": "#/$defs/localizedNames"
+                  },
+                  "role": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "validFrom": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "validTo": {
+                    "type": "string",
+                    "format": "date"
+                  }
                 }
               }
             },
-            "provenance": { "$ref": "#/$defs/provenance" }
+            "provenance": {
+              "$ref": "#/$defs/provenance"
+            }
           }
         }
       ]
     },
     "currencyRecord": {
       "oneOf": [
-        { "$ref": "#/$defs/gapRecord" },
+        {
+          "$ref": "#/$defs/gapRecord"
+        },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["entityKey", "gap", "value", "provenance"],
+          "required": [
+            "entityKey",
+            "gap",
+            "value",
+            "provenance"
+          ],
           "properties": {
-            "entityKey": { "type": "string" },
-            "gap": { "const": false },
+            "entityKey": {
+              "type": "string"
+            },
+            "gap": {
+              "const": false
+            },
             "value": {
               "type": "array",
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["code", "role"],
+                "required": [
+                  "code",
+                  "role"
+                ],
                 "properties": {
                   "code": {
                     "type": "string",
                     "pattern": "^[A-Z][A-Z0-9]{2,7}$"
                   },
-                  "role": { "type": "string", "minLength": 1 },
-                  "names": { "$ref": "#/$defs/localizedNames" },
-                  "validFrom": { "type": "string", "format": "date" },
-                  "validTo": { "type": "string", "format": "date" }
+                  "role": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "names": {
+                    "$ref": "#/$defs/localizedNames"
+                  },
+                  "validFrom": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "validTo": {
+                    "type": "string",
+                    "format": "date"
+                  }
                 }
               }
             },
-            "provenance": { "$ref": "#/$defs/provenance" }
+            "provenance": {
+              "$ref": "#/$defs/provenance"
+            }
           }
         }
       ]
     },
     "languageRecord": {
       "oneOf": [
-        { "$ref": "#/$defs/gapRecord" },
+        {
+          "$ref": "#/$defs/gapRecord"
+        },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["entityKey", "gap", "value", "provenance"],
+          "required": [
+            "entityKey",
+            "gap",
+            "value",
+            "provenance"
+          ],
           "properties": {
-            "entityKey": { "type": "string" },
-            "gap": { "const": false },
+            "entityKey": {
+              "type": "string"
+            },
+            "gap": {
+              "const": false
+            },
             "value": {
               "type": "array",
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["code", "role"],
+                "required": [
+                  "code",
+                  "role"
+                ],
                 "properties": {
-                  "code": { "type": "string", "minLength": 2 },
-                  "role": { "type": "string", "minLength": 1 },
-                  "names": { "$ref": "#/$defs/localizedNames" },
-                  "validFrom": { "type": "string", "format": "date" },
-                  "validTo": { "type": "string", "format": "date" }
+                  "code": {
+                    "type": "string",
+                    "minLength": 2
+                  },
+                  "role": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "names": {
+                    "$ref": "#/$defs/localizedNames"
+                  },
+                  "validFrom": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "validTo": {
+                    "type": "string",
+                    "format": "date"
+                  }
                 }
               }
             },
-            "provenance": { "$ref": "#/$defs/provenance" }
+            "provenance": {
+              "$ref": "#/$defs/provenance"
+            }
           }
         }
       ]
     },
     "populationRecord": {
       "oneOf": [
-        { "$ref": "#/$defs/gapRecord" },
+        {
+          "$ref": "#/$defs/gapRecord"
+        },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["entityKey", "gap", "value", "provenance"],
+          "required": [
+            "entityKey",
+            "gap",
+            "value",
+            "provenance"
+          ],
           "properties": {
-            "entityKey": { "type": "string" },
-            "gap": { "const": false },
+            "entityKey": {
+              "type": "string"
+            },
+            "gap": {
+              "const": false
+            },
             "value": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["value", "year"],
+              "required": [
+                "value",
+                "year"
+              ],
               "properties": {
-                "value": { "type": "integer", "minimum": 0 },
-                "year": { "type": "integer", "minimum": 1900 }
+                "value": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "year": {
+                  "type": "integer",
+                  "minimum": 1900
+                }
               }
             },
-            "provenance": { "$ref": "#/$defs/provenance" }
+            "provenance": {
+              "$ref": "#/$defs/provenance"
+            }
+          }
+        }
+      ]
+    },
+    "statehoodDateRecord": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/gapRecord"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "entityKey",
+            "gap",
+            "value",
+            "provenance"
+          ],
+          "properties": {
+            "entityKey": {
+              "type": "string"
+            },
+            "gap": {
+              "const": false
+            },
+            "value": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "date"
+              ],
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+                }
+              }
+            },
+            "provenance": {
+              "$ref": "#/$defs/provenance"
+            }
+          }
+        }
+      ]
+    },
+    "mottoRecord": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/gapRecord"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "entityKey",
+            "gap",
+            "value",
+            "provenance"
+          ],
+          "properties": {
+            "entityKey": {
+              "type": "string"
+            },
+            "gap": {
+              "const": false
+            },
+            "value": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "names"
+              ],
+              "properties": {
+                "names": {
+                  "$ref": "#/$defs/localizedNames"
+                }
+              }
+            },
+            "provenance": {
+              "$ref": "#/$defs/provenance"
+            }
+          }
+        }
+      ]
+    },
+    "largestCityRecord": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/gapRecord"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "entityKey",
+            "gap",
+            "value",
+            "provenance"
+          ],
+          "properties": {
+            "entityKey": {
+              "type": "string"
+            },
+            "gap": {
+              "const": false
+            },
+            "value": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "names"
+              ],
+              "properties": {
+                "names": {
+                  "$ref": "#/$defs/localizedNames"
+                }
+              }
+            },
+            "provenance": {
+              "$ref": "#/$defs/provenance"
+            }
           }
         }
       ]

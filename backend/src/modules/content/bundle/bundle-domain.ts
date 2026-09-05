@@ -119,7 +119,14 @@ export interface DomainFactRecord {
 }
 
 export interface DomainFactCollection {
-  factType: "capitals" | "currencies" | "languages" | "population";
+  factType:
+    | "capitals"
+    | "currencies"
+    | "languages"
+    | "population"
+    | "statehoodDate"
+    | "motto"
+    | "largestCity";
   records: DomainFactRecord[];
 }
 

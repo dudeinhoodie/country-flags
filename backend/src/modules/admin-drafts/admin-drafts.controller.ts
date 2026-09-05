@@ -138,6 +138,7 @@ export class AdminDraftsController {
       draft.document,
       await this.membershipContext(draft.document),
       await this.drafts.draftAssetsOf(draftId),
+      await this.drafts.publishedDeckAccess(),
     );
     const stored = await this.drafts.storeValidationReport(
       draftId,

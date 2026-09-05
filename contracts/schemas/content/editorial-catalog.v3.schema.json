@@ -145,6 +145,74 @@
         }
       ]
     },
+    "localizedNames": {
+      "description": "Locale to the value in that locale. A fact a curator writes is written once per locale, because a card back reads it in the reader's own.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      }
+    },
+    "entityFacts": {
+      "description": "Facts a curator states outright, in the shape the release publishes them. Written here rather than as override paths so that what is saved is what is published: a value the build does not read is worse than a value nobody entered.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "capitals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["names"],
+            "properties": {
+              "names": { "$ref": "#/$defs/localizedNames" },
+              "role": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "population": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value"],
+          "properties": {
+            "value": { "type": "integer", "minimum": 0 },
+            "year": { "type": "integer" }
+          }
+        },
+        "statehoodDate": {
+          "description": "When the unit joined the entity above it. A state's, not a country's.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["date"],
+          "properties": {
+            "date": { "$ref": "#/$defs/isoDate" }
+          }
+        },
+        "motto": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["names"],
+          "properties": {
+            "names": { "$ref": "#/$defs/localizedNames" }
+          }
+        },
+        "largestCity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["names"],
+          "properties": {
+            "names": { "$ref": "#/$defs/localizedNames" }
+          }
+        }
+      }
+    },
     "entity": {
       "type": "object",
       "additionalProperties": false,
@@ -248,6 +316,9 @@
               "minLength": 1
             }
           }
+        },
+        "facts": {
+          "$ref": "#/$defs/entityFacts"
         },
         "overrides": {
           "type": "object",
