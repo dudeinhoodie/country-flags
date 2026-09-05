@@ -363,4 +363,156 @@ describe("validateEnvironment", () => {
       expect(() => validateEnvironment(validConfig)).not.toThrow();
     });
   });
+
+  describe("Apple store environment", () => {
+    // Bytes that begin like DER: an ASN.1 SEQUENCE, which is all the
+    // configuration check looks at.
+    const certificate = Buffer.from([0x30, 0x82, 0x01, 0x02]).toString(
+      "base64",
+    );
+    const devConfig = {
+      ...validConfig,
+      ...productionAuthConfig,
+      NODE_ENV: "production",
+      DEPLOYMENT_ENV: "dev",
+    };
+
+    it("gives a hosted deployment the store its environment names", () => {
+      expect(
+        validateEnvironment({
+          ...validConfig,
+          ...productionAuthConfig,
+          NODE_ENV: "production",
+        }).COMMERCE_APPLE_STORE_ENVIRONMENT,
+      ).toBe("PRODUCTION");
+      expect(
+        validateEnvironment(devConfig).COMMERCE_APPLE_STORE_ENVIRONMENT,
+      ).toBe("SANDBOX");
+      expect(
+        validateEnvironment(validConfig).COMMERCE_APPLE_STORE_ENVIRONMENT,
+      ).toBe("LOCAL_TEST");
+    });
+
+    it("refuses to let production accept a Sandbox purchase", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          ...productionAuthConfig,
+          NODE_ENV: "production",
+          COMMERCE_APPLE_STORE_ENVIRONMENT: "SANDBOX",
+        }),
+      ).toThrow("accepts only PRODUCTION store transactions");
+    });
+
+    it("refuses to let dev accept a Production purchase", () => {
+      expect(() =>
+        validateEnvironment({
+          ...devConfig,
+          COMMERCE_APPLE_STORE_ENVIRONMENT: "PRODUCTION",
+        }),
+      ).toThrow("accepts only SANDBOX store transactions");
+    });
+
+    it("keeps the unsigned local test store out of every hosted deployment", () => {
+      // LOCAL_TEST skips signature verification entirely, so a deployment
+      // that could select it could be handed a purchase anybody wrote.
+      expect(() =>
+        validateEnvironment({
+          ...devConfig,
+          COMMERCE_APPLE_STORE_ENVIRONMENT: "LOCAL_TEST",
+        }),
+      ).toThrow("accepts only SANDBOX store transactions");
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          ...productionAuthConfig,
+          NODE_ENV: "production",
+          COMMERCE_APPLE_STORE_ENVIRONMENT: "LOCAL_TEST",
+        }),
+      ).toThrow("accepts only PRODUCTION store transactions");
+    });
+
+    it("lets a local run reach Sandbox but never Production", () => {
+      expect(
+        validateEnvironment({
+          ...validConfig,
+          COMMERCE_APPLE_STORE_ENVIRONMENT: "sandbox",
+        }).COMMERCE_APPLE_STORE_ENVIRONMENT,
+      ).toBe("SANDBOX");
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          COMMERCE_APPLE_STORE_ENVIRONMENT: "PRODUCTION",
+        }),
+      ).toThrow("must not verify PRODUCTION store transactions");
+    });
+
+    it("rejects an unknown store environment", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          COMMERCE_APPLE_STORE_ENVIRONMENT: "TESTFLIGHT",
+        }),
+      ).toThrow("COMMERCE_APPLE_STORE_ENVIRONMENT must be one of");
+    });
+
+    it("leaves a deployment without an app record unconfigured rather than dead", () => {
+      // The tables, the guard and the endpoints ship before App Store
+      // Connect has anything to point at; a missing bundle identifier is a
+      // state, not a startup failure.
+      const environment = validateEnvironment(devConfig);
+      expect(environment.COMMERCE_APPLE_BUNDLE_ID).toBe("");
+      expect(environment.COMMERCE_APPLE_APP_APPLE_ID).toBeNull();
+      expect(environment.COMMERCE_APPLE_ROOT_CERTIFICATES).toEqual([]);
+    });
+
+    it("accepts base64 DER root certificates and refuses anything else", () => {
+      expect(
+        validateEnvironment({
+          ...devConfig,
+          COMMERCE_APPLE_BUNDLE_ID: "app.countryflags.mobile.dev",
+          COMMERCE_APPLE_ROOT_CERTIFICATES: `${certificate},${certificate}`,
+        }).COMMERCE_APPLE_ROOT_CERTIFICATES,
+      ).toEqual([certificate]);
+      expect(() =>
+        validateEnvironment({
+          ...devConfig,
+          COMMERCE_APPLE_ROOT_CERTIFICATES: "-----BEGIN CERTIFICATE-----\nMIIB",
+        }),
+      ).toThrow("must contain base64-encoded DER certificates");
+    });
+  });
+
+  describe("App Store Server API credential", () => {
+    const credential = {
+      COMMERCE_APPLE_IAP_KEY_ID: "2X9R4HXF34",
+      COMMERCE_APPLE_IAP_ISSUER_ID: "57246542-96fe-1a63-e053-0824d011072a",
+      COMMERCE_APPLE_IAP_PRIVATE_KEY: "TEST_ONLY_base64_pkcs8_placeholder",
+    };
+
+    it("rejects a partial configuration instead of degrading silently", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          COMMERCE_APPLE_IAP_KEY_ID: credential.COMMERCE_APPLE_IAP_KEY_ID,
+        }),
+      ).toThrow(
+        "COMMERCE_APPLE_IAP_KEY_ID, COMMERCE_APPLE_IAP_ISSUER_ID, COMMERCE_APPLE_IAP_PRIVATE_KEY must be set together",
+      );
+    });
+
+    it("carries the key from configuration and nowhere else", () => {
+      // It arrives from Secret Manager as an environment variable and is
+      // read here only; there is no path by which it reaches the repository.
+      expect(
+        validateEnvironment({ ...validConfig, ...credential }),
+      ).toMatchObject(credential);
+    });
+
+    it("accepts the credential being absent entirely", () => {
+      expect(
+        validateEnvironment(validConfig).COMMERCE_APPLE_IAP_PRIVATE_KEY,
+      ).toBe("");
+    });
+  });
 });

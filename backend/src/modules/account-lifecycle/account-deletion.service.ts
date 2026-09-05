@@ -4,6 +4,7 @@ import { Prisma, UserStatus } from "@prisma/client";
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
+import { EntitlementService } from "../commerce/entitlement.service";
 
 interface DeletionResult extends Record<string, unknown> {
   status: "DELETION_PENDING";
@@ -13,7 +14,10 @@ interface DeletionResult extends Record<string, unknown> {
 
 @Injectable()
 export class AccountDeletionService {
-  constructor(private readonly database: PrismaService) {}
+  constructor(
+    private readonly database: PrismaService,
+    private readonly entitlements: EntitlementService,
+  ) {}
 
   async delete(userId: string, requestId: string): Promise<DeletionResult> {
     return inSerializableTransaction(
@@ -111,6 +115,16 @@ export class AccountDeletionService {
           "privacyEvents",
           transaction.privacyConsentEvent.deleteMany({ where: { userId } }),
         );
+        // A non-consumable purchase belongs to the Apple Account that paid
+        // for it, and that account outlives this one. The rights go; the
+        // ledger row stays and is released, which is the only state a
+        // verified restore may later bind to a new account from (§15.4).
+        const purchases = await this.entitlements.releaseOnAccountDeletion(
+          transaction,
+          userId,
+        );
+        deletedCounts.entitlementGrants = purchases.entitlementGrants;
+        deletedCounts.releasedStoreTransactions = purchases.storeTransactions;
         await transaction.userPrivacySettings.deleteMany({
           where: { userId },
         });

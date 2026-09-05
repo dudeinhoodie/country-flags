@@ -7,6 +7,7 @@ bootstrapTelemetry();
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
+import { json } from "express";
 import helmet from "helmet";
 
 import { AppModule } from "./app/app.module";
@@ -14,6 +15,13 @@ import { JsonLoggerService } from "./common/logging/json-logger.service";
 import type { EnvironmentVariables } from "./config/environment.validation";
 
 const BODY_SIZE_LIMIT = "512kb";
+/**
+ * A restore submits up to a hundred signed transactions, and an Apple JWS
+ * carries its own certificate chain, so that batch does not fit the limit
+ * every other route lives by. It gets its own ceiling and nothing else does.
+ */
+const STORE_TRANSACTIONS_PATH = "/v1/me/commerce/apple/transactions";
+const STORE_TRANSACTIONS_BODY_LIMIT = "1mb";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -35,6 +43,12 @@ async function bootstrap(): Promise<void> {
   // add noise; the remaining helmet defaults (HSTS, X-Content-Type-Options, etc.) still apply.
   app.use(helmet({ contentSecurityPolicy: false }));
   app.enableCors({ origin: corsAllowedOrigins, credentials: false });
+  // Registered first: body-parser leaves an already-parsed body alone, so
+  // the global limit below never sees this route.
+  app.use(
+    STORE_TRANSACTIONS_PATH,
+    json({ limit: STORE_TRANSACTIONS_BODY_LIMIT }),
+  );
   app.useBodyParser("json", { limit: BODY_SIZE_LIMIT });
   app.useBodyParser("urlencoded", {
     limit: BODY_SIZE_LIMIT,
