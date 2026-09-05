@@ -35,10 +35,12 @@ you can open full screen.
 - Study by continent, or take the whole world at once
 - Progress you can see: a map that lights up as you learn it
 - Works offline, and works without an account
-- Free, with no advertising and no purchases
+- Free, with no advertising. A few extra decks are an optional one-time purchase.
 
-Sign in only if you want your progress to survive a lost phone. Everything else
-works as a guest, and nothing is collected until you say so.
+Sign in if you want your progress to survive a lost phone, or if you want to
+buy or restore a deck — a purchase is tied to your account so it follows you
+to a new device. Everything else works as a guest, and nothing is collected
+until you say so.
 
 ## Keywords (100 characters)
 
