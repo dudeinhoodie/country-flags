@@ -459,7 +459,68 @@ Feature flag — временный инструмент, кроме явно п
 - Есть тесты fallback, lifecycle и enforcement.
 - Документирован процесс создания, rollout, rollback и удаления flag.
 
-## 18. Источники
+## 18. Commerce и paid-decks флаги (PD-21)
+
+Первые конкретные production flags поверх системы, описанной в разделах 1–17.
+Бизнес-контекст: [17-paid-decks-storekit.md](./17-paid-decks-storekit.md) §10 и
+[18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md) §12 —
+последний является единственным источником имён для обоих документов. Здесь
+фиксируется то, что уже зарегистрировано в
+`contracts/registries/feature-flags.json`.
+
+Все семь — `boolean`, category `release`, `defaultValue: false` во всех средах
+до rollout gate (документ 17 §20):
+
+- `monetization.paid_decks.storefront_enabled` — общий rollout switch
+  storefront и кнопки покупки, owner `monetization`, activation policy
+  `immediate`;
+- `commerce.apple_iap.enabled` — показ кнопки покупки Apple IAP на locked deck
+  detail, owner `monetization`, `immediate`;
+- `commerce.paid_decks.discovery.enabled` — показ платных колод в каталоге,
+  owner `monetization`, `immediate`;
+- `commerce.deck.europe_coats.enabled` — показ колоды European Coats, owner
+  `monetization`, `immediate`;
+- `commerce.deck.us_state_flags.enabled` — показ колоды U.S. State Flags,
+  owner `monetization`, `immediate`;
+- `content.coats_of_arms.enabled` — рендеринг card template гербов и
+  связанного контента, owner `content`, `nextSession` — активная study-сессия
+  не должна менять состав карточек посередине (раздел 8);
+- `content.subdivisions.enabled` — рендеринг subdivision entities (штатов
+  США) и связанного контента, owner `content`, `nextSession` по той же
+  причине.
+
+`commerce.deck.europe_coats.enabled` намеренно использует написание
+`europe_coats` — как уже зафиксировано в entitlement key контрактов
+(`contracts/fixtures/openapi/entitlements.json`,
+`contracts/fixtures/openapi/commerce-offers.json`) и в issue #330, — а не
+`european_coats` из §12 документа 18. Расхождение написания между документами
+уже существует независимо от этого изменения (см. также §3.1 документа 17) и
+не решается здесь.
+
+### Инвариант: flag управляет rollout/discovery, не entitlement
+
+Ни один флаг этого раздела не является исключением из §4 («доступа к чужим
+данным», «проверки entitlement») — наоборот, он подтверждает эти запреты на
+конкретном примере:
+
+- при `false` owner (пользователь с активным `UserEntitlementGrant`)
+  продолжает без деградации пользоваться уже купленной колодой;
+- non-owner при `false` видит «Покупка временно недоступна», а не ошибку или
+  пустой экран;
+- канонический backend access guard (`access = FREE OR exists ACTIVE
+  UserEntitlementGrant`, ADR-019, документ 17 §10) применяется одинаково при
+  любом значении любого из этих флагов;
+- ни при какой комбинации значений non-owner не получает доступ к платному
+  контенту, а owner его не теряет.
+
+Контрактная часть инварианта — что эти семь keys существуют и остаются
+`boolean` с `defaultValue: false` — проверяется `validatePaidDecksRolloutFlags`
+в `contracts/scripts/validate-json-schemas.mjs` и запускается вместе с
+`yarn contracts:schemas`. Рантайм-часть — что backend access guard принимает
+решение о доступе, не читая эти флаги — принадлежит коду guard'а (`backend/`,
+PD-12 #321) и не покрывается тестами из `contracts/`.
+
+## 19. Источники
 
 - [OpenFeature: vendor-agnostic Flag Evaluation API](https://openfeature.dev/specification/sections/flag-evaluation/)
 - [OpenFeature: назначение SDK и providers](https://openfeature.dev/docs/reference/intro/)
