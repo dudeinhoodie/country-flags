@@ -1,0 +1,98 @@
+name: Store reconciliation (dev)
+
+# Apple retries a notification for about a day and then stops. What it could
+# not deliver stays in its history, and this is what goes and gets it — so a
+# refund nobody heard about does not become a customer studying a deck they
+# no longer own.
+#
+# Hourly rather than continuously: §17.1 alerts on a notification lag over
+# fifteen minutes and on no reconciliation for a day, and this sits
+# comfortably inside both. Intentionally not on push or pull_request — it
+# talks to Apple with a real key and writes to the dev ledger.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 * * * *"
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+
+concurrency:
+  # Two sweeps at once would page Apple twice and fight over the cursor. The
+  # second one waits rather than being cancelled: the first is holding the
+  # place it will resume from.
+  group: commerce-reconciliation-dev
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_ENV: production
+      DEPLOYMENT_ENV: dev
+      LOG_LEVEL: info
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      - name: Generate the Prisma client
+        run: corepack yarn prisma:generate
+
+      # Read where they live rather than duplicated into GitHub: each
+      # credential has one home, and rotating it there is the whole change.
+      # The IAP key is the most sensitive of them — it can ask Apple about
+      # anybody's purchases — and this job is the only thing that holds it.
+      - name: Read the credentials
+        id: credentials
+        run: |
+          set -euo pipefail
+          for name in \
+            dev-direct-database-url \
+            dev-commerce-apple-iap-key-id \
+            dev-commerce-apple-iap-issuer-id \
+            dev-commerce-apple-iap-private-key
+          do
+            value="$(gcloud secrets versions access latest --secret="${name}")"
+            while IFS= read -r line; do
+              [ -n "${line}" ] && echo "::add-mask::${line}"
+            done <<< "${value}"
+            echo "${name//-/_}<<SECRET_EOF" >> "$GITHUB_OUTPUT"
+            echo "${value}" >> "$GITHUB_OUTPUT"
+            echo "SECRET_EOF" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Reconcile with the App Store
+        env:
+          DATABASE_URL: ${{ steps.credentials.outputs.dev_direct_database_url }}
+          DIRECT_DATABASE_URL: ${{ steps.credentials.outputs.dev_direct_database_url }}
+          COMMERCE_APPLE_IAP_KEY_ID: ${{ steps.credentials.outputs.dev_commerce_apple_iap_key_id }}
+          COMMERCE_APPLE_IAP_ISSUER_ID: ${{ steps.credentials.outputs.dev_commerce_apple_iap_issuer_id }}
+          COMMERCE_APPLE_IAP_PRIVATE_KEY: ${{ steps.credentials.outputs.dev_commerce_apple_iap_private_key }}
+        run: corepack yarn commerce:reconcile

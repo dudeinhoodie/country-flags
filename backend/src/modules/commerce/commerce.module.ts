@@ -1,15 +1,51 @@
 import { Module } from "@nestjs/common";
 
+import { AuthModule } from "../auth/auth.module";
+import { AppleNotificationService } from "./apple/apple-notification.service";
+import { AppleReconciliationService } from "./apple/apple-reconciliation.service";
+import { AppleServerApiClient } from "./apple/apple-server-api.client";
+import { AppleNotificationVerifier } from "./apple/apple-notification-verifier";
+import { AppleStoreConfig } from "./apple/apple-store.config";
+import { AppleTransactionVerifier } from "./apple/apple-transaction-verifier";
+import {
+  AppleNotificationsController,
+  AppleTransactionsController,
+  CommerceOffersController,
+  EntitlementsController,
+} from "./commerce.controller";
 import { DeckAccessService } from "./deck-access.service";
+import { EntitlementService } from "./entitlement.service";
+import { OffersService } from "./offers.service";
 
 /**
- * Everything about what an account may open, and later about how it came to
- * be allowed to. The guard lives here rather than inside the content module
- * because study sessions need the same answer, and two copies of an access
- * rule are one copy too many.
+ * Everything about what an account may open, and how it came to be allowed
+ * to. The guard lives here rather than inside the content module because
+ * study sessions need the same answer, and two copies of an access rule are
+ * one copy too many.
+ *
+ * The Apple SDK is reached only through `apple/`, so the rest of the module —
+ * and everything that depends on it — works with a verified purchase rather
+ * than with a JWS.
  */
 @Module({
-  providers: [DeckAccessService],
-  exports: [DeckAccessService],
+  imports: [AuthModule],
+  controllers: [
+    CommerceOffersController,
+    EntitlementsController,
+    AppleTransactionsController,
+    AppleNotificationsController,
+  ],
+  providers: [
+    AppleStoreConfig,
+    AppleTransactionVerifier,
+    AppleNotificationVerifier,
+    AppleNotificationService,
+    AppleServerApiClient,
+    AppleReconciliationService,
+    DeckAccessService,
+    EntitlementService,
+    OffersService,
+  ],
+  exports: [DeckAccessService, EntitlementService, AppleReconciliationService],
 })
 export class CommerceModule {}

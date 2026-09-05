@@ -8,9 +8,21 @@ import {
 
 export const NODE_ENVIRONMENTS = ["development", "test", "production"] as const;
 export const LOG_LEVELS = ["debug", "info", "warn", "error", "fatal"] as const;
+/**
+ * Which App Store a deployment will believe. Sandbox and Production are
+ * separate worlds with separate signatures; LOCAL_TEST is the StoreKit
+ * configuration file, whose payloads Apple does not sign at all and which
+ * therefore may never be selected by a hosted deployment.
+ */
+export const APPLE_STORE_ENVIRONMENTS = [
+  "LOCAL_TEST",
+  "SANDBOX",
+  "PRODUCTION",
+] as const;
 
 export type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
 export type LogLevel = (typeof LOG_LEVELS)[number];
+export type AppleStoreEnvironment = (typeof APPLE_STORE_ENVIRONMENTS)[number];
 
 export interface EnvironmentVariables extends Record<string, unknown> {
   NODE_ENV: NodeEnvironment;
@@ -46,6 +58,13 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   ADMIN_EDITORIAL_SCHEMA_PATH: string;
   ADMIN_EDITORIAL_SCHEMA_V3_PATH: string;
   ADMIN_ASSET_MAX_BYTES: number;
+  COMMERCE_APPLE_STORE_ENVIRONMENT: AppleStoreEnvironment;
+  COMMERCE_APPLE_BUNDLE_ID: string;
+  COMMERCE_APPLE_APP_APPLE_ID: number | null;
+  COMMERCE_APPLE_ROOT_CERTIFICATES: string[];
+  COMMERCE_APPLE_IAP_KEY_ID: string;
+  COMMERCE_APPLE_IAP_ISSUER_ID: string;
+  COMMERCE_APPLE_IAP_PRIVATE_KEY: string;
   SHUTDOWN_DRAIN_MS: number;
 }
 
@@ -268,6 +287,122 @@ function releaseIdentifier(
   return value;
 }
 
+/**
+ * The store a deployment talks to is decided by the deployment, not by
+ * whoever edits its variables: prod means Production, dev means Sandbox, and
+ * neither may be talked out of it. This is the whole of "a prod deployment
+ * rejects a Sandbox transaction and a dev deployment rejects a Production
+ * one" (docs/17-paid-decks-storekit.md §14) — the verifier is then handed
+ * one environment and Apple's own library refuses anything signed for the
+ * other.
+ *
+ * A local or CI run defaults to LOCAL_TEST, where StoreKit's own test
+ * configuration signs nothing and verification is skipped, and may be pointed
+ * at Sandbox by hand. It can never be pointed at Production: a laptop has no
+ * business holding a real purchase.
+ */
+function resolveAppleStoreEnvironment(
+  config: Record<string, unknown>,
+  deploymentEnvironment: DeploymentEnvironment,
+  hosted: boolean,
+): AppleStoreEnvironment {
+  const required: AppleStoreEnvironment =
+    deploymentEnvironment === "prod"
+      ? "PRODUCTION"
+      : deploymentEnvironment === "dev"
+        ? "SANDBOX"
+        : "LOCAL_TEST";
+  const raw = config.COMMERCE_APPLE_STORE_ENVIRONMENT;
+  if (raw === undefined || (typeof raw === "string" && raw.trim() === "")) {
+    return required;
+  }
+  if (typeof raw !== "string") {
+    throw new Error(
+      "Environment variable COMMERCE_APPLE_STORE_ENVIRONMENT must be a string",
+    );
+  }
+
+  const value = raw.trim().toUpperCase();
+  if (!isOneOf(value, APPLE_STORE_ENVIRONMENTS)) {
+    throw new Error(
+      `Environment variable COMMERCE_APPLE_STORE_ENVIRONMENT must be one of: ${APPLE_STORE_ENVIRONMENTS.join(", ")}`,
+    );
+  }
+  if (hosted && value !== required) {
+    throw new Error(
+      `Deployment environment ${deploymentEnvironment} accepts only ${required} store transactions, received ${value}`,
+    );
+  }
+  if (!hosted && value === "PRODUCTION") {
+    throw new Error(
+      `Deployment environment ${deploymentEnvironment} must not verify PRODUCTION store transactions`,
+    );
+  }
+  return value;
+}
+
+// DER is ASN.1, so every certificate starts with a SEQUENCE tag; the check is
+// cheap and turns a pasted PEM header into a startup error instead of a
+// signature failure nobody can explain.
+function appleRootCertificates(
+  config: Record<string, unknown>,
+  key: string,
+): string[] {
+  const values = commaSeparated(config[key], [], key);
+  for (const value of values) {
+    let decoded: Buffer;
+    try {
+      decoded = Buffer.from(value, "base64");
+    } catch {
+      throw new Error(`Environment variable ${key} must contain base64 values`);
+    }
+    if (decoded.length === 0 || decoded[0] !== 0x30) {
+      throw new Error(
+        `Environment variable ${key} must contain base64-encoded DER certificates`,
+      );
+    }
+  }
+  return values;
+}
+
+/**
+ * The App Store Server API credential. Optional, because the endpoints that
+ * read a signed transaction need no private key at all and the deployment
+ * exists long before the key does; but a half-configured credential must not,
+ * because an operator who set one of the three believes reconciliation can
+ * call Apple and nothing would say otherwise until it silently could not.
+ *
+ * The key itself comes from Secret Manager and is never read anywhere but
+ * here.
+ */
+function appStoreServerApiCredential(config: Record<string, unknown>): {
+  keyId: string;
+  issuerId: string;
+  privateKey: string;
+} {
+  const names = [
+    "COMMERCE_APPLE_IAP_KEY_ID",
+    "COMMERCE_APPLE_IAP_ISSUER_ID",
+    "COMMERCE_APPLE_IAP_PRIVATE_KEY",
+  ] as const;
+  const missing = names.filter((name) => {
+    const value = config[name];
+    return typeof value !== "string" || value.trim().length === 0;
+  });
+  if (missing.length > 0 && missing.length < names.length) {
+    throw new Error(
+      `Environment variables ${names.join(", ")} must be set together; missing: ${missing.join(", ")}`,
+    );
+  }
+  return missing.length === names.length
+    ? { keyId: "", issuerId: "", privateKey: "" }
+    : {
+        keyId: requiredString(config, names[0]),
+        issuerId: requiredString(config, names[1]),
+        privateKey: requiredString(config, names[2]),
+      };
+}
+
 export function validateEnvironment(
   config: Record<string, unknown>,
 ): EnvironmentVariables {
@@ -400,6 +535,13 @@ export function validateEnvironment(
       `Environment variables ${githubVariables.join(", ")} must be set together; missing: ${missingGithubVariables.join(", ")}`,
     );
   }
+
+  const appleStoreEnvironment = resolveAppleStoreEnvironment(
+    config,
+    deploymentEnvironment,
+    hosted,
+  );
+  const appleIapCredential = appStoreServerApiCredential(config);
 
   const databaseUrl = validateDatabaseUrl(
     requiredString(config, "DATABASE_URL"),
@@ -563,6 +705,37 @@ export function validateEnvironment(
       1024,
       50 * 1024 * 1024,
     ),
+    COMMERCE_APPLE_STORE_ENVIRONMENT: appleStoreEnvironment,
+    // Empty means this deployment cannot verify a purchase yet, which is a
+    // legitimate state: the schema, the endpoints and the guard ship before
+    // App Store Connect has an app record to point at (§20 rollout). The
+    // submission endpoint then refuses with a stable code rather than the
+    // process refusing to start.
+    COMMERCE_APPLE_BUNDLE_ID: optionalString(
+      config.COMMERCE_APPLE_BUNDLE_ID,
+      appleStoreEnvironment === "LOCAL_TEST"
+        ? "app.countryflags.mobile.local"
+        : "",
+      "COMMERCE_APPLE_BUNDLE_ID",
+    ).trim(),
+    COMMERCE_APPLE_APP_APPLE_ID:
+      config.COMMERCE_APPLE_APP_APPLE_ID === undefined ||
+      config.COMMERCE_APPLE_APP_APPLE_ID === ""
+        ? null
+        : parseInteger(
+            config.COMMERCE_APPLE_APP_APPLE_ID,
+            0,
+            "COMMERCE_APPLE_APP_APPLE_ID",
+            1,
+            Number.MAX_SAFE_INTEGER,
+          ),
+    COMMERCE_APPLE_ROOT_CERTIFICATES: appleRootCertificates(
+      config,
+      "COMMERCE_APPLE_ROOT_CERTIFICATES",
+    ),
+    COMMERCE_APPLE_IAP_KEY_ID: appleIapCredential.keyId,
+    COMMERCE_APPLE_IAP_ISSUER_ID: appleIapCredential.issuerId,
+    COMMERCE_APPLE_IAP_PRIVATE_KEY: appleIapCredential.privateKey,
     SHUTDOWN_DRAIN_MS: parseInteger(
       config.SHUTDOWN_DRAIN_MS,
       5_000,

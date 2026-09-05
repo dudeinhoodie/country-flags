@@ -20,6 +20,22 @@ const outboxOldestPendingAgeSeconds = meter.createGauge(
   "outbox_oldest_pending_age_seconds",
   { description: "Age of the oldest pending outbox item", unit: "s" },
 );
+const storeTransactionVerificationsTotal = meter.createCounter(
+  "store_transaction_verifications_total",
+  { description: "Signed store transactions accepted or refused, by outcome" },
+);
+const storeNotificationsTotal = meter.createCounter(
+  "store_notifications_total",
+  { description: "Store server notifications handled, by outcome" },
+);
+const storeReconciliationRunsTotal = meter.createCounter(
+  "store_reconciliation_runs_total",
+  { description: "Store reconciliation sweeps, by outcome" },
+);
+const storeReconciliationDurationSeconds = meter.createHistogram(
+  "store_reconciliation_duration_seconds",
+  { description: "How long a store reconciliation sweep took", unit: "s" },
+);
 
 export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx";
 
@@ -58,6 +74,43 @@ export class MetricsService {
 
   recordError(errorCode: string): void {
     errorsTotal.add(1, { errorCode });
+  }
+
+  /**
+   * One counter for every signed transaction this deployment looked at,
+   * labelled with the stable verification code. That label is what the
+   * paid-decks alerts are written against — an invalid-signature spike, an
+   * unknown product, a Sandbox purchase reaching production — and it is
+   * bounded by the code list, so the cardinality rule holds.
+   */
+  recordStoreTransactionVerification(outcome: string): void {
+    storeTransactionVerificationsTotal.add(1, { outcome });
+  }
+
+  /**
+   * Every notification this deployment was sent, by what became of it. A
+   * quarantine that stays above zero means the catalog and App Store Connect
+   * disagree; a duplicate rate near one means Apple is retrying because
+   * something answers slowly (§17.1).
+   */
+  recordStoreNotification(
+    outcome: "processed" | "duplicate" | "quarantined" | "refused",
+  ): void {
+    storeNotificationsTotal.add(1, { outcome });
+  }
+
+  /**
+   * One counter and one duration per sweep. The alert §17.1 asks for is
+   * written on the absence of a success rather than on a failure: a job that
+   * stops being scheduled fails nothing at all, and that is the outage worth
+   * catching.
+   */
+  recordStoreReconciliation(
+    outcome: "succeeded" | "failed",
+    durationSeconds: number,
+  ): void {
+    storeReconciliationRunsTotal.add(1, { outcome });
+    storeReconciliationDurationSeconds.record(durationSeconds, { outcome });
   }
 
   recordOutboxDepth(

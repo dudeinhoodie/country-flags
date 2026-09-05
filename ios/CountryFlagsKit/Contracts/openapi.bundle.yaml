@@ -798,7 +798,7 @@ paths:
         one offer granting several. A client turns a deck's `offerCodes`
         into store products through this list.
       operationId: listCommerceOffers
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security:
         - {}
         - BearerAuth: []
@@ -834,7 +834,7 @@ paths:
 
         Supports `If-None-Match`, so checking on every foreground is cheap.
       operationId: getMyEntitlements
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: '#/components/parameters/IfNoneMatch'
       responses:
@@ -871,7 +871,7 @@ paths:
         A transaction already claimed by another live account is `409`, with
         no detail about that account.
       operationId: submitAppleTransactions
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -909,7 +909,7 @@ paths:
         and quarantined rather than dropped when it names a product or a
         transaction this environment does not know.
       operationId: receiveAppleNotification
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security: []
       requestBody:
         required: true

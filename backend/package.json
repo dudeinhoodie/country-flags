@@ -27,9 +27,11 @@
     "content:bundle:preview": "ts-node src/cli/content-bundle-preview.ts",
     "content:bundle:publish": "ts-node src/cli/content-bundle-publish.ts",
     "content:bundle:rollback": "ts-node src/cli/content-bundle-rollback.ts",
-    "content:bundle:sign": "ts-node src/cli/content-bundle-sign.ts"
+    "content:bundle:sign": "ts-node src/cli/content-bundle-sign.ts",
+    "commerce:reconcile": "ts-node src/cli/commerce-reconcile.ts"
   },
   "dependencies": {
+    "@apple/app-store-server-library": "3.1.0",
     "@aws-sdk/client-s3": "3.1107.0",
     "@country-flags/asset-core": "workspace:*",
     "@nestjs/common": "11.1.6",

@@ -1,9 +1,19 @@
 const REDACTED = "[REDACTED]";
 const MAX_DEPTH = 12;
 
-/** Key names that must never appear with their real value in logs, traces, or error reports. */
+/**
+ * Key names that must never appear with their real value in logs, traces, or
+ * error reports.
+ *
+ * The store entries are there because a purchase is signed evidence: a JWS,
+ * the transaction id it names and the account token it carries are the three
+ * things a paid-decks log line must never hold (docs/17-paid-decks-storekit.md
+ * §16). `token` already covers `appAccountToken` and `storeAccountToken`; the
+ * rest are spelled out so a field named for the payload itself cannot slip
+ * through under a name nobody thought to look for.
+ */
 const KEY_DENYLIST =
-  /token|password|secret|authoriz|cookie|email|providersubject|pushtoken|idfa|advertisingid/i;
+  /token|password|secret|authoriz|cookie|email|providersubject|pushtoken|idfa|advertisingid|private_?key|jws|signed_?(payload|transaction)|transaction_?id/i;
 
 // Real JWT segments are base64url-encoded JSON/HMAC bytes and are always well
 // over 10 characters each, even for a minimal token — long enough to not
