@@ -14,6 +14,7 @@ import { AuthModule } from "../modules/auth/auth.module";
 import { AdminAuthModule } from "../modules/admin-auth/admin-auth.module";
 import { AdminContentModule } from "../modules/admin-content/admin-content.module";
 import { AdminDraftsModule } from "../modules/admin-drafts/admin-drafts.module";
+import { AdminCommerceModule } from "../modules/commerce/admin/admin-commerce.module";
 import { AccountLifecycleModule } from "../modules/account-lifecycle/account-lifecycle.module";
 import { AdvertisingPolicyModule } from "../modules/advertising/advertising-policy.module";
 import { AnalyticsModule } from "../modules/analytics/analytics.module";
@@ -46,6 +47,7 @@ import { UsersModule } from "../modules/users/users.module";
     AdminAuthModule,
     AdminContentModule,
     AdminDraftsModule,
+    AdminCommerceModule,
     AccountLifecycleModule,
     AnalyticsModule,
     FeatureFlagsModule,
