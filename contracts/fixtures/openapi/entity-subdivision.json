@@ -1,0 +1,42 @@
+{
+  "id": "80000000-0000-4000-8000-000000000001",
+  "kind": "SUBDIVISION",
+  "status": "ACTIVE",
+  "recognitionStatus": "NOT_APPLICABLE",
+  "name": {
+    "short": "Калифорния",
+    "official": "Штат Калифорния",
+    "aliases": []
+  },
+  "assets": [
+    {
+      "id": "80000000-0000-4000-8000-000000000002",
+      "type": "FLAG",
+      "representations": [
+        {
+          "url": "https://cdn.test/content/test-only-fixture-v1/assets/svg/california.svg",
+          "mimeType": "image/svg+xml",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000001"
+        }
+      ],
+      "width": null,
+      "height": null,
+      "aspectRatio": 1.5,
+      "licenseName": "Public domain",
+      "attribution": null,
+      "displayName": "Bear Flag",
+      "description": "Флаг Калифорнийской республики 1846 года."
+    }
+  ],
+  "facts": [],
+  "parent": {
+    "id": "80000000-0000-4000-8000-000000000003",
+    "kind": "COUNTRY",
+    "name": "США"
+  },
+  "identifiers": {
+    "isoSubdivision": "US-CA",
+    "fipsCode": "06"
+  },
+  "contentVersion": "test-only-fixture-v1"
+}

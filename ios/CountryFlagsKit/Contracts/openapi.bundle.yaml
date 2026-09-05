@@ -54,6 +54,8 @@ tags:
     description: Reproducible sessions and immutable review ingestion.
   - name: Progress
     description: Due state, mastery, achievements and guest migration.
+  - name: Commerce
+    description: Offers, entitlements and store transactions. The server is what decides what an account may open; the store owns the price and the payment.
   - name: Analytics
     description: Allowlisted privacy-aware product and operational events.
   - name: Diagnostics
@@ -776,8 +778,152 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LearningCardPage'
+        '403':
+          $ref: '#/components/responses/EntitlementRequiredResponse'
         '404':
           $ref: '#/components/responses/NotFoundResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /v1/commerce/offers:
+    get:
+      tags:
+        - Commerce
+      summary: List the offers a platform can sell
+      description: |
+        What is for sale, and which store product sells it. No price: the
+        client asks the store, which is the only place a localized price
+        exists and the only place review approved one.
+
+        An offer grants entitlement keys rather than decks, so a bundle is
+        one offer granting several. A client turns a deck's `offerCodes`
+        into store products through this list.
+      operationId: listCommerceOffers
+      x-implementation-status: planned
+      security:
+        - {}
+        - BearerAuth: []
+      parameters:
+        - name: platform
+          in: query
+          required: false
+          description: Which store's products to return.
+          schema:
+            type: string
+            x-extensible-enum:
+              - IOS
+              - ANDROID
+              - WEB
+      responses:
+        '200':
+          description: Active offers for the requested platform
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommerceOfferList'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /v1/me/entitlements:
+    get:
+      tags:
+        - Commerce
+      summary: Get everything this account may open
+      description: |
+        The answer that decides. A client may unlock locally on a store
+        transaction it has verified, but this is what the server will
+        enforce, and it is what a second device reads after a restore.
+
+        Supports `If-None-Match`, so checking on every foreground is cheap.
+      operationId: getMyEntitlements
+      x-implementation-status: planned
+      parameters:
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Current entitlement snapshot
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementSnapshot'
+        '304':
+          description: Snapshot unchanged since the supplied entity tag
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /v1/me/commerce/apple/transactions:
+    post:
+      tags:
+        - Commerce
+      summary: Submit verified App Store transactions
+      description: |
+        A purchase, the transaction listener and a restore all arrive here,
+        which is why this is a batch and why it is idempotent: the same
+        transaction is delivered more than once by design.
+
+        The server verifies each signed payload against Apple's root
+        certificates, checks the bundle, the environment and the product,
+        matches the account token on the first claim, and applies the
+        transaction exactly once. Nothing about what a transaction is worth
+        is read from this request: no deck, no offer code, no entitlement
+        key, no price.
+
+        A transaction already claimed by another live account is `409`, with
+        no detail about that account.
+      operationId: submitAppleTransactions
+      x-implementation-status: planned
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppleTransactionSubmission'
+      responses:
+        '200':
+          description: Entitlement snapshot after the submitted transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementSnapshot'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeResponse'
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /v1/commerce/apple/notifications:
+    post:
+      tags:
+        - Commerce
+      summary: Receive an App Store server notification
+      description: |
+        Apple's own path into the system, and the fast way a refund is
+        learned. Unauthenticated by nature: the signature on the payload is
+        the authentication, and it is verified before anything is read.
+
+        Answered quickly, processed idempotently on the notification's uuid,
+        and quarantined rather than dropped when it names a product or a
+        transaction this environment does not know.
+      operationId: receiveAppleNotification
+      x-implementation-status: planned
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppleNotificationEnvelope'
+      responses:
+        '202':
+          description: Notification accepted for processing
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeResponse'
+        '422':
+          $ref: '#/components/responses/ValidationResponse'
         default:
           $ref: '#/components/responses/ErrorResponse'
   /v1/study-sessions:
@@ -2662,6 +2808,18 @@ components:
           type:
             - string
             - 'null'
+        displayName:
+          description: What this drawing is called, in the requested locale — "Federal Eagle" rather than "Germany". It belongs to the asset because the story of a symbol is the story of that drawing, and an entity now has several. Null when the symbol has no name of its own.
+          type:
+            - string
+            - 'null'
+          minLength: 1
+        description:
+          description: What the symbol means, in the requested locale.
+          type:
+            - string
+            - 'null'
+          minLength: 1
     CapitalFactDetails:
       type: object
       required:
@@ -2811,6 +2969,43 @@ components:
             url:
               type: string
               format: uri
+    GeoEntityParent:
+      type: object
+      required:
+        - id
+        - kind
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        kind:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+    GeoEntityIdentifiers:
+      description: 'Codes that identify the entity outside this catalog. A subdivision code has a field of its own: `US-CA` written into an ISO country code would put a state everywhere a reader expects a country.'
+      type: object
+      properties:
+        isoSubdivision:
+          description: ISO 3166-2, such as `US-CA`.
+          type:
+            - string
+            - 'null'
+          minLength: 1
+        localCode:
+          description: The official code the parent country uses for the unit.
+          type:
+            - string
+            - 'null'
+          minLength: 1
+        fipsCode:
+          description: Present only where the source publishes one; never derived.
+          type:
+            - string
+            - 'null'
+          minLength: 1
     GeoEntity:
       type: object
       required:
@@ -2826,6 +3021,7 @@ components:
         id:
           $ref: '#/components/schemas/Uuid'
         kind:
+          description: 'What the entity is. `SUBDIVISION` is an administrative unit of a country — a U.S. state — and a client filters by this rather than by the absence of a parent: a country has no parent either.'
           type: string
           minLength: 1
           x-extensible-enum:
@@ -2833,6 +3029,7 @@ components:
             - TERRITORY
             - DEPENDENCY
             - DISPUTED_AREA
+            - SUBDIVISION
             - REGION
             - SUBREGION
             - OTHER
@@ -2863,6 +3060,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Fact'
+        parent:
+          description: The country or territory an administrative unit belongs to. Absent for everything else, including a country, so it is a detail to show rather than a test to filter by.
+          $ref: '#/components/schemas/GeoEntityParent'
+        identifiers:
+          $ref: '#/components/schemas/GeoEntityIdentifiers'
         contentVersion:
           type: string
     MasteryTier:
@@ -2875,73 +3077,29 @@ components:
         - SILVER
         - GOLD
         - PLATINUM
-    Deck:
+    DeckAccess:
+      description: 'What opens a deck. Monetization lives here and nowhere else — no card, asset or template is paid — and no price appears: the store owns what a thing costs, and the client reads it from the store.'
       type: object
       required:
-        - id
-        - code
-        - kind
-        - name
-        - description
-        - cardCount
-        - contentVersion
+        - model
       properties:
-        id:
-          $ref: '#/components/schemas/Uuid'
-        code:
+        model:
           type: string
-          pattern: ^[A-Z][A-Z0-9_]*$
-        kind:
-          type: string
-          minLength: 1
           x-extensible-enum:
-            - CURATED
-            - TAXONOMY
-            - DYNAMIC_USER
-            - CUSTOM
-        name:
-          type: string
-          minLength: 1
-        description:
-          type: string
-        cardCount:
-          type: integer
-          minimum: 0
-        dueCount:
-          type:
-            - integer
-            - 'null'
-          minimum: 0
-        currentMasteryTier:
-          $ref: '#/components/schemas/MasteryTier'
-        contentVersion:
-          type: string
-    CursorPage:
-      type: object
-      required:
-        - nextCursor
-        - hasMore
-      properties:
-        nextCursor:
+            - FREE
+            - ENTITLEMENT
+        requiredEntitlementKey:
+          description: The right that opens it. Present exactly when the model is `ENTITLEMENT`.
           type:
             - string
             - 'null'
           minLength: 1
-          maxLength: 512
-        hasMore:
-          type: boolean
-    DeckPage:
-      type: object
-      required:
-        - items
-        - page
-      properties:
-        items:
+        offerCodes:
+          description: The offers that grant that right, in the order they should be shown. A client turns a code into a store product through `GET /v1/commerce/offers`; it never derives one.
           type: array
           items:
-            $ref: '#/components/schemas/Deck'
-        page:
-          $ref: '#/components/schemas/CursorPage'
+            type: string
+            minLength: 1
     LearningCard:
       type: object
       required:
@@ -3000,6 +3158,94 @@ components:
             $ref: '#/components/schemas/Fact'
         contentVersion:
           type: string
+    Deck:
+      type: object
+      required:
+        - id
+        - code
+        - kind
+        - name
+        - description
+        - cardCount
+        - contentVersion
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        code:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]*$
+        kind:
+          type: string
+          minLength: 1
+          x-extensible-enum:
+            - CURATED
+            - TAXONOMY
+            - DYNAMIC_USER
+            - CUSTOM
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        cardCount:
+          type: integer
+          minimum: 0
+        dueCount:
+          type:
+            - integer
+            - 'null'
+          minimum: 0
+        currentMasteryTier:
+          $ref: '#/components/schemas/MasteryTier'
+        contentKinds:
+          description: 'What the deck teaches, derived from the cards it holds: a deck of coats of arms carries `COAT_OF_ARMS`, a mixed one carries both. Published rather than authored, and never a filter on the cards themselves.'
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            x-extensible-enum:
+              - FLAG
+              - COAT_OF_ARMS
+              - MAP
+              - OTHER
+        access:
+          description: Who may open the deck. Absent means free, which is what every deck published so far is.
+          $ref: '#/components/schemas/DeckAccess'
+        previewCards:
+          description: 'Cards a locked deck may show before it is bought — at most three, published as public on purpose. This is a projection of its own, not a gap in the cards endpoint: everything else in a paid deck needs the entitlement.'
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/LearningCard'
+        contentVersion:
+          type: string
+    CursorPage:
+      type: object
+      required:
+        - nextCursor
+        - hasMore
+      properties:
+        nextCursor:
+          type:
+            - string
+            - 'null'
+          minLength: 1
+          maxLength: 512
+        hasMore:
+          type: boolean
+    DeckPage:
+      type: object
+      required:
+        - items
+        - page
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Deck'
+        page:
+          $ref: '#/components/schemas/CursorPage'
     LearningCardPage:
       type: object
       required:
@@ -3012,6 +3258,112 @@ components:
             $ref: '#/components/schemas/LearningCard'
         page:
           $ref: '#/components/schemas/CursorPage'
+    CommerceStoreProduct:
+      type: object
+      required:
+        - provider
+        - productId
+      properties:
+        provider:
+          type: string
+          x-extensible-enum:
+            - APPLE_APP_STORE
+            - GOOGLE_PLAY
+            - WEB
+        productId:
+          type: string
+          minLength: 1
+    CommerceOffer:
+      description: 'Something for sale, in this product''s terms rather than a store''s. The client pairs it with the store''s own product metadata: the localized title and the price come from the store, which is also what review approved.'
+      type: object
+      required:
+        - code
+        - kind
+        - grants
+      properties:
+        code:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]*$
+        kind:
+          type: string
+          x-extensible-enum:
+            - ONE_TIME
+        storeProduct:
+          $ref: '#/components/schemas/CommerceStoreProduct'
+        grants:
+          description: The rights a purchase of this offer grants. A bundle grants more than one, which is why a client must not assume an offer is a deck.
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+        title:
+          description: Fallback copy for a client the store has not answered yet. What the customer is shown at the moment of paying comes from the store.
+          type:
+            - string
+            - 'null'
+          minLength: 1
+        description:
+          type:
+            - string
+            - 'null'
+          minLength: 1
+    CommerceOfferList:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommerceOffer'
+    EntitlementSnapshot:
+      description: Everything this account may open, as the server sees it. A client may unlock on a verified store transaction it holds locally, but this is the answer that decides, and it carries an ETag so asking often is cheap.
+      type: object
+      required:
+        - entitlementKeys
+        - checkedAt
+      properties:
+        entitlementKeys:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+        checkedAt:
+          description: When the server last established this snapshot.
+          type: string
+          format: date-time
+    AppleTransactionSubmission:
+      description: |-
+        Verified transactions the app holds, sent for the server to verify independently. A purchase, the transaction listener and a restore all submit through here, which is why it is a batch and why it is idempotent.
+        Nothing about what the transaction is worth is accepted from the client: no deck, no offer, no entitlement key, no price. The server reads the product out of the signed payload and maps it itself.
+      type: object
+      required:
+        - transactions
+      properties:
+        transactions:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: object
+            required:
+              - signedTransaction
+            properties:
+              signedTransaction:
+                description: The store's signed JWS, verbatim.
+                type: string
+                minLength: 1
+    AppleNotificationEnvelope:
+      description: The store's server notification, exactly as it was sent.
+      type: object
+      required:
+        - signedPayload
+      properties:
+        signedPayload:
+          type: string
+          minLength: 1
     CreateServerStudySessionRequest:
       type: object
       additionalProperties: false
@@ -4203,6 +4555,27 @@ components:
               message: The requested resource was not found
               requestId: 11bdc6ea-93e2-46e4-bd6c-5a14cec9f488
               details: {}
+    EntitlementRequiredResponse:
+      description: 'The deck is opened by an entitlement this account does not hold. The body names the deck and the offers that grant it, and never a price: the store owns what a thing costs.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: ENTITLEMENT_REQUIRED
+              message: This deck requires a purchase
+              requestId: 11bdc6ea-93e2-46e4-bd6c-5a14cec9f488
+              details:
+                deckId: 70000000-0000-4000-8000-000000000002
+                offerCodes:
+                  - EUROPE_COATS_LIFETIME
+    PayloadTooLargeResponse:
+      description: Request exceeds documented body or batch limits.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
     ValidationResponse:
       description: Payload violates the versioned request contract.
       content:
@@ -4217,12 +4590,6 @@ components:
               details:
                 fields:
                   - events[0].eventName
-    PayloadTooLargeResponse:
-      description: Request exceeds documented body or batch limits.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
     RateLimitResponse:
       description: Request rate limit was exceeded.
       headers:
@@ -4342,6 +4709,15 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/Uuid'
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Client-generated key that makes a retried submission land once. The same key with the same payload returns the stored result; the same key with a different payload is a conflict.
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 128
     SessionId:
       name: sessionId
       in: path

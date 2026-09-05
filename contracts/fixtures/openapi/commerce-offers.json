@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "code": "EUROPE_COATS_LIFETIME",
+      "kind": "ONE_TIME",
+      "storeProduct": {
+        "provider": "APPLE_APP_STORE",
+        "productId": "app.countryflags.deck.europe_coats.lifetime.v1"
+      },
+      "grants": ["deck.europe_coats"],
+      "title": "Гербы Европы",
+      "description": "Разовая покупка. Доступ остаётся навсегда."
+    },
+    {
+      "code": "SYMBOLS_BUNDLE_LIFETIME",
+      "kind": "ONE_TIME",
+      "storeProduct": {
+        "provider": "APPLE_APP_STORE",
+        "productId": "app.countryflags.bundle.symbols.lifetime.v1"
+      },
+      "grants": ["deck.europe_coats", "deck.us_state_flags"]
+    }
+  ]
+}
