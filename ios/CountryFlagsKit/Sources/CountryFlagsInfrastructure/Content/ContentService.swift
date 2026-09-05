@@ -188,7 +188,19 @@ public struct ContentService: Sendable {
                     deckDescription: deck.description,
                     cardCount: deck.cardCount,
                     contentVersion: deck.contentVersion,
-                    sortOrder: offset + index
+                    sortOrder: offset + index,
+                    // Absent access means free, which is what every deck
+                    // published before the field existed is.
+                    accessModel: deck.access?.model ?? DeckAccessModel.free.rawValue,
+                    requiredEntitlementKey: deck.access?.requiredEntitlementKey,
+                    offerCodes: deck.access?.offerCodes ?? [],
+                    contentKinds: deck.contentKinds ?? [],
+                    // A preview card whose identifier is not a UUID is one
+                    // this build could never address, so it is left out rather
+                    // than stored under a fabricated one.
+                    previewCardIDs: (deck.previewCards ?? []).compactMap {
+                        UUID(uuidString: $0.id)
+                    }
                 )
             }
             return ContentCursorPage(
@@ -427,7 +439,13 @@ public struct ContentService: Sendable {
                         displayScale: displayScale
                     )
                 },
-                facts: payload.facts.map(Self.factRecord)
+                facts: payload.facts.map(Self.factRecord),
+                parent: Self.parentRecord(payload.parent),
+                identifiers: GeoEntityIdentifiersRecord(
+                    isoSubdivision: payload.identifiers?.isoSubdivision,
+                    localCode: payload.identifiers?.localCode,
+                    fipsCode: payload.identifiers?.fipsCode
+                )
             )
         case .notFound:
             return nil
@@ -529,8 +547,28 @@ public struct ContentService: Sendable {
             url: url,
             mimeType: chosen.mimeType.rawValue,
             sha256: chosen.sha256,
-            contentVersion: contentVersion
+            contentVersion: contentVersion,
+            // The consumer contract publishes one variant per asset today and
+            // does not name it. `current` is the baseline every release
+            // carries, and the field is here so a historical symbol has
+            // somewhere to land when the contract starts sending it.
+            variant: AssetRecord.baselineVariant,
+            displayName: asset.displayName,
+            assetDescription: asset.description
         )
+    }
+
+    /// The parent an administrative unit names, as much of it as a screen
+    /// needs.
+    ///
+    /// - Returns: nil when the identifier is not a UUID. A parent this build
+    ///   could never resolve is better absent than stored under a fabricated
+    ///   identifier — the unit itself is still perfectly readable without it.
+    private static func parentRecord(
+        _ parent: Components.Schemas.GeoEntityParent?
+    ) -> GeoEntityParentRecord? {
+        guard let parent, let id = UUID(uuidString: parent.id) else { return nil }
+        return GeoEntityParentRecord(id: id, kind: parent.kind, name: parent.name)
     }
 
     private static func unmapped(_ statusCode: Int) -> APIError {
