@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Sign in with Apple. Without this the authorization controller fails with
+	  error 1000 on a signed device, and since the Google button is hidden
+	  wherever its client identifiers are unset, a Prod build offering nothing
+	  else has no way in at all.
+
+	  "Default" is the primary app identifier: this app signs its own users in,
+	  it does not share an account with another app in the group.
+
+	  A device build additionally needs the capability enabled on the App ID in
+	  the developer portal, which no file in this repository can assert.
+	-->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+</dict>
+</plist>
