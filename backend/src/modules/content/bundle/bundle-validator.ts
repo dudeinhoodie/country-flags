@@ -199,6 +199,45 @@ function collectReferenceIssues(domain: BundleDomain): string[] {
         `deck ${deck.key} says it holds ${String(deck.cardCount)} cards and lists ${String(deck.memberCards.length)}`,
       );
     }
+
+    // A preview is what a locked deck shows before it is bought, so it has
+    // to be a card the deck actually holds: previewing something else would
+    // publish a card the deck does not contain, and do it outside the
+    // entitlement that guards the rest.
+    const memberIdentities = new Set(
+      deck.memberCards.map(
+        (member) =>
+          `${member.entityKey}:${member.templateCode}:${String(member.templateSchemaVersion)}`,
+      ),
+    );
+    for (const preview of deck.previewCards ?? []) {
+      const identity = `${preview.entityKey}:${preview.templateCode}:${String(preview.templateSchemaVersion)}`;
+      if (!memberIdentities.has(identity)) {
+        issues.push(
+          `deck ${deck.key} previews ${identity}, which it does not hold`,
+        );
+      }
+    }
+    if ((deck.previewCards ?? []).length > 3) {
+      issues.push(
+        `deck ${deck.key} previews ${String((deck.previewCards ?? []).length)} cards; a locked deck may show at most three`,
+      );
+    }
+
+    // Access and the right it names travel together, or the deck is a
+    // door with no lock and no key.
+    const access = deck.access;
+    if (access !== undefined) {
+      const key = access.requiredEntitlementKey;
+      if (access.model === "ENTITLEMENT" && (key ?? "").trim().length === 0) {
+        issues.push(
+          `deck ${deck.key} is sold but names no entitlement to open it`,
+        );
+      }
+      if (access.model === "FREE" && (key ?? "").trim().length > 0) {
+        issues.push(`deck ${deck.key} is free and still names an entitlement`);
+      }
+    }
   }
 
   for (const asset of domain.assets) {

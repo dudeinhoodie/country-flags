@@ -232,4 +232,390 @@ describe("DraftValidationService", () => {
       ),
     ).toBe(true);
   });
+
+  describe("subdivisions", () => {
+    const california = {
+      key: "subdivision.us.california",
+      type: "subdivision",
+      status: "active",
+      config: { includeInCountryCatalog: false },
+      recognitionStatus: "not_applicable",
+      parentKey: "country.france",
+    };
+
+    const withState = (entity: Record<string, unknown> = california): unknown =>
+      document({
+        entities: [
+          ...context.entities.map((known) => ({
+            ...known,
+            recognitionStatus: "un_member",
+          })),
+          entity,
+        ],
+      });
+
+    const codes = (report: { findings: { code: string }[] }): string[] =>
+      report.findings.map((finding) => finding.code);
+
+    it("accepts a state that belongs to a country", () => {
+      const report = service.validate(withState(), context, []);
+      expect(codes(report)).not.toContain("SUBDIVISION_PARENT_REQUIRED");
+      expect(codes(report)).not.toContain("SUBDIVISION_PARENT_INVALID");
+    });
+
+    it("blocks a state with no country above it", () => {
+      const orphan: Record<string, unknown> = { ...california };
+      delete orphan.parentKey;
+      const report = service.validate(withState(orphan), context, []);
+      expect(codes(report)).toContain("SUBDIVISION_PARENT_REQUIRED");
+      expect(report.blocking).toBeGreaterThan(0);
+    });
+
+    it("blocks a state whose parent is not a country or territory", () => {
+      const report = service.validate(
+        withState({ ...california, parentKey: "region.europe" }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("SUBDIVISION_PARENT_INVALID");
+    });
+
+    it("blocks a state the catalog cannot find a parent for", () => {
+      const report = service.validate(
+        withState({ ...california, parentKey: "country.atlantis" }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("SUBDIVISION_PARENT_INVALID");
+    });
+
+    it("blocks a state listed among the countries", () => {
+      const report = service.validate(
+        withState({
+          ...california,
+          config: { includeInCountryCatalog: true },
+        }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("SUBDIVISION_IN_COUNTRY_CATALOG");
+    });
+
+    it("blocks a country given an administrative parent", () => {
+      const report = service.validate(
+        document({
+          entities: context.entities.map((known) => ({
+            ...known,
+            recognitionStatus: "un_member",
+            ...(known.key === "country.japan"
+              ? { parentKey: "country.france" }
+              : {}),
+          })),
+        }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("SUBDIVISION_PARENT_INVALID");
+    });
+
+    it("blocks administrative parents that form a cycle", () => {
+      const report = service.validate(
+        document({
+          entities: [
+            ...context.entities.map((known) => ({
+              ...known,
+              recognitionStatus: "un_member",
+            })),
+            { ...california, parentKey: "subdivision.us.north" },
+            {
+              ...california,
+              key: "subdivision.us.north",
+              parentKey: "subdivision.us.california",
+            },
+          ],
+        }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("ADMINISTRATIVE_RELATION_CYCLE");
+    });
+  });
+
+  describe("cards a deck asks for", () => {
+    const codes = (report: { findings: { code: string }[] }): string[] =>
+      report.findings.map((finding) => finding.code);
+
+    const deckHolding = (members: unknown[], extra = {}): unknown =>
+      document({
+        decks: [
+          {
+            key: "deck.symbols",
+            kind: "curated",
+            names: {
+              ru: { name: "Символы", description: "Оба символа" },
+              en: { name: "Symbols", description: "Both symbols" },
+            },
+            defaultTemplateCode: "FLAG_TO_COUNTRY",
+            defaultTemplateSchemaVersion: 1,
+            members,
+            ...extra,
+          },
+        ],
+      });
+
+    const coatOf = (entityKey: string): unknown => ({
+      entityKey,
+      templateCode: "COAT_OF_ARMS_TO_COUNTRY",
+      templateSchemaVersion: 1,
+    });
+
+    it("accepts one entity taught through two templates", () => {
+      const report = service.validate(
+        deckHolding(["country.france", coatOf("country.france")]),
+        context,
+        [
+          {
+            entityContentKey: "country.france",
+            assetType: "coat_of_arms",
+            licenseName: "Public domain",
+            sourceUrl: "https://example.invalid/coat.svg",
+            replacementReason: "Verified official artwork",
+          },
+        ],
+      );
+      expect(codes(report)).not.toContain("DECK_CARD_DUPLICATE");
+      expect(codes(report)).not.toContain("CARD_TEMPLATE_ASSET_MISSING");
+    });
+
+    it("blocks the same card listed twice", () => {
+      const report = service.validate(
+        deckHolding([
+          "country.france",
+          {
+            entityKey: "country.france",
+            templateCode: "FLAG_TO_COUNTRY",
+            templateSchemaVersion: 1,
+          },
+        ]),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("DECK_CARD_DUPLICATE");
+    });
+
+    it("blocks a coat of arms nobody uploaded", () => {
+      const report = service.validate(
+        deckHolding([coatOf("country.france")]),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("CARD_TEMPLATE_ASSET_MISSING");
+    });
+
+    it("blocks a template no release publishes", () => {
+      const report = service.validate(
+        deckHolding([
+          {
+            entityKey: "country.france",
+            templateCode: "MAP_TO_COUNTRY",
+            templateSchemaVersion: 1,
+          },
+        ]),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("CARD_TEMPLATE_UNKNOWN");
+    });
+
+    it("blocks a coat of arms asked of a state", () => {
+      const state = {
+        key: "subdivision.us.california",
+        type: "subdivision",
+        status: "active",
+        config: { includeInCountryCatalog: false },
+        recognitionStatus: "not_applicable",
+        parentKey: "country.france",
+      };
+      const report = service.validate(
+        document({
+          entities: [
+            ...context.entities.map((known) => ({
+              ...known,
+              recognitionStatus: "un_member",
+            })),
+            state,
+          ],
+          decks: [
+            {
+              key: "deck.symbols",
+              kind: "curated",
+              names: {
+                ru: { name: "Символы", description: "Оба символа" },
+                en: { name: "Symbols", description: "Both symbols" },
+              },
+              defaultTemplateCode: "FLAG_TO_COUNTRY",
+              defaultTemplateSchemaVersion: 1,
+              members: [coatOf("subdivision.us.california")],
+            },
+          ],
+        }),
+        context,
+        [
+          {
+            entityContentKey: "subdivision.us.california",
+            assetType: "coat_of_arms",
+            licenseName: "Public domain",
+            sourceUrl: "https://example.invalid/coat.svg",
+            replacementReason: "Uploaded by mistake",
+          },
+        ],
+      );
+      expect(codes(report)).toContain("CARD_TEMPLATE_SUBJECT_KIND_UNSUPPORTED");
+    });
+
+    it("blocks a preview the deck does not hold", () => {
+      const report = service.validate(
+        deckHolding(["country.france"], {
+          previewCards: [coatOf("country.japan")],
+        }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("DECK_PREVIEW_NOT_MEMBER");
+    });
+
+    it("blocks a locked deck previewing more than three cards", () => {
+      const report = service.validate(
+        deckHolding(["country.france", "country.japan", "country.spain"], {
+          previewCards: [
+            "country.france",
+            "country.japan",
+            "country.spain",
+            "country.france",
+          ],
+        }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("DECK_PREVIEW_NOT_PUBLIC");
+    });
+  });
+
+  describe("access", () => {
+    const codes = (report: { findings: { code: string }[] }): string[] =>
+      report.findings.map((finding) => finding.code);
+
+    const paidDeck = (
+      access: Record<string, unknown> | undefined,
+      key = "deck.all",
+    ): unknown =>
+      document({
+        decks: [
+          {
+            key,
+            kind: "curated",
+            names: {
+              ru: { name: "Все", description: "Все страны" },
+              en: { name: "All", description: "All countries" },
+            },
+            members: "all-current",
+            ...(access === undefined ? {} : { access }),
+          },
+        ],
+      });
+
+    it("blocks a paid deck with no entitlement to sell", () => {
+      const report = service.validate(
+        paidDeck({ model: "ENTITLEMENT" }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("DECK_ACCESS_ENTITLEMENT_MISSING");
+    });
+
+    it("blocks a free deck that still names an entitlement", () => {
+      const report = service.validate(
+        paidDeck({
+          model: "FREE",
+          requiredEntitlementKey: "deck.europe_coats",
+        }),
+        context,
+        [],
+      );
+      expect(codes(report)).toContain("DECK_ACCESS_ENTITLEMENT_UNUSED");
+    });
+
+    it("blocks turning a published free deck into a paid one", () => {
+      const report = service.validate(
+        paidDeck({
+          model: "ENTITLEMENT",
+          requiredEntitlementKey: "deck.europe_coats",
+        }),
+        context,
+        [],
+        [
+          {
+            code: "ALL",
+            accessModel: "FREE",
+            requiredEntitlementKey: null,
+          },
+        ],
+      );
+      expect(codes(report)).toContain("DECK_ACCESS_TIGHTENED");
+    });
+
+    it("blocks changing the entitlement a published deck is sold against", () => {
+      const report = service.validate(
+        paidDeck({
+          model: "ENTITLEMENT",
+          requiredEntitlementKey: "deck.something_else",
+        }),
+        context,
+        [],
+        [
+          {
+            code: "ALL",
+            accessModel: "ENTITLEMENT",
+            requiredEntitlementKey: "deck.europe_coats",
+          },
+        ],
+      );
+      expect(codes(report)).toContain("DECK_ENTITLEMENT_CHANGED");
+    });
+
+    it("warns rather than blocks when a paid deck becomes free", () => {
+      const report = service.validate(
+        paidDeck({ model: "FREE" }),
+        context,
+        [],
+        [
+          {
+            code: "ALL",
+            accessModel: "ENTITLEMENT",
+            requiredEntitlementKey: "deck.europe_coats",
+          },
+        ],
+      );
+      const relaxed = report.findings.find(
+        (finding) => finding.code === "DECK_ACCESS_RELAXED",
+      );
+      expect(relaxed?.level).toBe("warning");
+    });
+
+    it("blocks dropping a paid deck somebody owns", () => {
+      const report = service.validate(
+        document(),
+        context,
+        [],
+        [
+          {
+            code: "EUROPEAN_COATS",
+            accessModel: "ENTITLEMENT",
+            requiredEntitlementKey: "deck.europe_coats",
+          },
+        ],
+      );
+      expect(codes(report)).toContain("PAID_DECK_REMOVED");
+    });
+  });
 });

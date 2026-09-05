@@ -4,7 +4,11 @@ import { CardStatus, DeckStatus } from "@prisma/client";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { deckCodeFromKey } from "../content/bundle/bundle-mapper";
 import { CatalogSourceService } from "./catalog-source.service";
-import { membersMode, resolveDeckMembers } from "./deck-membership";
+import {
+  memberCardRef,
+  membersMode,
+  resolveDeckMembers,
+} from "./deck-membership";
 import type {
   EditorialDeck,
   EditorialEntity,
@@ -71,6 +75,65 @@ function scalarText(value: unknown): string {
     return "—";
   }
   return typeof value === "string" ? value : JSON.stringify(value);
+}
+
+/**
+ * What a release built from this draft would change about who may open a
+ * deck.
+ *
+ * Its own line rather than a field among the others: taking a deck away
+ * from somebody who paid is the one change here that cannot be undone by
+ * publishing again, and a reviewer has to see it without reading a diff.
+ */
+function accessDetails(
+  deck: EditorialDeck,
+  published: {
+    accessModel?: string | null;
+    requiredEntitlementKey?: string | null;
+  },
+): string[] {
+  // Absent means free on both sides: the column defaults to it, and a deck
+  // published before access existed is a free deck.
+  const model = deck.access?.model ?? "FREE";
+  const publishedModel = published.accessModel ?? "FREE";
+  const key = deck.access?.requiredEntitlementKey ?? null;
+  const details: string[] = [];
+  if (model !== publishedModel) {
+    details.push(
+      publishedModel === "FREE"
+        ? `Access: free → paid (${key ?? "no entitlement named"}) — this takes the deck away from everyone who has it`
+        : `Access: paid → free — nobody who bought it is refunded`,
+    );
+  } else if (key !== (published.requiredEntitlementKey ?? null)) {
+    details.push(
+      `Entitlement: ${published.requiredEntitlementKey ?? "—"} → ${key ?? "—"}`,
+    );
+  }
+  return details;
+}
+
+/**
+ * Which cards a deck holds, when it says so itself.
+ *
+ * A deck that names templates teaches something other than flags, and that
+ * is the sort of change a reviewer reads a diff to find.
+ */
+function templateDetails(deck: EditorialDeck): string[] {
+  if (!Array.isArray(deck.members)) {
+    return [];
+  }
+  const templates = [
+    ...new Set(
+      deck.members.map((member) => memberCardRef(deck, member).templateCode),
+    ),
+  ].sort();
+  if (
+    templates.length === 0 ||
+    (templates.length === 1 && templates[0] === "FLAG_TO_COUNTRY")
+  ) {
+    return [];
+  }
+  return [`Card templates: ${templates.join(", ")}`];
 }
 
 /**
@@ -146,6 +209,8 @@ export class DraftDiffService {
           `Countries: ${String(counterpart._count.cards)} → ${String(memberCount)}`,
         );
       }
+      details.push(...accessDetails(deck, counterpart));
+      details.push(...templateDetails(deck));
       for (const localization of counterpart.localizations) {
         const locale = localization.locale.toLowerCase();
         const next = deck.names[locale];

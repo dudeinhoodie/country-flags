@@ -300,6 +300,11 @@ enum IdempotencyStatus {
 model User {
   id                   String                         @id @default(uuid()) @db.Uuid
   syncStreamId         String                         @default(uuid()) @map("sync_stream_id") @db.Uuid
+  /// The token a store purchase is made under, so a transaction can be tied
+  /// to this account without the store ever learning who the account is.
+  /// Stable for the life of the account: it is what a restore on another
+  /// device is matched against (ADR-019).
+  storeAccountToken    String                         @unique @default(uuid()) @map("store_account_token") @db.Uuid
   displayName          String?                        @map("display_name")
   preferredLocale      String                         @default("ru") @map("preferred_locale")
   status               UserStatus                     @default(ACTIVE)
@@ -326,6 +331,8 @@ model User {
   achievements         UserAchievement[]
   deckMastery          UserDeckMastery[]
   auditEvents          AuditEvent[]
+  storeTransactions    StoreTransaction[]
+  entitlementGrants    UserEntitlementGrant[]
 
   @@index([status, deletionRequestedAt])
   @@map("users")
@@ -835,21 +842,30 @@ model LearningCardRevision {
 }
 
 model Deck {
-  id             String             @id @default(uuid()) @db.Uuid
-  code           String             @unique
-  kind           DeckKind
-  ownerUserId    String?            @map("owner_user_id") @db.Uuid
-  ruleSpec       Json?              @map("rule_spec") @db.JsonB
-  status         DeckStatus         @default(DRAFT)
-  contentVersion String             @map("content_version")
-  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
-  owner          User?              @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
-  release        ContentRelease     @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
-  localizations  DeckLocalization[]
-  cards          DeckCard[]
-  studySessions  StudySession[]
-  mastery        UserDeckMastery[]
+  id                     String                 @id @default(uuid()) @db.Uuid
+  code                   String                 @unique
+  kind                   DeckKind
+  ownerUserId            String?                @map("owner_user_id") @db.Uuid
+  ruleSpec               Json?                  @map("rule_spec") @db.JsonB
+  status                 DeckStatus             @default(DRAFT)
+  /// Whether the deck is opened by an entitlement. Access lives on the deck
+  /// and nowhere else: no card, asset or template is paid, and the price is
+  /// the store's business rather than the catalog's (ADR-019).
+  accessModel            DeckAccessModel        @default(FREE) @map("access_model")
+  /// The right that opens it, and null exactly when the deck is free. The
+  /// pair is enforced by a check constraint rather than by whoever writes
+  /// the row.
+  requiredEntitlementKey String?                @map("required_entitlement_key")
+  contentVersion         String                 @map("content_version")
+  createdAt              DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+  owner                  User?                  @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  release                ContentRelease         @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
+  localizations          DeckLocalization[]
+  cards                  DeckCard[]
+  studySessions          StudySession[]
+  mastery                UserDeckMastery[]
+  entitlement            EntitlementDefinition? @relation(fields: [requiredEntitlementKey], references: [key], onDelete: Restrict)
 
   @@index([kind, status])
   @@index([ownerUserId])
@@ -1471,4 +1487,302 @@ model PublishRun {
 
   @@index([status, createdAt])
   @@map("publish_runs")
+}
+
+// ---------------------------------------------------------------------------
+// Commerce (ADR-019)
+//
+// A store product is not a deck. An Apple product sells an offer, an offer
+// grants one or more entitlement keys, and a key opens whichever decks
+// require it. That indirection is what lets one bundle open several decks,
+// lets a later Google or Web purchase grant the same key, lets a product be
+// withdrawn from sale without taking access from the people who bought it,
+// and lets a refund of one of two grants leave access standing.
+//
+// Nothing here stores a price: the store owns what a thing costs, and price
+// takes no part in deciding what somebody may open.
+// ---------------------------------------------------------------------------
+
+enum DeckAccessModel {
+  FREE
+  ENTITLEMENT
+}
+
+enum EntitlementStatus {
+  ACTIVE
+  RETIRED
+}
+
+enum CommerceOfferKind {
+  ONE_TIME
+}
+
+enum CommerceOfferStatus {
+  DRAFT
+  ACTIVE
+  RETIRED
+}
+
+enum StoreProvider {
+  APPLE_APP_STORE
+  GOOGLE_PLAY
+  WEB
+}
+
+/// Sandbox and production are separate worlds. A transaction signed in one
+/// never grants anything in the other, which is why the environment is part
+/// of every store identity here rather than a deployment detail.
+enum StoreEnvironment {
+  LOCAL_TEST
+  SANDBOX
+  PRODUCTION
+}
+
+enum StoreProductType {
+  NON_CONSUMABLE
+}
+
+enum StoreProductStatus {
+  DRAFT
+  VALIDATED
+  ACTIVE
+  RETIRED
+  INVALID
+}
+
+enum StoreOwnershipType {
+  PURCHASED
+  FAMILY_SHARED
+  UNKNOWN
+}
+
+/// Who a store transaction currently belongs to. A purchase belongs to the
+/// store account, not to the Country Flags account, so deleting an account
+/// releases the claim rather than destroying the record — and only from
+/// that state may a verified restore bind it to a new account.
+enum StoreTransactionClaimState {
+  CLAIMED
+  RELEASED_BY_ACCOUNT_DELETION
+  CONFLICT
+  QUARANTINED
+}
+
+enum EntitlementGrantSource {
+  STORE_TRANSACTION
+  /// Reserved for support, and issued by nothing yet: manual grants are out
+  /// of the first version, and promotions go through store offer codes.
+  SUPPORT_OVERRIDE
+  MIGRATION
+}
+
+enum EntitlementGrantStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum StoreNotificationStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+  QUARANTINED
+}
+
+/// A right to open something, named once and never renamed.
+///
+/// The key is a business boundary rather than a publishing detail: deck ids
+/// and content versions change with every release, and what somebody bought
+/// must not.
+model EntitlementDefinition {
+  key         String                 @id
+  status      EntitlementStatus      @default(ACTIVE)
+  /// Internal only; never shown to a customer and never localized.
+  description String?
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+  decks       Deck[]
+  offerGrants CommerceOfferGrant[]
+  userGrants  UserEntitlementGrant[]
+
+  @@map("entitlement_definitions")
+}
+
+/// What is for sale, in our terms rather than a store's.
+model CommerceOffer {
+  id            String                      @id @default(uuid()) @db.Uuid
+  code          String                      @unique
+  kind          CommerceOfferKind           @default(ONE_TIME)
+  status        CommerceOfferStatus         @default(DRAFT)
+  sortOrder     Int?                        @map("sort_order")
+  notes         String?
+  createdAt     DateTime                    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime                    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  localizations CommerceOfferLocalization[]
+  grants        CommerceOfferGrant[]
+  products      StoreProduct[]
+
+  @@index([status])
+  @@map("commerce_offers")
+}
+
+/// Fallback copy for the console and for a client the store has not answered
+/// yet. What a customer is actually shown at the moment of paying comes from
+/// the store, which is also what review approved.
+model CommerceOfferLocalization {
+  offerId     String        @map("offer_id") @db.Uuid
+  locale      String
+  title       String
+  description String
+  offer       CommerceOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@id([offerId, locale])
+  @@map("commerce_offer_localizations")
+}
+
+/// What an offer grants. It may grow by an audited migration and must never
+/// shrink once the offer has sold: a different set of rights is a different
+/// product.
+model CommerceOfferGrant {
+  offerId        String                @map("offer_id") @db.Uuid
+  entitlementKey String                @map("entitlement_key")
+  offer          CommerceOffer         @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  entitlement    EntitlementDefinition @relation(fields: [entitlementKey], references: [key], onDelete: Restrict)
+
+  @@id([offerId, entitlementKey])
+  @@index([entitlementKey])
+  @@map("commerce_offer_grants")
+}
+
+/// One store's listing of an offer.
+///
+/// The product id is immutable once it has sold, and the bundle and
+/// environment are part of its identity: the same product id in Sandbox and
+/// in Production are two different things, and treating them as one is how
+/// a test purchase would open a paid deck for real.
+model StoreProduct {
+  id               String             @id @default(uuid()) @db.Uuid
+  offerId          String             @map("offer_id") @db.Uuid
+  provider         StoreProvider
+  storeEnvironment StoreEnvironment   @map("store_environment")
+  bundleId         String             @map("bundle_id")
+  productId        String             @map("product_id")
+  productType      StoreProductType   @default(NON_CONSUMABLE) @map("product_type")
+  status           StoreProductStatus @default(DRAFT)
+  /// Whatever the store last said about it, kept opaque on purpose: it is a
+  /// diagnostic, and nothing decides access by reading it.
+  storeStatus      String?            @map("store_status")
+  lastValidatedAt  DateTime?          @map("last_validated_at") @db.Timestamptz(3)
+  validationError  String?            @map("validation_error")
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+  offer            CommerceOffer      @relation(fields: [offerId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, storeEnvironment, bundleId, productId], map: "store_products_store_identity_unique")
+  @@index([offerId])
+  @@map("store_products")
+}
+
+/// A purchase, refund or revocation as the store signed it.
+///
+/// The full signed payload is not kept here; only its hash and the
+/// identifiers a restore, a refund and an anti-fraud question need. The
+/// unique key over environment and transaction id is what makes replaying a
+/// transaction — from the app, from a notification, from reconciliation —
+/// land exactly once.
+model StoreTransaction {
+  id                    String                     @id @default(uuid()) @db.Uuid
+  provider              StoreProvider
+  storeEnvironment      StoreEnvironment           @map("store_environment")
+  transactionId         String                     @map("transaction_id")
+  originalTransactionId String?                    @map("original_transaction_id")
+  productId             String                     @map("product_id")
+  storeAccountToken     String?                    @map("store_account_token") @db.Uuid
+  userId                String?                    @map("user_id") @db.Uuid
+  ownershipType         StoreOwnershipType         @default(PURCHASED) @map("ownership_type")
+  purchasedAt           DateTime                   @map("purchased_at") @db.Timestamptz(3)
+  revokedAt             DateTime?                  @map("revoked_at") @db.Timestamptz(3)
+  revocationReason      String?                    @map("revocation_reason")
+  signedPayloadHash     String                     @map("signed_payload_hash") @db.Char(64)
+  verifiedAt            DateTime                   @map("verified_at") @db.Timestamptz(3)
+  claimState            StoreTransactionClaimState @default(CLAIMED) @map("claim_state")
+  createdAt             DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user                  User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  grants                UserEntitlementGrant[]
+
+  @@unique([provider, storeEnvironment, transactionId], map: "store_transactions_identity_unique")
+  @@index([userId])
+  @@index([originalTransactionId])
+  @@map("store_transactions")
+}
+
+/// One reason a user holds a right.
+///
+/// Access is the existence of at least one active grant, which is why this
+/// is a list rather than a flag: refunding one of two products that both
+/// grant a key leaves the key granted, and the reader does not have to
+/// reason about which purchase won.
+model UserEntitlementGrant {
+  id                  String                 @id @default(uuid()) @db.Uuid
+  userId              String                 @map("user_id") @db.Uuid
+  entitlementKey      String                 @map("entitlement_key")
+  sourceType          EntitlementGrantSource @map("source_type")
+  sourceTransactionId String?                @map("source_transaction_id") @db.Uuid
+  status              EntitlementGrantStatus @default(ACTIVE)
+  grantedAt           DateTime               @default(now()) @map("granted_at") @db.Timestamptz(3)
+  revokedAt           DateTime?              @map("revoked_at") @db.Timestamptz(3)
+  revocationReason    String?                @map("revocation_reason")
+  createdAt           DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user                User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entitlement         EntitlementDefinition  @relation(fields: [entitlementKey], references: [key], onDelete: Restrict)
+  sourceTransaction   StoreTransaction?      @relation(fields: [sourceTransactionId], references: [id], onDelete: SetNull)
+
+  /// One grant per user, right and source. Created NULLS NOT DISTINCT: a
+  /// migration or support grant has no transaction behind it, and Postgres
+  /// would otherwise let the same one be issued again and again.
+  @@unique([userId, entitlementKey, sourceType, sourceTransactionId], map: "user_entitlement_grants_source_unique")
+  @@index([userId, status])
+  @@index([entitlementKey, status])
+  @@map("user_entitlement_grants")
+}
+
+/// A server-to-server notification, recorded before it is acted on.
+///
+/// The store retries, so the same notification arrives more than once; the
+/// unique uuid is what makes the second delivery change nothing.
+model StoreNotification {
+  id               String                  @id @default(uuid()) @db.Uuid
+  provider         StoreProvider
+  storeEnvironment StoreEnvironment        @map("store_environment")
+  notificationUuid String                  @unique @map("notification_uuid")
+  notificationType String                  @map("notification_type")
+  subtype          String?
+  signedDate       DateTime?               @map("signed_date") @db.Timestamptz(3)
+  payloadHash      String                  @map("payload_hash") @db.Char(64)
+  status           StoreNotificationStatus @default(RECEIVED)
+  error            String?
+  receivedAt       DateTime                @default(now()) @map("received_at") @db.Timestamptz(3)
+  processedAt      DateTime?               @map("processed_at") @db.Timestamptz(3)
+
+  @@index([status, receivedAt])
+  @@map("store_notifications")
+}
+
+/// Where the repair job got to.
+///
+/// Notifications are lost sometimes; the store keeps the history, so the
+/// cursor here is what lets a later run find what was missed instead of
+/// waiting for a customer to complain.
+model StoreReconciliationState {
+  provider         StoreProvider
+  storeEnvironment StoreEnvironment @map("store_environment")
+  scopeKey         String           @map("scope_key")
+  lastRevision     String?          @map("last_revision")
+  lastSucceededAt  DateTime?        @map("last_succeeded_at") @db.Timestamptz(3)
+  lastError        String?          @map("last_error")
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@id([provider, storeEnvironment, scopeKey])
+  @@map("store_reconciliation_state")
 }
