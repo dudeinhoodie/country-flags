@@ -11,6 +11,11 @@ import type { RuntimeConfig } from "../config/runtime-config";
 import { RuntimeConfigProvider } from "../config/RuntimeConfigContext";
 import { AccessEdit } from "../resources/access/AccessEdit";
 import { AccessList } from "../resources/access/AccessList";
+import { EntitlementsPage } from "../resources/commerce/EntitlementsPage";
+import { OfferDetail } from "../resources/commerce/OfferDetail";
+import { OffersPage } from "../resources/commerce/OffersPage";
+import { StoreProductsPage } from "../resources/commerce/StoreProductsPage";
+import { StoreSyncPage } from "../resources/commerce/StoreSyncPage";
 import { DeckEditor } from "../resources/drafts/DeckEditor";
 import { DraftEntities } from "../resources/drafts/DraftEntities";
 import { EntityEditor } from "../resources/drafts/EntityEditor";
@@ -74,6 +79,23 @@ export function AdminApp({ config }: { config: RuntimeConfig }) {
                   path="/drafts/:draftId/entities/:entityKey"
                   element={<EntityEditor />}
                 />
+                {/* Commerce is its own section rather than a resource: the
+                    contract's commerce lists are whole answers, not pages,
+                    so there is nothing for a data provider to paginate. */}
+                <Route path="/commerce/offers" element={<OffersPage />} />
+                <Route
+                  path="/commerce/offers/:offerId"
+                  element={<OfferDetail />}
+                />
+                <Route
+                  path="/commerce/entitlements"
+                  element={<EntitlementsPage />}
+                />
+                <Route
+                  path="/commerce/products"
+                  element={<StoreProductsPage />}
+                />
+                <Route path="/commerce/sync" element={<StoreSyncPage />} />
               </CustomRoutes>
               <Resource
                 name="entities"

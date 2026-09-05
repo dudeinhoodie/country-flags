@@ -10,6 +10,17 @@ The next multi-content/paid-deck increment is specified in
 `GeoEntity` records with kind `SUBDIVISION`, symbols remain typed assets of an
 entity, and deck membership selects `entity + templateCode + schemaVersion`.
 
+## Commerce
+
+The **Commerce** section (`src/resources/commerce/`) records what a paid deck
+opens and which store listing sells it, following
+`docs/17-paid-decks-storekit.md` §12.2 and §12.4. It has no price field and
+will not get one: App Store Connect owns what a thing costs, the console
+records the mapping and queues a read-only sync that a job performs with a key
+this browser never holds. Every screen carries two badges — the deployment's
+and the store's — because mapping a Sandbox product while looking at
+production is the mistake the section exists to prevent.
+
 ## Commands
 
 Run from the repository root:

@@ -1,7 +1,11 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
+import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
+import SyncOutlinedIcon from "@mui/icons-material/SyncOutlined";
 import {
   AppBar,
   Layout,
@@ -90,6 +94,29 @@ function AdminMenu() {
       <Menu.ResourceItem name="decks" />
       <MenuSection label="Editorial" />
       <Menu.ResourceItem name="drafts" />
+      {/* Commerce sits beside Content rather than inside the deck list: an
+          offer is not a deck, and one offer may open several. */}
+      <MenuSection label="Commerce" />
+      <Menu.Item
+        to="/commerce/offers"
+        primaryText="Offers"
+        leftIcon={<LocalOfferOutlinedIcon />}
+      />
+      <Menu.Item
+        to="/commerce/entitlements"
+        primaryText="Entitlements"
+        leftIcon={<KeyOutlinedIcon />}
+      />
+      <Menu.Item
+        to="/commerce/products"
+        primaryText="Store products"
+        leftIcon={<StorefrontOutlinedIcon />}
+      />
+      <Menu.Item
+        to="/commerce/sync"
+        primaryText="Store sync"
+        leftIcon={<SyncOutlinedIcon />}
+      />
       {resources.users !== undefined && (
         <>
           <MenuSection label="Administration" />
