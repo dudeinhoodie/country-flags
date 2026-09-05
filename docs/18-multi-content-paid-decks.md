@@ -1,12 +1,18 @@
 # ТЗ: гербы, штаты и платные multi-content колоды
 
-Статус: `Draft 0.2 — implementation ready after contract approval`  
+Статус: `Draft 0.3 — implementation ready after contract approval`
+
 Дата: 4 сентября 2026 года. Ревизия 0.2 закрывает замечания технического ревью:
 gate шаблонов по паре код и версия, состав `deck.all`, секции каталога и
 согласование имён с документом 17.  
+Ревизия 0.3: 5 сентября 2026 года — разделены каноническая GeoEntity и публичная
+consumer projection; paid-only assets вынесены в guarded deck delivery.
+
 Связанные решения: [ADR-019](./adr/ADR-019-paid-deck-entitlements.md),
 [ADR-020](./adr/ADR-020-geo-entities-and-card-variants.md)  
 Визуальный контракт: [DESIGN.md](../DESIGN.md)
+
+Подробный UX-контракт админки: [19-admin-redesign.md](./19-admin-redesign.md)
 
 ## 1. Цель
 
@@ -363,6 +369,21 @@ country-only списках только по отсутствию parent; фи�
 provenance продолжает храниться на backend; consumer получает существующие
 license/attribution поля.
 
+Каноническая `GeoEntity` в backend/admin содержит все assets страны или
+subdivision, но consumer `GET /v1/entities/{id}` возвращает только public
+projection:
+
+- общие имена и facts бесплатного продукта;
+- assets, используемые хотя бы одной опубликованной FREE-карточкой;
+- assets, явно выбранные как public preview;
+- никаких paid-only representations, URL и localized asset details.
+
+Таким образом, добавление `COAT_OF_ARMS` к Германии не раскрывает герб через
+общий Entity API, даже если флаг Германии уже присутствует в бесплатной колоде.
+Paid-only asset и его metadata приезжают только внутри guarded deck-card
+response. Один и тот же asset, используемый FREE-колодой, становится публичным
+для release независимо от того, используется ли он также платной колодой.
+
 ### 7.2 Deck contract
 
 `Deck` получает обязательные для нового клиента поля:
@@ -370,6 +391,7 @@ license/attribution поля.
 ~~~json
 {
   "contentKinds": ["COAT_OF_ARMS"],
+  "contentRevision": 3,
   "access": {
     "model": "ENTITLEMENT",
     "requiredEntitlementKey": "entitlement.european_coats",
@@ -392,15 +414,40 @@ license/attribution поля.
 - locked paid deck: `403 ENTITLEMENT_REQUIRED`;
 - response не фильтрует карточки по asset type и сохраняет editorial order.
 
+Для paid-only asset guarded response возвращает representation с signed URL и
+`expiresAt`. Для free/public-preview asset остаётся стабильный public CDN URL.
+`contentRevision` увеличивается при изменении состава, карточного payload или
+связанного paid-only asset и позволяет owner-клиенту выполнить targeted refresh.
+
+`AssetRepresentation` additive расширяется полями:
+
+~~~json
+{
+  "delivery": "PUBLIC | SIGNED",
+  "expiresAt": "2026-09-05T12:05:00Z | null"
+}
+~~~
+
+Для `PUBLIC` `expiresAt = null`. Для `SIGNED` URL не является identity и не
+попадает в persistent model: identity/cache key остаётся checksum representation.
+Default TTL — 300 секунд, server-configurable в диапазоне 60...900 секунд;
+guarded response запрещён для shared caching.
+
+`GET /v1/content/changes` остаётся общей публичной лентой. Он публикует только
+изменения public entity projection и безопасный `DECK` upsert с новой
+`contentRevision`; paid-only asset/card payload и private URL в feed не входят.
+
 `LearningCard` сохраняет `templateCode`/`templateSchemaVersion`; prompt asset
 может быть `FLAG` или `COAT_OF_ARMS`. Клиент обязан выбирать renderer по
 template, а не по Deck name или entity kind.
 
 ### 7.3 Версионирование
 
-- OpenAPI сначала расширяется additive nullable/extensible полями. `access` и
-  `contentKinds` optional в схеме; отсутствие `access` клиент читает как `FREE`
-  (документ 17 §7.2).
+- OpenAPI сначала расширяется additive nullable/extensible полями. `access`,
+  `contentKinds`, `contentRevision`, `delivery` и `expiresAt` optional в схеме;
+  отсутствие `access` клиент читает как `FREE`, отсутствие `contentRevision` —
+  как необходимость обычного full refresh, а отсутствие `delivery` — как
+  существующий `PUBLIC` contract (документ 17 §7.2).
 - `SUBDIVISION` добавляется в `x-extensible-enum`.
 - release с новым обязательным template публикуется только после поднятия
   `minimumClientVersion`.
@@ -441,8 +488,15 @@ Backend MUST:
 10. применять `DeckAccessService` к cards и session creation, различая
     `origin = SERVER` и `origin = CLIENT_OFFLINE` (документ 17 §7.3);
 11. не блокировать review sync после refund;
-12. включить content/card/asset changes в существующий cursor feed;
-13. отдавать в manifest `supportedCardTemplates` парами
+12. построить `ContentAccessProjectionService`, общий для consumer mapping,
+    preview, publication validation и bundle generation;
+13. исключить paid-only assets из Entity API, public manifest и глобального
+    change feed;
+14. публиковать paid-only representations в private storage и выдавать
+    короткоживущие signed URLs только после `DeckAccessService`;
+15. эмитить безопасный `DECK` upsert и увеличивать `contentRevision` при
+    изменениях закрытого состава/assets, чтобы owner выполнял targeted refresh;
+16. отдавать в manifest `supportedCardTemplates` парами
     `{ templateCode, schemaVersion }` (§7.3).
 
 Обязательные validation codes:
@@ -461,6 +515,10 @@ Backend MUST:
 - существующие entitlement/store validation errors из §12 документа 17.
 
 ## 9. Admin console
+
+Этот раздел задаёт доменные и contract requirements. Информационная
+архитектура, экранные сценарии, состояния и acceptance criteria редизайна
+зафиксированы в [19-admin-redesign.md](./19-admin-redesign.md).
 
 ### 9.1 Entity editor
 
@@ -520,6 +578,10 @@ READY/PUBLISH запрещены, если:
 - paid deck не имеет стабильного entitlement/active offer/current-environment
   validated store product;
 - preview раскрывает карточку, не объявленную публичной;
+- paid-only asset попадает в public entity projection, manifest, global change
+  payload или public storage namespace;
+- один asset используется FREE- и ENTITLEMENT-колодой без явного предупреждения
+  о том, что он становится публичным;
 - free → paid выполнен без migration operation.
 
 Release diff группирует изменения по Entity, Asset type, Card template, Deck
@@ -751,23 +813,24 @@ Flags управляют rollout/discovery, но не entitlement. Owner не т
 
 ### Этап C — backend access/commerce
 
-7. Deck metadata/public preview projection.
-8. Entitlement guard, offers, Apple verification, notifications.
-9. Environment reconciliation and observability.
+7. Public entity/deck-preview projection и `contentRevision`.
+8. Private paid-asset storage, signed delivery и targeted refresh.
+9. Entitlement guard, offers, Apple verification, notifications.
+10. Environment reconciliation and observability.
 
 ### Этап D — iOS
 
-10. Store/persistence migrations and template registry.
-11. Coat/subdivision renderers and detail/list UI.
-12. StoreKit purchase/restore/pending/refund states.
-13. Offline cache and end-to-end fixtures.
+11. Store/persistence migrations and template registry.
+12. Coat/subdivision renderers and detail/list UI.
+13. StoreKit purchase/restore/pending/refund states.
+14. Offline cache, signed-asset download и end-to-end fixtures.
 
 ### Этап E — content/release
 
-14. Import 52 European coats and 50 state flags with provenance.
-15. Configure dev products/offers and run Sandbox E2E.
-16. Raise minimum client version, publish content, staged rollout.
-17. Configure production products only after dev acceptance.
+15. Import 52 European coats and 50 state flags with provenance.
+16. Configure dev products/offers and run Sandbox E2E.
+17. Raise minimum client version, publish content, staged rollout.
+18. Configure production products only after dev acceptance.
 
 ## 14. Тестирование
 
@@ -780,6 +843,12 @@ Flags управляют rollout/discovery, но не entitlement. Owner не т
 - content changes preserve unrelated card progress.
 - locked cards/session return `ENTITLEMENT_REQUIRED`.
 - preview endpoint never returns full paid payload.
+- public Entity API returns Germany's free flag but not its paid-only coat;
+- global change feed never exposes paid-only payload or private URL;
+- owner receives the coat through a guarded deck response with a valid signed
+  URL, while unsigned/expired download is rejected;
+- asset reused by a FREE deck is consistently treated as public and produces an
+  admin warning;
 - dev/prod transaction mismatch is rejected.
 - a subdivision is rejected in `deck.all` in every members form.
 - the manifest lists `supportedCardTemplates` as code/version pairs.
