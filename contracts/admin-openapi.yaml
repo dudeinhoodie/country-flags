@@ -347,7 +347,7 @@ paths:
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         "409":
-          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+          $ref: "#/components/responses/DraftRevisionConflict"
         "422":
           $ref: ./openapi/components.yaml#/responses/ValidationResponse
         "428":
@@ -419,7 +419,7 @@ paths:
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         "409":
-          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+          $ref: "#/components/responses/DraftRevisionConflict"
         "422":
           $ref: ./openapi/components.yaml#/responses/ValidationResponse
         "428":
@@ -494,7 +494,7 @@ paths:
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         "409":
-          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+          $ref: "#/components/responses/DraftRevisionConflict"
         "422":
           $ref: ./openapi/components.yaml#/responses/ValidationResponse
         "428":
@@ -533,7 +533,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+                $ref: "#/components/schemas/AdminDraftConflict"
         "428":
           $ref: "#/components/responses/DraftIfMatchRequired"
         default:
@@ -551,12 +551,86 @@ paths:
       operationId: adminListDraftEntities
       x-implementation-status: implemented
       description: >-
-        The editorial record of every entity — the selection and the
-        overrides, never the merged build result — beside the short name the
-        active release serves, so the list is readable by a human.
+        One aggregated row per entity: the editorial record, the symbols it
+        already has, how complete its locales are, how many decks teach it
+        and what a release would deliver it as. Everything the list column
+        shows is answered here, so the screen renders without a request per
+        row. The filters run on the server for the same reason.
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Matched against the key, the identifiers and the published name.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/AdminEntityType"
+        - name: parentKey
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/AdminEntityStatus"
+        - name: includeInCountryCatalog
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: missingFlag
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: missingCoatOfArms
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: missingLocalization
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: validation
+          in: query
+          required: false
+          description: >-
+            `blocking` and `warning` keep the rows that have such a finding;
+            `ok` keeps the rows that have none.
+          schema:
+            type: string
+            enum: [ok, warning, blocking]
+        - name: usedInDecks
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - $ref: "#/components/parameters/AdminOffset"
+        - name: limit
+          in: query
+          required: false
+          description: >-
+            The whole catalog is a few hundred rows, so the console may ask
+            for all of them at once.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 500
       responses:
         "200":
-          description: The draft's entities in document order.
+          description: The matching entities in document order.
           content:
             application/json:
               schema:
@@ -640,11 +714,116 @@ paths:
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         "409":
-          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+          $ref: "#/components/responses/DraftRevisionConflict"
         "422":
           $ref: ./openapi/components.yaml#/responses/ValidationResponse
         "428":
           $ref: "#/components/responses/DraftIfMatchRequired"
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/card-candidates:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+    get:
+      tags: [AdminDrafts]
+      summary: Search the cards a deck could hold
+      operationId: adminSearchDraftCardCandidates
+      x-implementation-status: implemented
+      description: >-
+        The deck builder's card library. A candidate is a pair — an entity and
+        a template that can teach it — because Germany's flag and Germany's
+        coat of arms are two cards with two schedules. The search runs on the
+        server and every row that cannot be added says why, so the console
+        never has to work out which template needs which drawing.
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Matched against the entity key and its published name.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: entityType
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/AdminEntityType"
+        - name: parentKey
+          in: query
+          required: false
+          description: The country a subdivision belongs to.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: assetType
+          in: query
+          required: false
+          description: The drawing the card would prompt with.
+          schema:
+            type: string
+            enum: [FLAG, COAT_OF_ARMS, MAP, OTHER]
+        - name: templateCode
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Z][A-Z0-9_]*$
+            maxLength: 100
+        - name: locale
+          in: query
+          required: false
+          description: >-
+            A candidate whose subject has no name in this locale is reported
+            as unavailable, because the deck could not ship in it.
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 32
+        - name: readiness
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [any, ready, blocked]
+            default: any
+        - name: deckKey
+          in: query
+          required: false
+          description: >-
+            The deck being built. A card it already holds comes back as
+            `inDeck` and unavailable: one resolved card cannot be held twice.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - $ref: "#/components/parameters/AdminOffset"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: The candidates the filters matched, in catalog order.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCardCandidateList"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/content/drafts/{draftId}/assets:
@@ -685,6 +864,8 @@ paths:
         non-public bucket that is only ever read back through the preview
         endpoint. Re-uploading identical bytes returns the existing asset
         rather than creating a second one.
+      parameters:
+        - $ref: "#/components/parameters/DraftIfMatchOptional"
       requestBody:
         required: true
         content:
@@ -697,7 +878,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AdminDraftAsset"
+                $ref: "#/components/schemas/AdminDraftAssetUploadResult"
         "401":
           $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
         "403":
@@ -770,7 +951,7 @@ paths:
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         "409":
-          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+          $ref: "#/components/responses/DraftRevisionConflict"
         "422":
           $ref: ./openapi/components.yaml#/responses/ValidationResponse
         "428":
@@ -1799,6 +1980,17 @@ components:
       schema:
         type: string
         pattern: ^"?[0-9]+"?$
+    DraftIfMatchOptional:
+      name: If-Match
+      in: header
+      required: false
+      description: >-
+        The draft revision the editor read. Optional on the upload alone,
+        because a browser's multipart form carries no header of its own;
+        when it is sent it is enforced exactly as it is everywhere else.
+      schema:
+        type: string
+        pattern: ^"?[0-9]+"?$
     AdminLimit:
       name: limit
       in: query
@@ -1815,6 +2007,15 @@ components:
         application/json:
           schema:
             $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+    DraftRevisionConflict:
+      description: >-
+        The write was refused rather than applied. A `DRAFT_REVISION_CONFLICT`
+        means the draft moved on since the editor read it, and the details say
+        by how much and who moved it; silent last-write-wins is forbidden.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AdminDraftConflict"
   securitySchemes:
     AdminSessionCookie:
       type: apiKey
@@ -2056,12 +2257,45 @@ components:
           maxLength: 120
     AdminDeckResolvedCard:
       description: >-
-        One member as the publisher would materialize it. This is what the
-        editor shows instead of guessing: `memberKeys` could not say which of
-        an entity's cards a deck holds.
+        One member as the publisher would materialize it, with everything the
+        builder's row draws: what it teaches, what it is called, whether the
+        drawing it needs exists, and who would be able to see it. This is what
+        the editor shows instead of guessing: `memberKeys` could not say which
+        of an entity's cards a deck holds.
       type: object
-      required: [entityKey, templateCode, templateSchemaVersion, sortOrder]
+      required:
+        - entityKey
+        - templateCode
+        - templateSchemaVersion
+        - sortOrder
+        - cardId
+        - entityType
+        - entityName
+        - isPreview
+        - delivery
+        - hasAsset
+        - missingAssetType
       properties:
+        cardId:
+          description: The card variant, written `entity#TEMPLATE@version`.
+          type: string
+        entityType:
+          type: [string, "null"]
+        entityName:
+          type: [string, "null"]
+        isPreview:
+          description: Whether the deck shows this card before it is bought.
+          type: boolean
+        delivery:
+          $ref: "#/components/schemas/AdminDeliveryStatus"
+        hasAsset:
+          description: >-
+            Whether the drawing this card prompts with exists. A flag counts
+            as present for anything the catalog teaches; the sources supply
+            one at build time.
+          type: boolean
+        missingAssetType:
+          type: [string, "null"]
         learningCardId:
           description: >-
             The published card this member resolves to, null while the pair
@@ -2142,8 +2376,32 @@ components:
       allOf:
         - $ref: "#/components/schemas/AdminDraftDeck"
         - type: object
-          required: [memberKeys]
+          required:
+            - memberKeys
+            - resolvedMemberCards
+            - previewCards
+            - summary
+            - access
+            - validation
+            - draftRevision
           properties:
+            previewCards:
+              description: >-
+                The cards a locked deck shows before it is bought, resolved.
+                A subset of `resolvedMemberCards`.
+              type: array
+              items:
+                $ref: "#/components/schemas/AdminDeckResolvedCard"
+            summary:
+              $ref: "#/components/schemas/AdminDraftDeckSummaryView"
+            access:
+              $ref: "#/components/schemas/AdminDraftDeckAccessSummary"
+            validation:
+              $ref: "#/components/schemas/AdminObjectValidationSummary"
+            draftRevision:
+              description: The revision this view was read at; what `If-Match` takes.
+              type: integer
+              minimum: 1
             memberKeys:
               deprecated: true
               type: array
@@ -2351,6 +2609,491 @@ components:
         priority. Absence of the field means no overrides; an empty object
         is never stored.
       additionalProperties: true
+    AdminDeliveryStatus:
+      description: >-
+        Who may see a thing once the draft is released, computed by the same
+        policy the public projection applies: `PUBLIC` when a free deck
+        reaches it, `PUBLIC_PREVIEW` when only a locked deck does and an
+        editor chose it as one of that deck's preview cards, `PAID_ONLY` when
+        nothing a stranger may open reaches it. The console never computes
+        this itself — there is one implementation of the rule, and it is the
+        one that guards the public API.
+      type: string
+      enum: [PUBLIC, PUBLIC_PREVIEW, PAID_ONLY]
+    AdminLocaleCompleteness:
+      description: >-
+        Which of the locales a release must serve this object already has.
+        `required` is the catalog's `supportedLocales`, so the console does
+        not have to know what they are.
+      type: object
+      required: [required, present, missing, complete]
+      properties:
+        required:
+          type: array
+          items:
+            type: string
+        present:
+          type: array
+          items:
+            type: string
+        missing:
+          type: array
+          items:
+            type: string
+        complete:
+          type: boolean
+    AdminAssetProcessingState:
+      description: >-
+        How far an uploaded drawing has got. `READY` is a drawing the release
+        can carry; `FAILED` is one the inspection refused.
+      type: string
+      enum: [PROCESSING, READY, FAILED]
+    AdminEntityAssetSlot:
+      description: >-
+        One slot of the contextual media editor. Slots are fixed and always
+        all present: an empty one is where `Add coat of arms` lives, and it
+        says which card templates filling it would unlock.
+      type: object
+      required:
+        - assetType
+        - state
+        - delivery
+        - draftAssetId
+        - provenanceComplete
+        - processing
+        - retired
+        - localizations
+        - usedByCardIds
+        - usedByDeckKeys
+        - unlocksTemplates
+      properties:
+        assetType:
+          type: string
+          x-extensible-enum: [FLAG, COAT_OF_ARMS, MAP, OTHER]
+        state:
+          description: >-
+            Where the drawing comes from: an upload in this draft, the active
+            release, or nothing yet. A draft upload wins, because it is what
+            the next release will carry.
+          type: string
+          enum: [empty, draft, published]
+        delivery:
+          oneOf:
+            - $ref: "#/components/schemas/AdminDeliveryStatus"
+            - type: "null"
+          description: Null for an empty slot; there is nothing to deliver yet.
+        draftAssetId:
+          oneOf:
+            - $ref: ./openapi/components.yaml#/schemas/Uuid
+            - type: "null"
+        variant:
+          type: [string, "null"]
+        mimeType:
+          type: [string, "null"]
+        width:
+          type: [integer, "null"]
+        height:
+          type: [integer, "null"]
+        aspectRatio:
+          type: [number, "null"]
+        sourceUrl:
+          type: [string, "null"]
+        licenseName:
+          type: [string, "null"]
+        licenseUrl:
+          type: [string, "null"]
+        attribution:
+          type: [string, "null"]
+        replacementReason:
+          type: [string, "null"]
+        provenanceComplete:
+          description: >-
+            Whether licence, source and replacement reason are all filled in.
+            The publish gate blocks on this, so the editor sees it first.
+          type: boolean
+        processing:
+          oneOf:
+            - $ref: "#/components/schemas/AdminAssetProcessingState"
+            - type: "null"
+        validFrom:
+          type: [string, "null"]
+          format: date
+        validTo:
+          type: [string, "null"]
+          format: date
+        retired:
+          description: >-
+            A drawing whose validity has been closed. It is history rather
+            than the symbol, and it is never deleted.
+          type: boolean
+        localizations:
+          $ref: "#/components/schemas/AdminLocaleCompleteness"
+        usedByCardIds:
+          type: array
+          items:
+            type: string
+        usedByDeckKeys:
+          type: array
+          items:
+            type: string
+        unlocksTemplates:
+          description: >-
+            The templates that become buildable once the slot is filled, for
+            the subject's kind. A coat of arms unlocks nothing for a state.
+          type: array
+          items:
+            type: string
+    AdminEntityDeckUsage:
+      description: One card, in one deck, that teaches this entity.
+      type: object
+      required:
+        - deckKey
+        - deckName
+        - accessModel
+        - cardId
+        - templateCode
+        - templateSchemaVersion
+        - assetType
+        - isPreview
+        - delivery
+      properties:
+        deckKey:
+          type: string
+        deckName:
+          type: [string, "null"]
+        accessModel:
+          type: string
+          enum: [FREE, ENTITLEMENT]
+        cardId:
+          description: The card variant, written `entity#TEMPLATE@version`.
+          type: string
+        templateCode:
+          type: string
+        templateSchemaVersion:
+          type: integer
+          minimum: 1
+        assetType:
+          type: [string, "null"]
+        isPreview:
+          type: boolean
+        delivery:
+          $ref: "#/components/schemas/AdminDeliveryStatus"
+    AdminObjectValidationSummary:
+      description: The findings about one object, ready to be shown beside it.
+      type: object
+      required: [blocking, warnings, findings]
+      properties:
+        blocking:
+          type: integer
+          minimum: 0
+        warnings:
+          type: integer
+          minimum: 0
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminValidationFinding"
+    AdminValidationTarget:
+      description: >-
+        Where a finding lives, precisely enough for a click to open it: the
+        object, the tab of that object's editor, and an RFC 6901 pointer into
+        the object as this API returns it — `/parentKey` on an entity,
+        `/members/3` on a deck. Not a pointer into the editorial document,
+        which the console never sees.
+      type: object
+      required: [objectType, objectKey, tab, field]
+      properties:
+        objectType:
+          type: string
+          enum: [catalog, entity, deck, asset, relation]
+        objectKey:
+          description: Identical to the finding's `subject`.
+          type: string
+        tab:
+          type: [string, "null"]
+        field:
+          type: [string, "null"]
+    AdminCardCandidate:
+      description: >-
+        One card a deck could hold: an entity taught through a template that
+        can teach its kind. A subject no template teaches — a region — is not
+        listed at all rather than listed as permanently unavailable.
+      type: object
+      required:
+        - cardId
+        - entityKey
+        - entityType
+        - entityStatus
+        - parentKey
+        - entityName
+        - templateCode
+        - templateSchemaVersion
+        - assetType
+        - hasAsset
+        - locales
+        - delivery
+        - inDeck
+        - available
+        - disabledReason
+      properties:
+        cardId:
+          type: string
+        entityKey:
+          type: string
+        entityType:
+          $ref: "#/components/schemas/AdminEntityType"
+        entityStatus:
+          $ref: "#/components/schemas/AdminEntityStatus"
+        parentKey:
+          type: [string, "null"]
+        entityName:
+          type: [string, "null"]
+        templateCode:
+          type: string
+        templateSchemaVersion:
+          type: integer
+          minimum: 1
+        assetType:
+          type: [string, "null"]
+        hasAsset:
+          description: >-
+            Whether the drawing the template prompts with exists. A flag
+            counts as present for anything the catalog teaches: the sources
+            supply one at build time, which is why the publish gate blocks on
+            a missing coat of arms and not on a missing flag.
+          type: boolean
+        locales:
+          $ref: "#/components/schemas/AdminLocaleCompleteness"
+        delivery:
+          oneOf:
+            - $ref: "#/components/schemas/AdminDeliveryStatus"
+            - type: "null"
+          description: Null for a pair no deck holds yet.
+        inDeck:
+          type: boolean
+        available:
+          type: boolean
+        disabledReason:
+          oneOf:
+            - $ref: "#/components/schemas/AdminCandidateDisabledReason"
+            - type: "null"
+    AdminCandidateDisabledReason:
+      description: >-
+        Why the card cannot be added, in words an editor can act on. The
+        reason is what turns a greyed-out row into instructions.
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          x-extensible-enum:
+            [
+              ENTITY_NOT_ACTIVE,
+              ASSET_MISSING,
+              LOCALE_NAME_MISSING,
+              ALREADY_IN_DECK,
+            ]
+        message:
+          type: string
+    AdminCardCandidateList:
+      type: object
+      required: [items, total, draftRevision]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminCardCandidate"
+        total:
+          description: How many candidates the filters matched, not how many this page holds.
+          type: integer
+          minimum: 0
+        draftRevision:
+          type: integer
+          minimum: 1
+    AdminDraftDeckStoreProduct:
+      description: >-
+        One store listing of the offer that grants the deck. Read-only, and
+        without a price: the store owns what a thing costs.
+      type: object
+      required:
+        - productId
+        - provider
+        - storeEnvironment
+        - status
+        - storeStatus
+        - lastValidatedAt
+        - validationError
+      properties:
+        productId:
+          type: string
+        provider:
+          type: string
+        storeEnvironment:
+          type: string
+        status:
+          type: string
+        storeStatus:
+          type: [string, "null"]
+        lastValidatedAt:
+          type: [string, "null"]
+          format: date-time
+        validationError:
+          type: [string, "null"]
+    AdminDraftDeckAccessSummary:
+      description: >-
+        The `Access & store` tab. `published` is what buyers already have,
+        which is what a tightening change would take away from them.
+      type: object
+      required:
+        - model
+        - requiredEntitlementKey
+        - published
+        - entitlementKnown
+        - offerCodes
+        - storeProducts
+        - sellable
+      properties:
+        model:
+          type: string
+          enum: [FREE, ENTITLEMENT]
+        requiredEntitlementKey:
+          type: [string, "null"]
+        published:
+          oneOf:
+            - type: object
+              required: [model, requiredEntitlementKey]
+              properties:
+                model:
+                  type: string
+                  enum: [FREE, ENTITLEMENT]
+                requiredEntitlementKey:
+                  type: [string, "null"]
+            - type: "null"
+        entitlementKnown:
+          description: Whether the entitlement the deck names exists in commerce yet.
+          type: boolean
+        offerCodes:
+          type: array
+          items:
+            type: string
+        storeProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminDraftDeckStoreProduct"
+        sellable:
+          description: >-
+            Whether a release could sell it. Deck content saves without a
+            validated store product; READY and PUBLISH do not.
+          type: boolean
+    AdminDraftDeckSummaryView:
+      description: >-
+        The deck summary column: counts rather than another round trip.
+      type: object
+      required:
+        - cardCount
+        - templateCodes
+        - missingAssetCount
+        - locales
+        - previewCardCount
+        - delivery
+        - blocking
+        - warnings
+      properties:
+        cardCount:
+          type: integer
+          minimum: 0
+        templateCodes:
+          type: array
+          items:
+            type: string
+        missingAssetCount:
+          type: integer
+          minimum: 0
+        locales:
+          $ref: "#/components/schemas/AdminLocaleCompleteness"
+        previewCardCount:
+          type: integer
+          minimum: 0
+        delivery:
+          description: How many of the deck's cards fall into each delivery status.
+          type: object
+          required: [public, publicPreview, paidOnly]
+          properties:
+            public:
+              type: integer
+              minimum: 0
+            publicPreview:
+              type: integer
+              minimum: 0
+            paidOnly:
+              type: integer
+              minimum: 0
+        blocking:
+          type: integer
+          minimum: 0
+        warnings:
+          type: integer
+          minimum: 0
+    AdminDraftAssetUploadResult:
+      description: >-
+        The drawing that was stored, how far it has got, and the draft as it
+        now stands. The stamp is part of the answer because an upload is an
+        editorial write: a console still holding the old revision would be
+        refused on its next save.
+      type: object
+      required: [asset, processing, draft]
+      properties:
+        asset:
+          $ref: "#/components/schemas/AdminDraftAsset"
+        processing:
+          type: object
+          required: [state]
+          properties:
+            state:
+              $ref: "#/components/schemas/AdminAssetProcessingState"
+        draft:
+          $ref: "#/components/schemas/AdminDraftStamp"
+    AdminDraftConflict:
+      description: >-
+        A refusal that says what to do next. When `code` is
+        `DRAFT_REVISION_CONFLICT` the details name both revisions, when the
+        draft moved and who moved it, so the console can offer reload or copy
+        rather than silently overwriting a colleague. Other 409 codes on a
+        draft route — a merged draft, a deck key already taken — carry the
+        plain envelope.
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, requestId, details]
+          properties:
+            code:
+              type: string
+              pattern: ^[A-Z][A-Z0-9_]*$
+              maxLength: 128
+            message:
+              type: string
+              minLength: 1
+              maxLength: 500
+            requestId:
+              $ref: ./openapi/components.yaml#/schemas/Uuid
+            details:
+              type: object
+              additionalProperties: true
+              properties:
+                draftId:
+                  $ref: ./openapi/components.yaml#/schemas/Uuid
+                expectedRevision:
+                  type: integer
+                  minimum: 0
+                currentRevision:
+                  type: integer
+                  minimum: 1
+                updatedAt:
+                  $ref: ./openapi/components.yaml#/schemas/DateTime
+                updatedByAdminUserId:
+                  $ref: ./openapi/components.yaml#/schemas/Uuid
     AdminDraftEntityListItem:
       type: object
       required:
@@ -2362,6 +3105,11 @@ components:
         - identifiers
         - overrideCount
         - publishedName
+        - locales
+        - usedInDeckCount
+        - delivery
+        - blockingCount
+        - warningCount
       properties:
         key:
           type: string
@@ -2393,17 +3141,38 @@ components:
           description: >-
             The short name the active release serves, null when the release
             does not carry the entity yet.
+        locales:
+          $ref: "#/components/schemas/AdminLocaleCompleteness"
+        usedInDeckCount:
+          description: How many of the draft's decks teach the entity.
+          type: integer
+          minimum: 0
+        delivery:
+          $ref: "#/components/schemas/AdminDeliveryStatus"
+        blockingCount:
+          type: integer
+          minimum: 0
+        warningCount:
+          type: integer
+          minimum: 0
     AdminDraftEntityList:
       type: object
-      required: [items, total]
+      required: [items, total, draftRevision]
       properties:
         items:
           type: array
           items:
             $ref: "#/components/schemas/AdminDraftEntityListItem"
         total:
+          description: >-
+            How many entities the filters matched, not how many this page
+            holds.
           type: integer
           minimum: 0
+        draftRevision:
+          description: The revision this view was read at; what `If-Match` takes.
+          type: integer
+          minimum: 1
     AdminDraftEntity:
       type: object
       required: [key, type, status, includeInCountryCatalog, recognitionStatus]
@@ -2443,7 +3212,15 @@ components:
           $ref: "#/components/schemas/AdminEntityOverrides"
     AdminDraftEntityDetail:
       type: object
-      required: [entity, publishedNames]
+      required:
+        - entity
+        - publishedNames
+        - draftRevision
+        - delivery
+        - locales
+        - assets
+        - usages
+        - validation
       properties:
         entity:
           $ref: "#/components/schemas/AdminDraftEntity"
@@ -2454,6 +3231,28 @@ components:
             override the entity does not carry falls back to at build time.
           additionalProperties:
             type: string
+        draftRevision:
+          description: The revision this view was read at; what `If-Match` takes.
+          type: integer
+          minimum: 1
+        delivery:
+          $ref: "#/components/schemas/AdminDeliveryStatus"
+        locales:
+          $ref: "#/components/schemas/AdminLocaleCompleteness"
+        assets:
+          description: >-
+            The media editor's slots, one per symbol type, always all
+            present.
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminEntityAssetSlot"
+        usages:
+          description: The cards and decks that teach the entity.
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminEntityDeckUsage"
+        validation:
+          $ref: "#/components/schemas/AdminObjectValidationSummary"
     AdminDraftEntityUpdateRequest:
       type: object
       additionalProperties: false
@@ -2995,18 +3794,35 @@ components:
           items:
             type: string
     AdminValidationFinding:
+      description: >-
+        One thing a release build would refuse or warn about, addressed
+        precisely enough for a click to open it. A report that only named the
+        object would make the reader go and find the field themselves, which
+        is the work the console exists to save.
       type: object
-      required: [level, code, subject, message]
+      required: [level, code, subject, message, target]
       properties:
         level:
+          description: >-
+            The finding's severity: `blocking` stops a release, `warning`
+            does not.
           type: string
           enum: [blocking, warning]
         code:
+          description: A stable name for the rule, safe to count and to route on.
           type: string
           minLength: 1
         subject:
+          description: The key of the object the finding is about.
           type: string
         message:
+          type: string
+        target:
+          $ref: "#/components/schemas/AdminValidationTarget"
+        route:
+          description: >-
+            The admin console route that opens the object. Present wherever
+            the draft is known, which is every endpoint that returns findings.
           type: string
     AdminValidationReport:
       type: object

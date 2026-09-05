@@ -70,8 +70,8 @@ function membershipOf(deck: DraftDeckDetail): DeckMembership {
 
 function accessOf(deck: DraftDeckDetail | null): DeckAccessValue {
   return {
-    model: deck?.access?.model ?? "FREE",
-    requiredEntitlementKey: deck?.access?.requiredEntitlementKey ?? "",
+    model: deck?.access.model ?? "FREE",
+    requiredEntitlementKey: deck?.access.requiredEntitlementKey ?? "",
   };
 }
 
@@ -96,7 +96,7 @@ function publishedAccessOf(
   }
   // What the deck last saved says, not what the form is now showing: the
   // server refuses a change away from it either way.
-  return deck.access?.model === "ENTITLEMENT" ? "paid" : "free";
+  return deck.access.model === "ENTITLEMENT" ? "paid" : "free";
 }
 
 export function DeckEditor() {

@@ -223,7 +223,7 @@ export interface paths {
         };
         /**
          * List the editorial entities a draft holds
-         * @description The editorial record of every entity — the selection and the overrides, never the merged build result — beside the short name the active release serves, so the list is readable by a human.
+         * @description One aggregated row per entity: the editorial record, the symbols it already has, how complete its locales are, how many decks teach it and what a release would deliver it as. Everything the list column shows is answered here, so the screen renders without a request per row. The filters run on the server for the same reason.
          */
         get: operations["adminListDraftEntities"];
         put?: never;
@@ -256,6 +256,28 @@ export interface paths {
          * @description Each field present in the request replaces the entity's field outright; `identifiers` and `overrides` replace as whole maps, and an empty map removes the field. There is no POST and no DELETE: an entity exists because upstream sources describe it, so the console edits the selection but never invents a country.
          */
         patch: operations["adminUpdateDraftEntity"];
+        trace?: never;
+    };
+    "/v1/admin/content/drafts/{draftId}/card-candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        /**
+         * Search the cards a deck could hold
+         * @description The deck builder's card library. A candidate is a pair — an entity and a template that can teach it — because Germany's flag and Germany's coat of arms are two cards with two schedules. The search runs on the server and every row that cannot be added says why, so the console never has to work out which template needs which drawing.
+         */
+        get: operations["adminSearchDraftCardCandidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/admin/content/drafts/{draftId}/assets": {
@@ -885,8 +907,18 @@ export interface components {
             /** @description Present exactly when the model is `ENTITLEMENT`. Read-only once the deck is published: changing it is an entitlement migration, not an edit. */
             requiredEntitlementKey?: string | null;
         };
-        /** @description One member as the publisher would materialize it. This is what the editor shows instead of guessing: `memberKeys` could not say which of an entity's cards a deck holds. */
+        /** @description One member as the publisher would materialize it, with everything the builder's row draws: what it teaches, what it is called, whether the drawing it needs exists, and who would be able to see it. This is what the editor shows instead of guessing: `memberKeys` could not say which of an entity's cards a deck holds. */
         AdminDeckResolvedCard: {
+            /** @description The card variant, written `entity#TEMPLATE@version`. */
+            cardId: string;
+            entityType: string | null;
+            entityName: string | null;
+            /** @description Whether the deck shows this card before it is bought. */
+            isPreview: boolean;
+            delivery: components["schemas"]["AdminDeliveryStatus"];
+            /** @description Whether the drawing this card prompts with exists. A flag counts as present for anything the catalog teaches; the sources supply one at build time. */
+            hasAsset: boolean;
+            missingAssetType: string | null;
             /** @description The published card this member resolves to, null while the pair has never been published. */
             learningCardId?: string | null;
             entityKey: string;
@@ -919,13 +951,20 @@ export interface components {
             total: number;
         };
         AdminDraftDeckDetail: components["schemas"]["AdminDraftDeck"] & {
+            /** @description The cards a locked deck shows before it is bought, resolved. A subset of `resolvedMemberCards`. */
+            previewCards: components["schemas"]["AdminDeckResolvedCard"][];
+            summary: components["schemas"]["AdminDraftDeckSummaryView"];
+            access: components["schemas"]["AdminDraftDeckAccessSummary"];
+            validation: components["schemas"]["AdminObjectValidationSummary"];
+            /** @description The revision this view was read at; what `If-Match` takes. */
+            draftRevision: number;
             /**
              * @deprecated
              * @description The entity keys the deck resolves to right now, sorted the way the release build sorts them. Ambiguous once an entity has several cards — it cannot say which of them the deck holds — and kept only while the console migrates to `resolvedMemberCards`.
              */
             memberKeys: string[];
             /** @description The members as the publisher would materialize them, in editorial order. */
-            resolvedMemberCards?: components["schemas"]["AdminDeckResolvedCard"][];
+            resolvedMemberCards: components["schemas"]["AdminDeckResolvedCard"][];
         };
         AdminDraftDeckCreateRequest: {
             key: string;
@@ -1005,6 +1044,188 @@ export interface components {
         AdminEntityOverrides: {
             [key: string]: unknown;
         };
+        /**
+         * @description Who may see a thing once the draft is released, computed by the same policy the public projection applies: `PUBLIC` when a free deck reaches it, `PUBLIC_PREVIEW` when only a locked deck does and an editor chose it as one of that deck's preview cards, `PAID_ONLY` when nothing a stranger may open reaches it. The console never computes this itself — there is one implementation of the rule, and it is the one that guards the public API.
+         * @enum {string}
+         */
+        AdminDeliveryStatus: "PUBLIC" | "PUBLIC_PREVIEW" | "PAID_ONLY";
+        /** @description Which of the locales a release must serve this object already has. `required` is the catalog's `supportedLocales`, so the console does not have to know what they are. */
+        AdminLocaleCompleteness: {
+            required: string[];
+            present: string[];
+            missing: string[];
+            complete: boolean;
+        };
+        /**
+         * @description How far an uploaded drawing has got. `READY` is a drawing the release can carry; `FAILED` is one the inspection refused.
+         * @enum {string}
+         */
+        AdminAssetProcessingState: "PROCESSING" | "READY" | "FAILED";
+        /** @description One slot of the contextual media editor. Slots are fixed and always all present: an empty one is where `Add coat of arms` lives, and it says which card templates filling it would unlock. */
+        AdminEntityAssetSlot: {
+            assetType: string;
+            /**
+             * @description Where the drawing comes from: an upload in this draft, the active release, or nothing yet. A draft upload wins, because it is what the next release will carry.
+             * @enum {string}
+             */
+            state: "empty" | "draft" | "published";
+            /** @description Null for an empty slot; there is nothing to deliver yet. */
+            delivery: components["schemas"]["AdminDeliveryStatus"] | null;
+            draftAssetId: components["schemas"]["Uuid"] | null;
+            variant?: string | null;
+            mimeType?: string | null;
+            width?: number | null;
+            height?: number | null;
+            aspectRatio?: number | null;
+            sourceUrl?: string | null;
+            licenseName?: string | null;
+            licenseUrl?: string | null;
+            attribution?: string | null;
+            replacementReason?: string | null;
+            /** @description Whether licence, source and replacement reason are all filled in. The publish gate blocks on this, so the editor sees it first. */
+            provenanceComplete: boolean;
+            processing: components["schemas"]["AdminAssetProcessingState"] | null;
+            /** Format: date */
+            validFrom?: string | null;
+            /** Format: date */
+            validTo?: string | null;
+            /** @description A drawing whose validity has been closed. It is history rather than the symbol, and it is never deleted. */
+            retired: boolean;
+            localizations: components["schemas"]["AdminLocaleCompleteness"];
+            usedByCardIds: string[];
+            usedByDeckKeys: string[];
+            /** @description The templates that become buildable once the slot is filled, for the subject's kind. A coat of arms unlocks nothing for a state. */
+            unlocksTemplates: string[];
+        };
+        /** @description One card, in one deck, that teaches this entity. */
+        AdminEntityDeckUsage: {
+            deckKey: string;
+            deckName: string | null;
+            /** @enum {string} */
+            accessModel: "FREE" | "ENTITLEMENT";
+            /** @description The card variant, written `entity#TEMPLATE@version`. */
+            cardId: string;
+            templateCode: string;
+            templateSchemaVersion: number;
+            assetType: string | null;
+            isPreview: boolean;
+            delivery: components["schemas"]["AdminDeliveryStatus"];
+        };
+        /** @description The findings about one object, ready to be shown beside it. */
+        AdminObjectValidationSummary: {
+            blocking: number;
+            warnings: number;
+            findings: components["schemas"]["AdminValidationFinding"][];
+        };
+        /** @description Where a finding lives, precisely enough for a click to open it: the object, the tab of that object's editor, and an RFC 6901 pointer into the object as this API returns it — `/parentKey` on an entity, `/members/3` on a deck. Not a pointer into the editorial document, which the console never sees. */
+        AdminValidationTarget: {
+            /** @enum {string} */
+            objectType: "catalog" | "entity" | "deck" | "asset" | "relation";
+            /** @description Identical to the finding's `subject`. */
+            objectKey: string;
+            tab: string | null;
+            field: string | null;
+        };
+        /** @description One card a deck could hold: an entity taught through a template that can teach its kind. A subject no template teaches — a region — is not listed at all rather than listed as permanently unavailable. */
+        AdminCardCandidate: {
+            cardId: string;
+            entityKey: string;
+            entityType: components["schemas"]["AdminEntityType"];
+            entityStatus: components["schemas"]["AdminEntityStatus"];
+            parentKey: string | null;
+            entityName: string | null;
+            templateCode: string;
+            templateSchemaVersion: number;
+            assetType: string | null;
+            /** @description Whether the drawing the template prompts with exists. A flag counts as present for anything the catalog teaches: the sources supply one at build time, which is why the publish gate blocks on a missing coat of arms and not on a missing flag. */
+            hasAsset: boolean;
+            locales: components["schemas"]["AdminLocaleCompleteness"];
+            /** @description Null for a pair no deck holds yet. */
+            delivery: components["schemas"]["AdminDeliveryStatus"] | null;
+            inDeck: boolean;
+            available: boolean;
+            disabledReason: components["schemas"]["AdminCandidateDisabledReason"] | null;
+        };
+        /** @description Why the card cannot be added, in words an editor can act on. The reason is what turns a greyed-out row into instructions. */
+        AdminCandidateDisabledReason: {
+            code: string;
+            message: string;
+        };
+        AdminCardCandidateList: {
+            items: components["schemas"]["AdminCardCandidate"][];
+            /** @description How many candidates the filters matched, not how many this page holds. */
+            total: number;
+            draftRevision: number;
+        };
+        /** @description One store listing of the offer that grants the deck. Read-only, and without a price: the store owns what a thing costs. */
+        AdminDraftDeckStoreProduct: {
+            productId: string;
+            provider: string;
+            storeEnvironment: string;
+            status: string;
+            storeStatus: string | null;
+            /** Format: date-time */
+            lastValidatedAt: string | null;
+            validationError: string | null;
+        };
+        /** @description The `Access & store` tab. `published` is what buyers already have, which is what a tightening change would take away from them. */
+        AdminDraftDeckAccessSummary: {
+            /** @enum {string} */
+            model: "FREE" | "ENTITLEMENT";
+            requiredEntitlementKey: string | null;
+            published: {
+                /** @enum {string} */
+                model: "FREE" | "ENTITLEMENT";
+                requiredEntitlementKey: string | null;
+            } | null;
+            /** @description Whether the entitlement the deck names exists in commerce yet. */
+            entitlementKnown: boolean;
+            offerCodes: string[];
+            storeProducts: components["schemas"]["AdminDraftDeckStoreProduct"][];
+            /** @description Whether a release could sell it. Deck content saves without a validated store product; READY and PUBLISH do not. */
+            sellable: boolean;
+        };
+        /** @description The deck summary column: counts rather than another round trip. */
+        AdminDraftDeckSummaryView: {
+            cardCount: number;
+            templateCodes: string[];
+            missingAssetCount: number;
+            locales: components["schemas"]["AdminLocaleCompleteness"];
+            previewCardCount: number;
+            /** @description How many of the deck's cards fall into each delivery status. */
+            delivery: {
+                public: number;
+                publicPreview: number;
+                paidOnly: number;
+            };
+            blocking: number;
+            warnings: number;
+        };
+        /** @description The drawing that was stored, how far it has got, and the draft as it now stands. The stamp is part of the answer because an upload is an editorial write: a console still holding the old revision would be refused on its next save. */
+        AdminDraftAssetUploadResult: {
+            asset: components["schemas"]["AdminDraftAsset"];
+            processing: {
+                state: components["schemas"]["AdminAssetProcessingState"];
+            };
+            draft: components["schemas"]["AdminDraftStamp"];
+        };
+        /** @description A refusal that says what to do next. When `code` is `DRAFT_REVISION_CONFLICT` the details name both revisions, when the draft moved and who moved it, so the console can offer reload or copy rather than silently overwriting a colleague. Other 409 codes on a draft route — a merged draft, a deck key already taken — carry the plain envelope. */
+        AdminDraftConflict: {
+            error: {
+                code: string;
+                message: string;
+                requestId: components["schemas"]["Uuid"];
+                details: {
+                    draftId?: components["schemas"]["Uuid"];
+                    expectedRevision?: number;
+                    currentRevision?: number;
+                    updatedAt?: components["schemas"]["DateTime"];
+                    updatedByAdminUserId?: components["schemas"]["Uuid"];
+                } & {
+                    [key: string]: unknown;
+                };
+            };
+        };
         AdminDraftEntityListItem: {
             key: string;
             type: components["schemas"]["AdminEntityType"];
@@ -1019,10 +1240,19 @@ export interface components {
             overrideCount: number;
             /** @description The short name the active release serves, null when the release does not carry the entity yet. */
             publishedName: string | null;
+            locales: components["schemas"]["AdminLocaleCompleteness"];
+            /** @description How many of the draft's decks teach the entity. */
+            usedInDeckCount: number;
+            delivery: components["schemas"]["AdminDeliveryStatus"];
+            blockingCount: number;
+            warningCount: number;
         };
         AdminDraftEntityList: {
             items: components["schemas"]["AdminDraftEntityListItem"][];
+            /** @description How many entities the filters matched, not how many this page holds. */
             total: number;
+            /** @description The revision this view was read at; what `If-Match` takes. */
+            draftRevision: number;
         };
         AdminDraftEntity: {
             key: string;
@@ -1048,6 +1278,15 @@ export interface components {
             publishedNames: {
                 [key: string]: string;
             };
+            /** @description The revision this view was read at; what `If-Match` takes. */
+            draftRevision: number;
+            delivery: components["schemas"]["AdminDeliveryStatus"];
+            locales: components["schemas"]["AdminLocaleCompleteness"];
+            /** @description The media editor's slots, one per symbol type, always all present. */
+            assets: components["schemas"]["AdminEntityAssetSlot"][];
+            /** @description The cards and decks that teach the entity. */
+            usages: components["schemas"]["AdminEntityDeckUsage"][];
+            validation: components["schemas"]["AdminObjectValidationSummary"];
         };
         AdminDraftEntityUpdateRequest: {
             type?: components["schemas"]["AdminEntityType"];
@@ -1258,12 +1497,21 @@ export interface components {
             revocationReason?: string | null;
             grantedEntitlementKeys?: string[];
         };
+        /** @description One thing a release build would refuse or warn about, addressed precisely enough for a click to open it. A report that only named the object would make the reader go and find the field themselves, which is the work the console exists to save. */
         AdminValidationFinding: {
-            /** @enum {string} */
+            /**
+             * @description The finding's severity: `blocking` stops a release, `warning` does not.
+             * @enum {string}
+             */
             level: "blocking" | "warning";
+            /** @description A stable name for the rule, safe to count and to route on. */
             code: string;
+            /** @description The key of the object the finding is about. */
             subject: string;
             message: string;
+            target: components["schemas"]["AdminValidationTarget"];
+            /** @description The admin console route that opens the object. Present wherever the draft is known, which is every endpoint that returns findings. */
+            route?: string;
         };
         AdminValidationReport: {
             validatedAt: components["schemas"]["DateTime"];
@@ -1504,6 +1752,15 @@ export interface components {
                 "application/json": components["schemas"]["ErrorEnvelope"];
             };
         };
+        /** @description The write was refused rather than applied. A `DRAFT_REVISION_CONFLICT` means the draft moved on since the editor read it, and the details say by how much and who moved it; silent last-write-wins is forbidden. */
+        DraftRevisionConflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["AdminDraftConflict"];
+            };
+        };
         /** @description Request failed with a typed error. */
         ErrorResponse: {
             headers: {
@@ -1609,6 +1866,8 @@ export interface components {
         AdminOffset: number;
         /** @description The draft revision the editor read, for optimistic concurrency. */
         DraftIfMatch: string;
+        /** @description The draft revision the editor read. Optional on the upload alone, because a browser's multipart form carries no header of its own; when it is sent it is enforced exactly as it is everywhere else. */
+        DraftIfMatchOptional: string;
         AdminLimit: number;
     };
     requestBodies: never;
@@ -1935,7 +2194,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFoundResponse"];
-            409: components["responses"]["ConflictResponse"];
+            409: components["responses"]["DraftRevisionConflict"];
             422: components["responses"]["ValidationResponse"];
             /** @description The If-Match header with the draft revision is missing. */
             428: {
@@ -2012,7 +2271,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFoundResponse"];
-            409: components["responses"]["ConflictResponse"];
+            409: components["responses"]["DraftRevisionConflict"];
             422: components["responses"]["ValidationResponse"];
             428: components["responses"]["DraftIfMatchRequired"];
             default: components["responses"]["ErrorResponse"];
@@ -2085,7 +2344,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
+                    "application/json": components["schemas"]["AdminDraftConflict"];
                 };
             };
             428: components["responses"]["DraftIfMatchRequired"];
@@ -2131,7 +2390,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFoundResponse"];
-            409: components["responses"]["ConflictResponse"];
+            409: components["responses"]["DraftRevisionConflict"];
             422: components["responses"]["ValidationResponse"];
             428: components["responses"]["DraftIfMatchRequired"];
             default: components["responses"]["ErrorResponse"];
@@ -2139,7 +2398,23 @@ export interface operations {
     };
     adminListDraftEntities: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Matched against the key, the identifiers and the published name. */
+                search?: string;
+                type?: components["schemas"]["AdminEntityType"];
+                parentKey?: string;
+                status?: components["schemas"]["AdminEntityStatus"];
+                includeInCountryCatalog?: boolean;
+                missingFlag?: boolean;
+                missingCoatOfArms?: boolean;
+                missingLocalization?: boolean;
+                /** @description `blocking` and `warning` keep the rows that have such a finding; `ok` keeps the rows that have none. */
+                validation?: "ok" | "warning" | "blocking";
+                usedInDecks?: boolean;
+                offset?: components["parameters"]["AdminOffset"];
+                /** @description The whole catalog is a few hundred rows, so the console may ask for all of them at once. */
+                limit?: number;
+            };
             header?: never;
             path: {
                 draftId: components["schemas"]["Uuid"];
@@ -2148,7 +2423,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The draft's entities in document order. */
+            /** @description The matching entities in document order. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2227,9 +2502,51 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFoundResponse"];
-            409: components["responses"]["ConflictResponse"];
+            409: components["responses"]["DraftRevisionConflict"];
             422: components["responses"]["ValidationResponse"];
             428: components["responses"]["DraftIfMatchRequired"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminSearchDraftCardCandidates: {
+        parameters: {
+            query?: {
+                /** @description Matched against the entity key and its published name. */
+                search?: string;
+                entityType?: components["schemas"]["AdminEntityType"];
+                /** @description The country a subdivision belongs to. */
+                parentKey?: string;
+                /** @description The drawing the card would prompt with. */
+                assetType?: "FLAG" | "COAT_OF_ARMS" | "MAP" | "OTHER";
+                templateCode?: string;
+                /** @description A candidate whose subject has no name in this locale is reported as unavailable, because the deck could not ship in it. */
+                locale?: string;
+                readiness?: "any" | "ready" | "blocked";
+                /** @description The deck being built. A card it already holds comes back as `inDeck` and unavailable: one resolved card cannot be held twice. */
+                deckKey?: string;
+                offset?: components["parameters"]["AdminOffset"];
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The candidates the filters matched, in catalog order. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCardCandidateList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            422: components["responses"]["ValidationResponse"];
             default: components["responses"]["ErrorResponse"];
         };
     };
@@ -2261,7 +2578,10 @@ export interface operations {
     adminUploadDraftAsset: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description The draft revision the editor read. Optional on the upload alone, because a browser's multipart form carries no header of its own; when it is sent it is enforced exactly as it is everywhere else. */
+                "If-Match"?: components["parameters"]["DraftIfMatchOptional"];
+            };
             path: {
                 draftId: components["schemas"]["Uuid"];
             };
@@ -2279,7 +2599,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AdminDraftAsset"];
+                    "application/json": components["schemas"]["AdminDraftAssetUploadResult"];
                 };
             };
             401: components["responses"]["UnauthorizedResponse"];
@@ -2377,7 +2697,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFoundResponse"];
-            409: components["responses"]["ConflictResponse"];
+            409: components["responses"]["DraftRevisionConflict"];
             422: components["responses"]["ValidationResponse"];
             428: components["responses"]["DraftIfMatchRequired"];
             default: components["responses"]["ErrorResponse"];
