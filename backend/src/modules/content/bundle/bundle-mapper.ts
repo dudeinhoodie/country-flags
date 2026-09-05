@@ -51,6 +51,11 @@ const FACT_TYPE_MAP: Record<DomainFactCollection["factType"], FactType> = {
   currencies: FactType.CURRENCY,
   languages: FactType.LANGUAGE,
   population: FactType.POPULATION,
+  // Stated by a curator rather than found in a source, and published only
+  // when somebody states one (#351).
+  statehoodDate: FactType.STATEHOOD_DATE,
+  motto: FactType.MOTTO,
+  largestCity: FactType.LARGEST_CITY,
 };
 
 const GRADING_MODE_MAP: Record<DomainCardTemplate["gradingMode"], GradingMode> =
