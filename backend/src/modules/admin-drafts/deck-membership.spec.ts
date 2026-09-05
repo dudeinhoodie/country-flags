@@ -144,6 +144,28 @@ describe("currentEntityKeys", () => {
       "country.spain",
     ]);
   });
+
+  // A state is taught only through a deck that names it. Letting one into
+  // the all-countries deck would teach it as a country, and the toggle it
+  // would need to say so is refused before publish (ADR-020).
+  it("never lets a subdivision into the all-countries deck", () => {
+    const withState = [
+      ...context.entities,
+      {
+        key: "subdivision.spain.catalonia",
+        type: "subdivision",
+        status: "active",
+        config: { includeInCountryCatalog: true },
+      },
+    ];
+
+    expect(currentEntityKeys(withState)).not.toContain(
+      "subdivision.spain.catalonia",
+    );
+    expect(learnableEntityKeys(withState)).not.toContain(
+      "subdivision.spain.catalonia",
+    );
+  });
 });
 
 describe("membersMode", () => {

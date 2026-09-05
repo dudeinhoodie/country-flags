@@ -92,6 +92,13 @@ enum GeoEntityKind {
   TERRITORY
   DEPENDENCY
   DISPUTED_AREA
+  /// An administrative unit of a country: a U.S. state, and later any
+  /// province or region a country teaches. It lives in this table because
+  /// its names, facts, assets, provenance and publishing lifecycle are a
+  /// country's, and it is a kind of its own because it is not a country —
+  /// it stays out of the country catalog, the state decks and the country
+  /// distractor pool (ADR-020).
+  SUBDIVISION
   REGION
   SUBREGION
   OTHER
@@ -131,6 +138,11 @@ enum FactType {
   AREA
   LANGUAGE
   CURRENCY
+  /// When a subdivision joined its parent. `OTHER` stays a fallback rather
+  /// than a home for a type somebody has already named.
+  STATEHOOD_DATE
+  MOTTO
+  LARGEST_CITY
   OTHER
 }
 
@@ -686,10 +698,40 @@ model Asset {
   release         ContentRelease         @relation(fields: [contentVersion], references: [version], onDelete: Restrict)
   cardRevisions   LearningCardRevision[]
   representations AssetRepresentation[]
+  localizations   AssetLocalization[]
 
+  /// One drawing per entity, type, variant and period. An entity carries
+  /// several symbols at once, and the flag and the coat of arms must not be
+  /// able to overwrite one another; a historical variant is told apart by
+  /// its own variant key and validity. Entities are per release, so this is
+  /// uniqueness within one published catalog.
+  ///
+  /// The index is created with NULLS NOT DISTINCT: `valid_from` is null for
+  /// the drawing in force, which is the common case, and Postgres would
+  /// otherwise treat every one of them as distinct and enforce nothing.
+  @@unique([geoEntityId, assetType, variant, validFrom], map: "assets_symbol_identity_unique")
   @@index([geoEntityId, assetType, status])
   @@index([contentVersion])
   @@map("assets")
+}
+
+/// What a symbol is called and what it means, per locale.
+///
+/// It belongs to the asset rather than to the entity: the story of the
+/// German federal eagle is the story of one drawing, and replacing that
+/// drawing replaces its story without touching the flag beside it.
+model AssetLocalization {
+  assetId     String   @map("asset_id") @db.Uuid
+  locale      String
+  displayName String?  @map("display_name")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@id([assetId, locale])
+  @@index([assetId])
+  @@map("asset_localizations")
 }
 
 /// One published encoding of an asset. A client picks the first it can decode,
