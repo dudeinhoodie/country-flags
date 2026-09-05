@@ -4,6 +4,7 @@ import { DeckAccessModel } from "@prisma/client";
 import { ApiException } from "../../common/http/api.exception";
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
 import { DeckAccessService } from "../commerce/deck-access.service";
+import { ContentAccessProjectionService } from "./content-access-projection.service";
 import { ContentService } from "./content.service";
 
 const USER_ID = "80000000-0000-4000-8000-000000000001";
@@ -51,7 +52,12 @@ describe("ContentService deck access", () => {
     commerceOfferGrant,
     $queryRaw,
   } as unknown as PrismaService;
-  const service = new ContentService(prisma, new DeckAccessService(prisma));
+  const deckAccess = new DeckAccessService(prisma);
+  const service = new ContentService(
+    prisma,
+    deckAccess,
+    new ContentAccessProjectionService(prisma, deckAccess),
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();

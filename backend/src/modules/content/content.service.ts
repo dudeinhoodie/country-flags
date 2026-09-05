@@ -2,7 +2,9 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import {
   AssetStatus,
   CardStatus,
+  ContentChangeOperation,
   ContentReleaseStatus,
+  ContentResourceType,
   DeckStatus,
   GeoEntityStatus,
   GeoNameType,
@@ -22,6 +24,10 @@ import {
   mapAssetRepresentations,
   type AssetWithRepresentations,
 } from "./asset-representations";
+import {
+  ContentAccessProjectionService,
+  isPubliclyVisible,
+} from "./content-access-projection.service";
 import {
   decodeCardCursor,
   decodeContentChangeCursor,
@@ -62,8 +68,20 @@ export class ContentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly deckAccess: DeckAccessService,
+    private readonly projection: ContentAccessProjectionService,
   ) {}
 
+  /**
+   * The active release's manifest, as it was published.
+   *
+   * Nothing is filtered here and nothing needs to be: the manifest describes a
+   * release rather than its contents — locales, the minimum client, the change
+   * cursor, the checksummed list of the bundle's own JSON documents and the
+   * signature over them. It names no entity, card or asset and carries no
+   * asset URL, so there is no paid material in it to withhold. The projection
+   * is applied where material is actually handed out: the entity endpoint, the
+   * change feed, and the deck cards route the entitlement guard already holds.
+   */
   async getManifest(): Promise<{
     manifest: StoredManifest;
     checksum: string;
@@ -193,6 +211,19 @@ export class ContentService {
     );
   }
 
+  /**
+   * A country as the free product knows it.
+   *
+   * This is a projection of the canonical entity, not a serialization of it.
+   * Germany's row holds every symbol she has; a coat of arms that only a paid
+   * deck teaches is one of them, and it does not appear here — not the
+   * drawing, not its licence, not its URL. Her flag does, because a free deck
+   * teaches it. The route carries no account context and never will: an
+   * answer that varied by bearer could not be cached in front of the service
+   * without eventually being handed to the wrong reader (ADR-019). An owner
+   * gets the closed material from the guarded deck cards route instead, which
+   * carries everything a card needs.
+   */
   async getEntity(
     entityId: string,
     locale: string,
@@ -219,6 +250,23 @@ export class ContentService {
     if (entity === null) {
       throw new NotFoundException("Entity was not found");
     }
+    // An entity only a paid deck teaches — a U.S. state of the states deck —
+    // is not in the public projection at all, and answers the way anything
+    // absent from it answers. The message is the one a missing id gets, so
+    // the route cannot be used to tell "bought by nobody here" from "never
+    // existed".
+    const entityVisibility = await this.projection.entityVisibility([
+      entity.id,
+    ]);
+    if (!isPubliclyVisible(entityVisibility.get(entity.id) ?? "PAID_ONLY")) {
+      throw new NotFoundException("Entity was not found");
+    }
+    const assetVisibility = await this.projection.assetVisibility(
+      entity.assets.map(({ id }) => id),
+    );
+    const publicAssets = entity.assets.filter((asset) =>
+      isPubliclyVisible(assetVisibility.get(asset.id) ?? "PAID_ONLY"),
+    );
 
     const candidates = localeCandidates(locale, manifest.defaultLocale);
     const short = this.selectEntityName(entity.names, candidates);
@@ -250,12 +298,33 @@ export class ContentService {
         official: official ?? null,
         aliases,
       },
-      assets: entity.assets.map((asset) => this.mapAsset(asset)),
+      assets: publicAssets.map((asset) => this.mapAsset(asset)),
       facts: mapBackSideFacts(entity.facts, locale),
       contentVersion: entity.contentVersion,
     };
   }
 
+  /**
+   * What changed in the public catalog since a cursor, for anybody at all.
+   *
+   * The feed stays unauthenticated, and that is what makes it dangerous: an
+   * event names a resource by id, so publishing "asset 8f3c… changed" to a
+   * stranger tells them a drawing they may not have exists, gives them an id
+   * to ask about, and — before the entity route was closed — an entity to
+   * fetch it through. So a change to material only a paid deck reaches is not
+   * published here.
+   *
+   * Nothing is stranded by that. Every publish already re-announces every deck
+   * of the release, so the owner of a locked deck is told to look again by the
+   * `DECK` event, which names a deck the catalog publishes to everyone anyway;
+   * a per-deck `contentRevision` that makes the same signal precise is
+   * contract work for the client that acts on it.
+   *
+   * A filtered page can come back shorter than `limit`, or empty while
+   * `hasMore` is true. The cursor is computed from the page the database
+   * returned rather than from what survived, so it always advances and a
+   * client paging through a release that is mostly paid still terminates.
+   */
   async listChanges(
     after: string | undefined,
     limit: number,
@@ -314,7 +383,7 @@ export class ContentService {
     const nextSequence = pageItems.at(-1)?.sequence ?? cursor.sequence;
 
     return {
-      items: pageItems.map((change) => ({
+      items: (await this.publicChanges(pageItems)).map((change) => ({
         operation: change.operation,
         resourceType: change.resourceType,
         resourceId: change.resourceId,
@@ -327,6 +396,102 @@ export class ContentService {
       hasMore,
       contentVersion: pointer.contentVersion,
     };
+  }
+
+  /**
+   * The changes of a page that the public projection is allowed to announce.
+   *
+   * A `DECK` event always survives: the catalog publishes every deck to
+   * everybody, locked ones included, so saying that one changed reveals
+   * nothing that `GET /v1/decks` does not already hand over — and it is the
+   * signal an owner needs to come back for the deck's cards.
+   *
+   * A `RETIRE` always survives too, and that is a correctness requirement
+   * rather than a concession. Retiring a card deletes its deck memberships,
+   * so by the time anybody reads the event the card is reachable through
+   * nothing and would classify as closed — the one operation whose whole
+   * purpose is to tell a client to forget something would be the operation
+   * nobody was told about, and every free client would keep withdrawn content
+   * for good. It gives nothing away either: the id names something that is
+   * going away, no route will serve it, and a reader who never had it deletes
+   * nothing.
+   *
+   * What is left — an `UPSERT` — is announced only when the material it names
+   * is in the public projection. A `FACT` is judged by the entity it belongs
+   * to, so that closing an entity closes the statements about it too; the
+   * publisher does not emit fact events today, and this is here so that the
+   * day it does is not the day the feed reopens.
+   */
+  private async publicChanges<
+    Change extends {
+      operation: ContentChangeOperation;
+      resourceType: ContentResourceType;
+      resourceId: string;
+    },
+  >(changes: Change[]): Promise<Change[]> {
+    const upserts = changes.filter(
+      ({ operation }) => operation === ContentChangeOperation.UPSERT,
+    );
+    const idsOf = (resourceType: ContentResourceType): string[] => [
+      ...new Set(
+        upserts
+          .filter((change) => change.resourceType === resourceType)
+          .map(({ resourceId }) => resourceId),
+      ),
+    ];
+
+    const factIds = idsOf(ContentResourceType.FACT);
+    const facts =
+      factIds.length === 0
+        ? []
+        : await this.prisma.fact.findMany({
+            where: { id: { in: factIds } },
+            select: { id: true, geoEntityId: true },
+          });
+    const entityOfFact = new Map(
+      facts.map(({ id, geoEntityId }) => [id, geoEntityId]),
+    );
+
+    const [assets, cards, entities] = await Promise.all([
+      this.projection.assetVisibility(idsOf(ContentResourceType.ASSET)),
+      this.projection.cardVisibility(idsOf(ContentResourceType.LEARNING_CARD)),
+      this.projection.entityVisibility([
+        ...new Set([
+          ...idsOf(ContentResourceType.ENTITY),
+          ...entityOfFact.values(),
+        ]),
+      ]),
+    ]);
+
+    return changes.filter((change) => {
+      if (change.operation === ContentChangeOperation.RETIRE) {
+        return true;
+      }
+      switch (change.resourceType) {
+        case ContentResourceType.DECK:
+          return true;
+        case ContentResourceType.ASSET:
+          return isPubliclyVisible(
+            assets.get(change.resourceId) ?? "PAID_ONLY",
+          );
+        case ContentResourceType.LEARNING_CARD:
+          return isPubliclyVisible(cards.get(change.resourceId) ?? "PAID_ONLY");
+        case ContentResourceType.ENTITY:
+          return isPubliclyVisible(
+            entities.get(change.resourceId) ?? "PAID_ONLY",
+          );
+        case ContentResourceType.FACT: {
+          const entityId = entityOfFact.get(change.resourceId);
+          // A fact whose entity has been deleted outright is announced: the
+          // client is being told to forget something, and there is nothing
+          // left to leak.
+          return (
+            entityId === undefined ||
+            isPubliclyVisible(entities.get(entityId) ?? "PAID_ONLY")
+          );
+        }
+      }
+    });
   }
 
   /**

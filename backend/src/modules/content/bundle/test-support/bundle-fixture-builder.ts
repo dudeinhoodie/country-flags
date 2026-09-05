@@ -94,6 +94,13 @@ export interface BundleBuildOptions {
   contentVersion: string;
   entities: FixtureEntity[];
   deckMemberKeys?: string[];
+  /** Who may open the deck. Absent builds the free deck every other test uses. */
+  deckAccess?: {
+    model: "FREE" | "ENTITLEMENT";
+    requiredEntitlementKey?: string;
+  };
+  /** Entity keys of the members the deck publishes as previews. */
+  previewMemberKeys?: string[];
   tamperFileAfterSigning?: { path: string; content: string };
   breakSignature?: boolean;
 }
@@ -146,6 +153,18 @@ export function buildBundle(
         })),
         contentKinds: ["FLAG"],
         cardCount: memberKeys.length,
+        ...(options.deckAccess === undefined
+          ? {}
+          : { access: options.deckAccess }),
+        ...(options.previewMemberKeys === undefined
+          ? {}
+          : {
+              previewCards: options.previewMemberKeys.map((entityKey) => ({
+                entityKey,
+                templateCode: "FLAG_TO_COUNTRY",
+                templateSchemaVersion: 1,
+              })),
+            }),
       },
     ],
   };

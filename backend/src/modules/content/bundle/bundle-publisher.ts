@@ -6,6 +6,7 @@ import {
   ContentChangeOperation,
   ContentReleaseStatus,
   ContentResourceType,
+  DeckAccessModel,
   DeckKind,
   DeckStatus,
   GeoEntityStatus,
@@ -465,6 +466,64 @@ async function upsertLearningCards(
   return { learningCardIdByKey, activeCardIdByVariant };
 }
 
+/**
+ * What the catalogue says opens a deck, as the columns the access rule reads.
+ *
+ * A deck saying nothing is free, which is what every deck published so far is.
+ * The bundle validator has already refused the halfway states — sold with no
+ * entitlement named, free with one — so this only has to write down the answer.
+ */
+function deckAccessOf(deck: BundleDomain["catalog"]["decks"][number]): {
+  accessModel: DeckAccessModel;
+  requiredEntitlementKey: string | null;
+} {
+  const key = deck.access?.requiredEntitlementKey;
+  return deck.access?.model === "ENTITLEMENT" && key !== undefined
+    ? { accessModel: DeckAccessModel.ENTITLEMENT, requiredEntitlementKey: key }
+    : { accessModel: DeckAccessModel.FREE, requiredEntitlementKey: null };
+}
+
+/**
+ * Refuses a release that sells a deck by a right nobody has defined.
+ *
+ * The entitlement is a commerce object, not an editorial one: the catalogue
+ * names a key and the commerce side decides what grants it. Without the
+ * definition row the foreign key would fail somewhere in the middle of a long
+ * transaction with a message about a constraint; this fails at the start, and
+ * says which deck and which key.
+ */
+async function requireEntitlementDefinitions(
+  tx: Prisma.TransactionClient,
+  domain: BundleDomain,
+): Promise<void> {
+  const required = new Map<string, string>();
+  for (const deck of domain.catalog.decks) {
+    const { requiredEntitlementKey } = deckAccessOf(deck);
+    if (requiredEntitlementKey !== null) {
+      required.set(requiredEntitlementKey, deck.key);
+    }
+  }
+  if (required.size === 0) {
+    return;
+  }
+
+  const defined = await tx.entitlementDefinition.findMany({
+    where: { key: { in: [...required.keys()] } },
+    select: { key: true },
+  });
+  const definedKeys = new Set(defined.map(({ key }) => key));
+  const missing = [...required.entries()].filter(
+    ([key]) => !definedKeys.has(key),
+  );
+  if (missing.length > 0) {
+    throw new Error(
+      `release sells decks by entitlements this environment does not define: ${missing
+        .map(([key, deckKey]) => `${deckKey} requires ${key}`)
+        .join(", ")}`,
+    );
+  }
+}
+
 async function upsertDecks(
   tx: Prisma.TransactionClient,
   domain: BundleDomain,
@@ -476,6 +535,13 @@ async function upsertDecks(
     // The catalogue names a deck once, in its own alphabet; the contract serves
     // it in another. Validation has already refused a key this cannot express.
     const code = mapper.deckCodeFromKey(deck.key);
+    // Written on both paths, and reset on the update path rather than left
+    // alone: the release is what decides who may open a deck, and a deck that
+    // stopped being sold between releases has to stop being locked. Until
+    // this was persisted, a catalogue could declare a deck sold and the
+    // published row would still say `FREE` — the access rule would read that
+    // and hand the deck to anybody.
+    const access = deckAccessOf(deck);
     const row = await tx.deck.upsert({
       where: { code },
       create: {
@@ -483,11 +549,13 @@ async function upsertDecks(
         kind: deck.kind === "curated" ? DeckKind.CURATED : DeckKind.TAXONOMY,
         status: DeckStatus.PUBLISHED,
         contentVersion: version,
+        ...access,
       },
       update: {
         kind: deck.kind === "curated" ? DeckKind.CURATED : DeckKind.TAXONOMY,
         status: DeckStatus.PUBLISHED,
         contentVersion: version,
+        ...access,
       },
     });
     deckIdByKey.set(deck.key, row.id);
@@ -508,20 +576,34 @@ async function upsertDecks(
       });
     }
 
+    // The cards this deck shows before it is bought. Validation has already
+    // refused a preview the deck does not hold, so this only has to mark the
+    // memberships it names — and unmark the ones it no longer does, or a card
+    // dropped from the preview list would stay public for good.
+    const previewed = new Set(
+      (deck.previewCards ?? []).map((preview) =>
+        variantKey(
+          preview.entityKey,
+          preview.templateCode,
+          preview.templateSchemaVersion,
+        ),
+      ),
+    );
+
     let sortOrder = 1;
     const memberCardIds: string[] = [];
     for (const member of deck.memberCards) {
-      const learningCardId = activeCardIdByVariant.get(
-        variantKey(
-          member.entityKey,
-          member.templateCode,
-          member.templateSchemaVersion,
-        ),
+      const variant = variantKey(
+        member.entityKey,
+        member.templateCode,
+        member.templateSchemaVersion,
       );
+      const learningCardId = activeCardIdByVariant.get(variant);
       if (learningCardId === undefined) {
         continue;
       }
       memberCardIds.push(learningCardId);
+      const isPreview = previewed.has(variant);
       await tx.deckCard.upsert({
         where: { deckId_learningCardId: { deckId: row.id, learningCardId } },
         create: {
@@ -529,8 +611,9 @@ async function upsertDecks(
           learningCardId,
           sortOrder,
           membershipVersion: 1,
+          isPreview,
         },
-        update: { sortOrder, membershipVersion: 1 },
+        update: { sortOrder, membershipVersion: 1, isPreview },
       });
       sortOrder += 1;
     }
@@ -786,6 +869,7 @@ export async function applyBundleToDatabase(
   const version = bundle.manifest.contentVersion;
   const diff = await diffBundleAgainstActive(tx, domain);
 
+  await requireEntitlementDefinitions(tx, domain);
   const sourceIdByKey = await upsertSources(tx, domain);
   const catalogSourceId = sourceIdByKey.get("catalog");
   if (catalogSourceId === undefined) {
