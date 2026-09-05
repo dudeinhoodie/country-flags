@@ -2,6 +2,8 @@ import { isDeepStrictEqual } from "node:util";
 
 import { sha256 } from "@country-flags/asset-core";
 
+import { memberEntityKey } from "./editorial-schema.js";
+
 import { buildAsset, type BuiltAsset } from "./assets.js";
 import { editorialPatches, type EntityMatcher } from "./matching.js";
 import type {
@@ -60,7 +62,11 @@ function deckMembers(
     return pools.allCurrent;
   }
   if (Array.isArray(deck.members)) {
-    return [...deck.members].sort();
+    // A member names a card variant, and two variants of one entity are two
+    // members. The published catalog still lists entities, so they collapse
+    // here; the deck keeps both cards once membership is materialized per
+    // template (#315).
+    return [...new Set(deck.members.map(memberEntityKey))].sort();
   }
 
   const root = deck.members.taxonomy;

@@ -27,6 +27,16 @@ export interface EntityReference {
   isoAlpha2?: string;
   isoAlpha3?: string;
   m49?: string;
+  /**
+   * ISO 3166-2, such as `US-CA`. Kept apart from the country codes on
+   * purpose: a subdivision code written into `isoAlpha2` would put a state
+   * everywhere a reader expects a country (ADR-020).
+   */
+  isoSubdivision?: string;
+  /** The official code the parent country uses for the unit, if any. */
+  localCode?: string;
+  /** Only where the source publishes one; never derived. */
+  fipsCode?: string;
   wikidataId?: string;
   editorialKey?: string;
   customCode?: string;
@@ -114,11 +124,21 @@ export interface AssetCandidate {
 }
 
 /**
+ * What a drawing depicts.
+ *
+ * One entity holds several of them at once, and they never overwrite one
+ * another: replacing a coat of arms leaves the flag — and the card taught
+ * from it — exactly where it was (ADR-020).
+ */
+export type EditorialAssetType = "flag" | "coat_of_arms" | "map";
+
+/**
  * An editorially supplied asset that outranks every adapter candidate.
  *
  * The drawing itself lives beside the catalog at
- * `editorial/overrides/assets/<entityKey>.svg` (or `.png` for a drawing
- * that never had a vector); this record carries the provenance a published
+ * `editorial/overrides/assets/<entityKey>/<assetType>/<variant>.svg` (or
+ * `.png` for a drawing that never had a vector); this record carries the
+ * provenance a published
  * asset must have. Without an explicit layer the next source refresh would
  * silently overwrite a hand-picked flag, so the override is a first-class
  * part of the editorial document rather than a patch applied after the
@@ -126,21 +146,54 @@ export interface AssetCandidate {
  */
 export interface EditorialAssetOverride {
   entityKey: string;
-  assetType: "flag";
+  assetType: EditorialAssetType;
+  /**
+   * Which drawing of this type. `current` is the one in force; a historical
+   * or ceremonial variant carries its own key and its own validity, which is
+   * how a superseded coat of arms stays available without becoming a second
+   * country.
+   */
+  variant: string;
   aspectRatio: number;
   license: string;
   sourceUrl: string;
   attribution?: string;
   /** Why a human replaced the upstream drawing; it travels into review. */
   reason: string;
+  /**
+   * What this drawing is called and what it means, per locale. It belongs to
+   * the asset rather than to the entity: the story of the German federal
+   * eagle is the story of one symbol, not of Germany.
+   */
+  localizations?: Record<string, EditorialAssetLocalization>;
   validFrom?: string;
   validTo?: string;
 }
 
+export interface EditorialAssetLocalization {
+  displayName?: string;
+  description?: string;
+}
+
+export type EditorialEntityType =
+  | "country"
+  | "territory"
+  | "area"
+  | "subdivision"
+  | "region"
+  | "subregion";
+
 export interface EditorialEntity {
   key: string;
-  type: "country" | "territory" | "area" | "region" | "subregion";
+  type: EditorialEntityType;
   status: "active" | "historical" | "retired" | "hidden";
+  /**
+   * The country or territory an administrative unit belongs to. Required of
+   * a subdivision and meaningless anywhere else. Authoring convenience: the
+   * publisher normalizes it into the canonical CONTAINS relation, so nothing
+   * downstream has two ways to ask who California is part of (ADR-020).
+   */
+  parentKey?: string;
   /**
    * Presentation toggles (ADR-015). They never decide whether the entity
    * is learnable: an active country, territory or area keeps its card and
@@ -176,18 +229,55 @@ export interface EditorialEntity {
  */
 export type EditorialDeckMembers =
   | "all-current"
-  | string[]
+  | EditorialCardRef[]
   | { taxonomy: string };
+
+/**
+ * One card variant: an entity taught through a named template.
+ *
+ * A bare key takes the deck's default template, which is why a deck that
+ * lists bare keys has to declare one. Germany under two templates is two
+ * cards with two schedules, and a deck says which of them it holds.
+ */
+export type EditorialCardRef = string | EditorialCardVariantRef;
+
+export interface EditorialCardVariantRef {
+  entityKey: string;
+  templateCode: string;
+  templateSchemaVersion: number;
+}
+
+/**
+ * Who may open the deck. Absent means free.
+ *
+ * Monetization lives here and nowhere else: no entity, asset or template is
+ * paid, and no price is written down — an offer grants the entitlement key,
+ * and the store owns what it costs (ADR-019).
+ */
+export interface EditorialDeckAccess {
+  model: "FREE" | "ENTITLEMENT";
+  requiredEntitlementKey?: string;
+}
 
 export interface EditorialDeck {
   key: string;
   kind: "curated" | "taxonomy";
   names: Record<string, { name: string; description: string }>;
   members: EditorialDeckMembers;
+  /** The template a bare member key is taught through. */
+  defaultTemplateCode?: string;
+  defaultTemplateSchemaVersion?: number;
+  access?: EditorialDeckAccess;
+  /**
+   * The card variants a locked deck may show before it is bought: at most
+   * three, each of them a member. A preview is its own published
+   * projection, never a hole in the cards endpoint.
+   */
+  previewCards?: EditorialCardRef[];
 }
 
 export interface EditorialCatalog {
-  schemaVersion: 2;
+  schemaVersion: 3;
   defaultLocale: string;
   supportedLocales: string[];
   entities: EditorialEntity[];
@@ -201,6 +291,34 @@ export interface EditorialCatalog {
   }[];
   decks: EditorialDeck[];
   assetOverrides?: EditorialAssetOverride[];
+}
+
+/**
+ * The editorial document as it is found on disk.
+ *
+ * The catalog is still written as v2 and lifted on read; both shapes stay
+ * readable so the flip happens in one reviewed change once the console
+ * writes v3 (#314).
+ */
+export type EditorialDocument = EditorialCatalog | EditorialCatalogV2;
+
+export interface EditorialCatalogV2
+  extends Omit<EditorialCatalog, "schemaVersion" | "decks" | "assetOverrides"> {
+  schemaVersion: 2;
+  decks: EditorialDeckV2[];
+  assetOverrides?: EditorialAssetOverrideV2[];
+}
+
+export interface EditorialDeckV2 {
+  key: string;
+  kind: "curated" | "taxonomy";
+  names: Record<string, { name: string; description: string }>;
+  members: "all-current" | string[] | { taxonomy: string };
+}
+
+export interface EditorialAssetOverrideV2
+  extends Omit<EditorialAssetOverride, "assetType" | "variant"> {
+  assetType: "flag";
 }
 
 export interface Conflict {

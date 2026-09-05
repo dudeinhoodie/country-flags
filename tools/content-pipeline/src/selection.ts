@@ -6,7 +6,7 @@ import { format } from "prettier";
 import { loadRegistry, loadVerifiedSnapshot } from "./registry.js";
 import { readJson, sha256, stableJson, writeJson } from "./stable-json.js";
 import type {
-  EditorialCatalog,
+  EditorialDocument,
   EditorialEntity,
   SourceDefinition,
 } from "./types.js";
@@ -121,10 +121,18 @@ async function updateSnapshot(
   source.sha256 = sha256(content);
 }
 
+/**
+ * Writes the editorial document back in the version it declares.
+ *
+ * A refresh rewrites entities and aliases, and nothing else about the
+ * document is its business — least of all its schema version. Lifting the
+ * catalog to v3 is one reviewed change, made when the console can write it
+ * too (#314), not a side effect of pulling UN M49.
+ */
 async function updateEditorial(
   root: string,
   source: SourceDefinition,
-  document: EditorialCatalog,
+  document: EditorialDocument,
 ): Promise<void> {
   const content = await format(stableJson(document), { parser: "json" });
   await writeFile(join(root, source.snapshotPath), content, "utf8");
@@ -142,7 +150,7 @@ export async function syncSelection(root: string): Promise<void> {
   };
   const editorialSource = source("editorial");
   const unSource = source("un-m49");
-  const editorial = await loadVerifiedSnapshot<EditorialCatalog>(
+  const editorial = await loadVerifiedSnapshot<EditorialDocument>(
     root,
     editorialSource,
   );
@@ -157,10 +165,15 @@ export async function syncSelection(root: string): Promise<void> {
         : [[entity.identifiers.isoAlpha2, entity] as const],
     ),
   );
+  // What a source refresh has no opinion about. Regions and subregions are
+  // the classification rather than its members; a subdivision is a state,
+  // which UN M49 never lists and which would otherwise vanish from the
+  // catalog the first time somebody pulled a source (ADR-020).
   const preserved = editorial.entities.filter(
     (entity) =>
       entity.type === "region" ||
       entity.type === "subregion" ||
+      entity.type === "subdivision" ||
       entity.identifiers?.customCode !== undefined,
   );
   const usedKeys = new Set(preserved.map(({ key }) => key));

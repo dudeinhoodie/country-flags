@@ -46,11 +46,17 @@ const validationTargets = [
     schema: "schemas/content/editorial-catalog.v2.schema.json",
     // The real editorial catalog is validated alongside the fixture: the
     // admin console saves drafts against this schema, so the schema must
-    // keep describing the document the pipeline actually maintains.
+    // keep describing the document the pipeline actually maintains. The
+    // catalog is still a v2 document; the pipeline lifts it to v3 on read
+    // and it stays here until the console writes v3 (#314).
     data: [
       "fixtures/content/editorial-catalog.v2.valid.json",
       "../tools/content-pipeline/editorial/catalog.json",
     ],
+  },
+  {
+    schema: "schemas/content/editorial-catalog.v3.schema.json",
+    data: ["fixtures/content/editorial-catalog.v3.valid.json"],
   },
 ];
 
@@ -209,6 +215,50 @@ function validateAnalyticsBatches(eventRegistry, batches) {
   }
 }
 
+/**
+ * What JSON Schema cannot say about a v3 deck.
+ *
+ * A member is a card variant, and one variant can be written two ways: a
+ * bare entity key that takes the deck's default template, or the same pair
+ * spelled out. `uniqueItems` sees two different values and lets both
+ * through, so the deck would hold one question twice — and the publisher
+ * would resolve both to the same learning card. `previewCards` has the
+ * mirror problem: a preview that is not a member publishes a card the deck
+ * does not contain.
+ *
+ * A deck built from `all-current` or from a taxonomy names no members here,
+ * so its previews are checked where the pool is known — at publish time.
+ */
+function cardRefKey(deck, member) {
+  if (typeof member === "string") {
+    return `${member}#${deck.defaultTemplateCode}@${String(
+      deck.defaultTemplateSchemaVersion,
+    )}`;
+  }
+  return `${member.entityKey}#${member.templateCode}@${String(
+    member.templateSchemaVersion,
+  )}`;
+}
+
+function validateEditorialDecks(document, label) {
+  for (const deck of document.decks) {
+    if (!Array.isArray(deck.members)) {
+      continue;
+    }
+    const members = deck.members.map((member) => cardRefKey(deck, member));
+    assertUnique(members, `${label}: deck ${deck.key}`);
+
+    const declared = new Set(members);
+    for (const preview of deck.previewCards ?? []) {
+      const key = cardRefKey(deck, preview);
+      assert(
+        declared.has(key),
+        `${label}: deck ${deck.key} previews ${key}, which it does not hold`,
+      );
+    }
+  }
+}
+
 const schemaFiles = await listJsonFiles(join(contractsRoot, "schemas"));
 const schemas = await Promise.all(
   schemaFiles.map(async (path) => ({
@@ -281,6 +331,14 @@ const analyticsBatches = await Promise.all(
 validateFeatureRegistry(featureRegistry);
 validateAdRegistry(adRegistry, featureRegistry);
 validateAnalyticsBatches(eventRegistry, analyticsBatches);
+
+for (const target of validationTargets.filter(({ schema }) =>
+  schema.includes("editorial-catalog.v3"),
+)) {
+  for (const dataPath of target.data) {
+    validateEditorialDecks(await readJson(dataPath), dataPath);
+  }
+}
 
 console.log(
   `Validated ${schemas.length} schemas and ${validationTargets.reduce(

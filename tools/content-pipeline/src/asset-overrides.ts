@@ -4,15 +4,76 @@ import { join } from "node:path";
 import { inspectPng, sanitizeSvg } from "@country-flags/asset-core";
 
 import type { EditorialAssetOverrideCandidate } from "./merge.js";
-import type { EditorialAssetOverride, Provenance } from "./types.js";
+import type {
+  EditorialAssetOverride,
+  EditorialAssetType,
+  Provenance,
+} from "./types.js";
+import { DEFAULT_ASSET_VARIANT } from "./editorial-schema.js";
 
 export const ASSET_OVERRIDE_DIRECTORY = "editorial/overrides/assets";
 
+/**
+ * Where an override's drawing lives.
+ *
+ * The type and the variant are part of the path because one entity now has
+ * several symbols: under the old flat name a coat of arms and a flag would
+ * have fought over one file, and whichever was written last would have won
+ * silently.
+ */
 export function assetOverridePath(
+  entityKey: string,
+  assetType: EditorialAssetType,
+  variant: string,
+  extension: "svg" | "png" = "svg",
+): string {
+  return `${ASSET_OVERRIDE_DIRECTORY}/${entityKey}/${assetType}/${variant}.${extension}`;
+}
+
+/**
+ * Where a v2 document's drawing lives.
+ *
+ * A catalog written before the typed layout names one flag per entity and
+ * its files are still flat on disk. Both are read until the document itself
+ * is written as v3 (#314); nothing is moved by a lift that happens in memory.
+ */
+export function legacyAssetOverridePath(
   entityKey: string,
   extension: "svg" | "png" = "svg",
 ): string {
   return `${ASSET_OVERRIDE_DIRECTORY}/${entityKey}.${extension}`;
+}
+
+function candidatePaths(
+  override: EditorialAssetOverride,
+  extension: "svg" | "png",
+): string[] {
+  const typed = assetOverridePath(
+    override.entityKey,
+    override.assetType,
+    override.variant,
+    extension,
+  );
+  if (
+    override.assetType !== "flag" ||
+    override.variant !== DEFAULT_ASSET_VARIANT
+  ) {
+    return [typed];
+  }
+  return [typed, legacyAssetOverridePath(override.entityKey, extension)];
+}
+
+async function firstExisting(
+  root: string,
+  paths: string[],
+): Promise<{ path: string; bytes: Buffer } | null> {
+  for (const path of paths) {
+    const bytes = await readOptional(join(root, path));
+    if (bytes !== null) {
+      return { path, bytes };
+    }
+  }
+  return null;
 }
 
 async function readOptional(path: string): Promise<Buffer | null> {
@@ -48,33 +109,35 @@ export async function loadAssetOverrides(
   }
   return Promise.all(
     overrides.map(async (override) => {
-      const svgPath = assetOverridePath(override.entityKey, "svg");
-      const pngPath = assetOverridePath(override.entityKey, "png");
-      const [svgBytes, pngBytes] = await Promise.all([
-        readOptional(join(root, svgPath)),
-        readOptional(join(root, pngPath)),
+      const [vector, raster] = await Promise.all([
+        firstExisting(root, candidatePaths(override, "svg")),
+        firstExisting(root, candidatePaths(override, "png")),
       ]);
-      if (svgBytes !== null && pngBytes !== null) {
+      if (vector !== null && raster !== null) {
         throw new Error(
-          `asset override for ${override.entityKey} has both ${svgPath} and ${pngPath}; keep exactly one`,
+          `asset override for ${override.entityKey} has both ${vector.path} and ${raster.path}; keep exactly one`,
         );
       }
       let drawing:
         | { png: Buffer; upstreamPath: string }
         | { svg: string; upstreamPath: string };
-      if (svgBytes !== null) {
+      if (vector !== null) {
         drawing = {
-          svg: sanitizeSvg(svgBytes.toString("utf8")),
-          upstreamPath: svgPath,
+          svg: sanitizeSvg(vector.bytes.toString("utf8")),
+          upstreamPath: vector.path,
         };
-      } else if (pngBytes !== null) {
+      } else if (raster !== null) {
         // Fail here, where the file is named, rather than inside the build:
         // the bytes decide what they are, not the extension.
-        inspectPng(pngBytes);
-        drawing = { png: pngBytes, upstreamPath: pngPath };
+        inspectPng(raster.bytes);
+        drawing = { png: raster.bytes, upstreamPath: raster.path };
       } else {
         throw new Error(
-          `asset override for ${override.entityKey} declares ${svgPath} (or .png), which does not exist`,
+          `asset override for ${override.entityKey} declares ${assetOverridePath(
+            override.entityKey,
+            override.assetType,
+            override.variant,
+          )} (or .png), which does not exist`,
         );
       }
       return {
