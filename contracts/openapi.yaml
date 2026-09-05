@@ -52,6 +52,10 @@ tags:
     description: Reproducible sessions and immutable review ingestion.
   - name: Progress
     description: Due state, mastery, achievements and guest migration.
+  - name: Commerce
+    description: >-
+      Offers, entitlements and store transactions. The server is what decides
+      what an account may open; the store owns the price and the payment.
   - name: Analytics
     description: Allowlisted privacy-aware product and operational events.
   - name: Diagnostics
@@ -751,8 +755,145 @@ paths:
             application/json:
               schema:
                 $ref: ./openapi/components.yaml#/schemas/LearningCardPage
+        "403":
+          $ref: ./openapi/components.yaml#/responses/EntitlementRequiredResponse
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/commerce/offers:
+    get:
+      tags: [Commerce]
+      summary: List the offers a platform can sell
+      description: |
+        What is for sale, and which store product sells it. No price: the
+        client asks the store, which is the only place a localized price
+        exists and the only place review approved one.
+
+        An offer grants entitlement keys rather than decks, so a bundle is
+        one offer granting several. A client turns a deck's `offerCodes`
+        into store products through this list.
+      operationId: listCommerceOffers
+      x-implementation-status: planned
+      security:
+        - {}
+        - BearerAuth: []
+      parameters:
+        - name: platform
+          in: query
+          required: false
+          description: Which store's products to return.
+          schema:
+            type: string
+            x-extensible-enum: [IOS, ANDROID, WEB]
+      responses:
+        "200":
+          description: Active offers for the requested platform
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/CommerceOfferList
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/entitlements:
+    get:
+      tags: [Commerce]
+      summary: Get everything this account may open
+      description: |
+        The answer that decides. A client may unlock locally on a store
+        transaction it has verified, but this is what the server will
+        enforce, and it is what a second device reads after a restore.
+
+        Supports `If-None-Match`, so checking on every foreground is cheap.
+      operationId: getMyEntitlements
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/IfNoneMatch
+      responses:
+        "200":
+          description: Current entitlement snapshot
+          headers:
+            ETag:
+              $ref: ./openapi/components.yaml#/headers/ETag
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/EntitlementSnapshot
+        "304":
+          description: Snapshot unchanged since the supplied entity tag
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/me/commerce/apple/transactions:
+    post:
+      tags: [Commerce]
+      summary: Submit verified App Store transactions
+      description: |
+        A purchase, the transaction listener and a restore all arrive here,
+        which is why this is a batch and why it is idempotent: the same
+        transaction is delivered more than once by design.
+
+        The server verifies each signed payload against Apple's root
+        certificates, checks the bundle, the environment and the product,
+        matches the account token on the first claim, and applies the
+        transaction exactly once. Nothing about what a transaction is worth
+        is read from this request: no deck, no offer code, no entitlement
+        key, no price.
+
+        A transaction already claimed by another live account is `409`, with
+        no detail about that account.
+      operationId: submitAppleTransactions
+      x-implementation-status: planned
+      parameters:
+        - $ref: ./openapi/components.yaml#/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/AppleTransactionSubmission
+      responses:
+        "200":
+          description: Entitlement snapshot after the submitted transactions
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/EntitlementSnapshot
+        "409":
+          $ref: ./openapi/components.yaml#/responses/ConflictResponse
+        "413":
+          $ref: ./openapi/components.yaml#/responses/PayloadTooLargeResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/commerce/apple/notifications:
+    post:
+      tags: [Commerce]
+      summary: Receive an App Store server notification
+      description: |
+        Apple's own path into the system, and the fast way a refund is
+        learned. Unauthenticated by nature: the signature on the payload is
+        the authentication, and it is verified before anything is read.
+
+        Answered quickly, processed idempotently on the notification's uuid,
+        and quarantined rather than dropped when it names a product or a
+        transaction this environment does not know.
+      operationId: receiveAppleNotification
+      x-implementation-status: planned
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./openapi/components.yaml#/schemas/AppleNotificationEnvelope
+      responses:
+        "202":
+          description: Notification accepted for processing
+        "413":
+          $ref: ./openapi/components.yaml#/responses/PayloadTooLargeResponse
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/study-sessions:
