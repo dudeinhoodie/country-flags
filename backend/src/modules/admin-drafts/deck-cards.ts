@@ -178,9 +178,15 @@ export function deckNeedsV3(deck: EditorialDeck): boolean {
  * The editorial schema requires it of anything that lists bare keys or names
  * a taxonomy node, and a deck of explicit refs is clearer with it than
  * without: the console shows what an added member would be taught through.
+ *
+ * `always` is for a document that is already v3 — the schema demands the
+ * default there whether or not this particular deck asked for it.
  */
-export function withDeckDefaults(deck: EditorialDeck): EditorialDeck {
-  if (!deckNeedsV3(deck)) {
+export function withDeckDefaults(
+  deck: EditorialDeck,
+  always = false,
+): EditorialDeck {
+  if (!always && !deckNeedsV3(deck)) {
     return deck;
   }
   return {

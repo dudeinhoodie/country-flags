@@ -385,6 +385,14 @@ describe("schema version", () => {
     ).toBe(true);
   });
 
+  it("fills the default in for a v2-shaped deck once the document is v3", () => {
+    // The document decides too: v3 requires the default of every deck it
+    // holds, including one that would have been happy in v2.
+    const filled = withDeckDefaults(deck(), true);
+    expect(filled.defaultTemplateCode).toBe("FLAG_TO_COUNTRY");
+    expect(filled.defaultTemplateSchemaVersion).toBe(1);
+  });
+
   it("fills in the default template a v3 deck must carry", () => {
     const filled = withDeckDefaults(deck({ access: { model: "FREE" } }));
     expect(filled.defaultTemplateCode).toBe("FLAG_TO_COUNTRY");

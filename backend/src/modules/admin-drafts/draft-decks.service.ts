@@ -28,10 +28,14 @@ import type {
   EditorialEntity,
   MembershipContext,
 } from "./deck-membership";
-import { liftEditorialDocumentToV3 } from "./editorial-document.service";
+import {
+  EDITORIAL_SCHEMA_VERSION,
+  liftEditorialDocumentToV3,
+} from "./editorial-document.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
 
 interface EditorialCatalogDocument extends Record<string, unknown> {
+  schemaVersion: number;
   supportedLocales: string[];
   entities: EditorialEntity[];
   decks: EditorialDeck[];
@@ -66,6 +70,15 @@ export type DeckWriteInput = Omit<EditorialDeck, "previewCards"> & {
 
 function asCatalog(document: unknown): EditorialCatalogDocument {
   return document as EditorialCatalogDocument;
+}
+
+/**
+ * Whether the document already speaks v3. Once it does, every deck in it
+ * must carry the default template the v3 schema requires, even one that
+ * would have been happy in v2.
+ */
+function isV3(catalog: EditorialCatalogDocument): boolean {
+  return catalog.schemaVersion === EDITORIAL_SCHEMA_VERSION;
 }
 
 function deckNotFound(deckKey: string): never {
@@ -133,7 +146,7 @@ export class DraftDecksService {
             `The draft already has a deck ${input.key}`,
           );
         }
-        const deck = this.assemble(input);
+        const deck = this.assemble(input, isV3(catalog));
         assertAccessChangeIsAllowed(
           deck.key,
           published.get(deck.key),
@@ -182,12 +195,16 @@ export class DraftDecksService {
         // must not quietly rewrite an `all-current` membership into a list.
         // Previews travel as ids rather than as the stored refs: the ones
         // the request did not name are re-read from the deck as it stands.
-        const next = this.assemble({
-          ...existing,
-          ...changes,
-          key: deckKey,
-          previewCardIds: changes.previewCardIds ?? previewCardIdsOf(existing),
-        });
+        const next = this.assemble(
+          {
+            ...existing,
+            ...changes,
+            key: deckKey,
+            previewCardIds:
+              changes.previewCardIds ?? previewCardIdsOf(existing),
+          },
+          isV3(catalog),
+        );
         assertAccessChangeIsAllowed(
           deckKey,
           published.get(deckKey),
@@ -251,7 +268,7 @@ export class DraftDecksService {
    * all — "absent means free" is what the catalog already says, and writing
    * it out would move an untouched catalog to v3 for nothing.
    */
-  private assemble(input: DeckWriteInput): EditorialDeck {
+  private assemble(input: DeckWriteInput, catalogIsV3: boolean): EditorialDeck {
     const deck: EditorialDeck = {
       key: input.key,
       kind: input.kind,
@@ -277,7 +294,7 @@ export class DraftDecksService {
     if (previews.length > 0) {
       deck.previewCards = previewCardsFromIds(deck, previews);
     }
-    return withDeckDefaults(deck);
+    return withDeckDefaults(deck, catalogIsV3);
   }
 
   /**
