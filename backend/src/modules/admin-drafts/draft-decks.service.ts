@@ -216,9 +216,7 @@ export class DraftDecksService {
     );
     const previewIds = new Set(previewCardIdsOf(deck));
     const resolved = await this.describeCards(cards, previewIds, readContext);
-    const findings = readContext.report.findings.filter(
-      (finding) => finding.subject === deckKey,
-    );
+    const findings = this.readModel.findingsFor(readContext.report, deckKey);
     const previews = resolved.filter((card) => previewIds.has(card.cardId));
 
     return {

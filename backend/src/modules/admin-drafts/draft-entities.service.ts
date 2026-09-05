@@ -643,9 +643,7 @@ export class DraftEntitiesService {
       this.assetSlots(entity, context),
       this.usages(entityKey, context),
     ]);
-    const findings = context.report.findings.filter(
-      (finding) => finding.subject === entityKey,
-    );
+    const findings = this.readModel.findingsFor(context.report, entityKey);
     return {
       entity: toApiEntity(entity),
       publishedNames: Object.fromEntries(published?.names ?? []),
