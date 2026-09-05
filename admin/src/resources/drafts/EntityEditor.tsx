@@ -1,10 +1,17 @@
 import Alert from "@mui/material/Alert";
+import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import FormHelperText from "@mui/material/FormHelperText";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
@@ -22,34 +29,94 @@ import { Title, usePermissions } from "react-admin";
 import { useNavigate, useParams } from "react-router-dom";
 import { LoadingState } from "../../components/LoadingState";
 import { useDraftWithDecks } from "./useDraftDecks";
-import { useDraftEntity, useEntityWriter } from "./useDraftEntities";
-import type { DraftEntityDetail } from "./useDraftEntities";
+import {
+  useDraftEntities,
+  useDraftEntity,
+  useEntityWriter,
+} from "./useDraftEntities";
+import type {
+  DraftEntityDetail,
+  DraftEntityListItem,
+  EntityFacts,
+} from "./useDraftEntities";
 
-/**
- * The types this editor can create. The contract also carries
- * `subdivision`, which needs a parent selector and a disabled catalog
- * toggle before it can be offered here (#317); until then a subdivision
- * loaded from the API still displays, and the picker does not invent one.
- */
 const ENTITY_TYPES = [
   "country",
   "territory",
   "area",
+  "subdivision",
   "region",
   "subregion",
 ] as const;
 
 type EntityType = NonNullable<DraftEntityDetail["entity"]["type"]>;
+
+/** What a subdivision may hang from: a state's part belongs to the state. */
+const PARENT_TYPES: readonly string[] = ["country", "territory"];
+
+/**
+ * A subdivision is not recognized or unrecognized — the question does not
+ * apply — and the publisher pins the answer, so the field shows it rather
+ * than inviting an edit the backend would overwrite (ADR-020).
+ */
+const SUBDIVISION_RECOGNITION_STATUS = "not_applicable";
+
 const ENTITY_STATUSES = ["active", "historical", "retired", "hidden"] as const;
-const IDENTIFIER_KEYS = [
-  "isoAlpha2",
-  "isoAlpha3",
-  "m49",
-  "wikidataId",
-  "editorialKey",
-  "customCode",
-] as const;
+
+/**
+ * Every identifier and what it is allowed to look like, mirroring the
+ * editorial schema. The patterns are the point of having separate fields at
+ * all: `US-CA` typed into an ISO country code would put a state everywhere
+ * a reader expects a country.
+ */
+const IDENTIFIERS: {
+  key: string;
+  pattern?: RegExp;
+  maxLength?: number;
+  expected: string;
+}[] = [
+  {
+    key: "isoAlpha2",
+    pattern: /^[A-Za-z]{2}$/,
+    expected: "two letters, as in FR",
+  },
+  {
+    key: "isoAlpha3",
+    pattern: /^[A-Za-z]{3}$/,
+    expected: "three letters, as in FRA",
+  },
+  { key: "m49", pattern: /^[0-9]{3}$/, expected: "three digits, as in 250" },
+  {
+    key: "isoSubdivision",
+    pattern: /^[A-Za-z]{2}-[A-Za-z0-9]{1,3}$/,
+    expected: "ISO 3166-2, as in US-CA",
+  },
+  { key: "localCode", maxLength: 40, expected: "at most 40 characters" },
+  { key: "fipsCode", maxLength: 10, expected: "at most 10 characters" },
+  { key: "wikidataId", expected: "a Wikidata id" },
+  { key: "editorialKey", expected: "an editorial key" },
+  { key: "customCode", expected: "a custom code" },
+];
+
 const NAME_FIELDS = ["short", "official"] as const;
+const LOCALIZED_FACTS = [
+  { key: "capital", label: "Capital" },
+  { key: "largestCity", label: "Largest city" },
+  { key: "motto", label: "Motto" },
+] as const;
+const MEASURED_FACTS = [
+  { key: "population", label: "Population", unit: "people" },
+  { key: "area", label: "Area", unit: "km2" },
+] as const;
+
+/** A measured value while it is being typed: every field is still text. */
+interface MeasuredDraft {
+  value: string;
+  unit: string;
+  observedAt: string;
+}
+
+const EMPTY_MEASURED: MeasuredDraft = { value: "", unit: "", observedAt: "" };
 
 function canEdit(permissions: unknown): boolean {
   return (
@@ -77,9 +144,89 @@ function overrideText(value: unknown): string {
   return typeof value === "string" ? value : JSON.stringify(value);
 }
 
+export function identifierError(key: string, value: string): string | null {
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    return null;
+  }
+  const rule = IDENTIFIERS.find((entry) => entry.key === key);
+  if (rule === undefined) {
+    return null;
+  }
+  if (rule.pattern !== undefined && !rule.pattern.test(trimmed)) {
+    return `Expected ${rule.expected}`;
+  }
+  if (rule.maxLength !== undefined && trimmed.length > rule.maxLength) {
+    return `Expected ${rule.expected}`;
+  }
+  return null;
+}
+
 interface RawOverrideRow {
   path: string;
   value: string;
+}
+
+/** Locale → the languages listed for it, as the form holds them. */
+type LanguageRows = Record<string, string>;
+
+function languagesToRows(
+  languages: Record<string, string>[] | undefined,
+): LanguageRows {
+  const rows: LanguageRows = {};
+  for (const entry of languages ?? []) {
+    for (const [locale, value] of Object.entries(entry)) {
+      rows[locale] =
+        rows[locale] === undefined ? value : `${rows[locale]}, ${value}`;
+    }
+  }
+  return rows;
+}
+
+/**
+ * The inverse: one comma-separated list per locale becomes an ordered list
+ * of languages, each carrying the locales that named it in that position.
+ */
+function rowsToLanguages(rows: LanguageRows): Record<string, string>[] {
+  const split: Record<string, string[]> = {};
+  let longest = 0;
+  for (const [locale, raw] of Object.entries(rows)) {
+    const values = raw
+      .split(",")
+      .map((value) => value.trim())
+      .filter((value) => value !== "");
+    if (values.length > 0) {
+      split[locale] = values;
+      longest = Math.max(longest, values.length);
+    }
+  }
+  const languages: Record<string, string>[] = [];
+  for (let index = 0; index < longest; index += 1) {
+    const entry: Record<string, string> = {};
+    for (const [locale, values] of Object.entries(split)) {
+      const value = values[index];
+      if (value !== undefined) {
+        entry[locale] = value;
+      }
+    }
+    if (Object.keys(entry).length > 0) {
+      languages.push(entry);
+    }
+  }
+  return languages;
+}
+
+function measuredToDraft(
+  measured: { value: number; unit?: string; observedAt?: string } | undefined,
+): MeasuredDraft {
+  if (measured === undefined) {
+    return EMPTY_MEASURED;
+  }
+  return {
+    value: String(measured.value),
+    unit: measured.unit ?? "",
+    observedAt: measured.observedAt ?? "",
+  };
 }
 
 export function EntityEditor() {
@@ -93,12 +240,14 @@ export function EntityEditor() {
     draftId ?? "",
     entityKey,
   );
+  const { entities } = useDraftEntities(draftId ?? "");
   const { update } = useEntityWriter(draftId ?? "");
 
   const [type, setType] = useState<EntityType>("country");
   const [status, setStatus] =
     useState<(typeof ENTITY_STATUSES)[number]>("active");
   const [inCatalog, setInCatalog] = useState(true);
+  const [parentKey, setParentKey] = useState("");
   const [recognitionStatus, setRecognitionStatus] = useState("");
   const [recognitionAsOf, setRecognitionAsOf] = useState("");
   const [validFrom, setValidFrom] = useState("");
@@ -108,8 +257,17 @@ export function EntityEditor() {
     {},
   );
   const [rawOverrides, setRawOverrides] = useState<RawOverrideRow[]>([]);
+  const [localizedFacts, setLocalizedFacts] = useState<
+    Record<string, Record<string, string>>
+  >({});
+  const [measuredFacts, setMeasuredFacts] = useState<
+    Record<string, MeasuredDraft>
+  >({});
+  const [statehoodDate, setStatehoodDate] = useState("");
+  const [languageRows, setLanguageRows] = useState<LanguageRows>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [parentWarning, setParentWarning] = useState(false);
 
   // The loaded entity seeds the form once; deriving during render instead
   // would fight the editor's own state on every keystroke.
@@ -120,11 +278,24 @@ export function EntityEditor() {
     setType(entity.type);
     setStatus(entity.status);
     setInCatalog(entity.includeInCountryCatalog);
+    setParentKey(entity.parentKey ?? "");
     setRecognitionStatus(entity.recognitionStatus);
     setRecognitionAsOf(entity.recognitionAsOf ?? "");
     setValidFrom(entity.validFrom ?? "");
     setValidTo(entity.validTo ?? "");
     setIdentifiers({ ...(entity.identifiers ?? {}) });
+    const facts = entity.facts ?? {};
+    setLocalizedFacts({
+      capital: { ...(facts.capital ?? {}) },
+      largestCity: { ...(facts.largestCity ?? {}) },
+      motto: { ...(facts.motto ?? {}) },
+    });
+    setMeasuredFacts({
+      population: measuredToDraft(facts.population),
+      area: measuredToDraft(facts.area),
+    });
+    setStatehoodDate(facts.statehoodDate ?? "");
+    setLanguageRows(languagesToRows(facts.languages));
     const names: Record<string, string> = {};
     const raw: RawOverrideRow[] = [];
     for (const [path, value] of Object.entries(entity.overrides ?? {})) {
@@ -146,12 +317,38 @@ export function EntityEditor() {
     return <LoadingState label="Loading the entity…" />;
   }
 
+  const isSubdivision = type === "subdivision";
+  // What the active release serves for this entity. An entity the release
+  // already carries is one whose parent other things are built on.
+  const published = Object.keys(detail.publishedNames).length > 0;
+  const parentChanged = parentKey !== (detail.entity.parentKey ?? "");
+  const needsParentWarning =
+    published && detail.entity.type === "subdivision" && parentChanged;
+
+  const parentOptions: DraftEntityListItem[] = (entities ?? []).filter(
+    (candidate) =>
+      PARENT_TYPES.includes(candidate.type) &&
+      candidate.key !== detail.entity.key,
+  );
+  const selectedParent =
+    parentOptions.find((candidate) => candidate.key === parentKey) ?? null;
+
+  const identifierErrors = Object.entries(identifiers)
+    .map(([key, value]) => identifierError(key, value))
+    .filter((message): message is string => message !== null);
+  const parentMissing = isSubdivision && parentKey.trim() === "";
+  const blocked = identifierErrors.length > 0 || parentMissing;
+
   const locales = [
     ...new Set([
       "en",
       "ru",
       ...Object.keys(detail.publishedNames),
       ...Object.keys(nameOverrides).map((path) => path.split(".")[1] ?? ""),
+      ...LOCALIZED_FACTS.flatMap(({ key }) =>
+        Object.keys(localizedFacts[key] ?? {}),
+      ),
+      ...Object.keys(languageRows),
     ]),
   ].filter((locale) => locale !== "");
 
@@ -170,8 +367,48 @@ export function EntityEditor() {
     return overrides;
   }
 
+  function assembleFacts(): EntityFacts {
+    const facts: EntityFacts = {};
+    for (const { key } of LOCALIZED_FACTS) {
+      const values: Record<string, string> = {};
+      for (const [locale, value] of Object.entries(localizedFacts[key] ?? {})) {
+        if (value.trim() !== "") {
+          values[locale] = value.trim();
+        }
+      }
+      if (Object.keys(values).length > 0) {
+        facts[key] = values;
+      }
+    }
+    for (const { key } of MEASURED_FACTS) {
+      const measured = measuredFacts[key] ?? EMPTY_MEASURED;
+      if (measured.value.trim() === "") {
+        continue;
+      }
+      const value = Number(measured.value);
+      if (!Number.isFinite(value)) {
+        continue;
+      }
+      facts[key] = {
+        value,
+        ...(measured.unit.trim() === "" ? {} : { unit: measured.unit.trim() }),
+        ...(measured.observedAt.trim() === ""
+          ? {}
+          : { observedAt: measured.observedAt.trim() }),
+      };
+    }
+    if (statehoodDate.trim() !== "") {
+      facts.statehoodDate = statehoodDate.trim();
+    }
+    const languages = rowsToLanguages(languageRows);
+    if (languages.length > 0) {
+      facts.languages = languages;
+    }
+    return facts;
+  }
+
   function save(): void {
-    if (draft === null || detail === null) {
+    if (draft === null || detail === null || blocked) {
       return;
     }
     setSaving(true);
@@ -182,15 +419,20 @@ export function EntityEditor() {
         cleanIdentifiers[key] = value.trim();
       }
     }
+    const subdivision = type === "subdivision";
     void update(draft.revision, detail.entity.key, {
       type,
       status,
-      includeInCountryCatalog: inCatalog,
-      recognitionStatus,
+      includeInCountryCatalog: subdivision ? false : inCatalog,
+      parentKey: subdivision ? parentKey.trim() : null,
+      recognitionStatus: subdivision
+        ? SUBDIVISION_RECOGNITION_STATUS
+        : recognitionStatus,
       recognitionAsOf: recognitionAsOf.trim() === "" ? null : recognitionAsOf,
       validFrom: validFrom.trim() === "" ? null : validFrom,
       validTo: validTo.trim() === "" ? null : validTo,
       identifiers: cleanIdentifiers,
+      facts: assembleFacts(),
       overrides: assembleOverrides(),
     }).then(
       () => {
@@ -206,6 +448,14 @@ export function EntityEditor() {
         );
       },
     );
+  }
+
+  function requestSave(): void {
+    if (needsParentWarning) {
+      setParentWarning(true);
+      return;
+    }
+    save();
   }
 
   return (
@@ -263,25 +513,78 @@ export function EntityEditor() {
                 </MenuItem>
               ))}
             </TextField>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={inCatalog}
-                  onChange={(event) => setInCatalog(event.target.checked)}
-                  disabled={!editable}
-                />
-              }
-              label="In country catalog"
-            />
+            <Box>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isSubdivision ? false : inCatalog}
+                    onChange={(event) => setInCatalog(event.target.checked)}
+                    disabled={!editable || isSubdivision}
+                  />
+                }
+                label="In country catalog"
+              />
+              {isSubdivision && (
+                <FormHelperText>
+                  A subdivision is taught only through a deck that names it, so
+                  it never joins the country catalog.
+                </FormHelperText>
+              )}
+            </Box>
           </Stack>
+
+          {isSubdivision && (
+            <Stack spacing={1}>
+              <Autocomplete
+                options={parentOptions}
+                value={selectedParent}
+                onChange={(_event, option) =>
+                  setParentKey(option === null ? "" : option.key)
+                }
+                getOptionLabel={(option) =>
+                  option.publishedName === null
+                    ? option.key
+                    : `${option.publishedName} — ${option.key}`
+                }
+                isOptionEqualToValue={(option, value) =>
+                  option.key === value.key
+                }
+                disabled={!editable}
+                size="small"
+                sx={{ maxWidth: 520 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Parent"
+                    required
+                    error={parentMissing}
+                    helperText={
+                      parentMissing
+                        ? "A subdivision needs the country or territory it belongs to."
+                        : "The country or territory this unit belongs to; the publisher turns it into the administrative relation."
+                    }
+                  />
+                )}
+              />
+            </Stack>
+          )}
 
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <TextField
               label="Recognition status"
-              value={recognitionStatus}
+              value={
+                isSubdivision
+                  ? SUBDIVISION_RECOGNITION_STATUS
+                  : recognitionStatus
+              }
               onChange={(event) => setRecognitionStatus(event.target.value)}
               size="small"
-              disabled={!editable}
+              disabled={!editable || isSubdivision}
+              helperText={
+                isSubdivision
+                  ? "Recognition is a question about states, not about their parts."
+                  : " "
+              }
               sx={{ minWidth: 220 }}
             />
             <TextField
@@ -318,20 +621,141 @@ export function EntityEditor() {
             useFlexGap
             sx={{ flexWrap: "wrap" }}
           >
-            {IDENTIFIER_KEYS.map((key) => (
-              <TextField
+            {IDENTIFIERS.map(({ key, expected }) => {
+              const message = identifierError(key, identifiers[key] ?? "");
+              return (
+                <TextField
+                  key={key}
+                  label={key}
+                  value={identifiers[key] ?? ""}
+                  onChange={(event) =>
+                    setIdentifiers((current) => ({
+                      ...current,
+                      [key]: event.target.value,
+                    }))
+                  }
+                  size="small"
+                  disabled={!editable}
+                  error={message !== null}
+                  helperText={message ?? expected}
+                  sx={{ width: 190 }}
+                />
+              );
+            })}
+          </Stack>
+
+          <Divider />
+          <Typography variant="subtitle2">Facts</Typography>
+          <Typography variant="body2" color="text.secondary">
+            What a curator answers by hand. A field left empty is not published;
+            clearing one removes the answer.
+          </Typography>
+          {LOCALIZED_FACTS.map(({ key, label }) => (
+            <Stack
+              key={key}
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+            >
+              {locales.map((locale) => (
+                <TextField
+                  key={`${key}.${locale}`}
+                  label={`${label} (${locale})`}
+                  value={localizedFacts[key]?.[locale] ?? ""}
+                  onChange={(event) =>
+                    setLocalizedFacts((current) => ({
+                      ...current,
+                      [key]: {
+                        ...(current[key] ?? {}),
+                        [locale]: event.target.value,
+                      },
+                    }))
+                  }
+                  size="small"
+                  disabled={!editable}
+                  sx={{ minWidth: 240 }}
+                />
+              ))}
+            </Stack>
+          ))}
+          {MEASURED_FACTS.map(({ key, label, unit }) => {
+            const measured = measuredFacts[key] ?? EMPTY_MEASURED;
+            return (
+              <Stack
                 key={key}
-                label={key}
-                value={identifiers[key] ?? ""}
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+              >
+                <TextField
+                  label={label}
+                  value={measured.value}
+                  onChange={(event) =>
+                    setMeasuredFacts((current) => ({
+                      ...current,
+                      [key]: { ...measured, value: event.target.value },
+                    }))
+                  }
+                  size="small"
+                  disabled={!editable}
+                  inputMode="numeric"
+                  sx={{ minWidth: 200 }}
+                />
+                <TextField
+                  label={`${label} unit`}
+                  value={measured.unit}
+                  onChange={(event) =>
+                    setMeasuredFacts((current) => ({
+                      ...current,
+                      [key]: { ...measured, unit: event.target.value },
+                    }))
+                  }
+                  size="small"
+                  disabled={!editable}
+                  placeholder={unit}
+                />
+                <TextField
+                  label={`${label} observed at`}
+                  value={measured.observedAt}
+                  onChange={(event) =>
+                    setMeasuredFacts((current) => ({
+                      ...current,
+                      [key]: { ...measured, observedAt: event.target.value },
+                    }))
+                  }
+                  size="small"
+                  disabled={!editable}
+                  placeholder="YYYY-MM-DD"
+                />
+              </Stack>
+            );
+          })}
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            <TextField
+              label="Statehood date"
+              value={statehoodDate}
+              onChange={(event) => setStatehoodDate(event.target.value)}
+              size="small"
+              disabled={!editable}
+              placeholder="YYYY-MM-DD"
+              helperText="When the unit joined the entity above it."
+              sx={{ minWidth: 240 }}
+            />
+          </Stack>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            {locales.map((locale) => (
+              <TextField
+                key={`languages.${locale}`}
+                label={`Languages (${locale})`}
+                value={languageRows[locale] ?? ""}
                 onChange={(event) =>
-                  setIdentifiers((current) => ({
+                  setLanguageRows((current) => ({
                     ...current,
-                    [key]: event.target.value,
+                    [locale]: event.target.value,
                   }))
                 }
                 size="small"
                 disabled={!editable}
-                sx={{ width: 170 }}
+                helperText="Comma-separated, in the same order in every locale."
+                sx={{ minWidth: 280 }}
               />
             ))}
           </Stack>
@@ -386,7 +810,8 @@ export function EntityEditor() {
           <Typography variant="subtitle2">Other overrides</Typography>
           <Typography variant="body2" color="text.secondary">
             Any merged field can be pinned by its dotted path. A quoted value is
-            parsed as JSON; anything else is stored as text.
+            parsed as JSON; anything else is stored as text. The facts above own
+            their own paths and are not repeated here.
           </Typography>
           <Table size="small">
             <TableHead>
@@ -472,8 +897,8 @@ export function EntityEditor() {
           <Stack direction="row" spacing={2}>
             <Button
               variant="contained"
-              disabled={!editable || saving}
-              onClick={save}
+              disabled={!editable || saving || blocked}
+              onClick={requestSave}
             >
               Save
             </Button>
@@ -487,6 +912,34 @@ export function EntityEditor() {
           </Stack>
         </Stack>
       </CardContent>
+
+      <Dialog open={parentWarning} onClose={() => setParentWarning(false)}>
+        <DialogTitle>Move a published subdivision?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {detail.entity.key} is already published under{" "}
+            {detail.entity.parentKey ?? "no parent"}. Changing its parent
+            rewrites the administrative relation the release carries, so decks,
+            filters and progress that read it will follow the new country at the
+            next publish.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setParentWarning(false)}>
+            Keep the parent
+          </Button>
+          <Button
+            color="warning"
+            variant="contained"
+            onClick={() => {
+              setParentWarning(false);
+              save();
+            }}
+          >
+            Move it to {parentKey}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }
