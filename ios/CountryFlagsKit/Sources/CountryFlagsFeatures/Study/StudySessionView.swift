@@ -21,6 +21,10 @@ public struct StudySessionView: View {
     /// the Dutch — and which answer is right can depend on which deck is
     /// asking. The context stays on screen rather than being remembered.
     @State private var deckName = ""
+    /// Which face each card of the sitting wears. Read from the store once
+    /// the session's composition is known, because the snapshot does not
+    /// carry the template and the deck's name is never allowed to imply one.
+    @State private var templates = CardTemplates()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let deckID: UUID
@@ -163,6 +167,7 @@ public struct StudySessionView: View {
                 state: state,
                 store: store,
                 assets: assets,
+                templates: templates,
                 palette: palette,
                 onReveal: { runner.revealAnswer() },
                 onRate: { rating in Task { await runner.rate(rating) } },
@@ -231,6 +236,10 @@ public struct StudySessionView: View {
             revealed
         }
         .task(id: card.promptAssetID) { await loadPalette(for: card) }
+        // Keyed on the session rather than on the card: the answer is the
+        // same for every card of the sitting, and re-reading it per card
+        // would read the deck twenty times over.
+        .task(id: state.sessionID) { await loadTemplates(for: state) }
         .sheet(isPresented: $isShowingDetails) {
             // The sheet was opened from the back of the card; leaving it face
             // down would strand the reader on a side with nothing left to do.
@@ -288,6 +297,28 @@ public struct StudySessionView: View {
             deckName: deckName,
             onClose: onFinish
         )
+    }
+
+    /// Resolves the sitting's templates, and says so when one of them is a
+    /// pair this build cannot draw.
+    ///
+    /// A new session never contains such a card — the selector drops it, and
+    /// the runner reports the drop. What lands here is a session composed
+    /// elsewhere: resumed from a later build, or selected by the backend. The
+    /// card wears the unsupported plate and the fact goes out once.
+    private func loadTemplates(for state: StudySessionState) async {
+        templates = await CardTemplates.resolve(
+            deckID: deckID,
+            cardIDs: state.cards.map(\.learningCardID),
+            store: store
+        )
+        var reported = Set<CardTemplateKey>()
+        for card in state.cards {
+            guard case .unsupported(let key) = templates.face(for: card.learningCardID),
+                reported.insert(key).inserted
+            else { continue }
+            runner.reportUnsupportedTemplate(key)
+        }
     }
 
     private func loadPalette(for card: StudySessionCardRecord) async {

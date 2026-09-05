@@ -15,15 +15,18 @@ final class FakeContentRepository: ContentRepository, @unchecked Sendable {
     private let cardsByDeck: [UUID: [LearningCardRecord]]
     private let storedManifest: ContentManifestRecord?
     private let assetsByID: [UUID: AssetRecord]
+    private let entitiesByID: [UUID: GeoEntityRecord]
 
     init(
         decks: [DeckRecord] = [],
         cards: [UUID: [LearningCardRecord]] = [:],
         manifest: ContentManifestRecord? = nil,
-        assets: [UUID: AssetRecord] = [:]
+        assets: [UUID: AssetRecord] = [:],
+        entities: [UUID: GeoEntityRecord] = [:]
     ) {
         decksByID = decks
         cardsByDeck = cards
+        entitiesByID = entities
         // A store holding decks has necessarily applied a release, so the
         // default manifest follows the decks rather than being set separately
         // in every test.
@@ -61,7 +64,7 @@ final class FakeContentRepository: ContentRepository, @unchecked Sendable {
         cardsByDeck.values.flatMap { $0 }.first { $0.id == id }
     }
 
-    func entity(id: UUID) async throws -> GeoEntityRecord? { nil }
+    func entity(id: UUID) async throws -> GeoEntityRecord? { entitiesByID[id] }
 
     func asset(id: UUID) async throws -> AssetRecord? { assetsByID[id] }
 
@@ -98,5 +101,31 @@ actor FakeSynchronizer: ContentSynchronizing {
         synchronizeCount += 1
         requestedLocales.append(locale)
         return status
+    }
+}
+
+/// Keeps every operational error it was handed, so a test can say what the app
+/// reported rather than that it reported something.
+final class RecordingErrorReporter: ErrorReporting, @unchecked Sendable {
+    private let lock = NSLock()
+    private var captured: [(error: any Error, context: ErrorContext)] = []
+
+    func capture(error: any Error, context: ErrorContext) {
+        lock.lock()
+        defer { lock.unlock() }
+        captured.append((error, context))
+    }
+
+    func addBreadcrumb(_ breadcrumb: SafeBreadcrumb) {}
+    func setUserContext(_ context: ErrorUserContext?) {}
+
+    var reports: [(error: any Error, context: ErrorContext)] {
+        lock.lock()
+        defer { lock.unlock() }
+        return captured
+    }
+
+    func contexts(forOperation operation: String) -> [ErrorContext] {
+        reports.map(\.context).filter { $0.operation == operation }
     }
 }

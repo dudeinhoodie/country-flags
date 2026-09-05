@@ -1618,6 +1618,57 @@
         }
       }
     },
+    "details.facts.country": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Country facts"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "О стране"
+          }
+        }
+      }
+    },
+    "details.facts.state": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "State facts"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "О штате"
+          }
+        }
+      }
+    },
+    "details.parent_country": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Country"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страна"
+          }
+        }
+      }
+    },
     "details.region": {
       "extractionState": "manual",
       "localizations": {
@@ -1631,6 +1682,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Регион"
+          }
+        }
+      }
+    },
+    "details.symbol_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Название"
+          }
+        }
+      }
+    },
+    "details.symbol_story": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About the emblem"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "О гербе"
+          }
+        }
+      }
+    },
+    "details.symbol_story.flag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About the flag"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "О флаге"
           }
         }
       }
@@ -1890,6 +1992,23 @@
         }
       }
     },
+    "fact.emblem": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emblem"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Герб"
+          }
+        }
+      }
+    },
     "fact.language": {
       "extractionState": "manual",
       "localizations": {
@@ -1907,6 +2026,40 @@
         }
       }
     },
+    "fact.largest_city": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Largest city"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Крупнейший город"
+          }
+        }
+      }
+    },
+    "fact.motto": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motto"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Девиз"
+          }
+        }
+      }
+    },
     "fact.population": {
       "extractionState": "manual",
       "localizations": {
@@ -1920,6 +2073,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Население"
+          }
+        }
+      }
+    },
+    "fact.statehood_date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Admission"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вхождение"
           }
         }
       }
@@ -3438,6 +3608,40 @@
         }
       }
     },
+    "study.card.unsupported.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update the app to see it. The rest of the deck works as usual."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обновите приложение, чтобы её увидеть. Остальная колода работает как обычно."
+          }
+        }
+      }
+    },
+    "study.card.unsupported.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This card needs a newer app"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для этой карточки нужна новая версия"
+          }
+        }
+      }
+    },
     "study.close": {
       "extractionState": "manual",
       "localizations": {
@@ -3451,6 +3655,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Закрыть тренировку"
+          }
+        }
+      }
+    },
+    "study.coat_prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coat of arms to identify"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Герб для угадывания"
           }
         }
       }

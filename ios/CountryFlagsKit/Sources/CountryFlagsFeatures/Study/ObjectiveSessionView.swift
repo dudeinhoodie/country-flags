@@ -13,6 +13,10 @@ public struct ObjectiveSessionView: View {
     /// the Dutch — and which answer is right can depend on which deck is
     /// asking. The context stays on screen rather than being remembered.
     @State private var deckName = ""
+    /// Which face each question's prompt wears, by template. The quiz asks
+    /// the same question the deck of cards does, so it picks its renderer
+    /// the same way.
+    @State private var templates = CardTemplates()
     private let size: StudySessionSize
     private let store: ContentStore
     private let assets: any AssetLoading
@@ -51,6 +55,8 @@ public struct ObjectiveSessionView: View {
         // The flag is the screen: while a session runs, the tab bar leaves too.
         .toolbar(.hidden, for: .tabBar)
         .task { await runner.startOrResume(deckID: deckID, size: size) }
+        // After the session exists, so the cards to resolve are known.
+        .task(id: runner.state?.sessionID) { await loadTemplates() }
     }
 
     @ViewBuilder
@@ -73,6 +79,25 @@ public struct ObjectiveSessionView: View {
         }
     }
 
+    /// Resolves the sitting's templates, and says so when one of them is a
+    /// pair this build cannot draw. Same rule as the deck of cards: a new
+    /// session never holds one, so what lands here came from elsewhere.
+    private func loadTemplates() async {
+        guard let state = runner.state else { return }
+        templates = await CardTemplates.resolve(
+            deckID: deckID,
+            cardIDs: state.questions.map(\.learningCardID),
+            store: store
+        )
+        var reported = Set<CardTemplateKey>()
+        for question in state.questions {
+            guard case .unsupported(let key) = templates.face(for: question.learningCardID),
+                reported.insert(key).inserted
+            else { continue }
+            runner.reportUnsupportedTemplate(key)
+        }
+    }
+
     private func questionView(
         state: ObjectiveSessionState,
         question: ObjectiveQuestion,
@@ -81,12 +106,15 @@ public struct ObjectiveSessionView: View {
         VStack(spacing: DesignTokens.Spacing.medium) {
             hud(state: state)
 
-            FlagCardFace(
+            CardFaceView(
+                face: templates.face(for: question.learningCardID),
                 assetID: question.promptAssetID,
                 // The prompt never names the country, and VoiceOver must not
                 // either: reading the answer out would settle the question
-                // before the learner has chosen.
-                accessibilityLabel: L10n.studyFlagPrompt,
+                // before the learner has chosen. Four options are on screen —
+                // there is no moment in this mode where naming it is safe.
+                namesSubject: false,
+                displayName: question.displayName,
                 store: store,
                 assets: assets
             )
@@ -120,7 +148,12 @@ public struct ObjectiveSessionView: View {
                     }
 
                     if presentation.isAnswered {
-                        CardBackFactsView(learningCardID: question.learningCardID, store: store)
+                        CardBackFactsView(
+                            learningCardID: question.learningCardID,
+                            promptAssetID: question.promptAssetID,
+                            face: templates.face(for: question.learningCardID),
+                            store: store
+                        )
                             .foregroundStyle(.white)
                     }
                 }

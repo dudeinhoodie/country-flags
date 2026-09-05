@@ -83,6 +83,18 @@ public enum DesignTokens {
         public static let shadowOpacity: Double = 0.35
         public static let shadowRadius: CGFloat = 24
         public static let shadowOffset: CGFloat = 12
+        /// The margin a coat of arms keeps from the card's edge, as a share of
+        /// the card's shorter side. Heraldry is drawn to its own outline — a
+        /// crown above, supporters beside, a motto ribbon below — and an
+        /// emblem pushed to the edge reads as one that was cropped. Twelve per
+        /// cent is the floor `DESIGN.md` sets; the aspect-fit inside it is
+        /// what keeps a wide achievement and a tall shield the same object.
+        public static let coatInsetFraction: CGFloat = 0.12
+        /// The plane a coat of arms is drawn on: neutral and dark, so the
+        /// emblem's own tinctures are the only colour on the card. A flag
+        /// fills its card; an emblem has to be put on something, and anything
+        /// with a hue of its own would be a clue.
+        public static let coatPlaneOpacity: Double = 0.86
     }
 
     /// The ground every screen sits on.

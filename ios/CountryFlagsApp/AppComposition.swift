@@ -542,6 +542,7 @@ struct AppComposition: AppDependencies {
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
             analytics: analytics,
+            errors: errorReporter,
             dates: dates,
             identifiers: identifiers
         )
@@ -560,6 +561,7 @@ struct AppComposition: AppDependencies {
             selection: studySessions,
             outbox: store.makeOutboxRepository(),
             analytics: analytics,
+            errors: errorReporter,
             dates: dates,
             identifiers: identifiers
         )
