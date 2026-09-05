@@ -260,7 +260,15 @@
     "deck": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["key", "kind", "names", "memberEntityKeys"],
+      "required": [
+        "key",
+        "kind",
+        "names",
+        "memberEntityKeys",
+        "memberCards",
+        "contentKinds",
+        "cardCount"
+      ],
       "properties": {
         "key": {
           "type": "string",
@@ -280,11 +288,72 @@
           }
         },
         "memberEntityKeys": {
+          "description": "Which entities the deck covers, derived from its cards. Kept because it still answers a real question — which countries does this deck teach — and no longer asked to say which card of an entity a deck holds.",
           "type": "array",
           "uniqueItems": true,
           "items": {
             "$ref": "#/$defs/entityKey"
           }
+        },
+        "memberCards": {
+          "description": "What the deck actually holds, in editorial order: an entity and the template that teaches it. An entity with a flag and a coat of arms appears twice, and the two are different cards with different schedules (ADR-020).",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cardRef"
+          }
+        },
+        "contentKinds": {
+          "description": "The symbols the deck asks its questions with. Derived from its cards, never authored.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["FLAG", "COAT_OF_ARMS", "MAP"]
+          }
+        },
+        "cardCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "access": {
+          "description": "Who may open the deck. Absent means free. Monetization lives on the deck and nowhere else (ADR-019).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["model"],
+          "properties": {
+            "model": {
+              "enum": ["FREE", "ENTITLEMENT"]
+            },
+            "requiredEntitlementKey": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "previewCards": {
+          "description": "Up to three cards a locked deck may show before it is bought, each of them a member.",
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/cardRef"
+          }
+        }
+      }
+    },
+    "cardRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entityKey", "templateCode", "templateSchemaVersion"],
+      "properties": {
+        "entityKey": {
+          "$ref": "#/$defs/entityKey"
+        },
+        "templateCode": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "templateSchemaVersion": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     }

@@ -2,12 +2,20 @@ import { isDeepStrictEqual } from "node:util";
 
 import { sha256 } from "@country-flags/asset-core";
 
-import { memberEntityKey } from "./editorial-schema.js";
+import { cardVariantRef, memberEntityKey } from "./editorial-schema.js";
 
 import { buildAsset, type BuiltAsset } from "./assets.js";
+import {
+  FLAG_TEMPLATE_CODE,
+  promptAssetTypeOf,
+  resolveCardVariants,
+  variantKey,
+  type CardVariant,
+} from "./learning.js";
 import { editorialPatches, type EntityMatcher } from "./matching.js";
 import type {
   AssetCandidate,
+  EditorialCardRef,
   Conflict,
   EditorialCatalog,
   EditorialDeck,
@@ -53,20 +61,39 @@ interface CatalogRelation {
  * is associated with a region rather than part of it, and a deck built from
  * both would teach Russia twice.
  */
+/// How an explicit member list is ordered: by the entity first, so a
+/// catalog of bare keys sorts exactly as it always has, then by the
+/// template, which only a deck holding several cards of one entity needs.
+function memberSortKey(member: EditorialCardRef): string {
+  return typeof member === "string"
+    ? `${member}\u0000`
+    : `${member.entityKey}\u0000${member.templateCode}`;
+}
+
 function deckMembers(
   deck: EditorialDeck,
   pools: { allCurrent: string[]; learnable: string[] },
   relations: CatalogRelation[],
-): string[] {
+): EditorialCardRef[] {
   if (deck.members === "all-current") {
     return pools.allCurrent;
   }
   if (Array.isArray(deck.members)) {
-    // A member names a card variant, and two variants of one entity are two
-    // members. The published catalog still lists entities, so they collapse
-    // here; the deck keeps both cards once membership is materialized per
-    // template (#315).
-    return [...new Set(deck.members.map(memberEntityKey))].sort();
+    // Sorted, as an explicit list has always been published: the stored
+    // order is editorial bookkeeping today, and the admin preview sorts to
+    // match. Editorial order becomes the published order when the deck
+    // editor gains drag-and-drop and both sides change together (#319).
+    return [...deck.members].sort((left, right) => {
+      const leftKey = memberSortKey(left);
+      const rightKey = memberSortKey(right);
+      // A plain comparison, the one an explicit list has always been sorted
+      // by. Collation would reorder `country.united-arab-emirates` against
+      // `country.united_states` and quietly reshuffle a shipped deck.
+      if (leftKey === rightKey) {
+        return 0;
+      }
+      return leftKey < rightKey ? -1 : 1;
+    });
   }
 
   const root = deck.members.taxonomy;
@@ -120,6 +147,12 @@ export interface MergedContent {
    * territories and areas, whatever the listing toggle says (ADR-015).
    */
   learnableEntityKeys: string[];
+  /**
+   * Every card this release publishes: an entity and the template that
+   * teaches it. One entity appears more than once when it has more than one
+   * symbol, and each of those is its own card with its own schedule.
+   */
+  cardVariants: CardVariant[];
 }
 
 const LEARNABLE_TYPES = new Set(["country", "territory", "area"]);
@@ -344,6 +377,7 @@ export async function mergeContent(
     fieldConflicts: [],
     missingTranslations: [],
     missingAssets: [],
+    missingCardVariants: [],
     licenseProblems: [],
     unnamedFacts: [],
     factlessEntities: [],
@@ -439,25 +473,67 @@ export async function mergeContent(
     adapterCandidatesByEntity.set(entityKey, existing);
   }
 
-  const overrideByEntity = new Map(
-    assetOverrides.map((override) => [override.entityKey, override]),
+  // A subdivision is outside the learnable pool, and the deck that names it
+  // is where it becomes teachable at all (ADR-020). Its drawings have to be
+  // published for that deck to have anything to show.
+  const deckNamedEntityKeys = new Set(
+    editorial.decks.flatMap((deck) =>
+      Array.isArray(deck.members) ? deck.members.map(memberEntityKey) : [],
+    ),
   );
+
+  /// One entity holds several symbols now, so a drawing is identified by
+  /// what it depicts and which variant it is — not by the entity alone,
+  /// which is how a coat of arms would have replaced a flag.
+  const symbolKey = (
+    entityKey: string,
+    assetType: string,
+    variant: string,
+  ): string => `${entityKey}\u0000${assetType}\u0000${variant}`;
+
+  const adapterCandidatesBySymbol = new Map<string, AssetCandidate[]>();
+  for (const [entityKey, candidates] of adapterCandidatesByEntity) {
+    for (const candidate of candidates) {
+      const key = symbolKey(entityKey, candidate.assetType, candidate.variant);
+      const existing = adapterCandidatesBySymbol.get(key) ?? [];
+      existing.push(candidate);
+      adapterCandidatesBySymbol.set(key, existing);
+    }
+  }
+  const overrideBySymbol = new Map(
+    assetOverrides.map((override) => [
+      symbolKey(
+        override.entityKey,
+        override.candidate.assetType,
+        override.candidate.variant,
+      ),
+      override,
+    ]),
+  );
+  const entityKeyOf = (key: string): string => key.split("\u0000")[0] ?? "";
+
   const assets: BuiltAsset[] = [];
-  for (const entityKey of new Set([
-    ...adapterCandidatesByEntity.keys(),
-    ...overrideByEntity.keys(),
-  ])) {
+  for (const key of [
+    ...new Set([
+      ...adapterCandidatesBySymbol.keys(),
+      ...overrideBySymbol.keys(),
+    ]),
+  ].sort((left, right) => left.localeCompare(right, "en"))) {
+    const entityKey = entityKeyOf(key);
     // Only what the product teaches is drawn into the bundle. A source still
     // describes the flag of every territory it knows, and the snapshots keep
     // it, so an entity that comes back into the pool gets its asset back on
     // the next build — but a release should not carry, sign and serve fifty
     // rasterized flags no card will ever ask for.
     const entity = byEntity.get(entityKey);
-    if (entity === undefined || !isLearnable(entity)) {
+    if (entity === undefined) {
       continue;
     }
-    const adapters = adapterCandidatesByEntity.get(entityKey) ?? [];
-    const override = overrideByEntity.get(entityKey);
+    if (!isLearnable(entity) && !deckNamedEntityKeys.has(entityKey)) {
+      continue;
+    }
+    const adapters = adapterCandidatesBySymbol.get(key) ?? [];
+    const override = overrideBySymbol.get(key);
     const bestAdapter = adapters.at(-1);
     const winner = override?.candidate ?? bestAdapter;
     if (winner === undefined) {
@@ -485,9 +561,12 @@ export async function mergeContent(
       });
     }
   }
-  const assetsByEntity = new Map(
-    assets.map((asset) => [asset.entityKey, asset]),
-  );
+  const assetsByEntity = new Map<string, BuiltAsset[]>();
+  for (const asset of assets) {
+    const list = assetsByEntity.get(asset.entityKey) ?? [];
+    list.push(asset);
+    assetsByEntity.set(asset.entityKey, list);
+  }
 
   for (const entity of byEntity.values()) {
     if (!isLearnable(entity)) {
@@ -504,11 +583,16 @@ export async function mergeContent(
         });
       }
     }
-    const asset = assetsByEntity.get(String(entity.key));
-    if (asset === undefined) {
+    // Every symbol the entity publishes, in key order. A country with a
+    // flag and a coat of arms carries both; a card picks the one its
+    // template asks a question with.
+    const entityAssets = assetsByEntity.get(String(entity.key)) ?? [];
+    if (entityAssets.length === 0) {
       reports.missingAssets.push({ entityKey: String(entity.key) });
     } else {
-      entity.assetKeys = [asset.key];
+      entity.assetKeys = entityAssets
+        .map(({ key }) => key)
+        .sort((left, right) => left.localeCompare(right, "en"));
     }
   }
 
@@ -570,16 +654,78 @@ export async function mergeContent(
     )
     .map((entity) => String(entity.key))
     .sort();
-  const decks = editorial.decks.map((deck) => ({
-    key: deck.key,
-    kind: deck.kind,
-    names: deck.names,
-    memberEntityKeys: deckMembers(
-      deck,
-      { allCurrent: currentKeys, learnable: learnableKeys },
-      uniqueRelations,
-    ),
-  }));
+  // What each deck asks for, as card variants rather than entities. An
+  // entity taught through two templates is two members, and a deck says
+  // which of them it holds (ADR-020).
+  const requestedByDeck = new Map(
+    editorial.decks.map((deck) => [
+      deck.key,
+      deckMembers(
+        deck,
+        { allCurrent: currentKeys, learnable: learnableKeys },
+        uniqueRelations,
+      ).map((member) => cardVariantRef(deck, member)),
+    ]),
+  );
+
+  // The pool the release publishes cards for: every learnable entity's
+  // flag, plus whatever the decks ask for on top — a state's flag, a
+  // country's coat of arms — resolved against the drawings that exist.
+  const { published: publishedVariants, missing: missingVariants } =
+    resolveCardVariants(
+      [
+        ...learnableKeys.map((entityKey) => ({
+          entityKey,
+          templateCode: FLAG_TEMPLATE_CODE,
+          templateSchemaVersion: 1,
+        })),
+        ...[...requestedByDeck.values()].flat(),
+      ],
+      assets,
+    );
+  const publishedVariantKeys = new Set(publishedVariants.map(variantKey));
+  for (const variant of missingVariants) {
+    reports.missingCardVariants.push(variant);
+  }
+
+  const decks = editorial.decks.map((deck) => {
+    const members = (requestedByDeck.get(deck.key) ?? []).filter((variant) =>
+      publishedVariantKeys.has(variantKey(variant)),
+    );
+    const contentKinds = [
+      ...new Set(
+        members.flatMap((member) => {
+          const promptType = promptAssetTypeOf(member.templateCode);
+          return promptType === undefined ? [] : [promptType.toUpperCase()];
+        }),
+      ),
+    ].sort();
+    return {
+      key: deck.key,
+      kind: deck.kind,
+      names: deck.names,
+      memberCards: members,
+      // Which entities the deck covers, derived rather than authored: it is
+      // the same list a reader used to get, and it no longer has to stand
+      // in for a question.
+      memberEntityKeys: [
+        ...new Set(members.map(({ entityKey }) => entityKey)),
+      ].sort(),
+      contentKinds,
+      cardCount: members.length,
+      ...(deck.access === undefined ? {} : { access: deck.access }),
+      ...(deck.previewCards === undefined
+        ? {}
+        : {
+            previewCards: deck.previewCards
+              .map((preview) => cardVariantRef(deck, preview))
+              .filter((variant) =>
+                publishedVariantKeys.has(variantKey(variant)),
+              ),
+          }),
+    };
+  });
+
   for (const deck of editorial.decks) {
     provenanceMap[`deck/${deck.key}`] = editorialProvenance;
   }
@@ -709,5 +855,6 @@ export async function mergeContent(
     ),
     reports,
     learnableEntityKeys: learnableKeys,
+    cardVariants: publishedVariants,
   };
 }

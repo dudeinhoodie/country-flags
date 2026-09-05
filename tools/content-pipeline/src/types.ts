@@ -101,6 +101,14 @@ export interface RelationCandidate {
 
 export interface AssetCandidate {
   entity: EntityReference;
+  /**
+   * What the drawing depicts. An adapter that only knows flags says so
+   * rather than leaving it to be inferred: one entity now publishes several
+   * symbols, and the type is what keeps them apart everywhere downstream.
+   */
+  assetType: EditorialAssetType;
+  /** `current` unless the drawing is a historical or ceremonial variant. */
+  variant: string;
   upstreamPath: string;
   /**
    * The vector original. Absent only for a raster-only editorial override,
@@ -346,6 +354,17 @@ export interface PipelineReports {
   fieldConflicts: Conflict[];
   missingTranslations: { entityKey: string; locale: string }[];
   missingAssets: { entityKey: string }[];
+  /**
+   * A card a deck asked for and the release cannot publish, because the
+   * drawing its template asks a question with does not exist. Reported
+   * rather than silently dropped: a coat of arms nobody uploaded is a gap
+   * in the editorial work, and the flag of the same country is unaffected.
+   */
+  missingCardVariants: {
+    entityKey: string;
+    templateCode: string;
+    templateSchemaVersion: number;
+  }[];
   licenseProblems: { entityKey: string; reason: string }[];
   /**
    * A fact published without a name in every supported locale. Not a failure

@@ -4,9 +4,14 @@
   "title": "Country Flags asset registry",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "assets"],
+  "required": [
+    "schemaVersion",
+    "assets"
+  ],
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "schemaVersion": {
+      "const": 1
+    },
     "assets": {
       "type": "array",
       "items": {
@@ -15,6 +20,8 @@
         "required": [
           "key",
           "entityKey",
+          "assetType",
+          "variant",
           "representations",
           "aspectRatio",
           "sourcePath",
@@ -25,44 +32,104 @@
           "validTo"
         ],
         "properties": {
-          "key": { "type": "string", "minLength": 1 },
-          "entityKey": { "type": "string", "minLength": 1 },
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "entityKey": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assetType": {
+            "description": "What the drawing depicts. One entity publishes several, and they never overwrite one another (ADR-020).",
+            "enum": [
+              "flag",
+              "coat_of_arms",
+              "map"
+            ]
+          },
+          "variant": {
+            "description": "Which drawing of this type: `current` is the one in force.",
+            "type": "string",
+            "minLength": 1
+          },
           "representations": {
             "description": "Every published encoding of this asset, in the order a client should prefer them: the vector original first when one exists, then raster by ascending scale. An editorial override may supply a drawing that never had a vector; it publishes a single raster original instead. This is the only place an encoding is described: the asset used to repeat the vector in its own path, mimeType and sha256 so a reader written before this field kept working, and those are gone.",
             "type": "array",
             "minItems": 1,
             "items": {
               "oneOf": [
-                { "$ref": "#/$defs/vectorRepresentation" },
-                { "$ref": "#/$defs/rasterRepresentation" },
-                { "$ref": "#/$defs/rasterOriginalRepresentation" }
+                {
+                  "$ref": "#/$defs/vectorRepresentation"
+                },
+                {
+                  "$ref": "#/$defs/rasterRepresentation"
+                },
+                {
+                  "$ref": "#/$defs/rasterOriginalRepresentation"
+                }
               ]
             }
           },
-          "aspectRatio": { "type": "number", "exclusiveMinimum": 0 },
-          "sourcePath": { "type": "string", "minLength": 1 },
-          "license": { "type": "string", "minLength": 1 },
-          "attribution": { "type": "string", "minLength": 1 },
+          "aspectRatio": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "sourcePath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "license": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attribution": {
+            "type": "string",
+            "minLength": 1
+          },
           "provenance": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["sourceKey", "revision", "retrievedAt"],
+            "required": [
+              "sourceKey",
+              "revision",
+              "retrievedAt"
+            ],
             "properties": {
-              "sourceKey": { "type": "string", "minLength": 1 },
-              "revision": { "type": "string", "minLength": 1 },
-              "retrievedAt": { "type": "string", "format": "date-time" }
+              "sourceKey": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "string",
+                "minLength": 1
+              },
+              "retrievedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
             }
           },
           "validFrom": {
             "oneOf": [
-              { "type": "string", "format": "date" },
-              { "type": "null" }
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "validTo": {
             "oneOf": [
-              { "type": "string", "format": "date" },
-              { "type": "null" }
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
             ]
           }
         }
@@ -78,47 +145,94 @@
     "vectorRepresentation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "mimeType", "sha256"],
+      "required": [
+        "path",
+        "mimeType",
+        "sha256"
+      ],
       "properties": {
-        "path": { "type": "string", "pattern": "^assets/svg/[^/]+\\.svg$" },
-        "mimeType": { "const": "image/svg+xml" },
-        "sha256": { "$ref": "#/$defs/sha256" }
+        "path": {
+          "type": "string",
+          "pattern": "^assets/svg/[^/]+\\.svg$"
+        },
+        "mimeType": {
+          "const": "image/svg+xml"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
       }
     },
     "rasterRepresentation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "mimeType", "sha256", "scale", "widthPx", "heightPx"],
+      "required": [
+        "path",
+        "mimeType",
+        "sha256",
+        "scale",
+        "widthPx",
+        "heightPx"
+      ],
       "properties": {
         "path": {
           "type": "string",
           "pattern": "^assets/png/[^/]+@[23]x\\.png$"
         },
-        "mimeType": { "const": "image/png" },
-        "sha256": { "$ref": "#/$defs/sha256" },
+        "mimeType": {
+          "const": "image/png"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
         "scale": {
           "description": "Screen scale the raster was rendered for. There is no @1x because no device the app runs on has one.",
           "type": "integer",
-          "enum": [2, 3]
+          "enum": [
+            2,
+            3
+          ]
         },
-        "widthPx": { "type": "integer", "minimum": 1 },
-        "heightPx": { "type": "integer", "minimum": 1 }
+        "widthPx": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "heightPx": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     },
     "rasterOriginalRepresentation": {
-      "description": "A raster that IS the original: an editorially supplied PNG with no vector behind it. It declares no screen scale — it was not rendered for one — and is published at the file's own pixel size, so it carries no @Nx suffix.",
+      "description": "A raster that IS the original: an editorially supplied PNG with no vector behind it. It declares no screen scale \u2014 it was not rendered for one \u2014 and is published at the file's own pixel size, so it carries no @Nx suffix.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "mimeType", "sha256", "widthPx", "heightPx"],
+      "required": [
+        "path",
+        "mimeType",
+        "sha256",
+        "widthPx",
+        "heightPx"
+      ],
       "properties": {
         "path": {
           "type": "string",
           "pattern": "^assets/png/[^/]+\\.png$"
         },
-        "mimeType": { "const": "image/png" },
-        "sha256": { "$ref": "#/$defs/sha256" },
-        "widthPx": { "type": "integer", "minimum": 1 },
-        "heightPx": { "type": "integer", "minimum": 1 }
+        "mimeType": {
+          "const": "image/png"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "widthPx": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "heightPx": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     }
   }

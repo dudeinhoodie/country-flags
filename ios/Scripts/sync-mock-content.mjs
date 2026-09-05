@@ -308,10 +308,16 @@ async function buildDocuments() {
   const templates = new Map(
     cardTemplates.templates.map((template) => [template.code, template]),
   );
-  const cardsByEntity = new Map(
+  // Keyed by the variant, because one entity is several questions: a card
+  // index keyed by the entity would serve a country's coat of arms wherever
+  // its flag was asked for.
+  const cardsByVariant = new Map(
     learningCards.cards
       .filter(({ status }) => status === "active")
-      .map((card) => [card.entityKey, card]),
+      .map((card) => [
+        `${card.entityKey}:${card.templateCode}:${card.templateSchemaVersion}`,
+        card,
+      ]),
   );
 
   const documents = new Map();
@@ -330,8 +336,12 @@ async function buildDocuments() {
     const code = deckCode(deck.key);
     // The deck declares its members in a fixed order, and that order is what a
     // learner walks the deck in.
-    const cards = deck.memberEntityKeys
-      .map((entityKey) => cardsByEntity.get(entityKey))
+    const cards = deck.memberCards
+      .map((member) =>
+        cardsByVariant.get(
+          `${member.entityKey}:${member.templateCode}:${member.templateSchemaVersion}`,
+        ),
+      )
       .filter((card) => card !== undefined)
       .map((card) => {
         const entity = entities.get(card.entityKey);
