@@ -482,6 +482,19 @@ export class DraftEntitiesService {
           `Only a subdivision has an administrative parent; ${entity.key} is a ${entity.type}`,
         );
       }
+      if (!PARENT_TYPES.includes(entity.type)) {
+        // One dropdown must not orphan fifty states: a country that units
+        // hang from cannot quietly stop being a country.
+        const children = entities.filter(
+          (entry) => entry.key !== entity.key && entry.parentKey === entity.key,
+        );
+        if (children.length > 0) {
+          refuse(
+            "SUBDIVISION_PARENT_INVALID",
+            `${entity.key} is the parent of ${String(children.length)} subdivision(s), so it cannot become a ${entity.type}`,
+          );
+        }
+      }
       return;
     }
     const parentKey = entity.parentKey;

@@ -253,6 +253,33 @@ describe("DraftEntitiesService", () => {
     });
   });
 
+  it("refuses to retype a country that subdivisions hang from", async () => {
+    const { service } = serviceWith({
+      entities: [
+        entity(),
+        entity({
+          key: "subdivision.us.california",
+          type: "subdivision",
+          parentKey: "country.france",
+          config: { includeInCountryCatalog: false },
+          recognitionStatus: "not_applicable",
+        }),
+      ],
+    });
+    await expect(
+      service.update(
+        actor,
+        "draft-1",
+        1,
+        "country.france",
+        { type: "region" },
+        "req-1",
+      ),
+    ).rejects.toMatchObject({
+      response: { error: { code: "SUBDIVISION_PARENT_INVALID" } },
+    });
+  });
+
   it("keeps a subdivision out of the country catalog", async () => {
     const { service, written } = serviceWith({
       entities: [entity(), entity({ key: "subdivision.us.california" })],
