@@ -2,14 +2,16 @@
 
 ## Source of truth
 
-- Status: Draft, ready for paid-deck visual prototype
-- Last refreshed: 2026-09-04
+- Status: Draft, ready for paid-deck and admin-redesign implementation
+- Last refreshed: 2026-09-05
 - Primary product surfaces: iOS learner app and React Admin console
 - Evidence reviewed:
   - `docs/16-ios-design-language.md`
   - `docs/adr/ADR-012-dark-scene-design-language.md`
   - `docs/17-paid-decks-storekit.md`
   - `docs/18-multi-content-paid-decks.md`
+  - `docs/19-admin-redesign.md`
+  - `docs/adr/ADR-014-admin-console-architecture.md`
   - `ios/CountryFlagsKit/Sources/CountryFlagsFeatures/DesignTokens.swift`
   - `ios/CountryFlagsKit/Sources/CountryFlagsFeatures/Design/`
   - `ios/CountryFlagsKit/Sources/CountryFlagsFeatures/Content/CatalogView.swift`
@@ -46,12 +48,15 @@ Visual prototypes:
 - [U.S. State Flags — carousel preview experiment](docs/design/paid-decks/us-state-flags-deck-v7-carousel-preview.png)
 - [U.S. State Flags — editorial preview experiment](docs/design/paid-decks/us-state-flags-deck-v8-editorial-preview.png)
 - [European Coats — owned deck list](docs/design/paid-decks/european-coats-owned-list-v1.png)
+- [Admin — content workspace](docs/design/admin-redesign/content-workspace-v1.png)
+- [Admin — entity media editor](docs/design/admin-redesign/entity-media-editor-v1.png)
+- [Admin — deck builder](docs/design/admin-redesign/deck-builder-v1.png)
 
 These images fix the proposed hierarchy and mood, not literal production copy
 or asset ownership. SwiftUI implementation remains authoritative for native
 glass, Dynamic Type and accessibility behavior.
 
-**The prototype images are not in version control yet.** They sit in
+**Most iOS prototype images are not in version control yet.** They sit in
 `docs/design/paid-decks/` in the authoring checkout and come to roughly 43 MB,
 against a 69 MB repository. Committing them would be the single largest addition
 this repository has taken and cannot be undone without rewriting history, so it
@@ -60,6 +65,9 @@ Until it is made, every link above resolves only on the machine that produced
 them. The alternatives are to commit them anyway, to keep a smaller set of the
 approved directions and drop the rejected experiments, or to host them outside
 the repository and link by URL.
+
+The three admin-redesign references are intentionally kept in version control:
+they are the small approved implementation set, not an archive of experiments.
 
 `ADR-012` overrides the historical light/system-theme guidance in
 `docs/16-ios-design-language.md`. The active iOS language is an always-dark
@@ -106,6 +114,8 @@ Country Flags deck before and after purchase.
   - signed-in free learner considering one specialist deck;
   - owner restoring access on another device;
   - editor configuring a paid deck in admin.
+  - content editor maintaining countries, subdivisions and their media;
+  - release manager validating and publishing a draft.
 - User jobs:
   - inspect a deck, understand its scope and price, buy once, start learning;
   - distinguish content unavailable from network/store unavailable;
@@ -134,6 +144,9 @@ Catalog locked row
 - Restore purchases is available both from the locked deck and Account/Settings.
 - Purchase history and transaction diagnostics do not appear in the learner app.
 - Admin gains Commerce navigation alongside Content, not inside the deck list.
+- Admin is organized around a selected draft workspace. Published content is a
+  separate read-only view; entity, media and deck editing always happens in the
+  visible draft context.
 
 ## Design principles
 
@@ -437,13 +450,30 @@ templates.
 
 ### Admin
 
-- Reuse React Admin resource lists, forms, status chips and environment badge.
+- Detailed interaction and layout contract: `docs/19-admin-redesign.md`.
+- Reuse React Admin, MUI, generated API client, resource lists, status chips and
+  environment badge. Do not introduce a second frontend framework.
+- Use a light neutral work canvas, deep-navy navigation and cobalt primary
+  actions. Flag and coat artwork provides content color; avoid iOS glass, neon
+  and decorative gradients in the data-dense admin surface.
+- Keep the selected draft and DEV/PRODUCTION environment visible globally.
+- Dashboard becomes a Content workspace with lifecycle, work queue, validation
+  summary and recent activity.
 - Entity editor treats a state as `SUBDIVISION` in the shared geo-entity model,
   requires a parent country and keeps it out of country-only catalogs.
-- Asset editor presents Flag and Coat of arms as separate typed assets of the
-  same entity, each with provenance, validity and localized symbol metadata.
+- Entity editor is tabbed: Overview, Names & locales, Facts, Media, Deck usage
+  and History. Raw overrides are not part of the normal workflow.
+- Asset editor is contextual to its entity and presents Flag and Coat of arms as
+  separate typed slots, each with provenance, validity and localized metadata.
+  Editors never type an entity key into the upload flow.
+- Asset delivery badges are computed and read-only: Public, Public preview or
+  Paid-only. The browser must not recreate access projection rules.
 - Deck membership selects a resolved card variant (`entity + template code +
   schema version`), not a bare country row.
+- Deck content uses a three-column builder: searchable card library, ordered
+  resolved members, and sticky summary with validation/public preview/access.
+- Provide bulk recipes for all 50 U.S. subdivisions and all valid European coat
+  cards, while preserving explicit resolved membership and editorial order.
 - Deck editor gets one Access section: Free or Entitlement required.
 - Commerce gets separate Entitlements, Offers, Store products and diagnostics
   resources.
@@ -451,6 +481,8 @@ templates.
 - Do not simulate the learner paywall in the form. Provide a read-only compact
   preview of title, count, access badge and public-preview selection.
 - Product price is read-only store metadata and is never entered as deck data.
+- Use explicit Save with optimistic concurrency and a visible dirty state; do
+  not silently autosave or resolve conflicts with last-write-wins.
 
 ## Accessibility
 
@@ -465,6 +497,8 @@ templates.
 - Reduce Motion replaces lock/CTA morph with a crossfade.
 - Increase Contrast must keep glass labels readable against all scene palettes.
 - Focus returns to the deck heading after sign-in and to Start after purchase.
+- Admin drag/drop has keyboard move actions; validation pairs icon, text and
+  field focus target; dialogs/drawers return focus to their initiator.
 
 ## Responsive behavior
 
@@ -476,6 +510,8 @@ templates.
   deck.
 - Bottom action respects keyboard, safe area and VoiceOver focus.
 - No horizontal scrolling.
+- Admin targets 1280–1920 px. Below 1280 px the health/summary rail becomes a
+  drawer; phone editing is outside the first redesign scope.
 
 ## Interaction states
 
@@ -493,6 +529,10 @@ templates.
 | Offline owner | Normal cached row | Cached accessible content | Start |
 | Offline non-owner | Lock | Clear network requirement | Restore when online |
 | Refunded/revoked | Lock | Neutral access-ended card; progress retained | Buy/Restore if valid |
+
+Admin interaction states are specified separately in
+`docs/19-admin-redesign.md`: clean/dirty/saving/saved, local/server-invalid,
+processing asset, revision conflict, draft ready and publish blocked.
 
 ## Content voice
 
@@ -527,6 +567,13 @@ templates.
   - VoiceOver labels/order assertions where practical;
   - screenshots for smallest iPhone and Pro Max;
   - Reduce Motion and Increase Contrast manual release check.
+- Admin remains on React Admin 5 + MUI and the existing draft/proposal/release
+  architecture. Generated OpenAPI types are authoritative; UI-specific read
+  models may be added to the admin contract, but handwritten parallel domain
+  DTOs and client-side access-policy duplication are prohibited.
+- Admin tests cover route redirects, dirty navigation guard, optimistic
+  conflicts, contextual asset upload, keyboard deck ordering, field-addressable
+  validation and computed delivery badges.
 
 ## Open questions
 
