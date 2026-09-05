@@ -129,10 +129,8 @@ export class AdminDraftsService {
 
   /**
    * The one write path for a draft document: read under the expected
-   * revision, let the caller derive the next document, then update with the
-   * revision in the WHERE clause so two racing writers cannot both win.
-   * Every editorial mutation (documents, decks, later assets) goes through
-   * here, which is what keeps optimistic concurrency in one place.
+   * revision, derive the next document, then update with the revision in the
+   * WHERE clause so two racing writers cannot both win.
    */
   async applyDocumentChange(
     actor: AdminUser,
@@ -140,6 +138,53 @@ export class AdminDraftsService {
     expectedRevision: number,
     mutate: (current: Record<string, unknown>) => Record<string, unknown>,
     audit: { action: string; metadata: Prisma.InputJsonObject },
+    requestId: string,
+  ): Promise<ContentDraft> {
+    return this.applyDraftChange(
+      actor,
+      draftId,
+      expectedRevision,
+      (_transaction, current) => {
+        const next = this.documents.assertValid(mutate(current));
+        return {
+          document: next as Prisma.InputJsonValue,
+          schemaVersion: next.schemaVersion,
+        };
+      },
+      audit,
+      requestId,
+    );
+  }
+
+  /**
+   * The one place optimistic concurrency lives. Every editorial mutation —
+   * documents, decks, assets — comes through here: read under the expected
+   * revision, let the caller make its own change inside the same
+   * transaction, then move the revision on with the old one still in the
+   * WHERE clause, so a stale tab loses instead of overwriting a colleague.
+   *
+   * The caller returns whatever else the draft row should carry. An asset
+   * change returns nothing: the drawing lives in its own table, but the
+   * draft it belongs to has still moved, and a reader holding the old
+   * revision has still gone stale.
+   */
+  async applyDraftChange(
+    actor: AdminUser,
+    draftId: string,
+    expectedRevision: number,
+    change: (
+      transaction: Prisma.TransactionClient,
+      currentDocument: Record<string, unknown>,
+    ) =>
+      | Promise<Prisma.ContentDraftUpdateManyMutationInput>
+      | Prisma.ContentDraftUpdateManyMutationInput,
+    audit: {
+      action: string;
+      /** Defaults to the draft; an asset change names the asset instead. */
+      targetType?: string;
+      targetId?: string;
+      metadata: Prisma.InputJsonObject;
+    },
     requestId: string,
   ): Promise<ContentDraft> {
     return this.database.$transaction(async (transaction) => {
@@ -166,16 +211,14 @@ export class AdminDraftsService {
         );
       }
 
-      const next = this.documents.assertValid(
-        mutate(
-          normalizeEditorialDocument(draft.document as Record<string, unknown>),
-        ),
+      const extra = await change(
+        transaction,
+        normalizeEditorialDocument(draft.document as Record<string, unknown>),
       );
       const updated = await transaction.contentDraft.updateMany({
         where: { id: draftId, revision: expectedRevision },
         data: {
-          document: next as Prisma.InputJsonValue,
-          schemaVersion: next.schemaVersion,
+          ...extra,
           revision: expectedRevision + 1,
           status: ContentDraftStatus.DRAFT,
           validationReport: Prisma.DbNull,
@@ -192,8 +235,8 @@ export class AdminDraftsService {
       await this.audit.record(transaction, {
         actorAdminUserId: actor.id,
         action: audit.action,
-        targetType: "content_draft",
-        targetId: draftId,
+        targetType: audit.targetType ?? "content_draft",
+        targetId: audit.targetId ?? draftId,
         requestId,
         metadata: audit.metadata,
       });

@@ -21,7 +21,7 @@ export function DraftAssetsPage() {
   const { permissions } = usePermissions<string>();
   return (
     <Card sx={{ mt: 2 }}>
-      <Title title="Draft assets" />
+      <Title title="Draft symbols" />
       <CardContent>
         <DraftAssets draftId={draftId ?? ""} editable={canEdit(permissions)} />
       </CardContent>

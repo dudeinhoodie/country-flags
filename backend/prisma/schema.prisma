@@ -1415,6 +1415,15 @@ model DraftAsset {
   attribution         String?
   replacementReason   String?                    @map("replacement_reason")
   supersedesSourceKey String?                    @map("supersedes_source_key")
+  validFrom           DateTime?                  @map("valid_from") @db.Date
+  validTo             DateTime?                  @map("valid_to") @db.Date
+  /// What this drawing is called and what it means, per locale, keyed by
+  /// BCP 47 tag. It belongs to the symbol rather than to the country: the
+  /// story of a federal eagle is the story of one drawing, and replacing
+  /// that drawing replaces its story without touching the flag beside it.
+  /// A draft is a staging area, so this stays a document here and becomes
+  /// `asset_localizations` rows when the release is published.
+  localizations       Json?                      @db.JsonB
   validationStatus    DraftAssetValidationStatus @default(PENDING) @map("validation_status")
   validationErrors    Json?                      @map("validation_errors") @db.JsonB
   createdAt           DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
