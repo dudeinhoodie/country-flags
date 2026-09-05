@@ -72,6 +72,10 @@ public struct RetryPolicy: Sendable {
         "createAnalyticsBatch",
         // Deduplicated by report id.
         "createMetricKitReport",
+        // Deduplicated by the `Idempotency-Key` the client derives from the
+        // very payload it is sending, so a retry after a timeout is the same
+        // submission rather than a second claim on the same purchase.
+        "submitAppleTransactions",
     ]
 
     /// Read-only methods are safe by definition; a write is safe only when the

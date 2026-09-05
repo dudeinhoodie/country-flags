@@ -142,6 +142,13 @@ public struct LocalStore: Sendable {
         SwiftDataCommerceRepository(modelContainer: container)
     }
 
+    /// The narrow view of the same store, for a caller that only asks what may
+    /// be opened. It answers a snapshot rather than an optional: a screen
+    /// drawing a lock has to be given an answer.
+    public func makeEntitlementRepository() -> some EntitlementRepository {
+        StoredEntitlementRepository(commerce: makeCommerceRepository())
+    }
+
     public func makeAccountScopeCleaner() -> some AccountScopeCleaner {
         SwiftDataAccountScopeCleaner(modelContainer: container)
     }
