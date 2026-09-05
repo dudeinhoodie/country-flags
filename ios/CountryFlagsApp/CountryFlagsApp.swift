@@ -30,7 +30,8 @@ struct CountryFlagsApp: App {
                 makeAccountLifecycleStore: { composition.makeAccountLifecycleStore() },
                 makePrivacyStore: { composition.makePrivacyStore() },
                 featureFlags: composition.featureFlags,
-                sync: composition.sync
+                sync: composition.sync,
+                commerce: composition.commerce
             )
             .onOpenURL { url in
                 // Google's browser round trip comes home through here too;

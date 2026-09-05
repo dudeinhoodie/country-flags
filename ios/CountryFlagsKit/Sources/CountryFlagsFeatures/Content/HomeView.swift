@@ -588,7 +588,7 @@ public struct HomeView: View {
         if let progress, progress.isLoaded {
             // Regions only: the curated deck spans every card, so its row
             // would restate the pane above it in different words.
-            let curated = Set((sections.first { $0.kind == .curated }?.decks ?? []).map(\.id))
+            let curated = Set((sections.first { $0.isOpenCurated }?.decks ?? []).map(\.id))
             let due = progress.decks.filter { $0.dueCards > 0 && !curated.contains($0.id) }
                 .sorted { $0.dueCards > $1.dueCards }
             if !due.isEmpty {
@@ -680,8 +680,13 @@ public struct HomeView: View {
     /// a way to browse rather than a suggestion. Falling back to whatever
     /// exists keeps the pane from being empty on a release that publishes no
     /// curated deck at all.
+    ///
+    /// Never a deck that has to be bought: Home is where the app says what to
+    /// study next, and recommending something the learner cannot open is an
+    /// advertisement wearing a recommendation's clothes.
     private func recommended(_ sections: [CatalogSection]) -> DeckRecord? {
-        (sections.first { $0.kind == .curated }?.decks ?? sections.flatMap(\.decks)).first
+        let open = sections.filter { !$0.isFeatured }
+        return (open.first { $0.kind == .curated }?.decks ?? open.flatMap(\.decks)).first
     }
 
     private func startDueSession(deckID: UUID) {
@@ -896,4 +901,12 @@ struct MiniFlagView: View {
             .accessibilityHidden(true)
         }
     }
+}
+
+
+extension CatalogSection {
+    /// The curated shelf a learner already owns. A curated deck that is for
+    /// sale and unbought is a different thing, and Home must not count it as
+    /// the whole picture.
+    fileprivate var isOpenCurated: Bool { kind == .curated && !isFeatured }
 }

@@ -22,6 +22,10 @@ public struct RootView: View {
     private let makeAccountLifecycleStore: (() -> AccountLifecycleStore)?
     private let featureFlags: FeatureFlagCenter
     private let sync: SyncCenter
+    /// Everything the app does about money, when this build does anything.
+    /// Nil is a shell with no storefront in it: every deck is free and no
+    /// screen below changes.
+    private let commerce: CommerceCenter?
 
     /// The account the avatar draws. Held here rather than rebuilt in the
     /// toolbar: a store made during a render would be thrown away by the next
@@ -85,7 +89,8 @@ public struct RootView: View {
         makeAccountLifecycleStore: (() -> AccountLifecycleStore)? = nil,
         makePrivacyStore: (() -> PrivacyStore)? = nil,
         featureFlags: FeatureFlagCenter,
-        sync: SyncCenter
+        sync: SyncCenter,
+        commerce: CommerceCenter? = nil
     ) {
         _router = State(wrappedValue: router)
         self.configuration = configuration
@@ -101,6 +106,7 @@ public struct RootView: View {
         self.makeAccountLifecycleStore = makeAccountLifecycleStore
         self.featureFlags = featureFlags
         self.sync = sync
+        self.commerce = commerce
         // Once, at the root: the segmented control is the system's everywhere,
         // and this is the one place that says how it looks on this scene.
         SegmentedControlAppearance.apply()
@@ -347,6 +353,11 @@ public struct RootView: View {
         // store is read once and the run starts once.
         .task { await progress.reload() }
         .task { await sync.start() }
+        // The transaction listener starts here, at the root, and once: a
+        // purchase approved overnight is handed over the moment the process
+        // starts, and nobody has to be looking at a paywall for the app to
+        // hear about it.
+        .task { await commerce?.start() }
         .onChange(of: isStudyOpen) { wasOpen, isOpen in
             guard wasOpen, !isOpen else { return }
             Task {
@@ -378,6 +389,10 @@ public struct RootView: View {
                 isSettlingRun = true
                 await content.refreshIfStale(olderThan: Self.contentStaleAfter)
                 await sync.synchronize(trigger: .foreground)
+                // The store may have settled something while the app was
+                // away — an Ask to Buy approved, a refund — so what the
+                // account may open is asked again on the way back in.
+                await commerce?.refresh(trigger: .foreground)
                 isSettlingRun = false
             }
         }
@@ -387,7 +402,12 @@ public struct RootView: View {
     private func destination(for route: AppRoute) -> some View {
         switch route {
         case .catalog:
-            CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
+            CatalogView(
+                store: content,
+                assets: assets,
+                progress: progress,
+                commerce: commerce
+            ) { router.push(.deck(id: $0)) }
         case .deck(let id):
             DeckDetailsView(
                 deckID: id,
@@ -395,7 +415,11 @@ public struct RootView: View {
                 assets: assets,
                 makeSettings: makeSettingsStore,
                 progress: progress,
-                isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled)
+                isObjectiveModeEnabled: featureFlags.isEnabled(.studyMultipleChoiceEnabled),
+                commerce: commerce,
+                // A purchase needs an account to be granted to, so a guest is
+                // sent to the one place that makes one rather than told off.
+                onSignIn: { router.push(.account) }
             ) { deckID, size, mode in
                 router.push(
                     .study(deckID: deckID, size: size, mode: mode, composition: .standard)
@@ -500,6 +524,16 @@ public enum AccessibilityIdentifier {
     public static let catalogNoMatches = "catalog.noMatches"
     public static let deckCardCount = "deck.cardCount"
     public static let deckNoMatches = "deck.noMatches"
+    /// Commerce, named for what a test asserts about: that the lock is
+    /// visible before the detail opens, that a price is never a placeholder,
+    /// and that the chrome is gone once the deck is owned.
+    public static let deckPaidBadge = "deck.paid.badge"
+    public static let deckPendingBadge = "deck.pending.badge"
+    public static let deckPrice = "deck.paid.price"
+    public static let deckBuy = "deck.paid.buy"
+    public static let deckRestore = "deck.paid.restore"
+    public static let deckPurchaseStatus = "deck.paid.status"
+    public static let deckPaywall = "deck.paywall"
     public static let flagImage = "content.flag.image"
     public static let flagPlaceholder = "content.flag.placeholder"
 

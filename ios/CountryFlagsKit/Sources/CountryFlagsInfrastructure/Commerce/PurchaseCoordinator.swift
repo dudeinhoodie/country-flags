@@ -47,6 +47,12 @@ public actor PurchaseCoordinator: PurchaseCoordinating {
     /// the other.
     private var provisional: [String: Set<String>] = [:]
 
+    /// The screens listening for what this account may open.
+    ///
+    /// Kept by identifier so a stream that ends — a screen that went away —
+    /// takes its continuation with it rather than being yielded into forever.
+    private var entitlementObservers: [UUID: AsyncStream<Set<String>>.Continuation] = [:]
+
     public init(
         store: any Purchasing,
         products: any StoreProductLoading,
@@ -104,6 +110,10 @@ public actor PurchaseCoordinator: PurchaseCoordinating {
     public func stop() {
         listener?.cancel()
         listener = nil
+        for continuation in entitlementObservers.values {
+            continuation.finish()
+        }
+        entitlementObservers.removeAll()
     }
 
     private func startListening() async {
@@ -143,6 +153,34 @@ public actor PurchaseCoordinator: PurchaseCoordinating {
         return await refresher.snapshot(for: scope)
             .entitlementKeys
             .union(provisional[scope.key] ?? [])
+    }
+
+    public func entitlementChanges() -> AsyncStream<Set<String>> {
+        let id = identifiers.next()
+        return AsyncStream { continuation in
+            entitlementObservers[id] = continuation
+            continuation.onTermination = { [weak self] _ in
+                Task { await self?.forgetObserver(id) }
+            }
+        }
+    }
+
+    private func forgetObserver(_ id: UUID) {
+        entitlementObservers[id] = nil
+    }
+
+    /// Says what the account may open now, to whoever is listening.
+    ///
+    /// Called after every settle rather than only after a purchase: the
+    /// interesting cases are the ones nobody on this device asked for.
+    private func announceEntitlements(for scope: AccountScope) async {
+        guard !entitlementObservers.isEmpty else { return }
+        let keys = await refresher.snapshot(for: scope)
+            .entitlementKeys
+            .union(provisional[scope.key] ?? [])
+        for continuation in entitlementObservers.values {
+            continuation.yield(keys)
+        }
     }
 
     public func refreshEntitlements(trigger: EntitlementRefreshTrigger) async {
@@ -433,6 +471,7 @@ public actor PurchaseCoordinator: PurchaseCoordinating {
         case .deferred, .nothingOwed:
             await refresher.refresh(for: scope, trigger: trigger)
         }
+        await announceEntitlements(for: scope)
         return outcome
     }
 

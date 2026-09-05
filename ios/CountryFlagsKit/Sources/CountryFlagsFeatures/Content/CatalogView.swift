@@ -15,6 +15,9 @@ public struct CatalogView: View {
     private let assets: any AssetLoading
     /// The app's one progress store, observed rather than built here.
     private let progress: ProgressStore?
+    /// Commerce, when this build has any. Nil is a catalogue that has never
+    /// heard of money: every row is a free row and nothing below changes.
+    private let commerce: CommerceCenter?
     private let onOpenDeck: (UUID) -> Void
 
     @State private var searchText = ""
@@ -30,11 +33,13 @@ public struct CatalogView: View {
         store: ContentStore,
         assets: any AssetLoading,
         progress: ProgressStore? = nil,
+        commerce: CommerceCenter? = nil,
         onOpenDeck: @escaping (UUID) -> Void
     ) {
         self.store = store
         self.assets = assets
         self.progress = progress
+        self.commerce = commerce
         self.onOpenDeck = onOpenDeck
     }
 
@@ -44,6 +49,12 @@ public struct CatalogView: View {
             .searchable(text: $searchText, prompt: L10n.catalogSearchPrompt)
             .refreshable { await RefreshGesture.perform { await store.refresh() } }
             .task { await store.start() }
+            // The store is asked about the decks that are for sale, once the
+            // catalogue exists and never before: a row must be able to scroll
+            // past before StoreKit has answered, and a price appears when it
+            // does. Keyed to the catalogue so a release that adds a paid deck
+            // asks about it without a relaunch.
+            .task(id: catalogFingerprint) { await prepareProducts() }
             // On a cold launch the fan races `store.start()`:
             // the catalog is not `.ready` yet, `reloadFan` bails out, and the
             // curated row would keep an empty fan for the whole visit. Keyed
@@ -92,13 +103,24 @@ public struct CatalogView: View {
 
             let matches = filtered(sections)
 
-            ForEach(matches) { section in
+            ForEach(Array(matches.enumerated()), id: \.element.id) { index, section in
+                // Headings only where there is a shelf to tell apart from the
+                // rest. A catalogue of free decks is the one the app has
+                // always had, and unchanged content stays visually quiet.
+                if let heading = heading(for: section, at: index, in: matches) {
+                    SectionLabel(heading)
+                }
+
                 ForEach(section.decks, id: \.id) { deck in
                     Button {
                         onOpenDeck(deck.id)
                     } label: {
-                        row(deck, isCurated: section.kind == .curated)
-                            .contentShape(.rect)
+                        row(
+                            deck,
+                            isCurated: section.kind == .curated,
+                            isLocked: section.isFeatured
+                        )
+                        .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier(AccessibilityIdentifier.catalogDeckRow(deck.code))
@@ -118,36 +140,62 @@ public struct CatalogView: View {
     /// One deck, one row. The curated deck carries a fan of its own cards —
     /// it holds every flag, so no single shape stands for it; a region
     /// carries its continent.
-    private func row(_ deck: DeckRecord, isCurated: Bool) -> some View {
+    ///
+    /// A locked deck is the same row. It gains the badge, the price line and
+    /// the action that opens its details — and nothing else: the commerce
+    /// metadata stays inside the leading text column so it never competes with
+    /// the artwork, and the row is not recoloured.
+    private func row(_ deck: DeckRecord, isCurated: Bool, isLocked: Bool) -> some View {
         GlassCard(padding: DesignTokens.Spacing.medium) {
             HStack(spacing: DesignTokens.Spacing.medium) {
-                if !isCurated {
+                if !isCurated && !isLocked {
                     ContinentSilhouetteView(code: deck.code, opacity: 0.55)
                         .frame(width: 64, height: 48)
                 }
 
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                    Text(deck.name)
-                        .font(
-                            isCurated
-                                ? DesignTokens.Typography.sectionTitle.weight(.bold)
-                                : DesignTokens.Typography.sectionTitle
-                        )
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
+                    HStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
+                        Text(deck.name)
+                            .font(
+                                isCurated
+                                    ? DesignTokens.Typography.sectionTitle.weight(.bold)
+                                    : DesignTokens.Typography.sectionTitle
+                            )
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+
+                        if isLocked {
+                            Spacer(minLength: 0)
+                            // Visible before the detail opens: the lock is
+                            // what makes the row's destination honest.
+                            DeckAccessBadge(state: badgeState(for: deck))
+                        }
+                    }
 
                     Text(trail(for: deck))
                         .font(DesignTokens.Typography.caption)
                         .foregroundStyle(.white.opacity(0.55))
+
+                    if isLocked, let commerce {
+                        StorePriceView(state: commerce.price(of: deck))
+                    }
 
                     if let row = progressRow(for: deck) {
                         ProgressTrackView(
                             started: row.fraction, learned: row.learnedFraction
                         )
                     }
+
+                    if isLocked {
+                        // It opens the details, which is also what the row
+                        // does. It never starts StoreKit: a payment sheet
+                        // raised from a list is a payment nobody chose.
+                        FeaturedDeckCTA()
+                            .padding(.top, DesignTokens.Spacing.small)
+                    }
                 }
 
-                if isCurated {
+                if isCurated || isLocked {
                     FlagFanView(
                         cards: curatedFans[deck.id] ?? [],
                         store: store,
@@ -158,6 +206,33 @@ public struct CatalogView: View {
         }
         // One row is one thing to hear: the name, the trail, nothing twice.
         .accessibilityElement(children: .combine)
+    }
+
+    private func badgeState(for deck: DeckRecord) -> DeckAccessBadge.State {
+        if case .awaitingApproval = commerce?.phase(of: deck) { return .pending }
+        return .locked
+    }
+
+    /// "Featured decks" above the shelf, "Free decks" above what follows it —
+    /// and neither when there is no shelf, which is every catalogue this app
+    /// has shipped so far.
+    private func heading(
+        for section: CatalogSection,
+        at index: Int,
+        in sections: [CatalogSection]
+    ) -> String? {
+        guard sections.contains(where: \.isFeatured) else { return nil }
+        if section.isFeatured {
+            return index == 0 ? L10n.catalogFeaturedSection : nil
+        }
+        let isFirstFree = !sections[..<index].contains { !$0.isFeatured }
+        return isFirstFree ? L10n.catalogFreeSection : nil
+    }
+
+    /// Asks the store about the decks that are for sale.
+    private func prepareProducts() async {
+        guard let commerce, case .ready(let sections, _, _) = store.catalog else { return }
+        await commerce.prepare(for: sections.flatMap(\.decks))
     }
 
     /// "250 cards · Learned: 34", and just the count until something is.
@@ -173,10 +248,22 @@ public struct CatalogView: View {
 
     private func reloadFan() async {
         guard case .ready(let sections, _, _) = store.catalog else { return }
-        let curated = sections.filter { $0.kind == .curated }.flatMap(\.decks)
         var fans: [UUID: [LearningCardRecord]] = [:]
-        for deck in curated {
-            fans[deck.id] = Array(await store.cards(inDeck: deck.id).prefix(3))
+        for section in sections where section.kind == .curated || section.isFeatured {
+            for deck in section.decks {
+                if section.isFeatured {
+                    // A locked deck holds none of its cards, so its fan is the
+                    // handful the release published as a public preview — the
+                    // only cards of it this device is allowed to have.
+                    var preview: [LearningCardRecord] = []
+                    for id in deck.previewCardIDs.prefix(3) {
+                        if let card = await store.card(id: id) { preview.append(card) }
+                    }
+                    fans[deck.id] = preview
+                } else {
+                    fans[deck.id] = Array(await store.cards(inDeck: deck.id).prefix(3))
+                }
+            }
         }
         curatedFans = fans
     }
@@ -185,7 +272,13 @@ public struct CatalogView: View {
         guard !searchText.isEmpty else { return sections }
         return sections.compactMap { section in
             let decks = CatalogSearch.decks(section.decks, matching: searchText)
-            return decks.isEmpty ? nil : CatalogSection(kind: section.kind, decks: decks)
+            return decks.isEmpty
+                ? nil
+                : CatalogSection(
+                    kind: section.kind,
+                    isFeatured: section.isFeatured,
+                    decks: decks
+                )
         }
     }
 }

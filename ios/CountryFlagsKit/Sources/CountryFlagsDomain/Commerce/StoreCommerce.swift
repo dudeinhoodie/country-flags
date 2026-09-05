@@ -329,6 +329,18 @@ public protocol PurchaseCoordinating: Sendable {
     /// bought on this device that the server has not acknowledged yet.
     func entitlements() async -> Set<String>
 
+    /// The same answer, every time it moves.
+    ///
+    /// A purchase somebody made on another device, an Ask to Buy a parent
+    /// approved an hour later and a refund all arrive at the transaction
+    /// listener rather than at a screen. Without this a paywall would keep
+    /// saying "waiting for approval" until the app was relaunched, which is
+    /// exactly the relaunch §11.3 says must not be needed.
+    ///
+    /// One stream per call; each is fed a copy, so a screen and a test may
+    /// both listen.
+    func entitlementChanges() async -> AsyncStream<Set<String>>
+
     func refreshEntitlements(trigger: EntitlementRefreshTrigger) async
 
     /// The offers on sale, from the local catalogue, refreshed from the

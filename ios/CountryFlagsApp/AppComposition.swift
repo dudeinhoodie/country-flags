@@ -38,6 +38,8 @@ protocol AppDependencies {
     var assets: any AssetLoading { get }
     var scopes: any AccountScopeResolving { get }
     var sync: SyncCenter { get }
+    /// Everything the app does about money, as the screens see it.
+    var commerce: CommerceCenter { get }
     var advertising: any AdvertisingProviding { get }
     var analytics: any AnalyticsTracking { get }
     var errorReporter: any ErrorReporting { get }
@@ -73,6 +75,7 @@ struct AppComposition: AppDependencies {
     /// the only caller is the account screen.
     let accountService: AccountService
     let sync: SyncCenter
+    let commerce: CommerceCenter
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
     /// The live analytics queue behind `analytics`, kept because the privacy
@@ -205,13 +208,23 @@ struct AppComposition: AppDependencies {
             dates: dates,
             displayScale: Double(UITraitCollection.current.displayScale)
         )
+        // What the account may open, read straight from the durable snapshot.
+        // The purchase coordinator is assembled below and would be a cycle
+        // here; the snapshot is the server's own answer and is exactly what
+        // the bootstrap needs, because a purchase made since then downloads
+        // its own cards without waiting for a release.
+        let entitlements = store.makeEntitlementRepository()
         let coordinator = ContentBootstrapCoordinator(
             service: contentService,
             repository: contentRepository,
             tags: UserDefaultsContentManifestTagStore(),
             dates: dates,
             logger: logger,
-            appVersion: Self.appVersion(from: bundle)
+            appVersion: Self.appVersion(from: bundle),
+            entitlementKeys: { [sessions] in
+                let scope = await sessions.currentScope()
+                return (try? await entitlements.snapshot(scope: scope).entitlementKeys) ?? []
+            }
         )
 
         // The guest's work follows its owner: the coordinator reads the guest
@@ -315,17 +328,8 @@ struct AppComposition: AppDependencies {
         // itself when that moment is.
         MainActor.assumeIsolated { sync.observe(progress) }
 
-        return AppComposition(
-            configuration: configuration,
-            router: AppRouter(),
-            deepLinkParser: DeepLinkParser(scheme: configuration.deepLinkScheme),
-            apiClientFactory: apiClientFactory,
-            store: store,
-            tokens: tokens,
-            dates: dates,
-            identifiers: identifiers,
-            featureFlags: FeatureFlagCenter(flags: activatedFlags),
-            content: ContentStore(
+        let content = MainActor.assumeIsolated {
+            ContentStore(
                 repository: contentRepository,
                 coordinator: coordinator,
                 analytics: analyticsCoordinator,
@@ -351,7 +355,53 @@ struct AppComposition: AppDependencies {
                     }
                     return entity
                 }
-            ),
+            )
+        }
+
+        // Money. One coordinator owns the store, the queue and the backend;
+        // the centre above it is what a screen reads, and it is the only place
+        // the storefront flag is consulted — a flag decides whether buying is
+        // offered, never whether a deck is open.
+        let featureFlags = MainActor.assumeIsolated {
+            FeatureFlagCenter(flags: activatedFlags)
+        }
+        let storeKit = StoreKitPurchaseClient(logger: logger)
+        let purchases = PurchaseCoordinator(
+            store: storeKit,
+            products: storeKit,
+            repository: store.makeCommerceRepository(),
+            backend: CommerceService(clientFactory: apiClientFactory, dates: dates),
+            scopes: sessions,
+            dates: dates,
+            identifiers: identifiers,
+            logger: logger
+        )
+        let commerce = MainActor.assumeIsolated {
+            CommerceCenter(
+                coordinator: purchases,
+                isPurchasingOffered: { featureFlags.isEnabled(.commerceAppleIapEnabled) },
+                confirmed: entitlements,
+                scopes: sessions,
+                onEntitlementsChanged: { keys in
+                    // Commerce says what changed; content decides what that
+                    // costs — the catalogue regroups and a deck that has just
+                    // been paid for downloads its cards.
+                    await content.apply(entitlementKeys: keys)
+                }
+            )
+        }
+
+        return AppComposition(
+            configuration: configuration,
+            router: AppRouter(),
+            deepLinkParser: DeepLinkParser(scheme: configuration.deepLinkScheme),
+            apiClientFactory: apiClientFactory,
+            store: store,
+            tokens: tokens,
+            dates: dates,
+            identifiers: identifiers,
+            featureFlags: featureFlags,
+            content: content,
             progress: progress,
             assets: assetCache,
             // Who the repositories write as: the session when somebody signed
@@ -378,6 +428,7 @@ struct AppComposition: AppDependencies {
                 logger: logger
             ),
             sync: sync,
+            commerce: commerce,
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
             // composition change rather than a change to every screen.
