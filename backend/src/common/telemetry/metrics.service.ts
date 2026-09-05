@@ -20,6 +20,10 @@ const outboxOldestPendingAgeSeconds = meter.createGauge(
   "outbox_oldest_pending_age_seconds",
   { description: "Age of the oldest pending outbox item", unit: "s" },
 );
+const storeTransactionVerificationsTotal = meter.createCounter(
+  "store_transaction_verifications_total",
+  { description: "Signed store transactions accepted or refused, by outcome" },
+);
 
 export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx";
 
@@ -58,6 +62,17 @@ export class MetricsService {
 
   recordError(errorCode: string): void {
     errorsTotal.add(1, { errorCode });
+  }
+
+  /**
+   * One counter for every signed transaction this deployment looked at,
+   * labelled with the stable verification code. That label is what the
+   * paid-decks alerts are written against — an invalid-signature spike, an
+   * unknown product, a Sandbox purchase reaching production — and it is
+   * bounded by the code list, so the cardinality rule holds.
+   */
+  recordStoreTransactionVerification(outcome: string): void {
+    storeTransactionVerificationsTotal.add(1, { outcome });
   }
 
   recordOutboxDepth(
