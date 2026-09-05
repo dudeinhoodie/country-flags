@@ -47,6 +47,17 @@ struct CountryDetailsSheet: View {
     @State private var facts: [FactRecord] = []
     @State private var regionDeck: DeckRecord?
     @State private var officialName: String?
+    /// What the sheet is about. It decides the heading over the facts and
+    /// whether there is a country above this place — read from the entity,
+    /// never from the deck that opened the sheet.
+    @State private var subjectKind = CardSubjectKind.unresolved
+    @State private var parent: GeoEntityParentRecord?
+    /// The prompt's own name and story, when the release publishes them. They
+    /// belong to the drawing rather than to the place: an entity has several
+    /// drawings now, and each has its own history.
+    @State private var symbolName: String?
+    @State private var symbolStory: String?
+    @State private var symbolIsCoatOfArms = false
     @State private var outline: CountryBoundaries.Outline?
     /// Whether the outline lookup has answered. Until it has, the pair row
     /// keeps the map's slot as a placeholder: laying the flag out full-width
@@ -78,15 +89,33 @@ struct CountryDetailsSheet: View {
                 }
                 .frame(height: DesignTokens.Layout.detailPairHeight)
 
-                // Every fact is a tile, dealt in pairs. Each pair is fixed
+                // What the symbol means, when the release says. Above the
+                // facts because it is what the card just asked about: the
+                // reader opened this sheet from a drawing, not from a place.
+                if symbolStory != nil || symbolName != nil {
+                    symbolPane
+                }
+
+                // The heading names what kind of place this is. `Country
+                // facts` over a state's capital and admission date would be
+                // wrong about the state and about the country above it.
+                Text(
+                    subjectKind == .subdivision
+                        ? L10n.detailsStateFacts : L10n.detailsCountryFacts
+                )
+                .font(DesignTokens.Typography.sectionTitle)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier(AccessibilityIdentifier.detailsFacts)
+
+                // Every entry is a tile, dealt in pairs. Each pair is fixed
                 // vertically so it takes the taller tile's height: left to
                 // themselves the tiles sized to their own text, and a wrapped
                 // population left the row ragged.
-                ForEach(Array(stride(from: 0, to: facts.count, by: 2)), id: \.self) { start in
+                ForEach(Array(stride(from: 0, to: entries.count, by: 2)), id: \.self) { start in
                     HStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
-                        FactTile(fact: facts[start])
-                        if start + 1 < facts.count {
-                            FactTile(fact: facts[start + 1])
+                        tile(entries[start])
+                        if start + 1 < entries.count {
+                            tile(entries[start + 1])
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
@@ -139,6 +168,21 @@ struct CountryDetailsSheet: View {
                 displayName: subject.displayName,
                 store: store
             )
+            if let entityID = record?.subjectEntityID,
+                let entity = await store.entity(id: entityID)
+            {
+                subjectKind = CardSubjectKind(entityKind: entity.entityKind)
+                parent = entity.parent
+            }
+            if let asset = await store.asset(id: subject.promptAssetID) {
+                symbolIsCoatOfArms = asset.assetType == .coatOfArms
+                // A name identical to the place is not a name of its own, and
+                // "Germany — Germany" is a row that says nothing.
+                let name = asset.displayName
+                symbolName = (name?.isEmpty == false && name != subject.displayName) ? name : nil
+                symbolStory = asset.assetDescription?.isEmpty == false
+                    ? asset.assetDescription : nil
+            }
             let decks = await store.decks()
             let membership = await store.cardIdentifiersByDeck()
             regionDeck = decks.first { deck in
@@ -150,6 +194,79 @@ struct CountryDetailsSheet: View {
             )
             didResolveOutline = true
         }
+    }
+
+    /// The parent first, then the facts in the release's own order. The
+    /// country a state belongs to is the thing that places it, so it is not
+    /// dealt somewhere in the middle of the grid.
+    private var entries: [DetailEntry] {
+        var entries: [DetailEntry] = []
+        if subjectKind == .subdivision, let parent {
+            entries.append(DetailEntry(parent: parent))
+        }
+        entries.append(contentsOf: facts.map(DetailEntry.init(fact:)))
+        return entries
+    }
+
+    private func tile(_ entry: DetailEntry) -> some View {
+        DetailTile(
+            symbol: entry.symbol,
+            color: entry.color,
+            label: entry.label,
+            value: entry.value
+        )
+        .accessibilityIdentifier(
+            entry.factType.map(AccessibilityIdentifier.studyFact)
+                ?? AccessibilityIdentifier.detailsParent
+        )
+    }
+
+    /// The story of the drawing: what it is called, and what it means.
+    ///
+    /// One pane rather than two tiles because a story is prose — it wraps, it
+    /// grows with the reader's text size, and a fixed tile would clip it.
+    private var symbolPane: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+            Text(
+                symbolIsCoatOfArms ? L10n.detailsSymbolStory : L10n.detailsSymbolStoryFlag
+            )
+            .font(DesignTokens.Typography.sectionTitle)
+            .accessibilityAddTraits(.isHeader)
+
+            if let symbolName {
+                HStack(spacing: DesignTokens.Spacing.small) {
+                    SymbolBadge(
+                        symbol: symbolIsCoatOfArms ? "shield.fill" : "flag.fill",
+                        color: .purple
+                    )
+                    VStack(alignment: .leading, spacing: 0) {
+                        // "Name", not "Emblem": the pane's own heading has
+                        // already said which drawing this is, and a flag's
+                        // name is not an emblem's.
+                        Text(L10n.detailsSymbolName)
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundStyle(.secondary)
+                        Text(symbolName)
+                            .font(DesignTokens.Typography.body.weight(.medium))
+                    }
+                }
+                .accessibilityElement(children: .combine)
+            }
+
+            if let symbolStory {
+                Text(symbolStory)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(DesignTokens.Spacing.medium)
+        .glassEffect(
+            .regular,
+            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+        )
+        .accessibilityIdentifier(AccessibilityIdentifier.detailsSymbolStory)
     }
 
     private func regionTile(_ deck: DeckRecord) -> some View {
@@ -283,6 +400,45 @@ struct FactBadge: View {
     let fact: FactRecord
 
     var body: some View {
+        SymbolBadge(symbol: Self.symbol(for: fact.type), color: Self.color(for: fact.type))
+    }
+
+    static func symbol(for type: String) -> String {
+        switch type.uppercased() {
+        case "CAPITAL": "mappin.and.ellipse"
+        case "POPULATION": "person.2.fill"
+        case "CURRENCY": "banknote.fill"
+        case "LANGUAGE": "character.bubble.fill"
+        case "AREA": "square.dashed"
+        case "STATEHOOD_DATE": "calendar"
+        case "LARGEST_CITY": "building.2.fill"
+        case "MOTTO": "quote.opening"
+        default: "info.circle"
+        }
+    }
+
+    static func color(for type: String) -> Color {
+        switch type.uppercased() {
+        case "CAPITAL": .purple
+        case "POPULATION": .blue
+        case "CURRENCY": .green
+        case "LANGUAGE": .orange
+        case "AREA": .teal
+        case "STATEHOOD_DATE": .indigo
+        case "LARGEST_CITY": .pink
+        case "MOTTO": .brown
+        default: .gray
+        }
+    }
+}
+
+/// The badge itself, for the rows a fact type does not name — the emblem's
+/// own title among a country's facts is one of them.
+struct SymbolBadge: View {
+    let symbol: String
+    let color: Color
+
+    var body: some View {
         Image(systemName: symbol)
             .font(DesignTokens.Typography.caption.weight(.semibold))
             .foregroundStyle(.white)
@@ -290,45 +446,26 @@ struct FactBadge: View {
             .background(color.gradient, in: Circle())
             .accessibilityHidden(true)
     }
-
-    private var symbol: String {
-        switch fact.type.uppercased() {
-        case "CAPITAL": "mappin.and.ellipse"
-        case "POPULATION": "person.2.fill"
-        case "CURRENCY": "banknote.fill"
-        case "LANGUAGE": "character.bubble.fill"
-        case "AREA": "square.dashed"
-        default: "info.circle"
-        }
-    }
-
-    private var color: Color {
-        switch fact.type.uppercased() {
-        case "CAPITAL": .purple
-        case "POPULATION": .blue
-        case "CURRENCY": .green
-        case "LANGUAGE": .orange
-        case "AREA": .teal
-        default: .gray
-        }
-    }
 }
 
-/// A fact large enough to be the reason the sheet was opened.
-private struct FactTile: View {
-    let fact: FactRecord
+/// One entry, large enough to be the reason the sheet was opened.
+private struct DetailTile: View {
+    let symbol: String
+    let color: Color
+    let label: String?
+    let value: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-            FactBadge(fact: fact)
+            SymbolBadge(symbol: symbol, color: color)
 
             VStack(alignment: .leading, spacing: 0) {
-                if let label = presentation.label {
+                if let label {
                     Text(label)
                         .font(DesignTokens.Typography.caption)
                         .foregroundStyle(.secondary)
                 }
-                Text(presentation.value)
+                Text(value)
                     .font(DesignTokens.Typography.sectionTitle)
                     .minimumScaleFactor(0.7)
                     .lineLimit(3)
@@ -342,11 +479,43 @@ private struct FactTile: View {
             .regular,
             in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
         )
-        // One fact is one thing to hear, not a label and a value in sequence.
+        // One tile is one thing to hear, not a label and a value in sequence.
         .accessibilityElement(children: .combine)
     }
+}
 
-    private var presentation: (label: String?, value: String) {
-        FactDisplay.presentation(for: fact)
+/// One entry of the sheet's grid.
+///
+/// A fact is the usual case. The parent country of a state is the other one:
+/// it is not a fact the release publishes about the state, it is the state's
+/// place in the world, and a reader looking at California's flag needs it
+/// first — which is why it is dealt as a tile and not left in a caption.
+private struct DetailEntry: Identifiable {
+    let id: String
+    let symbol: String
+    let color: Color
+    let label: String?
+    let value: String
+    /// Set for a fact, so the tile can carry the identifier a UI test asks
+    /// for by type.
+    let factType: String?
+
+    init(fact: FactRecord) {
+        let presentation = FactDisplay.presentation(for: fact)
+        id = "fact.\(fact.type).\(presentation.value)"
+        symbol = FactBadge.symbol(for: fact.type)
+        color = FactBadge.color(for: fact.type)
+        label = presentation.label
+        value = presentation.value
+        factType = fact.type
+    }
+
+    init(parent: GeoEntityParentRecord) {
+        id = "parent.\(parent.id.uuidString)"
+        symbol = "globe"
+        color = .indigo
+        label = L10n.detailsParentCountry
+        value = parent.name
+        factType = nil
     }
 }

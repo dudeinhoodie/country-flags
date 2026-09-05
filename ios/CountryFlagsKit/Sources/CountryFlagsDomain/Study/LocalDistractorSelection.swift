@@ -19,10 +19,14 @@ public enum LocalDistractorSelection {
 
     /// - Parameter seed: the session card's `randomSeed`. It is part of the
     ///   stored snapshot, so the ordering survives a relaunch.
+    /// - Parameter subjectKinds: what each card in the pool is about, by card
+    ///   identifier. A card the map says nothing about is read as a country,
+    ///   which is what every card published before subdivisions existed is.
     public static func options(
         for card: LearningCardRecord,
         from pool: [LearningCardRecord],
         seed: String,
+        subjectKinds: [UUID: CardSubjectKind] = [:],
         optionCount: Int = 4
     ) throws -> [StudyOptionRecord] {
         // Two countries whose localized names are identical must never appear
@@ -31,7 +35,7 @@ public enum LocalDistractorSelection {
         var seenNames: Set<String> = [normalized(card.displayName)]
         var distractors: [LearningCardRecord] = []
 
-        for candidate in ranked(pool, excluding: card, seed: seed) {
+        for candidate in ranked(pool, excluding: card, seed: seed, subjectKinds: subjectKinds) {
             let name = normalized(candidate.displayName)
             guard seenNames.insert(name).inserted else { continue }
             distractors.append(candidate)
@@ -70,19 +74,39 @@ public enum LocalDistractorSelection {
 
     /// Candidates ordered by a value derived from the seed, so the choice looks
     /// arbitrary to the learner and is reproducible for the device.
+    ///
+    /// The pool is narrowed to cards that ask the same question of the same
+    /// kind of subject first. A coat of arms beside three flags is not a
+    /// harder question, it is a different one — and offering the United
+    /// States as an answer to California's flag asks a question with two
+    /// right answers. Both are `CardCompatibility`, and a candidate that does
+    /// not match it is not a distractor at all.
     private static func ranked(
         _ pool: [LearningCardRecord],
         excluding card: LearningCardRecord,
-        seed: String
+        seed: String,
+        subjectKinds: [UUID: CardSubjectKind]
     ) -> [LearningCardRecord] {
-        pool
+        let wanted = compatibility(of: card, subjectKinds: subjectKinds)
+        return pool
             .filter { $0.id != card.id && !$0.isRetired && !$0.displayName.isEmpty }
+            .filter { compatibility(of: $0, subjectKinds: subjectKinds) == wanted }
             .sorted { left, right in
                 let leftKey = hash(seed + left.id.uuidString)
                 let rightKey = hash(seed + right.id.uuidString)
                 if leftKey != rightKey { return leftKey < rightKey }
                 return left.id.uuidString < right.id.uuidString
             }
+    }
+
+    private static func compatibility(
+        of card: LearningCardRecord,
+        subjectKinds: [UUID: CardSubjectKind]
+    ) -> CardCompatibility {
+        CardCompatibility(
+            card: card,
+            subject: subjectKinds[card.id] ?? .unresolved
+        )
     }
 
     private static func normalized(_ value: String) -> String {
