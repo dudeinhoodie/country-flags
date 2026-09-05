@@ -24,6 +24,10 @@ const storeTransactionVerificationsTotal = meter.createCounter(
   "store_transaction_verifications_total",
   { description: "Signed store transactions accepted or refused, by outcome" },
 );
+const storeNotificationsTotal = meter.createCounter(
+  "store_notifications_total",
+  { description: "Store server notifications handled, by outcome" },
+);
 
 export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx";
 
@@ -73,6 +77,18 @@ export class MetricsService {
    */
   recordStoreTransactionVerification(outcome: string): void {
     storeTransactionVerificationsTotal.add(1, { outcome });
+  }
+
+  /**
+   * Every notification this deployment was sent, by what became of it. A
+   * quarantine that stays above zero means the catalog and App Store Connect
+   * disagree; a duplicate rate near one means Apple is retrying because
+   * something answers slowly (§17.1).
+   */
+  recordStoreNotification(
+    outcome: "processed" | "duplicate" | "quarantined" | "refused",
+  ): void {
+    storeNotificationsTotal.add(1, { outcome });
   }
 
   recordOutboxDepth(

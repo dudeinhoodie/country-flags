@@ -67,3 +67,45 @@ export function localTestSignedTransaction(
     "TEST_ONLY_not_a_signature",
   ].join(".");
 }
+
+export interface LocalStoreNotificationOptions {
+  notificationUuid: string;
+  notificationType: string;
+  subtype?: string;
+  bundleId: string;
+  environment?: string;
+  signedTransactionInfo?: string;
+  signedDate?: Date;
+}
+
+/**
+ * TEST_ONLY. The same fiction one level up: what Apple's server sends, wrapped
+ * in a JWS nobody signed. Only a `LOCAL_TEST` deployment will look at it, and
+ * that is what lets a test prove a refund revokes access without asking Apple
+ * to refund anything.
+ */
+export function localTestSignedNotification(
+  options: LocalStoreNotificationOptions,
+): string {
+  const signedDate = (options.signedDate ?? new Date()).getTime();
+  const payload: Record<string, unknown> = {
+    notificationType: options.notificationType,
+    notificationUUID: options.notificationUuid,
+    version: "2.0",
+    signedDate,
+    ...(options.subtype === undefined ? {} : { subtype: options.subtype }),
+    data: {
+      bundleId: options.bundleId,
+      environment: options.environment ?? "LocalTesting",
+      ...(options.signedTransactionInfo === undefined
+        ? {}
+        : { signedTransactionInfo: options.signedTransactionInfo }),
+    },
+  };
+
+  return [
+    segment({ alg: "ES256", typ: "JWT" }),
+    segment(payload),
+    "TEST_ONLY_not_a_signature",
+  ].join(".");
+}

@@ -879,7 +879,7 @@ paths:
         and quarantined rather than dropped when it names a product or a
         transaction this environment does not know.
       operationId: receiveAppleNotification
-      x-implementation-status: planned
+      x-implementation-status: implemented
       security: []
       requestBody:
         required: true

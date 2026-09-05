@@ -13,9 +13,16 @@ import {
 } from "@nestjs/common";
 import type { Response } from "express";
 
+import { ApiException } from "../../common/http/api.exception";
 import type { RequestWithId } from "../../common/http/request-id.middleware";
+import { JsonLoggerService } from "../../common/logging/json-logger.service";
+import { MetricsService } from "../../common/telemetry/metrics.service";
 import { AuthGuard, type AuthenticatedRequest } from "../auth/auth.guard";
+import { AppleNotificationService } from "./apple/apple-notification.service";
+import { AppleNotificationVerifier } from "./apple/apple-notification-verifier";
+import { AppleVerificationError } from "./apple/apple-verification.error";
 import {
+  parseAppleNotificationEnvelope,
   parseAppleTransactionSubmission,
   parseCommercePlatform,
   parseIdempotencyKey,
@@ -120,5 +127,63 @@ export class AppleTransactionsController {
     response.setHeader("Cache-Control", "private, no-store");
     response.setHeader("Vary", "Authorization");
     return serializeSnapshot(snapshot);
+  }
+}
+
+/**
+ * Where Apple talks to us unprompted, and the fast way a refund is learned.
+ *
+ * Unauthenticated by nature: the signature on the payload is the
+ * authentication, and it is checked before anything is written down. The
+ * answer is `202` for everything Apple could have meant — including a
+ * notification about a product this deployment does not know, which is
+ * recorded and quarantined rather than refused. Refusing would make Apple
+ * retry it every hour for a day and change nothing.
+ *
+ * Only an unsigned or unreadable body is refused, because that is not a
+ * notification at all.
+ */
+@Controller("commerce/apple/notifications")
+export class AppleNotificationsController {
+  constructor(
+    private readonly verifier: AppleNotificationVerifier,
+    private readonly notifications: AppleNotificationService,
+    private readonly metrics: MetricsService,
+    private readonly logger: JsonLoggerService,
+  ) {}
+
+  @Post()
+  @HttpCode(HttpStatus.ACCEPTED)
+  async receive(
+    @Req() request: RequestWithId,
+    @Body() body: unknown,
+  ): Promise<void> {
+    const signedPayload = parseAppleNotificationEnvelope(body);
+    let notification;
+    try {
+      notification = await this.verifier.verify(signedPayload);
+    } catch (error) {
+      if (!(error instanceof AppleVerificationError)) {
+        throw error;
+      }
+      this.metrics.recordStoreNotification("refused");
+      // No uuid and no type: nothing in an unverified payload has been
+      // established, so there is nothing here worth quoting back.
+      this.logger.warn({
+        message: "Store notification refused",
+        event: "store_notification_refused",
+        requestId: request.requestId,
+        reason: error.code,
+      });
+      throw new ApiException(
+        error.retryable
+          ? HttpStatus.SERVICE_UNAVAILABLE
+          : HttpStatus.UNPROCESSABLE_ENTITY,
+        "NOTIFICATION_VERIFICATION_FAILED",
+        "The notification was not accepted",
+        { reason: error.code },
+      );
+    }
+    await this.notifications.receive(notification, request.requestId);
   }
 }

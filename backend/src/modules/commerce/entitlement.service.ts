@@ -193,6 +193,72 @@ export class EntitlementService {
     };
   }
 
+  /**
+   * A purchase Apple told us about, rather than one a client submitted.
+   *
+   * There is no session here, so the account is found the only two honest
+   * ways: the ledger already knows who holds this transaction, or the
+   * signed payload names an account token that is somebody's. Neither
+   * answer available means the notification arrived before its purchase
+   * ever reached us — which is a thing to quarantine and look at, not a
+   * thing to guess.
+   */
+  async applyFromNotification(
+    purchase: VerifiedAppleTransaction,
+    requestId: string,
+  ): Promise<"applied" | "UNKNOWN_PRODUCT" | "UNKNOWN_ACCOUNT"> {
+    const userId = await this.resolveHolder(purchase);
+    if (userId === null) {
+      return "UNKNOWN_ACCOUNT";
+    }
+    try {
+      await inSerializableTransaction(this.database, async (transaction) => {
+        await this.apply(transaction, userId, purchase, requestId);
+      });
+      return "applied";
+    } catch (error) {
+      // `apply` refuses a product this deployment does not sell by throwing
+      // the same typed refusal the client path returns. From a notification
+      // that is not a bad request — it is a mapping that has to be fixed by
+      // a human, and the row says so.
+      if (error instanceof ApiException) {
+        const envelope = error.getResponse() as {
+          error?: { code?: string; details?: { reason?: string } };
+        };
+        if (envelope.error?.details?.reason === "UNKNOWN_PRODUCT") {
+          return "UNKNOWN_PRODUCT";
+        }
+      }
+      throw error;
+    }
+  }
+
+  private async resolveHolder(
+    purchase: VerifiedAppleTransaction,
+  ): Promise<string | null> {
+    const existing = await this.database.storeTransaction.findUnique({
+      where: {
+        provider_storeEnvironment_transactionId: {
+          provider: purchase.provider,
+          storeEnvironment: purchase.storeEnvironment,
+          transactionId: purchase.transactionId,
+        },
+      },
+      select: { userId: true },
+    });
+    if (existing?.userId != null) {
+      return existing.userId;
+    }
+    if (purchase.appAccountToken === null) {
+      return null;
+    }
+    const user = await this.database.user.findUnique({
+      where: { storeAccountToken: purchase.appAccountToken },
+      select: { id: true },
+    });
+    return user?.id ?? null;
+  }
+
   private async verifyOne(
     signedTransaction: string,
     requestId: string,

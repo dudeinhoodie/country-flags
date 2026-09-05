@@ -13,6 +13,7 @@ import {
   DeckStatus,
   PrismaClient,
   StoreEnvironment,
+  StoreNotificationStatus,
   StoreProductStatus,
   StoreProvider,
   StoreTransactionClaimState,
@@ -24,7 +25,10 @@ import { AppModule } from "../src/app/app.module";
 import { PrismaService } from "../src/infrastructure/database/prisma.service";
 import { AccountDeletionService } from "../src/modules/account-lifecycle/account-deletion.service";
 import { TestJwtSigner } from "../src/modules/auth/testing/test-jwt-signer";
-import { localTestSignedTransaction } from "../src/modules/commerce/apple/testing/local-store-transaction";
+import {
+  localTestSignedNotification,
+  localTestSignedTransaction,
+} from "../src/modules/commerce/apple/testing/local-store-transaction";
 import { importTestContent } from "../src/modules/content/import/test-content-importer";
 import { TEST_STUDY_USER_ID } from "../src/modules/study-sessions/fixtures/test-study.fixture";
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
@@ -555,5 +559,118 @@ describe("Apple transactions and entitlements (integration)", () => {
       .set("Authorization", `Bearer ${strangerToken}`)
       .set("If-None-Match", etag)
       .expect(304);
+  });
+
+  describe("what Apple tells us unprompted", () => {
+    const NOTIFICATION_UUID = "c1000000-0000-4000-8000-00000000003a";
+
+    function notify(signedPayload: string): request.Test {
+      return request(httpServer)
+        .post("/v1/commerce/apple/notifications")
+        .send({ signedPayload });
+    }
+
+    function refundNotification(
+      overrides: Partial<
+        Parameters<typeof localTestSignedNotification>[0]
+      > = {},
+      purchaseOverrides: Partial<
+        Parameters<typeof localTestSignedTransaction>[0]
+      > = {},
+    ): string {
+      return localTestSignedNotification({
+        notificationUuid: NOTIFICATION_UUID,
+        notificationType: "REFUND",
+        bundleId: BUNDLE_ID,
+        signedTransactionInfo: signedPurchase({
+          revocationDate: new Date("2026-09-05T10:00:00.000Z"),
+          revocationReason: 0,
+          ...purchaseOverrides,
+        }),
+        ...overrides,
+      });
+    }
+
+    // No session, no header, no allowlist: the signature is the
+    // authentication, and a body that carries none is not a notification.
+    it("refuses a body Apple did not sign, and records nothing", async () => {
+      await notify("not.a.jws").expect(422);
+      await expect(database.storeNotification.count()).resolves.toBe(0);
+    });
+
+    it("takes the deck back when the refund arrives from Apple", async () => {
+      await submit(strangerToken, signedPurchase()).expect(200);
+      await request(httpServer)
+        .get(`/v1/decks/${PAID_DECK_ID}/cards?locale=en`)
+        .set("Authorization", `Bearer ${strangerToken}`)
+        .expect(200);
+
+      await notify(refundNotification()).expect(202);
+
+      await request(httpServer)
+        .get(`/v1/decks/${PAID_DECK_ID}/cards?locale=en`)
+        .set("Authorization", `Bearer ${strangerToken}`)
+        .expect(403);
+      await expect(ledgerRow()).resolves.toMatchObject({
+        revokedAt: new Date("2026-09-05T10:00:00.000Z"),
+      });
+      // The progress the account built is not the account's rights, and a
+      // refund takes only the rights.
+      await request(httpServer)
+        .get("/v1/me/progress")
+        .set("Authorization", `Bearer ${strangerToken}`)
+        .expect(200);
+    });
+
+    it("changes nothing the second time Apple sends the same one", async () => {
+      await notify(refundNotification()).expect(202);
+
+      await expect(database.storeNotification.count()).resolves.toBe(1);
+      const [row] = await database.storeNotification.findMany({
+        select: { status: true, notificationType: true },
+      });
+      expect(row?.status).toBe(StoreNotificationStatus.PROCESSED);
+    });
+
+    it("accepts the test notification an operator sends to prove the URL", async () => {
+      await notify(
+        localTestSignedNotification({
+          notificationUuid: "c1000000-0000-4000-8000-00000000003b",
+          notificationType: "TEST",
+          bundleId: BUNDLE_ID,
+        }),
+      ).expect(202);
+
+      const row = await database.storeNotification.findUnique({
+        where: {
+          notificationUuid: "c1000000-0000-4000-8000-00000000003b",
+        },
+        select: { status: true },
+      });
+      expect(row?.status).toBe(StoreNotificationStatus.PROCESSED);
+    });
+
+    // Accepted, recorded, acted on by nobody: refusing would make Apple
+    // retry a product mismatch every hour for a day and fix nothing.
+    it("quarantines a product this deployment does not sell", async () => {
+      await notify(
+        refundNotification(
+          { notificationUuid: "c1000000-0000-4000-8000-00000000003c" },
+          {
+            productId: "app.countryflags.deck.nothing.lifetime.v1",
+            transactionId: "2000000900000099",
+          },
+        ),
+      ).expect(202);
+
+      const row = await database.storeNotification.findUnique({
+        where: {
+          notificationUuid: "c1000000-0000-4000-8000-00000000003c",
+        },
+        select: { status: true, error: true },
+      });
+      expect(row?.status).toBe(StoreNotificationStatus.QUARANTINED);
+      expect(row?.error).toBe("UNKNOWN_PRODUCT");
+    });
   });
 });

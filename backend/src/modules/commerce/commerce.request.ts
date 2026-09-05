@@ -77,3 +77,20 @@ export function parseAppleTransactionSubmission(body: unknown): string[] {
     );
   });
 }
+
+/**
+ * Apple's notification, as it arrives: one signed string and nothing else.
+ *
+ * The envelope is checked the same way a client's submission is — a body
+ * with anything else in it is not Apple's, and accepting extra fields here
+ * would mean accepting instructions from whoever sent them.
+ */
+export function parseAppleNotificationEnvelope(body: unknown): string {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(root, ["signedPayload"], "body");
+  const signedPayload = root.signedPayload;
+  if (typeof signedPayload !== "string" || signedPayload.length === 0) {
+    validationError("signedPayload", "must be a non-empty string");
+  }
+  return signedPayload;
+}
