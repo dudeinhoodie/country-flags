@@ -24,6 +24,7 @@ import type {
 const ENTITY_KIND_BY_TYPE: Record<DomainEntity["type"], GeoEntityKind> = {
   country: GeoEntityKind.COUNTRY,
   territory: GeoEntityKind.TERRITORY,
+  subdivision: GeoEntityKind.SUBDIVISION,
   region: GeoEntityKind.REGION,
   subregion: GeoEntityKind.SUBREGION,
   // "area" (uninhabited/special areas such as Antarctica) has no direct Prisma

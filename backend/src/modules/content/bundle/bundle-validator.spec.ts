@@ -30,6 +30,7 @@ function catalogFixture(
   overrides: {
     entities?: unknown[];
     decks?: unknown[];
+    relations?: unknown[];
   } = {},
 ): Record<string, unknown> {
   const entities = overrides.entities ?? [
@@ -51,7 +52,7 @@ function catalogFixture(
     defaultLocale: "en",
     supportedLocales: ["en", "ru"],
     entities,
-    relations: [],
+    relations: overrides.relations ?? [],
     decks: overrides.decks ?? [
       {
         key: "deck.all",
@@ -464,5 +465,149 @@ describe("validateBundle", () => {
     await expect(
       validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
     ).rejects.toThrow(/ascending scale/);
+  });
+
+  describe("subdivisions", () => {
+    const country = {
+      key: "country.testland",
+      type: "country",
+      status: "active",
+      includeInCountryCatalog: true,
+      recognition: { status: "un_member" },
+      names: { en: { short: "Testland" }, ru: { short: "Тестландия" } },
+    };
+    const state = {
+      key: "subdivision.testland.north",
+      type: "subdivision",
+      status: "active",
+      includeInCountryCatalog: false,
+      recognition: { status: "not_applicable" },
+      names: { en: { short: "North" }, ru: { short: "Север" } },
+    };
+    const belongsTo = (
+      parentKey: string,
+      childKey: string,
+      primary = true,
+    ): Record<string, unknown> => ({
+      parentKey,
+      childKey,
+      taxonomyKey: "taxonomy.administrative",
+      relationType: "contains",
+      primary,
+    });
+
+    const catalogWith = (
+      overrides: { entities?: unknown[]; relations?: unknown[] } = {},
+    ): Record<string, unknown> =>
+      catalogFixture({
+        entities: overrides.entities ?? [country, state],
+        relations: overrides.relations ?? [belongsTo(country.key, state.key)],
+      });
+
+    it("accepts a state that belongs to exactly one country", async () => {
+      buildBundle(dir, { catalog: catalogWith() });
+      await expect(
+        validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+      ).resolves.toBeDefined();
+    });
+
+    it("rejects a state with no country above it", async () => {
+      buildBundle(dir, { catalog: catalogWith({ relations: [] }) });
+      await expect(
+        validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+      ).rejects.toThrow(/no primary administrative parent/);
+    });
+
+    it("rejects a state that belongs to two countries at once", async () => {
+      const other = { ...country, key: "country.otherland" };
+      buildBundle(dir, {
+        catalog: catalogWith({
+          entities: [country, other, state],
+          relations: [
+            belongsTo(country.key, state.key),
+            belongsTo(other.key, state.key),
+          ],
+        }),
+      });
+      await expect(
+        validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+      ).rejects.toThrow(/2 primary administrative parents/);
+    });
+
+    it("rejects a state whose parent is not a country or territory", async () => {
+      const region = {
+        key: "region.testregion",
+        type: "region",
+        status: "active",
+        includeInCountryCatalog: false,
+        recognition: { status: "not_applicable" },
+        names: { en: { short: "Test region" }, ru: { short: "Тестрегион" } },
+      };
+      buildBundle(dir, {
+        catalog: catalogWith({
+          entities: [country, region, state],
+          relations: [belongsTo(region.key, state.key)],
+        }),
+      });
+      await expect(
+        validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+      ).rejects.toThrow(/which is a region rather than a country or territory/);
+    });
+
+    it("rejects a state listed in the country catalog", async () => {
+      buildBundle(dir, {
+        catalog: catalogWith({
+          entities: [country, { ...state, includeInCountryCatalog: true }],
+        }),
+      });
+      await expect(
+        validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+      ).rejects.toThrow(/a state is not a country/);
+    });
+
+    it("rejects a state that claims a recognition status", async () => {
+      buildBundle(dir, {
+        catalog: catalogWith({
+          entities: [
+            country,
+            { ...state, recognition: { status: "un_member" } },
+          ],
+        }),
+      });
+      await expect(
+        validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+      ).rejects.toThrow(/recognition is not applicable/);
+    });
+
+    it("rejects an administrative relation over something that is not a state", async () => {
+      buildBundle(dir, {
+        catalog: catalogWith({
+          entities: [
+            country,
+            { ...state, key: "country.northland", type: "country" },
+          ],
+          relations: [belongsTo(country.key, "country.northland")],
+        }),
+      });
+      await expect(
+        validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+      ).rejects.toThrow(/rather than a subdivision/);
+    });
+
+    it("rejects administrative relations that form a cycle", async () => {
+      const inner = { ...state, key: "subdivision.testland.inner" };
+      buildBundle(dir, {
+        catalog: catalogWith({
+          entities: [country, state, inner],
+          relations: [
+            belongsTo(state.key, inner.key),
+            belongsTo(inner.key, state.key),
+          ],
+        }),
+      });
+      await expect(
+        validateBundle(dir, { [KEY_ID]: PUBLIC_KEY_PEM }),
+      ).rejects.toThrow(/form a cycle/);
+    });
   });
 });
