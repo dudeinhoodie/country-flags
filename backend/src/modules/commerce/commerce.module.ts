@@ -2,6 +2,8 @@ import { Module } from "@nestjs/common";
 
 import { AuthModule } from "../auth/auth.module";
 import { AppleNotificationService } from "./apple/apple-notification.service";
+import { AppleReconciliationService } from "./apple/apple-reconciliation.service";
+import { AppleServerApiClient } from "./apple/apple-server-api.client";
 import { AppleNotificationVerifier } from "./apple/apple-notification-verifier";
 import { AppleStoreConfig } from "./apple/apple-store.config";
 import { AppleTransactionVerifier } from "./apple/apple-transaction-verifier";
@@ -38,10 +40,12 @@ import { OffersService } from "./offers.service";
     AppleTransactionVerifier,
     AppleNotificationVerifier,
     AppleNotificationService,
+    AppleServerApiClient,
+    AppleReconciliationService,
     DeckAccessService,
     EntitlementService,
     OffersService,
   ],
-  exports: [DeckAccessService, EntitlementService],
+  exports: [DeckAccessService, EntitlementService, AppleReconciliationService],
 })
 export class CommerceModule {}

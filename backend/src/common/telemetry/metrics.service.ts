@@ -28,6 +28,14 @@ const storeNotificationsTotal = meter.createCounter(
   "store_notifications_total",
   { description: "Store server notifications handled, by outcome" },
 );
+const storeReconciliationRunsTotal = meter.createCounter(
+  "store_reconciliation_runs_total",
+  { description: "Store reconciliation sweeps, by outcome" },
+);
+const storeReconciliationDurationSeconds = meter.createHistogram(
+  "store_reconciliation_duration_seconds",
+  { description: "How long a store reconciliation sweep took", unit: "s" },
+);
 
 export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx";
 
@@ -89,6 +97,20 @@ export class MetricsService {
     outcome: "processed" | "duplicate" | "quarantined" | "refused",
   ): void {
     storeNotificationsTotal.add(1, { outcome });
+  }
+
+  /**
+   * One counter and one duration per sweep. The alert §17.1 asks for is
+   * written on the absence of a success rather than on a failure: a job that
+   * stops being scheduled fails nothing at all, and that is the outage worth
+   * catching.
+   */
+  recordStoreReconciliation(
+    outcome: "succeeded" | "failed",
+    durationSeconds: number,
+  ): void {
+    storeReconciliationRunsTotal.add(1, { outcome });
+    storeReconciliationDurationSeconds.record(durationSeconds, { outcome });
   }
 
   recordOutboxDepth(

@@ -39,6 +39,7 @@
     "content:bundle:publish": "yarn workspace @country-flags/backend content:bundle:publish",
     "content:bundle:rollback": "yarn workspace @country-flags/backend content:bundle:rollback",
     "content:bundle:sign": "yarn workspace @country-flags/backend content:bundle:sign",
+    "commerce:reconcile": "yarn workspace @country-flags/backend commerce:reconcile",
     "study:seed:test": "yarn workspace @country-flags/backend study:seed:test",
     "study:token:test": "yarn workspace @country-flags/backend study:token:test",
     "auth:provider-token:test": "yarn workspace @country-flags/backend auth:provider-token:test",
