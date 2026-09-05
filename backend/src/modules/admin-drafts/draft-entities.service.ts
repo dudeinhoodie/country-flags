@@ -103,13 +103,45 @@ const LOCALIZED_FACTS = ["capital", "largestCity", "motto"] as const;
 const MEASURED_FACTS = ["population", "area"] as const;
 
 /**
+ * The name a fact is stored under, where it cannot be its own.
+ *
+ * The build reads four names straight out of `entity.facts` — `capitals`,
+ * `currencies`, `languages` and `population` (`FACT_TYPES` in
+ * `tools/content-pipeline/src/merge.ts`) — and an editorial override carries
+ * the pipeline's highest priority. Two of the console's fields collide with
+ * that, and a collision here does not go quietly: a published language is
+ * `{code, role, names}` per entry and a published population is
+ * `{value, year}`, neither of which is what this form holds, so the override
+ * would replace a correct source fact with a differently shaped one.
+ *
+ * They are stored under a name no build reads instead. Like the rest of the
+ * form — `capital` is not `capitals`, and a motto is no fact type at all —
+ * the value is inert until #351 gives editorial facts a path of their own;
+ * inert is the point, because the alternative is wrong. The name stays under
+ * `facts.`, which the build strips from the entity before the catalog is
+ * written, so nothing here can reach published content by another door.
+ */
+const STORED_FACT_NAME: Record<string, string> = {
+  languages: "editorialLanguages",
+  population: "editorialPopulation",
+};
+const API_FACT_FIELD: Record<string, string> = Object.fromEntries(
+  Object.entries(STORED_FACT_NAME).map(([field, stored]) => [stored, field]),
+);
+
+function storedFactName(field: string): string {
+  return STORED_FACT_NAME[field] ?? field;
+}
+
+/**
  * Reads the typed facts back out of the override map.
  *
  * The editorial schema has no `facts` object on an entity: the layer that
  * carries hand-made values is `overrides`, whose dotted paths are applied
  * with the pipeline's highest priority. So a curator's capital is the
  * override `facts.capital.en`, and this projection is what turns the map
- * the document stores into the shape the console edits.
+ * the document stores into the shape the console edits. Two of the names
+ * differ from the API field they carry — see `STORED_FACT_NAME`.
  */
 export function factsFromOverrides(
   overrides: Record<string, unknown> | undefined,
@@ -124,10 +156,11 @@ export function factsFromOverrides(
       continue;
     }
     const segments = path.slice(FACT_PREFIX.length).split(".");
-    const [field, locale] = segments;
-    if (field === undefined || segments.length > 2) {
+    const [stored, locale] = segments;
+    if (stored === undefined || segments.length > 2) {
       continue;
     }
+    const field = API_FACT_FIELD[stored] ?? stored;
     if (
       locale !== undefined &&
       (LOCALIZED_FACTS as readonly string[]).includes(field) &&
@@ -172,14 +205,14 @@ export function factsToOverrides(facts: EntityFacts): Record<string, unknown> {
   for (const field of MEASURED_FACTS) {
     const measured = facts[field];
     if (measured !== undefined) {
-      overrides[`${FACT_PREFIX}${field}`] = measured;
+      overrides[`${FACT_PREFIX}${storedFactName(field)}`] = measured;
     }
   }
   if (facts.statehoodDate !== undefined) {
     overrides[`${FACT_PREFIX}statehoodDate`] = facts.statehoodDate;
   }
   if (facts.languages !== undefined && facts.languages.length > 0) {
-    overrides[`${FACT_PREFIX}languages`] = facts.languages;
+    overrides[`${FACT_PREFIX}${storedFactName("languages")}`] = facts.languages;
   }
   return overrides;
 }

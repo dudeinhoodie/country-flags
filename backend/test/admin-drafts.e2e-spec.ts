@@ -28,9 +28,17 @@ interface DeckDocument {
   [key: string]: unknown;
 }
 
+interface EntityDocument {
+  key: string;
+  type: string;
+  overrides?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 interface EditorialDocument {
   schemaVersion: number;
   decks: DeckDocument[];
+  entities: EntityDocument[];
   [key: string]: unknown;
 }
 
@@ -399,12 +407,22 @@ describe("Admin editorial drafts (integration)", () => {
     expect(detail.entity.parentKey).toBe(parent);
     expect(detail.entity.includeInCountryCatalog).toBe(false);
     expect(detail.entity.recognitionStatus).toBe("not_applicable");
+    // The API shape is what the contract declares, whatever name the
+    // document stores each fact under (#351).
     expect(detail.entity.facts).toEqual({
       capital: { en: "Sacramento" },
       statehoodDate: "1850-09-09",
       population: { value: 39_400_000, observedAt: "2026-01-01" },
       languages: [{ en: "English" }],
     });
+    const overrides = reread.document.entities.find(
+      (candidate) => candidate.key === unit,
+    )?.overrides;
+    // Never under a name the build reads as a source fact: an editorial
+    // override outranks the source, and these two carry a different shape.
+    expect(Object.keys(overrides ?? {})).toEqual(
+      expect.not.arrayContaining(["facts.languages", "facts.population"]),
+    );
 
     const list = bodyOf<{
       items: {

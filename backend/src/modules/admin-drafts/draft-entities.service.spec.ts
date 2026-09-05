@@ -341,14 +341,68 @@ describe("DraftEntitiesService", () => {
       "req-1",
     );
     const stored = (written()?.entities as Record<string, unknown>[])[0];
+    // `languages` and `population` are names the build reads out of
+    // `entity.facts` and an editorial override outranks the source, so they
+    // are stored under a name no build reads (#351). Nothing else collides.
     expect(stored?.overrides).toEqual({
       "facts.capital.en": "Paris",
       "facts.capital.ru": "Париж",
       "facts.motto.en": "Liberty",
       "facts.statehoodDate": "1850-09-09",
-      "facts.population": { value: 39_500_000, observedAt: "2026-01-01" },
+      "facts.editorialPopulation": {
+        value: 39_500_000,
+        observedAt: "2026-01-01",
+      },
       "facts.area": { value: 423_970, unit: "km2" },
-      "facts.languages": [{ en: "French" }],
+      "facts.editorialLanguages": [{ en: "French" }],
+    });
+  });
+
+  it("never writes a fact name the build reads as a source fact", async () => {
+    const { service, written } = serviceWith({ entities: [entity()] });
+    await service.update(
+      actor,
+      "draft-1",
+      1,
+      "country.france",
+      {
+        facts: {
+          languages: [{ en: "French" }],
+          population: { value: 68_000_000 },
+        },
+      },
+      "req-1",
+    );
+    const stored = (written()?.entities as Record<string, unknown>[])[0];
+    const paths = Object.keys(stored?.overrides ?? {});
+    // The published shapes are `{code, role, names}` and `{value, year}`;
+    // an override under these names would replace a correct fact with a
+    // differently shaped one rather than be ignored.
+    for (const factType of [
+      "capitals",
+      "currencies",
+      "languages",
+      "population",
+    ]) {
+      expect(paths).not.toContain(`facts.${factType}`);
+    }
+  });
+
+  it("round-trips the facts it stores under another name", async () => {
+    const { service } = serviceWith({
+      entities: [
+        entity({
+          overrides: {
+            "facts.editorialLanguages": [{ en: "French" }],
+            "facts.editorialPopulation": { value: 68_000_000 },
+          },
+        }),
+      ],
+    });
+    const detail = await service.getOne("draft-1", "country.france");
+    expect(detail.entity.facts).toEqual({
+      languages: [{ en: "French" }],
+      population: { value: 68_000_000 },
     });
   });
 
