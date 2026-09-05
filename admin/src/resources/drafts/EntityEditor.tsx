@@ -27,7 +27,11 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import { useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { useNavigate, useParams } from "react-router-dom";
+import { routes } from "../../app/routes";
+import { useRefreshDrafts } from "../../app/CurrentDraftContext";
+import { useReportSaveStatus } from "../../app/SaveStatusContext";
 import { LoadingState } from "../../components/LoadingState";
+import { StickyActionBar } from "../../components/StickyActionBar";
 import { useDraftWithDecks } from "./useDraftDecks";
 import {
   useDraftEntities,
@@ -265,6 +269,8 @@ export function EntityEditor() {
   >({});
   const [statehoodDate, setStatehoodDate] = useState("");
   const [languageRows, setLanguageRows] = useState<LanguageRows>({});
+  const reportSave = useReportSaveStatus();
+  const refreshDrafts = useRefreshDrafts();
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [parentWarning, setParentWarning] = useState(false);
@@ -413,6 +419,7 @@ export function EntityEditor() {
     }
     setSaving(true);
     setSaveError(null);
+    reportSave("saving");
     const cleanIdentifiers: Record<string, string> = {};
     for (const [key, value] of Object.entries(identifiers)) {
       if (value.trim() !== "") {
@@ -437,15 +444,20 @@ export function EntityEditor() {
     }).then(
       () => {
         setSaving(false);
-        void navigate(`/drafts/${draft.id}/entities`);
+        reportSave("saved");
+        // The shell shows when the draft was last written; a save it did
+        // not hear about would leave that reading stale.
+        refreshDrafts();
+        void navigate(routes.draftEntities(draft.id));
       },
       (cause: unknown) => {
         setSaving(false);
-        setSaveError(
+        const message =
           cause instanceof Error
             ? cause.message
-            : "The entity could not be saved",
-        );
+            : "The entity could not be saved";
+        setSaveError(message);
+        reportSave("error", message);
       },
     );
   }
@@ -459,459 +471,471 @@ export function EntityEditor() {
   }
 
   return (
-    <Card sx={{ mt: 2 }}>
-      <Title title={`Entity ${detail.entity.key}`} />
-      <CardContent>
-        <Stack spacing={3}>
-          {!editable && (
-            <Alert severity="info">
-              You are viewing this entity. Editing needs the EDITOR role.
-            </Alert>
-          )}
-          {saveError !== null && <Alert severity="error">{saveError}</Alert>}
+    <>
+      <Card sx={{ mt: 2 }}>
+        <Title title={`Entity ${detail.entity.key}`} />
+        <CardContent>
+          <Stack spacing={3}>
+            {!editable && (
+              <Alert severity="info">
+                You are viewing this entity. Editing needs the EDITOR role.
+              </Alert>
+            )}
+            {saveError !== null && <Alert severity="error">{saveError}</Alert>}
 
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-            <TextField
-              label="Key"
-              value={detail.entity.key}
-              size="small"
-              disabled
-              helperText="Bound to upstream sources — it cannot change."
-              sx={{ minWidth: 280 }}
-            />
-            <TextField
-              select
-              label="Type"
-              value={type}
-              onChange={(event) => setType(event.target.value as EntityType)}
-              size="small"
-              disabled={!editable}
-              sx={{ minWidth: 160 }}
-            >
-              {ENTITY_TYPES.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              label="Status"
-              value={status}
-              onChange={(event) =>
-                setStatus(
-                  event.target.value as (typeof ENTITY_STATUSES)[number],
-                )
-              }
-              size="small"
-              disabled={!editable}
-              sx={{ minWidth: 160 }}
-            >
-              {ENTITY_STATUSES.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-            <Box>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={isSubdivision ? false : inCatalog}
-                    onChange={(event) => setInCatalog(event.target.checked)}
-                    disabled={!editable || isSubdivision}
-                  />
-                }
-                label="In country catalog"
-              />
-              {isSubdivision && (
-                <FormHelperText>
-                  A subdivision is taught only through a deck that names it, so
-                  it never joins the country catalog.
-                </FormHelperText>
-              )}
-            </Box>
-          </Stack>
-
-          {isSubdivision && (
-            <Stack spacing={1}>
-              <Autocomplete
-                options={parentOptions}
-                value={selectedParent}
-                onChange={(_event, option) =>
-                  setParentKey(option === null ? "" : option.key)
-                }
-                getOptionLabel={(option) =>
-                  option.publishedName === null
-                    ? option.key
-                    : `${option.publishedName} — ${option.key}`
-                }
-                isOptionEqualToValue={(option, value) =>
-                  option.key === value.key
-                }
-                disabled={!editable}
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                label="Key"
+                value={detail.entity.key}
                 size="small"
-                sx={{ maxWidth: 520 }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Parent"
-                    required
-                    error={parentMissing}
-                    helperText={
-                      parentMissing
-                        ? "A subdivision needs the country or territory it belongs to."
-                        : "The country or territory this unit belongs to; the publisher turns it into the administrative relation."
-                    }
-                  />
+                disabled
+                helperText="Bound to upstream sources — it cannot change."
+                sx={{ minWidth: 280 }}
+              />
+              <TextField
+                select
+                label="Type"
+                value={type}
+                onChange={(event) => setType(event.target.value as EntityType)}
+                size="small"
+                disabled={!editable}
+                sx={{ minWidth: 160 }}
+              >
+                {ENTITY_TYPES.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="Status"
+                value={status}
+                onChange={(event) =>
+                  setStatus(
+                    event.target.value as (typeof ENTITY_STATUSES)[number],
+                  )
+                }
+                size="small"
+                disabled={!editable}
+                sx={{ minWidth: 160 }}
+              >
+                {ENTITY_STATUSES.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <Box>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isSubdivision ? false : inCatalog}
+                      onChange={(event) => setInCatalog(event.target.checked)}
+                      disabled={!editable || isSubdivision}
+                    />
+                  }
+                  label="In country catalog"
+                />
+                {isSubdivision && (
+                  <FormHelperText>
+                    A subdivision is taught only through a deck that names it,
+                    so it never joins the country catalog.
+                  </FormHelperText>
                 )}
+              </Box>
+            </Stack>
+
+            {isSubdivision && (
+              <Stack spacing={1}>
+                <Autocomplete
+                  options={parentOptions}
+                  value={selectedParent}
+                  onChange={(_event, option) =>
+                    setParentKey(option === null ? "" : option.key)
+                  }
+                  getOptionLabel={(option) =>
+                    option.publishedName === null
+                      ? option.key
+                      : `${option.publishedName} — ${option.key}`
+                  }
+                  isOptionEqualToValue={(option, value) =>
+                    option.key === value.key
+                  }
+                  disabled={!editable}
+                  size="small"
+                  sx={{ maxWidth: 520 }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Parent"
+                      required
+                      error={parentMissing}
+                      helperText={
+                        parentMissing
+                          ? "A subdivision needs the country or territory it belongs to."
+                          : "The country or territory this unit belongs to; the publisher turns it into the administrative relation."
+                      }
+                    />
+                  )}
+                />
+              </Stack>
+            )}
+
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                label="Recognition status"
+                value={
+                  isSubdivision
+                    ? SUBDIVISION_RECOGNITION_STATUS
+                    : recognitionStatus
+                }
+                onChange={(event) => setRecognitionStatus(event.target.value)}
+                size="small"
+                disabled={!editable || isSubdivision}
+                helperText={
+                  isSubdivision
+                    ? "Recognition is a question about states, not about their parts."
+                    : " "
+                }
+                sx={{ minWidth: 220 }}
+              />
+              <TextField
+                label="Recognition as of"
+                value={recognitionAsOf}
+                onChange={(event) => setRecognitionAsOf(event.target.value)}
+                size="small"
+                disabled={!editable}
+                placeholder="YYYY-MM-DD"
+              />
+              <TextField
+                label="Valid from"
+                value={validFrom}
+                onChange={(event) => setValidFrom(event.target.value)}
+                size="small"
+                disabled={!editable}
+                placeholder="YYYY-MM-DD"
+              />
+              <TextField
+                label="Valid to"
+                value={validTo}
+                onChange={(event) => setValidTo(event.target.value)}
+                size="small"
+                disabled={!editable}
+                placeholder="YYYY-MM-DD"
               />
             </Stack>
-          )}
 
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-            <TextField
-              label="Recognition status"
-              value={
-                isSubdivision
-                  ? SUBDIVISION_RECOGNITION_STATUS
-                  : recognitionStatus
-              }
-              onChange={(event) => setRecognitionStatus(event.target.value)}
-              size="small"
-              disabled={!editable || isSubdivision}
-              helperText={
-                isSubdivision
-                  ? "Recognition is a question about states, not about their parts."
-                  : " "
-              }
-              sx={{ minWidth: 220 }}
-            />
-            <TextField
-              label="Recognition as of"
-              value={recognitionAsOf}
-              onChange={(event) => setRecognitionAsOf(event.target.value)}
-              size="small"
-              disabled={!editable}
-              placeholder="YYYY-MM-DD"
-            />
-            <TextField
-              label="Valid from"
-              value={validFrom}
-              onChange={(event) => setValidFrom(event.target.value)}
-              size="small"
-              disabled={!editable}
-              placeholder="YYYY-MM-DD"
-            />
-            <TextField
-              label="Valid to"
-              value={validTo}
-              onChange={(event) => setValidTo(event.target.value)}
-              size="small"
-              disabled={!editable}
-              placeholder="YYYY-MM-DD"
-            />
-          </Stack>
-
-          <Divider />
-          <Typography variant="subtitle2">Identifiers</Typography>
-          <Stack
-            direction="row"
-            spacing={2}
-            useFlexGap
-            sx={{ flexWrap: "wrap" }}
-          >
-            {IDENTIFIERS.map(({ key, expected }) => {
-              const message = identifierError(key, identifiers[key] ?? "");
-              return (
-                <TextField
-                  key={key}
-                  label={key}
-                  value={identifiers[key] ?? ""}
-                  onChange={(event) =>
-                    setIdentifiers((current) => ({
-                      ...current,
-                      [key]: event.target.value,
-                    }))
-                  }
-                  size="small"
-                  disabled={!editable}
-                  error={message !== null}
-                  helperText={message ?? expected}
-                  sx={{ width: 190 }}
-                />
-              );
-            })}
-          </Stack>
-
-          <Divider />
-          <Typography variant="subtitle2">Facts</Typography>
-          <Typography variant="body2" color="text.secondary">
-            What a curator answers by hand. A field left empty is not published;
-            clearing one removes the answer.
-          </Typography>
-          {LOCALIZED_FACTS.map(({ key, label }) => (
+            <Divider />
+            <Typography variant="subtitle2">Identifiers</Typography>
             <Stack
-              key={key}
-              direction={{ xs: "column", sm: "row" }}
+              direction="row"
               spacing={2}
+              useFlexGap
+              sx={{ flexWrap: "wrap" }}
             >
-              {locales.map((locale) => (
-                <TextField
-                  key={`${key}.${locale}`}
-                  label={`${label} (${locale})`}
-                  value={localizedFacts[key]?.[locale] ?? ""}
-                  onChange={(event) =>
-                    setLocalizedFacts((current) => ({
-                      ...current,
-                      [key]: {
-                        ...(current[key] ?? {}),
-                        [locale]: event.target.value,
-                      },
-                    }))
-                  }
-                  size="small"
-                  disabled={!editable}
-                  sx={{ minWidth: 240 }}
-                />
-              ))}
+              {IDENTIFIERS.map(({ key, expected }) => {
+                const message = identifierError(key, identifiers[key] ?? "");
+                return (
+                  <TextField
+                    key={key}
+                    label={key}
+                    value={identifiers[key] ?? ""}
+                    onChange={(event) =>
+                      setIdentifiers((current) => ({
+                        ...current,
+                        [key]: event.target.value,
+                      }))
+                    }
+                    size="small"
+                    disabled={!editable}
+                    error={message !== null}
+                    helperText={message ?? expected}
+                    sx={{ width: 190 }}
+                  />
+                );
+              })}
             </Stack>
-          ))}
-          {MEASURED_FACTS.map(({ key, label, unit }) => {
-            const measured = measuredFacts[key] ?? EMPTY_MEASURED;
-            return (
+
+            <Divider />
+            <Typography variant="subtitle2">Facts</Typography>
+            <Typography variant="body2" color="text.secondary">
+              What a curator answers by hand. A field left empty is not
+              published; clearing one removes the answer.
+            </Typography>
+            {LOCALIZED_FACTS.map(({ key, label }) => (
               <Stack
                 key={key}
                 direction={{ xs: "column", sm: "row" }}
                 spacing={2}
               >
-                <TextField
-                  label={label}
-                  value={measured.value}
-                  onChange={(event) =>
-                    setMeasuredFacts((current) => ({
-                      ...current,
-                      [key]: { ...measured, value: event.target.value },
-                    }))
-                  }
-                  size="small"
-                  disabled={!editable}
-                  inputMode="numeric"
-                  sx={{ minWidth: 200 }}
-                />
-                <TextField
-                  label={`${label} unit`}
-                  value={measured.unit}
-                  onChange={(event) =>
-                    setMeasuredFacts((current) => ({
-                      ...current,
-                      [key]: { ...measured, unit: event.target.value },
-                    }))
-                  }
-                  size="small"
-                  disabled={!editable}
-                  placeholder={unit}
-                />
-                <TextField
-                  label={`${label} observed at`}
-                  value={measured.observedAt}
-                  onChange={(event) =>
-                    setMeasuredFacts((current) => ({
-                      ...current,
-                      [key]: { ...measured, observedAt: event.target.value },
-                    }))
-                  }
-                  size="small"
-                  disabled={!editable}
-                  placeholder="YYYY-MM-DD"
-                />
-              </Stack>
-            );
-          })}
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-            <TextField
-              label="Statehood date"
-              value={statehoodDate}
-              onChange={(event) => setStatehoodDate(event.target.value)}
-              size="small"
-              disabled={!editable}
-              placeholder="YYYY-MM-DD"
-              helperText="When the unit joined the entity above it."
-              sx={{ minWidth: 240 }}
-            />
-          </Stack>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-            {locales.map((locale) => (
-              <TextField
-                key={`languages.${locale}`}
-                label={`Languages (${locale})`}
-                value={languageRows[locale] ?? ""}
-                onChange={(event) =>
-                  setLanguageRows((current) => ({
-                    ...current,
-                    [locale]: event.target.value,
-                  }))
-                }
-                size="small"
-                disabled={!editable}
-                helperText="Comma-separated, in the same order in every locale."
-                sx={{ minWidth: 280 }}
-              />
-            ))}
-          </Stack>
-
-          <Divider />
-          <Typography variant="subtitle2">Names</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Names come from upstream sources; a value typed here becomes an
-            editorial override that outranks them. Clear a field to give the
-            name back to the sources.
-          </Typography>
-          {locales.map((locale) => (
-            <Stack
-              key={locale}
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-            >
-              {NAME_FIELDS.map((field) => {
-                const path = namePath(locale, field);
-                return (
+                {locales.map((locale) => (
                   <TextField
-                    key={path}
-                    label={`${field} (${locale})`}
-                    value={nameOverrides[path] ?? ""}
+                    key={`${key}.${locale}`}
+                    label={`${label} (${locale})`}
+                    value={localizedFacts[key]?.[locale] ?? ""}
                     onChange={(event) =>
-                      setNameOverrides((current) => ({
+                      setLocalizedFacts((current) => ({
                         ...current,
-                        [path]: event.target.value,
+                        [key]: {
+                          ...(current[key] ?? {}),
+                          [locale]: event.target.value,
+                        },
                       }))
                     }
                     size="small"
                     disabled={!editable}
-                    placeholder={
-                      field === "short"
-                        ? (detail.publishedNames[locale] ?? "")
-                        : ""
-                    }
-                    helperText={
-                      field === "short" &&
-                      detail.publishedNames[locale] !== undefined
-                        ? `Published: ${detail.publishedNames[locale]}`
-                        : " "
-                    }
-                    sx={{ minWidth: 260 }}
+                    sx={{ minWidth: 240 }}
                   />
-                );
-              })}
+                ))}
+              </Stack>
+            ))}
+            {MEASURED_FACTS.map(({ key, label, unit }) => {
+              const measured = measuredFacts[key] ?? EMPTY_MEASURED;
+              return (
+                <Stack
+                  key={key}
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
+                >
+                  <TextField
+                    label={label}
+                    value={measured.value}
+                    onChange={(event) =>
+                      setMeasuredFacts((current) => ({
+                        ...current,
+                        [key]: { ...measured, value: event.target.value },
+                      }))
+                    }
+                    size="small"
+                    disabled={!editable}
+                    inputMode="numeric"
+                    sx={{ minWidth: 200 }}
+                  />
+                  <TextField
+                    label={`${label} unit`}
+                    value={measured.unit}
+                    onChange={(event) =>
+                      setMeasuredFacts((current) => ({
+                        ...current,
+                        [key]: { ...measured, unit: event.target.value },
+                      }))
+                    }
+                    size="small"
+                    disabled={!editable}
+                    placeholder={unit}
+                  />
+                  <TextField
+                    label={`${label} observed at`}
+                    value={measured.observedAt}
+                    onChange={(event) =>
+                      setMeasuredFacts((current) => ({
+                        ...current,
+                        [key]: { ...measured, observedAt: event.target.value },
+                      }))
+                    }
+                    size="small"
+                    disabled={!editable}
+                    placeholder="YYYY-MM-DD"
+                  />
+                </Stack>
+              );
+            })}
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                label="Statehood date"
+                value={statehoodDate}
+                onChange={(event) => setStatehoodDate(event.target.value)}
+                size="small"
+                disabled={!editable}
+                placeholder="YYYY-MM-DD"
+                helperText="When the unit joined the entity above it."
+                sx={{ minWidth: 240 }}
+              />
             </Stack>
-          ))}
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              {locales.map((locale) => (
+                <TextField
+                  key={`languages.${locale}`}
+                  label={`Languages (${locale})`}
+                  value={languageRows[locale] ?? ""}
+                  onChange={(event) =>
+                    setLanguageRows((current) => ({
+                      ...current,
+                      [locale]: event.target.value,
+                    }))
+                  }
+                  size="small"
+                  disabled={!editable}
+                  helperText="Comma-separated, in the same order in every locale."
+                  sx={{ minWidth: 280 }}
+                />
+              ))}
+            </Stack>
 
-          <Divider />
-          <Typography variant="subtitle2">Other overrides</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Any merged field can be pinned by its dotted path. A quoted value is
-            parsed as JSON; anything else is stored as text. The facts above own
-            their own paths and are not repeated here.
-          </Typography>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Path</TableCell>
-                <TableCell>Value</TableCell>
-                <TableCell width={56} />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rawOverrides.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>
+            <Divider />
+            <Typography variant="subtitle2">Names</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Names come from upstream sources; a value typed here becomes an
+              editorial override that outranks them. Clear a field to give the
+              name back to the sources.
+            </Typography>
+            {locales.map((locale) => (
+              <Stack
+                key={locale}
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+              >
+                {NAME_FIELDS.map((field) => {
+                  const path = namePath(locale, field);
+                  return (
                     <TextField
-                      value={row.path}
+                      key={path}
+                      label={`${field} (${locale})`}
+                      value={nameOverrides[path] ?? ""}
                       onChange={(event) =>
-                        setRawOverrides((current) =>
-                          current.map((entry, at) =>
-                            at === index
-                              ? { ...entry, path: event.target.value }
-                              : entry,
-                          ),
-                        )
+                        setNameOverrides((current) => ({
+                          ...current,
+                          [path]: event.target.value,
+                        }))
                       }
                       size="small"
-                      fullWidth
                       disabled={!editable}
-                      placeholder="recognition.note.en"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      value={row.value}
-                      onChange={(event) =>
-                        setRawOverrides((current) =>
-                          current.map((entry, at) =>
-                            at === index
-                              ? { ...entry, value: event.target.value }
-                              : entry,
-                          ),
-                        )
+                      placeholder={
+                        field === "short"
+                          ? (detail.publishedNames[locale] ?? "")
+                          : ""
                       }
-                      size="small"
-                      fullWidth
-                      disabled={!editable}
+                      helperText={
+                        field === "short" &&
+                        detail.publishedNames[locale] !== undefined
+                          ? `Published: ${detail.publishedNames[locale]}`
+                          : " "
+                      }
+                      sx={{ minWidth: 260 }}
                     />
-                  </TableCell>
-                  <TableCell>
-                    {editable && (
-                      <IconButton
-                        size="small"
-                        onClick={() =>
+                  );
+                })}
+              </Stack>
+            ))}
+
+            <Divider />
+            <Typography variant="subtitle2">Other overrides</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Any merged field can be pinned by its dotted path. A quoted value
+              is parsed as JSON; anything else is stored as text. The facts
+              above own their own paths and are not repeated here.
+            </Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Path</TableCell>
+                  <TableCell>Value</TableCell>
+                  <TableCell width={56} />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rawOverrides.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <TextField
+                        value={row.path}
+                        onChange={(event) =>
                           setRawOverrides((current) =>
-                            current.filter((_, at) => at !== index),
+                            current.map((entry, at) =>
+                              at === index
+                                ? { ...entry, path: event.target.value }
+                                : entry,
+                            ),
                           )
                         }
-                      >
-                        <DeleteOutlineIcon fontSize="small" />
-                      </IconButton>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          {editable && (
-            <Box>
-              <Button
-                size="small"
-                onClick={() =>
-                  setRawOverrides((current) => [
-                    ...current,
-                    { path: "", value: "" },
-                  ])
-                }
-              >
-                Add override
-              </Button>
-            </Box>
-          )}
-
-          <Divider />
-          <Stack direction="row" spacing={2}>
-            <Button
-              variant="contained"
-              disabled={!editable || saving || blocked}
-              onClick={requestSave}
-            >
-              Save
-            </Button>
-            <Button
-              variant="outlined"
-              disabled={saving}
-              onClick={() => void navigate(`/drafts/${draft.id}/entities`)}
-            >
-              Cancel
-            </Button>
+                        size="small"
+                        fullWidth
+                        disabled={!editable}
+                        placeholder="recognition.note.en"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        value={row.value}
+                        onChange={(event) =>
+                          setRawOverrides((current) =>
+                            current.map((entry, at) =>
+                              at === index
+                                ? { ...entry, value: event.target.value }
+                                : entry,
+                            ),
+                          )
+                        }
+                        size="small"
+                        fullWidth
+                        disabled={!editable}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {editable && (
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            setRawOverrides((current) =>
+                              current.filter((_, at) => at !== index),
+                            )
+                          }
+                        >
+                          <DeleteOutlineIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {editable && (
+              <Box>
+                <Button
+                  size="small"
+                  onClick={() =>
+                    setRawOverrides((current) => [
+                      ...current,
+                      { path: "", value: "" },
+                    ])
+                  }
+                >
+                  Add override
+                </Button>
+              </Box>
+            )}
           </Stack>
-        </Stack>
-      </CardContent>
+        </CardContent>
+      </Card>
+
+      <StickyActionBar
+        status={
+          blocked
+            ? "Fix the highlighted fields before saving."
+            : editable
+              ? undefined
+              : "You are viewing this entity; editing needs the EDITOR role."
+        }
+        secondary={
+          <Button
+            variant="outlined"
+            disabled={saving}
+            onClick={() => void navigate(routes.draftEntities(draft.id))}
+          >
+            Cancel
+          </Button>
+        }
+        primary={
+          <Button
+            variant="contained"
+            disabled={!editable || saving || blocked}
+            onClick={requestSave}
+          >
+            {saving ? "Saving\u2026" : "Save entity"}
+          </Button>
+        }
+      />
 
       <Dialog open={parentWarning} onClose={() => setParentWarning(false)}>
         <DialogTitle>Move a published subdivision?</DialogTitle>
@@ -940,6 +964,6 @@ export function EntityEditor() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Card>
+    </>
   );
 }
