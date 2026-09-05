@@ -20,11 +20,12 @@ import { assertTrustedAdminOrigin } from "../admin-auth/admin-origin";
 import { RequireAdminRole } from "../admin-auth/admin-roles";
 import { AdminRolesGuard } from "../admin-auth/admin-roles.guard";
 import {
+  parseEntityListQuery,
   parseEntityUpdateRequest,
   parseIfMatchRevision,
 } from "./admin-drafts.request";
 import { DraftEntitiesService } from "./draft-entities.service";
-import type { EntityDetail } from "./draft-entities.service";
+import type { EntityDetail, EntityListPage } from "./draft-entities.service";
 
 function toDraftStamp(draft: ContentDraft): Record<string, unknown> {
   return {
@@ -48,12 +49,21 @@ export class DraftEntitiesController {
     private readonly config: ConfigService<EnvironmentVariables>,
   ) {}
 
+  /**
+   * The aggregated list the console renders, filtered on the server.
+   *
+   * `total` counts what the filters matched rather than what the page holds,
+   * so a paged list can say how much work is left.
+   */
   @Get()
-  async list(
+  list(
+    @Req() request: AdminAuthenticatedRequest,
     @Param("draftId") rawDraftId: string,
-  ): Promise<Record<string, unknown>> {
-    const items = await this.entities.list(uuid(rawDraftId, "draftId"));
-    return { items, total: items.length };
+  ): Promise<EntityListPage> {
+    return this.entities.list(
+      uuid(rawDraftId, "draftId"),
+      parseEntityListQuery(request.query),
+    );
   }
 
   @Get(":entityKey")

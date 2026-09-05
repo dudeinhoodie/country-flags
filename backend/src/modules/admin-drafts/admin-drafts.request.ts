@@ -2,6 +2,7 @@ import { HttpStatus } from "@nestjs/common";
 
 import { ApiException } from "../../common/http/api.exception";
 import {
+  canonicalLocale,
   exactRequestKeys,
   requestRecord,
   requiredString,
@@ -1029,4 +1030,184 @@ export function parseDraftAssetPatch(body: unknown): DraftAssetPatchInput {
     validationError("body", "must change at least one field");
   }
   return changes;
+}
+
+/**
+ * The same revision carrier as `parseIfMatchRevision`, but absence is
+ * allowed.
+ *
+ * Only the multipart upload uses it. A browser form posts no `If-Match`, and
+ * refusing the upload for that would take the media editor away from every
+ * console that has not been rewritten yet; when the header is there it is
+ * enforced exactly as it is everywhere else.
+ */
+export function parseOptionalIfMatchRevision(
+  header: string | undefined,
+): number | undefined {
+  return header === undefined ? undefined : parseIfMatchRevision(header);
+}
+
+function queryRecord(query: unknown): Record<string, unknown> {
+  return typeof query === "object" && query !== null && !Array.isArray(query)
+    ? (query as Record<string, unknown>)
+    : {};
+}
+
+function queryInteger(
+  value: unknown,
+  field: string,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number {
+  if (value === undefined) {
+    return fallback;
+  }
+  const parsed = typeof value === "string" ? Number(value) : NaN;
+  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) {
+    validationError(
+      field,
+      `must be an integer from ${String(minimum)} to ${String(maximum)}`,
+    );
+  }
+  return parsed;
+}
+
+function queryString(
+  value: unknown,
+  field: string,
+  maximum: number,
+): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "string" || value.length === 0) {
+    validationError(field, "must be a non-empty string");
+  }
+  if (value.length > maximum) {
+    validationError(field, `must be at most ${String(maximum)} characters`);
+  }
+  return value;
+}
+
+function queryEnum<T extends string>(
+  value: unknown,
+  field: string,
+  allowed: readonly T[],
+): T | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "string" || !allowed.includes(value as T)) {
+    validationError(field, `must be one of: ${allowed.join(", ")}`);
+  }
+  return value as T;
+}
+
+function queryBoolean(value: unknown, field: string): boolean | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value !== "true" && value !== "false") {
+    validationError(field, "must be true or false");
+  }
+  return value === "true";
+}
+
+const VALIDATION_STATES = ["ok", "warning", "blocking"] as const;
+
+export interface EntityListQuery {
+  search?: string | undefined;
+  type?: string | undefined;
+  parentKey?: string | undefined;
+  status?: string | undefined;
+  includeInCountryCatalog?: boolean | undefined;
+  missingFlag?: boolean | undefined;
+  missingCoatOfArms?: boolean | undefined;
+  missingLocalization?: boolean | undefined;
+  validation?: "ok" | "warning" | "blocking" | undefined;
+  usedInDecks?: boolean | undefined;
+  offset: number;
+  limit: number;
+}
+
+/**
+ * The entity list's filters.
+ *
+ * They are all server-side on purpose: the list is the screen an editor uses
+ * to find work, and "subdivisions of the United States with no coat of arms"
+ * has to be one request rather than a full download the browser then sifts.
+ */
+export function parseEntityListQuery(query: unknown): EntityListQuery {
+  const record = queryRecord(query);
+  return {
+    search: queryString(record.search, "search", 200),
+    type: queryEnum(record.type, "type", ENTITY_TYPES),
+    parentKey: queryString(record.parentKey, "parentKey", 200),
+    status: queryEnum(record.status, "status", ENTITY_STATUSES),
+    includeInCountryCatalog: queryBoolean(
+      record.includeInCountryCatalog,
+      "includeInCountryCatalog",
+    ),
+    missingFlag: queryBoolean(record.missingFlag, "missingFlag"),
+    missingCoatOfArms: queryBoolean(
+      record.missingCoatOfArms,
+      "missingCoatOfArms",
+    ),
+    missingLocalization: queryBoolean(
+      record.missingLocalization,
+      "missingLocalization",
+    ),
+    validation: queryEnum(record.validation, "validation", VALIDATION_STATES),
+    usedInDecks: queryBoolean(record.usedInDecks, "usedInDecks"),
+    offset: queryInteger(record.offset, "offset", 0, 0, 1_000_000),
+    // The list is the console's main working surface and the whole catalog
+    // is a few hundred rows, so it may ask for all of them at once.
+    limit: queryInteger(record.limit, "limit", 500, 1, 1000),
+  };
+}
+
+const ASSET_TYPES = ["FLAG", "COAT_OF_ARMS", "MAP", "OTHER"] as const;
+const READINESS = ["any", "ready", "blocked"] as const;
+
+export interface CardCandidateQuery {
+  search?: string | undefined;
+  entityType?: string | undefined;
+  parentKey?: string | undefined;
+  assetType?: (typeof ASSET_TYPES)[number] | undefined;
+  templateCode?: string | undefined;
+  locale?: string | undefined;
+  readiness?: (typeof READINESS)[number] | undefined;
+  deckKey?: string | undefined;
+  offset: number;
+  limit: number;
+}
+
+/** What the deck builder's card library is narrowed by. */
+export function parseCardCandidateQuery(query: unknown): CardCandidateQuery {
+  const record = queryRecord(query);
+  return {
+    search: queryString(record.search, "search", 200),
+    entityType: queryEnum(record.entityType, "entityType", ENTITY_TYPES),
+    parentKey: queryString(record.parentKey, "parentKey", 200),
+    assetType: queryEnum(record.assetType, "assetType", ASSET_TYPES),
+    templateCode:
+      record.templateCode === undefined
+        ? undefined
+        : requiredString(
+            record.templateCode,
+            "templateCode",
+            1,
+            100,
+            /^[A-Z][A-Z0-9_]*$/,
+          ),
+    locale:
+      record.locale === undefined
+        ? undefined
+        : canonicalLocale(record.locale, "locale"),
+    readiness: queryEnum(record.readiness, "readiness", READINESS),
+    deckKey: queryString(record.deckKey, "deckKey", 200),
+    offset: queryInteger(record.offset, "offset", 0, 0, 1_000_000),
+    limit: queryInteger(record.limit, "limit", 50, 1, 200),
+  };
 }
