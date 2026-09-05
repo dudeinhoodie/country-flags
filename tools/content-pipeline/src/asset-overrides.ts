@@ -145,6 +145,8 @@ export async function loadAssetOverrides(
         reason: override.reason,
         candidate: {
           entity: { editorialKey: override.entityKey },
+          assetType: override.assetType,
+          variant: override.variant,
           ...drawing,
           aspectRatio: override.aspectRatio,
           provenance,

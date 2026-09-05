@@ -34,9 +34,16 @@ function conflict(code: string, message: string, details = {}): never {
   throw new ApiException(HttpStatus.CONFLICT, code, message, details);
 }
 
+const EDITORIAL_ASSET_TYPE: Record<string, string> = {
+  [AssetType.FLAG]: "flag",
+  [AssetType.COAT_OF_ARMS]: "coat_of_arms",
+  [AssetType.MAP]: "map",
+};
+
 interface EditorialAssetOverrideEntry extends Record<string, unknown> {
   entityKey: string;
-  assetType: "flag";
+  assetType: string;
+  variant: string;
   aspectRatio: number;
   license: string;
   sourceUrl: string;
@@ -167,8 +174,12 @@ export class DraftProposalService {
         );
       }
       const extension = asset.mimeType === "image/png" ? "png" : "svg";
+      const entry = entries[entries.length - 1];
       files.push({
-        path: `${OVERRIDE_DIRECTORY}/${asset.entityContentKey}.${extension}`,
+        // Typed path: one entity holds several symbols, and under the old
+        // flat name a coat of arms and a flag would have fought over one
+        // file (ADR-020).
+        path: `${OVERRIDE_DIRECTORY}/${asset.entityContentKey}/${String(entry?.assetType)}/${String(entry?.variant)}.${extension}`,
         content: bytes,
       });
     }
@@ -176,11 +187,15 @@ export class DraftProposalService {
     const existing = (
       Array.isArray(document.assetOverrides) ? document.assetOverrides : []
     ) as EditorialAssetOverrideEntry[];
-    const replaced = new Set(entries.map((entry) => entry.entityKey));
+    const symbolKey = (entry: EditorialAssetOverrideEntry): string =>
+      `${entry.entityKey}\u0000${String(entry.assetType)}\u0000${String(entry.variant ?? "current")}`;
+    const replaced = new Set(entries.map(symbolKey));
     const merged = [
-      ...existing.filter((entry) => !replaced.has(entry.entityKey)),
+      ...existing.filter((entry) => !replaced.has(symbolKey(entry))),
       ...entries,
-    ].sort((left, right) => left.entityKey.localeCompare(right.entityKey));
+    ].sort((left, right) =>
+      symbolKey(left).localeCompare(symbolKey(right), "en"),
+    );
 
     const committedDocument =
       merged.length === 0 ? document : { ...document, assetOverrides: merged };
@@ -192,10 +207,11 @@ export class DraftProposalService {
   }
 
   private overrideEntry(asset: DraftAsset): EditorialAssetOverrideEntry {
-    if (asset.assetType !== AssetType.FLAG) {
+    const assetType = EDITORIAL_ASSET_TYPE[asset.assetType];
+    if (assetType === undefined) {
       conflict(
         "DRAFT_ASSET_NOT_EXPRESSIBLE",
-        `The editorial override layer only carries flags; remove the ${asset.assetType} upload for ${asset.entityContentKey}`,
+        `The editorial override layer has no name for a ${asset.assetType} upload; remove the one for ${asset.entityContentKey}`,
       );
     }
     const aspectRatio =
@@ -216,7 +232,8 @@ export class DraftProposalService {
     }
     return {
       entityKey: asset.entityContentKey,
-      assetType: "flag",
+      assetType,
+      variant: asset.variant,
       aspectRatio,
       license: asset.licenseName,
       sourceUrl: asset.sourceUrl,

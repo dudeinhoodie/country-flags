@@ -58,6 +58,15 @@ function catalogFixture(
         kind: "curated",
         names: { en: { name: "All" }, ru: { name: "Все" } },
         memberEntityKeys: ["country.testland"],
+        memberCards: [
+          {
+            entityKey: "country.testland",
+            templateCode: "FLAG_TO_COUNTRY",
+            templateSchemaVersion: 1,
+          },
+        ],
+        contentKinds: ["FLAG"],
+        cardCount: 1,
       },
     ],
   };
@@ -93,6 +102,8 @@ function assetsFixture(
       {
         key: "flag.testland.current",
         entityKey: "country.testland",
+        assetType: "flag",
+        variant: "current",
         representations: overrides.representations ?? representationsFixture(),
         aspectRatio: 1.5,
         sourcePath: "flags/4x3/tl.svg",
@@ -286,6 +297,15 @@ describe("validateBundle", () => {
             kind: "curated",
             names: { en: { name: "All" }, ru: { name: "Все" } },
             memberEntityKeys: ["country.unknown"],
+            memberCards: [
+              {
+                entityKey: "country.unknown",
+                templateCode: "FLAG_TO_COUNTRY",
+                templateSchemaVersion: 1,
+              },
+            ],
+            contentKinds: ["FLAG"],
+            cardCount: 1,
           },
         ],
       }),
@@ -307,12 +327,30 @@ describe("validateBundle", () => {
               ru: { name: "Южная Америка" },
             },
             memberEntityKeys: ["country.testland"],
+            memberCards: [
+              {
+                entityKey: "country.testland",
+                templateCode: "FLAG_TO_COUNTRY",
+                templateSchemaVersion: 1,
+              },
+            ],
+            contentKinds: ["FLAG"],
+            cardCount: 1,
           },
           {
             key: "deck.south_america",
             kind: "curated",
             names: { en: { name: "The Americas" }, ru: { name: "Америки" } },
             memberEntityKeys: ["country.testland"],
+            memberCards: [
+              {
+                entityKey: "country.testland",
+                templateCode: "FLAG_TO_COUNTRY",
+                templateSchemaVersion: 1,
+              },
+            ],
+            contentKinds: ["FLAG"],
+            cardCount: 1,
           },
         ],
       }),
@@ -331,6 +369,15 @@ describe("validateBundle", () => {
             kind: "curated",
             names: { en: { name: "The nineties" }, ru: { name: "Девяностые" } },
             memberEntityKeys: ["country.testland"],
+            memberCards: [
+              {
+                entityKey: "country.testland",
+                templateCode: "FLAG_TO_COUNTRY",
+                templateSchemaVersion: 1,
+              },
+            ],
+            contentKinds: ["FLAG"],
+            cardCount: 1,
           },
         ],
       }),

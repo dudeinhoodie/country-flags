@@ -151,10 +151,18 @@ export function mapProgressPolicy(): ProgressPolicy {
   return ProgressPolicy.PRESERVE;
 }
 
-export function mapAssetType(): AssetType {
-  // Every bundle asset produced today is a flag; extend this map when other
-  // asset kinds (coat of arms, maps) are added to the bundle schema.
-  return AssetType.FLAG;
+const ASSET_TYPE_MAP: Record<string, AssetType> = {
+  flag: AssetType.FLAG,
+  coat_of_arms: AssetType.COAT_OF_ARMS,
+  map: AssetType.MAP,
+};
+
+export function mapAssetType(assetType: string): AssetType {
+  const mapped = ASSET_TYPE_MAP[assetType];
+  if (mapped === undefined) {
+    throw new Error(`Unknown asset type ${assetType}`);
+  }
+  return mapped;
 }
 
 export function mapAssetStatus(): AssetStatus {

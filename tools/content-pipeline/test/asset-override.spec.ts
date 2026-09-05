@@ -86,6 +86,8 @@ function catalog(
 function upstreamAsset(isoAlpha2: string, svg: string): AssetCandidate {
   return {
     entity: { isoAlpha2 },
+    assetType: "flag",
+    variant: "current",
     upstreamPath: `flags/${isoAlpha2.toLowerCase()}.svg`,
     svg,
     aspectRatio: 1.5,
