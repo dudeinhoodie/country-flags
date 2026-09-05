@@ -167,6 +167,12 @@ actor SwiftDataContentRepository: ContentRepository {
             stored.status = entity.status
             stored.recognitionStatus = entity.recognitionStatus
             stored.contentVersion = entity.contentVersion
+            stored.parent = entity.parent.map {
+                StoredEntityParent(id: $0.id, kind: $0.kind, name: $0.name)
+            }
+            stored.isoSubdivision = entity.identifiers.isoSubdivision
+            stored.localCode = entity.identifiers.localCode
+            stored.fipsCode = entity.identifiers.fipsCode
             // The children are owned by the entity and cascade-deleted with it,
             // so replacing the arrays is what keeps a renamed or withdrawn name
             // from surviving its release.
@@ -203,6 +209,11 @@ actor SwiftDataContentRepository: ContentRepository {
             stored.cardCount = deck.cardCount
             stored.contentVersion = deck.contentVersion
             stored.sortOrder = deck.sortOrder
+            stored.accessModel = deck.accessModel
+            stored.requiredEntitlementKey = deck.requiredEntitlementKey
+            stored.offerCodes = deck.offerCodes
+            stored.contentKinds = deck.contentKinds
+            stored.previewCardIDs = deck.previewCardIDs
         }
 
         for card in page.cards {
@@ -352,15 +363,21 @@ actor SwiftDataContentRepository: ContentRepository {
                 url: asset.url,
                 mimeType: asset.mimeType,
                 sha256: asset.sha256,
-                contentVersion: asset.contentVersion
+                contentVersion: asset.contentVersion,
+                variant: asset.variant,
+                displayName: asset.displayName,
+                assetDescription: asset.assetDescription
             )
             modelContext.insert(stored)
         }
         stored.type = asset.type
+        stored.variant = asset.variant
         stored.url = asset.url
         stored.mimeType = asset.mimeType
         stored.sha256 = asset.sha256
         stored.contentVersion = asset.contentVersion
+        stored.displayName = asset.displayName
+        stored.assetDescription = asset.assetDescription
         if let entity {
             stored.entity = entity
         }
@@ -466,7 +483,10 @@ actor SwiftDataContentRepository: ContentRepository {
             url: stored.url,
             mimeType: stored.mimeType,
             sha256: stored.sha256,
-            contentVersion: stored.contentVersion
+            contentVersion: stored.contentVersion,
+            variant: stored.variant,
+            displayName: stored.displayName,
+            assetDescription: stored.assetDescription
         )
     }
 
@@ -479,7 +499,12 @@ actor SwiftDataContentRepository: ContentRepository {
             deckDescription: stored.deckDescription,
             cardCount: stored.cardCount,
             contentVersion: stored.contentVersion,
-            sortOrder: stored.sortOrder
+            sortOrder: stored.sortOrder,
+            accessModel: stored.accessModel,
+            requiredEntitlementKey: stored.requiredEntitlementKey,
+            offerCodes: stored.offerCodes,
+            contentKinds: stored.contentKinds,
+            previewCardIDs: stored.previewCardIDs
         )
     }
 
@@ -518,16 +543,7 @@ actor SwiftDataContentRepository: ContentRepository {
             names: (stored.names ?? []).map {
                 GeoNameRecord(locale: $0.locale, value: $0.value, isPrimary: $0.isPrimary)
             },
-            assets: (stored.assets ?? []).map {
-                AssetRecord(
-                    id: $0.id,
-                    type: $0.type,
-                    url: $0.url,
-                    mimeType: $0.mimeType,
-                    sha256: $0.sha256,
-                    contentVersion: $0.contentVersion
-                )
-            },
+            assets: (stored.assets ?? []).map(Self.record),
             facts: (stored.facts ?? []).map {
                 FactRecord(
                     type: $0.type,
@@ -535,7 +551,15 @@ actor SwiftDataContentRepository: ContentRepository {
                     sourceName: $0.sourceName,
                     details: FactDetailsCoding.decode($0.detailsJSON)
                 )
-            }
+            },
+            parent: stored.parent.map {
+                GeoEntityParentRecord(id: $0.id, kind: $0.kind, name: $0.name)
+            },
+            identifiers: GeoEntityIdentifiersRecord(
+                isoSubdivision: stored.isoSubdivision,
+                localCode: stored.localCode,
+                fipsCode: stored.fipsCode
+            )
         )
     }
 }

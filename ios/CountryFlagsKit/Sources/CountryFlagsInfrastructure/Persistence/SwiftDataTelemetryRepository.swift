@@ -196,6 +196,11 @@ actor SwiftDataAccountScopeCleaner: AccountScopeCleaner {
             try delete(StoredAnalyticsEvent.self, scopeKey: key)
             try delete(StoredPrivacySettings.self, scopeKey: key)
             try delete(StoredPendingDiagnosticReport.self, scopeKey: key)
+            // What the account may open goes with it: signing out has to take
+            // the paid payload off the device. The offer catalog stays — it is
+            // shared, and it is what is for sale rather than what was bought.
+            try delete(StoredEntitlement.self, scopeKey: key)
+            try delete(StoredPurchaseDelivery.self, scopeKey: key)
         }
     }
 
@@ -227,4 +232,6 @@ extension StoredSyncCursor: ScopedModel {}
 extension StoredAnalyticsEvent: ScopedModel {}
 extension StoredPrivacySettings: ScopedModel {}
 extension StoredPendingDiagnosticReport: ScopedModel {}
+extension StoredEntitlement: ScopedModel {}
+extension StoredPurchaseDelivery: ScopedModel {}
 

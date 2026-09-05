@@ -179,6 +179,64 @@ public protocol OutboxRepository: Sendable {
     func discardQueuedWork(for scope: AccountScope) async throws
 }
 
+/// What the account may open, what it has bought and what is for sale.
+///
+/// Three concerns and one protocol because they are one story and are written
+/// together: a purchase is delivered, the backend answers, and the snapshot is
+/// replaced. Offers are shared by every account on the device — they are a
+/// catalog, like content — while the snapshot and the delivery queue belong to
+/// one account and carry a scope.
+public protocol CommerceRepository: Sendable {
+    /// What the server last said this account may open, or nil when it has
+    /// never been asked. Nil is not "nothing": a client that has not asked
+    /// yet must not conclude the customer owns nothing.
+    func entitlementSnapshot(for scope: AccountScope) async throws -> EntitlementSnapshotRecord?
+
+    /// Replaces the snapshot in one write. A refund and a purchase both arrive
+    /// as a whole answer, so the previous one is never partly overwritten.
+    func replaceEntitlementSnapshot(
+        _ snapshot: EntitlementSnapshotRecord,
+        for scope: AccountScope
+    ) async throws
+
+    /// Adds a verified transaction to the durable queue, or leaves the one
+    /// already queued for the same store transaction alone.
+    ///
+    /// The caller writes this before it finishes the transaction with the
+    /// store: after that point the store will not hand it over again.
+    func enqueuePurchaseDelivery(
+        _ delivery: PurchaseDeliveryRecord,
+        for scope: AccountScope
+    ) async throws
+
+    /// Deliveries still owed to the backend, oldest first.
+    func pendingPurchaseDeliveries(
+        for scope: AccountScope
+    ) async throws -> [PurchaseDeliveryRecord]
+
+    func updatePurchaseDeliveryState(
+        of deliveryID: UUID,
+        to state: PurchaseDeliveryState,
+        failureCode: String?,
+        for scope: AccountScope
+    ) async throws
+
+    /// A crash leaves deliveries claimed but not sent. They belong back in the
+    /// queue on the next launch rather than staying invisible forever.
+    func requeueInterruptedPurchaseDeliveries(for scope: AccountScope) async throws -> Int
+
+    /// Drops deliveries the backend has confirmed. Only a confirmed one goes:
+    /// anything else is a purchase the customer made and nobody recorded.
+    func removePurchaseDeliveries(ids: [UUID], for scope: AccountScope) async throws
+
+    /// The offers this build last downloaded, in the order they were listed.
+    func offers() async throws -> [CommerceOfferRecord]
+
+    /// Replaces the offer catalog with what the backend just listed. An offer
+    /// that is gone from the answer is withdrawn and must stop being shown.
+    func replaceOffers(_ offers: [CommerceOfferRecord]) async throws
+}
+
 /// Analytics, consent and diagnostics.
 public protocol TelemetryRepository: Sendable {
     func privacySettings(for scope: AccountScope) async throws -> PrivacySettingsRecord?
