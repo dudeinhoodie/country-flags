@@ -1314,6 +1314,7 @@ model AdminUser {
   createdDrafts ContentDraft[]    @relation("ContentDraftCreatedBy")
   updatedDrafts ContentDraft[]    @relation("ContentDraftUpdatedBy")
   publishRuns   PublishRun[]      @relation("PublishRunRequestedBy")
+  storeSyncRuns StoreSyncRun[]    @relation("StoreSyncRunRequestedBy")
 
   @@map("admin_users")
 }
@@ -1794,4 +1795,35 @@ model StoreReconciliationState {
 
   @@id([provider, storeEnvironment, scopeKey])
   @@map("store_reconciliation_state")
+}
+
+enum StoreSyncRunStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+/// One read-only conversation with a store, recorded so it can be watched.
+///
+/// The console never talks to App Store Connect itself: the API key belongs
+/// to a job with its own service account, and a browser session is not it.
+/// So asking for a sync writes this row and returns; the job picks it up,
+/// reports what the store said about each mapped product, and nothing here
+/// creates a product or changes a price.
+model StoreSyncRun {
+  id                     String             @id @default(uuid()) @db.Uuid
+  provider               StoreProvider      @default(APPLE_APP_STORE)
+  storeEnvironment       StoreEnvironment   @map("store_environment")
+  status                 StoreSyncRunStatus @default(QUEUED)
+  /// How many mapped products the run actually asked about.
+  checkedProductCount    Int?               @map("checked_product_count")
+  failureMessage         String?            @map("failure_message")
+  requestedByAdminUserId String             @map("requested_by_admin_user_id") @db.Uuid
+  startedAt              DateTime           @default(now()) @map("started_at") @db.Timestamptz(3)
+  finishedAt             DateTime?          @map("finished_at") @db.Timestamptz(3)
+  requestedBy            AdminUser          @relation("StoreSyncRunRequestedBy", fields: [requestedByAdminUserId], references: [id], onDelete: Restrict)
+
+  @@index([storeEnvironment, startedAt])
+  @@map("store_sync_runs")
 }

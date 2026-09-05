@@ -1267,7 +1267,7 @@ paths:
       tags: [AdminCommerce]
       summary: Read the health of the commerce contour
       operationId: adminGetCommerceStatus
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         What an operator checks before believing a storefront works: which
         environment this deployment talks to, how many offers are active,
@@ -1289,7 +1289,7 @@ paths:
       tags: [AdminCommerce]
       summary: List entitlement keys and what they open
       operationId: adminListEntitlements
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: Every entitlement and the decks that require it.
@@ -1305,7 +1305,7 @@ paths:
       tags: [AdminCommerce]
       summary: Declare an entitlement key
       operationId: adminCreateEntitlement
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         The key is a business boundary, not a publishing detail: it is never
         renamed once anything has been sold against it. Requires `PUBLISHER`.
@@ -1341,7 +1341,7 @@ paths:
       tags: [AdminCommerce]
       summary: List commerce offers
       operationId: adminListCommerceOffers
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: Offers with their grants and store products.
@@ -1357,7 +1357,7 @@ paths:
       tags: [AdminCommerce]
       summary: Create a draft offer
       operationId: adminCreateCommerceOffer
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         An offer starts as a draft: it grants nothing until a `PUBLISHER`
         activates it. Requires `EDITOR`.
@@ -1399,7 +1399,7 @@ paths:
       tags: [AdminCommerce]
       summary: Get one offer with its products and grants
       operationId: adminGetCommerceOffer
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: The offer.
@@ -1417,7 +1417,7 @@ paths:
       tags: [AdminCommerce]
       summary: Change an offer or its lifecycle
       operationId: adminUpdateCommerceOffer
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         Activation and retirement require `PUBLISHER`; copy and sort order
         require `EDITOR`. The grants of an offer that has already sold may
@@ -1461,7 +1461,7 @@ paths:
       tags: [AdminCommerce]
       summary: Map a store product to an offer
       operationId: adminCreateStoreProduct
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         The console records the mapping; it does not create the product. The
         product id and its type are immutable once activated, and the same id
@@ -1505,7 +1505,7 @@ paths:
       tags: [AdminCommerce]
       summary: Change a store product mapping
       operationId: adminUpdateStoreProduct
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         Status and notes only. The product id, its type, its bundle and its
         environment are what identify it, and none of them can be edited into
@@ -1542,7 +1542,7 @@ paths:
       tags: [AdminCommerce]
       summary: Start a read-only sync with the store
       operationId: adminStartStoreSyncRun
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         Asks the store what it knows about the mapped products. Read-only by
         design: the console never creates an in-app purchase and never
@@ -1576,7 +1576,7 @@ paths:
       tags: [AdminCommerce]
       summary: Watch a store sync run
       operationId: adminGetStoreSyncRun
-      x-implementation-status: planned
+      x-implementation-status: implemented
       responses:
         "200":
           description: The run and what it found.
@@ -1601,7 +1601,7 @@ paths:
       tags: [AdminCommerce]
       summary: Read one transaction for support
       operationId: adminGetStoreTransaction
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         Support diagnostics only. Store identifiers are masked and the signed
         payload is never returned: what a support agent needs is whether a
