@@ -189,6 +189,15 @@ export function DeckMembersEditor({
   onChange: (next: DeckMembers) => void;
 }) {
   const mode = modeOf(members);
+  // A member is a card variant now, and it may be written as a bare entity
+  // key or spelled out with its template. This editor speaks the first
+  // shape; the second stays readable rather than being flattened into
+  // something it is not (#319).
+  const explicitMembers = Array.isArray(members) ? members : [];
+  const entityKeys = explicitMembers.filter(
+    (member): member is string => typeof member === "string",
+  );
+  const cardRefCount = explicitMembers.length - entityKeys.length;
 
   return (
     <Stack spacing={2}>
@@ -205,7 +214,7 @@ export function DeckMembersEditor({
             if (next === "all-current") {
               onChange("all-current");
             } else if (next === "explicit") {
-              onChange(Array.isArray(members) ? members : []);
+              onChange(explicitMembers);
             } else {
               onChange({ taxonomy: "" });
             }
@@ -246,16 +255,23 @@ export function DeckMembersEditor({
         />
       )}
 
-      {mode === "explicit" && !disabled && (
-        <ExplicitMembers
-          members={Array.isArray(members) ? members : []}
-          onChange={onChange}
-        />
+      {mode === "explicit" && cardRefCount > 0 && (
+        <Alert severity="info">
+          This deck names card variants — an entity taught through a particular
+          template — and the editor that understands them arrives with the deck
+          editor rework. Its {cardRefCount} explicit
+          {cardRefCount === 1 ? " member is " : " members are "} left untouched
+          here.
+        </Alert>
       )}
 
-      {mode === "explicit" && disabled && (
+      {mode === "explicit" && !disabled && cardRefCount === 0 && (
+        <ExplicitMembers members={entityKeys} onChange={onChange} />
+      )}
+
+      {mode === "explicit" && disabled && cardRefCount === 0 && (
         <Typography variant="body2" color="text.secondary">
-          {(Array.isArray(members) ? members : []).join(", ")}
+          {entityKeys.join(", ")}
         </Typography>
       )}
     </Stack>
