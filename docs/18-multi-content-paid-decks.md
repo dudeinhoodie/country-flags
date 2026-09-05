@@ -603,15 +603,20 @@ regeneration `admin/src/api/generated` и drift check в CI.
   subdivision;
 - `COAT_OF_ARMS_TO_COUNTRY` v1 — neutral dark front, aspect-fit герб; answer с
   country/asset title/facts;
-- неизвестная пара `templateCode + schemaVersion` отсеивается на импорте, ровно
-  как сегодня отсеивается неподдерживаемая версия схемы: карточка не попадает в
-  локальный состав колоды, renderer registry для неё не вызывается, и до UI она
-  не доходит.
+- неизвестная пара `templateCode + schemaVersion` отсеивается при сборке
+  сессии, ровно как сегодня отсеивается неподдерживаемая версия схемы: карточка
+  не попадает в состав сессии и renderer registry для неё не вызывается.
 
 Отдельного «unsupported card» экрана нет: колода показывает фактическое число
 загруженных карточек, а сам факт отсева уходит в operational-аналитику
 (§12). Так поведение остаётся тем же, что у существующего клиента, и один
 незнакомый шаблон не может опустошить колоду.
+
+Единственный путь такой карточки до UI — сессия, собранная не этим билдом:
+возобновлённая после обновления или выбранная бэкендом. Тогда карточка
+получает unsupported state — нейтральная плашка с текстом вместо чужого
+рендерера — остаётся оцениваемой и не ломает сессию. Оба случая
+репортятся один раз на пару.
 
 Нельзя выбирать renderer по названию колоды.
 
@@ -721,7 +726,11 @@ Flags управляют rollout/discovery, но не entitlement. Owner не т
 - `paid_deck.study_started`;
 - `card.detail_opened` с `contentKind`, но без свободного текста;
 - `content.unsupported_card_template` — operational-событие категории
-  `essential_operations`, а не продуктовая метрика.
+  `essential_operations`, а не продуктовая метрика. До добавления имени в
+  `contracts/registries/analytics-events.json` iOS репортит тот же факт через
+  operational error reporter: `operation = unsupported_card_template`,
+  `errorCode = <CODE>@v<N>`, категория `content`. Ни ID карточки, ни страна,
+  ни аккаунт в отчёт не попадают.
 
 Ни одно событие не несёт transaction ID, `appAccountToken`, цену строкой или
 данные Apple Account.

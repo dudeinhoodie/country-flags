@@ -17,6 +17,10 @@ struct StudyCardStackView: View {
     let state: StudySessionState
     let store: ContentStore
     let assets: any AssetLoading
+    /// Which face each card of the sitting wears, by template. Handed in
+    /// rather than read here: the stack draws four cards at a time and the
+    /// answer is one store read for the whole deck.
+    let templates: CardTemplates
     /// The colours read off the flag: the scene wears them, and the back of
     /// the card wears them too.
     let palette: ScenePalette
@@ -129,6 +133,7 @@ struct StudyCardStackView: View {
             if isTurned {
                 StudyCardBack(
                     card: entry.card,
+                    face: templates.face(for: entry.card.learningCardID),
                     store: store,
                     palette: palette,
                     onDetails: onDetails
@@ -251,10 +256,15 @@ struct StudyCardStackView: View {
     }
 
     private func front(_ card: StudySessionCardRecord, isTurned: Bool) -> some View {
-        FlagCardFace(
+        CardFaceView(
+            face: templates.face(for: card.learningCardID),
             assetID: card.promptAssetID,
-            accessibilityLabel: isTurned ? card.displayName : L10n.studyFlagPrompt,
-            accessibilityHint: isTurned ? "" : L10n.studyCardHint,
+            // A turned card's front is behind its back, out of sight and out
+            // of reach: naming it there costs the question nothing, and a
+            // card face up must never be named.
+            namesSubject: isTurned,
+            displayName: card.displayName,
+            accessibilityHint: L10n.studyCardHint,
             store: store,
             assets: assets
         )
@@ -315,12 +325,17 @@ struct StudyCardStackView: View {
 /// which can grow when the type does and this cannot.
 private struct StudyCardBack: View {
     let card: StudySessionCardRecord
+    /// The template that asked the question. It decides one row: a coat of
+    /// arms has a name of its own — "Federal Eagle" — and that name is the
+    /// first thing the answer owes a learner who has just been shown one.
+    let face: CardFace
     let store: ContentStore
     let palette: ScenePalette
     let onDetails: () -> Void
 
     @State private var facts: [FactRecord] = []
     @State private var officialName: String?
+    @State private var symbolName: String?
     @State private var outline: CountryBoundaries.Outline?
 
     var body: some View {
@@ -344,31 +359,33 @@ private struct StudyCardBack: View {
                 }
             }
 
+            // The emblem's own name, above the country's facts and only on a
+            // card that asked with one. It is the content-specific row
+            // `DESIGN.md` reserves at the top of the coat answer, and it comes
+            // from the asset rather than from a string here: what a symbol is
+            // called is content, in the reader's language.
+            if let symbolName {
+                CardBackRow(
+                    symbol: "shield.fill",
+                    color: .purple,
+                    label: L10n.factEmblem,
+                    value: symbolName
+                )
+                .accessibilityIdentifier(AccessibilityIdentifier.studySymbolName)
+            }
+
             // The same badges the details sheet deals, at card size: a symbol
             // on its own colour is scannable in the second the answer takes,
             // where a grey label next to a grey value was not. Three facts —
             // capital, population, currency — in the release's own order.
-            ForEach(facts.prefix(3), id: \.self) { fact in
+            ForEach(facts.prefix(symbolName == nil ? 3 : 2), id: \.self) { fact in
                 let presentation = FactDisplay.presentation(for: fact)
-                HStack(spacing: DesignTokens.Spacing.small) {
-                    FactBadge(fact: fact)
-                    VStack(alignment: .leading, spacing: 0) {
-                        if let label = presentation.label {
-                            Text(label)
-                                .font(DesignTokens.Typography.caption)
-                                .foregroundStyle(.white.opacity(0.6))
-                        }
-                        Text(presentation.value)
-                            .font(DesignTokens.Typography.body.weight(.medium))
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                }
-                // One fact is one thing to hear, not a label and a value in
-                // sequence — and combining them is also what lets the row carry
-                // an identifier without handing it to both.
-                .accessibilityElement(children: .combine)
+                CardBackRow(
+                    symbol: FactBadge.symbol(for: fact.type),
+                    color: FactBadge.color(for: fact.type),
+                    label: presentation.label,
+                    value: presentation.value
+                )
                 .accessibilityIdentifier(AccessibilityIdentifier.studyFact(fact.type))
             }
 
@@ -434,9 +451,74 @@ private struct StudyCardBack: View {
                 displayName: card.displayName,
                 store: store
             )
+            symbolName = await SymbolNameLookup.name(
+                forPromptAsset: card.promptAssetID,
+                face: face,
+                subject: card.displayName,
+                store: store
+            )
             outline = await CountryOutlineLookup.outline(
                 forPromptAsset: card.promptAssetID, cardID: card.learningCardID, store: store
             )
         }
+    }
+}
+
+/// One line of the answer: a badge, what it is, and what it says.
+///
+/// Shared by the facts the release publishes and by the emblem's own name,
+/// which is not a fact but reads as one — a row that looked different would
+/// say the two things were different kinds of thing.
+private struct CardBackRow: View {
+    let symbol: String
+    let color: Color
+    let label: String?
+    let value: String
+
+    var body: some View {
+        HStack(spacing: DesignTokens.Spacing.small) {
+            SymbolBadge(symbol: symbol, color: color)
+            VStack(alignment: .leading, spacing: 0) {
+                if let label {
+                    Text(label)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                Text(value)
+                    .font(DesignTokens.Typography.body.weight(.medium))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        // One row is one thing to hear, not a label and a value in sequence —
+        // and combining them is also what lets the row carry an identifier
+        // without handing it to both.
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// What a symbol is called, when the release gives it a name of its own.
+///
+/// Asked only of a card whose template is about the symbol: every country has
+/// a flag, and "Flag of Germany" over the word Germany is a row that says
+/// nothing. A coat of arms is the other case — the Federal Eagle is the
+/// answer's substance, not a caption on it.
+enum SymbolNameLookup {
+    /// - Parameter subject: what the card is about, so a drawing named after
+    ///   the place it belongs to is left out: "Germany — Germany" is a row
+    ///   that says nothing twice.
+    static func name(
+        forPromptAsset assetID: UUID,
+        face: CardFace,
+        subject: String,
+        store: ContentStore
+    ) async -> String? {
+        guard case .template(.coatOfArmsToCountry) = face else { return nil }
+        guard let name = await store.asset(id: assetID)?.displayName,
+            !name.isEmpty,
+            name != subject
+        else { return nil }
+        return name
     }
 }

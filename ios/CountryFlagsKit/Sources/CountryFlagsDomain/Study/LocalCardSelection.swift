@@ -58,6 +58,12 @@ public enum LocalCardSelection {
             // A card this build cannot render is skipped here rather than at
             // the screen, so a session never contains a card it cannot show.
             guard supported.contains(card.templateSchemaVersion) else { return false }
+            // The same rule, asked of the pair rather than of the version
+            // alone. A release publishing `COAT_OF_ARMS_TO_COUNTRY` v1 to a
+            // build that only draws flags passes the version check — v1 is
+            // supported — and would reach the screen as a coat of arms drawn
+            // by the flag renderer. The registry is what tells the two apart.
+            guard CardTemplateRegistry.supports(card) else { return false }
             // A deck can list the same card twice; the session may not.
             return seen.insert(card.id).inserted
         }

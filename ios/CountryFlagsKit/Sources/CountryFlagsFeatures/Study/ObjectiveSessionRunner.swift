@@ -38,12 +38,14 @@ public final class ObjectiveSessionRunner {
     private let learning: any LearningRepository
     private let dates: any DateProviding
     private let identifiers: any IdentifierProviding
+    private let errors: (any ErrorReporting)?
 
     public init(
         scopes: any AccountScopeResolving,
         content: any ContentRepository,
         learning: any LearningRepository,
         analytics: (any AnalyticsTracking)? = nil,
+        errors: (any ErrorReporting)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         identifiers: any IdentifierProviding = SystemIdentifierProvider()
     ) {
@@ -51,6 +53,7 @@ public final class ObjectiveSessionRunner {
         self.content = content
         self.learning = learning
         self.analytics = analytics
+        self.errors = errors
         self.dates = dates
         self.identifiers = identifiers
     }
@@ -108,6 +111,18 @@ public final class ObjectiveSessionRunner {
         )
     }
 
+    /// Says that a card of this session reached the screen with no renderer
+    /// for it.
+    ///
+    /// The screen is what discovers it. A new session never holds such a card
+    /// — the selector drops it and the drop is reported below — so what gets
+    /// here is a session composed elsewhere: resumed from a later build, or
+    /// selected by the backend. The report is deduplicated by the caller, and
+    /// the runner owns the reporter because a view does not.
+    public func reportUnsupportedTemplate(_ key: CardTemplateKey) {
+        UnsupportedCardTemplateReport.send(key, to: errors)
+    }
+
     private func resume(deckID: UUID) async -> Bool {
         guard let session = try? await learning.activeSession(for: resolvedScope),
             session.deckID == deckID,
@@ -154,6 +169,11 @@ public final class ObjectiveSessionRunner {
         let manifest = try? await content.currentManifest()
         let pool = (try? await content.cards(inDeck: deckID)) ?? []
         let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
+        UnsupportedCardTemplateReport.send(for: pool, to: errors)
+        // What each card is about, resolved once for the deck: every question
+        // in the sitting is composed against the same pool, and asking the
+        // store per question would read the same entities over and over.
+        let subjectKinds = await content.subjectKinds(forCards: pool)
 
         let selected = LocalCardSelection.select(
             from: pool,
@@ -181,7 +201,8 @@ public final class ObjectiveSessionRunner {
                 options = try LocalDistractorSelection.options(
                     for: selection.card,
                     from: pool,
-                    seed: seed
+                    seed: seed,
+                    subjectKinds: subjectKinds
                 )
             } catch {
                 startFailure = .distractorPoolInsufficient

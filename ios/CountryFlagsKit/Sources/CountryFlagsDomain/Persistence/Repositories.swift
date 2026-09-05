@@ -58,6 +58,15 @@ public protocol ContentRepository: Sendable {
     /// an answer that is a set of identifiers.
     func cardIdentifiersByDeck() async throws -> [UUID: [UUID]]
     func entity(id: UUID) async throws -> GeoEntityRecord?
+    /// What each of these cards is about, by card identifier.
+    ///
+    /// Composing a question needs the kind and nothing else — a state's flag
+    /// may not be answered with a country — and the kind lives on the entity
+    /// rather than on the card. The default below reads one entity at a time
+    /// and deduplicates by entity, which is what a store that cannot answer in
+    /// one query does; the requirement is declared here so a store that can
+    /// may answer it directly.
+    func subjectKinds(forCards cards: [LearningCardRecord]) async -> [UUID: CardSubjectKind]
     /// Resolves the asset a card names as its prompt.
     ///
     /// Assets are addressed by identifier rather than reached through their
@@ -67,6 +76,31 @@ public protocol ContentRepository: Sendable {
     /// Marks content the feed reported as retired. The record stays readable
     /// for a session that is already using it and is never selected again.
     func retire(cardIDs: [UUID], entityIDs: [UUID]) async throws
+}
+
+extension ContentRepository {
+    /// One entity per distinct subject, and a card whose entity the device
+    /// does not hold is left out rather than guessed at — the caller reads a
+    /// missing card as `CardSubjectKind.unresolved`, which is what a card
+    /// published before subdivisions existed is.
+    public func subjectKinds(
+        forCards cards: [LearningCardRecord]
+    ) async -> [UUID: CardSubjectKind] {
+        var kindByEntity: [UUID: CardSubjectKind] = [:]
+        var kindByCard: [UUID: CardSubjectKind] = [:]
+        for card in cards {
+            let entityID = card.subjectEntityID
+            if let known = kindByEntity[entityID] {
+                kindByCard[card.id] = known
+                continue
+            }
+            guard let entity = (try? await entity(id: entityID)) ?? nil else { continue }
+            let kind = CardSubjectKind(entityKind: entity.entityKind)
+            kindByEntity[entityID] = kind
+            kindByCard[card.id] = kind
+        }
+        return kindByCard
+    }
 }
 
 /// Everything owned by one account.

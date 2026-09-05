@@ -68,6 +68,10 @@ public final class StudySessionRunner {
     private let dates: any DateProviding
     private let identifiers: any IdentifierProviding
     private let analytics: (any AnalyticsTracking)?
+    /// Where a card this build cannot draw is reported. Operational, not
+    /// product: a template nobody has a renderer for is a release the app has
+    /// to be told about, and it says nothing about the person studying.
+    private let errors: (any ErrorReporting)?
     /// When the session on screen started, for the duration bucket the
     /// completed event carries. Held here rather than read from the record so a
     /// resumed session reports the sitting rather than the calendar time since
@@ -86,6 +90,7 @@ public final class StudySessionRunner {
         selection: (any StudySessionSelecting)? = nil,
         outbox: (any OutboxRepository)? = nil,
         analytics: (any AnalyticsTracking)? = nil,
+        errors: (any ErrorReporting)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         identifiers: any IdentifierProviding = SystemIdentifierProvider()
     ) {
@@ -95,6 +100,7 @@ public final class StudySessionRunner {
         self.outbox = outbox
         self.selection = selection
         self.analytics = analytics
+        self.errors = errors
         self.dates = dates
         self.identifiers = identifiers
     }
@@ -173,6 +179,18 @@ public final class StudySessionRunner {
                 at: dates.now()
             )
         )
+    }
+
+    /// Says that a card of this session reached the screen with no renderer
+    /// for it.
+    ///
+    /// The screen is what discovers it. A new session never holds such a card
+    /// — the selector drops it and the drop is reported below — so what gets
+    /// here is a session composed elsewhere: resumed from a later build, or
+    /// selected by the backend. The report is deduplicated by the caller, and
+    /// the runner owns the reporter because a view does not.
+    public func reportUnsupportedTemplate(_ key: CardTemplateKey) {
+        UnsupportedCardTemplateReport.send(key, to: errors)
     }
 
     /// - Returns: whether an unfinished session was picked up.
@@ -299,6 +317,7 @@ public final class StudySessionRunner {
         let manifest = try? await content.currentManifest()
         let cards = (try? await content.cards(inDeck: deckID)) ?? []
         let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
+        UnsupportedCardTemplateReport.send(for: cards, to: errors)
 
         let selected = LocalCardSelection.select(
             from: cards,

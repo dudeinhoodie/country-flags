@@ -619,6 +619,18 @@ public enum AccessibilityIdentifier {
         "study.fact.\(type.uppercased())"
     }
     public static let studyAnswer = "study.answer"
+    /// The emblem's own name on the answer, which only a symbol card carries.
+    public static let studySymbolName = "study.symbolName"
+    /// The plate a card wears when this build has no renderer for its
+    /// template.
+    public static let studyCardUnsupported = "study.card.unsupported"
+    /// The heading over a subject's facts, which names what kind of subject
+    /// it is — a country or one of its states.
+    public static let detailsFacts = "details.facts"
+    /// The country a subdivision belongs to.
+    public static let detailsParent = "details.parent"
+    /// What the symbol means, when the release tells its story.
+    public static let detailsSymbolStory = "details.symbolStory"
     public static let studyNotSaved = "study.notSaved"
     public static let studyUnavailable = "study.unavailable"
     public static let studyResultTitle = "study.result.title"

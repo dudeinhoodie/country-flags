@@ -269,6 +269,26 @@ struct ContentLoadingStateView: View {
     }
 }
 
+/// What a placeholder stands in for, so it names the drawing that is missing.
+enum MissingAssetSymbol {
+    case flag
+    case coatOfArms
+
+    var waitingSymbol: String {
+        switch self {
+        case .flag: "flag"
+        case .coatOfArms: "shield"
+        }
+    }
+
+    var failedSymbol: String {
+        switch self {
+        case .flag: "flag.slash"
+        case .coatOfArms: "shield.slash"
+        }
+    }
+}
+
 /// Draws a flag, or a placeholder when the bytes are missing or do not match
 /// their checksum.
 ///
@@ -285,6 +305,11 @@ struct FlagImageView: View {
     /// colours behind the flag itself, where the crop is the point and the
     /// result is never read as the flag.
     var contentMode: ContentMode = .fit
+    /// What the placeholder says is missing. A coats deck whose download has
+    /// not landed should show an absent emblem, not an absent flag: the
+    /// placeholder is a real state, and naming the wrong thing in it is the
+    /// same mistake as drawing the wrong thing.
+    var missing: MissingAssetSymbol = .flag
 
     @State private var image: Image?
     @State private var didFail = false
@@ -314,7 +339,7 @@ struct FlagImageView: View {
         RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
             .fill(.ultraThinMaterial)
             .overlay {
-                Image(systemName: didFail ? "flag.slash" : "flag")
+                Image(systemName: didFail ? missing.failedSymbol : missing.waitingSymbol)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.white.opacity(0.5))
             }

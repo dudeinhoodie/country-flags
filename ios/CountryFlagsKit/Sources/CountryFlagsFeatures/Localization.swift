@@ -143,6 +143,21 @@ public enum L10n {
     public static var progressLearnedLabel: String { localized("progress.learned") }
     public static var progressMapHint: String { localized("progress.map_hint") }
     public static var detailsRegion: String { localized("details.region") }
+    /// The heading over a subject's facts. Which of the two is used says what
+    /// kind of subject the sheet is about — a country, or one of its states.
+    public static var detailsCountryFacts: String { localized("details.facts.country") }
+    public static var detailsStateFacts: String { localized("details.facts.state") }
+    /// The country an administrative unit belongs to.
+    public static var detailsParentCountry: String { localized("details.parent_country") }
+    /// The story of the symbol, when the release publishes one. Which of the
+    /// two is used follows the drawing the sheet was opened from: a flag has
+    /// a history as much as an emblem does, and calling one the other would
+    /// be wrong about the picture on the screen.
+    public static var detailsSymbolStory: String { localized("details.symbol_story") }
+    public static var detailsSymbolStoryFlag: String { localized("details.symbol_story.flag") }
+    /// What the drawing is called, under a heading that has already said
+    /// which drawing it is.
+    public static var detailsSymbolName: String { localized("details.symbol_name") }
     public static func detailsAlsoKnown(_ names: String) -> String {
         String(format: localized("details.also_known"), names)
     }
@@ -371,6 +386,16 @@ public enum L10n {
     public static var studyReveal: String { localized("study.reveal") }
     public static var studyHide: String { localized("study.hide") }
     public static var studyFlagPrompt: String { localized("study.flag_prompt") }
+    /// What VoiceOver calls a coat of arms while the question is still open.
+    /// It names the kind of symbol and never the country, for the same reason
+    /// the flag's prompt does not.
+    public static var studyCoatPrompt: String { localized("study.coat_prompt") }
+    public static var studyCardUnsupportedTitle: String {
+        localized("study.card.unsupported.title")
+    }
+    public static var studyCardUnsupportedMessage: String {
+        localized("study.card.unsupported.message")
+    }
     public static var studyDetails: String { localized("study.details") }
     public static var studyDetailsTitle: String { localized("study.details.title") }
     public static var studyClose: String { localized("study.close") }
@@ -424,9 +449,19 @@ public enum L10n {
         case "CURRENCY": localized("fact.currency")
         case "LANGUAGE": localized("fact.language")
         case "AREA": localized("fact.area")
+        // The types a subdivision brings with it. Named here so a state's
+        // admission date reads as a date somebody joined something rather
+        // than as an unlabelled year.
+        case "STATEHOOD_DATE": localized("fact.statehood_date")
+        case "LARGEST_CITY": localized("fact.largest_city")
+        case "MOTTO": localized("fact.motto")
         default: nil
         }
     }
+
+    /// What a symbol's own name is called. Not a fact type: it belongs to the
+    /// drawing rather than to the place, which is why it lives on the asset.
+    public static var factEmblem: String { localized("fact.emblem") }
 
     public static var studyObjectiveTitle: String { localized("study.objective.title") }
     public static var studyNext: String { localized("study.next") }
