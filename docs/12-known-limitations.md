@@ -23,6 +23,13 @@
 - **Нет web/Android клиентов.** iOS — первый клиент; API спроектирован platform-agnostic, но web/Android реализации не входят в этот backend MVP — см. [docs/README.md](./README.md) п.1 решений по умолчанию.
 - **Офлайн-сессия импортируется только в режиме `SELF_RATED`.** Объективная офлайн-сессия отклоняется `422 OFFLINE_MODE_UNSUPPORTED`, потому что `StudyOption` в контракте не несёт identity сущности-ответа, а серверная перегенерация вариантов сделала бы недействительными уже записанные клиентом `selectedOptionId`. Карточка, ставшая `RETIRED` после офлайн-выбора, отклоняет весь импорт и делает связанные review неимпортируемыми — см. [ADR-010](./adr/ADR-010-offline-study-session-import.md).
 
-## Что не входит в scope MVP вообще
+## Что не входит в первоначальный backend MVP
 
-Явно исключено (не «пока не сделано», а сознательно вне scope) — полный список в [08-backend-agent-handoff.md](./08-backend-agent-handoff.md) §12: собственная CMS, собственный feature-flag UI, реальные рекламные интеграции, платные подписки/entitlements, публичные leaderboard'ы, персональная оптимизация FSRS-параметров, generative каталог контента.
+Первоначальный vertical slice сознательно не включал собственную CMS,
+собственный feature-flag UI, реальные рекламные интеграции, subscriptions,
+публичные leaderboard'ы, персональную оптимизацию FSRS-параметров и generative
+каталог контента — см. [08-backend-agent-handoff.md](./08-backend-agent-handoff.md)
+§12. Платные deck entitlements теперь являются отдельным следующим инкрементом,
+описанным в [17-paid-decks-storekit.md](./17-paid-decks-storekit.md) и
+[18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md); это не
+означает, что они уже реализованы.
