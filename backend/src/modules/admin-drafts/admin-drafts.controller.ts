@@ -33,7 +33,10 @@ import {
 import { AdminDraftsService } from "./admin-drafts.service";
 import { DraftDiffService } from "./draft-diff.service";
 import { DraftProposalService } from "./draft-proposal.service";
-import { DraftValidationService } from "./draft-validation.service";
+import {
+  DraftValidationService,
+  withFindingRoutes,
+} from "./draft-validation.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
 
 function toDraftSummary(draft: ContentDraft): Record<string, unknown> {
@@ -134,11 +137,17 @@ export class AdminDraftsController {
     this.assertTrustedOrigin(request);
     const draftId = uuid(rawDraftId, "draftId");
     const draft = await this.drafts.get(draftId);
-    const report = this.validation.validate(
-      draft.document,
-      await this.membershipContext(draft.document),
-      await this.drafts.draftAssetsOf(draftId),
-      await this.drafts.publishedDeckAccess(),
+    // Every finding is given the console route that opens it: the report is
+    // read as a work list, and a line the reader cannot click is a line they
+    // have to go and find by hand (#356, §9).
+    const report = withFindingRoutes(
+      this.validation.validate(
+        draft.document,
+        await this.membershipContext(draft.document),
+        await this.drafts.draftAssetsOf(draftId),
+        await this.drafts.publishedDeckAccess(),
+      ),
+      draftId,
     );
     const stored = await this.drafts.storeValidationReport(
       draftId,

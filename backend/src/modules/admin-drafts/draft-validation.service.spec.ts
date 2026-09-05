@@ -1,4 +1,7 @@
-import { DraftValidationService } from "./draft-validation.service";
+import {
+  DraftValidationService,
+  withFindingRoutes,
+} from "./draft-validation.service";
 import type { MembershipContext } from "./deck-membership";
 
 const context: MembershipContext = {
@@ -616,6 +619,220 @@ describe("DraftValidationService", () => {
         ],
       );
       expect(codes(report)).toContain("PAID_DECK_REMOVED");
+    });
+  });
+
+  describe("addressable findings", () => {
+    it("points a missing parent at the entity's own field", () => {
+      const report = service.validate(
+        document({
+          entities: [
+            ...context.entities.map((entry) => ({
+              ...entry,
+              recognitionStatus: "un_member",
+            })),
+            {
+              key: "subdivision.us.california",
+              type: "subdivision",
+              status: "active",
+              recognitionStatus: "not_applicable",
+              config: { includeInCountryCatalog: false },
+            },
+          ],
+        }),
+        context,
+        [],
+      );
+
+      const finding = report.findings.find(
+        (entry) => entry.code === "SUBDIVISION_PARENT_REQUIRED",
+      );
+      expect(finding?.target).toEqual({
+        objectType: "entity",
+        objectKey: "subdivision.us.california",
+        tab: "overview",
+        field: "/parentKey",
+      });
+      // The identity and the subject are the same object, always.
+      expect(finding?.subject).toBe(finding?.target.objectKey);
+    });
+
+    it("points a missing deck locale at the name in that locale", () => {
+      const report = service.validate(
+        document({
+          decks: [
+            {
+              key: "deck.all",
+              kind: "curated",
+              names: { ru: { name: "Все", description: "Все страны" } },
+              members: "all-current",
+            },
+          ],
+        }),
+        context,
+        [],
+      );
+
+      const finding = report.findings.find(
+        (entry) => entry.code === "DECK_LOCALIZATION_MISSING",
+      );
+      expect(finding?.target).toEqual({
+        objectType: "deck",
+        objectKey: "deck.all",
+        tab: "details",
+        field: "/names/en/name",
+      });
+    });
+
+    it("points a member's mistake at the row it is in", () => {
+      const report = service.validate(
+        document({
+          decks: [
+            {
+              key: "deck.coats",
+              kind: "curated",
+              names: {
+                ru: { name: "Гербы", description: "Гербы" },
+                en: { name: "Coats", description: "Coats" },
+              },
+              members: ["country.france", "country.japan"],
+              defaultTemplateCode: "COAT_OF_ARMS_TO_COUNTRY",
+              defaultTemplateSchemaVersion: 1,
+            },
+          ],
+        }),
+        context,
+        [
+          {
+            entityContentKey: "country.france",
+            assetType: "coat_of_arms",
+            licenseName: "CC0",
+            sourceUrl: "https://example.test/coat.svg",
+            replacementReason: "upstream drawing is wrong",
+          },
+        ],
+      );
+
+      // France has a coat in this draft; Japan is the second row and has none.
+      const finding = report.findings.find(
+        (entry) => entry.code === "CARD_TEMPLATE_ASSET_MISSING",
+      );
+      expect(finding?.target.field).toBe("/members/1");
+      expect(finding?.target.tab).toBe("content");
+    });
+
+    it("points an access mistake at the access tab", () => {
+      const report = service.validate(
+        document({
+          decks: [
+            {
+              key: "deck.all",
+              kind: "curated",
+              names: {
+                ru: { name: "Все", description: "Все страны" },
+                en: { name: "All", description: "All countries" },
+              },
+              members: "all-current",
+              access: { model: "ENTITLEMENT", requiredEntitlementKey: "" },
+            },
+          ],
+        }),
+        context,
+        [],
+      );
+
+      const finding = report.findings.find(
+        (entry) => entry.code === "DECK_ACCESS_ENTITLEMENT_MISSING",
+      );
+      expect(finding?.target.tab).toBe("access");
+      expect(finding?.target.field).toBe("/access/requiredEntitlementKey");
+    });
+
+    it("names the field of the provenance that is missing", () => {
+      const report = service.validate(document(), context, [
+        {
+          entityContentKey: "country.france",
+          licenseName: "CC0",
+          sourceUrl: null,
+          replacementReason: "upstream drawing is wrong",
+        },
+      ]);
+
+      const finding = report.findings.find(
+        (entry) => entry.code === "ASSET_PROVENANCE_INCOMPLETE",
+      );
+      expect(finding?.target).toEqual({
+        objectType: "asset",
+        objectKey: "country.france",
+        tab: "media",
+        field: "/sourceUrl",
+      });
+    });
+
+    it("reads a member written as a card ref rather than as a bare key", () => {
+      const report = service.validate(
+        document({
+          decks: [
+            {
+              key: "deck.coats",
+              kind: "curated",
+              names: {
+                ru: { name: "Гербы", description: "Гербы" },
+                en: { name: "Coats", description: "Coats" },
+              },
+              members: [
+                {
+                  entityKey: "country.atlantis",
+                  templateCode: "FLAG_TO_COUNTRY",
+                  templateSchemaVersion: 1,
+                },
+              ],
+            },
+          ],
+        }),
+        context,
+        [],
+      );
+
+      const finding = report.findings.find(
+        (entry) => entry.code === "MEMBER_UNKNOWN",
+      );
+      expect(finding?.message).toContain("country.atlantis");
+    });
+
+    it("gives every finding a route once the draft is known", () => {
+      const report = withFindingRoutes(
+        service.validate(
+          document({
+            decks: [
+              {
+                key: "deck.all",
+                kind: "curated",
+                names: { ru: { name: "Все", description: "Все страны" } },
+                members: "all-current",
+              },
+            ],
+          }),
+          context,
+          [],
+        ),
+        "5b1b1c1e-0000-4000-8000-000000000001",
+      );
+
+      expect(report.findings.length).toBeGreaterThan(0);
+      expect(
+        report.findings.every(
+          (finding) =>
+            finding.route?.startsWith(
+              "/drafts/5b1b1c1e-0000-4000-8000-000000000001",
+            ) === true,
+        ),
+      ).toBe(true);
+      expect(
+        report.findings.find(
+          (finding) => finding.code === "DECK_LOCALIZATION_MISSING",
+        )?.route,
+      ).toBe("/drafts/5b1b1c1e-0000-4000-8000-000000000001/decks/deck.all");
     });
   });
 });
