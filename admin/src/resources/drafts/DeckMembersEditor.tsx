@@ -215,8 +215,7 @@ function ExplicitMembers({
   entities,
   entitiesError,
   disabled,
-  onRefsChange,
-  onPreviewChange,
+  onChange,
 }: {
   refs: CardRef[];
   defaults: DeckDefaults;
@@ -224,8 +223,12 @@ function ExplicitMembers({
   entities: DraftEntityListItem[] | null;
   entitiesError: string | null;
   disabled: boolean;
-  onRefsChange: (next: CardRef[]) => void;
-  onPreviewChange: (next: string[]) => void;
+  /**
+   * One patch rather than two callbacks: removing a starred member changes
+   * the members and the previews together, and two calls against the same
+   * captured value would leave the second one overwriting the first.
+   */
+  onChange: (patch: { refs?: CardRef[]; previewCardIds?: string[] }) => void;
 }) {
   const [filters, setFilters] = useState<MemberFilterState>({
     query: "",
@@ -292,7 +295,7 @@ function ExplicitMembers({
     if (held.has(cardIdentity(ref))) {
       return;
     }
-    onRefsChange([...refs, ref]);
+    onChange({ refs: [...refs, ref] });
   }
 
   function addAllStates(): void {
@@ -306,7 +309,7 @@ function ExplicitMembers({
       )
       .filter((ref) => !held.has(cardIdentity(ref)));
     if (additions.length > 0) {
-      onRefsChange([...refs, ...additions]);
+      onChange({ refs: [...refs, ...additions] });
     }
   }
 
@@ -321,23 +324,27 @@ function ExplicitMembers({
     const next = [...refs];
     next.splice(from, 1);
     next.splice(to, 0, moved);
-    onRefsChange(next);
+    onChange({ refs: next });
   }
 
   function remove(identity: string): void {
-    onRefsChange(refs.filter((ref) => cardIdentity(ref) !== identity));
-    onPreviewChange(previewCardIds.filter((id) => id !== identity));
+    onChange({
+      refs: refs.filter((ref) => cardIdentity(ref) !== identity),
+      previewCardIds: previewCardIds.filter((id) => id !== identity),
+    });
   }
 
   function togglePreview(identity: string): void {
     if (previewCardIds.includes(identity)) {
-      onPreviewChange(previewCardIds.filter((id) => id !== identity));
+      onChange({
+        previewCardIds: previewCardIds.filter((id) => id !== identity),
+      });
       return;
     }
     if (previewCardIds.length >= MAX_PREVIEW_CARDS) {
       return;
     }
-    onPreviewChange([...previewCardIds, identity]);
+    onChange({ previewCardIds: [...previewCardIds, identity] });
   }
 
   return (
@@ -676,8 +683,20 @@ export function DeckMembersEditor({
     });
   }
 
-  function setRefs(next: CardRef[]): void {
-    onChange({ ...value, members: refsToMembers(next, value.defaults) });
+  /** Members and previews move together, in one update of the value. */
+  function applyPatch(patch: {
+    refs?: CardRef[];
+    previewCardIds?: string[];
+  }): void {
+    onChange({
+      ...value,
+      ...(patch.refs === undefined
+        ? {}
+        : { members: refsToMembers(patch.refs, value.defaults) }),
+      ...(patch.previewCardIds === undefined
+        ? {}
+        : { previewCardIds: patch.previewCardIds }),
+    });
   }
 
   return (
@@ -772,10 +791,7 @@ export function DeckMembersEditor({
           entities={entities}
           entitiesError={entitiesError}
           disabled={disabled}
-          onRefsChange={setRefs}
-          onPreviewChange={(previewCardIds) =>
-            onChange({ ...value, previewCardIds })
-          }
+          onChange={applyPatch}
         />
       )}
 

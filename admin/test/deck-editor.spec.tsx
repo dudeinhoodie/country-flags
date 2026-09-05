@@ -364,6 +364,34 @@ describe("deck membership editor", () => {
     expect(stub.sent()?.members).toEqual(["country.france", "country.germany"]);
   });
 
+  it("drops a starred member from the deck and from the preview at once", async () => {
+    const stub = stubApi(
+      deckDetail({
+        members: ["country.germany", "country.france"],
+        memberCount: 2,
+        previewCardIds: ["country.france#FLAG_TO_COUNTRY@1"],
+      }),
+    );
+    renderEditor("deck.symbols-sampler");
+    await screen.findByText("In this deck (2)");
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Remove country.france#FLAG_TO_COUNTRY@1",
+      }),
+    );
+    await screen.findByText("In this deck (1)");
+
+    fireEvent.click(screen.getByRole("button", { name: "Save deck" }));
+    await waitFor(() => {
+      expect(stub.sent()).not.toBeNull();
+    });
+    // Both halves of the removal survive: two updates of one value would
+    // have left the second overwriting the first.
+    expect(stub.sent()?.members).toEqual(["country.germany"]);
+    expect(stub.sent()?.previewCardIds).toEqual([]);
+  });
+
   it("stars at most three previews, each of them a member", async () => {
     const stub = stubApi(
       deckDetail({
