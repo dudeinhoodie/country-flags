@@ -1,10 +1,14 @@
 # Техническое задание: платные колоды и StoreKit
 
-Статус: `Proposed implementation baseline 0.2`
+Статус: `Proposed implementation baseline 0.3`
 
 Дата: 4 сентября 2026 года. Ревизия 0.2 того же дня закрывает замечания
 технического ревью: bootstrap клиента, бандлинг платных ассетов, оффлайн-импорт
 после refund, неймспейс entitlement keys и имена флагов и событий.
+
+Ревизия 0.3 фиксирует границу доставки контента: общий Entity API и глобальный
+change feed являются только публичной projection, а paid-only assets выдаются
+через entitlement-protected deck payload и короткоживущие signed URLs.
 
 Архитектурное решение: [ADR-019](./adr/ADR-019-paid-deck-entitlements.md)
 
@@ -461,6 +465,74 @@ locked-колода закрыта серверным guard-ом, а не нал
 
 Весь enforcement централизуется в `DeckAccessService`; разрозненные `if paid` в controllers запрещены. Сейчас content cards читаются без account context (`backend/src/modules/content/content.service.ts:312`), а новая server session проверяет только существование published deck (`backend/src/modules/study-sessions/study-sessions.service.ts:164`) — обе точки MUST использовать общий guard.
 
+#### Публичная projection `GeoEntity` не раскрывает paid-only assets
+
+Каноническая `GeoEntity` внутри backend и admin содержит все связанные assets,
+включая флаг и герб одной страны. Consumer `GET /v1/entities/{entityId}` не
+является сериализацией этой внутренней модели. Это стабильная публичная
+projection без account context, чтобы её можно было безопасно кешировать и не
+допустить смешивания ответов разных пользователей.
+
+В public entity projection входят:
+
+- имена и общие географические facts, уже доступные в бесплатном продукте;
+- asset, на который ссылается хотя бы одна активная карточка опубликованной
+  `FREE`-колоды;
+- явно опубликованный public preview платной колоды. Выбор preview означает, что
+  соответствующее изображение и его preview metadata сознательно становятся
+  публичными.
+
+В public entity projection не входят:
+
+- asset, встречающийся только в entitlement-колодах и не выбранный preview;
+- его representations, URL, localized description/attribution payload и
+  связанные editorial details;
+- полный состав, порядок и карточные данные платной колоды.
+
+Если один asset одновременно используется в бесплатной и платной колоде, он
+считается публичным для всего content release. Admin publication validation MUST
+показать это как явное предупреждение, чтобы редактор не сделал платный asset
+публичным случайно.
+
+Paid-only asset возвращается только внутри успешного
+`GET /v1/decks/{deckId}/cards` после `DeckAccessService`. Его representation
+содержит `delivery = SIGNED`, короткоживущий signed download URL и `expiresAt`;
+клиент скачивает файл и сохраняет его в account-scoped offline cache, используя
+checksum, а не URL как identity. Public/free/preview assets
+продолжают использовать стабильный public CDN URL. Private object key или
+unsigned bucket URL никогда не возвращается consumer API.
+
+TTL signed URL по умолчанию равен 300 секундам и настраивается сервером в
+диапазоне 60...900 секунд. Guarded cards response использует
+`Cache-Control: private, no-store` и `Vary: Authorization`; его нельзя помещать
+в shared CDN cache. Истечение URL не удаляет уже скачанные bytes из разрешённого
+account-scoped offline cache.
+
+Для реализации вводится единая `ContentAccessProjectionService`, которую
+используют entity mapping, deck-card mapping, public preview, publisher
+validation и bundle generation. Повторять правила доступности в controllers
+запрещено.
+
+#### Глобальный change feed остаётся публичным
+
+`GET /v1/content/changes` не зависит от авторизации и содержит только изменения
+публичной projection плюс безопасные изменения metadata колод. Он не сообщает
+paid-only asset/card payload и не заставляет клиента повторно получать entity
+из-за изменения, невидимого в её public projection.
+
+`Deck` получает монотонный `contentRevision`. Изменение состава, карточки или
+paid-only asset увеличивает revision и создаёт безопасный `DECK` upsert. Клиент:
+
+- обновляет metadata locked-колоды, но не запрашивает её cards;
+- при активном entitlement и новой `contentRevision` повторно получает guarded
+  deck cards и обновляет account-scoped cache;
+- после покупки выполняет тот же targeted fetch, не перезапуская общий
+  bootstrap.
+
+Auth-aware варианты общего Entity API и глобального change feed в MVP
+запрещены: они усложняют CDN/ETag caching и создают риск вернуть владельческий
+ответ другому пользователю.
+
 #### Создание сессии зависит от origin
 
 `POST /v1/study-sessions` обслуживает два разных случая: серверную выдачу новой
@@ -661,10 +733,15 @@ Rollout управляется флагами `commerce.paid_decks.discovery.ena
 
 - metadata всех listed decks;
 - названия, description, card count, access policy;
-- небольшой cover/fan, если он опубликован как preview;
+- небольшой cover/fan и preview representations, если они явно опубликованы как
+  public preview;
 - не получает полный `/cards` payload платной колоды.
 
 Если одна LearningCard одновременно входит в бесплатную и платную колоду, доступ через бесплатную колоду разрешён. Платность защищает колоду/подборку и её study flow, а не объявляет общий флаг секретным.
+
+`GET /v1/entities/{entityId}` и `GET /v1/content/changes` также не раскрывают
+paid-only assets. Общие факты страны могут оставаться публичными, но metadata,
+описание и representations закрытого герба фильтруются вместе с самим asset.
 
 После revocation приложение MUST скрыть paid deck content и запретить новую сессию. Best-effort cleanup удаляет локальные memberships и assets, которые больше не нужны ни одной бесплатной/доступной колоде. Это access control, а не DRM против модифицированного или jailbroken клиента.
 
@@ -682,6 +759,8 @@ Rollout управляется флагами `commerce.paid_decks.discovery.ena
   пользователю ошибку: метаданные такой колоды уже получены на стадии `decks`;
 - после purchase/restore клиент догружает карточки только этих колод, не
   повторяя полный bootstrap;
+- загрузка получает signed URLs только из guarded cards response, немедленно
+  скачивает нужные representations и не сохраняет URL как долговечный идентификатор;
 - после revocation колода возвращается в `awaiting-entitlement`, а её локальные
   memberships и assets убираются best-effort по §10.1;
 - смена аккаунта и logout переоценивают набор `awaiting-entitlement` колод.
@@ -706,6 +785,8 @@ Rollout управляется флагами `commerce.paid_decks.discovery.ena
   платных колодах;
 - ассеты платной колоды скачиваются после entitlement обычным asset flow, и
   ADR-011 продолжает работать для бесплатного каталога без изменений;
+- paid-only original/representations публикуются в private storage namespace;
+  public CDN содержит только free и явно выбранные preview representations;
 - бандл не является границей безопасности: ограничение убирает платный контент
   из бинарника, который раздаётся бесплатно, а не защищает его от
   модифицированного клиента.
@@ -1098,6 +1179,15 @@ Guideline 5.1.1(v) требует, чтобы регистрация запра�
     `SERVER` создание сессии по ней отклоняется.
 12. `sync-flag-assets.mjs --check` падает, если в бандл попал ассет, входящий
     только в платные колоды.
+13. Германия с бесплатным флагом и платным гербом возвращает гостю через Entity
+    API только флаг; герб появляется только в guarded deck response владельца.
+14. Изменение paid-only герба не создаёт глобальный ENTITY change, раскрывающий
+    герб, но увеличивает `Deck.contentRevision`; owner получает обновление
+    targeted fetch-ом.
+15. Paid-only URL без подписи либо после `expiresAt` не скачивается; public
+    preview остаётся доступным без auth.
+16. Asset, одновременно входящий в FREE и ENTITLEMENT deck, считается публичным,
+    а admin publication preview явно предупреждает об этом.
 
 ## 20. Rollout
 
