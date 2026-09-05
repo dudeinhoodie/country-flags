@@ -96,6 +96,7 @@ export function DraftAssets({
   const [busy, setBusy] = useState(false);
   const [entityKey, setEntityKey] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
+  const [uploading, setUploading] = useState<string | null>(null);
 
   if (error !== null) {
     return <Alert severity="error">{error}</Alert>;
@@ -119,7 +120,11 @@ export function DraftAssets({
       () => {
         setBusy(false);
         setActionError(null);
+        // Both panels close on success, which is also what discards the
+        // form they held: an upload form still holding the file it just
+        // sent invites sending it twice.
         setEditing(null);
+        setUploading(null);
         reload();
       },
       (cause: unknown) => {
@@ -178,6 +183,10 @@ export function DraftAssets({
           editable={editable}
           busy={busy}
           editing={editing}
+          uploadOpen={uploading === section.type}
+          onToggleUpload={() =>
+            setUploading(uploading === section.type ? null : section.type)
+          }
           onEdit={setEditing}
           onUpload={(file, fields) => {
             run(
@@ -238,6 +247,8 @@ function AssetSection({
   editable,
   busy,
   editing,
+  uploadOpen,
+  onToggleUpload,
   onEdit,
   onUpload,
   onPatch,
@@ -252,14 +263,14 @@ function AssetSection({
   editable: boolean;
   busy: boolean;
   editing: string | null;
+  uploadOpen: boolean;
+  onToggleUpload: () => void;
   onEdit: (assetId: string | null) => void;
   onUpload: (file: File, payload: UploadPayload) => void;
   onPatch: (asset: DraftAsset, fields: SymbolFieldsState) => void;
   onRetire: (asset: DraftAsset) => void;
   onRemove: (asset: DraftAsset) => void;
 }) {
-  const [open, setOpen] = useState(false);
-
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
       <Stack spacing={2}>
@@ -268,8 +279,8 @@ function AssetSection({
           <Chip size="small" label={assets.length} />
           <Box sx={{ flexGrow: 1 }} />
           {editable && section.uploadable && (
-            <Button size="small" onClick={() => setOpen(!open)}>
-              {open ? "Close" : "Upload or replace"}
+            <Button size="small" onClick={onToggleUpload}>
+              {uploadOpen ? "Close" : "Upload or replace"}
             </Button>
           )}
         </Stack>
@@ -302,7 +313,7 @@ function AssetSection({
           ))
         )}
 
-        {open && editable && section.uploadable && (
+        {uploadOpen && editable && section.uploadable && (
           <>
             <Divider />
             <UploadForm
