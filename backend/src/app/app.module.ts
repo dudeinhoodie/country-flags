@@ -18,6 +18,7 @@ import { AccountLifecycleModule } from "../modules/account-lifecycle/account-lif
 import { AdvertisingPolicyModule } from "../modules/advertising/advertising-policy.module";
 import { AnalyticsModule } from "../modules/analytics/analytics.module";
 import { AppConfigModule } from "../modules/app-config/app-config.module";
+import { CommerceModule } from "../modules/commerce/commerce.module";
 import { ContentModule } from "../modules/content/content.module";
 import { HealthModule } from "../modules/health/health.module";
 import { ProgressModule } from "../modules/progress/progress.module";
@@ -50,6 +51,7 @@ import { UsersModule } from "../modules/users/users.module";
     FeatureFlagsModule,
     AdvertisingPolicyModule,
     AppConfigModule,
+    CommerceModule,
     ContentModule,
     DevicesModule,
     HealthModule,
