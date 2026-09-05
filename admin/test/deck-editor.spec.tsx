@@ -74,7 +74,15 @@ const TEXAS = listItem({
   publishedName: "Texas",
   includeInCountryCatalog: false,
 });
-const ENTITIES = [GERMANY, FRANCE, CALIFORNIA, TEXAS];
+// Its key does not name the country, so only `parentKey` can place it.
+const OHIO = listItem({
+  key: "subdivision.usa.ohio",
+  type: "subdivision",
+  parentKey: "country.united_states",
+  publishedName: "Ohio",
+  includeInCountryCatalog: false,
+});
+const ENTITIES = [GERMANY, FRANCE, CALIFORNIA, TEXAS, OHIO];
 
 function deckDetail(overrides: Partial<DraftDeckDetail> = {}): DraftDeckDetail {
   return {
@@ -318,10 +326,10 @@ describe("deck membership editor", () => {
 
     fireEvent.click(
       await screen.findByRole("button", {
-        name: /Add the U\.S\. states \(2\)/,
+        name: /Add the U\.S\. states \(3\)/,
       }),
     );
-    await screen.findByText("In this deck (2)");
+    await screen.findByText("In this deck (3)");
 
     fireEvent.click(screen.getByRole("button", { name: "Save deck" }));
     await waitFor(() => {
@@ -330,6 +338,7 @@ describe("deck membership editor", () => {
     expect(stub.sent()?.members).toEqual([
       "subdivision.us.california",
       "subdivision.us.texas",
+      "subdivision.usa.ohio",
     ]);
   });
 

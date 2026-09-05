@@ -67,6 +67,8 @@ function hasAssetFor(
   return true;
 }
 
+const UNITED_STATES_KEYS = new Set(["united-states", "usa", "us"]);
+
 /**
  * The fifty states, as a click.
  *
@@ -78,11 +80,11 @@ function isUnitedStatesSubdivision(entity: DraftEntityListItem): boolean {
   if (entity.type !== "subdivision") {
     return false;
   }
-  const parent = entity.parentKey ?? "";
+  // The catalog has spelled the country both ways over the years, and the
+  // namespace in front of it is not part of the answer.
+  const parent = (entity.parentKey ?? "").split(".").pop() ?? "";
   return (
-    parent === "country.united-states" ||
-    parent === "country.usa" ||
-    parent.endsWith(".united-states") ||
+    UNITED_STATES_KEYS.has(parent.replace(/_/gu, "-")) ||
     entity.key.startsWith("subdivision.us.")
   );
 }
