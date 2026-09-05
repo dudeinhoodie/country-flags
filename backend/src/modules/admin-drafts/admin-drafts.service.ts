@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
-import { ContentDraftStatus, Prisma } from "@prisma/client";
+import { ContentDraftStatus, DeckStatus, Prisma } from "@prisma/client";
 import type { AdminUser, ContentDraft } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
@@ -211,21 +211,58 @@ export class AdminDraftsService {
   async draftAssetsOf(draftId: string): Promise<
     {
       entityContentKey: string;
+      assetType: string;
       licenseName: string | null;
       sourceUrl: string | null;
       replacementReason: string | null;
     }[]
   > {
-    return this.database.draftAsset.findMany({
+    const rows = await this.database.draftAsset.findMany({
       where: { draftId },
       select: {
         entityContentKey: true,
+        assetType: true,
         licenseName: true,
         sourceUrl: true,
         replacementReason: true,
       },
       orderBy: { entityContentKey: "asc" },
     });
+    // The editorial layer names a symbol in lower case; the database names
+    // it in the enum's. Validation compares them, so one of the two has to
+    // give, and the document is the thing an editor reads.
+    return rows.map((row) => ({
+      ...row,
+      assetType: row.assetType.toLowerCase(),
+    }));
+  }
+
+  /**
+   * How the active release publishes each deck's access, which is what a
+   * draft is checked against: making a shipped free deck paid takes it away
+   * from everybody who has it.
+   */
+  async publishedDeckAccess(): Promise<
+    {
+      code: string;
+      accessModel: "FREE" | "ENTITLEMENT";
+      requiredEntitlementKey: string | null;
+    }[]
+  > {
+    const decks = await this.database.deck.findMany({
+      where: { status: DeckStatus.PUBLISHED },
+      select: {
+        code: true,
+        accessModel: true,
+        requiredEntitlementKey: true,
+      },
+      orderBy: { code: "asc" },
+    });
+    return decks.map((deck) => ({
+      code: deck.code,
+      accessModel: deck.accessModel,
+      requiredEntitlementKey: deck.requiredEntitlementKey,
+    }));
   }
 
   /**
