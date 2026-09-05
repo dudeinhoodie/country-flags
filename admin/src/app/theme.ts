@@ -53,6 +53,13 @@ interface ModeTokens {
   warning: string;
   error: string;
   info: string;
+  /** The navigation column: deep navy in both themes (docs/19 §10). */
+  navSurface: string;
+  navText: string;
+  navTextMuted: string;
+  navActiveText: string;
+  navActiveSurface: string;
+  navBorder: string;
   /** Radial flag-light behind the dark scene; light theme has none. */
   sceneGlow?: string;
 }
@@ -75,6 +82,12 @@ const LIGHT: ModeTokens = {
   warning: "#B26A00",
   error: "#B3261E",
   info: "#0E7490",
+  navSurface: "#16202E",
+  navText: "rgba(233, 238, 247, 0.82)",
+  navTextMuted: "rgba(233, 238, 247, 0.58)",
+  navActiveText: "#FFFFFF",
+  navActiveSurface: "rgba(108, 143, 232, 0.24)",
+  navBorder: "rgba(233, 238, 247, 0.12)",
 };
 
 const DARK: ModeTokens = {
@@ -95,6 +108,12 @@ const DARK: ModeTokens = {
   warning: "#E3A63C",
   error: "#F0655A",
   info: "#56BCD1",
+  navSurface: "rgba(10, 17, 32, 0.72)",
+  navText: "rgba(233, 238, 247, 0.80)",
+  navTextMuted: "rgba(233, 238, 247, 0.55)",
+  navActiveText: "#FFFFFF",
+  navActiveSurface: "rgba(134, 168, 255, 0.20)",
+  navBorder: "rgba(151, 180, 255, 0.14)",
   sceneGlow:
     "radial-gradient(60rem 40rem at 85% -10%, rgba(58, 108, 255, 0.16), transparent 60%), " +
     "radial-gradient(50rem 36rem at -10% 110%, rgba(255, 180, 64, 0.07), transparent 60%)",
@@ -211,10 +230,17 @@ function buildTheme(t: ModeTokens): RaThemeOptions {
           },
         },
       },
+      // The navigation column is chrome, not canvas (docs/19 §10): deep
+      // navy in both themes, so `Published content` and `Draft workspace`
+      // read as one structure rather than as two panels of the page.
       RaSidebar: {
         styleOverrides: {
           root: {
-            "& .RaSidebar-fixed": { backgroundColor: "transparent" },
+            "& .RaSidebar-fixed": {
+              backgroundColor: t.navSurface,
+              borderRight: `1px solid ${t.navBorder}`,
+              ...(t.mode === "light" ? {} : { backdropFilter: "blur(14px)" }),
+            },
           },
         },
       },
@@ -225,12 +251,16 @@ function buildTheme(t: ModeTokens): RaThemeOptions {
             marginInline: 8,
             marginBlock: 2,
             paddingBlock: 8,
-            color: t.textSecondary,
+            color: t.navText,
             "& .RaMenuItemLink-icon": { minWidth: 34, color: "inherit" },
+            "&:hover": {
+              backgroundColor: alpha(t.accentSoft, 0.12),
+              color: t.navActiveText,
+            },
             "&.RaMenuItemLink-active": {
-              color: t.mode === "light" ? t.accentStrong : t.accentSoft,
-              backgroundColor: alpha(t.accent, t.mode === "light" ? 0.1 : 0.16),
-              fontWeight: 600,
+              color: t.navActiveText,
+              backgroundColor: t.navActiveSurface,
+              fontWeight: 700,
             },
           },
         },
@@ -252,6 +282,23 @@ function buildTheme(t: ModeTokens): RaThemeOptions {
 
 export const lightTheme = buildTheme(LIGHT);
 export const darkTheme = buildTheme(DARK);
+
+/**
+ * The group labels down the navigation column.
+ *
+ * They sit on the navy chrome rather than on the page, so their colour
+ * comes from the navigation tokens instead of `text.secondary`, which is
+ * ink on white and would vanish there.
+ */
+export const menuSectionSx: SxProps<Theme> = (theme: Theme) => ({
+  display: "block",
+  px: 2.5,
+  pt: 2,
+  pb: 0.5,
+  fontSize: "0.625rem",
+  color:
+    theme.palette.mode === "light" ? LIGHT.navTextMuted : DARK.navTextMuted,
+});
 
 // --- The product scene -----------------------------------------------------
 // The dark stage the app itself lives on (ADR-012). The console uses it for

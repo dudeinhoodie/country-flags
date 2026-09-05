@@ -2,22 +2,21 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Chip from "@mui/material/Chip";
-import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Typography from "@mui/material/Typography";
+import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
 import { useState } from "react";
-import { Title, usePermissions } from "react-admin";
+import { usePermissions } from "react-admin";
 import { Link, useParams } from "react-router-dom";
+import { routes } from "../../app/routes";
 import { LoadingState } from "../../components/LoadingState";
-import { StatusChip } from "../../components/StatusChip";
-import { ReleasePanel } from "./ReleasePanel";
+import { MetaItem, PageHeader } from "../../components/PageHeader";
+import { relativeTime } from "../../components/relative-time";
+import { EmptyState, ErrorState } from "../../components/StateViews";
 import { useDeckWriter, useDraftWithDecks } from "./useDraftDecks";
 
 const MEMBERS_MODE_LABEL: Record<string, string> = {
@@ -34,7 +33,14 @@ function canEdit(permissions: unknown): boolean {
   );
 }
 
-export function DraftShow() {
+/**
+ * The decks of one draft (§4.3, `/drafts/:draftId/decks`).
+ *
+ * It used to be a table inside the draft page next to the release panel;
+ * building decks and publishing them are different jobs, and the navigation
+ * now says so.
+ */
+export function DraftDecks() {
   const { draftId } = useParams();
   const { permissions } = usePermissions<string>();
   const { draft, decks, error, reload } = useDraftWithDecks(draftId ?? "");
@@ -43,79 +49,75 @@ export function DraftShow() {
   const editable = canEdit(permissions);
 
   if (error !== null) {
-    return <Alert severity="error">{error}</Alert>;
+    return <ErrorState message={error} />;
   }
   if (draft === null || decks === null) {
-    return <LoadingState label="Loading the draft…" />;
+    return <LoadingState label="Loading the decks…" />;
   }
 
   return (
-    <Card sx={{ mt: 2 }}>
-      <Title title="Draft" />
-      <CardContent>
-        <Stack spacing={2}>
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <StatusChip value={draft.status} />
-            <Chip
-              label={`revision ${String(draft.revision)}`}
-              size="small"
-              variant="outlined"
-            />
-            <Box sx={{ flexGrow: 1 }} />
+    <Box sx={{ pb: 4 }}>
+      <PageHeader
+        title="Deck builder"
+        description="Every deck this draft would publish. A deck member is an entity taught through a card template, so one country can appear as more than one card."
+        surface="draft"
+        surfaceNote={`revision ${String(draft.revision)}`}
+        meta={
+          <>
+            <MetaItem label="Decks">{String(decks.length)}</MetaItem>
+            <MetaItem label="Updated">{relativeTime(draft.updatedAt)}</MetaItem>
+          </>
+        }
+        actions={
+          editable ? (
             <Button
               component={Link}
-              to={`/drafts/${draft.id}/entities`}
+              to={routes.draftDeck(draft.id, "new")}
               size="small"
-              variant="outlined"
+              variant="contained"
             >
-              Countries
+              New deck
             </Button>
-            <Button
-              component={Link}
-              to={`/drafts/${draft.id}/assets`}
-              size="small"
-              variant="outlined"
-            >
-              Symbols
-            </Button>
-            <Button
-              component="a"
-              href={`/api/v1/admin/content/drafts/${draft.id}/export`}
-              size="small"
-              variant="outlined"
-            >
-              Download export
-            </Button>
-            {editable && (
-              <Button
-                component={Link}
-                to={`/drafts/${draft.id}/decks/new`}
-                size="small"
-                variant="contained"
-              >
-                New deck
-              </Button>
-            )}
-          </Stack>
+          ) : undefined
+        }
+      />
 
-          <Typography variant="body2" color="text.secondary">
-            Based on content version <b>{draft.baseContentVersion}</b>, catalog
-            commit <b>{draft.baseCatalogCommit}</b>.
-          </Typography>
+      {actionError !== null && (
+        <Alert
+          severity="error"
+          onClose={() => setActionError(null)}
+          sx={{ mb: 2 }}
+        >
+          {actionError}
+        </Alert>
+      )}
 
-          {actionError !== null && (
-            <Alert severity="error" onClose={() => setActionError(null)}>
-              {actionError}
-            </Alert>
-          )}
-
+      <Card>
+        {decks.length === 0 ? (
+          <EmptyState
+            title="No decks in this draft"
+            description="A deck is what an app actually shows: a set of cards with a name, an order and an access model."
+            icon={<StyleOutlinedIcon sx={{ fontSize: 40 }} />}
+            action={
+              editable ? (
+                <Button
+                  component={Link}
+                  to={routes.draftDeck(draft.id, "new")}
+                  variant="contained"
+                >
+                  New deck
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
           <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>Key</TableCell>
                 <TableCell>Name (ru)</TableCell>
                 <TableCell>Membership</TableCell>
-                <TableCell align="right">Countries</TableCell>
+                <TableCell align="right">Cards</TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>
@@ -138,7 +140,7 @@ export function DraftShow() {
                     >
                       <Button
                         component={Link}
-                        to={`/drafts/${draft.id}/decks/${deck.key}`}
+                        to={routes.draftDeck(draft.id, deck.key)}
                         size="small"
                       >
                         {editable ? "Edit" : "View"}
@@ -172,26 +174,8 @@ export function DraftShow() {
               ))}
             </TableBody>
           </Table>
-
-          <Divider />
-
-          <ReleasePanel
-            draftId={draft.id}
-            draftRevision={draft.revision}
-            baseContentVersion={draft.baseContentVersion}
-            baseCatalogCommit={draft.baseCatalogCommit}
-            proposalUrl={draft.proposalUrl}
-            canPublish={permissions === "PUBLISHER" || permissions === "ADMIN"}
-            storedReport={
-              (draft.validationReport ?? null) as Parameters<
-                typeof ReleasePanel
-              >[0]["storedReport"]
-            }
-            editable={editable}
-            onValidated={reload}
-          />
-        </Stack>
-      </CardContent>
-    </Card>
+        )}
+      </Card>
+    </Box>
   );
 }

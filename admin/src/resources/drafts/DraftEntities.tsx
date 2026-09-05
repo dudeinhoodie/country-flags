@@ -17,6 +17,7 @@ import Typography from "@mui/material/Typography";
 import { useMemo, useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { Link, useParams } from "react-router-dom";
+import { routes } from "../../app/routes";
 import { LoadingState } from "../../components/LoadingState";
 import { StatusChip } from "../../components/StatusChip";
 import { useDraftEntities } from "./useDraftEntities";
@@ -159,10 +160,10 @@ export function DraftEntities() {
             <Box sx={{ flexGrow: 1 }} />
             <Button
               component={Link}
-              to={`/drafts/${draftId ?? ""}`}
+              to={routes.draftOverview(draftId ?? "")}
               size="small"
             >
-              Back to the draft
+              Draft overview
             </Button>
           </Stack>
 
@@ -295,7 +296,7 @@ export function DraftEntities() {
                   <TableCell align="right">
                     <Button
                       component={Link}
-                      to={`/drafts/${draftId ?? ""}/entities/${entity.key}`}
+                      to={routes.draftEntity(draftId ?? "", entity.key)}
                       size="small"
                     >
                       {editable ? "Edit" : "View"}

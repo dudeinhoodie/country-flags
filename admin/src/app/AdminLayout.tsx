@@ -1,16 +1,23 @@
 import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
 import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
+import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
 import SyncOutlinedIcon from "@mui/icons-material/SyncOutlined";
 import {
   AppBar,
   Layout,
   Menu,
-  TitlePortal,
+  usePermissions,
   useResourceDefinitions,
   useSidebarState,
 } from "react-admin";
@@ -18,12 +25,22 @@ import type { ReactNode } from "react";
 import { BrandMark } from "../components/BrandMark";
 import { EnvironmentBadge } from "../components/EnvironmentBadge";
 import { useRuntimeConfig } from "../config/RuntimeConfigContext";
-import { appBarSx } from "./theme";
+import { CurrentDraftProvider, useCurrentDraft } from "./CurrentDraftContext";
+import { DraftSelector } from "./DraftSelector";
+import { GlobalSearch } from "./GlobalSearch";
+import { routes } from "./routes";
+import { SaveStatusProvider } from "./SaveStatusContext";
+import { SaveStatusIndicator } from "./SaveStatusIndicator";
+import { appBarSx, menuSectionSx } from "./theme";
 
+/**
+ * The bar every screen wears (§4.2): which deployment this is, which draft
+ * is being worked in, one way to find anything, and whether the document on
+ * screen is saved. None of it is per-screen, because none of those
+ * questions stop mattering on any screen.
+ */
 function AdminAppBar() {
   const { environment } = useRuntimeConfig();
-  // The bar itself carries the environment: ink for dev and local, an
-  // unmissable crimson for prod — before the badge is even read.
   return (
     <AppBar color="transparent" sx={appBarSx(environment)}>
       <Stack
@@ -34,26 +51,60 @@ function AdminAppBar() {
         <BrandMark size={26} />
         <Typography
           variant="subtitle2"
-          sx={{ fontWeight: 800, whiteSpace: "nowrap" }}
+          sx={{
+            fontWeight: 800,
+            whiteSpace: "nowrap",
+            display: { xs: "none", sm: "block" },
+          }}
         >
           Country Flags
         </Typography>
       </Stack>
-      <Box
-        sx={{
-          width: "1px",
-          alignSelf: "stretch",
-          my: 1.75,
-          mr: 2,
-          backgroundColor: "currentColor",
-          opacity: 0.25,
-        }}
-      />
-      <TitlePortal variant="subtitle1" sx={{ opacity: 0.92 }} />
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mr: 1 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{ alignItems: "center", minWidth: 0 }}
+      >
+        <DraftSelector />
         <EnvironmentBadge />
-      </Box>
+      </Stack>
+      <Box sx={{ flexGrow: 1 }} />
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mr: 1 }}>
+        <SaveStatusIndicator />
+        <GlobalSearch />
+        <ViewerRole />
+      </Stack>
     </AppBar>
+  );
+}
+
+/**
+ * What this operator may do, next to who they are.
+ *
+ * The profile menu says the name; the role says why a button is missing,
+ * which is the question a greyed-out console actually raises (§4.2).
+ */
+function ViewerRole() {
+  const { permissions } = usePermissions<string>();
+  if (typeof permissions !== "string" || permissions === "") {
+    return null;
+  }
+  return (
+    <Chip
+      label={permissions}
+      size="small"
+      title={`You are signed in with the ${permissions} role`}
+      sx={{
+        height: 22,
+        fontWeight: 700,
+        display: { xs: "none", lg: "inline-flex" },
+        color: "inherit",
+        backgroundColor: "transparent",
+        border: "1px solid",
+        borderColor: "currentColor",
+        opacity: 0.85,
+      }}
+    />
   );
 }
 
@@ -64,63 +115,104 @@ function MenuSection({ label }: { label: string }) {
     return <Box sx={{ height: 16 }} />;
   }
   return (
-    <Typography
-      variant="overline"
-      sx={{
-        display: "block",
-        px: 2.5,
-        pt: 2,
-        pb: 0.5,
-        fontSize: "0.625rem",
-        color: "text.secondary",
-      }}
-    >
+    <Typography variant="overline" sx={menuSectionSx}>
       {label}
     </Typography>
   );
 }
 
+/**
+ * Four groups, and the line between the first two is the whole point
+ * (§4.1): `Published content` is a read-only projection of the active
+ * release, and nothing outside `Draft workspace` can change anything.
+ */
 function AdminMenu() {
   const resources = useResourceDefinitions();
+  const { draft } = useCurrentDraft();
   return (
     <Menu>
       <Menu.Item
-        to="/"
-        primaryText="Dashboard"
+        to={routes.workspace}
+        primaryText="Overview"
         leftIcon={<SpaceDashboardOutlinedIcon />}
       />
-      <MenuSection label="Catalog" />
-      <Menu.ResourceItem name="entities" />
-      <Menu.ResourceItem name="decks" />
-      <MenuSection label="Editorial" />
-      <Menu.ResourceItem name="drafts" />
-      {/* Commerce sits beside Content rather than inside the deck list: an
+
+      <MenuSection label="Published content" />
+      <Menu.Item
+        to={routes.publishedEntities}
+        primaryText="Countries & regions"
+        leftIcon={<PublicOutlinedIcon />}
+      />
+      <Menu.Item
+        to={routes.publishedDecks}
+        primaryText="Decks"
+        leftIcon={<StyleOutlinedIcon />}
+      />
+
+      <MenuSection label="Draft workspace" />
+      {draft === null ? (
+        <Menu.Item
+          to={routes.workspace}
+          primaryText="Create a draft"
+          leftIcon={<AddCircleOutlineIcon />}
+        />
+      ) : (
+        <>
+          <Menu.Item
+            to={routes.draftEntities(draft.id)}
+            primaryText="Countries & regions"
+            leftIcon={<PublicOutlinedIcon />}
+          />
+          <Menu.Item
+            to={routes.draftDecks(draft.id)}
+            primaryText="Deck builder"
+            leftIcon={<StyleOutlinedIcon />}
+          />
+          <Menu.Item
+            to={routes.draftMedia(draft.id)}
+            primaryText="Media"
+            leftIcon={<ImageOutlinedIcon />}
+          />
+          <Menu.Item
+            to={routes.draftRelease(draft.id)}
+            primaryText="Validation & release"
+            leftIcon={<FactCheckOutlinedIcon />}
+          />
+        </>
+      )}
+
+      {/* Commerce sits beside content rather than inside the deck list: an
           offer is not a deck, and one offer may open several. */}
       <MenuSection label="Commerce" />
       <Menu.Item
-        to="/commerce/offers"
+        to={routes.commerceOffers}
         primaryText="Offers"
         leftIcon={<LocalOfferOutlinedIcon />}
       />
       <Menu.Item
-        to="/commerce/entitlements"
+        to={routes.commerceEntitlements}
         primaryText="Entitlements"
         leftIcon={<KeyOutlinedIcon />}
       />
       <Menu.Item
-        to="/commerce/products"
+        to={routes.commerceProducts}
         primaryText="Store products"
         leftIcon={<StorefrontOutlinedIcon />}
       />
       <Menu.Item
-        to="/commerce/sync"
-        primaryText="Store sync"
+        to={routes.commerceSync}
+        primaryText="Diagnostics"
         leftIcon={<SyncOutlinedIcon />}
       />
+
       {resources.users !== undefined && (
         <>
           <MenuSection label="Administration" />
-          <Menu.ResourceItem name="users" />
+          <Menu.Item
+            to={routes.users}
+            primaryText="Users & roles"
+            leftIcon={<ManageAccountsOutlinedIcon />}
+          />
         </>
       )}
     </Menu>
@@ -128,9 +220,16 @@ function AdminMenu() {
 }
 
 export function AdminLayout({ children }: { children: ReactNode }) {
+  // Both providers wrap the layout rather than a page: the draft is in the
+  // app bar and in the navigation, and save status is read by the bar while
+  // it is written by whatever screen is inside.
   return (
-    <Layout appBar={AdminAppBar} menu={AdminMenu}>
-      {children}
-    </Layout>
+    <CurrentDraftProvider>
+      <SaveStatusProvider>
+        <Layout appBar={AdminAppBar} menu={AdminMenu}>
+          {children}
+        </Layout>
+      </SaveStatusProvider>
+    </CurrentDraftProvider>
   );
 }
