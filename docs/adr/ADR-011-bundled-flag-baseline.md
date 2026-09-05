@@ -121,3 +121,20 @@ The baseline is therefore scoped, not abandoned:
 
 This is about not giving paid artwork away in a free binary. It is not a
 protection against a modified client, and this ADR does not claim one.
+
+## Addendum 2026-09-05 — paid delivery is private and deck-scoped
+
+The existing stable public CDN path remains valid only for assets reachable
+through a published FREE card and for representations deliberately selected as
+public preview. An asset reachable only through an entitlement deck is uploaded
+to a private storage namespace instead.
+
+The client learns about a paid-only representation only from the guarded deck
+cards response after `DeckAccessService` succeeds. That response supplies a
+short-lived signed download URL and expiry; the downloaded bytes then live in
+the account-scoped offline cache. The public Entity API, public manifest and
+global content change feed never expose the private object key or unsigned URL.
+
+This still is not DRM: a legitimate owner can access bytes delivered to their
+device. The boundary prevents accidental unauthenticated distribution through
+the app bundle, Entity API, change feed or public bucket.

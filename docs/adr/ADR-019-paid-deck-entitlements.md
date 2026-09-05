@@ -31,6 +31,13 @@ Country Flags должен продавать произвольное числ�
 8. Покупка требует Country Flags account и передаёт стабильный `appAccountToken`.
 9. Family Sharing, subscriptions и external checkout не входят в первую версию.
 10. Feature flag управляет storefront rollout, но не выдаёт и не отзывает entitlement.
+11. Общий Entity API и глобальный content change feed являются только публичной
+    projection и не меняют ответ в зависимости от пользователя.
+12. Paid-only assets выдаются только внутри entitlement-protected deck payload.
+    Их representations хранятся в private namespace и скачиваются по
+    короткоживущим signed URLs; public preview является явным исключением.
+13. Изменение закрытого контента увеличивает `Deck.contentRevision`: locked-клиент
+    обновляет только metadata, owner выполняет guarded targeted refresh.
 
 ## Драйверы
 
@@ -90,6 +97,11 @@ Country Flags должен продавать произвольное числ�
 - Sandbox и production полностью разделены.
 - Free → paid для опубликованной колоды требует нового code или explicit migration.
 - Review/progress пользователя не удаляется только из-за refund.
+- Каноническая GeoEntity может содержать paid-only asset, но её публичная
+  consumer projection никогда этот asset не раскрывает.
+- Asset, используемый хотя бы одной опубликованной FREE-карточкой, является
+  публичным для всего content release.
+- Paid-only representation не имеет unsigned public URL.
 
 ## Follow-up
 
