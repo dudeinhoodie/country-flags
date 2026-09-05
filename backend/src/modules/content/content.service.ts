@@ -13,6 +13,11 @@ import {
 import { validationError } from "../../common/http/request-validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
+  type DeckAccessPolicy,
+  DeckAccessService,
+  type DeckAccessSubject,
+} from "../commerce/deck-access.service";
+import {
   ASSET_REPRESENTATIONS_INCLUDE,
   mapAssetRepresentations,
   type AssetWithRepresentations,
@@ -54,7 +59,10 @@ const READABLE_ENTITY_STATUSES = [
 
 @Injectable()
 export class ContentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly deckAccess: DeckAccessService,
+  ) {}
 
   async getManifest(): Promise<{
     manifest: StoredManifest;
@@ -129,7 +137,14 @@ export class ContentService {
     const hasMore = decks.length > limit;
     const pageItems = hasMore ? decks.slice(0, limit) : decks;
     const candidates = localeCandidates(locale, manifest.defaultLocale);
-    const items = pageItems.map((deck) => this.mapDeck(deck, candidates));
+    // The catalog is open to everyone, locked decks included: a deck nobody
+    // can discover is a deck nobody buys. What it carries is the policy —
+    // which right opens it and which offers grant that right — never its
+    // cards and never a price.
+    const access = await this.deckAccess.policiesFor(pageItems);
+    const items = pageItems.map((deck) =>
+      this.mapDeck(deck, candidates, this.accessOf(access, deck)),
+    );
     const lastDeck = pageItems.at(-1);
 
     return {
@@ -170,7 +185,12 @@ export class ContentService {
       throw new NotFoundException("Deck was not found");
     }
 
-    return this.mapDeck(deck, localeCandidates(locale, manifest.defaultLocale));
+    const access = await this.deckAccess.policiesFor([deck]);
+    return this.mapDeck(
+      deck,
+      localeCandidates(locale, manifest.defaultLocale),
+      this.accessOf(access, deck),
+    );
   }
 
   async getEntity(
@@ -309,8 +329,17 @@ export class ContentService {
     };
   }
 
+  /**
+   * A deck's cards, for whoever is allowed to read them.
+   *
+   * This is the closed half of the catalog. `userId` is null for a request
+   * that carried no bearer at all — a guest reading a free deck — and the
+   * guard turns that into a 403 for a deck that needs buying, never into a
+   * shorter page: a caller must be able to tell "not bought" from "empty".
+   */
   async listDeckCards(
     deckId: string,
+    userId: string | null,
     locale: string,
     cursorValue: string | undefined,
     limit: number,
@@ -322,12 +351,20 @@ export class ContentService {
       this.getManifest(),
       this.prisma.deck.findFirst({
         where: { id: deckId, status: DeckStatus.PUBLISHED },
-        select: { id: true },
+        select: {
+          id: true,
+          accessModel: true,
+          requiredEntitlementKey: true,
+        },
       }),
     ]);
     if (deck === null) {
       throw new NotFoundException("Deck was not found");
     }
+    // Before a single card is read. The order is deliberate: a deck that does
+    // not exist is a 404 whoever asks, and a deck that exists but was not
+    // bought is a 403 that names the offers which would fix that.
+    await this.deckAccess.requireAccess(deck, userId);
 
     const cursor =
       cursorValue === undefined ? undefined : decodeCardCursor(cursorValue);
@@ -499,6 +536,18 @@ export class ContentService {
     return rows;
   }
 
+  /**
+   * The policy of a deck the catalog just read. Present for every deck the
+   * map was built from; the fallback repeats what the row itself says rather
+   * than inventing a free deck out of a missing entry.
+   */
+  private accessOf(
+    policies: Map<string, DeckAccessPolicy>,
+    deck: DeckAccessSubject,
+  ): DeckAccessPolicy {
+    return policies.get(deck.id) ?? { model: deck.accessModel };
+  }
+
   private mapDeck(
     deck: {
       id: string;
@@ -509,6 +558,7 @@ export class ContentService {
       _count: { cards: number };
     },
     candidates: string[],
+    access: DeckAccessPolicy,
   ): Record<string, unknown> {
     const localization = this.selectLocalization(
       deck.localizations,
@@ -521,6 +571,7 @@ export class ContentService {
       name: localization.name,
       description: localization.description,
       cardCount: deck._count.cards,
+      access,
       contentVersion: deck.contentVersion,
     };
   }

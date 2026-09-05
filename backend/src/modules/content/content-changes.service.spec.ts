@@ -1,6 +1,7 @@
 import { ContentChangeOperation, ContentResourceType } from "@prisma/client";
 
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
+import type { DeckAccessService } from "../commerce/deck-access.service";
 import {
   decodeContentChangeCursor,
   encodeContentChangeCursor,
@@ -14,9 +15,20 @@ describe("ContentService content changes", () => {
   const $transaction = jest.fn(
     (callback: (value: typeof transaction) => unknown) => callback(transaction),
   );
-  const service = new ContentService({
-    $transaction,
-  } as unknown as PrismaService);
+  // The change feed is public and account-blind, so the access guard is
+  // never consulted on this path; a stub that would throw if it were keeps
+  // that honest.
+  const deckAccess = {
+    policiesFor: jest.fn(() => {
+      throw new Error("The public change feed must not read access policy");
+    }),
+  } as unknown as DeckAccessService;
+  const service = new ContentService(
+    {
+      $transaction,
+    } as unknown as PrismaService,
+    deckAccess,
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
