@@ -19,6 +19,10 @@ public enum LogCategory: String, Hashable, Sendable, CaseIterable {
     case content
     case featureFlags
     case analytics
+    /// Purchases, entitlements and everything the store hands over. Its own
+    /// category because it is the one line an investigation into money starts
+    /// from, and because it is the one that must never carry a payload.
+    case commerce
 }
 
 /// A value attached to a log entry.
