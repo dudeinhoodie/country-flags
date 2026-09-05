@@ -10,7 +10,11 @@ import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { Title, usePermissions } from "react-admin";
 import { useNavigate, useParams } from "react-router-dom";
+import { useRefreshDrafts } from "../../app/CurrentDraftContext";
+import { routes } from "../../app/routes";
+import { useReportSaveStatus } from "../../app/SaveStatusContext";
 import { LoadingState } from "../../components/LoadingState";
+import { StickyActionBar } from "../../components/StickyActionBar";
 import { DEFAULT_TEMPLATE, deckCodeFromKey, templateOf } from "./deck-cards";
 import { DeckAccessEditor } from "./DeckAccessEditor";
 import type { DeckAccessValue, PublishedAccess } from "./DeckAccessEditor";
@@ -120,6 +124,8 @@ export function DeckEditor() {
   const [access, setAccess] = useState<DeckAccessValue>(accessOf(null));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const reportSave = useReportSaveStatus();
+  const refreshDrafts = useRefreshDrafts();
 
   // The loaded deck seeds the form once; deriving during render instead
   // would fight the editor's own state on every keystroke.
@@ -163,15 +169,21 @@ export function DeckEditor() {
     }
     setSaving(true);
     setSaveError(null);
+    reportSave("saving");
     const done = (): void => {
       setSaving(false);
-      void navigate(`/drafts/${draft.id}`);
+      reportSave("saved");
+      // The shell shows when the draft was last written; a save it did not
+      // hear about would leave that reading stale.
+      refreshDrafts();
+      void navigate(routes.draftDecks(draft.id));
     };
     const failed = (cause: unknown): void => {
       setSaving(false);
-      setSaveError(
-        cause instanceof Error ? cause.message : "The deck could not be saved",
-      );
+      const message =
+        cause instanceof Error ? cause.message : "The deck could not be saved";
+      setSaveError(message);
+      reportSave("error", message);
     };
     if (isNew) {
       void create(draft.revision, {
@@ -195,124 +207,136 @@ export function DeckEditor() {
   }
 
   return (
-    <Card sx={{ mt: 2 }}>
-      <Title title={isNew ? "New deck" : `Deck ${key}`} />
-      <CardContent>
-        <Stack spacing={3}>
-          {!editable && (
-            <Alert severity="info">
-              You are viewing this deck. Editing needs the EDITOR role.
-            </Alert>
-          )}
-          {saveError !== null && <Alert severity="error">{saveError}</Alert>}
+    <>
+      <Card sx={{ mt: 2 }}>
+        <Title title={isNew ? "New deck" : `Deck ${key}`} />
+        <CardContent>
+          <Stack spacing={3}>
+            {!editable && (
+              <Alert severity="info">
+                You are viewing this deck. Editing needs the EDITOR role.
+              </Alert>
+            )}
+            {saveError !== null && <Alert severity="error">{saveError}</Alert>}
 
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-            <TextField
-              label="Key"
-              value={key}
-              onChange={(event) => setKey(event.target.value)}
-              size="small"
-              disabled={!isNew || !editable}
-              helperText={
-                isNew
-                  ? "For example deck.europe — it cannot change later."
-                  : " "
-              }
-              sx={{ minWidth: 260 }}
-            />
-            <TextField
-              select
-              label="Kind"
-              value={kind}
-              size="small"
-              disabled={!editable}
-              onChange={(event) =>
-                setKind(event.target.value as "curated" | "taxonomy")
-              }
-              sx={{ minWidth: 180 }}
-            >
-              <MenuItem value="curated">Curated</MenuItem>
-              <MenuItem value="taxonomy">Taxonomy</MenuItem>
-            </TextField>
-          </Stack>
-
-          {LOCALES.map((locale) => (
-            <Stack key={locale} spacing={1}>
-              <Typography variant="subtitle2">
-                {locale.toUpperCase()}
-              </Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <TextField
-                label="Name"
-                value={names[locale]?.name ?? ""}
+                label="Key"
+                value={key}
+                onChange={(event) => setKey(event.target.value)}
+                size="small"
+                disabled={!isNew || !editable}
+                helperText={
+                  isNew
+                    ? "For example deck.europe — it cannot change later."
+                    : " "
+                }
+                sx={{ minWidth: 260 }}
+              />
+              <TextField
+                select
+                label="Kind"
+                value={kind}
                 size="small"
                 disabled={!editable}
                 onChange={(event) =>
-                  setNames({
-                    ...names,
-                    [locale]: {
-                      name: event.target.value,
-                      description: names[locale]?.description ?? "",
-                    },
-                  })
+                  setKind(event.target.value as "curated" | "taxonomy")
                 }
-              />
-              <TextField
-                label="Description"
-                value={names[locale]?.description ?? ""}
-                size="small"
-                multiline
-                minRows={2}
-                disabled={!editable}
-                onChange={(event) =>
-                  setNames({
-                    ...names,
-                    [locale]: {
-                      name: names[locale]?.name ?? "",
-                      description: event.target.value,
-                    },
-                  })
-                }
-              />
+                sx={{ minWidth: 180 }}
+              >
+                <MenuItem value="curated">Curated</MenuItem>
+                <MenuItem value="taxonomy">Taxonomy</MenuItem>
+              </TextField>
             </Stack>
-          ))}
 
-          <DeckMembersEditor
-            draftId={draft.id}
-            value={membership}
-            savedMemberCount={deck?.memberCount ?? null}
-            disabled={!editable}
-            onChange={setMembership}
-          />
+            {LOCALES.map((locale) => (
+              <Stack key={locale} spacing={1}>
+                <Typography variant="subtitle2">
+                  {locale.toUpperCase()}
+                </Typography>
+                <TextField
+                  label="Name"
+                  value={names[locale]?.name ?? ""}
+                  size="small"
+                  disabled={!editable}
+                  onChange={(event) =>
+                    setNames({
+                      ...names,
+                      [locale]: {
+                        name: event.target.value,
+                        description: names[locale]?.description ?? "",
+                      },
+                    })
+                  }
+                />
+                <TextField
+                  label="Description"
+                  value={names[locale]?.description ?? ""}
+                  size="small"
+                  multiline
+                  minRows={2}
+                  disabled={!editable}
+                  onChange={(event) =>
+                    setNames({
+                      ...names,
+                      [locale]: {
+                        name: names[locale]?.name ?? "",
+                        description: event.target.value,
+                      },
+                    })
+                  }
+                />
+              </Stack>
+            ))}
 
-          <Divider />
+            <DeckMembersEditor
+              draftId={draft.id}
+              value={membership}
+              savedMemberCount={deck?.memberCount ?? null}
+              disabled={!editable}
+              onChange={setMembership}
+            />
 
-          <DeckAccessEditor
-            value={access}
-            published={published}
-            contour={contour}
-            disabled={!editable}
-            onChange={setAccess}
-          />
+            <Divider />
 
-          <Stack direction="row" spacing={2}>
-            <Button
-              variant="contained"
-              disabled={!editable || saving}
-              onClick={save}
-            >
-              {isNew ? "Create deck" : "Save deck"}
-            </Button>
-            <Button
-              onClick={() => {
-                void navigate(`/drafts/${draft.id}`);
-              }}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
+            <DeckAccessEditor
+              value={access}
+              published={published}
+              contour={contour}
+              disabled={!editable}
+              onChange={setAccess}
+            />
           </Stack>
-        </Stack>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <StickyActionBar
+        status={
+          editable
+            ? undefined
+            : "You are viewing this deck; editing needs the EDITOR role."
+        }
+        secondary={
+          <Button
+            variant="outlined"
+            onClick={() => {
+              void navigate(routes.draftDecks(draft.id));
+            }}
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+        }
+        primary={
+          <Button
+            variant="contained"
+            disabled={!editable || saving}
+            onClick={save}
+          >
+            {saving ? "Saving\u2026" : isNew ? "Create deck" : "Save deck"}
+          </Button>
+        }
+      />
+    </>
   );
 }

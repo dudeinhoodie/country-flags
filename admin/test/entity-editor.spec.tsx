@@ -268,7 +268,7 @@ describe("EntityEditor", () => {
       ),
     ).toBeInTheDocument();
     // Nothing may be saved while the state has nowhere to belong.
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Save entity" })).toBeDisabled();
   });
 
   it("shows the country catalog off and says why, rather than hiding it", async () => {
@@ -298,10 +298,10 @@ describe("EntityEditor", () => {
     expect(
       screen.getByText("Expected two letters, as in FR"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Save entity" })).toBeDisabled();
 
     typeInto("isoAlpha2", "FR");
-    expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Save entity" })).toBeEnabled();
   });
 
   it("sends the parent and the facts the form holds", async () => {
@@ -315,7 +315,7 @@ describe("EntityEditor", () => {
     typeInto("Statehood date", "1850-09-09");
     typeInto("Population", "39400000");
     typeInto("Languages (en)", "English, Spanish");
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save entity" }));
 
     await waitFor(() => {
       expect(api.patched()).not.toBeNull();
@@ -344,7 +344,7 @@ describe("EntityEditor", () => {
     );
 
     await pickParent("country.france");
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save entity" }));
 
     const dialog = await screen.findByRole("dialog");
     expect(
@@ -360,7 +360,7 @@ describe("EntityEditor", () => {
 
     // The dialog holds focus until it is gone, so the form comes back only
     // once the question has been answered.
-    fireEvent.click(await screen.findByRole("button", { name: "Save" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Save entity" }));
     const reopened = await screen.findByRole("dialog");
     fireEvent.click(
       within(reopened).getByRole("button", {

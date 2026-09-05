@@ -27,6 +27,14 @@ describe("Bootstrap", () => {
             ),
           );
         }
+        if (url.includes("/v1/admin/content/drafts")) {
+          return Promise.resolve(
+            new Response(JSON.stringify({ items: [], total: 0 }), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            }),
+          );
+        }
         if (url.includes("/v1/admin/content/status")) {
           return Promise.resolve(
             new Response(
@@ -56,9 +64,7 @@ describe("Bootstrap", () => {
       }),
     );
     render(<Bootstrap />);
-    expect(
-      await screen.findByText("Catalog administration"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Content workspace")).toBeInTheDocument();
   });
 
   it("blocks startup when the config is missing", async () => {
