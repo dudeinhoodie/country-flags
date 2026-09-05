@@ -30,6 +30,10 @@ function storeConfig(): AppleStoreConfig {
     bundleId: BUNDLE_ID,
     appAppleId: null,
     rootCertificates: [],
+    keyId: "",
+    issuerId: "",
+    privateKey: "",
+    apiCredentialPresent: false,
     onlineChecks: false,
     localTestAllowed: true,
     configured: true,
@@ -349,6 +353,7 @@ describe("EntitlementService", () => {
       const unconfiguredStore: AppleStoreConfig = {
         ...storeConfig(),
         bundleId: "",
+        apiCredentialPresent: false,
         configured: false,
       };
       const unconfigured = new EntitlementService(

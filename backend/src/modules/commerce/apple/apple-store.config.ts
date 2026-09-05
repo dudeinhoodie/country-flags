@@ -34,6 +34,16 @@ export class AppleStoreConfig {
   readonly appAppleId: number | null;
   readonly rootCertificates: Buffer[];
   /**
+   * The App Store Server API credential, and the reason it is read here but
+   * used nowhere in the request path: it is the key that can ask Apple
+   * anything about anybody's purchases, and it belongs to the reconciliation
+   * job alone (§8). Empty strings mean "not issued yet", which is a state a
+   * deployment ships in rather than a failure to start.
+   */
+  readonly keyId: string;
+  readonly issuerId: string;
+  readonly privateKey: string;
+  /**
    * Certificate revocation and expiry are checked against Apple over the
    * network, which is right for a real store and wrong for the local
    * StoreKit configuration, whose payloads are not signed by Apple at all.
@@ -63,6 +73,13 @@ export class AppleStoreConfig {
     this.rootCertificates = config
       .getOrThrow<string[]>("COMMERCE_APPLE_ROOT_CERTIFICATES")
       .map((certificate) => Buffer.from(certificate, "base64"));
+    // Read as three values, as they are validated: they are set together or
+    // not at all, and the validator has already refused a half-set.
+    this.keyId = config.getOrThrow<string>("COMMERCE_APPLE_IAP_KEY_ID");
+    this.issuerId = config.getOrThrow<string>("COMMERCE_APPLE_IAP_ISSUER_ID");
+    this.privateKey = config.getOrThrow<string>(
+      "COMMERCE_APPLE_IAP_PRIVATE_KEY",
+    );
     this.onlineChecks = this.storeEnvironment !== StoreEnvironment.LOCAL_TEST;
     this.localTestAllowed =
       config.getOrThrow<string>("NODE_ENV") !== "production";
@@ -75,6 +92,15 @@ export class AppleStoreConfig {
    * bundle identifier to one App Store record, and Apple's own library
    * refuses to be built for Production without it.
    */
+  /** Whether this deployment can call the App Store Server API at all. */
+  get apiCredentialPresent(): boolean {
+    return (
+      this.keyId.length > 0 &&
+      this.issuerId.length > 0 &&
+      this.privateKey.length > 0
+    );
+  }
+
   get configured(): boolean {
     if (this.bundleId.length === 0) {
       return false;
