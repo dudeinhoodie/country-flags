@@ -10,7 +10,12 @@ import {
   sha256,
 } from "@country-flags/asset-core";
 
-import type { AssetCandidate, Provenance } from "./types.js";
+import { DEFAULT_ASSET_VARIANT } from "./editorial-schema.js";
+import type {
+  AssetCandidate,
+  EditorialAssetType,
+  Provenance,
+} from "./types.js";
 
 // Sanitizing, rasterizing and hashing live in @country-flags/asset-core so
 // the admin console's upload path runs the very same checks; a second
@@ -32,6 +37,8 @@ export interface AssetRepresentation {
 export interface BuiltAsset {
   key: string;
   entityKey: string;
+  assetType: EditorialAssetType;
+  variant: string;
   /// Ordered by client preference: the vector original, then raster by
   /// ascending scale.
   ///
@@ -47,6 +54,33 @@ export interface BuiltAsset {
   provenance: Provenance;
   validFrom: string | null;
   validTo: string | null;
+}
+
+/**
+ * What a published drawing is called, and where its bytes go.
+ *
+ * A flag published before symbols were typed keeps the name it has always
+ * had: renaming seven hundred files would say nothing about coats of arms,
+ * and a release is immutable anyway. Every other type and variant carries
+ * both in its name, which is what stops a coat of arms from overwriting the
+ * flag of the same country.
+ */
+function assetIdentity(
+  entityKey: string,
+  assetType: EditorialAssetType,
+  variant: string,
+): { key: string; fileName: string } {
+  const slug = entityKey.replace(
+    /^(?:area|country|territory|subdivision)\./u,
+    "",
+  );
+  const historical = assetType === "flag" && variant === DEFAULT_ASSET_VARIANT;
+  return {
+    key: `${assetType}.${slug}.${variant}`,
+    fileName: historical
+      ? slug
+      : `${slug}.${assetType.replace(/_/gu, "-")}.${variant}`,
+  };
 }
 
 export async function buildAsset(
@@ -66,8 +100,12 @@ export async function buildAsset(
     candidate.aspectRatio,
     `${entityKey} asset`,
   );
-  const slug = entityKey.replace(/^(?:area|country|territory)\./u, "");
-  const relativePath = `assets/svg/${slug}.svg`;
+  const { key, fileName } = assetIdentity(
+    entityKey,
+    candidate.assetType,
+    candidate.variant,
+  );
+  const relativePath = `assets/svg/${fileName}.svg`;
   await mkdir(join(outputDirectory, "assets/svg"), { recursive: true });
   await writeFile(join(outputDirectory, relativePath), svg, "utf8");
 
@@ -77,7 +115,7 @@ export async function buildAsset(
   const raster: AssetRepresentation[] = [];
   for (const scale of RASTER_SCALES) {
     const { png, widthPx, heightPx } = renderRaster(svg, scale);
-    const rasterPath = `assets/png/${slug}@${String(scale)}x.png`;
+    const rasterPath = `assets/png/${fileName}@${String(scale)}x.png`;
     await writeFile(join(outputDirectory, rasterPath), png);
     raster.push({
       path: rasterPath,
@@ -90,8 +128,10 @@ export async function buildAsset(
   }
 
   return {
-    key: `flag.${slug}.current`,
+    key,
     entityKey,
+    assetType: candidate.assetType,
+    variant: candidate.variant,
     representations: [
       { path: relativePath, mimeType: "image/svg+xml", sha256: sha256(svg) },
       ...raster,
@@ -131,13 +171,19 @@ async function buildRasterOnlyAsset(
       `${entityKey} asset aspectRatio ${String(candidate.aspectRatio)} does not match the PNG's ${String(actualRatio)}`,
     );
   }
-  const slug = entityKey.replace(/^(?:area|country|territory)\./u, "");
-  const relativePath = `assets/png/${slug}.png`;
+  const { key, fileName } = assetIdentity(
+    entityKey,
+    candidate.assetType,
+    candidate.variant,
+  );
+  const relativePath = `assets/png/${fileName}.png`;
   await mkdir(join(outputDirectory, "assets/png"), { recursive: true });
   await writeFile(join(outputDirectory, relativePath), png);
   return {
-    key: `flag.${slug}.current`,
+    key,
     entityKey,
+    assetType: candidate.assetType,
+    variant: candidate.variant,
     representations: [
       {
         path: relativePath,

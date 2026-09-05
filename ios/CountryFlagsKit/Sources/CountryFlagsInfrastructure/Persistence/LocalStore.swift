@@ -29,6 +29,7 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             LocalSchemaV3.self,
             LocalSchemaV4.self,
             LocalSchemaV5.self,
+            LocalSchemaV6.self,
         ]
     }
 
@@ -51,6 +52,14 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             // uploaded yet. Facts already downloaded have nil there and keep
             // showing the line they arrived as.
             .lightweight(fromVersion: LocalSchemaV4.self, toVersion: LocalSchemaV5.self),
+            // Adding what opens a deck, what an administrative unit belongs
+            // to, which drawing an asset is, and the three models a purchase
+            // needs to outlive the launch it was made in. Every added property
+            // has a default and the three models are new, so SwiftData widens
+            // the tables and creates the rest — the review outbox and any
+            // session still open cross the update untouched. A deck stored
+            // before this reads as `FREE`, which is what it is.
+            .lightweight(fromVersion: LocalSchemaV5.self, toVersion: LocalSchemaV6.self),
         ]
     }
 }
@@ -69,7 +78,7 @@ public struct LocalStore: Sendable {
     public let container: ModelContainer
 
     public init(location: Location = .onDisk(name: "CountryFlags")) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV5.self)
+        let schema = Schema(versionedSchema: LocalSchemaV6.self)
         let configuration: ModelConfiguration
         switch location {
         case .inMemory:
@@ -101,7 +110,7 @@ public struct LocalStore: Sendable {
     /// Builds a store at an explicit file URL, which is what a migration or a
     /// relaunch test needs.
     public init(fileURL: URL) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV5.self)
+        let schema = Schema(versionedSchema: LocalSchemaV6.self)
         do {
             container = try ModelContainer(
                 for: schema,
@@ -129,6 +138,10 @@ public struct LocalStore: Sendable {
         SwiftDataTelemetryRepository(modelContainer: container)
     }
 
+    public func makeCommerceRepository() -> some CommerceRepository {
+        SwiftDataCommerceRepository(modelContainer: container)
+    }
+
     public func makeAccountScopeCleaner() -> some AccountScopeCleaner {
         SwiftDataAccountScopeCleaner(modelContainer: container)
     }
@@ -141,7 +154,7 @@ public struct LocalStore: Sendable {
     /// which only needs to know which files to remove before the store is
     /// opened.
     public static func fileURLs(forName name: String) -> [URL] {
-        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV5.self))
+        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV6.self))
             .url
         // SQLite keeps its write-ahead log and shared memory next to the store.
         return [base]

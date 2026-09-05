@@ -3,8 +3,989 @@
   "catalogVersion": "fixture-v1",
   "decks": [
     {
+      "cardCount": 195,
+      "contentKinds": [
+        "FLAG"
+      ],
       "key": "deck.all",
       "kind": "curated",
+      "memberCards": [
+        {
+          "entityKey": "country.afghanistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.albania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.algeria",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.andorra",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.angola",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.antigua-and-barbuda",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.argentina",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.armenia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.australia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.austria",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.azerbaijan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bahamas",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bahrain",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bangladesh",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.barbados",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.belarus",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.belgium",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.belize",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.benin",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bhutan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bolivia-plurinational-state-of",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bosnia-and-herzegovina",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.botswana",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.brazil",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.brunei-darussalam",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bulgaria",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.burkina-faso",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.burundi",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cabo-verde",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cambodia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cameroon",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.canada",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.central-african-republic",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.chad",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.chile",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.china",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.colombia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.comoros",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.congo",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.costa-rica",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cote-d-ivoire",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.croatia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cuba",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cyprus",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.czechia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.democratic-people-s-republic-of-korea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.democratic-republic-of-the-congo",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.denmark",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.djibouti",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.dominica",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.dominican-republic",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ecuador",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.egypt",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.el-salvador",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.equatorial-guinea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.eritrea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.estonia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.eswatini",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ethiopia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.fiji",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.finland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.france",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.gabon",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.gambia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.georgia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.germany",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ghana",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.greece",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.grenada",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.guatemala",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.guinea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.guinea-bissau",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.guyana",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.haiti",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.holy-see",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.honduras",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.hungary",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.iceland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.india",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.indonesia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.iran-islamic-republic-of",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.iraq",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ireland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.israel",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.italy",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.jamaica",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.japan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.jordan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kazakhstan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kenya",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kiribati",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kuwait",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kyrgyzstan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.lao-people-s-democratic-republic",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.latvia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.lebanon",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.lesotho",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.liberia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.libya",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.liechtenstein",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.lithuania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.luxembourg",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.madagascar",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.malawi",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.malaysia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.maldives",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mali",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.malta",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.marshall-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mauritania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mauritius",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mexico",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.micronesia-federated-states-of",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.monaco",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mongolia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.montenegro",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.morocco",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mozambique",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.myanmar",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.namibia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.nauru",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.nepal",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.netherlands-kingdom-of-the",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.new-zealand",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.nicaragua",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.niger",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.nigeria",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.north-macedonia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.norway",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.oman",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.pakistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.palau",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.panama",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.papua-new-guinea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.paraguay",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.peru",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.philippines",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.poland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.portugal",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.qatar",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.republic-of-korea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.republic-of-moldova",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.romania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.russia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.rwanda",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.saint-kitts-and-nevis",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.saint-lucia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.saint-vincent-and-the-grenadines",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.samoa",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.san-marino",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sao-tome-and-principe",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.saudi-arabia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.senegal",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.serbia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.seychelles",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sierra-leone",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.singapore",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.slovakia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.slovenia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.solomon-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.somalia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.south-africa",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.south-sudan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.spain",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sri-lanka",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.state-of-palestine",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sudan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.suriname",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sweden",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.switzerland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.syrian-arab-republic",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.tajikistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.thailand",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.timor-leste",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.togo",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.tonga",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.trinidad-and-tobago",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.tunisia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.turkiye",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.turkmenistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.tuvalu",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.uganda",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ukraine",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.united-arab-emirates",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.united-kingdom-of-great-britain-and-northern-ireland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.united-republic-of-tanzania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.united_states",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.uruguay",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.uzbekistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.vanuatu",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.venezuela-bolivarian-republic-of",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.viet-nam",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.yemen",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.zambia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.zimbabwe",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        }
+      ],
       "memberEntityKeys": [
         "country.afghanistan",
         "country.albania",
@@ -214,8 +1195,274 @@
       }
     },
     {
+      "cardCount": 52,
+      "contentKinds": [
+        "FLAG"
+      ],
       "key": "deck.europe",
       "kind": "taxonomy",
+      "memberCards": [
+        {
+          "entityKey": "country.albania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.andorra",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.austria",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.belarus",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.belgium",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bosnia-and-herzegovina",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bulgaria",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.croatia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.czechia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.denmark",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.estonia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.finland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.france",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.germany",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.greece",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.holy-see",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.hungary",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.iceland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ireland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.italy",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kosovo",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.latvia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.liechtenstein",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.lithuania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.luxembourg",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.malta",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.monaco",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.montenegro",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.netherlands-kingdom-of-the",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.north-macedonia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.norway",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.poland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.portugal",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.republic-of-moldova",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.romania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.russia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.san-marino",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.serbia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.slovakia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.slovenia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.spain",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sweden",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.switzerland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ukraine",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.united-kingdom-of-great-britain-and-northern-ireland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.aland-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.faroe-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.gibraltar",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.guernsey",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.isle-of-man",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.jersey",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.svalbard-and-jan-mayen-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        }
+      ],
       "memberEntityKeys": [
         "country.albania",
         "country.andorra",
@@ -282,8 +1529,314 @@
       }
     },
     {
+      "cardCount": 60,
+      "contentKinds": [
+        "FLAG"
+      ],
       "key": "deck.africa",
       "kind": "taxonomy",
+      "memberCards": [
+        {
+          "entityKey": "area.french-southern-territories",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.algeria",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.angola",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.benin",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.botswana",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.burkina-faso",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.burundi",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cabo-verde",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cameroon",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.central-african-republic",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.chad",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.comoros",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.congo",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cote-d-ivoire",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.democratic-republic-of-the-congo",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.djibouti",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.egypt",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.equatorial-guinea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.eritrea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.eswatini",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ethiopia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.gabon",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.gambia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ghana",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.guinea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.guinea-bissau",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kenya",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.lesotho",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.liberia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.libya",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.madagascar",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.malawi",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mali",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mauritania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mauritius",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.morocco",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mozambique",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.namibia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.niger",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.nigeria",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.rwanda",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sao-tome-and-principe",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.senegal",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.seychelles",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sierra-leone",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.somalia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.south-africa",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.south-sudan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sudan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.togo",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.tunisia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.uganda",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.united-republic-of-tanzania",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.western-sahara",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.zambia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.zimbabwe",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.british-indian-ocean-territory",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.mayotte",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.reunion",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.saint-helena",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        }
+      ],
       "memberEntityKeys": [
         "area.french-southern-territories",
         "country.algeria",
@@ -358,8 +1911,299 @@
       }
     },
     {
+      "cardCount": 57,
+      "contentKinds": [
+        "FLAG"
+      ],
       "key": "deck.americas",
       "kind": "taxonomy",
+      "memberCards": [
+        {
+          "entityKey": "area.bouvet-island",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.antigua-and-barbuda",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.argentina",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bahamas",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.barbados",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.belize",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bolivia-plurinational-state-of",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.brazil",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.canada",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.chile",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.colombia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.costa-rica",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cuba",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.dominica",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.dominican-republic",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.ecuador",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.el-salvador",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.grenada",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.guatemala",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.guyana",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.haiti",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.honduras",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.jamaica",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mexico",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.nicaragua",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.panama",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.paraguay",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.peru",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.saint-kitts-and-nevis",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.saint-lucia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.saint-vincent-and-the-grenadines",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.suriname",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.trinidad-and-tobago",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.united_states",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.uruguay",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.venezuela-bolivarian-republic-of",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.anguilla",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.aruba",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.bermuda",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.bonaire-sint-eustatius-and-saba",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.british-virgin-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.cayman-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.curacao",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.falkland-islands-malvinas",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.french-guiana",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.greenland",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.guadeloupe",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.martinique",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.montserrat",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.puerto-rico",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.saint-barthelemy",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.saint-martin-french-part",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.saint-pierre-and-miquelon",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.sint-maarten-dutch-part",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.south-georgia-and-the-south-sandwich-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.turks-and-caicos-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.united-states-virgin-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        }
+      ],
       "memberEntityKeys": [
         "area.bouvet-island",
         "country.antigua-and-barbuda",
@@ -431,8 +2275,289 @@
       }
     },
     {
+      "cardCount": 55,
+      "contentKinds": [
+        "FLAG"
+      ],
       "key": "deck.asia",
       "kind": "taxonomy",
+      "memberCards": [
+        {
+          "entityKey": "country.afghanistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.armenia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.azerbaijan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bahrain",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bangladesh",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.bhutan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.brunei-darussalam",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cambodia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.china",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.cyprus",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.democratic-people-s-republic-of-korea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.georgia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.india",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.indonesia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.iran-islamic-republic-of",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.iraq",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.israel",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.japan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.jordan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kazakhstan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kuwait",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kyrgyzstan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.lao-people-s-democratic-republic",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.lebanon",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.malaysia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.maldives",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.mongolia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.myanmar",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.nepal",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.oman",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.pakistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.philippines",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.qatar",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.republic-of-korea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.russia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.saudi-arabia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.singapore",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.sri-lanka",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.state-of-palestine",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.syrian-arab-republic",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.taiwan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.tajikistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.thailand",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.timor-leste",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.turkiye",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.turkmenistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.united-arab-emirates",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.uzbekistan",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.viet-nam",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.yemen",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.british-indian-ocean-territory",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.china-hong-kong-special-administrative-region",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.china-macao-special-administrative-region",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.christmas-island",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.cocos-keeling-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        }
+      ],
       "memberEntityKeys": [
         "country.afghanistan",
         "country.armenia",
@@ -502,8 +2627,164 @@
       }
     },
     {
+      "cardCount": 30,
+      "contentKinds": [
+        "FLAG"
+      ],
       "key": "deck.oceania",
       "kind": "taxonomy",
+      "memberCards": [
+        {
+          "entityKey": "area.antarctica",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.cook-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.heard-island-and-mcdonald-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.niue",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.united-states-minor-outlying-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.australia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.fiji",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.kiribati",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.marshall-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.micronesia-federated-states-of",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.nauru",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.new-zealand",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.palau",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.papua-new-guinea",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.samoa",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.solomon-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.tonga",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.tuvalu",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "country.vanuatu",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.american-samoa",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.christmas-island",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.cocos-keeling-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.french-polynesia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.guam",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.new-caledonia",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.norfolk-island",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.northern-mariana-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.pitcairn",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.tokelau",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "territory.wallis-and-futuna-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        }
+      ],
       "memberEntityKeys": [
         "area.antarctica",
         "area.cook-islands",
@@ -548,8 +2829,49 @@
       }
     },
     {
+      "cardCount": 7,
+      "contentKinds": [
+        "FLAG"
+      ],
       "key": "deck.special-areas",
       "kind": "curated",
+      "memberCards": [
+        {
+          "entityKey": "area.antarctica",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.bouvet-island",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.cook-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.french-southern-territories",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.heard-island-and-mcdonald-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.niue",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        },
+        {
+          "entityKey": "area.united-states-minor-outlying-islands",
+          "templateCode": "FLAG_TO_COUNTRY",
+          "templateSchemaVersion": 1
+        }
+      ],
       "memberEntityKeys": [
         "area.antarctica",
         "area.bouvet-island",

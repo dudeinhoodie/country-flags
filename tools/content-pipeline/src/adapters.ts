@@ -1,3 +1,4 @@
+import { DEFAULT_ASSET_VARIANT } from "./editorial-schema.js";
 import type {
   AssetCandidate,
   FieldPatch,
@@ -324,6 +325,10 @@ function normalizeFlagIcons(
         editorialAlias === undefined
           ? { isoAlpha2: String(record.isoAlpha2) }
           : { editorialKey: editorialAlias },
+      // flag-icons draws flags and nothing else; a source that later brings
+      // coats of arms says so for itself.
+      assetType: "flag" as const,
+      variant: DEFAULT_ASSET_VARIANT,
       upstreamPath: String(record.path),
       svg: String(record.svg),
       aspectRatio: Number(record.aspectRatio),

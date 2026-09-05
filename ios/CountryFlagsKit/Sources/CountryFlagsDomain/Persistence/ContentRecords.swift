@@ -38,6 +38,101 @@ public struct ContentManifestRecord: Hashable, Sendable {
     }
 }
 
+/// What an entity is, as a value this build can switch on.
+///
+/// The pipeline owns the list, so a kind published after this release is
+/// carried as `unknown` rather than rejected — see ADR-009. It exists as a
+/// type because `SUBDIVISION` now has to be told apart from a country by
+/// something other than the absence of a parent: a country has no parent
+/// either.
+public enum GeoEntityKind: Hashable, Sendable {
+    case country
+    case territory
+    case dependency
+    case disputedArea
+    /// An administrative unit of a country — a U.S. state.
+    case subdivision
+    case region
+    case subregion
+    case other
+    case unknown(String)
+
+    public init(rawValue: String) {
+        switch rawValue {
+        case "COUNTRY": self = .country
+        case "TERRITORY": self = .territory
+        case "DEPENDENCY": self = .dependency
+        case "DISPUTED_AREA": self = .disputedArea
+        case "SUBDIVISION": self = .subdivision
+        case "REGION": self = .region
+        case "SUBREGION": self = .subregion
+        case "OTHER": self = .other
+        default: self = .unknown(rawValue)
+        }
+    }
+
+    public var rawValue: String {
+        switch self {
+        case .country: return "COUNTRY"
+        case .territory: return "TERRITORY"
+        case .dependency: return "DEPENDENCY"
+        case .disputedArea: return "DISPUTED_AREA"
+        case .subdivision: return "SUBDIVISION"
+        case .region: return "REGION"
+        case .subregion: return "SUBREGION"
+        case .other: return "OTHER"
+        case .unknown(let value): return value
+        }
+    }
+}
+
+/// The country or territory an administrative unit belongs to, as much of it
+/// as a screen needs to name it.
+///
+/// A summary rather than a reference: showing "California, United States"
+/// must not depend on the parent's own record having been downloaded, and a
+/// relationship between two entities would make it.
+public struct GeoEntityParentRecord: Hashable, Sendable {
+    public let id: UUID
+    public let kind: String
+    public let name: String
+
+    public init(id: UUID, kind: String, name: String) {
+        self.id = id
+        self.kind = kind
+        self.name = name
+    }
+}
+
+/// Codes that identify an entity outside this catalog.
+///
+/// A subdivision code has a field of its own: `US-CA` written into an ISO
+/// country code would put a state everywhere a reader expects a country.
+public struct GeoEntityIdentifiersRecord: Hashable, Sendable, Codable {
+    /// ISO 3166-2, such as `US-CA`.
+    public let isoSubdivision: String?
+    /// The official code the parent country uses for the unit.
+    public let localCode: String?
+    /// Present only where the source publishes one; never derived.
+    public let fipsCode: String?
+
+    public init(
+        isoSubdivision: String? = nil,
+        localCode: String? = nil,
+        fipsCode: String? = nil
+    ) {
+        self.isoSubdivision = isoSubdivision
+        self.localCode = localCode
+        self.fipsCode = fipsCode
+    }
+
+    public static let none = GeoEntityIdentifiersRecord()
+
+    public var isEmpty: Bool {
+        isoSubdivision == nil && localCode == nil && fipsCode == nil
+    }
+}
+
 public struct GeoEntityRecord: Hashable, Sendable {
     public let id: UUID
     /// Taxonomy values the content pipeline owns arrive as strings; see
@@ -49,6 +144,13 @@ public struct GeoEntityRecord: Hashable, Sendable {
     public let names: [GeoNameRecord]
     public let assets: [AssetRecord]
     public let facts: [FactRecord]
+    /// Set for an administrative unit and nil for everything else, a country
+    /// included — so it is a detail to show rather than a test to filter by.
+    public let parent: GeoEntityParentRecord?
+    public let identifiers: GeoEntityIdentifiersRecord
+
+    /// The kind as a value this build can switch on, unknown ones included.
+    public var entityKind: GeoEntityKind { GeoEntityKind(rawValue: kind) }
 
     public init(
         id: UUID,
@@ -58,7 +160,9 @@ public struct GeoEntityRecord: Hashable, Sendable {
         contentVersion: String,
         names: [GeoNameRecord],
         assets: [AssetRecord],
-        facts: [FactRecord]
+        facts: [FactRecord],
+        parent: GeoEntityParentRecord? = nil,
+        identifiers: GeoEntityIdentifiersRecord = .none
     ) {
         self.id = id
         self.kind = kind
@@ -68,6 +172,8 @@ public struct GeoEntityRecord: Hashable, Sendable {
         self.names = names
         self.assets = assets
         self.facts = facts
+        self.parent = parent
+        self.identifiers = identifiers
     }
 }
 
@@ -83,15 +189,65 @@ public struct GeoNameRecord: Hashable, Sendable {
     }
 }
 
+/// What an asset draws. The pipeline owns the values, so an unknown one is
+/// carried rather than rejected — see ADR-009.
+///
+/// An entity has several of these at once now, and the type is what tells them
+/// apart: a coat of arms and a flag are two drawings of one country, not two
+/// versions of one drawing.
+public enum AssetType: Hashable, Sendable {
+    case flag
+    case coatOfArms
+    case map
+    case other
+    /// A type published after this release. Kept whole so the value survives
+    /// a round trip through the store.
+    case unknown(String)
+
+    public init(rawValue: String) {
+        switch rawValue {
+        case "FLAG": self = .flag
+        case "COAT_OF_ARMS": self = .coatOfArms
+        case "MAP": self = .map
+        case "OTHER": self = .other
+        default: self = .unknown(rawValue)
+        }
+    }
+
+    public var rawValue: String {
+        switch self {
+        case .flag: return "FLAG"
+        case .coatOfArms: return "COAT_OF_ARMS"
+        case .map: return "MAP"
+        case .other: return "OTHER"
+        case .unknown(let value): return value
+        }
+    }
+}
+
 public struct AssetRecord: Hashable, Sendable {
     public let id: UUID
     public let type: String
+    /// Which drawing of this type it is. `current` is the baseline; a
+    /// historical symbol publishes another. Part of what makes an asset
+    /// unique alongside the entity and the type.
+    public let variant: String
     public let url: URL
     public let mimeType: String
     /// Checked before an asset is used, so a truncated download cannot be
     /// rendered as a flag.
     public let sha256: String
     public let contentVersion: String
+    /// What this drawing is called in the reader's locale — "Federal Eagle"
+    /// rather than "Germany". It belongs to the asset because the story of a
+    /// symbol is the story of that drawing, and an entity now has several.
+    /// Nil when the symbol has no name of its own.
+    public let displayName: String?
+    /// What the symbol means, in the reader's locale.
+    public let assetDescription: String?
+
+    /// The type as a value this build can switch on, unknown ones included.
+    public var assetType: AssetType { AssetType(rawValue: type) }
 
     public init(
         id: UUID,
@@ -99,15 +255,24 @@ public struct AssetRecord: Hashable, Sendable {
         url: URL,
         mimeType: String,
         sha256: String,
-        contentVersion: String
+        contentVersion: String,
+        variant: String = AssetRecord.baselineVariant,
+        displayName: String? = nil,
+        assetDescription: String? = nil
     ) {
         self.id = id
         self.type = type
+        self.variant = variant
         self.url = url
         self.mimeType = mimeType
         self.sha256 = sha256
         self.contentVersion = contentVersion
+        self.displayName = displayName
+        self.assetDescription = assetDescription
     }
+
+    /// The variant every asset published so far carries.
+    public static let baselineVariant = "current"
 }
 
 /// A fact with its parts still apart, names already in the reader's locale.
@@ -183,6 +348,36 @@ public struct FactRecord: Hashable, Sendable {
     }
 }
 
+/// What opens a deck.
+///
+/// Monetization lives here and nowhere else: no card, asset or template is
+/// paid. No price appears either — the store owns what a thing costs, and the
+/// client reads it from the store.
+public enum DeckAccessModel: Hashable, Sendable {
+    case free
+    case entitlement
+    /// A model published after this release. A deck this build cannot reason
+    /// about stays locked rather than being opened by a value it does not
+    /// understand.
+    case unknown(String)
+
+    public init(rawValue: String) {
+        switch rawValue {
+        case "FREE": self = .free
+        case "ENTITLEMENT": self = .entitlement
+        default: self = .unknown(rawValue)
+        }
+    }
+
+    public var rawValue: String {
+        switch self {
+        case .free: return "FREE"
+        case .entitlement: return "ENTITLEMENT"
+        case .unknown(let value): return value
+        }
+    }
+}
+
 public struct DeckRecord: Hashable, Sendable {
     public let id: UUID
     public let code: String
@@ -192,6 +387,32 @@ public struct DeckRecord: Hashable, Sendable {
     public let cardCount: Int
     public let contentVersion: String
     public let sortOrder: Int
+    /// What opens the deck, as the release published it. Every deck published
+    /// so far is `FREE`, which is also what a deck stored before this field
+    /// existed reads as.
+    public let accessModel: String
+    /// The right that opens it. Set exactly when the model is `ENTITLEMENT`.
+    public let requiredEntitlementKey: String?
+    /// The offers that grant that right, in the order they should be shown. A
+    /// client turns a code into a store product through the commerce
+    /// endpoint; it never derives one.
+    public let offerCodes: [String]
+    /// What the deck teaches, derived from the cards it holds: a deck of coats
+    /// of arms carries `COAT_OF_ARMS`, a mixed one carries both. Published
+    /// rather than authored, and never a filter on the cards themselves.
+    public let contentKinds: [String]
+    /// The cards a locked deck may show before it is bought — at most three,
+    /// published as public on purpose. Held as identifiers because the deck
+    /// only needs to know which of its cards are open, not what is on them.
+    public let previewCardIDs: [UUID]
+
+    /// The access model as a value this build can switch on.
+    public var access: DeckAccessModel { DeckAccessModel(rawValue: accessModel) }
+
+    /// True only for a model this build knows to be open. An unknown model is
+    /// not free: the safe reading of a value published after this release is
+    /// that it needs something the release cannot check.
+    public var isFree: Bool { access == .free }
 
     public init(
         id: UUID,
@@ -201,7 +422,12 @@ public struct DeckRecord: Hashable, Sendable {
         deckDescription: String,
         cardCount: Int,
         contentVersion: String,
-        sortOrder: Int
+        sortOrder: Int,
+        accessModel: String = DeckAccessModel.free.rawValue,
+        requiredEntitlementKey: String? = nil,
+        offerCodes: [String] = [],
+        contentKinds: [String] = [],
+        previewCardIDs: [UUID] = []
     ) {
         self.id = id
         self.code = code
@@ -211,6 +437,11 @@ public struct DeckRecord: Hashable, Sendable {
         self.cardCount = cardCount
         self.contentVersion = contentVersion
         self.sortOrder = sortOrder
+        self.accessModel = accessModel
+        self.requiredEntitlementKey = requiredEntitlementKey
+        self.offerCodes = offerCodes
+        self.contentKinds = contentKinds
+        self.previewCardIDs = previewCardIDs
     }
 }
 

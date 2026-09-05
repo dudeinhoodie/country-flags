@@ -124,6 +124,13 @@ public enum BooleanFeatureFlag: String, FeatureFlagKey {
     case adsCatalogInlineNativeEnabled = "ads.catalog.inline_native.enabled"
     case adsSessionResultInterstitialEnabled = "ads.session_result.interstitial.enabled"
     case adsRewardedOptionalBonusEnabled = "ads.rewarded.optional_bonus.enabled"
+    case monetizationPaidDecksStorefrontEnabled = "monetization.paid_decks.storefront_enabled"
+    case commerceAppleIapEnabled = "commerce.apple_iap.enabled"
+    case commercePaidDecksDiscoveryEnabled = "commerce.paid_decks.discovery.enabled"
+    case commerceDeckEuropeCoatsEnabled = "commerce.deck.europe_coats.enabled"
+    case commerceDeckUsStateFlagsEnabled = "commerce.deck.us_state_flags.enabled"
+    case contentCoatsOfArmsEnabled = "content.coats_of_arms.enabled"
+    case contentSubdivisionsEnabled = "content.subdivisions.enabled"
 
     /// Available without any I/O, which is what lets the first screen render
     /// before the network answers.
@@ -137,6 +144,15 @@ public enum BooleanFeatureFlag: String, FeatureFlagKey {
         // independently of the global switch.
         case .adsEnabled, .adsHomeBottomBannerEnabled, .adsCatalogInlineNativeEnabled,
             .adsSessionResultInterstitialEnabled, .adsRewardedOptionalBonusEnabled:
+            false
+        // The storefront and everything it shows are off until the rollout
+        // gate opens. None of these decides who owns a deck: an owner keeps
+        // full access with every one of them false, and a non-owner is told
+        // purchasing is unavailable rather than handed the deck (ADR-019).
+        case .monetizationPaidDecksStorefrontEnabled, .commerceAppleIapEnabled,
+            .commercePaidDecksDiscoveryEnabled, .commerceDeckEuropeCoatsEnabled,
+            .commerceDeckUsStateFlagsEnabled, .contentCoatsOfArmsEnabled,
+            .contentSubdivisionsEnabled:
             false
         }
     }
@@ -155,7 +171,11 @@ public enum BooleanFeatureFlag: String, FeatureFlagKey {
         switch self {
         case .studyMultipleChoiceEnabled, .adsHomeBottomBannerEnabled,
             .adsCatalogInlineNativeEnabled, .adsSessionResultInterstitialEnabled,
-            .adsRewardedOptionalBonusEnabled:
+            .adsRewardedOptionalBonusEnabled,
+            .monetizationPaidDecksStorefrontEnabled, .commerceAppleIapEnabled,
+            .commercePaidDecksDiscoveryEnabled, .commerceDeckEuropeCoatsEnabled,
+            .commerceDeckUsStateFlagsEnabled, .contentCoatsOfArmsEnabled,
+            .contentSubdivisionsEnabled:
             .release
         case .studyReviewSubmissionEnabled, .adsEnabled:
             .operational
@@ -164,8 +184,13 @@ public enum BooleanFeatureFlag: String, FeatureFlagKey {
 
     public var activationPolicy: FeatureFlagActivationPolicy {
         switch self {
-        // The session mode may not change halfway through a session.
-        case .studyMultipleChoiceEnabled: .nextSession
+        // The session mode may not change halfway through a session, and
+        // neither does what a session is made of: turning coats of arms or
+        // subdivisions on mid-session would change the cards under the
+        // learner.
+        case .studyMultipleChoiceEnabled, .contentCoatsOfArmsEnabled,
+            .contentSubdivisionsEnabled:
+            .nextSession
         // Everything else here is a switch that has to work at once.
         default: .immediate
         }
@@ -174,6 +199,7 @@ public enum BooleanFeatureFlag: String, FeatureFlagKey {
     private var owner: String {
         switch self {
         case .studyMultipleChoiceEnabled, .studyReviewSubmissionEnabled: "learning"
+        case .contentCoatsOfArmsEnabled, .contentSubdivisionsEnabled: "content"
         default: "monetization"
         }
     }

@@ -87,7 +87,9 @@ final class AssetCacheTests: XCTestCase {
         )
         _ = try await cache.data(for: asset)
 
-        try Data("tampered".utf8).write(to: directory.appending(path: asset.sha256))
+        try Data("tampered".utf8).write(
+            to: directory.appending(path: AssetCacheKey(asset: asset).storageName)
+        )
 
         let cached = await cache.cachedData(for: asset)
         XCTAssertNil(cached)
@@ -109,7 +111,7 @@ final class AssetCacheTests: XCTestCase {
         _ = try await cache.data(for: kept)
         _ = try await cache.data(for: dropped)
 
-        await cache.evict(keepingChecksums: [kept.sha256])
+        await cache.evict(keeping: [AssetCacheKey(asset: kept)])
 
         let keptData = await cache.cachedData(for: kept)
         let droppedData = await cache.cachedData(for: dropped)
@@ -136,10 +138,44 @@ final class AssetCacheTests: XCTestCase {
         }
     }
 
-    private static func asset(sha256: String, path: String = "flag") -> AssetRecord {
+    /// One entity holds a flag and a coat of arms at the same time. Two
+    /// drawings the pipeline happened to publish as identical bytes is the
+    /// case a checksum-only key gets wrong: it would file both under one name,
+    /// and evicting the flag would take the coat with it.
+    func testACoatOfArmsDoesNotOverwriteAFlagWithTheSameBytes() async throws {
+        let payload = Data("<svg id=\"symbol\"/>".utf8)
+        let checksum = FileAssetCache.digest(of: payload)
+        let flag = Self.asset(sha256: checksum, path: "flag", type: "FLAG")
+        let coat = Self.asset(sha256: checksum, path: "coat", type: "COAT_OF_ARMS")
+        let cache = FileAssetCache(
+            directory: directory,
+            fetcher: RecordingAssetFetcher(bytes: [flag.url: payload, coat.url: payload])
+        )
+        _ = try await cache.data(for: flag)
+        _ = try await cache.data(for: coat)
+
+        let files = try FileManager.default.contentsOfDirectory(
+            at: directory,
+            includingPropertiesForKeys: nil
+        )
+        XCTAssertEqual(files.count, 2, "the two symbols share one file")
+
+        await cache.evict(keeping: [AssetCacheKey(asset: coat)])
+
+        let coatData = await cache.cachedData(for: coat)
+        let flagData = await cache.cachedData(for: flag)
+        XCTAssertEqual(coatData, payload)
+        XCTAssertNil(flagData, "evicting the flag was supposed to leave the coat alone")
+    }
+
+    private static func asset(
+        sha256: String,
+        path: String = "flag",
+        type: String = "FLAG"
+    ) -> AssetRecord {
         AssetRecord(
             id: UUID(),
-            type: "FLAG",
+            type: type,
             url: URL(string: "https://cdn.test.invalid/\(path).svg")!,
             mimeType: "image/svg+xml",
             sha256: sha256,

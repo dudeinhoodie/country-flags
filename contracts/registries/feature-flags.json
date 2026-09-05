@@ -112,6 +112,90 @@
       "owner": "monetization",
       "description": "Reserves the rewarded placement as disabled",
       "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "monetization.paid_decks.storefront_enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Rollout switch for the paid-decks storefront and its buy button",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "commerce.apple_iap.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Shows the Apple in-app purchase button on paid decks",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "commerce.paid_decks.discovery.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Shows paid decks in the catalog",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "commerce.deck.europe_coats.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Shows the European Coats paid deck in the catalog",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "commerce.deck.us_state_flags.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "immediate",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "monetization",
+      "description": "Shows the U.S. State Flags paid deck in the catalog",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "content.coats_of_arms.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "nextSession",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "content",
+      "description": "Enables the coat-of-arms content type and its study cards",
+      "reviewAfter": "2027-07-01"
+    },
+    {
+      "key": "content.subdivisions.enabled",
+      "type": "boolean",
+      "defaultValue": false,
+      "category": "release",
+      "activationPolicy": "nextSession",
+      "serverEnforced": true,
+      "clientVisible": true,
+      "owner": "content",
+      "description": "Enables the subdivision content type and its study cards",
+      "reviewAfter": "2027-07-01"
     }
   ]
 }

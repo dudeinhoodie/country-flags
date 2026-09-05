@@ -20,7 +20,7 @@ enum LocalSchemaV3: VersionedSchema {
             LocalSchemaV1.StoredGeoName.self,
             LocalSchemaV1.StoredAsset.self,
             LocalSchemaV1.StoredFact.self,
-            StoredDeck.self,
+            LocalSchemaV5.StoredDeck.self,
             StoredLearningCard.self,
             StoredDeckCard.self,
             StoredUserSettings.self,

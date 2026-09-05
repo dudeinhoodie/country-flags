@@ -3,9 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -16,7 +18,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { AdminRole } from "@prisma/client";
-import type { DraftAsset } from "@prisma/client";
+import type { ContentDraft, DraftAsset } from "@prisma/client";
 import type { Response } from "express";
 
 import { ApiException } from "../../common/http/api.exception";
@@ -27,8 +29,12 @@ import type { AdminAuthenticatedRequest } from "../admin-auth/admin-auth.guard";
 import { assertTrustedAdminOrigin } from "../admin-auth/admin-origin";
 import { RequireAdminRole } from "../admin-auth/admin-roles";
 import { AdminRolesGuard } from "../admin-auth/admin-roles.guard";
-import { parseDraftAssetUpload } from "./admin-drafts.request";
-import { DraftAssetsService } from "./draft-assets.service";
+import {
+  parseDraftAssetPatch,
+  parseDraftAssetUpload,
+  parseIfMatchRevision,
+} from "./admin-drafts.request";
+import { DraftAssetsService, isoDay } from "./draft-assets.service";
 
 interface UploadedMultipartFile {
   buffer: Buffer;
@@ -54,8 +60,22 @@ function toAssetResponse(asset: DraftAsset): Record<string, unknown> {
     attribution: asset.attribution,
     replacementReason: asset.replacementReason,
     validationStatus: asset.validationStatus,
+    validFrom: asset.validFrom === null ? null : isoDay(asset.validFrom),
+    validTo: asset.validTo === null ? null : isoDay(asset.validTo),
+    // Always an object, never absent: a symbol with no words yet and a
+    // symbol whose words were never asked for read the same to a client.
+    localizations: asset.localizations ?? {},
     createdAt: asset.createdAt.toISOString(),
     updatedAt: asset.updatedAt.toISOString(),
+  };
+}
+
+function toDraftStamp(draft: ContentDraft): Record<string, unknown> {
+  return {
+    draftId: draft.id,
+    revision: draft.revision,
+    status: draft.status,
+    updatedAt: draft.updatedAt.toISOString(),
   };
 }
 
@@ -124,6 +144,32 @@ export class DraftAssetsController {
     // A drawing served from the API origin must not be able to act there.
     response.setHeader("Content-Security-Policy", "default-src 'none'");
     return body;
+  }
+
+  /**
+   * Metadata, validity and the symbol's own words. The drawing is not
+   * touched: new bytes arrive through the upload, and retiring a symbol is
+   * closing its validity here rather than deleting it.
+   */
+  @Patch(":assetId")
+  @RequireAdminRole(AdminRole.EDITOR)
+  async update(
+    @Req() request: AdminAuthenticatedRequest,
+    @Param("draftId") rawDraftId: string,
+    @Param("assetId") rawAssetId: string,
+    @Headers("if-match") ifMatch: string | undefined,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    this.assertTrustedOrigin(request);
+    const draft = await this.assets.update(
+      request.adminUser,
+      uuid(rawDraftId, "draftId"),
+      uuid(rawAssetId, "assetId"),
+      parseIfMatchRevision(ifMatch),
+      parseDraftAssetPatch(body),
+      request.requestId,
+    );
+    return toDraftStamp(draft);
   }
 
   @Delete(":assetId")

@@ -35,6 +35,8 @@ export function assetRecord(entity: FixtureEntity): Record<string, unknown> {
   return {
     key: `flag.${entity.slug}.current`,
     entityKey: entity.key,
+    assetType: "flag",
+    variant: "current",
     representations: [
       {
         path: `assets/svg/${entity.slug}.svg`,
@@ -122,6 +124,8 @@ export function buildBundle(
     }
   }
 
+  const memberKeys =
+    options.deckMemberKeys ?? options.entities.map((entity) => entity.key);
   const catalog = {
     schemaVersion: 1,
     catalogVersion: options.contentVersion,
@@ -134,9 +138,14 @@ export function buildBundle(
         key: "deck.all",
         kind: "curated",
         names: { en: { name: "All" }, ru: { name: "Все" } },
-        memberEntityKeys:
-          options.deckMemberKeys ??
-          options.entities.map((entity) => entity.key),
+        memberEntityKeys: memberKeys,
+        memberCards: memberKeys.map((entityKey) => ({
+          entityKey,
+          templateCode: "FLAG_TO_COUNTRY",
+          templateSchemaVersion: 1,
+        })),
+        contentKinds: ["FLAG"],
+        cardCount: memberKeys.length,
       },
     ],
   };

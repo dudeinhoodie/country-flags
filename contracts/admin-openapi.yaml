@@ -736,7 +736,7 @@ paths:
       tags: [AdminDrafts]
       summary: Change an uploaded asset's metadata
       operationId: adminUpdateDraftAsset
-      x-implementation-status: planned
+      x-implementation-status: implemented
       description: >-
         Provenance, validity and the symbol's localized name and story. New
         bytes still arrive through the upload endpoint: correcting a licence
