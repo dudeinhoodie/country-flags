@@ -528,10 +528,11 @@ function matchesEntityFilter(
   if (filter.missingLocalization === true && row.locales.complete) {
     return false;
   }
-  if (filter.usedInDecks !== undefined) {
-    if (filter.usedInDecks !== row.usedInDeckCount > 0) {
-      return false;
-    }
+  if (
+    filter.usedInDecks !== undefined &&
+    filter.usedInDecks !== row.usedInDeckCount > 0
+  ) {
+    return false;
   }
   switch (filter.validation) {
     case "blocking":
