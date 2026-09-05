@@ -28,6 +28,16 @@ const entities: DraftEntity[] = [
     hasCoatOfArms: false,
     overrideCount: 0,
     publishedName: "Германия",
+    locales: {
+      required: ["ru", "en"],
+      present: ["ru", "en"],
+      missing: [],
+      complete: true,
+    },
+    usedInDeckCount: 1,
+    delivery: "PUBLIC",
+    blockingCount: 0,
+    warningCount: 0,
   },
   {
     key: "country.france",
@@ -40,6 +50,16 @@ const entities: DraftEntity[] = [
     hasCoatOfArms: true,
     overrideCount: 0,
     publishedName: "Франция",
+    locales: {
+      required: ["ru", "en"],
+      present: ["ru"],
+      missing: ["en"],
+      complete: false,
+    },
+    usedInDeckCount: 0,
+    delivery: "PUBLIC",
+    blockingCount: 0,
+    warningCount: 0,
   },
 ];
 
@@ -228,12 +248,24 @@ describe("validationSummary", () => {
             code: "A",
             subject: "deck.sample",
             message: "broken",
+            target: {
+              objectType: "deck",
+              objectKey: "deck.sample",
+              tab: "content",
+              field: "/members",
+            },
           },
           {
             level: "warning",
             code: "B",
             subject: "country.germany",
             message: "thin",
+            target: {
+              objectType: "entity",
+              objectKey: "country.germany",
+              tab: "overview",
+              field: null,
+            },
           },
         ],
       },

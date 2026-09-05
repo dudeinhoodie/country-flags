@@ -632,6 +632,7 @@ function WorkspaceRail({
     code: string;
     subject: string;
     message: string;
+    route?: string;
   }[];
   activity: ReturnType<typeof recentActivity>;
   onValidated: () => void;
@@ -723,7 +724,11 @@ function WorkspaceRail({
               sx={{ listStyle: "none", m: 0, p: 0 }}
             >
               {findings.slice(0, 3).map((finding) => {
-                const href = findingHref(draftId, finding.subject);
+                const href = findingHref(
+                  draftId,
+                  finding.subject,
+                  finding.route,
+                );
                 const body = (
                   <Stack
                     direction="row"
