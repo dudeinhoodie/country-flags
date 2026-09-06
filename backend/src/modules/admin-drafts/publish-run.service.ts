@@ -299,10 +299,12 @@ export class PublishRunService {
       if (executionName.length === 0) {
         return run;
       }
-      // Guarded by the status the caller believes: an execution can be quick
-      // enough to have claimed the run before this write lands, and stamping
-      // a handle on a running job is fine while resurrecting a finished one
-      // would not be.
+      // Deliberately unguarded by status. An execution can be quick enough
+      // to have claimed — or even finished — the run before this write
+      // lands, and in every one of those states this is still the execution
+      // that ran it, so the handle belongs on the row. `updateMany` rather
+      // than `update` because a row that is gone is not worth an exception
+      // on a path whose real work has already succeeded.
       await this.database.publishRun.updateMany({
         where: { id: run.id },
         data: { executionName },
