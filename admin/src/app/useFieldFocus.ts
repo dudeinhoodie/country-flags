@@ -29,6 +29,7 @@ export function useFieldFocus(ready: boolean): string | null {
   const [search] = useSearchParams();
   const pointer = search.get(FIELD_PARAM);
   const handled = useRef<string | null>(null);
+  const searching = useRef<string | null>(null);
   const attempts = useRef(0);
 
   // No dependency list: the control the pointer names may mount a render or
@@ -39,7 +40,16 @@ export function useFieldFocus(ready: boolean): string | null {
     if (!ready || pointer === null || pointer === "") {
       return;
     }
-    if (handled.current === pointer || attempts.current > 20) {
+    if (handled.current === pointer) {
+      return;
+    }
+    // Each pointer gets its own budget: a session that follows one finding
+    // after another must not run out of tries because an earlier one did.
+    if (searching.current !== pointer) {
+      searching.current = pointer;
+      attempts.current = 0;
+    }
+    if (attempts.current > 20) {
       return;
     }
     attempts.current += 1;
