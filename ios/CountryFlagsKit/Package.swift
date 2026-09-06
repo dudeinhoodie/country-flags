@@ -88,7 +88,15 @@ let package = Package(
         .testTarget(
             name: "CountryFlagsInfrastructureTests",
             // The mock transport is the double these tests answer with.
-            dependencies: ["CountryFlagsInfrastructure", "CountryFlagsMockBackend"]
+            dependencies: ["CountryFlagsInfrastructure", "CountryFlagsMockBackend"],
+            // What the store sells, stated once. It lives with the tests
+            // rather than beside the app for a reason the App Store cares
+            // about: a test target is not linked into the app, so this file
+            // cannot ride into a release artifact — and the Mock scheme
+            // points its StoreKit configuration at this same file, so a
+            // product the tests drive and a product a reviewer can buy in the
+            // simulator cannot drift apart.
+            resources: [.copy("Resources/CountryFlags.storekit")]
         ),
         .testTarget(
             name: "CountryFlagsFeaturesTests",

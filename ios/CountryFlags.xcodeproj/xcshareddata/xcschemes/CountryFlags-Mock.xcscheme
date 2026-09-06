@@ -60,6 +60,9 @@
             ReferencedContainer = "container:CountryFlags.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <StoreKitConfigurationFileReference
+         identifier = "../CountryFlagsKit/Tests/CountryFlagsInfrastructureTests/Resources/CountryFlags.storekit">
+      </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Mock"

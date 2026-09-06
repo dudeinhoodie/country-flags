@@ -1,0 +1,67 @@
+{
+  "identifier" : "5F1B5F3A-3C1E-4E4C-9C21-3F1F0D7A2E11",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "1A7C4B90-0F1D-4E32-9C0B-6C5F2A9D1101",
+      "localizations" : [
+        {
+          "description" : "Recognize Europe's national emblems and discover the stories behind their symbols.",
+          "displayName" : "European Coats",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "app.countryflags.deck.european_coats.lifetime.v1",
+      "referenceName" : "European Coats (lifetime)",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "1A7C4B90-0F1D-4E32-9C0B-6C5F2A9D1102",
+      "localizations" : [
+        {
+          "description" : "Learn every state flag, capital, and the story behind its symbols.",
+          "displayName" : "U.S. State Flags",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "app.countryflags.deck.us_state_flags.lifetime.v1",
+      "referenceName" : "U.S. State Flags (lifetime)",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "1A7C4B90-0F1D-4E32-9C0B-6C5F2A9D1103",
+      "localizations" : [
+        {
+          "description" : "Antarctica and the islands that belong to no country.",
+          "displayName" : "Special areas",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "app.countryflags.mock.deck.special_areas.lifetime.v1",
+      "referenceName" : "Special areas (Mock build only)",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

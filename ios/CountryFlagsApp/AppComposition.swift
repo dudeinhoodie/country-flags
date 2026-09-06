@@ -382,11 +382,16 @@ struct AppComposition: AppDependencies {
                 isPurchasingOffered: { featureFlags.isEnabled(.commerceAppleIapEnabled) },
                 confirmed: entitlements,
                 scopes: sessions,
-                onEntitlementsChanged: { keys in
+                onEntitlementsChanged: { [sync] keys in
                     // Commerce says what changed; content decides what that
                     // costs — the catalogue regroups and a deck that has just
                     // been paid for downloads its cards.
                     await content.apply(entitlementKeys: keys)
+                    // A deck that has just arrived is cards the progress
+                    // screens have never counted. This is the app's one "the
+                    // numbers changed" signal, and a purchase is one of the
+                    // moments it exists for.
+                    await sync.refreshObservers()
                 }
             )
         }

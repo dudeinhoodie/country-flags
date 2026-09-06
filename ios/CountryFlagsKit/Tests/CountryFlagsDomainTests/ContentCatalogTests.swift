@@ -13,6 +13,38 @@ final class CatalogGroupingTests: XCTestCase {
         XCTAssertEqual(sections.first?.decks.map(\.code), ["ALL"])
     }
 
+    /// A deck that has to be bought and has not been goes to the shelf at the
+    /// top, whatever its kind. The same deck bought is an ordinary row again,
+    /// which is what makes an owned deck look like every other deck.
+    func testADeckThatIsForSaleIsFeaturedUntilTheAccountHoldsIt() {
+        let decks = [
+            ContentFixtures.deck(code: "EUROPE", kind: "TAXONOMY", sortOrder: 0),
+            ContentFixtures.paidDeck(code: "EUROPEAN_COATS", kind: "CURATED", sortOrder: 1),
+        ]
+
+        let locked = CatalogGrouping.sections(for: decks)
+        XCTAssertEqual(locked.map(\.isFeatured), [true, false])
+        XCTAssertEqual(locked.first?.decks.map(\.code), ["EUROPEAN_COATS"])
+
+        let owned = CatalogGrouping.sections(
+            for: decks,
+            entitlementKeys: ["entitlement.european_coats"]
+        )
+        XCTAssertEqual(owned.map(\.isFeatured), [false, false])
+        XCTAssertEqual(owned.first?.decks.map(\.code), ["EUROPEAN_COATS"])
+    }
+
+    /// A catalogue of free decks is the one the app has always had: no shelf,
+    /// and nothing about the grouping changes.
+    func testACatalogueOfFreeDecksHasNoFeaturedShelf() {
+        let sections = CatalogGrouping.sections(for: [
+            ContentFixtures.deck(code: "EUROPE", kind: "TAXONOMY", sortOrder: 0),
+            ContentFixtures.deck(code: "ALL", kind: "CURATED", sortOrder: 0),
+        ])
+
+        XCTAssertFalse(sections.contains(where: \.isFeatured))
+    }
+
     /// There is a contract fixture for a deck whose kind this build has never
     /// heard of. It has to remain openable: a deck the user can reach is worth
     /// more than a tidy section list.
@@ -104,6 +136,29 @@ enum ContentFixtures {
             cardCount: 0,
             contentVersion: "v1",
             sortOrder: sortOrder
+        )
+    }
+
+    /// A deck the account has to hold an entitlement for.
+    static func paidDeck(
+        id: UUID = UUID(),
+        code: String,
+        kind: String,
+        entitlementKey: String = "entitlement.european_coats",
+        sortOrder: Int = 0
+    ) -> DeckRecord {
+        DeckRecord(
+            id: id,
+            code: code,
+            kind: kind,
+            name: "Deck",
+            deckDescription: "",
+            cardCount: 0,
+            contentVersion: "v1",
+            sortOrder: sortOrder,
+            accessModel: DeckAccessModel.entitlement.rawValue,
+            requiredEntitlementKey: entitlementKey,
+            offerCodes: ["EUROPEAN_COATS_LIFETIME"]
         )
     }
 

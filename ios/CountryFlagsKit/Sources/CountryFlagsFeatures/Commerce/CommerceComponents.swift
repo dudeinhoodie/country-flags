@@ -68,7 +68,11 @@ struct StorePriceView: View {
         Text(text)
             .font(DesignTokens.Typography.caption)
             .foregroundStyle(.white.opacity(state.isPriced ? 0.75 : 0.5))
-            .lineLimit(1)
+            // Never truncated. "Purchase temporarily unavailable" is the
+            // longest thing this line ever says and the one a person most
+            // needs to read whole; it takes a second line rather than an
+            // ellipsis.
+            .fixedSize(horizontal: false, vertical: true)
             .accessibilityIdentifier(AccessibilityIdentifier.deckPrice)
     }
 
