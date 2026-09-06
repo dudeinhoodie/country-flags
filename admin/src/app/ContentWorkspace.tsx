@@ -37,7 +37,11 @@ import {
   validationSummary,
   workQueue,
 } from "./workspace-model";
-import type { LifecycleStep, WorkQueueItem } from "./workspace-model";
+import type {
+  AddressableFinding,
+  LifecycleStep,
+  WorkQueueItem,
+} from "./workspace-model";
 
 function canEdit(permissions: unknown): boolean {
   return (
@@ -627,13 +631,11 @@ function WorkspaceRail({
   draftId: string;
   editable: boolean;
   validation: ReturnType<typeof validationSummary>;
-  findings: readonly {
+  findings: readonly (AddressableFinding & {
     level: string;
     code: string;
-    subject: string;
     message: string;
-    route?: string;
-  }[];
+  })[];
   activity: ReturnType<typeof recentActivity>;
   onValidated: () => void;
 }) {
@@ -724,11 +726,7 @@ function WorkspaceRail({
               sx={{ listStyle: "none", m: 0, p: 0 }}
             >
               {findings.slice(0, 3).map((finding) => {
-                const href = findingHref(
-                  draftId,
-                  finding.subject,
-                  finding.route,
-                );
+                const href = findingHref(draftId, finding);
                 const body = (
                   <Stack
                     direction="row"

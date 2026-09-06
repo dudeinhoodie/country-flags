@@ -9,6 +9,7 @@ const devConfig: RuntimeConfig = {
   apiBasePath: "/api",
   googleClientId: "",
   appVersion: "abc1234",
+  features: {},
 };
 
 describe("AdminApp", () => {

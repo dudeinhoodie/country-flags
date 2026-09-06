@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAdminApiClient } from "../../api/ApiClientContext";
+import { draftWriteError, messageOf } from "../../api/draft-conflict";
 import type { components } from "../../api/generated/admin-api";
 
 export type DraftEntityListItem =
@@ -8,11 +9,6 @@ export type DraftEntityDetail = components["schemas"]["AdminDraftEntityDetail"];
 export type EntityUpdateBody =
   components["schemas"]["AdminDraftEntityUpdateRequest"];
 export type EntityFacts = components["schemas"]["AdminEntityFacts"];
-
-function messageOf(error: unknown, fallback: string): string {
-  const envelope = error as { error?: { message?: string } } | undefined;
-  return envelope?.error?.message ?? fallback;
-}
 
 export function useDraftEntities(draftId: string) {
   const client = useAdminApiClient();
@@ -56,6 +52,7 @@ export function useDraftEntity(draftId: string, entityKey: string | undefined) {
   const client = useAdminApiClient();
   const [detail, setDetail] = useState<DraftEntityDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     if (entityKey === undefined) {
@@ -88,9 +85,15 @@ export function useDraftEntity(draftId: string, entityKey: string | undefined) {
     return () => {
       cancelled = true;
     };
-  }, [client, draftId, entityKey]);
+  }, [client, draftId, entityKey, reloadToken]);
 
-  return { detail, error };
+  // Conflict recovery re-reads the entity at the revision that won, so the
+  // form can be reseeded from it rather than saved over it (§9).
+  const reload = useCallback(() => {
+    setReloadToken((token) => token + 1);
+  }, []);
+
+  return { detail, error, reload };
 }
 
 export function useEntityWriter(draftId: string) {
@@ -109,7 +112,7 @@ export function useEntityWriter(draftId: string) {
         },
       );
       if (data === undefined) {
-        throw new Error(messageOf(error, "The entity could not be saved"));
+        throw draftWriteError(error, "The entity could not be saved");
       }
       return data;
     },

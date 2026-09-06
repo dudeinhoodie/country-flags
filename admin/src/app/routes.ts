@@ -7,6 +7,16 @@
  * would be free to blur that line, so links are built here.
  */
 
+/**
+ * The query key that carries an RFC 6901 field pointer through a route.
+ *
+ * A validation finding names the object, the tab and the field (§9). The
+ * first two are path segments; the field is a pointer into the object as the
+ * admin API returns it — `/parentKey`, `/members/3` — and a pointer is not a
+ * route, so it travels as a query parameter.
+ */
+export const FIELD_PARAM = "field";
+
 export const routes = {
   /** The action-oriented Content workspace. */
   workspace: "/",

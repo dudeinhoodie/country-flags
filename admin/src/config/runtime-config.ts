@@ -2,11 +2,32 @@ export const ADMIN_ENVIRONMENTS = ["local", "dev", "prod"] as const;
 
 export type AdminEnvironment = (typeof ADMIN_ENVIRONMENTS)[number];
 
+/**
+ * The parts of the console a deployment can switch on.
+ *
+ * A flag is how a screen the redesign wants gone stays reachable while the
+ * work that replaces it is checked against it (§14). It is not a
+ * configuration surface for taste: each one names a specific escape hatch and
+ * is expected to be removed with the hatch.
+ *
+ * - `advancedOverrides` — the raw dotted-path override table. §6.2 takes it
+ *   out of the ordinary editor: an editorial override typed as a path is a
+ *   way to write a field no form validates. It stays behind this flag, and
+ *   behind the ADMIN role, for the emergencies the typed fields cannot reach.
+ */
+export const ADMIN_FEATURES = ["advancedOverrides"] as const;
+
+export type AdminFeature = (typeof ADMIN_FEATURES)[number];
+
+export type AdminFeatures = Readonly<Partial<Record<AdminFeature, boolean>>>;
+
 export interface RuntimeConfig {
   readonly environment: AdminEnvironment;
   readonly apiBasePath: string;
   readonly googleClientId: string;
   readonly appVersion: string;
+  /** Absent in a config written before flags existed, which means none. */
+  readonly features: AdminFeatures;
 }
 
 export const RUNTIME_CONFIG_URL = "/config.json";
@@ -81,6 +102,42 @@ function readAppVersion(
   return value;
 }
 
+/**
+ * Which flags this deployment turns on.
+ *
+ * Missing is the same as none: a console served a config from before a flag
+ * existed must start with the flag off rather than refuse to start. A flag
+ * this build does not know is ignored, so a rollback does not have to be
+ * co-ordinated with the config that mentions it.
+ */
+function readFeatures(
+  record: Record<string, unknown>,
+  problems: string[],
+): AdminFeatures | undefined {
+  const value = record.features;
+  if (value === undefined) {
+    return {};
+  }
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    problems.push('"features" must be an object of booleans');
+    return undefined;
+  }
+  const source = value as Record<string, unknown>;
+  const features: Partial<Record<AdminFeature, boolean>> = {};
+  for (const name of ADMIN_FEATURES) {
+    const flag = source[name];
+    if (flag === undefined) {
+      continue;
+    }
+    if (typeof flag !== "boolean") {
+      problems.push(`"features.${name}" must be a boolean`);
+      return undefined;
+    }
+    features[name] = flag;
+  }
+  return features;
+}
+
 export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   if (typeof input !== "object" || input === null || Array.isArray(input)) {
     throw new RuntimeConfigError("Runtime config must be a JSON object");
@@ -91,15 +148,17 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   const apiBasePath = readApiBasePath(record, problems);
   const googleClientId = readGoogleClientId(record, problems);
   const appVersion = readAppVersion(record, problems);
+  const features = readFeatures(record, problems);
   if (
     environment === undefined ||
     apiBasePath === undefined ||
     googleClientId === undefined ||
-    appVersion === undefined
+    appVersion === undefined ||
+    features === undefined
   ) {
     throw new RuntimeConfigError("Runtime config is invalid", problems);
   }
-  return { environment, apiBasePath, googleClientId, appVersion };
+  return { environment, apiBasePath, googleClientId, appVersion, features };
 }
 
 function describeUnknownError(cause: unknown): string {

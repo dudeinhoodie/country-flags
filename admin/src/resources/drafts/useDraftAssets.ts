@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAdminApiClient } from "../../api/ApiClientContext";
+import { draftWriteError, messageOf } from "../../api/draft-conflict";
 import { useRuntimeConfig } from "../../config/RuntimeConfigContext";
 import type { components } from "../../api/generated/admin-api";
 
 export type DraftAsset = components["schemas"]["AdminDraftAsset"];
+export type AssetUploadResult =
+  components["schemas"]["AdminDraftAssetUploadResult"];
 export type AssetLocalizations =
   components["schemas"]["AdminAssetLocalizations"];
 export type AssetPatch = components["schemas"]["AdminDraftAssetPatchRequest"];
@@ -21,11 +24,6 @@ export interface AssetUploadFields {
   validFrom: string;
   validTo: string;
   localizations: AssetLocalizations;
-}
-
-function messageOf(error: unknown, fallback: string): string {
-  const envelope = error as { error?: { message?: string } } | undefined;
-  return envelope?.error?.message ?? fallback;
 }
 
 /**
@@ -95,7 +93,11 @@ export function useDraftWithAssets(draftId: string): {
 }
 
 export function useAssetWriter(draftId: string): {
-  upload: (file: File, fields: AssetUploadFields) => Promise<void>;
+  upload: (
+    revision: number,
+    file: File,
+    fields: AssetUploadFields,
+  ) => Promise<AssetUploadResult>;
   patch: (
     revision: number,
     assetId: string,
@@ -110,9 +112,14 @@ export function useAssetWriter(draftId: string): {
    * The upload goes through fetch rather than the typed client: the
    * generated client models a JSON body and this endpoint takes multipart.
    * Same origin behind the console's proxy, so the session cookie travels.
+   *
+   * It carries `If-Match` like every other editorial write. An upload moves
+   * the draft it lands in, so a console holding a stale revision has to be
+   * refused here too: the one mutation that skipped the check would be the
+   * one that silently overwrote a colleague (§9).
    */
   const upload = useCallback(
-    async (file: File, fields: AssetUploadFields) => {
+    async (revision: number, file: File, fields: AssetUploadFields) => {
       const body = new FormData();
       body.set("file", file);
       for (const [key, value] of Object.entries(fields)) {
@@ -130,12 +137,21 @@ export function useAssetWriter(draftId: string): {
       }
       const response = await fetch(
         `${config.apiBasePath}/v1/admin/content/drafts/${draftId}/assets`,
-        { method: "POST", credentials: "include", body },
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "If-Match": String(revision) },
+          body,
+        },
       );
+      const payload: unknown = await response.json();
       if (!response.ok) {
-        const payload: unknown = await response.json();
-        throw new Error(messageOf(payload, "The upload was refused"));
+        throw draftWriteError(payload, "The upload was refused");
       }
+      // The answer carries the stored drawing, how far processing has got and
+      // the draft's new revision, so the caller never has to re-read the draft
+      // to find out what it may write next.
+      return payload as AssetUploadResult;
     },
     [config.apiBasePath, draftId],
   );
@@ -153,12 +169,15 @@ export function useAssetWriter(draftId: string): {
         },
       );
       if (data === undefined) {
-        throw new Error(messageOf(error, "The asset could not be changed"));
+        throw draftWriteError(error, "The asset could not be changed");
       }
     },
     [client, draftId],
   );
 
+  // Removal takes no `If-Match`: the contract does not offer one on this
+  // route, and inventing a header the server ignores would be a guarantee
+  // this console cannot keep.
   const remove = useCallback(
     async (assetId: string) => {
       const { response, error } = await client.DELETE(
@@ -166,7 +185,7 @@ export function useAssetWriter(draftId: string): {
         { params: { path: { draftId, assetId } } },
       );
       if (!response.ok) {
-        throw new Error(messageOf(error, "The asset could not be removed"));
+        throw draftWriteError(error, "The asset could not be removed");
       }
     },
     [client, draftId],
