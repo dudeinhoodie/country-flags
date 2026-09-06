@@ -61,7 +61,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
-         identifier = "../CountryFlagsKit/Tests/CountryFlagsInfrastructureTests/Resources/CountryFlags.storekit">
+         identifier = "../Config/CountryFlags.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
