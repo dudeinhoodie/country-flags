@@ -11,11 +11,13 @@ struct FixedDates: DateProviding {
 /// A store that answers from what a test handed it. The view models are meant
 /// to be driven by a repository, so this is the whole seam they need.
 final class FakeContentRepository: ContentRepository, @unchecked Sendable {
-    private let decksByID: [DeckRecord]
-    private let cardsByDeck: [UUID: [LearningCardRecord]]
+    private var decksByID: [DeckRecord]
+    private var cardsByDeck: [UUID: [LearningCardRecord]]
     private let storedManifest: ContentManifestRecord?
-    private let assetsByID: [UUID: AssetRecord]
+    private var assetsByID: [UUID: AssetRecord]
     private let entitiesByID: [UUID: GeoEntityRecord]
+    /// The decks a cleanup was asked to forget, in the order it was asked.
+    private(set) var removedDeckIDs: [UUID] = []
 
     init(
         decks: [DeckRecord] = [],
@@ -70,6 +72,43 @@ final class FakeContentRepository: ContentRepository, @unchecked Sendable {
 
     func retire(cardIDs: [UUID], entityIDs: [UUID]) async throws {}
 
+    /// Drops the cards of those decks, keeping any a surviving deck still
+    /// holds — the same rule the store follows, small enough to read.
+    @discardableResult
+    func removeContent(ofDecks deckIDs: [UUID]) async throws -> RemovedDeckContent {
+        removedDeckIDs.append(contentsOf: deckIDs)
+        let dropped = Set(deckIDs)
+        let doomed = dropped.flatMap { cardsByDeck[$0] ?? [] }
+        guard !doomed.isEmpty else { return .none }
+        let kept = Set(
+            cardsByDeck
+                .filter { !dropped.contains($0.key) }
+                .values
+                .flatMap { $0 }
+                .map(\.id)
+        )
+        for deckID in dropped { cardsByDeck[deckID] = [] }
+        let removed = doomed.filter { !kept.contains($0.id) }
+        var assets: [AssetRecord] = []
+        for card in removed {
+            if let asset = assetsByID.removeValue(forKey: card.promptAssetID) {
+                assets.append(asset)
+            }
+        }
+        return RemovedDeckContent(
+            membershipCount: doomed.count,
+            cardIDs: removed.map(\.id),
+            assets: assets
+        )
+    }
+
+    /// Puts a deck's cards back, which is what a download after a purchase
+    /// does. The fake synchronizer has no store to write into, so the test
+    /// that proves a re-login restores the deck states it here.
+    func restore(cards: [LearningCardRecord], inDeck deckID: UUID) {
+        cardsByDeck[deckID] = cards
+    }
+
     private static let defaultManifest = ContentManifestRecord(
         contentVersion: "v1",
         defaultLocale: "en",
@@ -90,9 +129,16 @@ actor FakeSynchronizer: ContentSynchronizing {
     private(set) var loadedDeckIDs: [UUID] = []
     /// What `loadCards` answers. False is a deck the guard refused.
     var cardsArrive = true
+    /// Run when a deck's cards are asked for, so a test can put them into the
+    /// store the way a real download would.
+    private var onLoad: (@Sendable (UUID) async -> Void)?
 
     init(status: ContentSyncStatus) {
         self.status = status
+    }
+
+    func whenLoadingCards(_ handler: @escaping @Sendable (UUID) async -> Void) {
+        onLoad = handler
     }
 
     func currentStatus() async -> ContentSyncStatus { status }
@@ -109,7 +155,46 @@ actor FakeSynchronizer: ContentSynchronizing {
     @discardableResult
     func loadCards(inDeck deckID: UUID, locale: String) async -> Bool {
         loadedDeckIDs.append(deckID)
-        return cardsArrive
+        guard cardsArrive else { return false }
+        await onLoad?(deckID)
+        return true
+    }
+}
+
+/// Keeps every event it was handed, in order.
+///
+/// The events themselves are the registry's — `AnalyticsEvent`'s initialiser
+/// is private — so what a test reads here is exactly what would have left the
+/// device, which is what makes a leak assertion mean anything.
+actor RecordingAnalytics: AnalyticsTracking {
+    private var events: [AnalyticsEvent] = []
+
+    func track(_ event: AnalyticsEvent) async {
+        events.append(event)
+    }
+
+    func setIdentity(_ identity: AnalyticsIdentity?) async {}
+    func flush() async {}
+
+    var recorded: [AnalyticsEvent] { events }
+
+    var names: [String] { events.map(\.name.rawValue) }
+
+    func properties(of name: AnalyticsEventName) -> [[String: AnalyticsValue]] {
+        events.filter { $0.name == name }.map(\.properties)
+    }
+
+    /// Every string anything about these events could carry — names, property
+    /// names and property values — as one haystack.
+    var everyString: [String] {
+        events.flatMap { event -> [String] in
+            [event.name.rawValue]
+                + event.properties.keys
+                + event.properties.values.compactMap {
+                    if case .string(let text) = $0 { return text }
+                    return nil
+                }
+        }
     }
 }
 

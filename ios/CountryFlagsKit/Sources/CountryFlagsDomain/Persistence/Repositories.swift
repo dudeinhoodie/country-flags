@@ -76,6 +76,55 @@ public protocol ContentRepository: Sendable {
     /// Marks content the feed reported as retired. The record stays readable
     /// for a session that is already using it and is never selected again.
     func retire(cardIDs: [UUID], entityIDs: [UUID]) async throws
+
+    /// Takes the local payload of decks this device may no longer open off the
+    /// store.
+    ///
+    /// Called when an entitlement goes — a refund, a sign-out, an account
+    /// swap — and it is best-effort by design. It is access control, not DRM:
+    /// the backend refuses the cards of a deck an account does not hold, and
+    /// that refusal is what protects the content. What this buys is that
+    /// somebody else's purchase does not sit on the device after they leave
+    /// it, and that the deck composes no session.
+    ///
+    /// Three things survive on purpose:
+    ///
+    /// - a card another deck still holds, because the same country belongs to
+    ///   a free deck as often as not;
+    /// - the public preview, which is published as public and is what the
+    ///   locked deck's fan is drawn from;
+    /// - a card an unfinished session is holding, so a sitting already open
+    ///   can still be finished — §11.4.
+    ///
+    /// Progress is untouched. It is keyed by card identifier in a store of its
+    /// own, and a refund takes the deck away rather than what somebody
+    /// learned.
+    ///
+    /// - Returns: what went, so the caller can drop the drawings as well.
+    @discardableResult
+    func removeContent(ofDecks deckIDs: [UUID]) async throws -> RemovedDeckContent
+}
+
+/// What `removeContent(ofDecks:)` took off the device.
+public struct RemovedDeckContent: Hashable, Sendable {
+    /// Rows in the deck-to-card join, which is what makes a deck compose a
+    /// session. Removing these alone would be enough to close the deck; the
+    /// rest is about not leaving the content behind.
+    public let membershipCount: Int
+    public let cardIDs: [UUID]
+    /// The assets no remaining card draws. Whole records rather than
+    /// identifiers, because the cache is keyed by the checksum too.
+    public let assets: [AssetRecord]
+
+    public init(membershipCount: Int, cardIDs: [UUID], assets: [AssetRecord]) {
+        self.membershipCount = membershipCount
+        self.cardIDs = cardIDs
+        self.assets = assets
+    }
+
+    public static let none = RemovedDeckContent(membershipCount: 0, cardIDs: [], assets: [])
+
+    public var isEmpty: Bool { membershipCount == 0 && cardIDs.isEmpty && assets.isEmpty }
 }
 
 extension ContentRepository {

@@ -164,6 +164,9 @@ private actor CountingContentRepository: ContentRepository {
     }
 
     func retire(cardIDs: [UUID], entityIDs: [UUID]) async throws {}
+
+    @discardableResult
+    func removeContent(ofDecks deckIDs: [UUID]) async throws -> RemovedDeckContent { .none }
 }
 
 private struct StubSettingsSync: SettingsSyncing {
