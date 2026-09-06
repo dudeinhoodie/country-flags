@@ -23,6 +23,29 @@ export function isPubliclyVisible(visibility: ContentVisibility): boolean {
 }
 
 /**
+ * The same projection, narrowed to what a client build can make sense of.
+ *
+ * A build that predates the paid-deck contract is shown the catalog as it
+ * would look if no locked deck existed at all, which is `PUBLIC` and nothing
+ * else. `PUBLIC_PREVIEW` is withheld from it deliberately: a preview is a
+ * locked deck's shop window, and a build with no window to put it in would
+ * hold a drawing it can reach through nothing — the free app it has always
+ * been, plus one orphan.
+ *
+ * This narrows the existing classification rather than recomputing it. There
+ * is still one answer to "who may open this deck", and it is still
+ * `DeckAccessService`'s.
+ */
+export function isVisibleToClient(
+  visibility: ContentVisibility,
+  paidContentAware: boolean,
+): boolean {
+  return paidContentAware
+    ? isPubliclyVisible(visibility)
+    : visibility === "PUBLIC";
+}
+
+/**
  * One way a deck reaches a card, an asset or an entity: the deck itself, and
  * whether it reaches it through a card published as that deck's preview.
  *

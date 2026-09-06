@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { AuthModule } from "../auth/auth.module";
+import { ClientCompatibilityModule } from "../client-compatibility/client-compatibility.module";
 import { CommerceModule } from "../commerce/commerce.module";
 import { ContentAccessProjectionService } from "./content-access-projection.service";
 import { ContentController } from "./content.controller";
@@ -9,7 +10,7 @@ import { DecksController } from "./decks.controller";
 import { EntitiesController } from "./entities.controller";
 
 @Module({
-  imports: [AuthModule, CommerceModule],
+  imports: [AuthModule, ClientCompatibilityModule, CommerceModule],
   controllers: [ContentController, DecksController, EntitiesController],
   providers: [ContentService, ContentAccessProjectionService],
   exports: [ContentAccessProjectionService],

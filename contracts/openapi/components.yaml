@@ -127,6 +127,33 @@ parameters:
     required: true
     schema:
       $ref: "#/schemas/Uuid"
+  ClientPlatform:
+    name: X-Client-Platform
+    in: header
+    required: false
+    description: >-
+      Which build of the app is asking. Sent on every request by every client
+      that has a transport, together with X-Client-App-Version, and read on the
+      catalog routes to decide what this build is able to make sense of.
+    schema:
+      type: string
+      enum: [ios, android, web]
+    example: ios
+  ClientAppVersion:
+    name: X-Client-App-Version
+    in: header
+    required: false
+    description: >-
+      The marketing version of the build, as `1.4.0`; a pre-release or build
+      suffix is read and ignored. A request that omits it, or that names a
+      release older than the deployment's configured minimum, is served the
+      catalog as it looked before paid decks existed: every free deck, no
+      locked one, and no change event announcing one. Nothing is refused —
+      an older build keeps the app it has always had.
+    schema:
+      type: string
+      maxLength: 64
+    example: 1.4.0
 headers:
   ETag:
     description: Opaque version of the returned representation.
@@ -138,6 +165,13 @@ headers:
     schema:
       type: string
       example: public, max-age=300
+  ClientVary:
+    description: >-
+      The client headers this answer depends on. A shared cache must key on
+      them, or a page built for one build reaches another.
+    schema:
+      type: string
+      example: x-client-app-version, x-client-platform
 responses:
   ErrorResponse:
     description: Request failed with a typed error.

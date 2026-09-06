@@ -1,3 +1,10 @@
+// Must be the first import: it fixes the minimum client version before
+// app.module.ts snapshots process.env through ConfigModule.forRoot.
+import {
+  originalMinimumClientVersions,
+  PAID_AWARE_CLIENT,
+} from "./paid-content-client.environment";
+
 import { spawnSync } from "node:child_process";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
@@ -268,6 +275,8 @@ describe("deck entitlement guard (integration)", () => {
     process.env.DATABASE_URL = originalDatabaseUrl;
     process.env.NODE_ENV = originalNodeEnvironment;
     process.env.TEST_AUTH_ENABLED = originalTestAuthEnabled;
+    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS =
+      originalMinimumClientVersions;
     await app?.close();
     if (admin !== undefined) {
       await admin.$executeRawUnsafe(
@@ -280,6 +289,7 @@ describe("deck entitlement guard (integration)", () => {
   it("lists the locked deck to a caller with no account at all", async () => {
     const response = await request(httpServer)
       .get("/v1/decks?locale=en")
+      .set(PAID_AWARE_CLIENT)
       .expect(200);
     const body = response.body as unknown as DeckPageBody;
     const paid = body.items.find(({ id }) => id === PAID_DECK_ID);
@@ -301,6 +311,7 @@ describe("deck entitlement guard (integration)", () => {
   it("serves the locked deck's own metadata unauthenticated", async () => {
     const response = await request(httpServer)
       .get(`/v1/decks/${PAID_DECK_ID}?locale=en`)
+      .set(PAID_AWARE_CLIENT)
       .expect(200);
     const body = response.body as unknown as DeckBody;
 
@@ -475,6 +486,7 @@ describe("deck entitlement guard (integration)", () => {
     await request(httpServer)
       .get(`/v1/decks/${PAID_DECK_ID}?locale=en`)
       .set("Authorization", `Bearer ${accessToken}`)
+      .set(PAID_AWARE_CLIENT)
       .expect(200);
   });
 
