@@ -1801,6 +1801,13 @@ components:
             - DELETION_PENDING
             - DELETED
             - BLOCKED
+        storeAccountToken:
+          type:
+            - string
+            - 'null'
+          format: uuid
+          x-implementation-status: implemented
+          description: 'The token a purchase is made under. The client attaches it to the StoreKit purchase, Apple signs it into the transaction, and a notification that arrives with no session of ours is matched back to this account by it alone. Minted once and stable for the life of the account; it names the account to us and nothing at all to the store. Nullable because there is not always an account to name: a guest never reaches this endpoint and buys nothing, so a client that has not signed in has no token to attach.'
         createdAt:
           $ref: '#/components/schemas/DateTime'
         updatedAt:
