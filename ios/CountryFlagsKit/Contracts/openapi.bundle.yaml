@@ -669,6 +669,7 @@ paths:
       tags:
         - Content
       summary: Get content changes after an opaque cursor
+      description: 'The feed carries no account context and is filtered to what a caller with no purchases may have. It is filtered again by client build: a build that does not understand `Deck.access` hears about no locked deck and none of a locked deck''s material, because an event naming one would be the first it ever learned of a deck it cannot draw. A RETIRE always survives, whatever the build — it is the event that tells a client to forget something.'
       operationId: getContentChanges
       x-implementation-status: implemented
       security: []
@@ -676,9 +677,14 @@ paths:
         - $ref: '#/components/parameters/AfterCursor'
         - $ref: '#/components/parameters/Locale'
         - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/ClientPlatform'
+        - $ref: '#/components/parameters/ClientAppVersion'
       responses:
         '200':
           description: Ordered page of content changes
+          headers:
+            Vary:
+              $ref: '#/components/headers/ClientVary'
           content:
             application/json:
               schema:
@@ -713,6 +719,7 @@ paths:
       tags:
         - Content
       summary: List localized decks
+      description: The catalog publishes locked decks to everybody, because a deck nobody can discover is a deck nobody buys — but only to a build that can draw one. A client that does not send X-Client-App-Version, or that sends a release older than the deployment's minimum, is served every free deck and no locked one; the page is narrowed before it is cut, so its pages stay full and its cursor is unaffected.
       operationId: listDecks
       x-implementation-status: implemented
       security:
@@ -722,9 +729,14 @@ paths:
         - $ref: '#/components/parameters/Locale'
         - $ref: '#/components/parameters/Cursor'
         - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/ClientPlatform'
+        - $ref: '#/components/parameters/ClientAppVersion'
       responses:
         '200':
           description: Cursor page of decks
+          headers:
+            Vary:
+              $ref: '#/components/headers/ClientVary'
           content:
             application/json:
               schema:
@@ -736,7 +748,7 @@ paths:
       tags:
         - Content
       summary: Get one localized deck
-      description: Returns the same deck representation as the list page. Learning progress for the deck is served by getDeckProgress.
+      description: Returns the same deck representation as the list page. Learning progress for the deck is served by getDeckProgress. A locked deck is absent from an older build's catalog and from its change feed, so to that build it answers 404 — the same answer an unpublished deck gives.
       operationId: getDeck
       x-implementation-status: implemented
       security:
@@ -745,9 +757,14 @@ paths:
       parameters:
         - $ref: '#/components/parameters/DeckId'
         - $ref: '#/components/parameters/Locale'
+        - $ref: '#/components/parameters/ClientPlatform'
+        - $ref: '#/components/parameters/ClientAppVersion'
       responses:
         '200':
           description: Deck
+          headers:
+            Vary:
+              $ref: '#/components/headers/ClientVary'
           content:
             application/json:
               schema:
@@ -1801,6 +1818,13 @@ components:
             - DELETION_PENDING
             - DELETED
             - BLOCKED
+        storeAccountToken:
+          type:
+            - string
+            - 'null'
+          format: uuid
+          x-implementation-status: implemented
+          description: 'The token a purchase is made under. The client attaches it to the StoreKit purchase, Apple signs it into the transaction, and a notification that arrives with no session of ours is matched back to this account by it alone. Minted once and stable for the life of the account; it names the account to us and nothing at all to the store. Nullable because there is not always an account to name: a guest never reaches this endpoint and buys nothing, so a client that has not signed in has no token to attach.'
         createdAt:
           $ref: '#/components/schemas/DateTime'
         updatedAt:
@@ -4690,6 +4714,27 @@ components:
         minimum: 1
         maximum: 100
         default: 50
+    ClientPlatform:
+      name: X-Client-Platform
+      in: header
+      required: false
+      description: Which build of the app is asking. Sent on every request by every client that has a transport, together with X-Client-App-Version, and read on the catalog routes to decide what this build is able to make sense of.
+      schema:
+        type: string
+        enum:
+          - ios
+          - android
+          - web
+      example: ios
+    ClientAppVersion:
+      name: X-Client-App-Version
+      in: header
+      required: false
+      description: 'The marketing version of the build, as `1.4.0`; a pre-release or build suffix is read and ignored. A request that omits it, or that names a release older than the deployment''s configured minimum, is served the catalog as it looked before paid decks existed: every free deck, no locked one, and no change event announcing one. Nothing is refused — an older build keeps the app it has always had.'
+      schema:
+        type: string
+        maxLength: 64
+      example: 1.4.0
     EntityId:
       name: entityId
       in: path
@@ -4742,3 +4787,8 @@ components:
       schema:
         type: string
         example: public, max-age=300
+    ClientVary:
+      description: The client headers this answer depends on. A shared cache must key on them, or a page built for one build reaches another.
+      schema:
+        type: string
+        example: x-client-app-version, x-client-platform

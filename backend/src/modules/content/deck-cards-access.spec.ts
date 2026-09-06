@@ -3,6 +3,10 @@ import { DeckAccessModel } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
+import {
+  PAID_CONTENT_AWARE,
+  PAID_CONTENT_UNAWARE,
+} from "../client-compatibility/client-compatibility.service";
 import { DeckAccessService } from "../commerce/deck-access.service";
 import { ContentAccessProjectionService } from "./content-access-projection.service";
 import { ContentService } from "./content.service";
@@ -81,7 +85,12 @@ describe("ContentService deck access", () => {
   it("publishes the locked deck in the catalog with its access policy", async () => {
     deck.findMany.mockResolvedValue([freeDeckRow, paidDeckRow]);
 
-    const page = await service.listDecks("en", undefined, 50);
+    const page = await service.listDecks(
+      "en",
+      undefined,
+      50,
+      PAID_CONTENT_AWARE,
+    );
 
     expect(page.items).toEqual([
       expect.objectContaining({
@@ -107,7 +116,9 @@ describe("ContentService deck access", () => {
   it("hands the locked deck's own page to a caller with no account", async () => {
     deck.findFirst.mockResolvedValue(paidDeckRow);
 
-    await expect(service.getDeck(PAID_DECK_ID, "en")).resolves.toMatchObject({
+    await expect(
+      service.getDeck(PAID_DECK_ID, "en", PAID_CONTENT_AWARE),
+    ).resolves.toMatchObject({
       id: PAID_DECK_ID,
       name: "Coats of Europe",
       access: {
@@ -180,5 +191,55 @@ describe("ContentService deck access", () => {
     // A card shared with a paid deck is reachable here: the guard protects
     // the paid deck's route, not a globally secret country.
     expect(userEntitlementGrant.findFirst).not.toHaveBeenCalled();
+  });
+  describe("a build that predates the paid-deck contract", () => {
+    it("asks the database only for the decks it could draw", async () => {
+      let received: unknown;
+      deck.findMany.mockImplementation((query: unknown) => {
+        received = query;
+        return Promise.resolve([freeDeckRow]);
+      });
+
+      const page = await service.listDecks(
+        "en",
+        undefined,
+        50,
+        PAID_CONTENT_UNAWARE,
+      );
+
+      // Narrowed in the query rather than over the page: an old build gets
+      // full pages of the decks it can use, not a page of fifty with three
+      // survivors.
+      expect((received as { where: unknown }).where).toEqual({
+        status: "PUBLISHED",
+        accessModel: { in: [DeckAccessModel.FREE] },
+      });
+      expect(page.items).toEqual([
+        expect.objectContaining({
+          id: FREE_DECK_ID,
+          access: { model: DeckAccessModel.FREE },
+        }),
+      ]);
+    });
+
+    it("answers for a locked deck the way it answers for one that was never published", async () => {
+      // The where clause carries the narrowing, so the row simply is not
+      // found; the 404 is the honest answer for a deck absent from this
+      // build's catalog and from its change feed.
+      deck.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.getDeck(PAID_DECK_ID, "en", PAID_CONTENT_UNAWARE),
+      ).rejects.toThrow("Deck was not found");
+      expect(deck.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            id: PAID_DECK_ID,
+            status: "PUBLISHED",
+            accessModel: { in: [DeckAccessModel.FREE] },
+          },
+        }),
+      );
+    });
   });
 });

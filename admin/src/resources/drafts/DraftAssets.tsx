@@ -2,28 +2,31 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import Divider from "@mui/material/Divider";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { routes } from "../../app/routes";
 import { useRuntimeConfig } from "../../config/RuntimeConfigContext";
 import { LoadingState } from "../../components/LoadingState";
 import { AssetPreview } from "./AssetPreview";
-import {
-  EMPTY_SYMBOL_FIELDS,
-  localizationsOf,
-  patchOf,
-  symbolFieldsOf,
-  SymbolFieldsEditor,
-} from "./SymbolFields";
+import { patchOf, symbolFieldsOf, SymbolFieldsEditor } from "./SymbolFields";
 import type { SymbolFieldsState } from "./SymbolFields";
 import { useAssetWriter, useDraftWithAssets } from "./useDraftAssets";
-import type { DraftAsset } from "./useDraftAssets";
+import type { DraftAsset, DraftStamp } from "./useDraftAssets";
 
 /**
- * One entity carries several symbols, so the editor is arranged by symbol
+ * Everything uploaded into the draft, as a queue and an audit (§7.3).
+ *
+ * Uploading happens on the entity that owns the symbol, where the country
+ * and the symbol type come from context rather than from a text field
+ * (§7.2). What is left here is the work that spans entities: drawings whose
+ * provenance is incomplete, ones that have been retired, and rows to correct
+ * — each with a way back to the entity it belongs to.
+ *
+ * One entity carries several symbols, so the screen is arranged by symbol
  * rather than by row: a flag, a coat of arms, a map and whatever comes next
  * each get a section of their own, and none of them can quietly overwrite
  * another (ADR-020).
@@ -40,7 +43,6 @@ interface Section {
   label: string;
   /** Width over height of the box a card lays this symbol out in. */
   ratio: number;
-  uploadable: boolean;
   note: string;
 }
 
@@ -49,28 +51,24 @@ const SECTIONS: Section[] = [
     type: "FLAG",
     label: "Flag",
     ratio: 3 / 2,
-    uploadable: true,
     note: "A flag fills its box; the hairline is what keeps a mostly-white one from dissolving into the surface.",
   },
   {
     type: "COAT_OF_ARMS",
     label: "Coat of arms",
     ratio: 4 / 5,
-    uploadable: true,
     note: "Check the crown, the supporters and the ribbon against the dashed box on both grounds: aspect-fit shows all of the drawing, and anything the drawing itself clips away is already gone.",
   },
   {
     type: "MAP",
     label: "Map",
     ratio: 4 / 3,
-    uploadable: true,
     note: "",
   },
   {
     type: "OTHER",
     label: "Other",
     ratio: 1,
-    uploadable: false,
     note: "The upload contract accepts FLAG, COAT_OF_ARMS and MAP. Anything already filed as OTHER is edited and retired here.",
   },
 ];
@@ -96,7 +94,10 @@ export function DraftAssets({
   const [busy, setBusy] = useState(false);
   const [entityKey, setEntityKey] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
-  const [uploading, setUploading] = useState<string | null>(null);
+  // What this screen's own writes moved the draft to. The re-read that
+  // follows one lands a moment later, and a second change in that window
+  // would otherwise be aimed at the revision it just replaced.
+  const [written, setWritten] = useState(0);
 
   if (error !== null) {
     return <Alert severity="error">{error}</Alert>;
@@ -114,17 +115,23 @@ export function DraftAssets({
     ...new Set(assets.map((asset) => asset.entityContentKey)),
   ].sort();
 
-  function run(work: Promise<void>, fallback: string): void {
+  // Revisions only go up, so the newer of the two readings is the true one
+  // whichever arrives first.
+  const revision = Math.max(written, draft.revision);
+
+  function run(work: Promise<DraftStamp | null>, fallback: string): void {
     setBusy(true);
     work.then(
-      () => {
+      (stamp) => {
         setBusy(false);
         setActionError(null);
-        // Both panels close on success, which is also what discards the
-        // form they held: an upload form still holding the file it just
-        // sent invites sending it twice.
+        if (stamp !== null) {
+          setWritten(stamp.revision);
+        }
+        // The panel closes on success, which is also what discards the form
+        // it held: a form still holding what it just sent invites sending it
+        // twice.
         setEditing(null);
-        setUploading(null);
         reload();
       },
       (cause: unknown) => {
@@ -147,7 +154,7 @@ export function DraftAssets({
         <Chip
           size="small"
           variant="outlined"
-          label={`revision ${String(draft.revision)}`}
+          label={`revision ${String(revision)}`}
         />
         <Box sx={{ flexGrow: 1 }} />
         <TextField
@@ -177,35 +184,11 @@ export function DraftAssets({
           key={section.type}
           section={section}
           draftId={draftId}
-          revision={draft.revision}
           assets={inScope.filter((asset) => asset.assetType === section.type)}
-          entityKey={scope}
           editable={editable}
           busy={busy}
           editing={editing}
-          uploadOpen={uploading === section.type}
-          onToggleUpload={() =>
-            setUploading(uploading === section.type ? null : section.type)
-          }
           onEdit={setEditing}
-          onUpload={(file, fields) => {
-            run(
-              writer.upload(file, {
-                entityContentKey: scope,
-                assetType: section.type,
-                variant: fields.variant,
-                sourceUrl: fields.symbol.sourceUrl,
-                licenseName: fields.symbol.licenseName,
-                licenseUrl: fields.symbol.licenseUrl,
-                attribution: fields.symbol.attribution,
-                replacementReason: fields.symbol.replacementReason,
-                validFrom: fields.symbol.validFrom,
-                validTo: fields.symbol.validTo,
-                localizations: localizationsOf(fields.symbol.localizations),
-              }),
-              "The upload was refused",
-            );
-          }}
           onPatch={(asset, fields) => {
             const patch = patchOf(asset, fields);
             if (patch === null) {
@@ -213,20 +196,25 @@ export function DraftAssets({
               return;
             }
             run(
-              writer.patch(draft.revision, asset.id, patch),
+              writer.patch(revision, asset.id, patch),
               "The symbol could not be changed",
             );
           }}
           onRetire={(asset) => {
             run(
-              writer.patch(draft.revision, asset.id, {
+              writer.patch(revision, asset.id, {
                 validTo: asset.validTo == null ? todayIso() : null,
               }),
               "The symbol could not be retired",
             );
           }}
           onRemove={(asset) => {
-            run(writer.remove(asset.id), "The symbol could not be removed");
+            // Removal answers 204, so there is no new stamp to adopt; the
+            // re-read below is what brings the revision forward.
+            run(
+              writer.remove(asset.id).then(() => null),
+              "The symbol could not be removed",
+            );
           }}
         />
       ))}
@@ -234,55 +222,42 @@ export function DraftAssets({
   );
 }
 
-interface UploadPayload {
-  variant: string;
-  symbol: SymbolFieldsState;
-}
-
 function AssetSection({
   section,
   draftId,
   assets,
-  entityKey,
   editable,
   busy,
   editing,
-  uploadOpen,
-  onToggleUpload,
   onEdit,
-  onUpload,
   onPatch,
   onRetire,
   onRemove,
 }: {
   section: Section;
   draftId: string;
-  revision: number;
   assets: DraftAsset[];
-  entityKey: string;
   editable: boolean;
   busy: boolean;
   editing: string | null;
-  uploadOpen: boolean;
-  onToggleUpload: () => void;
   onEdit: (assetId: string | null) => void;
-  onUpload: (file: File, payload: UploadPayload) => void;
   onPatch: (asset: DraftAsset, fields: SymbolFieldsState) => void;
   onRetire: (asset: DraftAsset) => void;
   onRemove: (asset: DraftAsset) => void;
 }) {
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
+    <Paper
+      variant="outlined"
+      component="section"
+      aria-label={`${section.label} queue`}
+      sx={{ p: 2 }}
+    >
       <Stack spacing={2}>
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-          <Typography variant="subtitle1">{section.label}</Typography>
+          <Typography variant="subtitle1" component="h3">
+            {section.label}
+          </Typography>
           <Chip size="small" label={assets.length} />
-          <Box sx={{ flexGrow: 1 }} />
-          {editable && section.uploadable && (
-            <Button size="small" onClick={onToggleUpload}>
-              {uploadOpen ? "Close" : "Upload or replace"}
-            </Button>
-          )}
         </Stack>
         {section.note.length > 0 && (
           <Typography variant="body2" color="text.secondary">
@@ -311,18 +286,6 @@ function AssetSection({
               onRemove={onRemove}
             />
           ))
-        )}
-
-        {uploadOpen && editable && section.uploadable && (
-          <>
-            <Divider />
-            <UploadForm
-              section={section}
-              entityKey={entityKey}
-              busy={busy}
-              onUpload={onUpload}
-            />
-          </>
         )}
       </Stack>
     </Paper>
@@ -358,6 +321,12 @@ function AssetRow({
   );
   const retired = asset.validTo != null;
   const english = asset.localizations?.en;
+  // The publish gate blocks on all three, so the queue says so here rather
+  // than leaving it to be discovered at Review (§7.3).
+  const provenanceComplete =
+    asset.licenseName != null &&
+    asset.sourceUrl != null &&
+    asset.replacementReason != null;
 
   return (
     <Box>
@@ -372,12 +341,25 @@ function AssetRow({
           label={`${asset.entityContentKey} ${section.label}`}
         />
         <Stack spacing={0.5} sx={{ flex: 1 }}>
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            useFlexGap
+            sx={{ alignItems: "center", flexWrap: "wrap" }}
+          >
             <Typography variant="body2">
               <code>{asset.entityContentKey}</code>
             </Typography>
             <Chip size="small" variant="outlined" label={asset.variant} />
             {retired && <Chip size="small" color="warning" label="retired" />}
+            {!provenanceComplete && (
+              <Chip
+                size="small"
+                color="error"
+                variant="outlined"
+                label="provenance incomplete"
+              />
+            )}
           </Stack>
           <Typography variant="body2" color="text.secondary">
             {english?.displayName ?? "no display name yet"}
@@ -387,6 +369,15 @@ function AssetRow({
           <Typography variant="caption" color="text.secondary">
             {asset.validFrom ?? "…"} → {asset.validTo ?? "in force"}
           </Typography>
+          <Box>
+            {/* Replacing the drawing happens where the entity is known, so
+                the country is never typed into an upload form (§7.2). */}
+            <Link
+              to={`${routes.draftEntity(draftId, asset.entityContentKey)}/media`}
+            >
+              Open the entity’s media
+            </Link>
+          </Box>
         </Stack>
         {editable && (
           <Stack direction="row" spacing={1}>
@@ -440,78 +431,5 @@ function AssetRow({
         </Box>
       )}
     </Box>
-  );
-}
-
-function UploadForm({
-  section,
-  entityKey,
-  busy,
-  onUpload,
-}: {
-  section: Section;
-  entityKey: string;
-  busy: boolean;
-  onUpload: (file: File, payload: UploadPayload) => void;
-}) {
-  const [file, setFile] = useState<File | null>(null);
-  const [variant, setVariant] = useState("default");
-  const [fields, setFields] = useState<SymbolFieldsState>(EMPTY_SYMBOL_FIELDS);
-  const ready = file !== null && entityKey.length > 0;
-
-  return (
-    <Stack spacing={2}>
-      <Typography variant="subtitle2">
-        Upload a {section.label.toLowerCase()}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        Uploading over an entity, type and variant that already exist replaces
-        the drawing in place; the row and the audit trail stay. To keep the old
-        drawing as history, retire it and upload the successor under a variant
-        of its own.
-      </Typography>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-        <Button component="label" variant="outlined" size="small">
-          {file === null ? "Choose an SVG or PNG" : file.name}
-          <input
-            type="file"
-            hidden
-            accept="image/svg+xml,image/png"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          />
-        </Button>
-        <TextField
-          label="Variant"
-          size="small"
-          value={variant}
-          onChange={(event) => setVariant(event.target.value)}
-          helperText="default, 1949, civil…"
-        />
-      </Stack>
-      <SymbolFieldsEditor
-        fields={fields}
-        onChange={setFields}
-        disabled={busy}
-      />
-      <Box>
-        <Button
-          variant="contained"
-          disabled={busy || !ready}
-          onClick={() => {
-            if (file === null) {
-              return;
-            }
-            onUpload(file, { variant, symbol: fields });
-          }}
-        >
-          Upload
-        </Button>
-        {entityKey.length === 0 && (
-          <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
-            Name the entity above first: a symbol belongs to one.
-          </Typography>
-        )}
-      </Box>
-    </Stack>
   );
 }

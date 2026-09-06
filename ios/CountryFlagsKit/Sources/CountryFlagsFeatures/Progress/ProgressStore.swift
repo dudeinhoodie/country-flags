@@ -252,8 +252,16 @@ public final class ProgressStore: CanonicalDataObserving {
                 uniquingKeysWith: { first, _ in first }
             )
             if Task.isCancelled { return }
-            self.decks = decks.map { deck in
+            self.decks = decks.compactMap { deck in
                 let counts = countsByDeck[deck.id]
+                // A deck that has to be bought and has none of its cards here
+                // is a deck this account has nothing in. Left out rather than
+                // shown as "0 of 52": the size is real, but claiming the
+                // learner has fifty-two to go in a deck they cannot open is a
+                // different and untrue statement. A free deck whose cards have
+                // not landed yet still shows its published size, which is the
+                // behaviour this screen has always had.
+                guard deck.isFree || counts != nil else { return nil }
                 return DeckProgressRow(
                     id: deck.id,
                     code: deck.code,

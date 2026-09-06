@@ -12,11 +12,21 @@ APP_VERSION="${ADMIN_APP_VERSION:-unknown}"
 # sign-in flow is deployed.
 GOOGLE_CLIENT_ID="${ADMIN_GOOGLE_CLIENT_ID:-}"
 
+# Feature flags default off: a deployment turns an escape hatch on
+# deliberately, and a variable nobody set must never open one.
+case "${ADMIN_ADVANCED_OVERRIDES:-false}" in
+  true|1|yes) ADVANCED_OVERRIDES=true ;;
+  *) ADVANCED_OVERRIDES=false ;;
+esac
+
 cat > /usr/share/nginx/html/config.json <<EOF
 {
   "environment": "${ADMIN_ENVIRONMENT}",
   "apiBasePath": "/api",
   "googleClientId": "${GOOGLE_CLIENT_ID}",
-  "appVersion": "${APP_VERSION}"
+  "appVersion": "${APP_VERSION}",
+  "features": {
+    "advancedOverrides": ${ADVANCED_OVERRIDES}
+  }
 }
 EOF

@@ -136,9 +136,12 @@ jobs:
             test
 
       # A guest smoke rather than the whole suite: the launch, the catalogue,
-      # a session answered end to end and the sync line. The rest of the suite
+      # a session answered end to end, the sync line, and what a deck that has
+      # to be bought looks like before and after it is. The rest of the suite
       # runs nightly — thirty-five minutes is too long to hold a review, and a
-      # check nobody waits for is a check nobody reads.
+      # check nobody waits for is a check nobody reads. Paid decks earn their
+      # minute here because a lock that stops being drawn is content given
+      # away, and nothing else in the smoke set would notice.
       - name: Build and smoke-test Mock
         run: |
           set -o pipefail
@@ -150,6 +153,7 @@ jobs:
             -only-testing:CountryFlagsUITests/LaunchSmokeUITests \
             -only-testing:CountryFlagsUITests/StudySessionUITests \
             -only-testing:CountryFlagsUITests/SyncStatusUITests \
+            -only-testing:CountryFlagsUITests/PaidDeckUITests \
             -resultBundlePath build/CountryFlags-Mock.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test

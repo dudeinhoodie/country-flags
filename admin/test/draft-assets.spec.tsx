@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ApiClientProvider } from "../src/api/ApiClientContext";
 import { createAdminApiClient } from "../src/api/client";
@@ -11,6 +12,7 @@ const config: RuntimeConfig = {
   apiBasePath: "/api",
   googleClientId: "",
   appVersion: "abc1234",
+  features: {},
 };
 
 const DRAFT_ID = "0f8f1f76-1f0a-4a2e-9a5e-2b8f4f1c9d10";
@@ -135,7 +137,9 @@ function renderEditor(): void {
   render(
     <RuntimeConfigProvider config={config}>
       <ApiClientProvider client={createAdminApiClient(config.apiBasePath)}>
-        <DraftAssets draftId={DRAFT_ID} editable />
+        <MemoryRouter>
+          <DraftAssets draftId={DRAFT_ID} editable />
+        </MemoryRouter>
       </ApiClientProvider>
     </RuntimeConfigProvider>,
   );
@@ -208,21 +212,33 @@ describe("DraftAssets", () => {
     ).toBe(false);
   });
 
-  it("will not upload a symbol before an entity is named", async () => {
+  // §7.3: the global screen is a queue and an audit. Uploading happens on
+  // the entity, where the country and the symbol type come from context, so
+  // there is no form here that could be filled in with the wrong country.
+  it("offers no upload form of its own, only the way back to the entity", async () => {
     stubApi();
     renderEditor();
 
     const section = element(
       (await screen.findByText("Coat of arms")).closest(".MuiPaper-root"),
     );
-    fireEvent.click(
-      within(section).getByRole("button", { name: "Upload or replace" }),
+    expect(
+      within(section).queryByRole("button", { name: /Upload/ }),
+    ).toBeNull();
+    expect(
+      within(section).getAllByRole("link", { name: /Open the entity/ })[0],
+    ).toHaveAttribute(
+      "href",
+      `/drafts/${DRAFT_ID}/entities/country.germany/media`,
     );
-    expect(
-      within(section).getByRole("button", { name: "Upload" }),
-    ).toBeDisabled();
-    expect(
-      screen.getByText("Name the entity above first: a symbol belongs to one."),
-    ).toBeInTheDocument();
+  });
+
+  it("flags a drawing nobody can account for", async () => {
+    stubApi();
+    renderEditor();
+    await screen.findAllByText("country.germany");
+    // Every fixture row has licence, source and reason, so the queue is
+    // quiet; the chip is what a missing one would raise.
+    expect(screen.queryByText("provenance incomplete")).toBeNull();
   });
 });

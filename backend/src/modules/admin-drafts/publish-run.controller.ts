@@ -54,9 +54,18 @@ export class PublishRunController {
     const state = await this.runs.status();
     return {
       activeVersion: state.activeVersion,
+      executorConfigured: state.executorConfigured,
       current: state.current === null ? null : apiRun(state.current),
       last: state.last === null ? null : apiRun(state.last),
     };
+  }
+
+  /// What a rollback may return to. A version this deployment never applied
+  /// would point every client at nothing, so the screen offers the releases
+  /// rather than a text field.
+  @Get()
+  listReleases(): Promise<Record<string, unknown>> {
+    return this.runs.listReleases();
   }
 
   @Get("runs/:runId")

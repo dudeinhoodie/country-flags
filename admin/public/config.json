@@ -2,5 +2,8 @@
   "environment": "local",
   "apiBasePath": "/api",
   "googleClientId": "",
-  "appVersion": "local-dev"
+  "appVersion": "local-dev",
+  "features": {
+    "advancedOverrides": true
+  }
 }

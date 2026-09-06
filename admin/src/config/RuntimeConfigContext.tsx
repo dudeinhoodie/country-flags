@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
-import type { RuntimeConfig } from "./runtime-config";
+import type { AdminFeature, RuntimeConfig } from "./runtime-config";
 
 const RuntimeConfigContext = createContext<RuntimeConfig | undefined>(
   undefined,
@@ -28,4 +28,16 @@ export function useRuntimeConfig(): RuntimeConfig {
     );
   }
   return config;
+}
+
+/**
+ * Whether this deployment turns a flag on.
+ *
+ * Unlike the config itself this is lenient about being asked outside a
+ * provider, because the answer is well defined without one: a screen mounted
+ * with no deployment behind it has no flags turned on. A feature that fails
+ * closed is the safe direction for every flag the console has.
+ */
+export function useFeature(name: AdminFeature): boolean {
+  return useContext(RuntimeConfigContext)?.features[name] === true;
 }

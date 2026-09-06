@@ -364,6 +364,37 @@ describe("validateEnvironment", () => {
     });
   });
 
+  describe("publisher job coordinates", () => {
+    /// A run that nothing executes sits queued forever, and the only sign of
+    /// it is a screen saying so. Half a configuration is the state that
+    /// looks like it works (ADR-017 §2).
+    it("rejects a partial configuration instead of queueing into nothing", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          PUBLISHER_JOB_PROJECT: "speedy-web-235610",
+        }),
+      ).toThrow(
+        "PUBLISHER_JOB_PROJECT, PUBLISHER_JOB_REGION, PUBLISHER_JOB_NAME must be set together",
+      );
+    });
+
+    it("accepts all three together", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          PUBLISHER_JOB_PROJECT: "speedy-web-235610",
+          PUBLISHER_JOB_REGION: "europe-west3",
+          PUBLISHER_JOB_NAME: "content-publisher-dev",
+        }),
+      ).not.toThrow();
+    });
+
+    it("accepts a deployment with no publisher job at all", () => {
+      expect(() => validateEnvironment(validConfig)).not.toThrow();
+    });
+  });
+
   describe("Apple store environment", () => {
     // Bytes that begin like DER: an ASN.1 SEQUENCE, which is all the
     // configuration check looks at.
@@ -513,6 +544,46 @@ describe("validateEnvironment", () => {
       expect(
         validateEnvironment(validConfig).COMMERCE_APPLE_IAP_PRIVATE_KEY,
       ).toBe("");
+    });
+  });
+  describe("the minimum client version paid decks are shown to", () => {
+    const key = "PAID_CONTENT_MINIMUM_CLIENT_VERSIONS";
+
+    it("reads one platform per entry, in the canonical three-number form", () => {
+      expect(
+        validateEnvironment({
+          ...validConfig,
+          [key]: " ios=1.4 , android=2.0.0 ",
+        })[key],
+      ).toEqual({ ios: "1.4.0", android: "2.0.0" });
+    });
+
+    it("names no platform at all until a build understands paid decks", () => {
+      // Which is the truth before the StoreKit client ships, and it makes the
+      // gate closed by default: forgetting to configure it hides paid decks
+      // from everybody, rather than handing a locked deck to an app with no
+      // idea it is locked.
+      expect(validateEnvironment(validConfig)[key]).toEqual({});
+      expect(validateEnvironment({ ...validConfig, [key]: "" })[key]).toEqual(
+        {},
+      );
+    });
+
+    it("stops the process rather than quietly disabling itself", () => {
+      // A typo would otherwise read as "nothing configured", which is also
+      // what a correct deployment looks like the day before a release.
+      expect(() =>
+        validateEnvironment({ ...validConfig, [key]: "ios=1.4.0.1" }),
+      ).toThrow("must give ios a version like 1.4.0");
+      expect(() =>
+        validateEnvironment({ ...validConfig, [key]: "iphone=1.4.0" }),
+      ).toThrow("must contain platform=version entries");
+      expect(() =>
+        validateEnvironment({ ...validConfig, [key]: "1.4.0" }),
+      ).toThrow("must contain platform=version entries");
+      expect(() =>
+        validateEnvironment({ ...validConfig, [key]: "ios=1.4.0,ios=1.5.0" }),
+      ).toThrow("names platform ios more than once");
     });
   });
 });

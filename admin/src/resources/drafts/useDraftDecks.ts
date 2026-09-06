@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAdminApiClient } from "../../api/ApiClientContext";
+import { draftWriteError, messageOf } from "../../api/draft-conflict";
 import type { components } from "../../api/generated/admin-api";
 
 export type DraftDeck = components["schemas"]["AdminDraftDeck"];
@@ -23,11 +24,6 @@ export interface DeckWriteBody extends DeckCardFields {
   kind?: "curated" | "taxonomy";
   names?: Record<string, { name: string; description: string }>;
   members?: DeckMembers;
-}
-
-function messageOf(error: unknown, fallback: string): string {
-  const envelope = error as { error?: { message?: string } } | undefined;
-  return envelope?.error?.message ?? fallback;
 }
 
 /**
@@ -114,7 +110,7 @@ export function useDeckWriter(draftId: string) {
         },
       );
       if (data === undefined) {
-        throw new Error(messageOf(error, "The deck could not be created"));
+        throw draftWriteError(error, "The deck could not be created");
       }
       return data;
     },
@@ -134,7 +130,7 @@ export function useDeckWriter(draftId: string) {
         },
       );
       if (data === undefined) {
-        throw new Error(messageOf(error, "The deck could not be saved"));
+        throw draftWriteError(error, "The deck could not be saved");
       }
       return data;
     },
@@ -153,7 +149,7 @@ export function useDeckWriter(draftId: string) {
         },
       );
       if (data === undefined) {
-        throw new Error(messageOf(error, "The deck could not be removed"));
+        throw draftWriteError(error, "The deck could not be removed");
       }
       return data;
     },
@@ -167,6 +163,7 @@ export function useDraftDeck(draftId: string, deckKey: string | undefined) {
   const client = useAdminApiClient();
   const [deck, setDeck] = useState<DraftDeckDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     if (deckKey === undefined) {
@@ -184,6 +181,8 @@ export function useDraftDeck(draftId: string, deckKey: string | undefined) {
         if (data === undefined) {
           setError(messageOf(apiError, "The deck could not be loaded"));
         } else {
+          // A read that worked clears the last one that did not.
+          setError(null);
           setDeck(data);
         }
       })
@@ -197,15 +196,134 @@ export function useDraftDeck(draftId: string, deckKey: string | undefined) {
     return () => {
       cancelled = true;
     };
-  }, [client, draftId, deckKey]);
+  }, [client, draftId, deckKey, reloadToken]);
 
-  return { deck, error };
+  // Conflict recovery re-reads the deck at the revision that won, so the form
+  // can be reseeded from it rather than saved over it (§9).
+  const reload = useCallback(() => {
+    setReloadToken((token) => token + 1);
+  }, []);
+
+  return { deck, error, reload };
+}
+
+export type CardCandidate = components["schemas"]["AdminCardCandidate"];
+
+export interface CandidateQuery {
+  search: string;
+  entityType: string;
+  parentKey: string;
+  assetType: string;
+  templateCode: string;
+  readiness: "any" | "ready" | "blocked";
+}
+
+export const EMPTY_CANDIDATE_QUERY: CandidateQuery = {
+  search: "",
+  entityType: "",
+  parentKey: "",
+  assetType: "",
+  templateCode: "",
+  readiness: "any",
+};
+
+/**
+ * The cards this deck could hold, searched on the server (#356).
+ *
+ * A candidate is a pair — an entity and a template that can teach it —
+ * because Germany's flag and Germany's coat of arms are two cards with two
+ * schedules. Which pairs exist, which are ready and why a row cannot be
+ * added are projection rules, and they belong where the projection is
+ * defined; a browser deciding them from a list of entities would be a second
+ * implementation of the same rules, drifting quietly (§12).
+ */
+export function useCardCandidates(
+  draftId: string,
+  deckKey: string | undefined,
+  query: CandidateQuery,
+  limit = 60,
+): { candidates: CardCandidate[] | null; total: number; error: string | null } {
+  const client = useAdminApiClient();
+  const [candidates, setCandidates] = useState<CardCandidate[] | null>(null);
+  const [total, setTotal] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const { search, entityType, parentKey, assetType, templateCode, readiness } =
+    query;
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      client
+        .GET("/v1/admin/content/drafts/{draftId}/card-candidates", {
+          params: {
+            path: { draftId },
+            query: {
+              ...(search.trim() === "" ? {} : { search: search.trim() }),
+              ...(entityType === ""
+                ? {}
+                : {
+                    entityType: entityType as CardCandidate["entityType"],
+                  }),
+              ...(parentKey === "" ? {} : { parentKey }),
+              ...(assetType === ""
+                ? {}
+                : {
+                    assetType: assetType as
+                      | "FLAG"
+                      | "COAT_OF_ARMS"
+                      | "MAP"
+                      | "OTHER",
+                  }),
+              ...(templateCode === "" ? {} : { templateCode }),
+              ...(deckKey === undefined ? {} : { deckKey }),
+              readiness,
+              limit,
+            },
+          },
+        })
+        .then(({ data, error: apiError }) => {
+          if (cancelled) {
+            return;
+          }
+          if (data === undefined) {
+            setError(messageOf(apiError, "The card library could not be read"));
+            return;
+          }
+          setError(null);
+          setCandidates(data.items);
+          setTotal(data.total);
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setError("The card library could not be read");
+          }
+        });
+      // Typing in the search box must not be one request per keystroke.
+    }, 200);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [
+    client,
+    draftId,
+    deckKey,
+    search,
+    entityType,
+    parentKey,
+    assetType,
+    templateCode,
+    readiness,
+    limit,
+  ]);
+
+  return { candidates, total, error };
 }
 
 /**
- * Everything the draft carries, read once: the member picker filters by
- * kind, parent and whether the drawing a template needs already exists, and
- * a request per row would make that unusable.
+ * Everything the draft carries, read once: the deck's own members are named
+ * by key, and the list is what turns a key into a name without a request per
+ * row. The searchable library comes from `useCardCandidates`.
  */
 export function useDraftEntityPool(draftId: string) {
   const client = useAdminApiClient();

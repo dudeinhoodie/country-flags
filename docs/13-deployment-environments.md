@@ -259,6 +259,88 @@ corepack yarn content:bundle:publish --bundle-dir "$PWD/content/generated/fixtur
 читается в `.github/workflows/deploy-dev.yml`, а правка через консоль
 перезаписывается следующим deploy.
 
+### 6.2. One-time provisioning для publisher-job (ADR-017)
+
+Публикация и откат из консоли исполняются Cloud Run Job `content-publisher-dev`.
+Job разворачивает `.github/workflows/deploy-publisher-dev.yml` — тем же digest,
+что уже обслуживает `api-dev`. Владелец создаёт один раз то, что workflow
+создать не может: identity и её права.
+
+~~~bash
+# Identity job'а. Это единственная личность, которой достаётся приватный ключ
+# подписи; api-dev-runtime не получает его никогда, ни в dev, ни в prod.
+gcloud iam service-accounts create content-publisher \
+  --display-name "Content publisher job"
+
+SA=content-publisher@speedy-web-235610.iam.gserviceaccount.com
+
+# Ключ подписи и его открытая половина.
+for secret in dev-content-signing-private-key dev-content-signing-public-keys; do
+  gcloud secrets add-iam-policy-binding "${secret}" \
+    --member="serviceAccount:${SA}" --role=roles/secretmanager.secretAccessor
+done
+
+# Прямое подключение к базе: транзакция на двадцать минут через pooler не живёт.
+gcloud secrets add-iam-policy-binding dev-direct-database-url \
+  --member="serviceAccount:${SA}" --role=roles/secretmanager.secretAccessor
+
+# HMAC-ключи бакета контента.
+for secret in dev-object-storage-access-key-id dev-object-storage-secret-access-key; do
+  gcloud secrets add-iam-policy-binding "${secret}" \
+    --member="serviceAccount:${SA}" --role=roles/secretmanager.secretAccessor
+done
+
+# Запись в бакет контента — и только в него.
+gcloud storage buckets add-iam-policy-binding gs://country-flags-dev \
+  --member="serviceAccount:${SA}" --role=roles/storage.objectAdmin
+
+# Право workflow развернуть job, работающий под этой личностью. Без него
+# `gcloud run jobs deploy --service-account` отказывает: выдать чужую
+# identity — отдельное разрешение, а не следствие права деплоить.
+gcloud iam service-accounts add-iam-policy-binding "${SA}" \
+  --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com \
+  --role=roles/iam.serviceAccountUser
+
+# Право консоли запросить прогон. Ровно это, и ничего больше: сервис умеет
+# попросить публикацию, он не умеет подписать (ADR-017 §1).
+gcloud run jobs add-iam-policy-binding content-publisher-dev \
+  --region europe-west3 \
+  --member="serviceAccount:api-dev-runtime@speedy-web-235610.iam.gserviceaccount.com" \
+  --role=roles/run.invoker
+~~~
+
+Последняя привязка требует уже существующего job'а, поэтому порядок такой:
+создать service account и выдать ему секреты и bucket, запустить
+`Deploy publisher dev` (он создаёт job), затем выдать `run.invoker` и
+переразвернуть `api-dev`, чтобы ревизия получила `PUBLISHER_JOB_*`.
+
+До этого момента консоль ведёт себя корректно: прогон записывается, экран
+релиза говорит, что очередь никто не разбирает, и очередь освобождается
+кнопкой отмены. Публикация в это время делается workflow `publish-content-dev`
+— он остаётся рабочим путём и единственным, кто публикует произвольный
+коммит (ADR-017 §6).
+
+### 6.3. Prod-контур консоли
+
+`admin-prod` разворачивается `.github/workflows/deploy-admin-prod.yml` только
+вручную и только тем digest, который уже обслуживает `admin-dev`. Workflow
+ничего не собирает: продвигается ровно то, что работало в dev.
+
+Требуется до первого запуска:
+
+~~~text
+Cloud Run service:   admin-prod (любой стартующий образ, europe-west3)
+Cloud Run service:   api-prod   (адрес, на который консоль проксирует /api)
+Service account:     admin-prod-runtime
+GitHub environment:  production, с required reviewers
+GitHub variable:     ADMIN_PROD_GOOGLE_CLIENT_ID
+~~~
+
+Свой OAuth client у prod обязателен: dev-токен не должен открывать
+production-консоль. Публикация в prod требует своего publisher-job
+(`content-publisher-prod`) с prod-секретами — та же схема, что в §6.2, с
+префиксом `prod-`.
+
 ## 7. Configuration contract
 
 Hosted environments требуют:
@@ -427,6 +509,20 @@ Application rollback:
 
 Database rollback выполняется forward-fix или restore, не down migration. Цель:
 application rollback не более 15 минут.
+
+Content rollback — отдельная операция: релиз контента и образ сервиса
+откатываются независимо. Активный указатель возвращается на предыдущий релиз из
+консоли (`/releases`, роль `PUBLISHER`/`ADMIN`, в prod — с вводом версии
+вручную): прогон ставится в очередь, исполняет его publisher-job, бандл не
+пересобирается и ключ подписи не нужен — двигается только указатель. Аварийный
+путь на случай недоступной консоли сохраняется:
+
+~~~bash
+corepack yarn content:bundle:rollback --to-version <version>
+~~~
+
+Обе дороги берут один и тот же advisory-lock на активном указателе, поэтому
+одновременный откат из консоли и из CLI невозможен (ADR-017 §4, §5).
 
 ## 16. Backup и disaster recovery
 

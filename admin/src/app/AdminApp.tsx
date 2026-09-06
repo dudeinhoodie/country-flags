@@ -31,6 +31,7 @@ import { DraftList } from "../resources/drafts/DraftList";
 import { DraftOverview } from "../resources/drafts/DraftOverview";
 import { DraftRelease } from "../resources/drafts/DraftRelease";
 import { EntityShow } from "../resources/entities/EntityShow";
+import { ReleasesPage } from "../resources/releases/ReleasesPage";
 import { AdminLayout } from "./AdminLayout";
 import { createAuthProvider } from "./auth-provider";
 import { ContentWorkspace } from "./ContentWorkspace";
@@ -172,6 +173,13 @@ export function AdminApp({ config }: { config: RuntimeConfig }) {
                   path="/drafts/:draftId/release"
                   element={<DraftRelease />}
                 />
+
+                {/* What every client is reading, and the two levers that
+                    change it. Publishing and rolling back are runs the
+                    console asks for and watches; the work belongs to a job
+                    with the credentials this browser must never have
+                    (ADR-017). */}
+                <Route path="/releases" element={<ReleasesPage />} />
 
                 {/* Commerce is its own section rather than a resource: the
                     contract's commerce lists are whole answers, not pages,

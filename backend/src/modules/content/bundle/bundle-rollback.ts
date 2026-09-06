@@ -5,6 +5,7 @@ import { assetBaseUrl } from "./bundle-assets";
 import { sha256Hex, type LoadedBundle } from "./bundle-reader";
 import { parseBundleDomain } from "./bundle-domain";
 import { applyBundleToDatabase } from "./bundle-publisher";
+import { lockActiveContentPointer } from "./content-pointer-lock";
 import type { ContentManifest } from "./bundle-types";
 
 export interface RollbackSummary {
@@ -83,6 +84,11 @@ export async function rollbackContentVersion(
 
   return prisma.$transaction(
     async (tx) => {
+      // The same lock a publish takes, for the same reason: a rollback and a
+      // publish both move the active pointer, and the emergency CLI path is
+      // exactly the one nothing else would have coordinated with (ADR-017 §4).
+      await lockActiveContentPointer(tx);
+
       const activePointer = await tx.contentPointer.findUnique({
         where: { key: "active" },
       });

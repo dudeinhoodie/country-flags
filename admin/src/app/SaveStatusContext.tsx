@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useEffect } from "react";
-import { useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext } from "react";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -35,20 +35,39 @@ export function SaveStatusProvider({ children }: { children: ReactNode }) {
     path: "",
   });
   const { pathname } = useLocation();
-  const pathRef = useRef(pathname);
 
-  useEffect(() => {
-    pathRef.current = pathname;
-  }, [pathname]);
-
-  const report = useCallback((state: SaveState, message?: string) => {
-    setStatus({
-      state,
-      at: Date.now(),
-      message: message ?? null,
-      path: pathRef.current,
-    });
-  }, []);
+  // The address is closed over rather than kept in a ref: a screen's own
+  // effects run before the provider's, so a ref synced in an effect would
+  // file the first report after any navigation under the address it just
+  // left, and the reading would be thrown away as stale.
+  //
+  // Reporting the same thing twice is not a change. Screens re-assert their
+  // state after every commit — a tab is a route segment now, and the status is
+  // scoped to the address it was reported from — so an unconditional setState
+  // here would be a render loop.
+  const report = useCallback(
+    (state: SaveState, message?: string) => {
+      const text = message ?? null;
+      setStatus((current) => {
+        if (
+          current.state === state &&
+          current.message === text &&
+          current.path === pathname
+        ) {
+          return current;
+        }
+        return {
+          state,
+          // The same state carried to another tab is the same event; only a
+          // change of state restarts the clock behind "saved 2 minutes ago".
+          at: current.state === state ? current.at : Date.now(),
+          message: text,
+          path: pathname,
+        };
+      });
+    },
+    [pathname],
+  );
 
   // Leaving a screen leaves its save state behind with it: "saved" from the
   // previous document would be a lie on the next one. Which screen the

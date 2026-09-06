@@ -84,18 +84,27 @@ public enum MockContent {
 
     // MARK: - Registration
 
-    public static func responses() -> [String: MockClientTransport.Response] {
+    /// - Parameter commerce: what the mock backend says about access. The
+    ///   release itself carries none: which deck costs money is a backend
+    ///   fact, so it is projected onto the deck list here rather than written
+    ///   into the generated documents, which stay exactly what
+    ///   `sync-mock-content.mjs --check` produced.
+    public static func responses(
+        commerce: MockCommerce? = nil
+    ) -> [String: MockClientTransport.Response] {
         let manifest = document("manifest")
         return [
             "getContentManifest": .json(manifest, headerFields: ["etag": entityTag(of: manifest)]),
-            "listDecks": .json(document("decks")),
+            "listDecks": .json(decks(commerce: commerce)),
             // The mock release never changes under the app, so a refresh is a
             // no-op rather than a second bootstrap.
             "getContentChanges": .json(document("changes")),
         ]
     }
 
-    public static func handlers() -> [String: MockClientTransport.Handler] {
+    public static func handlers(
+        commerce: MockCommerce? = nil
+    ) -> [String: MockClientTransport.Handler] {
         [
             "listDeckCards": { request in
                 guard let id = deckID(in: request.path),
@@ -107,9 +116,52 @@ public enum MockContent {
                         message: "The mock release publishes no such deck"
                     )
                 }
+                guard commerce?.allowsCards(inDeckCoded: code) ?? true else {
+                    // The guard, as the real one answers it: a paid deck
+                    // refuses its cards rather than serving a shorter list,
+                    // so the client can tell "not bought" from "empty deck".
+                    return .errorEnvelope(
+                        statusCode: 403,
+                        code: "ENTITLEMENT_REQUIRED",
+                        message: "This deck requires a purchase"
+                    )
+                }
                 return .json(document("deck-cards-\(code)"))
             }
         ]
+    }
+
+    /// The generated deck list with the backend's own facts folded in: the
+    /// access block of the deck that is for sale, and the three cards it
+    /// publishes as a public preview.
+    ///
+    /// The preview is the deck's own first three cards, which is what the
+    /// publisher would project: a preview invented here would draw flags the
+    /// deck does not contain.
+    private static func decks(commerce: MockCommerce?) -> Data {
+        let stored = document("decks")
+        guard let commerce,
+            var page = try? JSONSerialization.jsonObject(with: stored) as? [String: Any],
+            var items = page["items"] as? [[String: Any]]
+        else {
+            return stored
+        }
+        for index in items.indices {
+            guard let code = items[index]["code"] as? String,
+                let access = commerce.access(forDeckCoded: code)
+            else {
+                continue
+            }
+            items[index]["access"] = access
+            if let cards = try? JSONSerialization.jsonObject(
+                with: document("deck-cards-\(code)")
+            ) as? [String: Any],
+                let all = cards["items"] as? [[String: Any]] {
+                items[index]["previewCards"] = Array(all.prefix(3))
+            }
+        }
+        page["items"] = items
+        return (try? JSONSerialization.data(withJSONObject: page)) ?? stored
     }
 }
 

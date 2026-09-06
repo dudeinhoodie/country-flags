@@ -87,6 +87,9 @@ actor FakeSynchronizer: ContentSynchronizing {
     private let status: ContentSyncStatus
     private(set) var synchronizeCount = 0
     private(set) var requestedLocales: [String] = []
+    private(set) var loadedDeckIDs: [UUID] = []
+    /// What `loadCards` answers. False is a deck the guard refused.
+    var cardsArrive = true
 
     init(status: ContentSyncStatus) {
         self.status = status
@@ -101,6 +104,12 @@ actor FakeSynchronizer: ContentSynchronizing {
         synchronizeCount += 1
         requestedLocales.append(locale)
         return status
+    }
+
+    @discardableResult
+    func loadCards(inDeck deckID: UUID, locale: String) async -> Bool {
+        loadedDeckIDs.append(deckID)
+        return cardsArrive
     }
 }
 

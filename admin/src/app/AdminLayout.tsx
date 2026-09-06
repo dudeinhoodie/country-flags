@@ -9,6 +9,7 @@ import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
+import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
 import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
@@ -30,6 +31,7 @@ import { DraftSelector } from "./DraftSelector";
 import { GlobalSearch } from "./GlobalSearch";
 import { routes } from "./routes";
 import { SaveStatusProvider } from "./SaveStatusContext";
+import { UnsavedChangesProvider } from "./UnsavedChanges";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
 import { appBarSx, menuSectionSx } from "./theme";
 
@@ -148,6 +150,14 @@ function AdminMenu() {
         primaryText="Decks"
         leftIcon={<StyleOutlinedIcon />}
       />
+      {/* Beside what is published rather than inside the draft workspace:
+          a release changes what every client reads, and the run that does
+          it belongs to no one draft (ADR-017). */}
+      <Menu.Item
+        to={routes.releases}
+        primaryText="Releases"
+        leftIcon={<RocketLaunchOutlinedIcon />}
+      />
 
       <MenuSection label="Draft workspace" />
       {draft === null ? (
@@ -220,15 +230,19 @@ function AdminMenu() {
 }
 
 export function AdminLayout({ children }: { children: ReactNode }) {
-  // Both providers wrap the layout rather than a page: the draft is in the
-  // app bar and in the navigation, and save status is read by the bar while
-  // it is written by whatever screen is inside.
+  // All three providers wrap the layout rather than a page: the draft is in
+  // the app bar and in the navigation, save status is read by the bar while
+  // it is written by whatever screen is inside, and leaving a screen with
+  // unwritten changes is done through the menu, the draft selector and the
+  // search box (§9) — none of which an editor can see.
   return (
     <CurrentDraftProvider>
       <SaveStatusProvider>
-        <Layout appBar={AdminAppBar} menu={AdminMenu}>
-          {children}
-        </Layout>
+        <UnsavedChangesProvider>
+          <Layout appBar={AdminAppBar} menu={AdminMenu}>
+            {children}
+          </Layout>
+        </UnsavedChangesProvider>
       </SaveStatusProvider>
     </CurrentDraftProvider>
   );

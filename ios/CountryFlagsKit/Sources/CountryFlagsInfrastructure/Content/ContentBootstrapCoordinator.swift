@@ -86,6 +86,13 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
     private let logger: any AppLogging
     private let appVersion: String
     private let pageLimit: Int
+    /// What this account may open, asked when the deck list is being staged.
+    ///
+    /// A deck sold rather than published is skipped rather than fetched: its
+    /// cards are behind an entitlement guard, and asking for them would spend
+    /// a request to be told so. The default answers "nothing", which is a
+    /// catalogue of free decks — the only kind a build without commerce has.
+    private let entitlementKeys: @Sendable () async -> Set<String>
 
     private var status = ContentSyncStatus()
     private var running: Task<ContentSyncStatus, Never>?
@@ -97,7 +104,8 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         dates: any DateProviding = SystemDateProvider(),
         logger: any AppLogging = NoOpLogger(),
         appVersion: String,
-        pageLimit: Int = 100
+        pageLimit: Int = 100,
+        entitlementKeys: @escaping @Sendable () async -> Set<String> = { [] }
     ) {
         self.service = service
         self.repository = repository
@@ -106,6 +114,67 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         self.logger = logger
         self.appVersion = appVersion
         self.pageLimit = pageLimit
+        self.entitlementKeys = entitlementKeys
+    }
+
+    /// Downloads the cards of one deck that has just become openable.
+    ///
+    /// A purchase does not need the whole release again: the metadata of every
+    /// deck is already stored, and what is missing is the cards of exactly one
+    /// of them. So this pages that deck alone and writes it into the release
+    /// that is current, the way the change feed writes an entity it fetched.
+    ///
+    /// - Returns: whether the deck's cards are on the device afterwards.
+    @discardableResult
+    public func loadCards(inDeck deckID: UUID, locale: String) async -> Bool {
+        guard let manifest = try? await repository.currentManifest() else { return false }
+        var cursor: String?
+        var applied = 0
+        repeat {
+            let page: ContentCardPage
+            do {
+                page = try await service.cards(
+                    inDeck: deckID,
+                    locale: locale,
+                    cursor: cursor,
+                    limit: pageLimit,
+                    sortOffset: applied,
+                    supportedTemplateSchemaVersions: manifest.supportedTemplateSchemaVersions
+                )
+            } catch {
+                // Including the guard's own refusal: a deck the server does not
+                // agree is ours stays without cards, and the screen that asked
+                // says so rather than showing an empty deck.
+                logger.log(
+                    .notice,
+                    .content,
+                    "Could not download the cards of a deck that had just been opened",
+                    ["deckId": .safe(deckID.uuidString)]
+                )
+                return false
+            }
+            do {
+                try await repository.applyStagedPage(
+                    ContentPage(
+                        cards: page.cards,
+                        deckCards: page.deckCards,
+                        assets: page.assets
+                    ),
+                    staging: ContentStagingState(
+                        contentVersion: manifest.contentVersion,
+                        stage: .ready,
+                        cursor: nil,
+                        pendingDeckIDs: [],
+                        updatedAt: dates.now()
+                    )
+                )
+            } catch {
+                return false
+            }
+            applied += page.cards.count
+            cursor = page.hasMore ? page.nextCursor : nil
+        } while cursor != nil
+        return true
     }
 
     public func currentStatus() -> ContentSyncStatus { status }
@@ -277,7 +346,14 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                 limit: pageLimit,
                 sortOffset: staging.appliedInStage
             )
-            let pending = staging.pendingDeckIDs + page.items.map(\.id)
+            // A deck that has to be bought and has not been is staged with its
+            // metadata and without its cards: the catalogue, the search and
+            // the paywall are all built from what arrived here, and the cards
+            // arrive the moment the account holds the right to them.
+            let openable = await entitlementKeys()
+            let pending =
+                staging.pendingDeckIDs
+                + page.items.filter { $0.isOpen(given: openable) }.map(\.id)
             let applied = staging.appliedInStage + page.items.count
             let next: ContentStagingState
             if page.hasMore, let cursor = page.nextCursor {
@@ -301,7 +377,18 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                     updatedAt: dates.now()
                 )
             }
-            try await repository.applyStagedPage(ContentPage(decks: page.items), staging: next)
+            // The preview cards go in without a deck membership. That is the
+            // whole of the public preview: three drawable cards for the fan,
+            // and no card list, no progress and no session a locked deck could
+            // be studied through.
+            try await repository.applyStagedPage(
+                ContentPage(
+                    decks: page.items,
+                    cards: page.previewCards,
+                    assets: page.previewAssets
+                ),
+                staging: next
+            )
             return next
 
         case .cards:
@@ -318,14 +405,30 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                 return next
             }
 
-            let page = try await service.cards(
-                inDeck: deckID,
-                locale: locale,
-                cursor: staging.cursor,
-                limit: pageLimit,
-                sortOffset: staging.appliedInStage,
-                supportedTemplateSchemaVersions: manifest.supportedTemplateSchemaVersions
-            )
+            let page: ContentCardPage
+            do {
+                page = try await service.cards(
+                    inDeck: deckID,
+                    locale: locale,
+                    cursor: staging.cursor,
+                    limit: pageLimit,
+                    sortOffset: staging.appliedInStage,
+                    supportedTemplateSchemaVersions: manifest.supportedTemplateSchemaVersions
+                )
+            } catch let error as APIError where error.details?.statusCode == 403 {
+                // The guard refused one deck, not the release. Its metadata is
+                // already stored, so the catalogue, the search and the paywall
+                // all work; only its cards are missing, and they are what the
+                // purchase is for. Failing the run here would leave a guest
+                // with no catalogue at all because one deck is for sale.
+                logger.log(
+                    .info,
+                    .content,
+                    "A deck this account does not hold was staged without its cards",
+                    ["deckId": .safe(deckID.uuidString)]
+                )
+                return try await skipDeck(deckID, of: manifest, staging: staging)
+            }
             if !page.unsupportedCardIDs.isEmpty {
                 // A template this build cannot draw costs the cards that use
                 // it, not the deck. The count is logged so a release that
@@ -363,6 +466,25 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         case .ready:
             return staging
         }
+    }
+
+    /// Moves the cards stage past a deck whose cards this device may not have.
+    private func skipDeck(
+        _ deckID: UUID,
+        of manifest: ContentManifestRecord,
+        staging: ContentStagingState
+    ) async throws -> ContentStagingState {
+        let remaining = Array(staging.pendingDeckIDs.drop { $0 == deckID })
+        let next = ContentStagingState(
+            contentVersion: manifest.contentVersion,
+            stage: remaining.isEmpty ? .ready : .cards,
+            cursor: nil,
+            pendingDeckIDs: remaining,
+            appliedInStage: 0,
+            updatedAt: dates.now()
+        )
+        try await repository.applyStagedPage(ContentPage(), staging: next)
+        return next
     }
 
     /// Applies the change feed onto the release that is already current.

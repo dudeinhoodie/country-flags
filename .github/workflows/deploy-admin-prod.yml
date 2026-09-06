@@ -1,0 +1,189 @@
+name: Deploy admin prod
+
+# Production is promoted, never built.
+#
+# The only thing this workflow chooses is *when*: what it deploys is the exact
+# digest `admin-dev` is already serving, so the console people were using in
+# dev and the console that appears in production are the same bytes. Nothing
+# here rebuilds, and nothing here can deploy a commit that was never in dev.
+#
+# Manual by design (ADR-017, ADR-008): the console is where a release is
+# published and rolled back, and putting it in front of production is a
+# decision somebody makes rather than a consequence of a merge.
+on:
+  workflow_dispatch:
+    inputs:
+      digest:
+        description: >-
+          Image digest to promote (sha256:…). Leave empty to promote whatever
+          admin-dev is serving right now.
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+  deployments: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  REGION: europe-west3
+  SERVICE: admin-prod
+  DEV_SERVICE: admin-dev
+  API_SERVICE: api-prod
+  REPOSITORY: country-flags
+
+concurrency:
+  group: deploy-admin-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The approval gate. A production deploy waits for a person even when the
+    # workflow was started by one.
+    environment: production
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # A digest, always. A tag can be moved between the moment somebody
+      # decided to promote and the moment the revision starts, and "the image
+      # we tested" has to mean the same bytes or it means nothing.
+      - name: Resolve the image to promote
+        id: image
+        run: |
+          set -euo pipefail
+          target="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/admin"
+          digest="${{ inputs.digest }}"
+          if [ -z "${digest}" ]; then
+            running="$(gcloud run services describe "${DEV_SERVICE}" \
+              --region "${REGION}" \
+              --format='value(spec.template.spec.containers[0].image)' 2>/dev/null || true)"
+            if [ -z "${running}" ]; then
+              echo "::error::Cloud Run service ${DEV_SERVICE} does not exist in ${REGION}"
+              exit 1
+            fi
+            digest="${running##*@}"
+            if [ "${digest}" = "${running}" ]; then
+              echo "::error::${DEV_SERVICE} is running a tag rather than a digest: ${running}"
+              exit 1
+            fi
+          fi
+          case "${digest}" in
+            sha256:*) ;;
+            *)
+              echo "::error::${digest} is not an image digest"
+              exit 1 ;;
+          esac
+          # It has to be in the registry production pulls from, and it has to
+          # be there already: promoting is not a licence to copy something new.
+          gcloud artifacts docker images describe "${target}@${digest}" >/dev/null
+          echo "reference=${target}@${digest}" >> "$GITHUB_OUTPUT"
+          echo "Promoting ${target}@${digest}"
+
+      # The console proxies /api to the backend, so it has to be told where
+      # that backend answers rather than assuming an address.
+      - name: Resolve the production API address
+        id: api
+        run: |
+          set -euo pipefail
+          url="$(gcloud run services describe "${API_SERVICE}" --region "${REGION}" --format='value(status.url)' 2>/dev/null || true)"
+          if [ -z "${url}" ]; then
+            echo "::error::Cloud Run service ${API_SERVICE} does not exist in ${REGION}"
+            echo "The production API contour is a prerequisite for the console; see docs/13-deployment-environments.md §6.3."
+            exit 1
+          fi
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve the console address
+        id: service
+        run: |
+          set -euo pipefail
+          url="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.url)' 2>/dev/null || true)"
+          if [ -z "${url}" ]; then
+            echo "::error::Cloud Run service ${SERVICE} does not exist in ${REGION}"
+            echo "See docs/13-deployment-environments.md §6.3 for the one-time provisioning."
+            exit 1
+          fi
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy the revision
+        run: |
+          set -euo pipefail
+          gcloud run deploy "${SERVICE}" \
+            --region "${REGION}" \
+            --image "${{ steps.image.outputs.reference }}" \
+            --service-account "admin-prod-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
+            --set-env-vars "^;^ADMIN_ENVIRONMENT=prod;ADMIN_API_UPSTREAM=${{ steps.api.outputs.url }};ADMIN_APP_VERSION=${{ steps.image.outputs.reference }};ADMIN_GOOGLE_CLIENT_ID=${ADMIN_GOOGLE_CLIENT_ID}" \
+            --quiet
+        env:
+          # Public identifier, not a secret: it is the audience Google mints
+          # the console's identity tokens for. Production gets its own client
+          # so a dev token cannot open the production console.
+          ADMIN_GOOGLE_CLIENT_ID: ${{ vars.ADMIN_PROD_GOOGLE_CLIENT_ID }}
+
+      # An image that reports the wrong environment is the one mistake the
+      # runtime-config design exists to prevent — and in production it is the
+      # difference between a red badge and no badge at all.
+      - name: Smoke-test the revision
+        run: |
+          set -euo pipefail
+          url="${{ steps.service.outputs.url }}"
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent --show-error "${url}/config.json" | tee /tmp/config.json; then
+              break
+            fi
+            if [ "${attempt}" = "5" ]; then
+              echo "::error::${url}/config.json never answered"
+              exit 1
+            fi
+            sleep 5
+          done
+          grep -q '"environment": "prod"' /tmp/config.json
+
+      - name: Roll back on failure
+        if: failure()
+        run: |
+          set -euo pipefail
+          previous="$(gcloud run revisions list --service "${SERVICE}" --region "${REGION}" \
+            --format='value(name)' --sort-by='~metadata.creationTimestamp' | sed -n 2p)"
+          if [ -n "${previous}" ]; then
+            echo "Routing traffic back to ${previous}"
+            gcloud run services update-traffic "${SERVICE}" --region "${REGION}" \
+              --to-revisions "${previous}=100" --quiet
+          else
+            echo "::warning::No previous revision to roll back to"
+          fi
+
+      - name: Record the deployment
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              auto_merge: false,
+              required_contexts: [],
+              description: 'Cloud Run admin-prod',
+            });
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: 'success',
+              environment_url: '${{ steps.service.outputs.url }}',
+              description: 'Promoted the digest admin-dev was serving',
+            });

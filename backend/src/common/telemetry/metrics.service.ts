@@ -39,6 +39,13 @@ const storeReconciliationDurationSeconds = meter.createHistogram(
   "store_reconciliation_duration_seconds",
   { description: "How long a store reconciliation sweep took", unit: "s" },
 );
+const clientVersionGateTotal = meter.createCounter(
+  "client_version_gate_total",
+  {
+    description:
+      "Catalog requests classified by whether the client build understands paid decks",
+  },
+);
 
 export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx";
 
@@ -114,6 +121,21 @@ export class MetricsService {
   ): void {
     storeReconciliationRunsTotal.add(1, { outcome });
     storeReconciliationDurationSeconds.record(durationSeconds, { outcome });
+  }
+
+  /**
+   * Every catalog request the client-version gate looked at, by what it
+   * decided. Both labels are closed sets — the route template and the outcome
+   * enum — so the raw version a client sent never becomes a series.
+   *
+   * This is the counter that answers "nobody upgraded" before support does:
+   * the share of `below_minimum` and `version_missing` on `GET /v1/decks` is
+   * the fraction of traffic that would be handed a locked deck it cannot
+   * render, and it has to fall before paid content is published to everybody
+   * (docs/17-paid-decks-storekit.md §20).
+   */
+  recordClientVersionGate(route: string, outcome: string): void {
+    clientVersionGateTotal.add(1, { route, outcome });
   }
 
   /**

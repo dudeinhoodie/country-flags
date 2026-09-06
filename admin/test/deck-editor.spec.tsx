@@ -1,10 +1,17 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("react-admin", () => ({
   Title: () => null,
   usePermissions: () => ({ permissions: "EDITOR" }),
+  useGetIdentity: () => ({ identity: undefined }),
 }));
 
 import { ApiClientProvider } from "../src/api/ApiClientContext";
@@ -30,6 +37,7 @@ const config: RuntimeConfig = {
   apiBasePath: "/api",
   googleClientId: "",
   appVersion: "abc1234",
+  features: {},
 };
 
 function listItem(
@@ -88,6 +96,79 @@ const OHIO = listItem({
   includeInCountryCatalog: false,
 });
 const ENTITIES = [GERMANY, FRANCE, CALIFORNIA, TEXAS, OHIO];
+
+const TEMPLATES: Record<string, { assetType: string; kinds: string[] }> = {
+  FLAG_TO_COUNTRY: {
+    assetType: "FLAG",
+    kinds: ["country", "territory", "area", "subdivision"],
+  },
+  COAT_OF_ARMS_TO_COUNTRY: {
+    assetType: "COAT_OF_ARMS",
+    kinds: ["country", "territory", "area"],
+  },
+};
+
+/**
+ * The card library as the server answers it (#356): entity/template pairs,
+ * with the readiness and the disabled reason already worked out. The stub
+ * applies the query the console sends, so a test that filters is testing the
+ * request the console makes rather than a list it kept to itself.
+ */
+function candidatesFor(url: URL, held: ReadonlySet<string>): unknown {
+  const search = (url.searchParams.get("search") ?? "").toLowerCase();
+  const kind = url.searchParams.get("entityType");
+  const parent = url.searchParams.get("parentKey");
+  const templateCode =
+    url.searchParams.get("templateCode") ?? "FLAG_TO_COUNTRY";
+  const template = TEMPLATES[templateCode] ?? TEMPLATES.FLAG_TO_COUNTRY;
+  const items = ENTITIES.filter((entity) => {
+    if (!(template?.kinds ?? []).includes(entity.type)) {
+      return false;
+    }
+    if (kind !== null && entity.type !== kind) {
+      return false;
+    }
+    if (parent !== null && entity.parentKey !== parent) {
+      return false;
+    }
+    if (search === "") {
+      return true;
+    }
+    return (
+      entity.key.toLowerCase().includes(search) ||
+      (entity.publishedName ?? "").toLowerCase().includes(search)
+    );
+  }).map((entity) => {
+    const cardId = `${entity.key}#${templateCode}@1`;
+    const hasAsset =
+      template?.assetType === "COAT_OF_ARMS"
+        ? entity.hasCoatOfArms === true
+        : true;
+    const inDeck = held.has(cardId);
+    return {
+      cardId,
+      entityKey: entity.key,
+      entityType: entity.type,
+      entityStatus: entity.status,
+      parentKey: entity.parentKey,
+      entityName: entity.publishedName,
+      templateCode,
+      templateSchemaVersion: 1,
+      assetType: template?.assetType ?? null,
+      hasAsset,
+      locales: { required: [], present: [], missing: [], complete: true },
+      delivery: null,
+      inDeck,
+      available: hasAsset && !inDeck,
+      disabledReason: inDeck
+        ? { code: "ALREADY_IN_DECK", message: "The deck already holds it" }
+        : hasAsset
+          ? null
+          : { code: "ASSET_MISSING", message: "There is no coat of arms yet" },
+    };
+  });
+  return { items, total: items.length, draftRevision: 1 };
+}
 
 /**
  * The read-only access summary the detail read carries beside the deck. The
@@ -152,9 +233,20 @@ interface Stub {
  */
 function stubApi(
   deck: DraftDeckDetail,
-  options: { publishedDecks?: unknown[]; commerce?: boolean } = {},
+  options: {
+    publishedDecks?: unknown[];
+    commerce?: boolean;
+    conflictOnSave?: boolean;
+  } = {},
 ): Stub {
   let sent: Record<string, unknown> | null = null;
+  const held = new Set(
+    (Array.isArray(deck.members) ? deck.members : []).map((member) =>
+      typeof member === "string"
+        ? `${member}#${deck.defaultTemplateCode ?? "FLAG_TO_COUNTRY"}@1`
+        : `${member.entityKey}#${member.templateCode}@${String(member.templateSchemaVersion)}`,
+    ),
+  );
   vi.stubGlobal(
     "fetch",
     vi.fn(async (request: Request) => {
@@ -167,12 +259,34 @@ function stubApi(
         });
       if (method === "PATCH" || method === "POST") {
         sent = JSON.parse(await request.text()) as Record<string, unknown>;
+        if (options.conflictOnSave === true) {
+          return json(
+            {
+              error: {
+                code: "DRAFT_REVISION_CONFLICT",
+                message: "The draft moved on",
+                requestId: DRAFT_ID,
+                details: {
+                  draftId: DRAFT_ID,
+                  expectedRevision: 1,
+                  currentRevision: 4,
+                  updatedAt: "2026-09-05T10:00:00Z",
+                  updatedByAdminUserId: "00000000-0000-4000-8000-000000000009",
+                },
+              },
+            },
+            409,
+          );
+        }
         return json({
           draftId: DRAFT_ID,
           revision: 8,
           status: "DRAFT",
           updatedAt: "2026-09-05T10:00:00Z",
         });
+      }
+      if (url.includes("/card-candidates")) {
+        return json(candidatesFor(new URL(url), held));
       }
       if (url.includes("/commerce/")) {
         if (options.commerce !== true) {
@@ -252,15 +366,21 @@ function stubApi(
   return { sent: () => sent };
 }
 
-function renderEditor(deckKey: string): void {
+function renderEditor(deckKey: string, at = ""): void {
   const client = createAdminApiClient("/api");
   render(
     <RuntimeConfigProvider config={config}>
       <ApiClientProvider client={client}>
-        <MemoryRouter initialEntries={[`/drafts/${DRAFT_ID}/decks/${deckKey}`]}>
+        <MemoryRouter
+          initialEntries={[`/drafts/${DRAFT_ID}/decks/${deckKey}${at}`]}
+        >
           <Routes>
             <Route
               path="/drafts/:draftId/decks/:deckKey"
+              element={<DeckEditor />}
+            />
+            <Route
+              path="/drafts/:draftId/decks/:deckKey/:tab"
               element={<DeckEditor />}
             />
             <Route path="/drafts/:draftId" element={<div>draft</div>} />
@@ -275,6 +395,17 @@ function renderEditor(deckKey: string): void {
 function pickOption(selectName: string | RegExp, option: string | RegExp) {
   fireEvent.mouseDown(screen.getByRole("combobox", { name: selectName }));
   fireEvent.click(screen.getByRole("option", { name: option }));
+}
+
+/** The tabs are links, so opening one is a click on a link. */
+function openTab(name: string): void {
+  fireEvent.click(screen.getByRole("tab", { name }));
+}
+
+/** Opens the deck's Cards tab and waits for the list to be there. */
+async function openCards(): Promise<void> {
+  fireEvent.click(await screen.findByRole("tab", { name: "Cards" }));
+  await screen.findByText(/^In this deck/);
 }
 
 describe("card refs", () => {
@@ -333,7 +464,7 @@ describe("deck membership editor", () => {
   it("holds one country under two templates as two members", async () => {
     const stub = stubApi(deckDetail());
     renderEditor("deck.symbols-sampler");
-    await screen.findByText("In this deck (1)");
+    await openCards();
 
     pickOption("Add as", "Coat of arms → name");
     fireEvent.click(
@@ -357,15 +488,20 @@ describe("deck membership editor", () => {
     ]);
   });
 
-  it("adds the U.S. states in one click", async () => {
+  // The library is searched on the server, so a bulk recipe is "everything
+  // these filters match" rather than a list of countries the console keeps.
+  it("adds every card the filters match in one click", async () => {
     const stub = stubApi(deckDetail({ members: [], memberKeys: [] }));
     renderEditor("deck.symbols-sampler");
-    await screen.findByText("In this deck (0)");
+    await openCards();
+
+    pickOption("Kind", "subdivision");
+    fireEvent.change(screen.getByRole("textbox", { name: /Parent/ }), {
+      target: { value: "country.united_states" },
+    });
 
     fireEvent.click(
-      await screen.findByRole("button", {
-        name: /Add the U\.S\. states \(3\)/,
-      }),
+      await screen.findByRole("button", { name: "Add all 3 matching" }),
     );
     await screen.findByText("In this deck (3)");
 
@@ -380,6 +516,50 @@ describe("deck membership editor", () => {
     ]);
   });
 
+  // The server answers about the deck as it is stored, and the form is ahead
+  // of it: a card taken out of the list has to be addable again without
+  // saving first, or the removal is a one-way door.
+  it("lets a card the form removed straight back in", async () => {
+    stubApi(deckDetail());
+    renderEditor("deck.symbols-sampler");
+    await openCards();
+
+    const add = await screen.findByRole("button", {
+      name: "Add country.germany#FLAG_TO_COUNTRY@1",
+    });
+    expect(add).toBeDisabled();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Remove country.germany#FLAG_TO_COUNTRY@1",
+      }),
+    );
+    await screen.findByText("In this deck (0)");
+
+    expect(
+      screen.getByRole("button", {
+        name: "Add country.germany#FLAG_TO_COUNTRY@1",
+      }),
+    ).toBeEnabled();
+  });
+
+  it("says why a card cannot be added rather than greying it out", async () => {
+    stubApi(deckDetail({ members: [], memberKeys: [] }));
+    renderEditor("deck.symbols-sampler");
+    await openCards();
+
+    pickOption("Add as", "Coat of arms → name");
+    // France has no coat of arms in the fixture, and the server says so.
+    expect(
+      await screen.findByText(/There is no coat of arms yet/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "Add country.france#COAT_OF_ARMS_TO_COUNTRY@1",
+      }),
+    ).toBeDisabled();
+  });
+
   it("reorders members and keeps the order as the deck's own", async () => {
     const stub = stubApi(
       deckDetail({
@@ -388,13 +568,48 @@ describe("deck membership editor", () => {
       }),
     );
     renderEditor("deck.symbols-sampler");
-    await screen.findByText("In this deck (2)");
+    await openCards();
 
     fireEvent.click(
       screen.getByRole("button", {
         name: "Move country.france#FLAG_TO_COUNTRY@1 up",
       }),
     );
+    fireEvent.click(screen.getByRole("button", { name: "Save deck" }));
+    await waitFor(() => {
+      expect(stub.sent()).not.toBeNull();
+    });
+    expect(stub.sent()?.members).toEqual(["country.france", "country.germany"]);
+  });
+
+  // Acceptance criterion: a deck can be put in order from the keyboard
+  // alone, and the keyboard does not lose its place while doing it.
+  it("reorders from the keyboard and keeps focus on the card it moved", async () => {
+    const stub = stubApi(
+      deckDetail({
+        members: ["country.germany", "country.france"],
+        memberCount: 2,
+      }),
+    );
+    renderEditor("deck.symbols-sampler");
+    await openCards();
+
+    const down = screen.getByRole("button", {
+      name: "Move country.germany#FLAG_TO_COUNTRY@1 down",
+    });
+    down.focus();
+    fireEvent.keyDown(down, { key: "ArrowDown", altKey: true });
+
+    await waitFor(() => {
+      // Germany is last now, so its own down arrow is disabled and focus
+      // lands on the arrow that can still move it.
+      expect(
+        screen.getByRole("button", {
+          name: "Move country.germany#FLAG_TO_COUNTRY@1 up",
+        }),
+      ).toHaveFocus();
+    });
+
     fireEvent.click(screen.getByRole("button", { name: "Save deck" }));
     await waitFor(() => {
       expect(stub.sent()).not.toBeNull();
@@ -411,7 +626,7 @@ describe("deck membership editor", () => {
       }),
     );
     renderEditor("deck.symbols-sampler");
-    await screen.findByText("In this deck (2)");
+    await openCards();
 
     fireEvent.click(
       screen.getByRole("button", {
@@ -438,13 +653,14 @@ describe("deck membership editor", () => {
       }),
     );
     renderEditor("deck.symbols-sampler");
-    await screen.findByText("In this deck (2)");
+    await openCards();
 
     fireEvent.click(
       screen.getByRole("button", {
         name: "Set country.france#FLAG_TO_COUNTRY@1 as a preview card",
       }),
     );
+    openTab("Presentation");
     await screen.findByText("Public preview (1 of 3)");
 
     fireEvent.click(screen.getByRole("button", { name: "Save deck" }));
@@ -457,11 +673,79 @@ describe("deck membership editor", () => {
   });
 });
 
+describe("the deck editor's own state", () => {
+  it("has nothing to save or discard until something changes", async () => {
+    stubApi(deckDetail());
+    renderEditor("deck.symbols-sampler");
+    await screen.findByText("Everything on this screen is saved.");
+
+    expect(screen.getByRole("button", { name: "Save deck" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Discard changes" }),
+    ).toBeDisabled();
+  });
+
+  it("puts the form back the way it was loaded", async () => {
+    stubApi(deckDetail());
+    renderEditor("deck.symbols-sampler");
+    const name = await screen.findByRole("textbox", { name: "Name (en)" });
+
+    fireEvent.change(name, { target: { value: "Renamed" } });
+    expect(screen.getByText("Unsaved changes.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Discard changes" }));
+    expect(name).toHaveValue("Symbols");
+  });
+
+  // Acceptance criterion 8, on the deck side: the write is refused and the
+  // editor is told what it would have written.
+  it("refuses to overwrite a revision somebody else moved", async () => {
+    stubApi(deckDetail(), { conflictOnSave: true });
+    renderEditor("deck.symbols-sampler");
+    const name = await screen.findByRole("textbox", { name: "Name (en)" });
+
+    fireEvent.change(name, { target: { value: "Renamed" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save deck" }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      within(dialog).getByText(/This draft moved while you were editing/),
+    ).toBeInTheDocument();
+    expect(within(dialog).getByLabelText("Your unsaved values")).toHaveValue(
+      'Names and descriptions: {"ru":{"name":"Символы","description":"Оба символа"},"en":{"name":"Renamed","description":"Both symbols"}}',
+    );
+  });
+
+  // Acceptance criterion 7, on the deck side: a finding addressed to the
+  // access tab opens it with the caret in the field it names.
+  it("opens the tab and the field a finding names", async () => {
+    stubApi(
+      deckDetail({
+        access: access({
+          model: "ENTITLEMENT",
+          requiredEntitlementKey: "deck.european_coats",
+        }),
+      }),
+    );
+    renderEditor(
+      "deck.symbols-sampler",
+      "/access?field=%2Faccess%2FrequiredEntitlementKey",
+    );
+
+    const field = await screen.findByRole("textbox", {
+      name: /Entitlement key/,
+    });
+    await waitFor(() => {
+      expect(field).toHaveFocus();
+    });
+  });
+});
+
 describe("the Access block", () => {
   it("never offers a price and marks the environment", async () => {
     stubApi(deckDetail(), { commerce: true });
-    renderEditor("deck.symbols-sampler");
-    await screen.findByText("Access");
+    renderEditor("deck.symbols-sampler", "/access");
+    await screen.findByRole("radiogroup");
 
     fireEvent.click(
       screen.getByRole("radio", { name: /Paid — an entitlement is required/ }),
@@ -481,7 +765,7 @@ describe("the Access block", () => {
       }),
       { commerce: true },
     );
-    renderEditor("deck.symbols-sampler");
+    renderEditor("deck.symbols-sampler", "/access");
 
     expect(await screen.findByText(/the entitlement exists/)).toHaveTextContent(
       "✓",
@@ -504,7 +788,7 @@ describe("the Access block", () => {
         }),
       }),
     );
-    renderEditor("deck.symbols-sampler");
+    renderEditor("deck.symbols-sampler", "/access");
 
     expect(
       await screen.findByText(/does not serve the commerce contour yet/),
@@ -527,7 +811,7 @@ describe("the Access block", () => {
         },
       ],
     });
-    renderEditor("deck.symbols-sampler");
+    renderEditor("deck.symbols-sampler", "/access");
 
     expect(
       await screen.findByText(/it cannot be made paid/),
@@ -560,7 +844,7 @@ describe("the Access block", () => {
         ],
       },
     );
-    renderEditor("deck.symbols-sampler");
+    renderEditor("deck.symbols-sampler", "/access");
 
     const field = await screen.findByRole("textbox", {
       name: /Entitlement key/,

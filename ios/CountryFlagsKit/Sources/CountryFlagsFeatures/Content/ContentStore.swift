@@ -25,6 +25,15 @@ public final class ContentStore {
     /// launch gated on it kept a device holding the whole catalogue behind a
     /// spinner every time it started (#266) — ask `hasSomethingToShow`.
     public private(set) var lastSyncedAt: Date?
+    /// What the account may open, as commerce last worked it out.
+    ///
+    /// The catalogue carries access beside kind because the shelf a deck
+    /// belongs on is decided by both: a deck that is for sale and not owned is
+    /// featured, and the same deck bought is an ordinary row again. It is
+    /// pushed in rather than read out because the store must not depend on
+    /// commerce — a build with no store at all leaves it empty, which is a
+    /// catalogue of free decks.
+    public private(set) var entitlementKeys: Set<String> = []
 
     /// Whether the store holds a catalogue the app could draw right now.
     ///
@@ -148,6 +157,42 @@ public final class ContentStore {
         )
     }
 
+    /// Takes commerce's word for what this account may open.
+    ///
+    /// Two things follow from it, and both belong here rather than in a view:
+    /// the catalogue regroups — a deck that has just been bought leaves the
+    /// featured shelf — and the cards of anything newly opened are fetched,
+    /// because a paid deck is staged without them.
+    ///
+    /// - Returns: whether every newly opened deck now has its cards. False is
+    ///   a download that has not landed, which is a state the deck screen
+    ///   shows rather than an error.
+    @discardableResult
+    public func apply(entitlementKeys keys: Set<String>) async -> Bool {
+        let opened = keys.subtracting(entitlementKeys)
+        entitlementKeys = keys
+        guard !opened.isEmpty else {
+            // A refund goes down this path too: the keys shrank, nothing is
+            // downloaded, and the regroup is what puts the deck back on the
+            // shelf.
+            await reload()
+            return true
+        }
+        let waiting = (try? await repository.decks())?.filter { deck in
+            guard let required = deck.requiredEntitlementKey else { return false }
+            return opened.contains(required)
+        }
+        var complete = true
+        for deck in waiting ?? [] where await cards(inDeck: deck.id).isEmpty {
+            complete = await coordinator.loadCards(
+                inDeck: deck.id,
+                locale: await requestLocale()
+            ) && complete
+        }
+        await reload()
+        return complete
+    }
+
     /// Re-reads the store and recomputes what the catalog screen shows.
     public func reload() async {
         let manifest = try? await repository.currentManifest()
@@ -157,7 +202,7 @@ public final class ContentStore {
         }
 
         let decks = (try? await repository.decks()) ?? []
-        let sections = CatalogGrouping.sections(for: decks)
+        let sections = CatalogGrouping.sections(for: decks, entitlementKeys: entitlementKeys)
         catalog = ContentViewState.resolve(
             value: sections,
             isEmpty: sections.isEmpty,
@@ -222,6 +267,17 @@ public final class ContentStore {
 @Observable
 public final class DeckDetailsModel {
     public private(set) var state: ContentViewState<DeckDetails> = .loading
+    /// The deck itself, whether or not it has any cards on this device.
+    ///
+    /// Separate from `state` because a deck with no cards is not the same
+    /// thing as a deck that failed to arrive: a paid deck is published with
+    /// its metadata and without its cards until it is bought, and a screen
+    /// that read emptiness as failure would show "content unavailable" over a
+    /// perfectly good paywall.
+    public private(set) var deck: DeckRecord?
+    /// The cards the search has left, whatever `state` makes of how many
+    /// there are.
+    public private(set) var visibleCards: [LearningCardRecord] = []
     public var searchText = "" {
         didSet { recompute() }
     }
@@ -238,7 +294,9 @@ public final class DeckDetailsModel {
     }
 
     public func load() async {
-        guard let deck = await store.deck(id: deckID) else {
+        guard let record = await store.deck(id: deckID) else {
+            deck = nil
+            visibleCards = []
             state = ContentViewState.resolve(
                 value: DeckDetails.empty(id: deckID),
                 isEmpty: true,
@@ -247,7 +305,8 @@ public final class DeckDetailsModel {
             )
             return
         }
-        loaded = DeckDetails(deck: deck, cards: await store.cards(inDeck: deckID))
+        deck = record
+        loaded = DeckDetails(deck: record, cards: await store.cards(inDeck: deckID))
         recompute()
     }
 
@@ -257,6 +316,7 @@ public final class DeckDetailsModel {
             deck: loaded.deck,
             cards: CatalogSearch.cards(loaded.cards, matching: searchText)
         )
+        visibleCards = filtered.cards
         state = ContentViewState.resolve(
             value: filtered,
             // A search that matches nothing is an empty result, not an empty

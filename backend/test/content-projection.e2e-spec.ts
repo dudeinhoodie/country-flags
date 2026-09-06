@@ -1,3 +1,10 @@
+// Must be the first import: it fixes the minimum client version before
+// app.module.ts snapshots process.env through ConfigModule.forRoot.
+import {
+  originalMinimumClientVersions,
+  PAID_AWARE_CLIENT,
+} from "./paid-content-client.environment";
+
 import { spawnSync } from "node:child_process";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
@@ -337,6 +344,8 @@ describe("public content projection (integration)", () => {
     process.env.DATABASE_URL = originalDatabaseUrl;
     process.env.NODE_ENV = originalNodeEnvironment;
     process.env.TEST_AUTH_ENABLED = originalTestAuthEnabled;
+    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS =
+      originalMinimumClientVersions;
     await app?.close();
     if (admin !== undefined) {
       await admin.$executeRawUnsafe(
@@ -386,6 +395,7 @@ describe("public content projection (integration)", () => {
   it("announces nothing paid on the public change feed, and still moves the cursor", async () => {
     const response = await request(httpServer)
       .get("/v1/content/changes")
+      .set(PAID_AWARE_CLIENT)
       .query({ locale: "en", after: changeCursor, limit: 100 })
       .expect(200);
     const body = response.body as unknown as ChangePageBody;
@@ -406,6 +416,7 @@ describe("public content projection (integration)", () => {
     // rows included.
     const next = await request(httpServer)
       .get("/v1/content/changes")
+      .set(PAID_AWARE_CLIENT)
       .query({ locale: "en", after: body.nextCursor, limit: 100 })
       .expect(200);
     expect((next.body as unknown as ChangePageBody).items).toEqual([]);

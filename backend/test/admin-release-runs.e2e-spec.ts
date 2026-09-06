@@ -35,8 +35,20 @@ interface RunBody {
 
 interface RunStateBody {
   activeVersion: string | null;
+  executorConfigured: boolean;
   current: RunBody | null;
   last: RunBody | null;
+}
+
+interface ReleaseListBody {
+  activeVersion: string | null;
+  releases: {
+    version: string;
+    status: string;
+    isActive: boolean;
+    publishedAt: string | null;
+    retiredAt: string | null;
+  }[];
 }
 
 interface ErrorBody {
@@ -349,6 +361,38 @@ describe("Admin release runs (integration)", () => {
 
     // Nothing was recorded by any of the three.
     await expect(database.publishRun.count()).resolves.toBe(0);
+  });
+
+  /// A rollback must be offered the versions this deployment actually
+  /// applied. A text field would invite a typo the API answers with 422, and
+  /// a version another environment published would point clients at nothing.
+  it("lists the releases a rollback may return to", async () => {
+    const response = await request(httpServer)
+      .get("/v1/admin/content/releases")
+      .set("Cookie", viewerCookie);
+
+    expect(response.status).toBe(200);
+    const body = bodyOf<ReleaseListBody>(response);
+    expect(body.activeVersion).toBe(activeVersion);
+    const live = body.releases.find(
+      (release) => release.version === activeVersion,
+    );
+    expect(live).toMatchObject({ status: "PUBLISHED", isActive: true });
+    expect(live?.publishedAt).not.toBeNull();
+  });
+
+  /// Nothing is draining the queue in a deployment with no publisher job,
+  /// and a run queued into nothing looks exactly like a slow one unless the
+  /// state says so.
+  it("says whether anything will execute what is queued", async () => {
+    const response = await request(httpServer)
+      .get("/v1/admin/content/releases/runs")
+      .set("Cookie", viewerCookie);
+
+    expect(response.status).toBe(200);
+    // The integration environment configures no PUBLISHER_JOB_*, which is
+    // the state the console has to be honest about.
+    expect(bodyOf<RunStateBody>(response).executorConfigured).toBe(false);
   });
 
   it("reads an unknown run as missing rather than as an empty one", async () => {

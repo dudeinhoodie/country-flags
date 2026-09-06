@@ -29,6 +29,7 @@
 - [17-paid-decks-storekit.md](./17-paid-decks-storekit.md) — разовые покупки платных колод через StoreKit, backend entitlements, админка, refunds, restore и dev/prod separation.
 - [18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md) — гербы, штаты США, multi-template состав колод, расширения backend/admin/iOS и post-purchase UI.
 - [19-admin-redesign.md](./19-admin-redesign.md) — task-oriented редизайн админки: draft workspace, entity/media editor, deck builder, validation и release UX.
+- [20-admin-parity-checklist.md](./20-admin-parity-checklist.md) — чем закрыты entity/asset/deck workflows редизайна, что осталось за feature flag и чего проверка не покрывает.
 - [20-deployment-observability.md](./20-deployment-observability.md) — что оператор видит о деплое, деградации воркера и восстановлении: сигналы, запросы, alerts, dashboard и release verification checklist.
 - [ops/deployment-runbooks.md](./ops/deployment-runbooks.md) — deploy, rollback, отказ миграции, отказ backup и ротация секретов: команды, ожидаемый вывод и условия остановки.
 - [ops/commerce-reconciliation-runbook.md](./ops/commerce-reconciliation-runbook.md) — сверка со Store: что делает джоб, его alerts и ручные действия.

@@ -2958,10 +2958,12 @@
       "key": "area.cook-islands",
       "names": {
         "en": {
+          "official": "Cook Islands",
           "short": "Cook Islands"
         },
         "ru": {
-          "short": "о-ва Кука"
+          "official": "Острова Кука",
+          "short": "Острова Кука"
         }
       },
       "recognition": {
@@ -4208,10 +4210,12 @@
       "key": "country.democratic-people-s-republic-of-korea",
       "names": {
         "en": {
+          "official": "North Korea",
           "short": "North Korea"
         },
         "ru": {
-          "short": "КНДР"
+          "official": "Северная Корея",
+          "short": "Северная Корея"
         }
       },
       "recognition": {
@@ -5407,10 +5411,12 @@
       "key": "country.kyrgyzstan",
       "names": {
         "en": {
+          "official": "Kyrgyzstan",
           "short": "Kyrgyzstan"
         },
         "ru": {
-          "short": "Киргизия"
+          "official": "Кыргызстан",
+          "short": "Кыргызстан"
         }
       },
       "recognition": {
@@ -5807,10 +5813,12 @@
       "key": "country.marshall-islands",
       "names": {
         "en": {
+          "official": "Marshall Islands",
           "short": "Marshall Islands"
         },
         "ru": {
-          "short": "Маршалловы о-ва"
+          "official": "Маршалловы Острова",
+          "short": "Маршалловы Острова"
         }
       },
       "recognition": {
@@ -6607,10 +6615,12 @@
       "key": "country.republic-of-korea",
       "names": {
         "en": {
+          "official": "South Korea",
           "short": "South Korea"
         },
         "ru": {
-          "short": "Республика Корея"
+          "official": "Республика Корея",
+          "short": "Южная Корея"
         }
       },
       "recognition": {
@@ -7232,10 +7242,12 @@
       "key": "country.state-of-palestine",
       "names": {
         "en": {
-          "short": "Palestinian Territories"
+          "official": "Palestine",
+          "short": "Palestine"
         },
         "ru": {
-          "short": "Палестинские территории"
+          "official": "Палестина",
+          "short": "Палестина"
         }
       },
       "recognition": {
@@ -8759,10 +8771,12 @@
       "key": "territory.china-macao-special-administrative-region",
       "names": {
         "en": {
-          "short": "Macao SAR China"
+          "official": "Macao",
+          "short": "Macao"
         },
         "ru": {
-          "short": "Макао (САР)"
+          "official": "Макао",
+          "short": "Макао"
         }
       },
       "recognition": {
@@ -8784,10 +8798,12 @@
       "key": "territory.christmas-island",
       "names": {
         "en": {
+          "official": "Christmas Island",
           "short": "Christmas Island"
         },
         "ru": {
-          "short": "о-в Рождества"
+          "official": "Остров Рождества",
+          "short": "Остров Рождества"
         }
       },
       "recognition": {

@@ -1,0 +1,218 @@
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+
+import { JsonLoggerService } from "../../common/logging/json-logger.service";
+import { MetricsService } from "../../common/telemetry/metrics.service";
+import {
+  isAtLeast,
+  parseClientVersion,
+  type ClientVersion,
+} from "../../common/versioning/client-version";
+import {
+  CLIENT_PLATFORMS,
+  type ClientPlatform,
+  type EnvironmentVariables,
+  type MinimumClientVersions,
+} from "../../config/environment.validation";
+
+/**
+ * The headers every build of the app has sent since it had a transport, set
+ * by `ClientContextMiddleware` on every request. Nothing new is asked of the
+ * client: a gate that needed a header only new builds send could not tell an
+ * old build from a stranger, which is the one distinction it exists to make.
+ */
+export const CLIENT_PLATFORM_HEADER = "x-client-platform";
+export const CLIENT_APP_VERSION_HEADER = "x-client-app-version";
+
+/**
+ * The catalog routes whose answer depends on what the client build can make
+ * sense of. A closed set, because it labels a metric.
+ */
+export const GATED_ROUTES = {
+  deckCatalog: "GET /v1/decks",
+  deck: "GET /v1/decks/{deckId}",
+  contentChanges: "GET /v1/content/changes",
+} as const;
+export type GatedRoute = (typeof GATED_ROUTES)[keyof typeof GATED_ROUTES];
+
+/**
+ * Why the gate answered as it did. A closed set, for the same reason.
+ *
+ * `no_minimum_configured` is the steady state before the first StoreKit
+ * client ships and is not a fault; every other refusal is a real client that
+ * would have been handed something it cannot render.
+ */
+export type ClientVersionGateOutcome =
+  | "paid_content_aware"
+  | "below_minimum"
+  | "version_missing"
+  | "version_unreadable"
+  | "platform_unknown"
+  | "no_minimum_configured";
+
+/** What a client build is able to make sense of. */
+export interface ClientCapability {
+  /**
+   * Whether this build understands `Deck.access` — that a deck can be locked,
+   * that opening it needs an entitlement, and that a paywall stands in front
+   * of it. A build that does not would render a paid deck as an ordinary free
+   * one and walk the user straight into content they do not own.
+   */
+  readonly paidContent: boolean;
+}
+
+/** A build that understands the paid-deck contract. */
+export const PAID_CONTENT_AWARE: ClientCapability = { paidContent: true };
+/** A build that does not, and every caller that will not say. */
+export const PAID_CONTENT_UNAWARE: ClientCapability = { paidContent: false };
+
+export interface ClientRequestContext {
+  readonly route: GatedRoute;
+  readonly platform: string | undefined;
+  readonly appVersion: string | undefined;
+}
+
+/**
+ * One log line per route and outcome per minute. A public catalog route is
+ * hit by every launch of every install, and a line per request would make the
+ * signal — that a large share of traffic is too old — the hardest thing in
+ * the log to see. The metric counts every request; the log explains one of
+ * them and says how many it stood for.
+ */
+const LOG_INTERVAL_MS = 60_000;
+
+interface ThrottleState {
+  loggedAt: number;
+  suppressed: number;
+}
+
+/**
+ * Whether the build that sent this request can understand a paid deck.
+ *
+ * This is deliberately not a third opinion about who may see what. Two rules
+ * already exist and neither is touched here:
+ *
+ * - `DeckAccessService` decides whether a *user* may open a deck;
+ * - `ContentAccessProjectionService` decides whether *anybody with no
+ *   account* may, which is what makes the public projection public.
+ *
+ * This service answers a different question — whether the *client build* can
+ * make sense of the answer — and it can only ever withhold. A build new
+ * enough to be told about a locked deck is still refused its cards by the
+ * entitlement guard, and a build too old to be told about it is not thereby
+ * granted anything. The two are composed, never substituted.
+ *
+ * The failure it prevents is an ordering mistake rather than an attack: a
+ * client built before the paid-deck work has no access model, no paywall and
+ * no entitlement check, so a locked deck published to it reads as an ordinary
+ * free one and it opens content the user does not own
+ * (docs/17-paid-decks-storekit.md §20).
+ */
+@Injectable()
+export class ClientCompatibilityService {
+  private readonly minimums: Partial<Record<ClientPlatform, ClientVersion>>;
+  private readonly configured: MinimumClientVersions;
+  private readonly throttle = new Map<string, ThrottleState>();
+
+  constructor(
+    config: ConfigService<EnvironmentVariables, true>,
+    private readonly metrics: MetricsService,
+    private readonly logger: JsonLoggerService,
+  ) {
+    this.configured = config.getOrThrow<MinimumClientVersions>(
+      "PAID_CONTENT_MINIMUM_CLIENT_VERSIONS",
+    );
+    const minimums: Partial<Record<ClientPlatform, ClientVersion>> = {};
+    for (const platform of CLIENT_PLATFORMS) {
+      const raw = this.configured[platform];
+      const parsed = parseClientVersion(raw);
+      // The validator has already refused an unreadable entry, so a null here
+      // can only mean the platform was not named at all.
+      if (parsed !== null) {
+        minimums[platform] = parsed;
+      }
+    }
+    this.minimums = minimums;
+  }
+
+  /**
+   * What this request's client build can be told, counted and — when a client
+   * that could have upgraded did not — written to the log.
+   */
+  capabilityOf(context: ClientRequestContext): ClientCapability {
+    const outcome = this.classify(context);
+    this.metrics.recordClientVersionGate(context.route, outcome);
+    if (outcome !== "paid_content_aware") {
+      this.report(context, outcome);
+    }
+    return outcome === "paid_content_aware"
+      ? PAID_CONTENT_AWARE
+      : PAID_CONTENT_UNAWARE;
+  }
+
+  private classify(context: ClientRequestContext): ClientVersionGateOutcome {
+    const platform = context.platform?.trim().toLowerCase();
+    // A request that will not say what it is gets the conservative answer: it
+    // is either a build old enough to predate the header or something that is
+    // not the app at all, and both want the catalog the free app has always
+    // seen.
+    if (platform === undefined || !isClientPlatform(platform)) {
+      return "platform_unknown";
+    }
+    const minimum = this.minimums[platform];
+    if (minimum === undefined) {
+      return "no_minimum_configured";
+    }
+    if (
+      context.appVersion === undefined ||
+      context.appVersion.trim().length === 0
+    ) {
+      return "version_missing";
+    }
+    const version = parseClientVersion(context.appVersion);
+    if (version === null) {
+      return "version_unreadable";
+    }
+    return isAtLeast(version, minimum) ? "paid_content_aware" : "below_minimum";
+  }
+
+  /**
+   * A refusal worth reading about, at most once a minute per route and
+   * outcome.
+   *
+   * `no_minimum_configured` is not one of them. It is what every deployment
+   * looks like until the StoreKit client ships, so logging it would print a
+   * warning about the absence of a problem forever and teach whoever reads
+   * the log to skip the line that later matters.
+   */
+  private report(
+    context: ClientRequestContext,
+    outcome: ClientVersionGateOutcome,
+  ): void {
+    if (outcome === "no_minimum_configured") {
+      return;
+    }
+    const key = `${context.route} ${outcome}`;
+    const now = Date.now();
+    const state = this.throttle.get(key);
+    if (state !== undefined && now - state.loggedAt < LOG_INTERVAL_MS) {
+      state.suppressed += 1;
+      return;
+    }
+    this.throttle.set(key, { loggedAt: now, suppressed: 0 });
+    this.logger.warn({
+      message: "Client build cannot be shown paid decks",
+      event: "client_version_gate",
+      route: context.route,
+      outcome,
+      clientPlatform: context.platform ?? null,
+      clientAppVersion: context.appVersion ?? null,
+      minimumClientVersions: this.configured,
+      suppressedSinceLastEntry: state?.suppressed ?? 0,
+    });
+  }
+}
+
+function isClientPlatform(value: string): value is ClientPlatform {
+  return (CLIENT_PLATFORMS as readonly string[]).includes(value);
+}

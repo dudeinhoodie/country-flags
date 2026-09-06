@@ -22,6 +22,7 @@ const config: RuntimeConfig = {
   apiBasePath: "/api",
   googleClientId: "",
   appVersion: "abc1234",
+  features: {},
 };
 
 const OFFER_ID = "0f8f1f76-1f0a-4a2e-9a5e-2b8f4f1c9d10";
