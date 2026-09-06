@@ -660,16 +660,31 @@ struct AppComposition: AppDependencies {
                 "reauthenticateGoogle": MockAuth.reauthenticationProof(now: dates.now()),
             ]
             var handlers: [String: MockClientTransport.Handler] = [:]
+            // One deck for sale, and an account that comes to own it. The
+            // commerce endpoints answer whether or not content does: a
+            // storefront must still be walkable on the launch that proves the
+            // catalogue survives a dead backend.
+            let commerce = MockCommerce(
+                isGranted: ProcessInfo.processInfo.arguments.contains(ownedDeckArgument)
+            )
+            handlers.merge(commerce.handlers()) { current, _ in current }
             // A UI test needs a launch where content requests fail while the store
             // is intact, which is the only way to prove that a relaunch without a
             // network still shows what was downloaded. An unregistered operation
             // fails loudly, so this is a refusal rather than an empty success.
             if !ProcessInfo.processInfo.arguments.contains(offlineContentArgument) {
-                fallbacks.merge(MockContent.responses()) { current, _ in current }
-                handlers = MockContent.handlers()
+                fallbacks.merge(MockContent.responses(commerce: commerce)) { current, _ in current }
+                handlers.merge(MockContent.handlers(commerce: commerce)) { current, _ in current }
             }
             return MockClientTransport(fallbacks: fallbacks, handlers: handlers)
         }
+
+        /// Starts the Mock build with the paid deck already owned, so a test
+        /// can reach the owned screen without driving a payment sheet. It
+        /// grants nothing on its own: it moves the mock backend's answer,
+        /// which is the same thing a purchase does. A release binary does not
+        /// contain this at all.
+        static let ownedDeckArgument = "-owned-deck"
     #endif
 
     /// Simulates a launch with no reachable backend. Mock only: every other
