@@ -15,6 +15,7 @@ const devConfig: RuntimeConfig = {
   apiBasePath: "/api",
   googleClientId: "",
   appVersion: "abc1234",
+  features: {},
 };
 
 function open(path: string, overrides: Record<string, unknown> = {}): void {

@@ -5,7 +5,7 @@ import {
 } from "../resources/drafts/deck-cards";
 import type { CardRef } from "../resources/drafts/deck-cards";
 import type { components } from "../api/generated/admin-api";
-import { routes } from "./routes";
+import { FIELD_PARAM, routes } from "./routes";
 
 type DraftSummary = components["schemas"]["AdminDraftSummary"];
 type DraftDeck = components["schemas"]["AdminDraftDeck"];
@@ -299,25 +299,55 @@ export function validationSummary(
   };
 }
 
+/** A finding, as far as addressing it is concerned. */
+export interface AddressableFinding {
+  subject: string;
+  /** The route the server addressed the finding to. */
+  route?: string;
+  target?: ValidationTarget | undefined;
+}
+
+type ValidationTarget = components["schemas"]["AdminValidationTarget"];
+
 /**
- * Where a validation finding lives.
+ * Where a validation finding lives — the object, its tab and its field (§9).
  *
- * A finding now carries the route that opens it, addressed by the server
- * that knows which object each rule was about (#356). The prefix rule below
- * stays as a fallback: a report validated before findings carried a route is
- * still stored on its draft, and its subject is all there is to go on.
+ * The server addresses its own findings (#356): it knows which object a rule
+ * was about, which tab of that object's editor the field is on, and an RFC
+ * 6901 pointer into the object as the API returns it. The route it gives is
+ * the object; this adds the tab as a path segment and the pointer as a query
+ * parameter, which is what turns a click in the report into a caret in the
+ * field that failed.
+ *
+ * The prefix rule stays as a fallback: a report validated before findings
+ * carried a target is still stored on its draft, and its subject is all there
+ * is to go on.
  */
 export function findingHref(
   draftId: string,
-  subject: string,
-  route?: string,
+  finding: AddressableFinding,
 ): string | null {
-  // The server addresses its own findings (#356): it knows which object a
-  // rule was about, and the shape of a key is a poor guess at it. The
-  // fallback stays for a report stored before findings carried a route.
-  if (route?.startsWith("/") === true) {
-    return route;
+  const base = objectHref(draftId, finding);
+  if (base === null) {
+    return null;
   }
+  const target = finding.target;
+  const tab = target?.tab ?? null;
+  const field = target?.field ?? null;
+  const path = tab === null ? base : `${base}/${encodeURIComponent(tab)}`;
+  return field === null
+    ? path
+    : `${path}?${FIELD_PARAM}=${encodeURIComponent(field)}`;
+}
+
+function objectHref(
+  draftId: string,
+  finding: AddressableFinding,
+): string | null {
+  if (finding.route?.startsWith("/") === true) {
+    return finding.route;
+  }
+  const subject = finding.subject;
   if (subject.startsWith("deck.")) {
     return routes.draftDeck(draftId, subject);
   }

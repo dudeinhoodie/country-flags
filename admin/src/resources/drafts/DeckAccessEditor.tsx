@@ -99,6 +99,7 @@ export function DeckAccessEditor({
       </Stack>
 
       <RadioGroup
+        data-field="/access/model"
         value={value.model}
         onChange={(event) =>
           onChange({
@@ -134,6 +135,7 @@ export function DeckAccessEditor({
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <TextField
               label="Entitlement key"
+              data-field="/access/requiredEntitlementKey"
               value={value.requiredEntitlementKey}
               size="small"
               disabled={disabled || published === "paid"}

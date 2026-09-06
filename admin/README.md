@@ -29,11 +29,19 @@ Run from the repository root:
 corepack yarn admin:dev      # Vite dev server with the mock config in public/config.json
 corepack yarn admin:build    # production build into admin/dist
 corepack yarn admin:test     # Vitest unit tests
+corepack yarn admin:e2e      # Playwright: the built bundle against a stubbed API
 corepack yarn admin:api:generate  # regenerate src/api/generated from the admin contract
 corepack yarn admin:api:check     # fail when the generated API surface drifted
 corepack yarn workspace @country-flags/admin lint
 corepack yarn workspace @country-flags/admin typecheck
 ```
+
+`e2e/accessibility.spec.ts` runs axe over every editor tab, the media queue,
+the release screen and both dialogs against the WCAG 2.2 A/AA rules. It cannot
+prove the console is usable — the keyboard paths are driven in
+`e2e/console.spec.ts`, where a deck is reordered without a mouse and a
+validation finding is followed to the field it names — but it catches the
+class of mistake nobody notices by using the product.
 
 The typed API client (`src/api/client.ts`) is generated from the separate
 admin contract root `contracts/admin-openapi.yaml` (see the "Admin contract
@@ -55,7 +63,8 @@ missing or invalid:
   "environment": "dev",
   "apiBasePath": "/api",
   "googleClientId": "public-client-id",
-  "appVersion": "git-sha"
+  "appVersion": "git-sha",
+  "features": { "advancedOverrides": false }
 }
 ```
 
@@ -64,7 +73,23 @@ missing or invalid:
 - `apiBasePath` — always `/api`; the container proxies it to the backend so
   the browser stays same-origin;
 - `googleClientId` — public identifier, empty until the sign-in flow lands;
-- `appVersion` — the deployed commit, stamped at deploy time.
+- `appVersion` — the deployed commit, stamped at deploy time;
+- `features` — optional; absent means every flag is off, and a flag this
+  build does not know is ignored so a rollback needs no config change.
+
+### Feature flags
+
+A flag names one escape hatch and is expected to be removed with it. There is
+one:
+
+- `advancedOverrides` — the raw dotted-path override table on a country.
+  `docs/19-admin-redesign.md` §6.2 takes it out of ordinary editing: a value
+  written by path has no schema behind it. It stays for the emergencies the
+  typed fields cannot reach, and needs the flag **and** the `ADMIN` role. The
+  deploy script reads `ADMIN_ADVANCED_OVERRIDES` and defaults it to off.
+
+What each redesign workflow is checked against, and what stays behind the
+flag, is in `docs/20-admin-parity-checklist.md`.
 
 During local development Vite serves the mock config from
 `public/config.json`; no backend is required.
@@ -97,6 +122,7 @@ entrypoint renders `nginx.conf.template` and runs
 | `ADMIN_API_UPSTREAM` | yes | backend origin without a trailing slash |
 | `ADMIN_APP_VERSION` | no | deployed commit, defaults to `unknown` |
 | `ADMIN_GOOGLE_CLIENT_ID` | no | public Google client id |
+| `ADMIN_ADVANCED_OVERRIDES` | no | `true` opens the raw override table for `ADMIN`; off unless set |
 
 `/api/*` is proxied to `ADMIN_API_UPSTREAM` with the `/api` prefix stripped:
 `/api/v1/admin/me` reaches the backend as `/v1/admin/me`. Secrets never

@@ -288,19 +288,70 @@ describe("validationSummary", () => {
 
 describe("findingHref", () => {
   it("opens the deck a deck finding names", () => {
-    expect(findingHref(DRAFT_ID, "deck.europe")).toBe(
+    expect(findingHref(DRAFT_ID, { subject: "deck.europe" })).toBe(
       `/drafts/${DRAFT_ID}/decks/deck.europe`,
     );
   });
 
   it("opens the entity an entity finding names", () => {
-    expect(findingHref(DRAFT_ID, "country.germany")).toBe(
+    expect(findingHref(DRAFT_ID, { subject: "country.germany" })).toBe(
       `/drafts/${DRAFT_ID}/entities/country.germany`,
     );
   });
 
   it("refuses to guess at a subject it does not recognise", () => {
-    expect(findingHref(DRAFT_ID, "the whole catalog")).toBeNull();
+    expect(findingHref(DRAFT_ID, { subject: "the whole catalog" })).toBeNull();
+  });
+
+  // The server addresses a finding to an object, a tab and a field, and a
+  // link that dropped the last two would leave the reader hunting for it.
+  it("opens the tab and the field the server addressed", () => {
+    expect(
+      findingHref(DRAFT_ID, {
+        subject: "subdivision.us.california",
+        route: `/drafts/${DRAFT_ID}/entities/subdivision.us.california`,
+        target: {
+          objectType: "entity",
+          objectKey: "subdivision.us.california",
+          tab: "overview",
+          field: "/parentKey",
+        },
+      }),
+    ).toBe(
+      `/drafts/${DRAFT_ID}/entities/subdivision.us.california/overview?field=%2FparentKey`,
+    );
+  });
+
+  it("keeps a member pointer intact through the query", () => {
+    expect(
+      findingHref(DRAFT_ID, {
+        subject: "deck.europe",
+        route: `/drafts/${DRAFT_ID}/decks/deck.europe`,
+        target: {
+          objectType: "deck",
+          objectKey: "deck.europe",
+          tab: "content",
+          field: "/members/3",
+        },
+      }),
+    ).toBe(
+      `/drafts/${DRAFT_ID}/decks/deck.europe/content?field=%2Fmembers%2F3`,
+    );
+  });
+
+  it("stops at the object when the finding names no field", () => {
+    expect(
+      findingHref(DRAFT_ID, {
+        subject: "deck.europe",
+        route: `/drafts/${DRAFT_ID}/decks/deck.europe`,
+        target: {
+          objectType: "deck",
+          objectKey: "deck.europe",
+          tab: "access",
+          field: null,
+        },
+      }),
+    ).toBe(`/drafts/${DRAFT_ID}/decks/deck.europe/access`);
   });
 });
 

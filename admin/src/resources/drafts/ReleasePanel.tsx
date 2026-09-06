@@ -12,6 +12,9 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useCallback, useEffect, useState } from "react";
 import { useAdminApiClient } from "../../api/ApiClientContext";
+import { FindingList } from "../../components/FindingList";
+import { LoadingState } from "../../components/LoadingState";
+import { groupDiff } from "./release-diff";
 import type { components } from "../../api/generated/admin-api";
 
 type ValidationReport = components["schemas"]["AdminValidationReport"];
@@ -245,12 +248,13 @@ export function ReleasePanel({
     minimumClientVersion.trim() !== "" &&
     compareVersions(minimumClientVersion.trim(), activeMinimum) > 0;
 
-  const blocking = report?.findings.filter(
-    (finding) => finding.level === "blocking",
-  );
-  const warnings = report?.findings.filter(
-    (finding) => finding.level === "warning",
-  );
+  // Why the proposal is refused, in the order an editor would fix it.
+  const blockedReason =
+    report === null
+      ? "Run Validate first: a proposal is opened against a draft whose rules have been checked."
+      : report.blocking > 0
+        ? `${String(report.blocking)} blocking ${report.blocking === 1 ? "issue" : "issues"} stop a proposal. Each one above opens the field it is about.`
+        : null;
 
   return (
     <Stack spacing={2}>
@@ -297,86 +301,69 @@ export function ReleasePanel({
         )}
       </Stack>
 
-      {blocking !== undefined && blocking.length > 0 && (
-        <Alert severity="error">
-          <Typography variant="subtitle2">
-            These stop a proposal until they are fixed
-          </Typography>
-          <List dense disablePadding>
-            {blocking.map((finding, index) => (
-              <ListItem key={`${finding.code}-${String(index)}`} disableGutters>
-                <ListItemText
-                  primary={finding.message}
-                  secondary={`${finding.subject} · ${finding.code}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Alert>
-      )}
-
-      {warnings !== undefined && warnings.length > 0 && (
-        <Alert severity="warning">
-          <List dense disablePadding>
-            {warnings.map((finding, index) => (
-              <ListItem key={`${finding.code}-${String(index)}`} disableGutters>
-                <ListItemText
-                  primary={finding.message}
-                  secondary={`${finding.subject} · ${finding.code}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Alert>
+      {report !== null && (
+        <FindingList
+          draftId={draftId}
+          findings={report.findings}
+          emptyLabel="Nothing is blocking, and nothing was warned about."
+        />
       )}
 
       <Box>
-        <Typography variant="subtitle2" gutterBottom>
+        <Typography variant="subtitle2" component="h4" gutterBottom>
           Changes against {diff?.baseContentVersion ?? "the active release"}
         </Typography>
-        {diff === null && (
-          <Typography variant="body2" color="text.secondary">
-            Loading the diff…
-          </Typography>
-        )}
+        {diff === null && <LoadingState label="Reading the diff…" />}
         {diff?.isEmpty === true && (
           <Alert severity="info">
             Nothing to release: this draft matches the active version.
           </Alert>
         )}
         {diff !== null && !diff.isEmpty && (
-          <List dense>
-            {diff.decks.map((entry) => (
-              <ListItem
-                key={entry.deckKey ?? entry.publishedCode}
-                disableGutters
+          <Stack spacing={2}>
+            {groupDiff(diff).map((group) => (
+              <Box
+                key={group.id}
+                component="section"
+                aria-labelledby={`diff-${group.id}`}
               >
-                <ListItemText
-                  primary={`Deck ${entry.deckKey ?? entry.publishedCode ?? ""} ${CHANGE_LABEL[entry.change] ?? entry.change}`}
-                  secondary={entry.details.join(" · ")}
-                />
-              </ListItem>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: "center" }}
+                >
+                  <Typography
+                    variant="subtitle2"
+                    component="h5"
+                    id={`diff-${group.id}`}
+                  >
+                    {group.label}
+                  </Typography>
+                  <Chip size="small" label={group.lines.length} />
+                </Stack>
+                <Typography variant="caption" color="text.secondary">
+                  {group.note}
+                </Typography>
+                <List dense disablePadding>
+                  {group.lines.map((line, index) => (
+                    <ListItem
+                      key={`${group.id}-${String(index)}`}
+                      disableGutters
+                    >
+                      <ListItemText
+                        primary={line.detail}
+                        secondary={
+                          line.change === null
+                            ? line.subject
+                            : `${line.subject} · ${CHANGE_LABEL[line.change] ?? line.change}`
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
             ))}
-            {diff.entities.map((entry) => (
-              <ListItem key={entry.entityKey} disableGutters>
-                <ListItemText
-                  primary={`Entity ${entry.entityKey} changed`}
-                  secondary={entry.details.join(" · ")}
-                />
-              </ListItem>
-            ))}
-            {diff.assets.map((entry) => (
-              <ListItem
-                key={`${entry.entityContentKey}-${entry.assetType}`}
-                disableGutters
-              >
-                <ListItemText
-                  primary={`${entry.assetType} replaced for ${entry.entityContentKey}`}
-                  secondary={entry.reason ?? undefined}
-                />
-              </ListItem>
-            ))}
-          </List>
+          </Stack>
         )}
       </Box>
 
@@ -401,11 +388,16 @@ export function ReleasePanel({
               A proposal commits this draft to a branch and opens a draft pull
               request for review. It publishes nothing.
             </Typography>
+            {/* A greyed-out button provokes the question "why?", so the
+                answer is beside it rather than left to be guessed. */}
+            {blockedReason !== null && (
+              <Alert severity="warning">{blockedReason}</Alert>
+            )}
             {canPublish && (
               <Box>
                 <Button
                   variant="contained"
-                  disabled={busy || report === null || report.blocking > 0}
+                  disabled={busy || blockedReason !== null}
                   onClick={propose}
                 >
                   Open a proposal

@@ -14,7 +14,37 @@ const validConfig = {
 
 describe("parseRuntimeConfig", () => {
   it("accepts a complete config", () => {
-    expect(parseRuntimeConfig(validConfig)).toEqual(validConfig);
+    expect(parseRuntimeConfig(validConfig)).toEqual({
+      ...validConfig,
+      features: {},
+    });
+  });
+
+  // A console served a config written before flags existed must start with
+  // every flag off rather than refuse to start.
+  it("treats a missing features block as no features", () => {
+    expect(parseRuntimeConfig(validConfig).features).toEqual({});
+  });
+
+  it("reads the flags it knows and ignores the ones it does not", () => {
+    const config = parseRuntimeConfig({
+      ...validConfig,
+      features: { advancedOverrides: true, somethingElse: true },
+    });
+    expect(config.features.advancedOverrides).toBe(true);
+    expect(config.features).toEqual({ advancedOverrides: true });
+  });
+
+  it("refuses a flag that is not a boolean", () => {
+    expect(() =>
+      parseRuntimeConfig({
+        ...validConfig,
+        features: { advancedOverrides: "yes" },
+      }),
+    ).toThrow(RuntimeConfigError);
+    expect(() => parseRuntimeConfig({ ...validConfig, features: [] })).toThrow(
+      RuntimeConfigError,
+    );
   });
 
   it("tolerates an empty googleClientId until sign-in lands", () => {
@@ -62,7 +92,10 @@ describe("loadRuntimeConfig", () => {
           new Response(JSON.stringify(validConfig), { status: 200 }),
         ),
     );
-    await expect(loadRuntimeConfig()).resolves.toEqual(validConfig);
+    await expect(loadRuntimeConfig()).resolves.toEqual({
+      ...validConfig,
+      features: {},
+    });
   });
 
   it("fails on a non-OK response", async () => {

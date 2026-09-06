@@ -29,6 +29,7 @@
 - [17-paid-decks-storekit.md](./17-paid-decks-storekit.md) — разовые покупки платных колод через StoreKit, backend entitlements, админка, refunds, restore и dev/prod separation.
 - [18-multi-content-paid-decks.md](./18-multi-content-paid-decks.md) — гербы, штаты США, multi-template состав колод, расширения backend/admin/iOS и post-purchase UI.
 - [19-admin-redesign.md](./19-admin-redesign.md) — task-oriented редизайн админки: draft workspace, entity/media editor, deck builder, validation и release UX.
+- [20-admin-parity-checklist.md](./20-admin-parity-checklist.md) — чем закрыты entity/asset/deck workflows редизайна, что осталось за feature flag и чего проверка не покрывает.
 - [ios/README.md](./ios/README.md) — порядок iOS-разработки и отдельные agent-ready спецификации IOS-000…IOS-013.
 - [ADR-002](./adr/ADR-002-auth-and-refresh-token-rotation.md) — provider identities и refresh-token rotation.
 - [ADR-003](./adr/ADR-003-review-ordering-and-idempotency.md) — canonical ordering, clock normalization и idempotency review.
