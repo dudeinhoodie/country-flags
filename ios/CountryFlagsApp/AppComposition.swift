@@ -9,9 +9,12 @@ import CountryFlagsInfrastructure
 // would otherwise stand: the absence of a transport.
 import OpenAPIRuntime
 
-#if DEBUG
-    // The canned backend, linked only where it is used. A release build
-    // never names it, so the linker never pulls the module in.
+#if MOCK_BACKEND
+    // The canned backend. `MOCK_BACKEND` is a property of the target, not of
+    // the configuration: only `CountryFlagsAppMock` depends on the module and
+    // only it defines the flag, so the app that ships cannot import it — and
+    // Xcode, which copies the resources of every package product a target
+    // depends on whatever it is building, has nothing to copy either.
     import CountryFlagsMockBackend
 #endif
 
@@ -138,7 +141,7 @@ struct AppComposition: AppDependencies {
         // both factories below: the Mock one records requests, and two
         // recorders would each see half a conversation. A release build has no
         // mock transport to ask for, and therefore no mock backend linked in.
-        #if DEBUG
+        #if MOCK_BACKEND
             let transport = mockTransport(for: configuration, dates: dates)
         #else
             let transport: (any ClientTransport)? = nil
@@ -634,12 +637,13 @@ struct AppComposition: AppDependencies {
         "CountryFlags-\(configuration.environment.rawValue)"
     }
 
-    /// The mock backend, wrapped in `#if DEBUG` for a reason the App Store
-    /// cares about: the package it lives in is built in release for every
-    /// configuration, so a reference from here is what decides whether the
-    /// linker pulls its canned payloads — and the string "mock.invalid" —
-    /// into the binary that ships. Mock and Dev define DEBUG; Prod does not.
-    #if DEBUG
+    /// The mock backend, wrapped in `#if MOCK_BACKEND` for a reason the App
+    /// Store cares about: the package it lives in is built for every target
+    /// that depends on it, whatever the configuration, so what decides
+    /// whether its canned payloads — and the string "mock.invalid" — reach a
+    /// binary is whether that target depends on the module at all. Only
+    /// `CountryFlagsAppMock` does.
+    #if MOCK_BACKEND
         private static func mockTransport(
             for configuration: RuntimeConfiguration,
             dates: any DateProviding
@@ -743,7 +747,7 @@ struct AppComposition: AppDependencies {
     private static func exportArchiveFetcher(
         for configuration: RuntimeConfiguration
     ) -> any DataExportArchiveFetching {
-        #if DEBUG
+        #if MOCK_BACKEND
             if configuration.environment == .mock {
                 return MockExportArchiveFetcher()
             }
@@ -757,7 +761,7 @@ struct AppComposition: AppDependencies {
     private static func assetFetcher(
         for configuration: RuntimeConfiguration
     ) -> any AssetDataFetching {
-        #if DEBUG
+        #if MOCK_BACKEND
             if configuration.environment == .mock {
                 return MockAssetFetcher()
             }
