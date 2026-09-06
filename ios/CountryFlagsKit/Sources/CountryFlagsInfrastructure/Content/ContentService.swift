@@ -58,6 +58,15 @@ public struct ContentCardPage: Sendable {
     /// Cards this build cannot render, reported rather than dropped silently so
     /// the count can reach diagnostics.
     public let unsupportedCardIDs: [UUID]
+    /// The templates behind those cards, deduplicated.
+    ///
+    /// Held apart from the identifiers because they answer different
+    /// questions: how many cards a release cost this build, and which template
+    /// cost them. Only a template the release published is in here — a card
+    /// dropped for a prompt with no usable URL is a broken asset rather than
+    /// an unknown template, and reporting it as one would send whoever reads
+    /// it looking for a renderer that already exists.
+    public let unsupportedTemplates: [CardTemplateKey]
 
     public init(
         cards: [LearningCardRecord],
@@ -65,7 +74,8 @@ public struct ContentCardPage: Sendable {
         assets: [AssetRecord],
         nextCursor: String?,
         hasMore: Bool,
-        unsupportedCardIDs: [UUID]
+        unsupportedCardIDs: [UUID],
+        unsupportedTemplates: [CardTemplateKey] = []
     ) {
         self.cards = cards
         self.deckCards = deckCards
@@ -73,6 +83,7 @@ public struct ContentCardPage: Sendable {
         self.nextCursor = nextCursor
         self.hasMore = hasMore
         self.unsupportedCardIDs = unsupportedCardIDs
+        self.unsupportedTemplates = unsupportedTemplates
     }
 }
 
@@ -336,6 +347,7 @@ public struct ContentService: Sendable {
             var deckCards: [DeckCardRecord] = []
             var assets: [AssetRecord] = []
             var unsupported: [UUID] = []
+            var unsupportedTemplates: [CardTemplateKey] = []
 
             for (index, card) in payload.items.enumerated() {
                 guard
@@ -346,6 +358,13 @@ public struct ContentService: Sendable {
                 }
                 guard supported.contains(card.templateSchemaVersion) else {
                     unsupported.append(cardID)
+                    let key = CardTemplateKey(
+                        code: card.templateCode,
+                        schemaVersion: card.templateSchemaVersion
+                    )
+                    if !unsupportedTemplates.contains(key) {
+                        unsupportedTemplates.append(key)
+                    }
                     continue
                 }
                 guard
@@ -393,7 +412,8 @@ public struct ContentService: Sendable {
                 assets: assets,
                 nextCursor: payload.page.nextCursor,
                 hasMore: payload.page.hasMore,
-                unsupportedCardIDs: unsupported
+                unsupportedCardIDs: unsupported,
+                unsupportedTemplates: unsupportedTemplates
             )
         case .forbidden(let response):
             // A paid deck refuses its cards rather than serving a shorter

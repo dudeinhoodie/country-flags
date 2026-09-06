@@ -18,7 +18,7 @@ import CountryFlagsDomain
 enum UnsupportedCardTemplateReport {
     /// The operation the report is filed under, so a search finds every one of
     /// them however the card was met.
-    static let operation = "unsupported_card_template"
+    static let operation = UnsupportedCardTemplate.operation
 
     /// Reports each unknown `templateCode + templateSchemaVersion` among these
     /// cards once.
@@ -37,13 +37,7 @@ enum UnsupportedCardTemplateReport {
     /// did not compose — resumed from an older release, or selected by the
     /// backend — that reaches the screen and finds no face to wear.
     static func send(_ key: CardTemplateKey, to errors: (any ErrorReporting)?) {
-        errors?.capture(
-            error: UnsupportedCardTemplate(key: key),
-            context: ErrorContext(
-                category: .content,
-                operation: operation,
-                errorCode: key.identifier
-            )
-        )
+        let fact = UnsupportedCardTemplate(key: key)
+        errors?.capture(error: fact, context: fact.context)
     }
 }
