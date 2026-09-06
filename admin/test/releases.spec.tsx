@@ -21,6 +21,7 @@ function configFor(environment: AdminEnvironment): RuntimeConfig {
     apiBasePath: "/api",
     googleClientId: "",
     appVersion: "abc1234",
+    features: {},
   };
 }
 
