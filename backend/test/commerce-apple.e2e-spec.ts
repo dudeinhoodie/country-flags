@@ -652,6 +652,11 @@ describe("Apple transactions and entitlements (integration)", () => {
 
     // Accepted, recorded, acted on by nobody: refusing would make Apple
     // retry a product mismatch every hour for a day and fix nothing.
+    //
+    // The token names the stranger rather than the suite's default owner,
+    // whose account was deleted several tests ago: an account has to be
+    // found before the product can be the thing that is wrong with the
+    // notification.
     it("quarantines a product this deployment does not sell", async () => {
       await notify(
         refundNotification(
@@ -659,6 +664,7 @@ describe("Apple transactions and entitlements (integration)", () => {
           {
             productId: "app.countryflags.deck.nothing.lifetime.v1",
             transactionId: "2000000900000099",
+            appAccountToken: STRANGER_TOKEN,
           },
         ),
       ).expect(202);
@@ -757,8 +763,11 @@ describe("Apple transactions and entitlements (integration)", () => {
       await database.user.create({
         data: {
           id: userId,
-          preferredLocale: "en",
+          preferredLocale: "und",
           status: UserStatus.DELETED,
+          // Both timestamps, because `users_deletion_timestamps_check` will
+          // not have a tombstone that never asked to be one.
+          deletionRequestedAt: new Date("2026-09-01T00:00:00.000Z"),
           deletedAt: new Date("2026-09-01T00:00:00.000Z"),
           storeAccountToken: accountToken,
         },
