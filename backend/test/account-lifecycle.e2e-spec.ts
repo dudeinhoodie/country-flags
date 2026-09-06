@@ -20,8 +20,10 @@ import { bodyOf } from "./response-body";
 
 interface AuthBody {
   tokens: { accessToken: string };
-  user: { id: string };
+  user: { id: string; storeAccountToken: string };
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 interface ErrorBody {
   error: { code: string };
@@ -260,6 +262,50 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
     expect((stale.body as unknown as ErrorBody).error.code).toBe(
       "SETTINGS_VERSION_CONFLICT",
     );
+  });
+
+  // The token a StoreKit purchase is made under. Everything downstream of it
+  // — an Apple notification arriving with no session of ours, the
+  // reconciliation sweep, a restore before signing in — has nothing else to
+  // go on, so it has to be the same value every time it is read.
+  it("publishes a store account token that is the account's own and does not move", async () => {
+    const profile = await request(httpServer)
+      .get("/v1/me")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(200);
+    const token = bodyOf<{ storeAccountToken: string }>(
+      profile,
+    ).storeAccountToken;
+    expect(token).toMatch(UUID);
+    // Minted, not derived: this value travels to Apple inside a signed
+    // purchase, and one computed from the account id would carry the account
+    // id with it.
+    expect(token).not.toBe(account.user.id);
+
+    const again = await request(httpServer)
+      .get("/v1/me")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(200);
+    expect(bodyOf<{ storeAccountToken: string }>(again).storeAccountToken).toBe(
+      token,
+    );
+    // One account, two devices, one token: it is what a restore on the second
+    // device is matched against, and a per-device value would match nothing.
+    expect(secondDeviceAccount.user.storeAccountToken).toBe(token);
+    // The same document a sign-in already answered with, so a client does not
+    // have to ask twice for it.
+    expect(account.user.storeAccountToken).toBe(token);
+
+    await expect(
+      database.user.findUniqueOrThrow({
+        where: { id: account.user.id },
+        select: { storeAccountToken: true },
+      }),
+    ).resolves.toEqual({ storeAccountToken: token });
+
+    // A guest has no account, so there is no token to publish and no profile
+    // to read it from — which is why the field is nullable in the contract.
+    await request(httpServer).get("/v1/me").expect(401);
   });
 
   it("lists safe device metadata and revokes every session for a removed device", async () => {
