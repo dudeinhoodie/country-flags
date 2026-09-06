@@ -176,10 +176,18 @@ export function EntityEditor() {
     entityKey === undefined ? "" : routes.draftEntity(draft, entityKey),
   );
 
-  // The top bar says whether what is on screen is written down (§4.2).
+  // The top bar says whether what is on screen is written down (§4.2). It is
+  // told when the form becomes dirty and when it stops being — typing a value
+  // back to what it was is not an unsaved change — but only this screen's own
+  // reading is withdrawn, so a "Saved" the save itself put there survives.
+  const announcedDirty = useRef(false);
   useEffect(() => {
     if (dirty) {
+      announcedDirty.current = true;
       reportSave("unsaved");
+    } else if (announcedDirty.current) {
+      announcedDirty.current = false;
+      reportSave("idle");
     }
   }, [dirty, reportSave]);
 
@@ -264,6 +272,9 @@ export function EntityEditor() {
         setBusy(false);
         setBaseline(sent);
         setRevision(stamp.revision);
+        // The form is about to go clean, and the effect above must not read
+        // that as a reason to withdraw the word "Saved".
+        announcedDirty.current = false;
         reportSave("saved");
         // The shell shows when the draft was last written; a save it did
         // not hear about would leave that reading stale.
@@ -302,6 +313,7 @@ export function EntityEditor() {
   function discard(): void {
     setForm(baseline);
     setSaveError(null);
+    announcedDirty.current = false;
     reportSave("idle");
   }
 

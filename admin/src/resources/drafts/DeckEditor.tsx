@@ -156,9 +156,17 @@ export function DeckEditor() {
     deckKey === undefined ? "" : routes.draftDeck(draft, deckKey),
   );
 
+  // The top bar says whether what is on screen is written down (§4.2). Only
+  // this screen's own reading is withdrawn when the form goes clean, so a
+  // "Saved" the save itself put there survives.
+  const announcedDirty = useRef(false);
   useEffect(() => {
     if (dirty) {
+      announcedDirty.current = true;
       reportSave("unsaved");
+    } else if (announcedDirty.current) {
+      announcedDirty.current = false;
+      reportSave("idle");
     }
   }, [dirty, reportSave]);
 
@@ -207,6 +215,9 @@ export function DeckEditor() {
       setSaving(false);
       setBaseline(sent);
       setRevision(stamp.revision);
+      // The form is about to go clean, and the effect above must not read
+      // that as a reason to withdraw the word "Saved".
+      announcedDirty.current = false;
       reportSave("saved");
       // The shell shows when the draft was last written; a save it did not
       // hear about would leave that reading stale.
@@ -249,6 +260,7 @@ export function DeckEditor() {
   function discard(): void {
     setForm(baseline);
     setSaveError(null);
+    announcedDirty.current = false;
     reportSave("idle");
   }
 
