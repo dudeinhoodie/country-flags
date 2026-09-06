@@ -1,6 +1,8 @@
 # ADR-019 — Платные колоды: non-consumable StoreKit product выдаёт backend entitlement
 
-- Статус: Proposed
+- Статус: Принято (2026-09-06). Реализовано: стадии A–D эпика #309 в master —
+  контракты, `entitlement`-модель, `DeckAccessService` как единственный гард,
+  проверка транзакций Apple, нотификации и реконсиляция, StoreKit на iOS.
 - Дата: 2026-09-04
 - Полное ТЗ: [17-paid-decks-storekit.md](../17-paid-decks-storekit.md)
 
