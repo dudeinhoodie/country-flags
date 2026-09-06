@@ -294,6 +294,13 @@ done
 gcloud storage buckets add-iam-policy-binding gs://country-flags-dev \
   --member="serviceAccount:${SA}" --role=roles/storage.objectAdmin
 
+# Право workflow развернуть job, работающий под этой личностью. Без него
+# `gcloud run jobs deploy --service-account` отказывает: выдать чужую
+# identity — отдельное разрешение, а не следствие права деплоить.
+gcloud iam service-accounts add-iam-policy-binding "${SA}" \
+  --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com \
+  --role=roles/iam.serviceAccountUser
+
 # Право консоли запросить прогон. Ровно это, и ничего больше: сервис умеет
 # попросить публикацию, он не умеет подписать (ADR-017 §1).
 gcloud run jobs add-iam-policy-binding content-publisher-dev \
