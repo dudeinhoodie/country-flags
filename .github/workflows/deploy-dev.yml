@@ -131,10 +131,59 @@ jobs:
       # database it is ahead of fails in ways a health check cannot describe.
       # A failure here leaves the running revision untouched.
       - name: Migrate the dev database
+        id: migration
         env:
           DATABASE_URL: ${{ steps.database.outputs.url }}
           DIRECT_DATABASE_URL: ${{ steps.database.outputs.direct }}
-        run: corepack yarn workspace @country-flags/backend prisma migrate deploy
+        run: |
+          set -euo pipefail
+          corepack yarn workspace @country-flags/backend prisma migrate deploy
+          # Named only after the migration succeeded, so the value means "the
+          # schema this revision was actually deployed against". The directory
+          # names are timestamp-ordered and `migrate deploy` applies every one of
+          # them, so the last is the version the database now carries; a revision
+          # reporting an older one than its database is a half-applied
+          # expand/contract, which no other signal shows.
+          version="$(find backend/prisma/migrations -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | tail -n 1)"
+          if [ -z "${version}" ]; then
+            echo "::error::No migration directories found under backend/prisma/migrations"
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Database is at ${version}"
+
+      # Opened before the revision changes rather than after it works, so a
+      # deploy that fails leaves a record saying so. GitHub holds the SHA, the
+      # actor, the environment and the result whatever the provider's own logs
+      # do, which is the point of keeping this outside Cloud Run.
+      - name: Open the deployment record
+        id: record
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ steps.commit.outputs.sha }}',
+              environment: 'dev',
+              auto_merge: false,
+              required_contexts: [],
+              description: 'Cloud Run api-dev',
+              payload: {
+                service: 'api-dev',
+                region: '${{ env.REGION }}',
+                image: '${{ steps.image.outputs.reference }}',
+                migrationVersion: '${{ steps.migration.outputs.version }}',
+              },
+            });
+            core.setOutput('id', deployment.data.id);
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: 'in_progress',
+              description: 'Deploying the revision',
+            });
 
       # The whole configuration is set on every deploy rather than updated in
       # place. A hosted start refuses test defaults and requires each of these,
@@ -144,6 +193,12 @@ jobs:
       #
       # `^;^` makes the separator a semicolon: a client-id list is itself
       # comma-separated, so a comma cannot also separate the variables.
+      #
+      # `--labels` is what makes a release SHA findable on the provider side:
+      # the SHA is already in SERVICE_RELEASE, but an environment variable cannot
+      # be filtered on and `gcloud run revisions list --filter=...` can. The flag
+      # updates keys rather than replacing the set, and every deploy writes all
+      # three, so no stale release label can survive one.
       - name: Deploy the revision
         id: deploy
         run: |
@@ -152,9 +207,13 @@ jobs:
             --region "${REGION}" \
             --image "${{ steps.image.outputs.reference }}" \
             --service-account "api-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
-            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS};ADMIN_DRAFT_OBJECT_STORAGE_PROVIDER=s3;ADMIN_DRAFT_OBJECT_STORAGE_BUCKET=${DRAFT_BUCKET};ADMIN_DRAFT_OBJECT_STORAGE_REGION=${REGION};ADMIN_DRAFT_OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;ADMIN_DRAFT_OBJECT_STORAGE_FORCE_PATH_STYLE=true;ADMIN_DRAFT_OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${DRAFT_BUCKET};ADMIN_GITHUB_OWNER=${ADMIN_GITHUB_OWNER};ADMIN_GITHUB_REPOSITORY=${ADMIN_GITHUB_REPOSITORY}" \
+            --labels "release=${{ steps.commit.outputs.sha }},deployment-env=dev,managed-by=github-actions" \
+            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};MIGRATION_VERSION=${{ steps.migration.outputs.version }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS};ADMIN_DRAFT_OBJECT_STORAGE_PROVIDER=s3;ADMIN_DRAFT_OBJECT_STORAGE_BUCKET=${DRAFT_BUCKET};ADMIN_DRAFT_OBJECT_STORAGE_REGION=${REGION};ADMIN_DRAFT_OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;ADMIN_DRAFT_OBJECT_STORAGE_FORCE_PATH_STYLE=true;ADMIN_DRAFT_OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${DRAFT_BUCKET};ADMIN_GITHUB_OWNER=${ADMIN_GITHUB_OWNER};ADMIN_GITHUB_REPOSITORY=${ADMIN_GITHUB_REPOSITORY}" \
             --set-secrets "DATABASE_URL=dev-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,AUTH_ACCESS_TOKEN_SECRET=dev-auth-access-token-secret:latest,AUTH_RATE_LIMIT_SECRET=dev-auth-rate-limit-secret:latest,ACCOUNT_DATA_HASH_SECRET=dev-account-data-hash-secret:latest,ADMIN_EMAIL_ALLOWLIST=dev-admin-email-allowlist:latest,ADMIN_DRAFT_OBJECT_STORAGE_ACCESS_KEY_ID=dev-admin-draft-storage-access-key-id:latest,ADMIN_DRAFT_OBJECT_STORAGE_SECRET_ACCESS_KEY=dev-admin-draft-storage-secret-access-key:latest,ADMIN_GITHUB_TOKEN=dev-admin-github-token:latest" \
             --quiet
+          revision="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.latestCreatedRevisionName)')"
+          echo "revision=${revision}" >> "$GITHUB_OUTPUT"
+          echo "Serving ${revision}"
         env:
           # Apple's client id for a native app is its bundle id, and the Dev
           # scheme builds this one.
@@ -251,24 +310,61 @@ jobs:
             --order desc \
             --format 'value(textPayload,jsonPayload.message)' || true
 
-      - name: Record the deployment
+      - name: Record the deployment result
+        if: always() && steps.record.outputs.id != ''
         uses: actions/github-script@v9
+        env:
+          DEPLOY_RESULT: ${{ job.status }}
         with:
           script: |
-            const deployment = await github.rest.repos.createDeployment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: '${{ steps.commit.outputs.sha }}',
-              environment: 'dev',
-              auto_merge: false,
-              required_contexts: [],
-              description: 'Cloud Run api-dev',
-            });
+            const succeeded = process.env.DEPLOY_RESULT === 'success';
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: deployment.data.id,
-              state: 'success',
+              deployment_id: ${{ steps.record.outputs.id }},
+              state: succeeded ? 'success' : 'failure',
               environment_url: '${{ steps.service.outputs.url }}',
-              description: 'Ready and smoke tested',
+              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              description: succeeded
+                ? 'Ready and smoke tested'
+                : 'Deploy did not reach a ready, smoke-tested revision',
             });
+
+      # The last thing an operator reading a run needs is the four coordinates
+      # that turn a red build into a query: which release, which revision, which
+      # schema, and the log filter that finds what that revision said. Written
+      # whether the deploy worked or not, because a failure is when they matter.
+      - name: Summarise the deployment
+        if: always() && steps.commit.outputs.sha != ''
+        env:
+          SHA: ${{ steps.commit.outputs.sha }}
+          IMAGE: ${{ steps.image.outputs.reference }}
+          REVISION: ${{ steps.deploy.outputs.revision }}
+          MIGRATION: ${{ steps.migration.outputs.version }}
+          URL: ${{ steps.service.outputs.url }}
+          RESULT: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Dev deployment"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Result | \`${RESULT}\` |"
+            echo "| Release | \`${SHA}\` |"
+            echo "| Environment | \`dev\` |"
+            echo "| Cloud Run revision | \`${REVISION:-not created}\` |"
+            echo "| Migration version | \`${MIGRATION:-not applied}\` |"
+            echo "| Image | \`${IMAGE:-not resolved}\` |"
+            echo "| Service URL | ${URL:-unknown} |"
+            echo
+            echo "Logs for this release:"
+            echo
+            echo '```bash'
+            echo "gcloud logging read \\"
+            echo "  'resource.type=cloud_run_revision AND resource.labels.service_name=${SERVICE} AND jsonPayload.release=\"${SHA}\"' \\"
+            echo "  --project ${PROJECT_ID} --freshness 1h --limit 50 --order desc"
+            echo '```'
+            echo
+            echo "Runbooks: docs/ops/deployment-runbooks.md. Signals and alerts: docs/20-deployment-observability.md."
+          } >> "$GITHUB_STEP_SUMMARY"
