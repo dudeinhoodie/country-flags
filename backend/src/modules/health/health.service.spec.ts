@@ -38,6 +38,33 @@ describe("HealthService", () => {
     });
   });
 
+  it("stays quiet while the database answers quickly", async () => {
+    ping.mockResolvedValueOnce(undefined);
+
+    await service.getReadiness();
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("says so when the database answers but takes its time", async () => {
+    // A connection that is merely slow still passes the check, so the only way
+    // pool pressure becomes alertable is for the check to report the latency.
+    ping.mockImplementationOnce(
+      () => new Promise((resolve) => setTimeout(resolve, 300)),
+    );
+
+    await expect(service.getReadiness()).resolves.toMatchObject({
+      status: "ok",
+    });
+    expect(warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "readiness_check_slow",
+        dependency: "postgresql",
+        thresholdMs: 250,
+      }),
+    );
+  });
+
   it("reports unready when PostgreSQL is unavailable", async () => {
     ping.mockRejectedValueOnce(new Error("connection refused"));
 

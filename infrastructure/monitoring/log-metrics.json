@@ -1,0 +1,202 @@
+{
+  "$comment": [
+    "Log-based metric definitions for the Cloud Logging project that receives",
+    "api-dev and api-prod logs. Each entry is the body of a",
+    "logging.projects.metrics.create call and is applied by ./apply.sh.",
+    "",
+    "These exist because the API pushes OpenTelemetry over OTLP and no collector",
+    "is deployed: the gauges in backend/src/common/telemetry are real, but until",
+    "an OTLP endpoint exists nothing receives them. The structured log line the",
+    "same code writes does arrive, so the alertable copy of each signal is",
+    "derived from logs. If a collector is ever deployed, these stay valid and the",
+    "alerts can be rewritten against the OTLP metrics without changing behavior.",
+    "",
+    "labelExtractors never read a user-supplied field. Every label below is an",
+    "enum, a queue name, a deployment environment or a release SHA — see",
+    "docs/20-deployment-observability.md section 6 for the rule this follows."
+  ],
+  "metrics": [
+    {
+      "name": "api_process_started",
+      "description": "One per API process start. Doubles as the deployment annotation: a new release SHA appearing here is a rollout, and several starts of one SHA in a few minutes is a restart loop.",
+      "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"application_started\"",
+      "metricDescriptor": {
+        "metricKind": "DELTA",
+        "valueType": "INT64",
+        "unit": "1",
+        "displayName": "API process starts",
+        "labels": [
+          { "key": "environment", "valueType": "STRING" },
+          { "key": "release", "valueType": "STRING" },
+          { "key": "service_name", "valueType": "STRING" }
+        ]
+      },
+      "labelExtractors": {
+        "environment": "EXTRACT(jsonPayload.environment)",
+        "release": "EXTRACT(jsonPayload.release)",
+        "service_name": "EXTRACT(resource.labels.service_name)"
+      }
+    },
+    {
+      "name": "api_readiness_check_failed",
+      "description": "Readiness answered 503 because PostgreSQL did not respond.",
+      "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"readiness_check_failed\"",
+      "metricDescriptor": {
+        "metricKind": "DELTA",
+        "valueType": "INT64",
+        "unit": "1",
+        "displayName": "Readiness check failures",
+        "labels": [
+          { "key": "environment", "valueType": "STRING" },
+          { "key": "service_name", "valueType": "STRING" }
+        ]
+      },
+      "labelExtractors": {
+        "environment": "EXTRACT(jsonPayload.environment)",
+        "service_name": "EXTRACT(resource.labels.service_name)"
+      }
+    },
+    {
+      "name": "api_readiness_latency_ms",
+      "description": "How long the readiness database probe took, recorded only when it exceeded the slow threshold. A connection that is merely slow still passes the check, so this is the only signal that shows pool or provider pressure before it becomes an outage.",
+      "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"readiness_check_slow\"",
+      "valueExtractor": "EXTRACT(jsonPayload.latencyMs)",
+      "metricDescriptor": {
+        "metricKind": "DELTA",
+        "valueType": "DISTRIBUTION",
+        "unit": "ms",
+        "displayName": "Slow readiness probe latency",
+        "labels": [
+          { "key": "environment", "valueType": "STRING" },
+          { "key": "service_name", "valueType": "STRING" }
+        ]
+      },
+      "labelExtractors": {
+        "environment": "EXTRACT(jsonPayload.environment)",
+        "service_name": "EXTRACT(resource.labels.service_name)"
+      },
+      "bucketOptions": {
+        "exponentialBuckets": {
+          "numFiniteBuckets": 16,
+          "growthFactor": 2,
+          "scale": 1
+        }
+      }
+    },
+    {
+      "name": "api_worker_backlog_heartbeat",
+      "description": "One per worker backlog report, emitted about once a minute per queue whether the queue is busy or idle. Its absence is the alert: a worker that stopped running fails nothing and logs nothing else.",
+      "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"worker_backlog_snapshot\"",
+      "metricDescriptor": {
+        "metricKind": "DELTA",
+        "valueType": "INT64",
+        "unit": "1",
+        "displayName": "Worker backlog heartbeats",
+        "labels": [
+          { "key": "environment", "valueType": "STRING" },
+          { "key": "queue", "valueType": "STRING" },
+          { "key": "service_name", "valueType": "STRING" }
+        ]
+      },
+      "labelExtractors": {
+        "environment": "EXTRACT(jsonPayload.environment)",
+        "queue": "EXTRACT(jsonPayload.queue)",
+        "service_name": "EXTRACT(resource.labels.service_name)"
+      }
+    },
+    {
+      "name": "api_worker_oldest_pending_age_seconds",
+      "description": "Age of the oldest item a queue has not finished. Depth alone cannot tell a busy worker from a stopped one; this can.",
+      "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"worker_backlog_snapshot\"",
+      "valueExtractor": "EXTRACT(jsonPayload.oldestPendingAgeSeconds)",
+      "metricDescriptor": {
+        "metricKind": "DELTA",
+        "valueType": "DISTRIBUTION",
+        "unit": "s",
+        "displayName": "Worker oldest pending age",
+        "labels": [
+          { "key": "environment", "valueType": "STRING" },
+          { "key": "queue", "valueType": "STRING" },
+          { "key": "service_name", "valueType": "STRING" }
+        ]
+      },
+      "labelExtractors": {
+        "environment": "EXTRACT(jsonPayload.environment)",
+        "queue": "EXTRACT(jsonPayload.queue)",
+        "service_name": "EXTRACT(resource.labels.service_name)"
+      },
+      "bucketOptions": {
+        "exponentialBuckets": {
+          "numFiniteBuckets": 20,
+          "growthFactor": 2,
+          "scale": 1
+        }
+      }
+    },
+    {
+      "name": "api_worker_dead_letter_depth",
+      "description": "Items a queue exhausted its retries on. These stop aging, so they vanish from the lag signal and need one of their own.",
+      "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"worker_backlog_snapshot\"",
+      "valueExtractor": "EXTRACT(jsonPayload.deadLetter)",
+      "metricDescriptor": {
+        "metricKind": "DELTA",
+        "valueType": "DISTRIBUTION",
+        "unit": "1",
+        "displayName": "Worker dead-letter depth",
+        "labels": [
+          { "key": "environment", "valueType": "STRING" },
+          { "key": "queue", "valueType": "STRING" },
+          { "key": "service_name", "valueType": "STRING" }
+        ]
+      },
+      "labelExtractors": {
+        "environment": "EXTRACT(jsonPayload.environment)",
+        "queue": "EXTRACT(jsonPayload.queue)",
+        "service_name": "EXTRACT(resource.labels.service_name)"
+      },
+      "bucketOptions": {
+        "exponentialBuckets": {
+          "numFiniteBuckets": 16,
+          "growthFactor": 2,
+          "scale": 1
+        }
+      }
+    },
+    {
+      "name": "api_database_errors",
+      "description": "Errors raised by the Prisma client, by class. Neon's own connection and storage limits are not visible from this project, so this and api_readiness_latency_ms are the whole database signal on our side; the quota half lives in Neon and is alerted there.",
+      "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.errorClass=~\"^Prisma\"",
+      "metricDescriptor": {
+        "metricKind": "DELTA",
+        "valueType": "INT64",
+        "unit": "1",
+        "displayName": "Prisma client errors",
+        "labels": [
+          { "key": "environment", "valueType": "STRING" },
+          { "key": "error_class", "valueType": "STRING" },
+          { "key": "service_name", "valueType": "STRING" }
+        ]
+      },
+      "labelExtractors": {
+        "environment": "EXTRACT(jsonPayload.environment)",
+        "error_class": "EXTRACT(jsonPayload.errorClass)",
+        "service_name": "EXTRACT(resource.labels.service_name)"
+      }
+    },
+    {
+      "name": "api_store_reconciliation_finished",
+      "description": "One per completed store reconciliation sweep. The sweep runs from a GitHub Actions cron, so a sweep that stops being scheduled fails nothing at all — its absence is the outage worth catching.",
+      "filter": "jsonPayload.event=\"store_reconciliation_finished\"",
+      "metricDescriptor": {
+        "metricKind": "DELTA",
+        "valueType": "INT64",
+        "unit": "1",
+        "displayName": "Store reconciliation sweeps",
+        "labels": [{ "key": "environment", "valueType": "STRING" }]
+      },
+      "labelExtractors": {
+        "environment": "EXTRACT(jsonPayload.environment)"
+      }
+    }
+  ]
+}

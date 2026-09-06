@@ -1,0 +1,39 @@
+{
+  "displayName": "${SERVICE_NAME} worker stopped reporting",
+  "documentation": {
+    "mimeType": "text/markdown",
+    "subject": "${SERVICE_NAME}: a worker has gone silent",
+    "content": "A queue that was reporting its backlog every minute has reported nothing for fifteen. This is the failure the lag alert cannot see: a worker that stopped running has no backlog to be old, raises no error, and fails no check.\n\nRunbook: `docs/ops/deployment-runbooks.md`, \"A worker backlog is not draining\".\n\nFirst two commands:\n\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.event=\"worker_backlog_snapshot\"' --freshness 1h --limit 20 --format='value(timestamp,jsonPayload.queue)'\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.event=\"application_started\"' --freshness 1h --limit 5 --format='value(timestamp,jsonPayload.release)'\n\nStop conditions:\n\n- If no instance is running at all, every queue goes quiet together and this is scale-to-zero, not a fault. On `dev` that is normal; on `prod` a service configured with a minimum instance should never do it, and a service that did is the incident.\n- If one queue is silent and the others are reporting, the worker itself is wedged: the process is alive, so a restart is the fix and the poll-failure logs are the cause."
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "severity": "ERROR",
+  "conditions": [
+    {
+      "displayName": "No backlog heartbeat for fifteen minutes",
+      "conditionAbsent": {
+        "filter": "metric.type=\"logging.googleapis.com/user/api_worker_backlog_heartbeat\" AND resource.type=\"cloud_run_revision\" AND metric.labels.environment=\"${DEPLOYMENT_ENV}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_DELTA",
+            "crossSeriesReducer": "REDUCE_SUM",
+            "groupByFields": ["metric.label.queue"]
+          }
+        ],
+        "duration": "900s",
+        "trigger": { "count": 1 }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "7200s",
+    "notificationRateLimit": { "period": "3600s" }
+  },
+  "notificationChannels": ["${NOTIFICATION_CHANNEL}"],
+  "userLabels": {
+    "deployment_env": "${DEPLOYMENT_ENV}",
+    "owner": "country-flags",
+    "source": "infrastructure-monitoring"
+  }
+}
