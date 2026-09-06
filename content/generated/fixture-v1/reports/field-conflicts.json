@@ -6,8 +6,288 @@
         {
           "priority": 100,
           "provenance": {
-            "retrievedAt": "2026-09-01T12:54:24.651Z",
-            "revision": "editorial-v13",
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Острова Кука"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "о-ва Кука"
+        }
+      ],
+      "entityKey": "area.cook-islands",
+      "path": "names.ru.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Острова Кука"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Остров Рождества"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "о-в Рождества"
+        }
+      ],
+      "entityKey": "territory.christmas-island",
+      "path": "names.ru.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Остров Рождества"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Кыргызстан"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "Киргизия"
+        }
+      ],
+      "entityKey": "country.kyrgyzstan",
+      "path": "names.ru.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Кыргызстан"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Северная Корея"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "КНДР"
+        }
+      ],
+      "entityKey": "country.democratic-people-s-republic-of-korea",
+      "path": "names.ru.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Северная Корея"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Южная Корея"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "Республика Корея"
+        }
+      ],
+      "entityKey": "country.republic-of-korea",
+      "path": "names.ru.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Южная Корея"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Маршалловы Острова"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "Маршалловы о-ва"
+        }
+      ],
+      "entityKey": "country.marshall-islands",
+      "path": "names.ru.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Маршалловы Острова"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Macao"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "Macao SAR China"
+        }
+      ],
+      "entityKey": "territory.china-macao-special-administrative-region",
+      "path": "names.en.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Macao"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Макао"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "Макао (САР)"
+        }
+      ],
+      "entityKey": "territory.china-macao-special-administrative-region",
+      "path": "names.ru.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Макао"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Palestine"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "Palestinian Territories"
+        }
+      ],
+      "entityKey": "country.state-of-palestine",
+      "path": "names.en.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Palestine"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
+            "sourceKey": "editorial"
+          },
+          "value": "Палестина"
+        },
+        {
+          "priority": 80,
+          "provenance": {
+            "retrievedAt": "2026-08-25T12:35:50.489Z",
+            "revision": "48.2.0",
+            "sourceKey": "cldr"
+          },
+          "value": "Палестинские территории"
+        }
+      ],
+      "entityKey": "country.state-of-palestine",
+      "path": "names.ru.short",
+      "resolution": "editorial_override",
+      "resolvedByEditorial": true,
+      "selected": "Палестина"
+    },
+    {
+      "blocking": false,
+      "candidates": [
+        {
+          "priority": 100,
+          "provenance": {
+            "retrievedAt": "2026-09-06T12:17:52.347Z",
+            "revision": "editorial-v14",
             "sourceKey": "editorial"
           },
           "value": "США"

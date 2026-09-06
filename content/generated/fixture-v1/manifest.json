@@ -3,7 +3,7 @@
   "assetBaseUrl": "https://cdn.country-flags.app/content/fixture-v1/",
   "changeCursor": "content:fixture-v1:0",
   "contentVersion": "fixture-v1",
-  "createdAt": "2026-09-01T12:54:24.651Z",
+  "createdAt": "2026-09-06T12:17:52.347Z",
   "defaultLocale": "ru",
   "files": [
     {
@@ -19,10 +19,10 @@
       "sha256": "8b0494f8370cc10ad5079a7adc498c205f177dda65b1ed1a19b2effa4ae35acc"
     },
     {
-      "bytes": 334302,
+      "bytes": 334977,
       "path": "catalog.json",
       "schemaId": "https://country-flags.example/schemas/catalog.schema.json",
-      "sha256": "d9203b8b852f8a6124a2f70d189318df2418778ad3160c0d309c98797e46797e"
+      "sha256": "881bf530584d8d84e2ab169ccbb6e34f596b6f40cfe069703728d0365b00fa5f"
     },
     {
       "bytes": 104889,
@@ -52,13 +52,13 @@
       "bytes": 156348,
       "path": "learning-cards.json",
       "schemaId": "https://country-flags.app/content/v1/learning-cards.schema.json",
-      "sha256": "da88f1b99e552fc724abb98751db55bc65f42fb080a8e40b12a8f4be86b4d299"
+      "sha256": "23e521045d0e721d64c813a4da59ed762b2797ee7f54254db7ef193183ea2a05"
     },
     {
-      "bytes": 862873,
+      "bytes": 865929,
       "path": "provenance/provenance.json",
       "schemaId": "https://country-flags.app/content/v1/provenance.schema.json",
-      "sha256": "24eadf57a317f2caf8f1b06b7bd70c4d3cba6cb99a37022e489ddc2c46137f54"
+      "sha256": "a366d0ce0895dcb8095da50da18320203d044b9fc0a6b8bd6eea33826690c653"
     },
     {
       "bytes": 74,
@@ -73,10 +73,10 @@
       "sha256": "954d069b8380eac9a95f045fac3b461a49d32756481c9881629d51ec60157a2f"
     },
     {
-      "bytes": 326466,
+      "bytes": 334318,
       "path": "reports/field-conflicts.json",
       "schemaId": "https://country-flags.app/content/v1/pipeline-report.schema.json",
-      "sha256": "f28094067a0e57f7a49a2da685393804533d7d38a330ed302d66c5346461c1f9"
+      "sha256": "57e1d7d0fc8a2f3750058c5e5b78e82245f3ac5bb61abfc369ad5acadcbf240f"
     },
     {
       "bytes": 75,
