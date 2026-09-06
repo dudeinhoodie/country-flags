@@ -616,6 +616,29 @@ export function validateEnvironment(
     );
   }
 
+  // The publisher job is read the same way and is optional for the same
+  // reason: a deployment without one still records runs, and the console
+  // says nothing is draining the queue. A partial configuration, though, is
+  // an operator who believes publishing works — so it is refused here rather
+  // than discovered by a run that sits queued forever (ADR-017 §2).
+  const publisherVariables = [
+    "PUBLISHER_JOB_PROJECT",
+    "PUBLISHER_JOB_REGION",
+    "PUBLISHER_JOB_NAME",
+  ] as const;
+  const missingPublisherVariables = publisherVariables.filter((name) => {
+    const value = config[name];
+    return typeof value !== "string" || value.trim().length === 0;
+  });
+  if (
+    missingPublisherVariables.length > 0 &&
+    missingPublisherVariables.length < publisherVariables.length
+  ) {
+    throw new Error(
+      `Environment variables ${publisherVariables.join(", ")} must be set together; missing: ${missingPublisherVariables.join(", ")}`,
+    );
+  }
+
   const appleStoreEnvironment = resolveAppleStoreEnvironment(
     config,
     deploymentEnvironment,

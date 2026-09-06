@@ -147,6 +147,46 @@ jobs:
           curl -fsS http://localhost:3000/v1/health/live
           curl -fsS http://localhost:3000/v1/health/ready
 
+      # The same image is what the publisher job runs, with a different
+      # command (ADR-017 §1). Building it proves the layers copied; this
+      # proves the half nothing else exercises actually works in there — that
+      # the pipeline's ES modules resolve, that the pruned node_modules still
+      # carries the native rasteriser, and that the sources and schemas a
+      # publish-ready build reads are where the code looks for them.
+      #
+      # Without it the first sign of a wrong path would be a release run
+      # failing in dev, twelve minutes in, for a reason nobody could see.
+      - name: Container smoke test (the publisher half of the image)
+        run: |
+          set -euo pipefail
+          docker exec backend-smoke node -e "
+            const { readFileSync } = require('node:fs');
+            require('@resvg/resvg-js');
+            const registry = JSON.parse(
+              readFileSync('/app/tools/content-pipeline/sources/registry.json', 'utf8'),
+            );
+            for (const source of registry.sources) {
+              readFileSync('/app/tools/content-pipeline/' + source.snapshotPath);
+            }
+            readFileSync('/app/content/schemas/catalog.schema.json');
+            readFileSync('/app/contracts/schemas/content/manifest.v1.schema.json');
+            console.log('publisher inputs present:', registry.sources.length, 'sources');
+          "
+          # The pipeline entry point is reached the way the job reaches it:
+          # relative to the compiled module, so a moved directory fails here.
+          docker exec backend-smoke node -e "
+            const { join, resolve } = require('node:path');
+            const root = resolve('/app/backend/dist/modules/content/publisher', '../../../../..');
+            require('node:fs').accessSync(join(root, 'tools/content-pipeline/dist/src/cli.js'));
+            console.log('pipeline entry point resolves from', root);
+          "
+          # And it runs: no arguments is a usage error, which is a process
+          # that started rather than one that could not load its own imports.
+          if docker exec backend-smoke node /app/tools/content-pipeline/dist/src/cli.js; then
+            echo "The pipeline CLI accepted no arguments, which it should refuse" >&2
+            exit 1
+          fi
+
       - name: Stop smoke test container
         if: always()
         run: docker rm -f backend-smoke || true

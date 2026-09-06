@@ -448,6 +448,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/content/releases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the releases this deployment has published
+         * @description What a rollback may return to. A version this deployment never applied would point every client at nothing, so the console offers this list rather than a text field.
+         */
+        get: operations["adminListContentReleases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/content/releases/runs": {
         parameters: {
             query?: never;
@@ -517,6 +537,7 @@ export interface paths {
          * @description Records the intent and returns; the executor does the work (ADR-017). The response is a run, not a result — a release takes minutes, and an endpoint that waited for one would be an endpoint that times out.
          *     Distinct from `POST /v1/admin/content/releases/publish-run`, which dispatches the CI workflow. That path stays: it is the only one that can publish from an arbitrary commit, and the way in when this contour is broken.
          *     A second run is refused rather than queued behind the first: a request that cannot succeed should be answered now, not after twenty minutes of losing a race over the active pointer.
+         *     The answer is the run whatever became of it. A deployment with no publisher job leaves it `QUEUED` and says so through `executorConfigured`; a job that refuses to start leaves it `FAILED` with `PUBLISH_RUN_NOT_STARTED`, because a run holds the only live slot and one left queued would block every release after it.
          */
         post: operations["adminQueueReleasePublish"];
         delete?: never;
@@ -1618,6 +1639,8 @@ export interface components {
         /** @description What is live, what is in flight, and what happened last — the three things a screen watching a release has to say at once. */
         AdminReleaseRunState: {
             activeVersion: string | null;
+            /** @description False when this deployment has no publisher job. Runs still queue, but nothing drains the queue — so the console says so and offers to cancel, rather than leaving a run to look slow forever. */
+            executorConfigured: boolean;
             /** @description The queued or running run, if there is one. */
             current: components["schemas"]["AdminReleaseRun"] | null;
             /** @description The most recent run whatever its outcome. */
@@ -1631,6 +1654,25 @@ export interface components {
         AdminReleaseRollbackRequest: {
             /** @description A version this deployment actually published. Returning to one it never applied would point every client at nothing. */
             toVersion: string;
+        };
+        AdminContentRelease: {
+            version: string;
+            /** @enum {string} */
+            status: "PUBLISHED" | "RETIRED";
+            /** @description Whether the active pointer names this release right now. */
+            isActive: boolean;
+            /** Format: date-time */
+            publishedAt: string | null;
+            /**
+             * Format: date-time
+             * @description When a later release superseded this one.
+             */
+            retiredAt: string | null;
+        };
+        /** @description The releases this deployment applied, newest first — which is exactly the set a rollback may return to. */
+        AdminContentReleaseList: {
+            activeVersion: string | null;
+            releases: components["schemas"]["AdminContentRelease"][];
         };
         AdminContentStatus: {
             activeVersion: string | null;
@@ -2944,6 +2986,28 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListContentReleases: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The applied releases, newest first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContentReleaseList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
             default: components["responses"]["ErrorResponse"];
         };
     };

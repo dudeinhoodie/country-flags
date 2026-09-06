@@ -4,6 +4,7 @@ import type { AdminUser, PublishRun } from "@prisma/client";
 import { ApiException } from "../../common/http/api.exception";
 import { parseReleaseRollbackRequest } from "./admin-drafts.request";
 import { PublishRunService } from "./publish-run.service";
+import { PublisherJobClient } from "./publisher-job.client";
 import type { AdminAuditService } from "../admin-auth/admin-audit.service";
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
 
@@ -23,6 +24,36 @@ interface Fakes {
     status: PublishRunStatus;
     kind: PublishRunKind;
   } | null;
+  /** What the executor does when it is asked for an execution. */
+  executor?: PublisherJobClient;
+}
+
+/** A publisher job that accepts every request and names the execution. */
+function executorThatStarts(executionName: string): PublisherJobClient {
+  return {
+    isConfigured: true,
+    start: () => Promise.resolve(executionName),
+  } as unknown as PublisherJobClient;
+}
+
+/** One that is there and refuses, which is not the same as one that is absent. */
+function executorThatRefuses(reason: string): PublisherJobClient {
+  return {
+    isConfigured: true,
+    start: () => Promise.reject(new Error(reason)),
+  } as unknown as PublisherJobClient;
+}
+
+/** No job configured at all: the run queues and waits for one. */
+const noExecutor = new PublisherJobClient(null);
+
+/**
+ * One conditional write, kept as the two halves the service sent: the filter
+ * is the guard being asserted as much as the data is.
+ */
+interface Patch {
+  where: Record<string, unknown>;
+  data: Record<string, unknown>;
 }
 
 /**
@@ -36,10 +67,13 @@ function serviceWith(fakes: Fakes = {}): {
   created: () => Record<string, unknown> | null;
   updated: () => Record<string, unknown> | null;
   audited: () => string | null;
+  /** Every `updateMany` the service made, in order. */
+  patches: () => Patch[];
 } {
   let created: Record<string, unknown> | null = null;
   let updated: Record<string, unknown> | null = null;
   let audited: string | null = null;
+  const patches: Patch[] = [];
   const client = {
     contentPointer: {
       findUnique: (): Promise<{ contentVersion: string } | null> =>
@@ -90,6 +124,10 @@ function serviceWith(fakes: Fakes = {}): {
           ...data,
         } as unknown as PublishRun);
       },
+      updateMany: (patch: Patch): Promise<{ count: number }> => {
+        patches.push(patch);
+        return Promise.resolve({ count: 1 });
+      },
     },
   };
   const database = {
@@ -108,10 +146,15 @@ function serviceWith(fakes: Fakes = {}): {
     },
   } as unknown as AdminAuditService;
   return {
-    service: new PublishRunService(database, audit),
+    service: new PublishRunService(
+      database,
+      audit,
+      fakes.executor ?? noExecutor,
+    ),
     created: () => created,
     updated: () => updated,
     audited: () => audited,
+    patches: () => patches,
   };
 }
 
@@ -213,6 +256,94 @@ describe("PublishRunService", () => {
     ).rejects.toMatchObject({
       response: { error: { code: "CONTENT_VERSION_NOT_PUBLISHED" } },
     });
+  });
+
+  /// The request records the run and the job carries it out (ADR-017 §2), so
+  /// the handle the job answers with is stamped on the record: it is what an
+  /// operator pastes into a log query for a run that failed outside our own
+  /// reporting.
+  it("records the execution the publisher job started", async () => {
+    const { service, patches } = serviceWith({
+      activeVersion: "2026.08.20",
+      executor: executorThatStarts(
+        "projects/p/locations/europe-west3/jobs/content-publisher-dev/executions/x-9",
+      ),
+    });
+
+    const run = await service.publish(
+      actor,
+      { contentVersion: "2026.08.26", minimumClientVersion: "0.1.0" },
+      "req-1",
+    );
+
+    expect(run.executionName).toBe(
+      "projects/p/locations/europe-west3/jobs/content-publisher-dev/executions/x-9",
+    );
+    expect(patches()).toEqual([
+      {
+        where: { id: "run-1" },
+        data: {
+          executionName:
+            "projects/p/locations/europe-west3/jobs/content-publisher-dev/executions/x-9",
+        },
+      },
+    ]);
+  });
+
+  /// A run holds the only live slot. One that could not be started and is
+  /// left queued would block every release after it, with the database as
+  /// the only remedy — so the refusal is recorded on the run instead.
+  it("fails a run the publisher job refused to start", async () => {
+    const { service, patches } = serviceWith({
+      activeVersion: "2026.08.20",
+      executor: executorThatRefuses("Cloud Run refused to start the job"),
+    });
+
+    await service.publish(
+      actor,
+      { contentVersion: "2026.08.26", minimumClientVersion: "0.1.0" },
+      "req-1",
+    );
+
+    expect(patches()).toEqual([
+      {
+        // Only while it is still queued: a start that failed on the way back
+        // may well have started, and a job already running must not be
+        // declared dead by the request that asked for it.
+        where: { id: "run-1", status: PublishRunStatus.QUEUED },
+        data: expect.objectContaining({
+          status: PublishRunStatus.FAILED,
+          failureCode: "PUBLISH_RUN_NOT_STARTED",
+          failureMessage: "Cloud Run refused to start the job",
+        }) as unknown,
+      },
+    ]);
+  });
+
+  /// A deployment with no job is a normal state, not a broken one: the run
+  /// waits, the console says nothing is draining the queue, and cancelling
+  /// is the way out.
+  it("leaves the run queued when no publisher job is configured", async () => {
+    const { service, patches } = serviceWith({ activeVersion: "2026.08.20" });
+
+    const run = await service.publish(
+      actor,
+      { contentVersion: "2026.08.26", minimumClientVersion: "0.1.0" },
+      "req-1",
+    );
+
+    expect(run.executionName).toBeUndefined();
+    expect(patches()).toEqual([]);
+  });
+
+  it("says whether anything is there to drain the queue", async () => {
+    const configured = await serviceWith({
+      executor: executorThatStarts("x"),
+    }).service.status();
+    const absent = await serviceWith().service.status();
+
+    expect(configured.executorConfigured).toBe(true);
+    expect(absent.executorConfigured).toBe(false);
   });
 
   it("reports the run in flight beside what is live", async () => {

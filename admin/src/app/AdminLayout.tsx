@@ -9,6 +9,7 @@ import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
+import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
 import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
@@ -148,6 +149,14 @@ function AdminMenu() {
         to={routes.publishedDecks}
         primaryText="Decks"
         leftIcon={<StyleOutlinedIcon />}
+      />
+      {/* Beside what is published rather than inside the draft workspace:
+          a release changes what every client reads, and the run that does
+          it belongs to no one draft (ADR-017). */}
+      <Menu.Item
+        to={routes.releases}
+        primaryText="Releases"
+        leftIcon={<RocketLaunchOutlinedIcon />}
       />
 
       <MenuSection label="Draft workspace" />

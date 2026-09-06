@@ -125,6 +125,7 @@ production, чтобы не создавать две визуальные си�
 | `/` | action-oriented Content workspace |
 | `/published/entities` | read-only опубликованные страны и подразделения |
 | `/published/decks` | read-only опубликованные колоды |
+| `/releases` | что читают клиенты, публикация и откат (ADR-017) |
 | `/drafts/:draftId/overview` | состояние выбранного draft |
 | `/drafts/:draftId/entities` | список сущностей draft |
 | `/drafts/:draftId/entities/:entityKey/:tab?` | редактор сущности |
