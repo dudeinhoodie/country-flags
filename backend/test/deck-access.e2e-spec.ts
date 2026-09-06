@@ -27,6 +27,17 @@ import {
 } from "../src/modules/study-sessions/fixtures/test-study.fixture";
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
 
+/**
+ * A build new enough to be told a deck is locked. The catalog and the change
+ * feed are filtered by client version as well as by entitlement, and these
+ * tests are about the entitlement half; the headers say which build is asking
+ * so the other half stays out of the way.
+ */
+const PAID_AWARE_CLIENT = {
+  "X-Client-Platform": "ios",
+  "X-Client-App-Version": "1.0.0",
+};
+
 const CONTENT_VERSION = "test-only-fixture-v1";
 const FREE_DECK_ID = "70000000-0000-4000-8000-000000000001";
 const PAID_DECK_ID = "70000000-0000-4000-8000-00000000000a";
@@ -104,6 +115,8 @@ describe("deck entitlement guard (integration)", () => {
   const originalDatabaseUrl = process.env.DATABASE_URL;
   const originalNodeEnvironment = process.env.NODE_ENV;
   const originalTestAuthEnabled = process.env.TEST_AUTH_ENABLED;
+  const originalMinimumClientVersions =
+    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS;
   const databaseName =
     `country_flags_deck_access_${process.pid}_${Date.now()}`.toLowerCase();
   let admin: PrismaClient;
@@ -178,6 +191,7 @@ describe("deck entitlement guard (integration)", () => {
     process.env.DATABASE_URL = testDatabaseUrl;
     process.env.NODE_ENV = "test";
     process.env.TEST_AUTH_ENABLED = "true";
+    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS = "ios=1.0.0";
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -268,6 +282,8 @@ describe("deck entitlement guard (integration)", () => {
     process.env.DATABASE_URL = originalDatabaseUrl;
     process.env.NODE_ENV = originalNodeEnvironment;
     process.env.TEST_AUTH_ENABLED = originalTestAuthEnabled;
+    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS =
+      originalMinimumClientVersions;
     await app?.close();
     if (admin !== undefined) {
       await admin.$executeRawUnsafe(
@@ -280,6 +296,7 @@ describe("deck entitlement guard (integration)", () => {
   it("lists the locked deck to a caller with no account at all", async () => {
     const response = await request(httpServer)
       .get("/v1/decks?locale=en")
+      .set(PAID_AWARE_CLIENT)
       .expect(200);
     const body = response.body as unknown as DeckPageBody;
     const paid = body.items.find(({ id }) => id === PAID_DECK_ID);
@@ -301,6 +318,7 @@ describe("deck entitlement guard (integration)", () => {
   it("serves the locked deck's own metadata unauthenticated", async () => {
     const response = await request(httpServer)
       .get(`/v1/decks/${PAID_DECK_ID}?locale=en`)
+      .set(PAID_AWARE_CLIENT)
       .expect(200);
     const body = response.body as unknown as DeckBody;
 
@@ -475,6 +493,7 @@ describe("deck entitlement guard (integration)", () => {
     await request(httpServer)
       .get(`/v1/decks/${PAID_DECK_ID}?locale=en`)
       .set("Authorization", `Bearer ${accessToken}`)
+      .set(PAID_AWARE_CLIENT)
       .expect(200);
   });
 

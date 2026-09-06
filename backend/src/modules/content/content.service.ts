@@ -5,6 +5,7 @@ import {
   ContentChangeOperation,
   ContentReleaseStatus,
   ContentResourceType,
+  DeckAccessModel,
   DeckStatus,
   GeoEntityStatus,
   GeoNameType,
@@ -14,6 +15,7 @@ import {
 
 import { validationError } from "../../common/http/request-validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import type { ClientCapability } from "../client-compatibility/client-compatibility.service";
 import {
   type DeckAccessPolicy,
   DeckAccessService,
@@ -26,7 +28,9 @@ import {
 } from "./asset-representations";
 import {
   ContentAccessProjectionService,
+  type ContentVisibility,
   isPubliclyVisible,
+  isVisibleToClient,
 } from "./content-access-projection.service";
 import {
   decodeCardCursor,
@@ -62,6 +66,18 @@ const READABLE_ENTITY_STATUSES = [
   GeoEntityStatus.ACTIVE,
   GeoEntityStatus.HISTORICAL,
 ];
+
+/**
+ * The access models a client build that predates the paid-deck contract can
+ * render. Not a second access rule: `FREE` is the only value such a build has
+ * ever been sent, and a deck carrying any other one would be drawn as an
+ * ordinary free deck with a study button that leads to a 403.
+ *
+ * A new access model is unintelligible to those builds by definition, so this
+ * list stays as it is when one is added — that is the point of writing it
+ * down rather than negating `ENTITLEMENT`.
+ */
+const PAID_UNAWARE_ACCESS_MODELS = [DeckAccessModel.FREE];
 
 @Injectable()
 export class ContentService {
@@ -121,10 +137,20 @@ export class ContentService {
     };
   }
 
+  /**
+   * The catalog, as far as this client build can read it.
+   *
+   * A build that does not understand `Deck.access` is served the catalog it
+   * has always been served: every free deck, and no locked one. The filter is
+   * in the query rather than over the page so that pagination is unaffected —
+   * an old client gets full pages of the decks it can use, not a page of
+   * fifty with three survivors.
+   */
   async listDecks(
     locale: string,
     cursorValue: string | undefined,
     limit: number,
+    capability: ClientCapability,
   ): Promise<{
     items: Array<Record<string, unknown>>;
     page: { nextCursor: string | null; hasMore: boolean };
@@ -135,6 +161,9 @@ export class ContentService {
     const decks = await this.prisma.deck.findMany({
       where: {
         status: DeckStatus.PUBLISHED,
+        ...(capability.paidContent
+          ? {}
+          : { accessModel: { in: PAID_UNAWARE_ACCESS_MODELS } }),
         ...(cursor === undefined ? {} : { code: { gt: cursor.code } }),
       },
       orderBy: [{ code: "asc" }, { id: "asc" }],
@@ -177,14 +206,29 @@ export class ContentService {
     };
   }
 
+  /**
+   * One deck's page, for a client build that could have found it.
+   *
+   * A locked deck is not there for a build that cannot render it, and "not
+   * there" is a 404 rather than a refusal: the deck is absent from that
+   * client's catalog and from its change feed, so the honest answer to a
+   * request for it is the one an unpublished deck gets.
+   */
   async getDeck(
     deckId: string,
     locale: string,
+    capability: ClientCapability,
   ): Promise<Record<string, unknown>> {
     const [{ manifest }, deck] = await Promise.all([
       this.getManifest(),
       this.prisma.deck.findFirst({
-        where: { id: deckId, status: DeckStatus.PUBLISHED },
+        where: {
+          id: deckId,
+          status: DeckStatus.PUBLISHED,
+          ...(capability.paidContent
+            ? {}
+            : { accessModel: { in: PAID_UNAWARE_ACCESS_MODELS } }),
+        },
         include: {
           localizations: true,
           _count: {
@@ -324,10 +368,16 @@ export class ContentService {
    * `hasMore` is true. The cursor is computed from the page the database
    * returned rather than from what survived, so it always advances and a
    * client paging through a release that is mostly paid still terminates.
+   *
+   * A build that does not understand the paid-deck contract is filtered
+   * harder still: it hears about no locked deck at all, because an `UPSERT`
+   * naming one would be the first that build ever learned of a deck it cannot
+   * draw.
    */
   async listChanges(
     after: string | undefined,
     limit: number,
+    capability: ClientCapability,
   ): Promise<{
     items: Array<Record<string, unknown>>;
     nextCursor: string;
@@ -383,12 +433,14 @@ export class ContentService {
     const nextSequence = pageItems.at(-1)?.sequence ?? cursor.sequence;
 
     return {
-      items: (await this.publicChanges(pageItems)).map((change) => ({
-        operation: change.operation,
-        resourceType: change.resourceType,
-        resourceId: change.resourceId,
-        contentVersion: change.contentVersion,
-      })),
+      items: (await this.publicChanges(pageItems, capability)).map(
+        (change) => ({
+          operation: change.operation,
+          resourceType: change.resourceType,
+          resourceId: change.resourceId,
+          contentVersion: change.contentVersion,
+        }),
+      ),
       nextCursor: encodeContentChangeCursor(
         pointer.contentVersion,
         nextSequence,
@@ -421,6 +473,12 @@ export class ContentService {
    * to, so that closing an entity closes the statements about it too; the
    * publisher does not emit fact events today, and this is here so that the
    * day it does is not the day the feed reopens.
+   *
+   * For a client build that predates the paid-deck contract the `DECK`
+   * exception is withdrawn — a locked deck it cannot render is not a deck it
+   * should be told changed — and the projection narrows to `PUBLIC`, so a
+   * locked deck's preview material stays out too. What remains is the feed
+   * that build has always read.
    */
   private async publicChanges<
     Change extends {
@@ -428,7 +486,7 @@ export class ContentService {
       resourceType: ContentResourceType;
       resourceId: string;
     },
-  >(changes: Change[]): Promise<Change[]> {
+  >(changes: Change[], capability: ClientCapability): Promise<Change[]> {
     const upserts = changes.filter(
       ({ operation }) => operation === ContentChangeOperation.UPSERT,
     );
@@ -452,7 +510,8 @@ export class ContentService {
       facts.map(({ id, geoEntityId }) => [id, geoEntityId]),
     );
 
-    const [assets, cards, entities] = await Promise.all([
+    const deckIds = idsOf(ContentResourceType.DECK);
+    const [assets, cards, entities, renderableDeckIds] = await Promise.all([
       this.projection.assetVisibility(idsOf(ContentResourceType.ASSET)),
       this.projection.cardVisibility(idsOf(ContentResourceType.LEARNING_CARD)),
       this.projection.entityVisibility([
@@ -461,7 +520,10 @@ export class ContentService {
           ...entityOfFact.values(),
         ]),
       ]),
+      this.renderableDeckIds(deckIds, capability),
     ]);
+    const visible = (visibility: ContentVisibility | undefined): boolean =>
+      isVisibleToClient(visibility ?? "PAID_ONLY", capability.paidContent);
 
     return changes.filter((change) => {
       if (change.operation === ContentChangeOperation.RETIRE) {
@@ -469,29 +531,51 @@ export class ContentService {
       }
       switch (change.resourceType) {
         case ContentResourceType.DECK:
-          return true;
+          return renderableDeckIds.has(change.resourceId);
         case ContentResourceType.ASSET:
-          return isPubliclyVisible(
-            assets.get(change.resourceId) ?? "PAID_ONLY",
-          );
+          return visible(assets.get(change.resourceId));
         case ContentResourceType.LEARNING_CARD:
-          return isPubliclyVisible(cards.get(change.resourceId) ?? "PAID_ONLY");
+          return visible(cards.get(change.resourceId));
         case ContentResourceType.ENTITY:
-          return isPubliclyVisible(
-            entities.get(change.resourceId) ?? "PAID_ONLY",
-          );
+          return visible(entities.get(change.resourceId));
         case ContentResourceType.FACT: {
           const entityId = entityOfFact.get(change.resourceId);
           // A fact whose entity has been deleted outright is announced: the
           // client is being told to forget something, and there is nothing
           // left to leak.
-          return (
-            entityId === undefined ||
-            isPubliclyVisible(entities.get(entityId) ?? "PAID_ONLY")
-          );
+          return entityId === undefined || visible(entities.get(entityId));
         }
       }
     });
+  }
+
+  /**
+   * Which of these decks the client build can draw.
+   *
+   * Every one of them, for a build that understands the access model: the
+   * catalog publishes locked decks to everybody, so announcing that one
+   * changed reveals nothing `GET /v1/decks` does not already hand over, and it
+   * is the signal an owner needs to come back for the cards.
+   *
+   * For an older build the question is worth a query, because the answer is
+   * the difference between "your catalog gained a deck" and "your catalog
+   * gained a deck that opens on a 403".
+   */
+  private async renderableDeckIds(
+    deckIds: string[],
+    capability: ClientCapability,
+  ): Promise<Set<string>> {
+    if (capability.paidContent || deckIds.length === 0) {
+      return new Set(deckIds);
+    }
+    const decks = await this.prisma.deck.findMany({
+      where: {
+        id: { in: deckIds },
+        accessModel: { in: PAID_UNAWARE_ACCESS_MODELS },
+      },
+      select: { id: true },
+    });
+    return new Set(decks.map(({ id }) => id));
   }
 
   /**

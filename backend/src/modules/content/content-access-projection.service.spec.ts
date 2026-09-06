@@ -2,7 +2,12 @@ import { DeckAccessModel } from "@prisma/client";
 
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
 import { DeckAccessService } from "../commerce/deck-access.service";
-import { ContentAccessProjectionService } from "./content-access-projection.service";
+import {
+  ContentAccessProjectionService,
+  type ContentVisibility,
+  isPubliclyVisible,
+  isVisibleToClient,
+} from "./content-access-projection.service";
 
 const FLAG_ASSET_ID = "40000000-0000-4000-8000-000000000001";
 const COAT_ASSET_ID = "40000000-0000-4000-8000-00000000000a";
@@ -211,5 +216,27 @@ describe("ContentAccessProjectionService", () => {
     await expect(service.entityVisibility([])).resolves.toEqual(new Map());
 
     expect(deckCard.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("isVisibleToClient", () => {
+  const visibilities: ContentVisibility[] = [
+    "PUBLIC",
+    "PUBLIC_PREVIEW",
+    "PAID_ONLY",
+  ];
+
+  it("shows a build that understands paid decks the whole public projection", () => {
+    expect(
+      visibilities.map((visibility) => isVisibleToClient(visibility, true)),
+    ).toEqual(visibilities.map(isPubliclyVisible));
+  });
+
+  it("shows an older build the catalog it would have if nothing were locked", () => {
+    // A preview is a locked deck's shop window. A build with no window to put
+    // it in would hold a drawing it can reach through nothing.
+    expect(
+      visibilities.map((visibility) => isVisibleToClient(visibility, false)),
+    ).toEqual([true, false, false]);
   });
 });

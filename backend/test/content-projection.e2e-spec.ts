@@ -36,6 +36,17 @@ import { importTestContent } from "../src/modules/content/import/test-content-im
 import { TEST_STUDY_USER_ID } from "../src/modules/study-sessions/fixtures/test-study.fixture";
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
 
+/**
+ * A build new enough to be told a deck is locked. The catalog and the change
+ * feed are filtered by client version as well as by entitlement, and these
+ * tests are about the entitlement half; the headers say which build is asking
+ * so the other half stays out of the way.
+ */
+const PAID_AWARE_CLIENT = {
+  "X-Client-Platform": "ios",
+  "X-Client-App-Version": "1.0.0",
+};
+
 const CONTENT_VERSION = "test-only-fixture-v1";
 const ASSET_SOURCE_ID = "10000000-0000-4000-8000-000000000001";
 const NAMES_SOURCE_ID = "10000000-0000-4000-8000-000000000002";
@@ -107,6 +118,8 @@ describe("public content projection (integration)", () => {
   const originalDatabaseUrl = process.env.DATABASE_URL;
   const originalNodeEnvironment = process.env.NODE_ENV;
   const originalTestAuthEnabled = process.env.TEST_AUTH_ENABLED;
+  const originalMinimumClientVersions =
+    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS;
   const databaseName =
     `country_flags_content_projection_${process.pid}_${Date.now()}`.toLowerCase();
   let admin: PrismaClient;
@@ -305,6 +318,7 @@ describe("public content projection (integration)", () => {
       );
     }
 
+    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS = "ios=1.0.0";
     process.env.DATABASE_URL = testDatabaseUrl;
     process.env.NODE_ENV = "test";
     process.env.TEST_AUTH_ENABLED = "true";
@@ -337,6 +351,8 @@ describe("public content projection (integration)", () => {
     process.env.DATABASE_URL = originalDatabaseUrl;
     process.env.NODE_ENV = originalNodeEnvironment;
     process.env.TEST_AUTH_ENABLED = originalTestAuthEnabled;
+    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS =
+      originalMinimumClientVersions;
     await app?.close();
     if (admin !== undefined) {
       await admin.$executeRawUnsafe(
@@ -386,6 +402,7 @@ describe("public content projection (integration)", () => {
   it("announces nothing paid on the public change feed, and still moves the cursor", async () => {
     const response = await request(httpServer)
       .get("/v1/content/changes")
+      .set(PAID_AWARE_CLIENT)
       .query({ locale: "en", after: changeCursor, limit: 100 })
       .expect(200);
     const body = response.body as unknown as ChangePageBody;
@@ -406,6 +423,7 @@ describe("public content projection (integration)", () => {
     // rows included.
     const next = await request(httpServer)
       .get("/v1/content/changes")
+      .set(PAID_AWARE_CLIENT)
       .query({ locale: "en", after: body.nextCursor, limit: 100 })
       .expect(200);
     expect((next.body as unknown as ChangePageBody).items).toEqual([]);

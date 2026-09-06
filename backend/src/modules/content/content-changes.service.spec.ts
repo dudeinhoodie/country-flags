@@ -5,6 +5,10 @@ import {
 } from "@prisma/client";
 
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
+import {
+  PAID_CONTENT_AWARE,
+  PAID_CONTENT_UNAWARE,
+} from "../client-compatibility/client-compatibility.service";
 import { DeckAccessService } from "../commerce/deck-access.service";
 import { ContentAccessProjectionService } from "./content-access-projection.service";
 import {
@@ -40,11 +44,12 @@ describe("ContentService content changes", () => {
   const contentPointer = { findUnique: jest.fn() };
   const contentChange = { findMany: jest.fn() };
   const deckCard = { findMany: jest.fn() };
+  const deck = { findMany: jest.fn() };
   const transaction = { contentPointer, contentChange };
   const $transaction = jest.fn(
     (callback: (value: typeof transaction) => unknown) => callback(transaction),
   );
-  const prisma = { $transaction, deckCard } as unknown as PrismaService;
+  const prisma = { $transaction, deck, deckCard } as unknown as PrismaService;
   // The change feed is public and account-blind: it asks which decks reach a
   // resource, never which decks this reader has bought. `policiesFor` would
   // be the account-shaped question, and a stub that throws keeps that honest.
@@ -75,6 +80,9 @@ describe("ContentService content changes", () => {
             })),
       ),
     );
+    // Only the free deck answers the "which of these can an old build draw"
+    // query, which is what the database would say for this fixture.
+    deck.findMany.mockResolvedValue([{ id: FREE_DECK.id }]);
   });
 
   it("lists a stable page after the monotonic sequence cursor", async () => {
@@ -108,7 +116,7 @@ describe("ContentService content changes", () => {
     });
     const after = encodeContentChangeCursor("v1", 41n);
 
-    const result = await service.listChanges(after, 2);
+    const result = await service.listChanges(after, 2, PAID_CONTENT_AWARE);
 
     const query = receivedQuery as {
       where: { sequence: { gt: bigint } };
@@ -203,6 +211,7 @@ describe("ContentService content changes", () => {
     const result = await service.listChanges(
       encodeContentChangeCursor("v2", 49n),
       50,
+      PAID_CONTENT_AWARE,
     );
 
     // The deck survives — the catalog publishes it to everybody, and this is
@@ -257,6 +266,7 @@ describe("ContentService content changes", () => {
     const result = await service.listChanges(
       encodeContentChangeCursor("v2", 59n),
       50,
+      PAID_CONTENT_AWARE,
     );
 
     expect(result.items.map(({ resourceId }) => resourceId)).toEqual([
@@ -269,13 +279,147 @@ describe("ContentService content changes", () => {
     contentChange.findMany.mockResolvedValue([]);
     const after = encodeContentChangeCursor("v1", 99n);
 
-    const result = await service.listChanges(after, 50);
+    const result = await service.listChanges(after, 50, PAID_CONTENT_AWARE);
 
     expect(result.items).toEqual([]);
     expect(result.hasMore).toBe(false);
     expect(decodeContentChangeCursor(result.nextCursor)).toEqual({
       version: "v2",
       sequence: 99n,
+    });
+  });
+  describe("a build that predates the paid-deck contract", () => {
+    const deckChanges = [
+      {
+        sequence: 70n,
+        operation: ContentChangeOperation.UPSERT,
+        resourceType: ContentResourceType.DECK,
+        resourceId: FREE_DECK.id,
+        contentVersion: "v2",
+      },
+      {
+        sequence: 71n,
+        operation: ContentChangeOperation.UPSERT,
+        resourceType: ContentResourceType.DECK,
+        resourceId: PAID_DECK.id,
+        contentVersion: "v2",
+      },
+      {
+        sequence: 72n,
+        operation: ContentChangeOperation.RETIRE,
+        resourceType: ContentResourceType.DECK,
+        resourceId: PAID_DECK.id,
+        contentVersion: "v2",
+      },
+    ];
+
+    it("hears about the free deck, never the locked one, and still about a withdrawal", async () => {
+      contentChange.findMany.mockResolvedValue(deckChanges);
+
+      const result = await service.listChanges(
+        encodeContentChangeCursor("v2", 69n),
+        50,
+        PAID_CONTENT_UNAWARE,
+      );
+
+      expect(result.items).toEqual([
+        {
+          operation: "UPSERT",
+          resourceType: "DECK",
+          resourceId: FREE_DECK.id,
+          contentVersion: "v2",
+        },
+        // A RETIRE always survives. It is the one event whose whole purpose
+        // is to tell a client to forget something, and a build that is never
+        // told keeps withdrawn content for good.
+        {
+          operation: "RETIRE",
+          resourceType: "DECK",
+          resourceId: PAID_DECK.id,
+          contentVersion: "v2",
+        },
+      ]);
+      expect(deck.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            id: { in: [FREE_DECK.id, PAID_DECK.id] },
+            accessModel: { in: [DeckAccessModel.FREE] },
+          },
+        }),
+      );
+      // The cursor is computed from the page the database returned, so a
+      // release that is mostly locked still terminates.
+      expect(decodeContentChangeCursor(result.nextCursor)).toEqual({
+        version: "v2",
+        sequence: 72n,
+      });
+    });
+
+    it("asks nothing of the deck table for a build that can draw them all", async () => {
+      contentChange.findMany.mockResolvedValue(deckChanges);
+
+      const result = await service.listChanges(
+        encodeContentChangeCursor("v2", 69n),
+        50,
+        PAID_CONTENT_AWARE,
+      );
+
+      expect(result.items.map(({ resourceId }) => resourceId)).toEqual([
+        FREE_DECK.id,
+        PAID_DECK.id,
+        PAID_DECK.id,
+      ]);
+      expect(deck.findMany).not.toHaveBeenCalled();
+    });
+
+    it("keeps a locked deck's shop window out of an old build's feed", async () => {
+      // The card is one the locked deck publishes as a preview on purpose,
+      // which makes it PUBLIC_PREVIEW: a newer build may show it inside the
+      // paywall, and an older one has no paywall to put it in.
+      deckCard.findMany.mockImplementation((query: MembershipQuery) =>
+        Promise.resolve(
+          query.where.learningCardId === undefined
+            ? []
+            : query.where.learningCardId.in.map((learningCardId) => ({
+                learningCardId,
+                isPreview: learningCardId === PAID_CARD_ID,
+                deck: learningCardId === PAID_CARD_ID ? PAID_DECK : FREE_DECK,
+              })),
+        ),
+      );
+      const changes = [
+        {
+          sequence: 80n,
+          operation: ContentChangeOperation.UPSERT,
+          resourceType: ContentResourceType.LEARNING_CARD,
+          resourceId: PAID_CARD_ID,
+          contentVersion: "v2",
+        },
+        {
+          sequence: 81n,
+          operation: ContentChangeOperation.UPSERT,
+          resourceType: ContentResourceType.LEARNING_CARD,
+          resourceId: PUBLIC_CARD_ID,
+          contentVersion: "v2",
+        },
+      ];
+      contentChange.findMany.mockResolvedValue(changes);
+      const after = encodeContentChangeCursor("v2", 79n);
+
+      const shown = await service.listChanges(after, 50, PAID_CONTENT_AWARE);
+      const withheld = await service.listChanges(
+        after,
+        50,
+        PAID_CONTENT_UNAWARE,
+      );
+
+      expect(shown.items.map(({ resourceId }) => resourceId)).toEqual([
+        PAID_CARD_ID,
+        PUBLIC_CARD_ID,
+      ]);
+      expect(withheld.items.map(({ resourceId }) => resourceId)).toEqual([
+        PUBLIC_CARD_ID,
+      ]);
     });
   });
 });
