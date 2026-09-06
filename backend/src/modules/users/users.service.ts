@@ -1,20 +1,10 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
-import type { Prisma, User } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import type { UpdateUserRequest } from "./user.request";
-
-function serializeUser(user: User): Record<string, unknown> {
-  return {
-    id: user.id,
-    displayName: user.displayName,
-    preferredLocale: user.preferredLocale,
-    status: user.status,
-    createdAt: user.createdAt.toISOString(),
-    updatedAt: user.updatedAt.toISOString(),
-  };
-}
+import { serializeUser } from "./user.serializer";
 
 @Injectable()
 export class UsersService {

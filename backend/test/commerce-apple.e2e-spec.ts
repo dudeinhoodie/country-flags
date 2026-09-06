@@ -652,6 +652,11 @@ describe("Apple transactions and entitlements (integration)", () => {
 
     // Accepted, recorded, acted on by nobody: refusing would make Apple
     // retry a product mismatch every hour for a day and fix nothing.
+    //
+    // The token names the stranger rather than the suite's default owner,
+    // whose account was deleted several tests ago: an account has to be
+    // found before the product can be the thing that is wrong with the
+    // notification.
     it("quarantines a product this deployment does not sell", async () => {
       await notify(
         refundNotification(
@@ -659,6 +664,7 @@ describe("Apple transactions and entitlements (integration)", () => {
           {
             productId: "app.countryflags.deck.nothing.lifetime.v1",
             transactionId: "2000000900000099",
+            appAccountToken: STRANGER_TOKEN,
           },
         ),
       ).expect(202);
@@ -671,6 +677,125 @@ describe("Apple transactions and entitlements (integration)", () => {
       });
       expect(row?.status).toBe(StoreNotificationStatus.QUARANTINED);
       expect(row?.error).toBe("UNKNOWN_PRODUCT");
+    });
+
+    // The reason the account token is published at all. Nothing in this test
+    // is authenticated as the customer: they never open the app between the
+    // purchase and the refund, and Apple's notification carries no session of
+    // ours. The token Apple signed into the transaction is the only thing
+    // that says whose purchase this is.
+    it("places a purchase nobody submitted on the account its token names", async () => {
+      const userId = "80000000-0000-4000-8000-00000000002b";
+      const accountToken = "a0000000-0000-4000-8000-00000000002b";
+      const transactionId = "2000000900000042";
+      await database.user.create({
+        data: {
+          id: userId,
+          preferredLocale: "en",
+          status: UserStatus.ACTIVE,
+          storeAccountToken: accountToken,
+        },
+      });
+      const accessToken = app.get(TestJwtSigner).sign(userId);
+      const charged = signedPurchase({
+        transactionId,
+        appAccountToken: accountToken,
+      });
+
+      await notify(
+        localTestSignedNotification({
+          notificationUuid: "c1000000-0000-4000-8000-00000000004a",
+          notificationType: "ONE_TIME_CHARGE",
+          bundleId: BUNDLE_ID,
+          signedTransactionInfo: charged,
+        }),
+      ).expect(202);
+
+      await request(httpServer)
+        .get(`/v1/decks/${PAID_DECK_ID}/cards?locale=en`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(200);
+      await expect(
+        database.storeTransaction.findUniqueOrThrow({
+          where: {
+            provider_storeEnvironment_transactionId: {
+              provider: StoreProvider.APPLE_APP_STORE,
+              storeEnvironment: StoreEnvironment.LOCAL_TEST,
+              transactionId,
+            },
+          },
+          select: { userId: true, claimState: true },
+        }),
+      ).resolves.toEqual({
+        userId,
+        claimState: StoreTransactionClaimState.CLAIMED,
+      });
+
+      // And the refund the issue is actually about: it arrives the same way,
+      // finds the same account by the same token, and takes the deck back.
+      await notify(
+        localTestSignedNotification({
+          notificationUuid: "c1000000-0000-4000-8000-00000000004b",
+          notificationType: "REFUND",
+          bundleId: BUNDLE_ID,
+          signedTransactionInfo: signedPurchase({
+            transactionId,
+            appAccountToken: accountToken,
+            revocationDate: new Date("2026-09-06T10:00:00.000Z"),
+            revocationReason: 0,
+          }),
+        }),
+      ).expect(202);
+
+      await request(httpServer)
+        .get(`/v1/decks/${PAID_DECK_ID}/cards?locale=en`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(403);
+    });
+
+    // The token names a live account or it names nobody: a purchase whose
+    // owner deleted their account is released rather than re-granted to the
+    // tombstone that row has become.
+    it("quarantines a notification whose token names a deleted account", async () => {
+      const userId = "80000000-0000-4000-8000-00000000002c";
+      const accountToken = "a0000000-0000-4000-8000-00000000002c";
+      const transactionId = "2000000900000043";
+      await database.user.create({
+        data: {
+          id: userId,
+          preferredLocale: "und",
+          status: UserStatus.DELETED,
+          // Both timestamps, because `users_deletion_timestamps_check` will
+          // not have a tombstone that never asked to be one.
+          deletionRequestedAt: new Date("2026-09-01T00:00:00.000Z"),
+          deletedAt: new Date("2026-09-01T00:00:00.000Z"),
+          storeAccountToken: accountToken,
+        },
+      });
+
+      await notify(
+        localTestSignedNotification({
+          notificationUuid: "c1000000-0000-4000-8000-00000000004c",
+          notificationType: "REFUND",
+          bundleId: BUNDLE_ID,
+          signedTransactionInfo: signedPurchase({
+            transactionId,
+            appAccountToken: accountToken,
+            revocationDate: new Date("2026-09-06T10:00:00.000Z"),
+            revocationReason: 0,
+          }),
+        }),
+      ).expect(202);
+
+      const row = await database.storeNotification.findUnique({
+        where: { notificationUuid: "c1000000-0000-4000-8000-00000000004c" },
+        select: { status: true, error: true },
+      });
+      expect(row?.status).toBe(StoreNotificationStatus.QUARANTINED);
+      expect(row?.error).toBe("UNKNOWN_ACCOUNT");
+      await expect(
+        database.userEntitlementGrant.count({ where: { userId } }),
+      ).resolves.toBe(0);
     });
   });
 });

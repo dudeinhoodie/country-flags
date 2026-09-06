@@ -6,6 +6,7 @@ import type { MetricsService } from "../../common/telemetry/metrics.service";
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AppleStoreConfig } from "./apple/apple-store.config";
 import { AppleTransactionVerifier } from "./apple/apple-transaction-verifier";
+import type { VerifiedAppleTransaction } from "./apple/apple-transaction-verifier";
 import { localTestSignedTransaction } from "./apple/testing/local-store-transaction";
 import {
   EntitlementService,
@@ -58,6 +59,19 @@ function purchase(
     bundleId: BUNDLE_ID,
     ...overrides,
   });
+}
+
+/**
+ * The same purchase, already read. `applyFromNotification` is handed a
+ * verified transaction rather than the bytes, because by the time it runs the
+ * signature has already been established.
+ */
+async function verified(
+  overrides: Partial<Parameters<typeof localTestSignedTransaction>[0]> = {},
+): Promise<VerifiedAppleTransaction> {
+  return new AppleTransactionVerifier(storeConfig()).verify(
+    purchase(overrides),
+  );
 }
 
 interface Refusal {
@@ -387,6 +401,116 @@ describe("EntitlementService", () => {
       expect(written).not.toContain(OWNER_TOKEN);
       expect(written).not.toContain(TRANSACTION_ID);
       expect(written).toContain(maskTransactionReference(TRANSACTION_ID));
+    });
+  });
+
+  describe("applyFromNotification", () => {
+    it("finds the holder from the account token when no client ever spoke", async () => {
+      transaction.user.findUnique.mockResolvedValue({
+        id: OWNER,
+        status: UserStatus.ACTIVE,
+      });
+
+      await expect(
+        service.applyFromNotification(
+          await verified({ appAccountToken: OWNER_TOKEN }),
+          REQUEST_ID,
+        ),
+      ).resolves.toBe("applied");
+
+      expect(database.user.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { storeAccountToken: OWNER_TOKEN } }),
+      );
+      expect(
+        firstCall<{ data: Record<string, unknown> }>(
+          transaction.storeTransaction.create,
+        ).data,
+      ).toMatchObject({ userId: OWNER });
+    });
+
+    it("takes the right back from the account the token names", async () => {
+      transaction.user.findUnique.mockResolvedValue({
+        id: OWNER,
+        status: UserStatus.ACTIVE,
+      });
+
+      await expect(
+        service.applyFromNotification(
+          await verified({
+            appAccountToken: OWNER_TOKEN,
+            revocationDate: new Date("2026-09-05T10:00:00.000Z"),
+            revocationReason: 0,
+          }),
+          REQUEST_ID,
+        ),
+      ).resolves.toBe("applied");
+
+      expect(
+        firstCall<{ create: Record<string, unknown> }>(
+          transaction.userEntitlementGrant.upsert,
+        ).create,
+      ).toMatchObject({ userId: OWNER, status: "REVOKED" });
+    });
+
+    // The route that worked before the token was published, and still has to:
+    // a purchase made by an older build carries no token at all, and the
+    // ledger remembers the authenticated submission that delivered it.
+    it("keeps the ledger's holder for a transaction that names no token", async () => {
+      transaction.storeTransaction.findUnique.mockResolvedValue({
+        id: LEDGER_ROW_ID,
+        userId: OWNER,
+        claimState: "CLAIMED",
+      });
+
+      await expect(
+        service.applyFromNotification(await verified(), REQUEST_ID),
+      ).resolves.toBe("applied");
+
+      expect(database.user.findUnique).not.toHaveBeenCalled();
+      expect(
+        firstCall<{ data: Record<string, unknown> }>(
+          transaction.storeTransaction.update,
+        ).data,
+      ).toMatchObject({ userId: OWNER });
+    });
+
+    it("will not hand a right to an account that is gone", async () => {
+      transaction.user.findUnique.mockResolvedValue({
+        id: OWNER,
+        status: UserStatus.DELETED,
+      });
+
+      await expect(
+        service.applyFromNotification(
+          await verified({ appAccountToken: OWNER_TOKEN }),
+          REQUEST_ID,
+        ),
+      ).resolves.toBe("UNKNOWN_ACCOUNT");
+
+      expect(transaction.storeTransaction.create).not.toHaveBeenCalled();
+      expect(transaction.userEntitlementGrant.upsert).not.toHaveBeenCalled();
+    });
+
+    it("places nobody when neither the ledger nor a token names one", async () => {
+      await expect(
+        service.applyFromNotification(await verified(), REQUEST_ID),
+      ).resolves.toBe("UNKNOWN_ACCOUNT");
+
+      expect(transaction.storeTransaction.create).not.toHaveBeenCalled();
+    });
+
+    it("writes no account token into the log", async () => {
+      transaction.user.findUnique.mockResolvedValue({
+        id: OWNER,
+        status: UserStatus.ACTIVE,
+      });
+
+      await service.applyFromNotification(
+        await verified({ appAccountToken: OWNER_TOKEN }),
+        REQUEST_ID,
+      );
+
+      expect(JSON.stringify(logger.log.mock.calls)).not.toContain(OWNER_TOKEN);
     });
   });
 

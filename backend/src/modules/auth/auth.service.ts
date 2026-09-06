@@ -13,6 +13,7 @@ import { ApiException } from "../../common/http/api.exception";
 import type { EnvironmentVariables } from "../../config/environment.validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
+import { serializeUser } from "../users/user.serializer";
 import { AccessTokenService } from "./access-token.service";
 import type { DeviceRegistration } from "./auth.request";
 import type { VerifiedProviderIdentity } from "./provider-identity-verifier";
@@ -75,7 +76,7 @@ export class AuthService {
         const session = await this.persistLogin(identity, device, context);
         return {
           tokens: await this.issueTokenPair(session),
-          user: this.serializeUser(session.user),
+          user: serializeUser(session.user),
           settings: this.serializeSettings(session.settings),
           serverTime: new Date().toISOString(),
         };
@@ -642,17 +643,6 @@ export class AuthService {
     },
   ): Promise<unknown> {
     return transaction.auditEvent.create({ data: event });
-  }
-
-  private serializeUser(user: User): Record<string, unknown> {
-    return {
-      id: user.id,
-      displayName: user.displayName,
-      preferredLocale: user.preferredLocale,
-      status: user.status,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    };
   }
 
   private serializeSettings(settings: UserSettings): Record<string, unknown> {

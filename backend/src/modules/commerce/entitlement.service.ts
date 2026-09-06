@@ -198,7 +198,7 @@ export class EntitlementService {
    *
    * There is no session here, so the account is found the only two honest
    * ways: the ledger already knows who holds this transaction, or the
-   * signed payload names an account token that is somebody's. Neither
+   * signed payload names an account token that is a live account's. Neither
    * answer available means the notification arrived before its purchase
    * ever reached us — which is a thing to quarantine and look at, not a
    * thing to guess.
@@ -252,11 +252,16 @@ export class EntitlementService {
     if (purchase.appAccountToken === null) {
       return null;
     }
+    // The account token is the route that needs nobody: Apple signed it into
+    // the transaction, so a refund that arrives before the client ever spoke
+    // still names its holder. It names only a live one — a deleted account is
+    // a tombstone, and granting a right to a tombstone is worse than
+    // quarantining the notification for a human to read (§15.4).
     const user = await this.database.user.findUnique({
       where: { storeAccountToken: purchase.appAccountToken },
-      select: { id: true },
+      select: { id: true, status: true },
     });
-    return user?.id ?? null;
+    return user === null || user.status !== UserStatus.ACTIVE ? null : user.id;
   }
 
   private async verifyOne(
