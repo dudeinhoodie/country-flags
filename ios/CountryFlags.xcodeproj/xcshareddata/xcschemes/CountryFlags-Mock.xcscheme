@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CF0000000000000000000010"
-               BuildableName = "CountryFlags Dev.app"
-               BlueprintName = "CountryFlagsApp"
+               BlueprintIdentifier = "CF0000000000000000000012"
+               BuildableName = "CountryFlags Mock.app"
+               BlueprintName = "CountryFlagsAppMock"
                ReferencedContainer = "container:CountryFlags.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -54,9 +54,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CF0000000000000000000010"
-            BuildableName = "CountryFlags Dev.app"
-            BlueprintName = "CountryFlagsApp"
+            BlueprintIdentifier = "CF0000000000000000000012"
+            BuildableName = "CountryFlags Mock.app"
+            BlueprintName = "CountryFlagsAppMock"
             ReferencedContainer = "container:CountryFlags.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -74,9 +74,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CF0000000000000000000010"
-            BuildableName = "CountryFlags Dev.app"
-            BlueprintName = "CountryFlagsApp"
+            BlueprintIdentifier = "CF0000000000000000000012"
+            BuildableName = "CountryFlags Mock.app"
+            BlueprintName = "CountryFlagsAppMock"
             ReferencedContainer = "container:CountryFlags.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

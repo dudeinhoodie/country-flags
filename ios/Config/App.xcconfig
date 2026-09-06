@@ -1,0 +1,33 @@
+// What makes a target the app, in the one place both app targets read.
+//
+// There are two of them — `CountryFlagsApp`, which ships, and
+// `CountryFlagsAppMock`, which links the canned backend the UI tests run
+// against — and the cost of that split is a place for the two to drift. This
+// file is how that cost is paid: everything the two share is written once,
+// and neither target's build configurations carry settings of their own.
+// A setting added here reaches both; a setting added to one target reaches
+// one, which is what `Scripts/check-signing-entitlements.sh` reads the
+// project to catch.
+
+// The app's own Info.plist rather than a generated one: a generated plist
+// drops the application specific keys, and `Base.xcconfig` turns generation
+// on for the test bundles that are happy with it.
+GENERATE_INFOPLIST_FILE = NO
+INFOPLIST_FILE = Config/App-Info.plist
+
+// Sign in with Apple is the only door into a Prod build, and it needs this
+// entitlement to open. This is the only line in the repository that names an
+// entitlements file; a second one would split the app's capabilities between
+// two places, and the one nobody edits is the one that ships.
+CODE_SIGN_ENTITLEMENTS = Config/CountryFlags.entitlements
+
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor
+
+// The version the App Store shows, and the build number under it. The release
+// workflow passes a build number on the command line; the marketing version is
+// raised here, once, for every target that could ship.
+MARKETING_VERSION = 0.2.0
+CURRENT_PROJECT_VERSION = 1
+
+SWIFT_EMIT_LOC_STRINGS = YES
