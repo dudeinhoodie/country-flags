@@ -224,7 +224,7 @@ public struct CatalogView: View {
                     : L10n.commercePendingBadge
             )
             if let commerce {
-                parts.append(StorePriceView(state: commerce.price(of: deck)).spokenText)
+                parts.append(commerce.price(of: deck).spokenText)
             }
         }
         return parts.joined(separator: ", ")

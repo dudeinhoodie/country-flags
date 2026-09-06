@@ -195,6 +195,23 @@ private func deck(id: UUID, code: String, cardCount: Int) -> DeckRecord {
     )
 }
 
+/// A deck the account has to hold an entitlement for.
+private func lockedDeck(id: UUID, code: String, cardCount: Int) -> DeckRecord {
+    DeckRecord(
+        id: id,
+        code: code,
+        kind: "CURATED",
+        name: code.capitalized,
+        deckDescription: "",
+        cardCount: cardCount,
+        contentVersion: "v1",
+        sortOrder: 1,
+        accessModel: DeckAccessModel.entitlement.rawValue,
+        requiredEntitlementKey: "entitlement.european_coats",
+        offerCodes: ["EUROPEAN_COATS_LIFETIME"]
+    )
+}
+
 private func card(_ id: UUID) -> LearningCardRecord {
     LearningCardRecord(
         id: id,
@@ -593,6 +610,34 @@ final class ProgressStoreTests: XCTestCase {
             totalDue: 23,
             serverTime: serverTime
         )
+    }
+
+    /// A deck that has to be bought and has none of its cards on the device
+    /// is a deck this account has nothing in. The progress screen leaves it
+    /// out rather than claiming a size the learner cannot reach.
+    func testALockedDeckIsNotCountedAsProgressWaitingToHappen() async {
+        let locked = UUID()
+        let answered = UUID()
+        let store = ProgressStore(
+            content: FakeContentRepository(
+                decks: [
+                    deck(id: deckID, code: "ALL", cardCount: 1),
+                    lockedDeck(id: locked, code: "EUROPEAN_COATS", cardCount: 52),
+                ],
+                cards: [deckID: [card(answered)]]
+            ),
+            // Something has been answered, or the screen shows no rows at all
+            // and this would prove nothing.
+            learning: StoringLearningRepository(
+                states: [state(answered, state: "REVIEW", dueAt: fixedNow)]
+            ),
+            scopes: FixedScopeResolver(scope: .guest(installationID: UUID())),
+            dates: FixedDateProvider(instant: fixedNow)
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.decks.map(\.code), ["ALL"])
     }
 
     private func makeStore(

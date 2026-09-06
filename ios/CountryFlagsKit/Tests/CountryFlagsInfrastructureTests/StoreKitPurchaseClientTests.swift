@@ -39,8 +39,8 @@ final class StoreKitPurchaseClientTests: XCTestCase {
 
     private var session: SKTestSession!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
         session = try SKTestSession(contentsOf: Self.configuration())
         // The session is the simulator's, not this test's: what one case turns
         // on the next case inherits, and Ask to Buy left on by the pending
@@ -51,6 +51,31 @@ final class StoreKitPurchaseClientTests: XCTestCase {
         // waited for somebody to would hang rather than fail.
         session.disableDialogs = true
         session.clearTransactions()
+        try await waitForTheStore()
+    }
+
+    /// Waits until the configuration this session installed is answering.
+    ///
+    /// Creating the session does not make its products available at once: the
+    /// simulator's store has to pick the configuration up, and on a cold
+    /// machine that takes seconds. Asking too early gets an empty answer,
+    /// which is indistinguishable from a product the store does not sell — a
+    /// warm machine hid it, and CI found it on the first run.
+    ///
+    /// This waits for the store rather than for a duration, so it costs
+    /// nothing where the store is already up and does not go red where it is
+    /// merely slow.
+    private func waitForTheStore() async throws {
+        let client = StoreKitPurchaseClient()
+        let deadline = Date().addingTimeInterval(60)
+        while Date() < deadline {
+            if let products = try? await client.products(for: [productID]),
+                !products.isEmpty {
+                return
+            }
+            try await Task.sleep(for: .milliseconds(250))
+        }
+        XCTFail("The test store never offered \(productID)")
     }
 
     override func tearDown() {

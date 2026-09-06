@@ -65,7 +65,7 @@ struct StorePriceView: View {
     let state: StorePriceState
 
     var body: some View {
-        Text(text)
+        Text(state.spokenText)
             .font(DesignTokens.Typography.caption)
             .foregroundStyle(.white.opacity(state.isPriced ? 0.75 : 0.5))
             // Never truncated. "Purchase temporarily unavailable" is the
@@ -76,21 +76,22 @@ struct StorePriceView: View {
             .accessibilityIdentifier(AccessibilityIdentifier.deckPrice)
     }
 
-    private var text: String {
-        switch state {
+}
+
+extension StorePriceState {
+    /// What the line says, wherever it is said.
+    ///
+    /// On the state rather than on the view because a catalogue row is one
+    /// accessibility element: its price is spoken as part of the row, so the
+    /// row needs the words without drawing them twice.
+    var spokenText: String {
+        switch self {
         case .loading: L10n.commercePriceLoading
         case .priced(let displayPrice): L10n.commerceOneTimePrice(displayPrice)
         case .unavailable: L10n.commercePriceUnavailable
         }
     }
 
-    /// The same words, for a caller that has to place them in a label of its
-    /// own — a catalogue row is one accessibility element, so its price is
-    /// spoken as part of the row rather than after it.
-    var spokenText: String { text }
-}
-
-extension StorePriceState {
     var isPriced: Bool {
         if case .priced = self { return true }
         return false
