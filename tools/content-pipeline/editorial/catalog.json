@@ -451,6 +451,12 @@
         "isoAlpha2": "CK"
       },
       "key": "area.cook-islands",
+      "overrides": {
+        "names.en.official": "Cook Islands",
+        "names.en.short": "Cook Islands",
+        "names.ru.official": "Острова Кука",
+        "names.ru.short": "Острова Кука"
+      },
       "recognitionStatus": "special_area",
       "status": "active",
       "type": "area"
@@ -1051,6 +1057,12 @@
         "isoAlpha2": "KP"
       },
       "key": "country.democratic-people-s-republic-of-korea",
+      "overrides": {
+        "names.en.official": "North Korea",
+        "names.en.short": "North Korea",
+        "names.ru.official": "Северная Корея",
+        "names.ru.short": "Северная Корея"
+      },
       "recognitionStatus": "un_member",
       "status": "active",
       "type": "country"
@@ -1632,6 +1644,12 @@
         "isoAlpha2": "KG"
       },
       "key": "country.kyrgyzstan",
+      "overrides": {
+        "names.en.official": "Kyrgyzstan",
+        "names.en.short": "Kyrgyzstan",
+        "names.ru.official": "Кыргызстан",
+        "names.ru.short": "Кыргызстан"
+      },
       "recognitionStatus": "un_member",
       "status": "active",
       "type": "country"
@@ -1824,6 +1842,12 @@
         "isoAlpha2": "MH"
       },
       "key": "country.marshall-islands",
+      "overrides": {
+        "names.en.official": "Marshall Islands",
+        "names.en.short": "Marshall Islands",
+        "names.ru.official": "Маршалловы Острова",
+        "names.ru.short": "Маршалловы Острова"
+      },
       "recognitionStatus": "un_member",
       "status": "active",
       "type": "country"
@@ -2208,6 +2232,12 @@
         "isoAlpha2": "KR"
       },
       "key": "country.republic-of-korea",
+      "overrides": {
+        "names.en.official": "South Korea",
+        "names.en.short": "South Korea",
+        "names.ru.official": "Республика Корея",
+        "names.ru.short": "Южная Корея"
+      },
       "recognitionStatus": "un_member",
       "status": "active",
       "type": "country"
@@ -2508,6 +2538,12 @@
         "isoAlpha2": "PS"
       },
       "key": "country.state-of-palestine",
+      "overrides": {
+        "names.en.official": "Palestine",
+        "names.en.short": "Palestine",
+        "names.ru.official": "Палестина",
+        "names.ru.short": "Палестина"
+      },
       "recognitionStatus": "un_observer",
       "status": "active",
       "type": "country"
@@ -3382,6 +3418,12 @@
         "isoAlpha2": "MO"
       },
       "key": "territory.china-macao-special-administrative-region",
+      "overrides": {
+        "names.en.official": "Macao",
+        "names.en.short": "Macao",
+        "names.ru.official": "Макао",
+        "names.ru.short": "Макао"
+      },
       "recognitionStatus": "dependent_territory",
       "status": "active",
       "type": "territory"
@@ -3394,6 +3436,12 @@
         "isoAlpha2": "CX"
       },
       "key": "territory.christmas-island",
+      "overrides": {
+        "names.en.official": "Christmas Island",
+        "names.en.short": "Christmas Island",
+        "names.ru.official": "Остров Рождества",
+        "names.ru.short": "Остров Рождества"
+      },
       "recognitionStatus": "dependent_territory",
       "status": "active",
       "type": "territory"
