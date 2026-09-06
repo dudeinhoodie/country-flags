@@ -467,6 +467,30 @@ provider deployment ID и migration version.
 GitHub хранит release SHA, actor, environment, result и URL независимо от
 provider logs.
 
+### 17.1. Что из этого реализовано
+
+Сигналы, запросы, каталог alerts и то, чего проверить нельзя, описаны в
+[20-deployment-observability.md](./20-deployment-observability.md). Порядок
+действий по каждому alert — в
+[ops/deployment-runbooks.md](./ops/deployment-runbooks.md). Определения alerts,
+log-based метрик и dashboard лежат в `infrastructure/monitoring/` и применяются
+владельцем вручную: репозиторий их не создаёт.
+
+Метаданные release несут каждая строка логов и каждый OTEL resource:
+`service`, `environment`, `release`, `deploymentId` (Cloud Run `K_REVISION`) и
+`migrationVersion`, который выставляет deploy после успешной миграции. SHA
+релиза дополнительно становится Cloud Run label `release`, потому что по
+переменной окружения фильтровать нельзя, а по label — можно.
+
+Два ограничения, которые меняют смысл раздела:
+
+- OTLP collector не развёрнут, `OTEL_ENABLED` не выставлен ни на одной ревизии.
+  Метрики из `metrics.service.ts` — корректный код без читателя, поэтому alerts
+  написаны по log-based метрикам, а воркеры пишут те же числа ещё и строкой лога;
+- prod не существует (#39, #301), поэтому production-часть alerts и runbooks
+  описана по ТЗ и ни разу не выполнялась. Это отмечено на месте, а не задним
+  числом.
+
 ## 18. Security
 
 - Runtime container работает non-root.

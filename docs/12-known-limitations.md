@@ -10,6 +10,11 @@
 - **Нет expand/contract тулинга для zero-downtime схемных изменений.** Каждая миграция обязана быть обратно совместимой с уже запущенной предыдущей версией приложения на время rolling deploy — см. [11-migration-deployment-runbook.md](./11-migration-deployment-runbook.md) §2.
 - **Не enforced несколько TTL/retention полей**: `AnalyticsOutboxEvent.expiresAt` проставляется, но не читается ни одним job; `LearningOutboxEvent`, `RefreshSession`, `DataExportRequest`, `AuditEvent` не имеют периодической очистки — только каскадное удаление при удалении аккаунта. См. [09-retention.md](./09-retention.md) §2–3.
 - **Модель `IdempotencyRecord` не используется.** Определена в Prisma schema, но ни один сервис её не читает и не пишет — см. [09-retention.md](./09-retention.md) §2.
+- **Production не существует.** Нет service `api-prod`, нет production deploy workflow, нет production БД и backup bucket. Production-часть promotion, rollback, backup gate и restore drill описана по ТЗ и ни разу не выполнялась — см. [20-deployment-observability.md](./20-deployment-observability.md) §10 и issues #39, #301.
+- **OTLP collector не развёрнут.** `OTEL_ENABLED` не выставлен ни на одной hosted-ревизии, поэтому метрики и трейсы из `metrics.service.ts` никуда не уходят. Alerts написаны по log-based метрикам из тех же структурированных логов — см. [20-deployment-observability.md](./20-deployment-observability.md) §2.2 и §5.
+- **Alerts определены, но не созданы.** В GCP-проекте нет ни одной alert policy и ни одного notification channel; определения лежат в `infrastructure/monitoring/` и применяются владельцем вручную.
+- **`LOG_LEVEL` не влияет на runtime.** Переменная валидируется и выставляется на ревизии, но `JsonLoggerService` пишет все уровни безусловно.
+- **Нет auto-instrumentation OpenTelemetry.** Есть один ручной span на запрос; спанов БД и исходящих HTTP-вызовов нет, поэтому трейс показывает, где запрос был в нашем коде, но не то, чего он ждал.
 
 ## Provider-agnostic подсистемы без выбранного provider
 
