@@ -129,9 +129,8 @@ jobs:
       - name: Check the job runs on the direct connection
         run: |
           set -euo pipefail
-          secret="$(gcloud run jobs describe "${JOB}" --region "${REGION}" \
-            --format='value(spec.template.spec.template.spec.containers[0].env)' )"
-          echo "${secret}" | grep -q 'dev-direct-database-url' || {
+          gcloud run jobs describe "${JOB}" --region "${REGION}" --format=json \
+            | grep -q 'dev-direct-database-url' || {
             echo "::error::${JOB} is not configured against the direct database URL"
             exit 1
           }
