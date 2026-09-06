@@ -1,3 +1,10 @@
+// Must be the first import: it fixes the minimum client version before
+// app.module.ts snapshots process.env through ConfigModule.forRoot.
+import {
+  originalMinimumClientVersions,
+  PAID_AWARE_CLIENT,
+} from "./paid-content-client.environment";
+
 import { spawnSync } from "node:child_process";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
@@ -26,17 +33,6 @@ import {
   TEST_STUDY_USER_ID,
 } from "../src/modules/study-sessions/fixtures/test-study.fixture";
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
-
-/**
- * A build new enough to be told a deck is locked. The catalog and the change
- * feed are filtered by client version as well as by entitlement, and these
- * tests are about the entitlement half; the headers say which build is asking
- * so the other half stays out of the way.
- */
-const PAID_AWARE_CLIENT = {
-  "X-Client-Platform": "ios",
-  "X-Client-App-Version": "1.0.0",
-};
 
 const CONTENT_VERSION = "test-only-fixture-v1";
 const FREE_DECK_ID = "70000000-0000-4000-8000-000000000001";
@@ -115,8 +111,6 @@ describe("deck entitlement guard (integration)", () => {
   const originalDatabaseUrl = process.env.DATABASE_URL;
   const originalNodeEnvironment = process.env.NODE_ENV;
   const originalTestAuthEnabled = process.env.TEST_AUTH_ENABLED;
-  const originalMinimumClientVersions =
-    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS;
   const databaseName =
     `country_flags_deck_access_${process.pid}_${Date.now()}`.toLowerCase();
   let admin: PrismaClient;
@@ -191,7 +185,6 @@ describe("deck entitlement guard (integration)", () => {
     process.env.DATABASE_URL = testDatabaseUrl;
     process.env.NODE_ENV = "test";
     process.env.TEST_AUTH_ENABLED = "true";
-    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS = "ios=1.0.0";
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

@@ -1,3 +1,13 @@
+// Must be the first import: it fixes the minimum client version before
+// app.module.ts snapshots process.env through ConfigModule.forRoot, which is
+// the whole subject of this suite.
+import {
+  originalMinimumClientVersions,
+  PAID_AWARE_CLIENT as CURRENT_CLIENT,
+  PAID_UNAWARE_CLIENT as OLD_CLIENT,
+  UNIDENTIFIED_CLIENT as ANONYMOUS_CLIENT,
+} from "./paid-content-client.environment";
+
 import { spawnSync } from "node:child_process";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
@@ -26,26 +36,6 @@ const FREE_DECK_ID = "70000000-0000-4000-8000-000000000001";
 const PAID_DECK_ID = "70000000-0000-4000-8000-00000000000a";
 const ENTITLEMENT_KEY = "entitlement.test_only_paid";
 const OFFER_CODE = "TEST_ONLY_PAID_LIFETIME";
-
-/** The first build that understands `Deck.access`, as this deployment is told. */
-const MINIMUM_CLIENT_VERSION = "2.0.0";
-
-/** A build shipped with StoreKit, the paywall and the locked catalog row. */
-const CURRENT_CLIENT = {
-  "X-Client-Platform": "ios",
-  "X-Client-App-Version": "2.1.0",
-};
-/** A build from before any of that existed. */
-const OLD_CLIENT = {
-  "X-Client-Platform": "ios",
-  "X-Client-App-Version": "1.9.9",
-};
-/**
- * Something that will not say what it is: either a build old enough to
- * predate the client headers, or not the app at all. Both get the
- * conservative answer.
- */
-const ANONYMOUS_CLIENT = {};
 
 interface DeckBody {
   id: string;
@@ -97,8 +87,6 @@ describe("minimum client version gate (integration)", () => {
   const baseUrl = process.env.DATABASE_URL;
   const originalDatabaseUrl = process.env.DATABASE_URL;
   const originalNodeEnvironment = process.env.NODE_ENV;
-  const originalMinimumClientVersions =
-    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS;
   const databaseName =
     `country_flags_client_gate_${process.pid}_${Date.now()}`.toLowerCase();
   let admin: PrismaClient;
@@ -115,7 +103,7 @@ describe("minimum client version gate (integration)", () => {
     const response = await request(httpServer)
       .get("/v1/content/changes")
       .set(headers)
-      .query({ locale: "en", after: changeCursor, limit: 200 })
+      .query({ locale: "en", after: changeCursor, limit: 100 })
       .expect(200);
     return response.body as ChangePageBody;
   }
@@ -264,7 +252,6 @@ describe("minimum client version gate (integration)", () => {
 
     process.env.DATABASE_URL = testDatabaseUrl;
     process.env.NODE_ENV = "test";
-    process.env.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS = `ios=${MINIMUM_CLIENT_VERSION}`;
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -421,7 +408,7 @@ describe("minimum client version gate (integration)", () => {
       const second = await request(httpServer)
         .get("/v1/content/changes")
         .set(OLD_CLIENT)
-        .query({ locale: "en", after: first.nextCursor, limit: 200 })
+        .query({ locale: "en", after: first.nextCursor, limit: 100 })
         .expect(200);
 
       expect(first.nextCursor).not.toEqual(changeCursor);
