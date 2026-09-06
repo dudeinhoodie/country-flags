@@ -206,6 +206,28 @@ public struct CatalogView: View {
         }
         // One row is one thing to hear: the name, the trail, nothing twice.
         .accessibilityElement(children: .combine)
+        // Combining reads the children in layout order, and the badge sits
+        // beside the title because that is where it belongs on screen — so
+        // the spoken order came out name, paid, size. `DESIGN.md` asks for
+        // deck, card count, paid state, price: stated here rather than
+        // rearranged, so the layout stays the approved one.
+        .accessibilityLabel(spokenLabel(for: deck, isLocked: isLocked))
+    }
+
+    /// What VoiceOver reads for one row, in the order the design settles.
+    private func spokenLabel(for deck: DeckRecord, isLocked: Bool) -> String {
+        var parts = [deck.name, trail(for: deck)]
+        if isLocked {
+            parts.append(
+                badgeState(for: deck) == .locked
+                    ? L10n.commercePaidBadgeAccessibility
+                    : L10n.commercePendingBadge
+            )
+            if let commerce {
+                parts.append(StorePriceView(state: commerce.price(of: deck)).spokenText)
+            }
+        }
+        return parts.joined(separator: ", ")
     }
 
     private func badgeState(for deck: DeckRecord) -> DeckAccessBadge.State {

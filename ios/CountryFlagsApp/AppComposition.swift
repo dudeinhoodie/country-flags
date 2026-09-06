@@ -514,8 +514,13 @@ struct AppComposition: AppDependencies {
             dates: dates,
             logger: logger
         )
-        store.onSignedIn = { [sync] in
+        store.onSignedIn = { [sync, commerce] in
             await sync.synchronize(trigger: .signedIn)
+            // A tag issued for one account says nothing about another, and a
+            // purchase this device was holding for nobody now has somebody to
+            // be granted to. Asking again is what turns signing in on a second
+            // device into the deck being there.
+            await commerce.refresh(trigger: .login)
         }
         return store
     }

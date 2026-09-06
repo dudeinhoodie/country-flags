@@ -79,6 +79,11 @@ struct StorePriceView: View {
         case .unavailable: L10n.commercePriceUnavailable
         }
     }
+
+    /// The same words, for a caller that has to place them in a label of its
+    /// own — a catalogue row is one accessibility element, so its price is
+    /// spoken as part of the row rather than after it.
+    var spokenText: String { text }
 }
 
 extension StorePriceState {

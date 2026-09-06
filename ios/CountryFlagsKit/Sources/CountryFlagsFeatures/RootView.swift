@@ -301,7 +301,12 @@ public struct RootView: View {
             .tag(AppTab.home)
 
             NavigationStack(path: $router.catalogNavigationPath) {
-                CatalogView(store: content, assets: assets, progress: progress) { router.push(.deck(id: $0)) }
+                CatalogView(
+                    store: content,
+                    assets: assets,
+                    progress: progress,
+                    commerce: commerce
+                ) { router.push(.deck(id: $0)) }
                     .toolbar { accountAndSettings }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)

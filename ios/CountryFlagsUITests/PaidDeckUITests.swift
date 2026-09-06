@@ -10,6 +10,13 @@ import XCTest
 /// language of the simulator.
 @MainActor
 final class PaidDeckUITests: XCTestCase {
+    /// The fixture sign-in, which is the only way a test can get past a
+    /// provider sheet. Debug builds only, and only because the launch asks.
+    private let fixtures = ["-fake-signin"]
+    /// An unsigned build has no keychain entitlement, so a pinned identity is
+    /// what keeps one guest across a relaunch.
+    private let identity = ["-installation-id", "44444444-5555-4666-8777-888888888888"]
+
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
@@ -41,11 +48,13 @@ final class PaidDeckUITests: XCTestCase {
 
         paidRow.tap()
 
+        // The identifier sits on the screen's scroll view, so the query names
+        // no element type: what matters is that the paywall is what opened.
+        XCTAssertTrue(paywall(in: app).waitForExistence(timeout: 10), app.debugDescription)
         XCTAssertTrue(
-            app.otherElements["deck.paywall"].waitForExistence(timeout: 10),
+            app.buttons["deck.paid.restore"].waitForExistence(timeout: 5),
             app.debugDescription
         )
-        XCTAssertTrue(app.buttons["deck.paid.restore"].exists, app.debugDescription)
         // The full card list is not shown before the deck is bought.
         XCTAssertFalse(app.buttons["study.start"].exists, app.debugDescription)
     }
@@ -70,18 +79,25 @@ final class PaidDeckUITests: XCTestCase {
             app.buttons["study.start"].waitForExistence(timeout: 10),
             app.debugDescription
         )
-        XCTAssertFalse(app.otherElements["deck.paywall"].exists, app.debugDescription)
+        XCTAssertFalse(paywall(in: app).exists, app.debugDescription)
     }
 
     /// Owned is a deck: the commerce chrome is gone, the cards arrived, and
     /// the action is the one every other deck has.
+    ///
+    /// It signs in first, and that is not a convenience. A purchase needs an
+    /// account to be granted to, so a guest holds no entitlement however much
+    /// the store has been asked — which is exactly what the locked test above
+    /// shows. Owning anything starts with an account.
     func testAnOwnedDeckShowsItsCardsAndNoCommerceChrome() {
-        let app = launch(arguments: ["-reset-store", "-owned-deck"])
+        let app = launch(arguments: ["-reset-store", "-owned-deck"] + fixtures + identity)
         XCTAssertTrue(
             app.buttons["home.deck.ALL"].waitForExistence(timeout: 30),
             app.debugDescription
         )
+        signIn(in: app)
 
+        app.tabBars.buttons["Home"].tap()
         app.tabBars.buttons["Catalog"].tap()
 
         let deck = app.buttons["catalog.deck.SPECIAL_AREAS"]
@@ -94,7 +110,7 @@ final class PaidDeckUITests: XCTestCase {
             app.buttons["study.start"].waitForExistence(timeout: 15),
             app.debugDescription
         )
-        XCTAssertFalse(app.otherElements["deck.paywall"].exists, app.debugDescription)
+        XCTAssertFalse(paywall(in: app).exists, app.debugDescription)
         XCTAssertFalse(app.buttons["deck.paid.restore"].exists, app.debugDescription)
         XCTAssertFalse(app.staticTexts["deck.paid.price"].exists, app.debugDescription)
         // The list is the deck's own cards, each opening the existing sheet.
@@ -102,6 +118,36 @@ final class PaidDeckUITests: XCTestCase {
             app.staticTexts["deck.cardCount"].waitForExistence(timeout: 10),
             app.debugDescription
         )
+    }
+
+    private func paywall(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: "deck.paywall").firstMatch
+    }
+
+    /// Signs in through the fixture and comes back out of the account screen.
+    private func signIn(in app: XCUIApplication) {
+        let account = app.buttons["account.open"]
+        XCTAssertTrue(account.waitForExistence(timeout: 30), app.debugDescription)
+        account.tap()
+
+        let signedIn = app.descendants(matching: .any)
+            .matching(identifier: "settings.account.signedIn")
+            .firstMatch
+        // A session lives in the keychain, which outlives the store the launch
+        // resets, so a device that signed in for an earlier test arrives here
+        // already signed in. That is a starting state, not a failure.
+        if signedIn.waitForExistence(timeout: 5) { return }
+
+        // The screen is assembled while the launch is still importing content
+        // and rebuilds once its own state has been read, so a tap that lands
+        // in that moment is dropped. It is offered twice before this fails.
+        let fixture = app.buttons["settings.account.fakeSignIn"]
+        XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
+        fixture.tap()
+        if !signedIn.waitForExistence(timeout: 15), fixture.exists {
+            fixture.tap()
+        }
+        XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {
