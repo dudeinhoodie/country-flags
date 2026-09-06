@@ -1,9 +1,40 @@
 import { DraftEntitiesService } from "./draft-entities.service";
+import { DraftReadModelService } from "./draft-read-model.service";
+import { DraftValidationService } from "./draft-validation.service";
+import { TaxonomySourceService } from "./taxonomy-source.service";
+import { ContentAccessProjectionService } from "../content/content-access-projection.service";
+import { DeckAccessService } from "../commerce/deck-access.service";
 import type { AdminDraftsService } from "./admin-drafts.service";
 import type { PrismaService } from "../../infrastructure/database/prisma.service";
 import type { AdminUser, ContentDraft } from "@prisma/client";
 
 const actor = { id: "admin-1" } as AdminUser;
+
+/**
+ * The aggregated read model, built out of the same fakes.
+ *
+ * Nothing here is stubbed: the validation service, the taxonomy merge and
+ * the visibility policy are the real ones, so a projection that disagreed
+ * with the publish gate would fail here rather than in the console.
+ */
+function readModel(
+  database: PrismaService,
+  drafts: AdminDraftsService,
+): DraftReadModelService {
+  return new DraftReadModelService(
+    database,
+    {
+      ...drafts,
+      publishedDeckAccess: () => Promise.resolve([]),
+    } as unknown as AdminDraftsService,
+    new TaxonomySourceService(database),
+    new DraftValidationService(),
+    new ContentAccessProjectionService(
+      database,
+      new DeckAccessService(database),
+    ),
+  );
+}
 
 function entity(
   overrides: Record<string, unknown> = {},
@@ -48,9 +79,14 @@ function serviceWith(document: Record<string, unknown>): {
       findMany: () => Promise.resolve([]),
     },
     draftAsset: { findMany: () => Promise.resolve([]) },
+    geoRelation: { findMany: () => Promise.resolve([]) },
   } as unknown as PrismaService;
   return {
-    service: new DraftEntitiesService(database, drafts),
+    service: new DraftEntitiesService(
+      database,
+      drafts,
+      readModel(database, drafts),
+    ),
     written: () => next,
   };
 }
@@ -497,10 +533,13 @@ describe("DraftEntitiesService", () => {
           ]);
         },
       },
+      geoRelation: { findMany: () => Promise.resolve([]) },
     } as unknown as PrismaService;
-    const items = await new DraftEntitiesService(database, drafts).list(
-      "draft-1",
-    );
+    const { items } = await new DraftEntitiesService(
+      database,
+      drafts,
+      readModel(database, drafts),
+    ).list("draft-1", { offset: 0, limit: 100 });
     expect(geoCalls).toBe(1);
     expect(assetCalls).toBe(1);
     expect(items[0]).toMatchObject({

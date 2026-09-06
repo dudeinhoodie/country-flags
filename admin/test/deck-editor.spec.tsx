@@ -45,6 +45,11 @@ function listItem(
     hasCoatOfArms: false,
     overrideCount: 0,
     publishedName: fixture.key,
+    locales: { required: [], present: [], missing: [], complete: true },
+    usedInDeckCount: 0,
+    delivery: "PUBLIC",
+    blockingCount: 0,
+    warningCount: 0,
     ...fixture,
   };
 }
@@ -84,6 +89,25 @@ const OHIO = listItem({
 });
 const ENTITIES = [GERMANY, FRANCE, CALIFORNIA, TEXAS, OHIO];
 
+/**
+ * The read-only access summary the detail read carries beside the deck. The
+ * console shows it; the commerce facts in it come from the server.
+ */
+function access(
+  overrides: Partial<DraftDeckDetail["access"]> = {},
+): DraftDeckDetail["access"] {
+  return {
+    model: "FREE",
+    requiredEntitlementKey: null,
+    published: null,
+    entitlementKnown: false,
+    offerCodes: [],
+    storeProducts: [],
+    sellable: true,
+    ...overrides,
+  };
+}
+
 function deckDetail(overrides: Partial<DraftDeckDetail> = {}): DraftDeckDetail {
   return {
     key: "deck.symbols-sampler",
@@ -100,6 +124,20 @@ function deckDetail(overrides: Partial<DraftDeckDetail> = {}): DraftDeckDetail {
     previewCardIds: [],
     memberKeys: ["country.germany"],
     resolvedMemberCards: [],
+    previewCards: [],
+    summary: {
+      cardCount: 1,
+      templateCodes: ["FLAG_TO_COUNTRY"],
+      missingAssetCount: 0,
+      locales: { required: [], present: [], missing: [], complete: true },
+      previewCardCount: 0,
+      delivery: { public: 1, publicPreview: 0, paidOnly: 0 },
+      blocking: 0,
+      warnings: 0,
+    },
+    access: access(),
+    validation: { blocking: 0, warnings: 0, findings: [] },
+    draftRevision: 1,
     ...overrides,
   };
 }
@@ -436,10 +474,10 @@ describe("the Access block", () => {
   it("checks the entitlement, its offer and the product in this environment", async () => {
     stubApi(
       deckDetail({
-        access: {
+        access: access({
           model: "ENTITLEMENT",
           requiredEntitlementKey: "deck.european_coats",
-        },
+        }),
       }),
       { commerce: true },
     );
@@ -460,10 +498,10 @@ describe("the Access block", () => {
   it("says it cannot check when the commerce contour is not served here", async () => {
     stubApi(
       deckDetail({
-        access: {
+        access: access({
           model: "ENTITLEMENT",
           requiredEntitlementKey: "deck.european_coats",
-        },
+        }),
       }),
     );
     renderEditor("deck.symbols-sampler");
@@ -502,10 +540,10 @@ describe("the Access block", () => {
   it("locks the entitlement key of a published paid deck", async () => {
     stubApi(
       deckDetail({
-        access: {
+        access: access({
           model: "ENTITLEMENT",
           requiredEntitlementKey: "deck.european_coats",
-        },
+        }),
       }),
       {
         publishedDecks: [

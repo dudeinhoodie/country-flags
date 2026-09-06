@@ -6,10 +6,14 @@ import type { ObjectStorage } from "../../infrastructure/object-storage/object-s
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AdminAuditService } from "../admin-auth/admin-audit.service";
 import { AdminAuthModule } from "../admin-auth/admin-auth.module";
+import { ContentModule } from "../content/content.module";
 import { AdminDraftsController } from "./admin-drafts.controller";
 import { AdminDraftsService } from "./admin-drafts.service";
 import { CatalogSourceService } from "./catalog-source.service";
 import { DraftAssetCleanupService } from "./draft-asset-cleanup.service";
+import { DraftCandidatesController } from "./draft-candidates.controller";
+import { DraftCandidatesService } from "./draft-candidates.service";
+import { DraftReadModelService } from "./draft-read-model.service";
 import { DraftAssetsController } from "./draft-assets.controller";
 import { DraftAssetsService } from "./draft-assets.service";
 import { DraftDecksController } from "./draft-decks.controller";
@@ -33,10 +37,15 @@ import { ReleaseRunService } from "./release-run.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
 
 @Module({
-  imports: [AdminAuthModule],
+  // The console asks the same question about a draft that the public
+  // projection asks about a release — "who may see this" — and it must get
+  // the same answer, so it uses that service rather than a copy of the rule
+  // (#356, ADR-019).
+  imports: [AdminAuthModule, ContentModule],
   controllers: [
     AdminDraftsController,
     DraftAssetsController,
+    DraftCandidatesController,
     DraftDecksController,
     DraftEntitiesController,
     ReleaseRunController,
@@ -45,8 +54,10 @@ import { TaxonomySourceService } from "./taxonomy-source.service";
   providers: [
     AdminDraftsService,
     CatalogSourceService,
+    DraftCandidatesService,
     DraftDecksService,
     DraftEntitiesService,
+    DraftReadModelService,
     EditorialDocumentService,
     TaxonomySourceService,
     DraftDiffService,

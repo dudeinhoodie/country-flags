@@ -21,6 +21,17 @@ import { importTestContent } from "../src/modules/content/import/test-content-im
 import { TestProviderTokenSigner } from "../src/modules/auth/testing/test-provider-token-signer";
 import { bodyOf } from "./response-body";
 
+/**
+ * The upload answers with the drawing, how far it has got and the draft it
+ * moved: an upload is an editorial write, and a console still holding the
+ * old revision would be refused on its next save (#356).
+ */
+interface UploadBody {
+  asset: AssetBody;
+  processing: { state: string };
+  draft: { draftId: string; revision: number; status: string };
+}
+
 interface AssetBody {
   id: string;
   entityContentKey: string;
@@ -212,7 +223,10 @@ describe("Admin draft asset upload (integration)", () => {
       { filename: "flag.png", contentType: "image/png" },
     );
     expect(response.status).toBe(201);
-    const asset = bodyOf<AssetBody>(response);
+    const uploaded = bodyOf<UploadBody>(response);
+    const asset = uploaded.asset;
+    expect(uploaded.processing.state).toBe("READY");
+    expect(uploaded.draft.revision).toBeGreaterThan(1);
     expect(asset.mimeType).toBe("image/svg+xml");
     expect(asset.sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(asset.aspectRatio).toBeCloseTo(1.5, 5);
@@ -239,7 +253,9 @@ describe("Admin draft asset upload (integration)", () => {
       Buffer.from(SAFE_SVG, "utf8"),
       { filename: "flag.svg", contentType: "image/svg+xml" },
     );
-    expect(bodyOf<AssetBody>(second).id).toBe(bodyOf<AssetBody>(first).id);
+    expect(bodyOf<UploadBody>(second).asset.id).toBe(
+      bodyOf<UploadBody>(first).asset.id,
+    );
     expect(await database.draftAsset.count({ where: { draftId } })).toBe(1);
   });
 
@@ -385,8 +401,8 @@ describe("Admin draft asset upload (integration)", () => {
         assetType: "COAT_OF_ARMS",
       });
       expect(coat.status).toBe(201);
-      coatId = bodyOf<AssetBody>(coat).id;
-      expect(coatId).not.toBe(bodyOf<AssetBody>(flag).id);
+      coatId = bodyOf<UploadBody>(coat).asset.id;
+      expect(coatId).not.toBe(bodyOf<UploadBody>(flag).asset.id);
 
       // Neither overwrote the other: they differ by type, which is part of
       // a draft symbol's identity.

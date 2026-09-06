@@ -4,6 +4,7 @@ import type { AdminUser, ContentDraft } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { deckCodeFromKey } from "../content/bundle/bundle-mapper";
 import { AdminDraftsService } from "./admin-drafts.service";
 import { CatalogSourceService } from "./catalog-source.service";
 import {
@@ -32,6 +33,18 @@ import {
   EDITORIAL_SCHEMA_VERSION,
   liftEditorialDocumentToV3,
 } from "./editorial-document.service";
+import {
+  DraftReadModelService,
+  isSourcedAssetType,
+  localeCompleteness,
+  promptAssetTypeEnum,
+} from "./draft-read-model.service";
+import type {
+  DeliveryStatus,
+  DraftContext,
+  LocaleCompleteness,
+} from "./draft-read-model.service";
+import type { ValidationFinding } from "./draft-validation.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
 
 interface EditorialCatalogDocument extends Record<string, unknown> {
@@ -54,9 +67,84 @@ export interface DeckView {
   previewCardIds?: string[];
 }
 
+/**
+ * One resolved member with everything the deck builder's middle column
+ * draws: what it teaches, what it is called, whether the drawing it needs
+ * exists, and who would be able to see it.
+ */
+export interface DeckResolvedCardView extends ResolvedDeckCard {
+  cardId: string;
+  entityType: string | null;
+  entityName: string | null;
+  isPreview: boolean;
+  delivery: DeliveryStatus;
+  /** Whether the drawing this card prompts with exists in the release yet. */
+  hasAsset: boolean;
+  /** The symbol that is missing, when one is. */
+  missingAssetType: string | null;
+}
+
+/** What the store knows about the right a paid deck is sold under. */
+export interface DeckStoreProduct {
+  productId: string;
+  provider: string;
+  storeEnvironment: string;
+  status: string;
+  storeStatus: string | null;
+  lastValidatedAt: string | null;
+  validationError: string | null;
+}
+
+/**
+ * The `Access & store` tab, read-only.
+ *
+ * The console records the mapping and reads the store; it never creates a
+ * product and never sets a price, so no price appears here (ADR-019).
+ */
+export interface DeckAccessSummary {
+  model: "FREE" | "ENTITLEMENT";
+  requiredEntitlementKey: string | null;
+  /** What the active release publishes, which is what buyers already have. */
+  published: {
+    model: "FREE" | "ENTITLEMENT";
+    requiredEntitlementKey: string | null;
+  } | null;
+  /** Whether the entitlement the deck names exists in commerce yet. */
+  entitlementKnown: boolean;
+  offerCodes: string[];
+  storeProducts: DeckStoreProduct[];
+  /**
+   * Whether a release could sell it: a paid deck with no validated product
+   * may be edited and saved, but not published (§8.4).
+   */
+  sellable: boolean;
+}
+
+/** The deck summary column: counts rather than another round trip. */
+export interface DeckSummaryView {
+  cardCount: number;
+  templateCodes: string[];
+  missingAssetCount: number;
+  locales: LocaleCompleteness;
+  previewCardCount: number;
+  delivery: { public: number; publicPreview: number; paidOnly: number };
+  blocking: number;
+  warnings: number;
+}
+
 export interface DeckDetailView extends DeckView {
   memberKeys: string[];
-  resolvedMemberCards: ResolvedDeckCard[];
+  resolvedMemberCards: DeckResolvedCardView[];
+  /** The cards a locked deck shows before it is bought, resolved. */
+  previewCards: DeckResolvedCardView[];
+  summary: DeckSummaryView;
+  access: DeckAccessSummary;
+  validation: {
+    blocking: number;
+    warnings: number;
+    findings: ValidationFinding[];
+  };
+  draftRevision: number;
 }
 
 /**
@@ -96,6 +184,7 @@ export class DraftDecksService {
     private readonly drafts: AdminDraftsService,
     private readonly taxonomy: TaxonomySourceService,
     private readonly catalog: CatalogSourceService,
+    private readonly readModel: DraftReadModelService,
   ) {}
 
   async list(draftId: string): Promise<DeckView[]> {
@@ -105,22 +194,197 @@ export class DraftDecksService {
     return catalog.decks.map((deck) => this.toView(deck, context));
   }
 
+  /**
+   * One deck with everything the builder draws: the resolved members, what
+   * each of them would be delivered as, the previews, the store mapping and
+   * the findings that point at its own fields.
+   *
+   * All of it in one read, because a deck of fifty states rendered from
+   * per-row requests is fifty requests (#356).
+   */
   async getOne(draftId: string, deckKey: string): Promise<DeckDetailView> {
-    const draft = await this.drafts.get(draftId);
-    const catalog = asCatalog(draft.document);
+    const readContext = await this.readModel.context(draftId);
+    const catalog = readContext.catalog as unknown as EditorialCatalogDocument;
     const deck = catalog.decks.find((entry) => entry.key === deckKey);
     if (deck === undefined) {
       deckNotFound(deckKey);
     }
-    const context = await this.context(catalog);
-    const cards = this.safeCards(deck, context);
+    const context = readContext.membership;
+    const cards = await this.withPublishedCardIds(
+      this.safeCards(deck, context),
+      readContext.draft.baseContentVersion,
+    );
+    const previewIds = new Set(previewCardIdsOf(deck));
+    const resolved = await this.describeCards(cards, previewIds, readContext);
+    const findings = this.readModel.findingsFor(readContext.report, deckKey);
+    const previews = resolved.filter((card) => previewIds.has(card.cardId));
+
     return {
       ...this.toView(deck, context),
       memberKeys: this.safeMembers(deck, context),
-      resolvedMemberCards: await this.withPublishedCardIds(
-        cards,
-        draft.baseContentVersion,
+      resolvedMemberCards: resolved,
+      previewCards: previews,
+      summary: {
+        cardCount: resolved.length,
+        templateCodes: [
+          ...new Set(resolved.map((card) => card.templateCode)),
+        ].sort(),
+        missingAssetCount: resolved.filter((card) => !card.hasAsset).length,
+        locales: localeCompleteness(
+          catalog.supportedLocales,
+          Object.entries(deck.names)
+            .filter(
+              ([, localized]) =>
+                localized.name.trim().length > 0 &&
+                localized.description.trim().length > 0,
+            )
+            .map(([locale]) => locale),
+        ),
+        previewCardCount: previews.length,
+        delivery: {
+          public: resolved.filter((card) => card.delivery === "PUBLIC").length,
+          publicPreview: resolved.filter(
+            (card) => card.delivery === "PUBLIC_PREVIEW",
+          ).length,
+          paidOnly: resolved.filter((card) => card.delivery === "PAID_ONLY")
+            .length,
+        },
+        ...DraftReadModelService.counts(findings),
+      },
+      access: await this.accessSummary(deck, readContext),
+      validation: { ...DraftReadModelService.counts(findings), findings },
+      draftRevision: readContext.draft.revision,
+    };
+  }
+
+  /**
+   * The resolved rows, each with the name, the drawing and the delivery the
+   * builder shows beside it.
+   */
+  private async describeCards(
+    cards: ResolvedDeckCard[],
+    previewIds: Set<string>,
+    context: DraftContext,
+  ): Promise<DeckResolvedCardView[]> {
+    const delivery = await this.readModel.cardDelivery(
+      cards.map((card) => cardIdentity(card)),
+      context.reach,
+    );
+    const uploaded = new Set(
+      context.draftAssets.map(
+        (asset) => `${asset.entityContentKey}#${asset.assetType}`,
       ),
+    );
+    const types = new Map(
+      context.catalog.entities.map((entity) => [entity.key, entity.type]),
+    );
+    return cards.map((card) => {
+      const cardId = cardIdentity(card);
+      const published = context.published.get(card.entityKey);
+      const wanted = promptAssetTypeEnum(card.templateCode);
+      const hasAsset =
+        wanted === null ||
+        isSourcedAssetType(wanted) ||
+        uploaded.has(`${card.entityKey}#${wanted}`) ||
+        (published?.assetTypes.has(wanted) ?? false);
+      return {
+        ...card,
+        cardId,
+        entityType: types.get(card.entityKey) ?? null,
+        entityName:
+          published?.names.get("en") ??
+          [...(published?.names.values() ?? [])][0] ??
+          null,
+        isPreview: previewIds.has(cardId),
+        delivery: delivery.get(cardId) ?? "PAID_ONLY",
+        hasAsset,
+        missingAssetType: hasAsset || wanted === null ? null : wanted,
+      };
+    });
+  }
+
+  /**
+   * What sells the deck, read from commerce rather than from the draft.
+   *
+   * A free deck answers with the model and nothing else: there is no offer,
+   * no product and nothing to diagnose.
+   */
+  private async accessSummary(
+    deck: EditorialDeck,
+    context: DraftContext,
+  ): Promise<DeckAccessSummary> {
+    const model = deck.access?.model ?? "FREE";
+    const entitlementKey = deck.access?.requiredEntitlementKey ?? null;
+    const published =
+      context.publishedDecks.find(
+        (entry) => entry.code === deckCodeFromKey(deck.key),
+      ) ?? null;
+    const base: DeckAccessSummary = {
+      model,
+      requiredEntitlementKey: entitlementKey,
+      published:
+        published === null
+          ? null
+          : {
+              model: published.accessModel,
+              requiredEntitlementKey: published.requiredEntitlementKey,
+            },
+      entitlementKnown: false,
+      offerCodes: [],
+      storeProducts: [],
+      sellable: model === "FREE",
+    };
+    if (model === "FREE" || entitlementKey === null) {
+      return base;
+    }
+
+    const [entitlement, grants] = await Promise.all([
+      this.database.entitlementDefinition.findUnique({
+        where: { key: entitlementKey },
+        select: { key: true },
+      }),
+      this.database.commerceOfferGrant.findMany({
+        where: { entitlementKey },
+        select: {
+          offer: {
+            select: {
+              code: true,
+              products: {
+                select: {
+                  productId: true,
+                  provider: true,
+                  storeEnvironment: true,
+                  status: true,
+                  storeStatus: true,
+                  lastValidatedAt: true,
+                  validationError: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+    const storeProducts = grants.flatMap((grant) =>
+      grant.offer.products.map((product) => ({
+        productId: product.productId,
+        provider: String(product.provider),
+        storeEnvironment: String(product.storeEnvironment),
+        status: String(product.status),
+        storeStatus: product.storeStatus,
+        lastValidatedAt: product.lastValidatedAt?.toISOString() ?? null,
+        validationError: product.validationError,
+      })),
+    );
+    return {
+      ...base,
+      entitlementKnown: entitlement !== null,
+      offerCodes: [...new Set(grants.map((grant) => grant.offer.code))].sort(),
+      storeProducts,
+      // Deck content saves without a product; READY and PUBLISH do not.
+      sellable:
+        entitlement !== null &&
+        storeProducts.some((product) => product.status === "VALIDATED"),
     };
   }
 

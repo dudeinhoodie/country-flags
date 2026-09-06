@@ -302,13 +302,22 @@ export function validationSummary(
 /**
  * Where a validation finding lives.
  *
- * A finding names its subject the way the catalog does — `deck.europe`,
- * `country.germany` — so the console can open the object rather than leave
- * the editor to find it (acceptance criterion: the dashboard opens a
- * specific validation issue). A stable route/field pointer on the finding
- * itself is #356; this is the prefix rule until then.
+ * A finding now carries the route that opens it, addressed by the server
+ * that knows which object each rule was about (#356). The prefix rule below
+ * stays as a fallback: a report validated before findings carried a route is
+ * still stored on its draft, and its subject is all there is to go on.
  */
-export function findingHref(draftId: string, subject: string): string | null {
+export function findingHref(
+  draftId: string,
+  subject: string,
+  route?: string,
+): string | null {
+  // The server addresses its own findings (#356): it knows which object a
+  // rule was about, and the shape of a key is a poor guess at it. The
+  // fallback stays for a report stored before findings carried a route.
+  if (route?.startsWith("/") === true) {
+    return route;
+  }
   if (subject.startsWith("deck.")) {
     return routes.draftDeck(draftId, subject);
   }

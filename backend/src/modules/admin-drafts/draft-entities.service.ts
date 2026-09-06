@@ -1,11 +1,25 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
-import { AssetStatus, AssetType } from "@prisma/client";
-import type { AdminUser, ContentDraft } from "@prisma/client";
+import { AssetType } from "@prisma/client";
+import type { AdminUser, ContentDraft, DraftAsset } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AdminDraftsService } from "./admin-drafts.service";
+import { CARD_TEMPLATES } from "./deck-cards";
 import { liftEditorialDocumentToV3 } from "./editorial-document.service";
+import {
+  ASSET_SLOTS,
+  DraftReadModelService,
+  localeCompleteness,
+  processingStateOf,
+} from "./draft-read-model.service";
+import type {
+  AssetProcessingState,
+  DeliveryStatus,
+  DraftContext,
+  LocaleCompleteness,
+} from "./draft-read-model.service";
+import type { ValidationFinding } from "./draft-validation.service";
 
 /** Every type an entity can be. A subdivision is a state, not a country. */
 export type EntityType =
@@ -287,6 +301,74 @@ export interface EntityListItem {
   overrideCount: number;
   /** The short name the active release serves, for the list to be readable. */
   publishedName: string | null;
+  /** Which supported locales already name the entity, and which do not. */
+  locales: LocaleCompleteness;
+  /** How many of the draft's decks teach it, for the "used in decks" column. */
+  usedInDeckCount: number;
+  /** What the draft's decks make of it: public, previewed or paid-only. */
+  delivery: DeliveryStatus;
+  /** The validation state of the row, so the list needs no second request. */
+  blockingCount: number;
+  warningCount: number;
+}
+
+/** One slot of the contextual media editor: a flag, a coat of arms, a map. */
+export interface EntityAssetSlot {
+  assetType: AssetType;
+  /** Where the drawing in this slot comes from, or that there is none. */
+  state: "empty" | "draft" | "published";
+  /**
+   * Who may see it, computed by the same policy the public projection uses.
+   * Null for an empty slot: there is nothing to deliver yet.
+   */
+  delivery: DeliveryStatus | null;
+  draftAssetId: string | null;
+  variant: string | null;
+  mimeType: string | null;
+  width: number | null;
+  height: number | null;
+  aspectRatio: number | null;
+  sourceUrl: string | null;
+  licenseName: string | null;
+  licenseUrl: string | null;
+  attribution: string | null;
+  replacementReason: string | null;
+  /** Whether licence, source and reason are all filled in (the publish gate). */
+  provenanceComplete: boolean;
+  processing: AssetProcessingState | null;
+  validFrom: string | null;
+  validTo: string | null;
+  /** A drawing whose validity has been closed: history, not the symbol. */
+  retired: boolean;
+  localizations: LocaleCompleteness;
+  /** The cards that prompt with this slot, and the decks that hold them. */
+  usedByCardIds: string[];
+  usedByDeckKeys: string[];
+  /**
+   * The templates that become buildable once the slot is filled. An empty
+   * slot explains what it would unlock rather than only that it is empty
+   * (docs/19-admin-redesign.md §7.1).
+   */
+  unlocksTemplates: string[];
+}
+
+/** One card in one deck that teaches this entity. */
+export interface EntityDeckUsage {
+  deckKey: string;
+  deckName: string | null;
+  accessModel: "FREE" | "ENTITLEMENT";
+  cardId: string;
+  templateCode: string;
+  templateSchemaVersion: number;
+  assetType: string | null;
+  isPreview: boolean;
+  delivery: DeliveryStatus;
+}
+
+export interface ObjectValidationSummary {
+  blocking: number;
+  warnings: number;
+  findings: ValidationFinding[];
 }
 
 export interface EntityDetail {
@@ -297,16 +379,41 @@ export interface EntityDetail {
    * falls back to these at build time.
    */
   publishedNames: Record<string, string>;
+  /** The revision this view was read at; the same value `If-Match` takes. */
+  draftRevision: number;
+  delivery: DeliveryStatus;
+  locales: LocaleCompleteness;
+  assets: EntityAssetSlot[];
+  usages: EntityDeckUsage[];
+  validation: ObjectValidationSummary;
+}
+
+/** One page of the entity list, and how much the filters matched. */
+export interface EntityListPage {
+  items: EntityListItem[];
+  total: number;
+  /** The revision this view was read at; the same value `If-Match` takes. */
+  draftRevision: number;
+}
+
+/** What the entity list may be narrowed by, all of it server-side. */
+export interface EntityListFilter {
+  search?: string | undefined;
+  type?: string | undefined;
+  parentKey?: string | undefined;
+  status?: string | undefined;
+  includeInCountryCatalog?: boolean | undefined;
+  missingFlag?: boolean | undefined;
+  missingCoatOfArms?: boolean | undefined;
+  missingLocalization?: boolean | undefined;
+  validation?: "ok" | "warning" | "blocking" | undefined;
+  usedInDecks?: boolean | undefined;
+  offset: number;
+  limit: number;
 }
 
 interface EditorialCatalogDocument extends Record<string, unknown> {
   entities: EditorialEntityRecord[];
-}
-
-/** What an entity already has drawn for it, published or uploaded. */
-interface PublishedContext {
-  name: string | null;
-  assetTypes: Set<AssetType>;
 }
 
 function asCatalog(document: unknown): EditorialCatalogDocument {
@@ -325,25 +432,163 @@ function refuse(code: string, message: string): never {
   throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, code, message);
 }
 
+/** What this draft has had uploaded into it, by entity. */
+function uploadedAssetTypes(assets: DraftAsset[]): Map<string, Set<AssetType>> {
+  const byKey = new Map<string, Set<AssetType>>();
+  for (const asset of assets) {
+    const types = byKey.get(asset.entityContentKey) ?? new Set<AssetType>();
+    types.add(asset.assetType);
+    byKey.set(asset.entityContentKey, types);
+  }
+  return byKey;
+}
+
+/** A DATE column carries no time of day, so neither does the API. */
+function isoDate(value: Date | null): string | null {
+  return value === null ? null : value.toISOString().slice(0, 10);
+}
+
+/** The locales an uploaded drawing already has a display name in. */
+function namedLocales(asset: DraftAsset | undefined): string[] {
+  if (asset === undefined || asset.localizations === null) {
+    return [];
+  }
+  const localizations = asset.localizations as Record<
+    string,
+    { displayName?: unknown } | null
+  >;
+  return Object.entries(localizations)
+    .filter(
+      ([, value]) =>
+        typeof value?.displayName === "string" &&
+        value.displayName.trim().length > 0,
+    )
+    .map(([locale]) => locale);
+}
+
+/**
+ * The templates an empty slot would unlock for this kind of entity.
+ *
+ * A coat of arms is a country's, not a state's, so the answer depends on
+ * both the symbol and the subject: telling an editor that uploading a coat
+ * for California unlocks a card would be telling them to do useless work.
+ */
+function templatesNeeding(assetType: AssetType, entityType: string): string[] {
+  return Object.entries(CARD_TEMPLATES)
+    .filter(
+      ([, template]) =>
+        template.promptAssetType === assetType &&
+        template.subjectTypes.includes(entityType),
+    )
+    .map(([code]) => code)
+    .sort();
+}
+
+/** Whether a row survives the list filters. */
+function matchesEntityFilter(
+  row: EntityListItem,
+  filter: EntityListFilter,
+): boolean {
+  if (filter.search !== undefined) {
+    // Searched over what a human can see on the row: the key, the identifier
+    // codes and the published name. Nothing else on the row is a name.
+    const needle = filter.search.toLowerCase();
+    const haystack = [
+      row.key,
+      row.publishedName ?? "",
+      ...Object.values(row.identifiers),
+    ]
+      .join(" ")
+      .toLowerCase();
+    if (!haystack.includes(needle)) {
+      return false;
+    }
+  }
+  if (filter.type !== undefined && row.type !== filter.type) {
+    return false;
+  }
+  if (filter.parentKey !== undefined && row.parentKey !== filter.parentKey) {
+    return false;
+  }
+  if (filter.status !== undefined && row.status !== filter.status) {
+    return false;
+  }
+  if (
+    filter.includeInCountryCatalog !== undefined &&
+    row.includeInCountryCatalog !== filter.includeInCountryCatalog
+  ) {
+    return false;
+  }
+  if (filter.missingFlag === true && row.hasFlag) {
+    return false;
+  }
+  if (filter.missingCoatOfArms === true && row.hasCoatOfArms) {
+    return false;
+  }
+  if (filter.missingLocalization === true && row.locales.complete) {
+    return false;
+  }
+  if (
+    filter.usedInDecks !== undefined &&
+    filter.usedInDecks !== row.usedInDeckCount > 0
+  ) {
+    return false;
+  }
+  switch (filter.validation) {
+    case "blocking":
+      return row.blockingCount > 0;
+    case "warning":
+      return row.warningCount > 0;
+    case "ok":
+      return row.blockingCount === 0 && row.warningCount === 0;
+    default:
+      return true;
+  }
+}
+
 @Injectable()
 export class DraftEntitiesService {
   constructor(
     private readonly database: PrismaService,
     private readonly drafts: AdminDraftsService,
+    private readonly readModel: DraftReadModelService,
   ) {}
 
-  async list(draftId: string): Promise<EntityListItem[]> {
-    const draft = await this.drafts.get(draftId);
-    const catalog = asCatalog(draft.document);
-    const context = await this.publishedContext(
-      catalog.entities.map((entity) => entity.key),
-    );
-    const uploaded = await this.uploadedAssetTypes(draftId);
-    return catalog.entities.map((entity) => {
+  /**
+   * The entity list as the console renders it, filtered on the server.
+   *
+   * Every column the list draws — the symbols, the locales, the decks, the
+   * validation state — is answered here rather than by a request per row
+   * (#356). The filters run over the same in-memory projection, so "missing
+   * coats under the United States" costs no more than the plain list does.
+   */
+  async list(
+    draftId: string,
+    filter: EntityListFilter,
+  ): Promise<EntityListPage> {
+    const context = await this.readModel.context(draftId);
+    const keys = context.catalog.entities.map((entity) => entity.key);
+    const delivery = await this.readModel.entityDelivery(keys, context.reach);
+    const uploaded = uploadedAssetTypes(context.draftAssets);
+    const findings = new Map<string, ValidationFinding[]>();
+    for (const finding of context.report.findings) {
+      findings.set(finding.subject, [
+        ...(findings.get(finding.subject) ?? []),
+        finding,
+      ]);
+    }
+
+    const rows = context.catalog.entities.map((entry) => {
+      const entity = entry as EditorialEntityRecord;
+      const published = context.published.get(entity.key);
       const drawn = new Set([
-        ...(context.get(entity.key)?.assetTypes ?? []),
+        ...(published?.assetTypes ?? []),
         ...(uploaded.get(entity.key) ?? []),
       ]);
+      const counts = DraftReadModelService.counts(
+        findings.get(entity.key) ?? [],
+      );
+      const usages = context.reach.usageByEntity.get(entity.key) ?? [];
       return {
         key: entity.key,
         type: entity.type,
@@ -355,32 +600,173 @@ export class DraftEntitiesService {
         hasFlag: drawn.has(AssetType.FLAG),
         hasCoatOfArms: drawn.has(AssetType.COAT_OF_ARMS),
         overrideCount: Object.keys(entity.overrides ?? {}).length,
-        publishedName: context.get(entity.key)?.name ?? null,
+        // English first for a stable list; any primary name beats none.
+        publishedName:
+          published?.names.get("en") ??
+          [...(published?.names.values() ?? [])][0] ??
+          null,
+        locales: this.readModel.entityLocales(
+          entity,
+          context.catalog.supportedLocales,
+          published,
+        ),
+        usedInDeckCount: new Set(usages.map((usage) => usage.deckKey)).size,
+        delivery: delivery.get(entity.key) ?? "PUBLIC",
+        blockingCount: counts.blocking,
+        warningCount: counts.warnings,
+      };
+    });
+
+    const matched = rows.filter((row) => matchesEntityFilter(row, filter));
+    return {
+      items: matched.slice(filter.offset, filter.offset + filter.limit),
+      total: matched.length,
+      draftRevision: context.draft.revision,
+    };
+  }
+
+  /**
+   * One entity with everything its editor needs: the record, the media
+   * slots, who teaches it, what a release would deliver it as, and the
+   * findings that point at its own fields.
+   */
+  async getOne(draftId: string, entityKey: string): Promise<EntityDetail> {
+    const context = await this.readModel.context(draftId);
+    const entity = context.catalog.entities.find(
+      (entry) => entry.key === entityKey,
+    ) as EditorialEntityRecord | undefined;
+    if (entity === undefined) {
+      entityNotFound(entityKey);
+    }
+    const published = context.published.get(entityKey);
+    const [delivery, slots, usages] = await Promise.all([
+      this.readModel.entityDelivery([entityKey], context.reach),
+      this.assetSlots(entity, context),
+      this.usages(entityKey, context),
+    ]);
+    const findings = this.readModel.findingsFor(context.report, entityKey);
+    return {
+      entity: toApiEntity(entity),
+      publishedNames: Object.fromEntries(published?.names ?? []),
+      draftRevision: context.draft.revision,
+      delivery: delivery.get(entityKey) ?? "PUBLIC",
+      locales: this.readModel.entityLocales(
+        entity,
+        context.catalog.supportedLocales,
+        published,
+      ),
+      assets: slots,
+      usages,
+      validation: { ...DraftReadModelService.counts(findings), findings },
+    };
+  }
+
+  /**
+   * The media editor's slots: one per symbol type, filled or not.
+   *
+   * A draft upload wins over the published drawing because it is what the
+   * next release will carry; a slot the release fills and the draft has not
+   * touched still shows as filled, so the editor is not invited to upload a
+   * flag the catalog already has.
+   */
+  private async assetSlots(
+    entity: EditorialEntityRecord,
+    context: DraftContext,
+  ): Promise<EntityAssetSlot[]> {
+    const uploads = new Map(
+      context.draftAssets
+        .filter((asset) => asset.entityContentKey === entity.key)
+        .map((asset) => [asset.assetType, asset]),
+    );
+    const publishedTypes =
+      context.published.get(entity.key)?.assetTypes ?? new Set<AssetType>();
+    const slotDelivery = await this.readModel.assetSlotDelivery(
+      ASSET_SLOTS.map((assetType) =>
+        this.readModel.slotKey(entity.key, assetType),
+      ),
+      context.reach,
+    );
+    const usages = context.reach.usageByEntity.get(entity.key) ?? [];
+
+    return ASSET_SLOTS.map((assetType) => {
+      const upload = uploads.get(assetType);
+      const state: EntityAssetSlot["state"] =
+        upload !== undefined
+          ? "draft"
+          : publishedTypes.has(assetType)
+            ? "published"
+            : "empty";
+      const prompting = usages.filter(
+        (usage) => usage.assetType?.toUpperCase() === assetType,
+      );
+      return {
+        assetType,
+        state,
+        delivery:
+          state === "empty"
+            ? null
+            : (slotDelivery.get(
+                this.readModel.slotKey(entity.key, assetType),
+              ) ?? "PAID_ONLY"),
+        draftAssetId: upload?.id ?? null,
+        variant: upload?.variant ?? null,
+        mimeType: upload?.mimeType ?? null,
+        width: upload?.width ?? null,
+        height: upload?.height ?? null,
+        aspectRatio: upload?.aspectRatio?.toNumber() ?? null,
+        sourceUrl: upload?.sourceUrl ?? null,
+        licenseName: upload?.licenseName ?? null,
+        licenseUrl: upload?.licenseUrl ?? null,
+        attribution: upload?.attribution ?? null,
+        replacementReason: upload?.replacementReason ?? null,
+        provenanceComplete:
+          upload === undefined
+            ? state === "published"
+            : upload.licenseName !== null &&
+              upload.sourceUrl !== null &&
+              upload.replacementReason !== null,
+        processing: upload === undefined ? null : processingStateOf(upload),
+        validFrom: isoDate(upload?.validFrom ?? null),
+        validTo: isoDate(upload?.validTo ?? null),
+        retired: upload?.validTo !== undefined && upload.validTo !== null,
+        localizations: localeCompleteness(
+          context.catalog.supportedLocales,
+          namedLocales(upload),
+        ),
+        usedByCardIds: prompting.map((usage) => usage.cardId),
+        usedByDeckKeys: [...new Set(prompting.map((usage) => usage.deckKey))],
+        unlocksTemplates: templatesNeeding(assetType, entity.type),
       };
     });
   }
 
-  async getOne(draftId: string, entityKey: string): Promise<EntityDetail> {
-    const draft = await this.drafts.get(draftId);
-    const catalog = asCatalog(draft.document);
-    const entity = catalog.entities.find((entry) => entry.key === entityKey);
-    if (entity === undefined) {
-      entityNotFound(entityKey);
-    }
-    const published = await this.database.geoEntity.findUnique({
-      where: { contentKey: entityKey },
-      select: {
-        names: {
-          where: { isPrimary: true, nameType: "SHORT" },
-          select: { locale: true, value: true },
-        },
-      },
-    });
-    const publishedNames: Record<string, string> = {};
-    for (const name of published?.names ?? []) {
-      publishedNames[name.locale] = name.value;
-    }
-    return { entity: toApiEntity(entity), publishedNames };
+  /** The decks and cards that teach this entity, with what each delivers. */
+  private async usages(
+    entityKey: string,
+    context: DraftContext,
+  ): Promise<EntityDeckUsage[]> {
+    const usages = this.readModel.usagesOf(context.reach, entityKey);
+    const delivery = await this.readModel.cardDelivery(
+      usages.map((usage) => usage.cardId),
+      context.reach,
+    );
+    const names = new Map(
+      context.catalog.decks.map((deck) => [
+        deck.key,
+        deck.names.en?.name ?? Object.values(deck.names)[0]?.name ?? null,
+      ]),
+    );
+    return usages.map((usage) => ({
+      deckKey: usage.deckKey,
+      deckName: names.get(usage.deckKey) ?? null,
+      accessModel: usage.accessModel,
+      cardId: usage.cardId,
+      templateCode: usage.templateCode,
+      templateSchemaVersion: usage.templateSchemaVersion,
+      assetType: usage.assetType,
+      isPreview: usage.isPreview,
+      delivery: delivery.get(usage.cardId) ?? "PAID_ONLY",
+    }));
   }
 
   /**
@@ -556,53 +942,5 @@ export class DraftEntitiesService {
         `A subdivision belongs to a country or a territory; ${parentKey} is a ${parent.type}`,
       );
     }
-  }
-
-  /** One query for what the active release already knows about these keys. */
-  private async publishedContext(
-    keys: string[],
-  ): Promise<Map<string, PublishedContext>> {
-    const rows = await this.database.geoEntity.findMany({
-      where: { contentKey: { in: keys } },
-      select: {
-        contentKey: true,
-        names: {
-          where: { isPrimary: true, nameType: "SHORT" },
-          select: { locale: true, value: true },
-        },
-        assets: {
-          where: { status: AssetStatus.PUBLISHED },
-          select: { assetType: true },
-        },
-      },
-    });
-    const byKey = new Map<string, PublishedContext>();
-    for (const row of rows) {
-      // English first for a stable list; any primary name beats none.
-      const name =
-        row.names.find((entry) => entry.locale === "en") ?? row.names[0];
-      byKey.set(row.contentKey, {
-        name: name?.value ?? null,
-        assetTypes: new Set(row.assets.map((asset) => asset.assetType)),
-      });
-    }
-    return byKey;
-  }
-
-  /** And one for what this draft has had uploaded into it. */
-  private async uploadedAssetTypes(
-    draftId: string,
-  ): Promise<Map<string, Set<AssetType>>> {
-    const rows = await this.database.draftAsset.findMany({
-      where: { draftId },
-      select: { entityContentKey: true, assetType: true },
-    });
-    const byKey = new Map<string, Set<AssetType>>();
-    for (const row of rows) {
-      const types = byKey.get(row.entityContentKey) ?? new Set<AssetType>();
-      types.add(row.assetType);
-      byKey.set(row.entityContentKey, types);
-    }
-    return byKey;
   }
 }

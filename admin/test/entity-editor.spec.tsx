@@ -41,6 +41,11 @@ function listItem(
     hasCoatOfArms: false,
     overrideCount: 0,
     publishedName: fixture.key,
+    locales: { required: [], present: [], missing: [], complete: true },
+    usedInDeckCount: 0,
+    delivery: "PUBLIC",
+    blockingCount: 0,
+    warningCount: 0,
     ...fixture,
   };
 }

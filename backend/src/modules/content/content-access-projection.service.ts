@@ -25,8 +25,13 @@ export function isPubliclyVisible(visibility: ContentVisibility): boolean {
 /**
  * One way a deck reaches a card, an asset or an entity: the deck itself, and
  * whether it reaches it through a card published as that deck's preview.
+ *
+ * Public because the admin console asks the same question about a draft,
+ * where the decks are the ones an editor is writing rather than the ones the
+ * release published. Building that list is the caller's job; deciding what it
+ * means is this service's, and there is only one implementation of that.
  */
-interface DeckReach {
+export interface DeckReach {
   deck: DeckAccessSubject;
   preview: boolean;
 }
@@ -118,7 +123,7 @@ export class ContentAccessProjectionService {
       }
       this.record(reach, assetId, membership);
     }
-    return this.classifyAll(assetIds, reach, "PAID_ONLY");
+    return this.visibilityByReach(assetIds, reach, "PAID_ONLY");
   }
 
   /**
@@ -151,7 +156,7 @@ export class ContentAccessProjectionService {
     for (const membership of memberships) {
       this.record(reach, membership.learningCardId, membership);
     }
-    return this.classifyAll(cardIds, reach, "PAID_ONLY");
+    return this.visibilityByReach(cardIds, reach, "PAID_ONLY");
   }
 
   /**
@@ -192,7 +197,7 @@ export class ContentAccessProjectionService {
     for (const membership of memberships) {
       this.record(reach, membership.learningCard.subjectEntityId, membership);
     }
-    return this.classifyAll(entityIds, reach, "PUBLIC");
+    return this.visibilityByReach(entityIds, reach, "PUBLIC");
   }
 
   private record(
@@ -205,7 +210,15 @@ export class ContentAccessProjectionService {
     reach.set(resourceId, reaches);
   }
 
-  private async classifyAll(
+  /**
+   * The same verdict for a set of resources, each with the decks that reach
+   * it and one answer for a resource nothing reaches.
+   *
+   * The fallback differs by what is being classified rather than by who is
+   * asking — an unreachable drawing is withheld, an unreachable entity is
+   * structure — so the caller states it and the rule stays here.
+   */
+  async visibilityByReach(
     resourceIds: string[],
     reach: Map<string, DeckReach[]>,
     unreached: ContentVisibility,
@@ -217,13 +230,22 @@ export class ContentAccessProjectionService {
         resourceId,
         reaches === undefined || reaches.length === 0
           ? unreached
-          : await this.classify(reaches),
+          : await this.visibilityOf(reaches),
       );
     }
     return visibility;
   }
 
-  private async classify(reaches: DeckReach[]): Promise<ContentVisibility> {
+  /**
+   * What one resource is worth showing to somebody who has bought nothing,
+   * given every deck that reaches it.
+   *
+   * This is the whole policy, and it is deliberately the only copy of it:
+   * the published projection reaches it through the queries above, and the
+   * admin console reaches it with the decks a draft is about to publish
+   * (ADR-019 §7.4). A second implementation would be a second answer.
+   */
+  async visibilityOf(reaches: DeckReach[]): Promise<ContentVisibility> {
     for (const { deck } of reaches) {
       // Asked of nobody in particular. `isGranted` answers a free deck without
       // touching the database and refuses an entitlement deck for an account

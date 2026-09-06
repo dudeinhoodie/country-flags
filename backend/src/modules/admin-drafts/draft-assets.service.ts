@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { HttpStatus, Injectable } from "@nestjs/common";
 import {
   inspectImage,
@@ -132,13 +134,28 @@ export class DraftAssetsService {
     return { body, mimeType: asset.mimeType };
   }
 
+  /**
+   * A new drawing in the draft, and the draft as it now stands.
+   *
+   * The bytes live in their own table, but the draft they belong to has
+   * moved: a reader still holding the old revision is stale, and the console
+   * needs the new one to send with its next save (#356). So the write goes
+   * through the same revision guard every other editorial mutation uses, and
+   * the answer carries the new stamp beside the asset.
+   *
+   * `expectedRevision` is optional here alone. Uploading is a step in a
+   * flow that has just opened the entity, and the multipart form the browser
+   * sends carries no `If-Match`; when one is given it is enforced exactly as
+   * it is on a patch.
+   */
   async upload(
     actor: AdminUser,
     draftId: string,
     file: { buffer: Buffer; size: number },
     upload: DraftAssetUpload,
     requestId: string,
-  ): Promise<DraftAsset> {
+    expectedRevision?: number,
+  ): Promise<{ asset: DraftAsset; draft: ContentDraft }> {
     const draft = await this.drafts.get(draftId);
     if (file.size > this.maximumBytes) {
       rejected(
@@ -201,67 +218,91 @@ export class DraftAssetsService {
         );
       }
       // The same bytes for the same symbol are the same asset: a retried
-      // upload must not leave a second row or a second object behind.
-      return existing;
+      // upload must not leave a second row or a second object behind, and
+      // the draft has not moved, so neither has its revision.
+      return { asset: existing, draft };
     }
 
     await this.objects.put(objectKey, body, inspection.mimeType);
 
-    return this.database.$transaction(async (transaction) => {
-      const created = await transaction.draftAsset.upsert({
-        where: {
-          draftId_entityContentKey_assetType_variant: {
-            draftId,
-            entityContentKey: upload.entityContentKey,
-            assetType: upload.assetType,
-            variant: upload.variant,
-          },
-        },
-        create: {
+    // The row's id has to be known before the write, because the audit entry
+    // that records the upload names it. Replacing a symbol keeps the row it
+    // already has; a new symbol is given an id here rather than by the
+    // column default.
+    const symbol = await this.database.draftAsset.findUnique({
+      where: {
+        draftId_entityContentKey_assetType_variant: {
           draftId,
           entityContentKey: upload.entityContentKey,
           assetType: upload.assetType,
           variant: upload.variant,
-          objectKey,
-          mimeType: inspection.mimeType,
-          sha256: checksum,
-          width: inspection.widthPx,
-          height: inspection.heightPx,
-          aspectRatio: inspection.aspectRatio,
-          sourceUrl: upload.sourceUrl,
-          licenseName: upload.licenseName,
-          licenseUrl: upload.licenseUrl ?? null,
-          attribution: upload.attribution ?? null,
-          replacementReason: upload.replacementReason,
-          validFrom,
-          validTo,
-          ...localizationsOf(upload.localizations),
-          validationStatus: DraftAssetValidationStatus.VALID,
         },
-        update: {
-          objectKey,
-          mimeType: inspection.mimeType,
-          sha256: checksum,
-          width: inspection.widthPx,
-          height: inspection.heightPx,
-          aspectRatio: inspection.aspectRatio,
-          sourceUrl: upload.sourceUrl,
-          licenseName: upload.licenseName,
-          licenseUrl: upload.licenseUrl ?? null,
-          attribution: upload.attribution ?? null,
-          replacementReason: upload.replacementReason,
-          validFrom,
-          validTo,
-          ...localizationsOf(upload.localizations),
-          validationStatus: DraftAssetValidationStatus.VALID,
-        },
-      });
-      await this.audit.record(transaction, {
-        actorAdminUserId: actor.id,
+      },
+      select: { id: true },
+    });
+    const assetId = symbol?.id ?? randomUUID();
+
+    let created: DraftAsset | undefined;
+    const updated = await this.drafts.applyDraftChange(
+      actor,
+      draftId,
+      expectedRevision ?? draft.revision,
+      async (transaction) => {
+        created = await transaction.draftAsset.upsert({
+          where: {
+            draftId_entityContentKey_assetType_variant: {
+              draftId,
+              entityContentKey: upload.entityContentKey,
+              assetType: upload.assetType,
+              variant: upload.variant,
+            },
+          },
+          create: {
+            id: assetId,
+            draftId,
+            entityContentKey: upload.entityContentKey,
+            assetType: upload.assetType,
+            variant: upload.variant,
+            objectKey,
+            mimeType: inspection.mimeType,
+            sha256: checksum,
+            width: inspection.widthPx,
+            height: inspection.heightPx,
+            aspectRatio: inspection.aspectRatio,
+            sourceUrl: upload.sourceUrl,
+            licenseName: upload.licenseName,
+            licenseUrl: upload.licenseUrl ?? null,
+            attribution: upload.attribution ?? null,
+            replacementReason: upload.replacementReason,
+            validFrom,
+            validTo,
+            ...localizationsOf(upload.localizations),
+            validationStatus: DraftAssetValidationStatus.VALID,
+          },
+          update: {
+            objectKey,
+            mimeType: inspection.mimeType,
+            sha256: checksum,
+            width: inspection.widthPx,
+            height: inspection.heightPx,
+            aspectRatio: inspection.aspectRatio,
+            sourceUrl: upload.sourceUrl,
+            licenseName: upload.licenseName,
+            licenseUrl: upload.licenseUrl ?? null,
+            attribution: upload.attribution ?? null,
+            replacementReason: upload.replacementReason,
+            validFrom,
+            validTo,
+            ...localizationsOf(upload.localizations),
+            validationStatus: DraftAssetValidationStatus.VALID,
+          },
+        });
+        return {};
+      },
+      {
         action: "admin.draft.asset_uploaded",
         targetType: "draft_asset",
-        targetId: created.id,
-        requestId,
+        targetId: assetId,
         metadata: {
           draftId: draft.id,
           entityContentKey: upload.entityContentKey,
@@ -270,9 +311,14 @@ export class DraftAssetsService {
           sha256: checksum,
           reason: upload.replacementReason,
         },
-      });
-      return created;
-    });
+      },
+      requestId,
+    );
+    if (created === undefined) {
+      // Unreachable: the change callback either stores the row or throws.
+      assetNotFound();
+    }
+    return { asset: created, draft: updated };
   }
 
   /**
