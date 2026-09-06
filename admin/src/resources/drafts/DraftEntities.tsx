@@ -1,4 +1,3 @@
-import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -19,6 +18,7 @@ import { Title, usePermissions } from "react-admin";
 import { Link, useParams } from "react-router-dom";
 import { routes } from "../../app/routes";
 import { LoadingState } from "../../components/LoadingState";
+import { EmptyState, ErrorState } from "../../components/StateViews";
 import { StatusChip } from "../../components/StatusChip";
 import { useDraftEntities } from "./useDraftEntities";
 import type { DraftEntityListItem } from "./useDraftEntities";
@@ -138,7 +138,7 @@ export function DraftEntities() {
   }, [entities, query, type, parentKey, status, missingFlag, missingCoat]);
 
   if (error !== null) {
-    return <Alert severity="error">{error}</Alert>;
+    return <ErrorState message={error} />;
   }
   if (filtered === null) {
     return <LoadingState label="Loading the entities…" />;
@@ -306,6 +306,12 @@ export function DraftEntities() {
               ))}
             </TableBody>
           </Table>
+          {filtered.length === 0 && (
+            <EmptyState
+              title="Nothing matches these filters"
+              description="Widen the search, or clear a filter to see the rest of the draft."
+            />
+          )}
         </Stack>
       </CardContent>
     </Card>
