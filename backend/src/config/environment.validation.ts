@@ -1,4 +1,8 @@
 import {
+  formatClientVersion,
+  parseClientVersion,
+} from "../common/versioning/client-version";
+import {
   DEPLOYMENT_ENVIRONMENTS,
   type DeploymentEnvironment,
   defaultDeploymentEnvironment,
@@ -19,10 +23,19 @@ export const APPLE_STORE_ENVIRONMENTS = [
   "SANDBOX",
   "PRODUCTION",
 ] as const;
+/** The stores an app is shipped from, as the client reports itself. */
+export const CLIENT_PLATFORMS = ["ios", "android", "web"] as const;
 
 export type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
 export type LogLevel = (typeof LOG_LEVELS)[number];
 export type AppleStoreEnvironment = (typeof APPLE_STORE_ENVIRONMENTS)[number];
+export type ClientPlatform = (typeof CLIENT_PLATFORMS)[number];
+/**
+ * The first build of each platform that understands the paid-deck contract.
+ * A platform absent from the map has no such build, which is the state every
+ * platform starts in.
+ */
+export type MinimumClientVersions = Partial<Record<ClientPlatform, string>>;
 
 export interface EnvironmentVariables extends Record<string, unknown> {
   NODE_ENV: NodeEnvironment;
@@ -65,6 +78,7 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   COMMERCE_APPLE_IAP_KEY_ID: string;
   COMMERCE_APPLE_IAP_ISSUER_ID: string;
   COMMERCE_APPLE_IAP_PRIVATE_KEY: string;
+  PAID_CONTENT_MINIMUM_CLIENT_VERSIONS: MinimumClientVersions;
   SHUTDOWN_DRAIN_MS: number;
 }
 
@@ -403,6 +417,72 @@ function appStoreServerApiCredential(config: Record<string, unknown>): {
       };
 }
 
+/**
+ * The first build of each platform that understands `Deck.access`, written as
+ * `ios=1.4.0,android=2.0.0`.
+ *
+ * A rollout instrument rather than a constant: it is raised the moment a bad
+ * build ships, and raising it must not wait for an image to be rebuilt, which
+ * is why it is a variable a deployment can be updated with in place
+ * (docs/17-paid-decks-storekit.md §20).
+ *
+ * Unset means no build of any platform understands paid decks yet, which is
+ * the literal truth until the StoreKit client ships and is therefore the
+ * right default: forgetting to configure the gate hides paid decks from
+ * everybody, while the opposite default would hand a locked deck to an app
+ * that has no idea it is locked.
+ *
+ * An unreadable entry stops the process instead of quietly disabling the
+ * gate. A typo in a version is the one failure that must not be silent: it
+ * would read as "nothing is configured", and nothing is configured is also
+ * what a correct deployment looks like the day before a release.
+ */
+function paidContentMinimumClientVersions(
+  config: Record<string, unknown>,
+): MinimumClientVersions {
+  const key = "PAID_CONTENT_MINIMUM_CLIENT_VERSIONS";
+  const raw = config[key];
+  if (raw === undefined || raw === null) {
+    return {};
+  }
+  if (typeof raw !== "string") {
+    throw new Error(
+      `Environment variable ${key} must be a comma-separated string`,
+    );
+  }
+  const entries = raw
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+
+  const minimums: MinimumClientVersions = {};
+  for (const entry of entries) {
+    const separator = entry.indexOf("=");
+    const platform = entry.slice(0, separator === -1 ? 0 : separator).trim();
+    const version = entry.slice(separator + 1).trim();
+    if (separator === -1 || !isOneOf(platform, CLIENT_PLATFORMS)) {
+      throw new Error(
+        `Environment variable ${key} must contain platform=version entries, one of: ${CLIENT_PLATFORMS.join(", ")}`,
+      );
+    }
+    if (minimums[platform] !== undefined) {
+      throw new Error(
+        `Environment variable ${key} names platform ${platform} more than once`,
+      );
+    }
+    const parsed = parseClientVersion(version);
+    if (parsed === null) {
+      throw new Error(
+        `Environment variable ${key} must give ${platform} a version like 1.4.0`,
+      );
+    }
+    // Stored in the canonical three-number form so that the gate, its metric
+    // and its log line all name the same threshold whatever was typed.
+    minimums[platform] = formatClientVersion(parsed);
+  }
+  return minimums;
+}
+
 export function validateEnvironment(
   config: Record<string, unknown>,
 ): EnvironmentVariables {
@@ -736,6 +816,8 @@ export function validateEnvironment(
     COMMERCE_APPLE_IAP_KEY_ID: appleIapCredential.keyId,
     COMMERCE_APPLE_IAP_ISSUER_ID: appleIapCredential.issuerId,
     COMMERCE_APPLE_IAP_PRIVATE_KEY: appleIapCredential.privateKey,
+    PAID_CONTENT_MINIMUM_CLIENT_VERSIONS:
+      paidContentMinimumClientVersions(config),
     SHUTDOWN_DRAIN_MS: parseInteger(
       config.SHUTDOWN_DRAIN_MS,
       5_000,

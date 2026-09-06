@@ -515,4 +515,44 @@ describe("validateEnvironment", () => {
       ).toBe("");
     });
   });
+  describe("the minimum client version paid decks are shown to", () => {
+    const key = "PAID_CONTENT_MINIMUM_CLIENT_VERSIONS";
+
+    it("reads one platform per entry, in the canonical three-number form", () => {
+      expect(
+        validateEnvironment({
+          ...validConfig,
+          [key]: " ios=1.4 , android=2.0.0 ",
+        })[key],
+      ).toEqual({ ios: "1.4.0", android: "2.0.0" });
+    });
+
+    it("names no platform at all until a build understands paid decks", () => {
+      // Which is the truth before the StoreKit client ships, and it makes the
+      // gate closed by default: forgetting to configure it hides paid decks
+      // from everybody, rather than handing a locked deck to an app with no
+      // idea it is locked.
+      expect(validateEnvironment(validConfig)[key]).toEqual({});
+      expect(validateEnvironment({ ...validConfig, [key]: "" })[key]).toEqual(
+        {},
+      );
+    });
+
+    it("stops the process rather than quietly disabling itself", () => {
+      // A typo would otherwise read as "nothing configured", which is also
+      // what a correct deployment looks like the day before a release.
+      expect(() =>
+        validateEnvironment({ ...validConfig, [key]: "ios=1.4.0.1" }),
+      ).toThrow("must give ios a version like 1.4.0");
+      expect(() =>
+        validateEnvironment({ ...validConfig, [key]: "iphone=1.4.0" }),
+      ).toThrow("must contain platform=version entries");
+      expect(() =>
+        validateEnvironment({ ...validConfig, [key]: "1.4.0" }),
+      ).toThrow("must contain platform=version entries");
+      expect(() =>
+        validateEnvironment({ ...validConfig, [key]: "ios=1.4.0,ios=1.5.0" }),
+      ).toThrow("names platform ios more than once");
+    });
+  });
 });
