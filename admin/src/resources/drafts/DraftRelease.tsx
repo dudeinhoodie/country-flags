@@ -22,9 +22,14 @@ function canEdit(permissions: unknown): boolean {
 /**
  * Validate, diff, propose, publish (§4.3, `/drafts/:draftId/release`).
  *
- * The role guards and the production confirmation live inside the panel and
- * are untouched by the redesign: this screen only gives them an address of
- * their own, so the workspace and a validation summary can link to them.
+ * The role guards live inside the panel and are untouched by the redesign:
+ * this screen only gives them an address of their own, so the workspace and a
+ * validation summary can link to them.
+ *
+ * There is no typed production confirmation to preserve here, because this
+ * console cannot publish to production at all: `publish-content-dev.yml` is
+ * the only run it can start. Whatever gates production will be added with the
+ * production path itself, and this comment used to promise otherwise.
  */
 export function DraftRelease() {
   const { draftId } = useParams();
