@@ -5,9 +5,11 @@
 # compile them out, but "should be compiled out" is a claim about the source,
 # and what ships is a binary. This reads the binary: the strings the test
 # harness uses to reset the store, sign in as a fixture and pin an identity,
-# and the mock backend's own hostname. It also checks the two declarations the
-# App Store needs and cannot infer — the privacy manifest and the export
-# compliance answer.
+# and the mock backend's own hostname. It reads the bundle too, because not
+# everything that ships is code — a Swift package product brings its resources
+# with it, and that is how the mock catalogue used to travel. It also checks
+# the two declarations the App Store needs and cannot infer — the privacy
+# manifest and the export compliance answer.
 #
 #   ios/Scripts/check-release-app.sh <path to a built .app>
 set -euo pipefail
@@ -68,17 +70,60 @@ for needle in "${FORBIDDEN_STRINGS[@]}"; do
   done
 done
 
-# No mock backend a release build could call.
+# No mock backend at all. Absence, not unreachability.
 #
-# What is enforced is reachability, not absence: Xcode links every Swift package
-# product a target depends on, whatever the configuration, so the mock module's
-# object file rides along and its fixture strings — including the unreachable
-# host "mock.invalid" — sit in the binary as dead data. What must not happen is
-# a release build being able to *call* any of it, and that is what this checks:
-# no symbol of the module survives linking, because nothing in a release build
-# refers to it. Getting the bytes out too needs a second app target; see the
-# issue linked from docs/ios/release-checklist.md.
+# This used to enforce the weaker thing, because the stronger one was not true:
+# Xcode links every Swift package product a target depends on whatever the
+# configuration, so the mock module rode into the store build with its fixtures
+# and its resource bundle, and the most that could be asked was that nothing
+# could *call* it. The mock backend is now a dependency of CountryFlagsAppMock,
+# which the UI tests run against, and of no other target, so the bytes are gone
+# and this asks for that.
+#
+# It asks three ways, because the easiest thing to check is the one a rename
+# would quietly defeat.
+
+# One: the resource bundle, by the name Xcode gives it.
+while IFS= read -r bundle; do
+  echo "::error::${bundle#"${app}/"} is the mock backend's resource bundle. A release build must not carry it." >&2
+  status=1
+done < <(find "${app}" -name "*MockBackend*")
+
+# Two: the fixtures, by the names they carry in the source tree. A bundle that
+# was renamed still copies these, and a module that stopped having resources
+# would make the check above pass by having nothing left to find. If the source
+# directory is not where this expects it, that is reported rather than skipped:
+# a check that silently stops checking is worse than no check.
+mock_resources="$(cd "$(dirname "$0")/.." && pwd)/CountryFlagsKit/Sources/CountryFlagsMockBackend/Resources"
+if [[ ! -d "${mock_resources}" ]]; then
+  echo "::error::${mock_resources} is missing; this check cannot tell whether the mock fixtures ship." >&2
+  status=1
+else
+  while IFS= read -r fixture; do
+    fixture_name="$(basename "${fixture}")"
+    while IFS= read -r shipped; do
+      echo "::error::${shipped#"${app}/"} is the mock fixture ${fixture_name}. A release build must not carry it." >&2
+      status=1
+    done < <(find "${app}" -name "${fixture_name}")
+  done < <(find "${mock_resources}" -type f)
+fi
+
+# Three: what the module leaves in a binary. `nm` used to stand here alone and
+# it was not enough — a release build strips its local symbols, so it reported
+# a clean binary that in fact carried the module's type metadata and the host
+# "mock.invalid" in full. The strings are the honest reading; `nm` stays
+# because a symbol is the thing that would let a release build call any of it.
+MOCK_STRINGS=(
+  "mock.invalid"
+  "CountryFlagsMockBackend"
+)
 for binary in "${binaries[@]}"; do
+  for needle in "${MOCK_STRINGS[@]}"; do
+    if grep -qF -- "${needle}" < <(strings -a "${binary}"); then
+      echo "::error::${needle} is present in ${binary#"${app}/"}. A release build must not carry the mock backend." >&2
+      status=1
+    fi
+  done
   if nm "${binary}" 2>/dev/null | grep -q "CountryFlagsMockBackend"; then
     echo "::error::${binary#"${app}/"} links symbols from the mock backend." >&2
     status=1
