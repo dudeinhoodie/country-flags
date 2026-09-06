@@ -1,6 +1,21 @@
 import { JsonLoggerService } from "./json-logger.service";
 
 /**
+ * Cleared before each case. CI runs the suite with DEPLOYMENT_ENV already set,
+ * and a case describing a local process would otherwise be handed the runner's
+ * environment and quietly assert the wrong thing.
+ */
+const DEPLOYMENT_VARIABLES = [
+  "NODE_ENV",
+  "DEPLOYMENT_ENV",
+  "SERVICE_NAME",
+  "SERVICE_RELEASE",
+  "DEPLOYMENT_ID",
+  "K_REVISION",
+  "MIGRATION_VERSION",
+];
+
+/**
  * The logger reads its deployment fields when it is constructed, so each case
  * builds one under the environment it wants to describe and collects the lines
  * that environment produced.
@@ -10,6 +25,9 @@ function loggerUnder(
   write: (logger: JsonLoggerService) => void,
 ): Array<Record<string, unknown>> {
   const restore = { ...process.env };
+  for (const key of DEPLOYMENT_VARIABLES) {
+    delete process.env[key];
+  }
   Object.assign(process.env, environment);
   const written: string[] = [];
   const capture = (chunk: unknown): boolean => {
@@ -28,7 +46,7 @@ function loggerUnder(
   } finally {
     stdout.mockRestore();
     stderr.mockRestore();
-    for (const key of Object.keys(environment)) {
+    for (const key of [...DEPLOYMENT_VARIABLES, ...Object.keys(environment)]) {
       delete process.env[key];
     }
     Object.assign(process.env, restore);
