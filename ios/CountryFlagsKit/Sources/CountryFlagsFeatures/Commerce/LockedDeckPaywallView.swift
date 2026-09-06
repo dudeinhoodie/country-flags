@@ -98,6 +98,11 @@ struct LockedDeckPaywallView: View {
         }
         .safeAreaInset(edge: .bottom) { purchaseAction }
         .task(id: deck.id) { await loadPreview() }
+        // The catalogue usually asks first, but it is not the only way in: a
+        // deep link opens this screen without one, and a paywall that said
+        // "price loading" for ever would have no action at all. Asking twice
+        // costs nothing — the answer is remembered.
+        .task(id: deck.id) { await commerce.prepare(for: [deck]) }
     }
 
     // MARK: - The action
