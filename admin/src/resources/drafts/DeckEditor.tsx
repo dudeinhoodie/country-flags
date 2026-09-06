@@ -425,6 +425,7 @@ export function DeckEditor() {
             <DeckMembersEditor
               draftId={draft}
               deckKey={isNew ? undefined : deckKey}
+              entities={entities}
               value={form.membership}
               savedMemberCount={deck?.memberCount ?? null}
               disabled={!editable}

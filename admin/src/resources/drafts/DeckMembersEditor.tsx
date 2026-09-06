@@ -28,11 +28,7 @@ import {
   templateOf,
 } from "./deck-cards";
 import type { CardRef, DeckDefaults, EntityType } from "./deck-cards";
-import {
-  EMPTY_CANDIDATE_QUERY,
-  useCardCandidates,
-  useDraftEntityPool,
-} from "./useDraftDecks";
+import { EMPTY_CANDIDATE_QUERY, useCardCandidates } from "./useDraftDecks";
 import type {
   CandidateQuery,
   CardCandidate,
@@ -673,6 +669,7 @@ export function PreviewCards({
 export function DeckMembersEditor({
   draftId,
   deckKey,
+  entities,
   value,
   savedMemberCount,
   disabled,
@@ -680,12 +677,13 @@ export function DeckMembersEditor({
 }: {
   draftId: string;
   deckKey: string | undefined;
+  /** The draft's entities, read once by the editor and shared with the tabs. */
+  entities: DraftEntityListItem[] | null;
   value: DeckMembership;
   savedMemberCount: number | null;
   disabled: boolean;
   onChange: (next: DeckMembership) => void;
 }) {
-  const { entities } = useDraftEntityPool(draftId);
   const mode = modeOf(value.members);
   const refs = membersToRefs(value.members, value.defaults);
   const held = new Set(refs.map(cardIdentity));
