@@ -34,6 +34,11 @@ jobs:
       PORT: 3000
       LOG_LEVEL: info
       DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
+      # The schema's `directUrl` is a separate variable, and Prisma reads it
+      # while validating the schema — before it ever opens a connection. The
+      # drill's Postgres is the same server either way; there is no pooler in
+      # front of a container that lives for one job.
+      DIRECT_DATABASE_URL: postgresql://country_flags:country_flags@localhost:5432/country_flags?schema=public
 
     steps:
       - name: Checkout
