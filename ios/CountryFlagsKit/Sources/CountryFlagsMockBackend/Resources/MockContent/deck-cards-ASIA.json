@@ -958,7 +958,7 @@
         "entityId": "bba21731-bf29-572b-b05c-5d5b8effa7a6",
         "displayName": "North Korea",
         "aliases": [
-          "КНДР"
+          "Северная Корея"
         ]
       },
       "backSideFacts": [
@@ -1959,7 +1959,7 @@
         "entityId": "1d479819-bfd1-51d4-aa93-8a7ea7d14ac5",
         "displayName": "Kyrgyzstan",
         "aliases": [
-          "Киргизия"
+          "Кыргызстан"
         ]
       },
       "backSideFacts": [
@@ -3051,7 +3051,7 @@
         "entityId": "808f2de9-5092-5f27-8263-7d1e63fd9a50",
         "displayName": "South Korea",
         "aliases": [
-          "Республика Корея"
+          "Южная Корея"
         ]
       },
       "backSideFacts": [
@@ -3504,9 +3504,9 @@
       },
       "answer": {
         "entityId": "a1341f40-43a9-5254-9816-afee442302a1",
-        "displayName": "Palestinian Territories",
+        "displayName": "Palestine",
         "aliases": [
-          "Палестинские территории"
+          "Палестина"
         ]
       },
       "backSideFacts": [
@@ -4760,9 +4760,9 @@
       },
       "answer": {
         "entityId": "f85c7a17-7182-5cc9-bd54-de907c0e92dd",
-        "displayName": "Macao SAR China",
+        "displayName": "Macao",
         "aliases": [
-          "Макао (САР)"
+          "Макао"
         ]
       },
       "backSideFacts": [
@@ -4844,7 +4844,7 @@
         "entityId": "17e5860d-93ee-5306-9bbf-3e52526af12c",
         "displayName": "Christmas Island",
         "aliases": [
-          "о-в Рождества"
+          "Остров Рождества"
         ]
       },
       "backSideFacts": [
