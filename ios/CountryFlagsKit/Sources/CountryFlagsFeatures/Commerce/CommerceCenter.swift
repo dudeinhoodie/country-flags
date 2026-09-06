@@ -65,6 +65,22 @@ public final class CommerceCenter {
     /// Told whenever the keys move, so the catalogue regroups and a deck that
     /// has just been paid for downloads its cards.
     private let onEntitlementsChanged: @MainActor (Set<String>) async -> Void
+    /// The funnel, and nothing that could pay for anything.
+    ///
+    /// Every event built here comes from `AnalyticsEvent`'s factories, whose
+    /// initialiser is private, so there is no way to attach a transaction, a
+    /// token or a price to one — see `CommerceAnalyticsPrivacyTests`. It is
+    /// optional because a preview and most tests have no analytics at all.
+    private let analytics: (any AnalyticsTracking)?
+    private let dates: any DateProviding
+    /// Decks already counted as seen, so a lazy list that draws the same row
+    /// three times reports one impression rather than three.
+    private var reportedImpressions: Set<UUID> = []
+    /// Deck screens already counted as opened, for the same reason: SwiftUI
+    /// re-runs a `task` whenever its identity changes, and a purchase settling
+    /// under an open screen changes it.
+    private var reportedOpens: Set<UUID> = []
+    private var reportedPaywalls: Set<UUID> = []
     private var hasStarted = false
     private var listener: Task<Void, Never>?
 
@@ -73,12 +89,16 @@ public final class CommerceCenter {
         isPurchasingOffered: @escaping @MainActor () -> Bool = { true },
         confirmed: (any EntitlementRepository)? = nil,
         scopes: (any AccountScopeResolving)? = nil,
+        analytics: (any AnalyticsTracking)? = nil,
+        dates: any DateProviding = SystemDateProvider(),
         onEntitlementsChanged: @escaping @MainActor (Set<String>) async -> Void = { _ in }
     ) {
         self.coordinator = coordinator
         self.isPurchasingOffered = isPurchasingOffered
         self.confirmed = confirmed
         self.scopes = scopes
+        self.analytics = analytics
+        self.dates = dates
         self.onEntitlementsChanged = onEntitlementsChanged
     }
 
@@ -128,6 +148,26 @@ public final class CommerceCenter {
                 await self.adopt(keys)
             }
         }
+    }
+
+    /// The account that owned things has gone.
+    ///
+    /// What this device may open is now the new scope's answer, which for a
+    /// guest is nothing — so the keys move, and content takes the paid payload
+    /// off the device through `onEntitlementsChanged`. The stored snapshot of
+    /// the account that left is deliberately kept: it is what lets signing
+    /// back in on a plane restore the deck without asking the server.
+    ///
+    /// Everything about the session that is over goes with it — a failure on a
+    /// deck, a restore result, what has been counted as seen — because the
+    /// next person to use this device is a different person.
+    public func signedOut() async {
+        purchases.removeAll()
+        lastRestore = nil
+        reportedImpressions.removeAll()
+        reportedOpens.removeAll()
+        reportedPaywalls.removeAll()
+        await readState()
     }
 
     // MARK: - What the screens read
@@ -233,6 +273,7 @@ public final class CommerceCenter {
             purchases[deck.id] = .failed(
                 PurchaseFailure(reason: .productUnavailable, isRetryable: false)
             )
+            await track(.purchaseFailed(reason: .productUnavailable, at: dates.now()))
             return false
         }
         // A second tap while the first purchase is in flight is the same
@@ -246,6 +287,7 @@ public final class CommerceCenter {
         }
 
         purchases[deck.id] = .purchasing
+        await track(.purchaseStarted(at: dates.now()))
         let result = await coordinator.purchase(productID: productID)
         switch result {
         case .purchased(let keys):
@@ -255,16 +297,34 @@ public final class CommerceCenter {
             purchases[deck.id] = .delivering
             await adopt(keys)
             purchases[deck.id] = .idle
+            // Whether the server had caught up by now, which is the one thing
+            // worth measuring about a delivery. A queued purchase is not a
+            // failure — the outbox is retrying — but a storefront where every
+            // purchase is queued is one nobody is verifying.
+            await track(
+                .purchaseCompleted(
+                    delivery: isAwaitingSync(deck) ? .queued : .acknowledged,
+                    at: dates.now()
+                )
+            )
             return isOpen(deck)
         case .awaitingApproval:
             purchases[deck.id] = .awaitingApproval
+            await track(.purchasePending(at: dates.now()))
             return false
         case .cancelled:
             // Not an error. Not an alert. The screen it came from is unchanged.
             purchases[deck.id] = .idle
+            await track(.purchaseCancelled(at: dates.now()))
             return isOpen(deck)
         case .failed(let failure):
             purchases[deck.id] = .failed(failure)
+            await track(
+                .purchaseFailed(
+                    reason: AnalyticsPurchaseFailureReason(failure.reason),
+                    at: dates.now()
+                )
+            )
             return isOpen(deck)
         }
     }
@@ -277,8 +337,19 @@ public final class CommerceCenter {
         let result = await coordinator.restorePurchases()
         isRestoring = false
         lastRestore = result
-        if case .restored(let keys, _) = result {
+        switch result {
+        case .restored(let keys, let found):
             await adopt(keys)
+            // Finding nothing is its own outcome. Counting it as a failure is
+            // how a working app looks broken on a dashboard.
+            await track(
+                .purchaseRestoreCompleted(
+                    result: found == 0 || keys.isEmpty ? .nothingFound : .restored,
+                    at: dates.now()
+                )
+            )
+        case .failed:
+            await track(.purchaseRestoreCompleted(result: .failed, at: dates.now()))
         }
         return result
     }
@@ -293,6 +364,58 @@ public final class CommerceCenter {
     public func acknowledgeFailure(for deck: DeckRecord) {
         guard case .failed = phase(of: deck) else { return }
         purchases[deck.id] = .idle
+    }
+
+    // MARK: - What the screens report
+
+    /// Counts the decks that are for sale and are on screen.
+    ///
+    /// Called with everything the catalogue is showing rather than with one
+    /// deck per row: the free decks are filtered out here, so a caller does
+    /// not have to know which is which, and a catalogue with nothing for sale
+    /// reports nothing at all.
+    public func recordImpressions(of decks: [DeckRecord]) async {
+        for deck in decks where deck.isSold && !reportedImpressions.contains(deck.id) {
+            reportedImpressions.insert(deck.id)
+            await track(.paidDeckImpression(access: access(of: deck), at: dates.now()))
+        }
+    }
+
+    /// A deck that is for sale was opened, locked or owned.
+    public func recordOpened(_ deck: DeckRecord) async {
+        guard deck.isSold, !reportedOpens.contains(deck.id) else { return }
+        reportedOpens.insert(deck.id)
+        await track(.paidDeckOpened(access: access(of: deck), at: dates.now()))
+    }
+
+    /// The locked deck screen was shown, and what it could say about the
+    /// price — which of the three states it was in, never the number itself.
+    public func recordPaywallViewed(_ deck: DeckRecord) async {
+        guard deck.isSold, !isOpen(deck), !reportedPaywalls.contains(deck.id) else { return }
+        reportedPaywalls.insert(deck.id)
+        await track(
+            .paywallViewed(
+                offerState: AnalyticsStorePriceState(price(of: deck)),
+                isPurchaseOffered: isPurchaseAvailable,
+                at: dates.now()
+            )
+        )
+    }
+
+    /// A study session started in a deck that was bought. Free decks report
+    /// nothing here: `study.session_started` already covers every session, and
+    /// this one exists to say whether a purchase is being used.
+    public func recordStudyStarted(in deck: DeckRecord, mode: AnalyticsStudyMode) async {
+        guard deck.isSold else { return }
+        await track(.paidDeckStudyStarted(mode: mode, at: dates.now()))
+    }
+
+    private func access(of deck: DeckRecord) -> AnalyticsPaidDeckAccess {
+        isOpen(deck) ? .owned : .locked
+    }
+
+    private func track(_ event: AnalyticsEvent) async {
+        await analytics?.track(event)
     }
 
     // MARK: - State
