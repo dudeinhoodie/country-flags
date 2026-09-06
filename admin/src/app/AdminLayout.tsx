@@ -30,6 +30,7 @@ import { DraftSelector } from "./DraftSelector";
 import { GlobalSearch } from "./GlobalSearch";
 import { routes } from "./routes";
 import { SaveStatusProvider } from "./SaveStatusContext";
+import { UnsavedChangesProvider } from "./UnsavedChanges";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
 import { appBarSx, menuSectionSx } from "./theme";
 
@@ -220,15 +221,19 @@ function AdminMenu() {
 }
 
 export function AdminLayout({ children }: { children: ReactNode }) {
-  // Both providers wrap the layout rather than a page: the draft is in the
-  // app bar and in the navigation, and save status is read by the bar while
-  // it is written by whatever screen is inside.
+  // All three providers wrap the layout rather than a page: the draft is in
+  // the app bar and in the navigation, save status is read by the bar while
+  // it is written by whatever screen is inside, and leaving a screen with
+  // unwritten changes is done through the menu, the draft selector and the
+  // search box (§9) — none of which an editor can see.
   return (
     <CurrentDraftProvider>
       <SaveStatusProvider>
-        <Layout appBar={AdminAppBar} menu={AdminMenu}>
-          {children}
-        </Layout>
+        <UnsavedChangesProvider>
+          <Layout appBar={AdminAppBar} menu={AdminMenu}>
+            {children}
+          </Layout>
+        </UnsavedChangesProvider>
       </SaveStatusProvider>
     </CurrentDraftProvider>
   );

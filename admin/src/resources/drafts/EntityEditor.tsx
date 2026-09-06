@@ -415,12 +415,16 @@ export function EntityEditor() {
           <EditorTabPanel idPrefix="entity" tab="overview" current={tab}>
             <Stack spacing={3}>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                {/* Read-only rather than disabled: the key cannot change,
+                    but it is the first thing anybody needs to read off this
+                    screen, and a disabled field is skipped by the keyboard
+                    and dimmed past AA contrast (§11). */}
                 <TextField
                   label="Key"
                   data-field="/key"
                   value={detail.entity.key}
                   size="small"
-                  disabled
+                  slotProps={{ htmlInput: { readOnly: true } }}
                   helperText="Bound to upstream sources — it cannot change."
                   sx={{ minWidth: 280 }}
                 />

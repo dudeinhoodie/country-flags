@@ -45,6 +45,8 @@ interface ModeTokens {
   bgPaper: string;
   textPrimary: string;
   textSecondary: string;
+  /** Read but not editable: still has to clear AA against the surface. */
+  textDisabled: string;
   divider: string;
   cardBorder: string;
   cardShadow: string;
@@ -74,12 +76,15 @@ const LIGHT: ModeTokens = {
   bgPaper: "#FFFFFF",
   textPrimary: "#16202E",
   textSecondary: "#56677D",
+  textDisabled: "rgba(22, 32, 46, 0.68)",
   divider: "rgba(22, 32, 46, 0.12)",
   cardBorder: "rgba(22, 32, 46, 0.10)",
   cardShadow: "0 1px 2px rgba(22, 32, 46, 0.06)",
   tableHeadDivider: "rgba(22, 32, 46, 0.18)",
   success: "#1B7F4D",
-  warning: "#B26A00",
+  // Dark enough for white to sit on it: a filled warning button is what
+  // confirms a destructive choice, and #B26A00 left that text at 4.2:1 (§11).
+  warning: "#A66200",
   error: "#B3261E",
   info: "#0E7490",
   navSurface: "#16202E",
@@ -100,6 +105,7 @@ const DARK: ModeTokens = {
   bgPaper: "#121D2E",
   textPrimary: "#E9EEF7",
   textSecondary: "#9AA9BF",
+  textDisabled: "rgba(233, 238, 247, 0.62)",
   divider: "rgba(151, 180, 255, 0.14)",
   cardBorder: "rgba(151, 180, 255, 0.12)",
   cardShadow: "none",
@@ -135,7 +141,13 @@ function buildTheme(t: ModeTokens): RaThemeOptions {
       error: { main: t.error },
       info: { main: t.info },
       background: { default: t.bgDefault, paper: t.bgPaper },
-      text: { primary: t.textPrimary, secondary: t.textSecondary },
+      // MUI would default `disabled` to a grey that fails AA, and a helper
+      // line beside a field nobody may edit is still information (§11).
+      text: {
+        primary: t.textPrimary,
+        secondary: t.textSecondary,
+        disabled: t.textDisabled,
+      },
       divider: t.divider,
     },
     typography: {
