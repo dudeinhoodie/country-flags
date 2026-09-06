@@ -103,7 +103,11 @@ export function DeckEditor() {
   const { identity } = useGetIdentity();
   const editable = canEdit(permissions);
 
-  const { draft: draftDetail, error: draftError } = useDraftWithDecks(draft);
+  const {
+    draft: draftDetail,
+    error: draftError,
+    reload: reloadDraft,
+  } = useDraftWithDecks(draft);
   const {
     deck,
     error: deckError,
@@ -158,7 +162,8 @@ export function DeckEditor() {
 
   // The top bar says whether what is on screen is written down (§4.2). Only
   // this screen's own reading is withdrawn when the form goes clean, so a
-  // "Saved" the save itself put there survives.
+  // "Saved" the save itself put there survives. No dependency list: the status
+  // is scoped to the address it came from, and a tab is an address.
   const announcedDirty = useRef(false);
   useEffect(() => {
     if (dirty) {
@@ -168,7 +173,7 @@ export function DeckEditor() {
       announcedDirty.current = false;
       reportSave("idle");
     }
-  }, [dirty, reportSave]);
+  });
 
   const onValidated = useCallback(() => {
     reload();
@@ -536,6 +541,18 @@ export function DeckEditor() {
           onReload={() => {
             setConflict(null);
             reportSave("idle");
+            // The refusal already named the revision that won, so the next
+            // write can be aimed at it without waiting for a read. A deck
+            // being created has no deck of its own to re-read, and without
+            // this it would go on being refused against a revision that is
+            // gone.
+            if (conflict.currentRevision !== null) {
+              setRevision(conflict.currentRevision);
+            }
+            if (isNew) {
+              reloadDraft();
+              return;
+            }
             reseedFrom.current = deck;
             reload();
           }}

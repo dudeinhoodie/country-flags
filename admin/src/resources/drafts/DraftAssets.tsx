@@ -15,7 +15,7 @@ import { AssetPreview } from "./AssetPreview";
 import { patchOf, symbolFieldsOf, SymbolFieldsEditor } from "./SymbolFields";
 import type { SymbolFieldsState } from "./SymbolFields";
 import { useAssetWriter, useDraftWithAssets } from "./useDraftAssets";
-import type { DraftAsset } from "./useDraftAssets";
+import type { DraftAsset, DraftStamp } from "./useDraftAssets";
 
 /**
  * Everything uploaded into the draft, as a queue and an audit (§7.3).
@@ -94,6 +94,10 @@ export function DraftAssets({
   const [busy, setBusy] = useState(false);
   const [entityKey, setEntityKey] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
+  // What this screen's own writes moved the draft to. The re-read that
+  // follows one lands a moment later, and a second change in that window
+  // would otherwise be aimed at the revision it just replaced.
+  const [written, setWritten] = useState(0);
 
   if (error !== null) {
     return <Alert severity="error">{error}</Alert>;
@@ -111,12 +115,19 @@ export function DraftAssets({
     ...new Set(assets.map((asset) => asset.entityContentKey)),
   ].sort();
 
-  function run(work: Promise<void>, fallback: string): void {
+  // Revisions only go up, so the newer of the two readings is the true one
+  // whichever arrives first.
+  const revision = Math.max(written, draft.revision);
+
+  function run(work: Promise<DraftStamp | null>, fallback: string): void {
     setBusy(true);
     work.then(
-      () => {
+      (stamp) => {
         setBusy(false);
         setActionError(null);
+        if (stamp !== null) {
+          setWritten(stamp.revision);
+        }
         // The panel closes on success, which is also what discards the form
         // it held: a form still holding what it just sent invites sending it
         // twice.
@@ -143,7 +154,7 @@ export function DraftAssets({
         <Chip
           size="small"
           variant="outlined"
-          label={`revision ${String(draft.revision)}`}
+          label={`revision ${String(revision)}`}
         />
         <Box sx={{ flexGrow: 1 }} />
         <TextField
@@ -185,20 +196,25 @@ export function DraftAssets({
               return;
             }
             run(
-              writer.patch(draft.revision, asset.id, patch),
+              writer.patch(revision, asset.id, patch),
               "The symbol could not be changed",
             );
           }}
           onRetire={(asset) => {
             run(
-              writer.patch(draft.revision, asset.id, {
+              writer.patch(revision, asset.id, {
                 validTo: asset.validTo == null ? todayIso() : null,
               }),
               "The symbol could not be retired",
             );
           }}
           onRemove={(asset) => {
-            run(writer.remove(asset.id), "The symbol could not be removed");
+            // Removal answers 204, so there is no new stamp to adopt; the
+            // re-read below is what brings the revision forward.
+            run(
+              writer.remove(asset.id).then(() => null),
+              "The symbol could not be removed",
+            );
           }}
         />
       ))}

@@ -180,6 +180,10 @@ export function EntityEditor() {
   // told when the form becomes dirty and when it stops being — typing a value
   // back to what it was is not an unsaved change — but only this screen's own
   // reading is withdrawn, so a "Saved" the save itself put there survives.
+  //
+  // No dependency list: the status is scoped to the address it was reported
+  // from, and a tab is an address, so a dirty form carried to another tab has
+  // to say so again. Repeating an unchanged reading costs nothing.
   const announcedDirty = useRef(false);
   useEffect(() => {
     if (dirty) {
@@ -189,7 +193,7 @@ export function EntityEditor() {
       announcedDirty.current = false;
       reportSave("idle");
     }
-  }, [dirty, reportSave]);
+  });
 
   const onValidated = useCallback(() => {
     reload();
@@ -317,33 +321,38 @@ export function EntityEditor() {
     reportSave("idle");
   }
 
-  function upload(request: UploadRequest): void {
+  async function upload(request: UploadRequest): Promise<void> {
     if (revision === null) {
-      return;
+      throw new Error("The draft revision is not known yet");
     }
     setBusy(true);
     setUploadError(null);
-    void assets.upload(revision, request.file, request.fields).then(
-      (result) => {
-        setBusy(false);
-        setRevision(result.draft.revision);
-        refreshDrafts();
-        // The slots come from the entity read, so the drawing shows up only
-        // once that has been asked again. The form is left alone.
-        reload();
-      },
-      (cause: unknown) => {
-        setBusy(false);
-        const conflicted = conflictOfError(cause);
-        if (conflicted !== null) {
-          setConflict(conflicted);
-          return;
-        }
+    try {
+      const result = await assets.upload(
+        revision,
+        request.file,
+        request.fields,
+      );
+      setBusy(false);
+      setRevision(result.draft.revision);
+      refreshDrafts();
+      // The slots come from the entity read, so the drawing shows up only
+      // once that has been asked again. The form is left alone.
+      reload();
+    } catch (cause) {
+      setBusy(false);
+      const conflicted = conflictOfError(cause);
+      if (conflicted !== null) {
+        setConflict(conflicted);
+      } else {
         setUploadError(
           cause instanceof Error ? cause.message : "The upload was refused",
         );
-      },
-    );
+      }
+      // Rethrown so the drawer stays open holding what was typed; it closes
+      // only when there is nothing left to retry.
+      throw cause;
+    }
   }
 
   const displayName =

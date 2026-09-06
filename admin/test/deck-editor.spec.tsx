@@ -516,6 +516,33 @@ describe("deck membership editor", () => {
     ]);
   });
 
+  // The server answers about the deck as it is stored, and the form is ahead
+  // of it: a card taken out of the list has to be addable again without
+  // saving first, or the removal is a one-way door.
+  it("lets a card the form removed straight back in", async () => {
+    stubApi(deckDetail());
+    renderEditor("deck.symbols-sampler");
+    await openCards();
+
+    const add = await screen.findByRole("button", {
+      name: "Add country.germany#FLAG_TO_COUNTRY@1",
+    });
+    expect(add).toBeDisabled();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Remove country.germany#FLAG_TO_COUNTRY@1",
+      }),
+    );
+    await screen.findByText("In this deck (0)");
+
+    expect(
+      screen.getByRole("button", {
+        name: "Add country.germany#FLAG_TO_COUNTRY@1",
+      }),
+    ).toBeEnabled();
+  });
+
   it("says why a card cannot be added rather than greying it out", async () => {
     stubApi(deckDetail({ members: [], memberKeys: [] }));
     renderEditor("deck.symbols-sampler");

@@ -181,6 +181,8 @@ export function useDraftDeck(draftId: string, deckKey: string | undefined) {
         if (data === undefined) {
           setError(messageOf(apiError, "The deck could not be loaded"));
         } else {
+          // A read that worked clears the last one that did not.
+          setError(null);
           setDeck(data);
         }
       })

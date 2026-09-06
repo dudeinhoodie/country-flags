@@ -108,7 +108,8 @@ export function EntityMedia({
   busy: boolean;
   /** Why the last upload was refused, if it was. */
   uploadError: string | null;
-  onUpload: (request: UploadRequest) => void;
+  /** Settles when the drawing is stored; rejects when it is refused. */
+  onUpload: (request: UploadRequest) => Promise<void>;
   onDismissError: () => void;
 }) {
   const [open, setOpen] = useState<string | null>(null);
@@ -166,7 +167,13 @@ export function EntityMedia({
             busy={busy}
             error={uploadError}
             onCancel={closeUpload}
-            onUpload={onUpload}
+            onUpload={(request) => {
+              // Closing on success is also what throws the form away: a
+              // drawer still holding the file it just sent invites sending
+              // it twice. A refusal keeps everything, so a retry is one
+              // button rather than the whole form again.
+              void onUpload(request).then(closeUpload, () => undefined);
+            }}
           />
         )}
       </Drawer>

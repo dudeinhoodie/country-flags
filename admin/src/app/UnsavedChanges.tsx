@@ -25,6 +25,36 @@ import { useBlocker } from "react-router-dom";
 
 type ReportDirty = (dirty: boolean, within: string) => void;
 
+/** What the shell is holding on behalf of the screen inside it. */
+export interface UnsavedState {
+  dirty: boolean;
+  /** The editor's own address; everything under it is still this screen. */
+  within: string;
+}
+
+/**
+ * Whether leaving here has to be confirmed.
+ *
+ * Moving between the tabs of one editor is not leaving it: the tab is a route
+ * segment, and a form that asked to be confirmed on every tab would make its
+ * own addressing unusable. The segment boundary is the whole test —
+ * `country.india` is a prefix of `country.indonesia`, and a bare `startsWith`
+ * would walk from one country to the other in silence.
+ */
+export function shouldConfirmLeaving(
+  held: UnsavedState,
+  from: string,
+  to: string,
+): boolean {
+  if (!held.dirty || from === to) {
+    return false;
+  }
+  if (held.within === "") {
+    return true;
+  }
+  return !(to === held.within || to.startsWith(`${held.within}/`));
+}
+
 const UnsavedChangesContext = createContext<ReportDirty | null>(null);
 
 export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
@@ -45,16 +75,12 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
       }: {
         currentLocation: { pathname: string };
         nextLocation: { pathname: string };
-      }) => {
-        const { dirty, within } = held.current;
-        if (!dirty || currentLocation.pathname === nextLocation.pathname) {
-          return false;
-        }
-        // Moving between the tabs of one editor is not leaving it: the tab is
-        // a route segment, and a form that asked to be confirmed on every tab
-        // would make its own addressing unusable.
-        return within === "" || !nextLocation.pathname.startsWith(within);
-      },
+      }) =>
+        shouldConfirmLeaving(
+          held.current,
+          currentLocation.pathname,
+          nextLocation.pathname,
+        ),
       [],
     ),
   );
@@ -137,9 +163,15 @@ export function useUnsavedChanges(
 ): UnsavedChangesHandle {
   const report = useContext(UnsavedChangesContext) ?? noReport;
 
+  // No dependency list. `allowLeaving` writes the ref behind React's back for
+  // the moment between a successful save and the redirect it triggers, and a
+  // list would leave that disarmed for good whenever the form is dirty on
+  // both sides of the save — which it is if the editor typed while the write
+  // was in flight. Re-asserting the truth after every commit is what makes
+  // the shortcut safe: it lasts exactly as long as the navigation.
   useEffect(() => {
     report(dirty, within);
-  }, [dirty, within, report]);
+  });
 
   // Leaving the screen leaves its unsaved state behind with it; the next one
   // answers for itself.

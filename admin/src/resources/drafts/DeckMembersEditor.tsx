@@ -91,6 +91,37 @@ interface CardLibraryProps {
   onAdd: (refs: CardRef[]) => void;
 }
 
+/**
+ * Whether the row can be added right now.
+ *
+ * The server answers about the deck as it is stored, and the form is ahead of
+ * that in both directions: a card it has just added is not addable again, and
+ * a card it has just removed is — even though the saved deck still holds it.
+ * Every other reason to refuse belongs to the server, and is left to it.
+ */
+function addable(candidate: CardCandidate, held: ReadonlySet<string>): boolean {
+  if (held.has(candidate.cardId)) {
+    return false;
+  }
+  return (
+    candidate.available || candidate.disabledReason?.code === "ALREADY_IN_DECK"
+  );
+}
+
+/** Why it cannot, in words, or null when it can. */
+function refusal(
+  candidate: CardCandidate,
+  held: ReadonlySet<string>,
+): string | null {
+  if (held.has(candidate.cardId)) {
+    return "This deck already holds the card";
+  }
+  if (candidate.disabledReason?.code === "ALREADY_IN_DECK") {
+    return null;
+  }
+  return candidate.disabledReason?.message ?? null;
+}
+
 function CardLibrary({
   draftId,
   deckKey,
@@ -109,8 +140,8 @@ function CardLibrary({
     query,
   );
 
-  const addable = (candidates ?? []).filter(
-    (candidate) => candidate.available && !held.has(candidate.cardId),
+  const addableNow = (candidates ?? []).filter((candidate) =>
+    addable(candidate, held),
   );
 
   function refOf(candidate: CardCandidate): CardRef {
@@ -211,12 +242,12 @@ function CardLibrary({
         <Button
           size="small"
           variant="outlined"
-          disabled={disabled || addable.length === 0}
+          disabled={disabled || addableNow.length === 0}
           onClick={() => {
-            onAdd(addable.map(refOf));
+            onAdd(addableNow.map(refOf));
           }}
         >
-          {`Add all ${String(addable.length)} matching`}
+          {`Add all ${String(addableNow.length)} matching`}
         </Button>
         <Typography variant="caption" color="text.secondary">
           {candidates === null
@@ -227,13 +258,9 @@ function CardLibrary({
 
       <List dense sx={{ maxHeight: 340, overflowY: "auto" }}>
         {(candidates ?? []).map((candidate) => {
-          const alreadyHeld = held.has(candidate.cardId);
           // The reason a row cannot be added is what turns a greyed-out line
-          // into instructions; the server writes it, except for a card this
-          // unsaved form has already picked up.
-          const reason = alreadyHeld
-            ? "This deck already holds the card"
-            : (candidate.disabledReason?.message ?? null);
+          // into instructions.
+          const reason = refusal(candidate, held);
           return (
             <ListItem
               key={candidate.cardId}
@@ -241,7 +268,7 @@ function CardLibrary({
                 <Button
                   size="small"
                   aria-label={`Add ${candidate.cardId}`}
-                  disabled={disabled || alreadyHeld || !candidate.available}
+                  disabled={disabled || !addable(candidate, held)}
                   onClick={() => {
                     onAdd([refOf(candidate)]);
                   }}

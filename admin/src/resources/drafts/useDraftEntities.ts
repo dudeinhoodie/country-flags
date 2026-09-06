@@ -70,6 +70,10 @@ export function useDraftEntity(draftId: string, entityKey: string | undefined) {
         if (data === undefined) {
           setError(messageOf(apiError, "The entity could not be loaded"));
         } else {
+          // A read that worked clears the last one that did not: Retry has to
+          // be able to bring the screen back, and so does the re-read after a
+          // conflict.
+          setError(null);
           setDetail(data);
         }
       })

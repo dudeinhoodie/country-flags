@@ -7,6 +7,7 @@ import type { components } from "../../api/generated/admin-api";
 export type DraftAsset = components["schemas"]["AdminDraftAsset"];
 export type AssetUploadResult =
   components["schemas"]["AdminDraftAssetUploadResult"];
+export type DraftStamp = components["schemas"]["AdminDraftStamp"];
 export type AssetLocalizations =
   components["schemas"]["AdminAssetLocalizations"];
 export type AssetPatch = components["schemas"]["AdminDraftAssetPatchRequest"];
@@ -102,7 +103,7 @@ export function useAssetWriter(draftId: string): {
     revision: number,
     assetId: string,
     changes: AssetPatch,
-  ) => Promise<void>;
+  ) => Promise<DraftStamp>;
   remove: (assetId: string) => Promise<void>;
 } {
   const client = useAdminApiClient();
@@ -171,6 +172,9 @@ export function useAssetWriter(draftId: string): {
       if (data === undefined) {
         throw draftWriteError(error, "The asset could not be changed");
       }
+      // The stamp carries the revision the draft now stands at, so a second
+      // change in the same sitting is not aimed at the one it just replaced.
+      return data;
     },
     [client, draftId],
   );
