@@ -7,6 +7,7 @@ import {
 
 import { MetricsService } from "./metrics.service";
 import { shutdownTelemetry } from "./telemetry.bootstrap";
+import { WorkerBacklogService } from "./worker-backlog.service";
 
 @Injectable()
 class TelemetryShutdownHook implements OnApplicationShutdown {
@@ -17,7 +18,7 @@ class TelemetryShutdownHook implements OnApplicationShutdown {
 
 @Global()
 @Module({
-  providers: [MetricsService, TelemetryShutdownHook],
-  exports: [MetricsService],
+  providers: [MetricsService, WorkerBacklogService, TelemetryShutdownHook],
+  exports: [MetricsService, WorkerBacklogService],
 })
 export class TelemetryModule {}

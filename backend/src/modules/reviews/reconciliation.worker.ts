@@ -8,6 +8,10 @@ import {
 import { ReconciliationJobStatus } from "@prisma/client";
 
 import { JsonLoggerService } from "../../common/logging/json-logger.service";
+import {
+  WorkerBacklogService,
+  type WorkerBacklogSnapshot,
+} from "../../common/telemetry/worker-backlog.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { ProgressService } from "../progress/progress.service";
 import { ReviewsService } from "./reviews.service";
@@ -15,6 +19,8 @@ import { ReviewsService } from "./reviews.service";
 const MAX_ATTEMPTS = 5;
 const POLL_INTERVAL_MS = 1_000;
 const LEASE_MS = 5 * 60 * 1_000;
+/** The `queue` label every reconciliation gauge, log line and alert is written against. */
+const RECONCILIATION_QUEUE = "reconciliation";
 
 interface ClaimedJob {
   id: string;
@@ -35,6 +41,7 @@ export class ReconciliationWorker implements OnModuleInit, OnModuleDestroy {
     private readonly reviews: ReviewsService,
     private readonly progress: ProgressService,
     private readonly logger: JsonLoggerService,
+    private readonly backlog: WorkerBacklogService,
   ) {}
 
   onModuleInit(): void {
@@ -58,6 +65,7 @@ export class ReconciliationWorker implements OnModuleInit, OnModuleDestroy {
         errorClass: error instanceof Error ? error.name : "UnknownError",
       });
     });
+    void this.reportBacklog().catch(() => undefined);
   }
 
   async drain(limit = 25): Promise<number> {
@@ -108,7 +116,7 @@ export class ReconciliationWorker implements OnModuleInit, OnModuleDestroy {
     return processed;
   }
 
-  async metrics(): Promise<Record<string, number | null>> {
+  async metrics(): Promise<WorkerBacklogSnapshot> {
     const [pending, processing, failed, oldest] = await Promise.all([
       this.database.reconciliationJob.count({
         where: { status: ReconciliationJobStatus.PENDING },
@@ -134,6 +142,10 @@ export class ReconciliationWorker implements OnModuleInit, OnModuleDestroy {
           ? null
           : Math.max(0, Date.now() - oldest.createdAt.getTime()),
     };
+  }
+
+  private async reportBacklog(): Promise<void> {
+    this.backlog.report(RECONCILIATION_QUEUE, await this.metrics());
   }
 
   private async claim(): Promise<ClaimedJob | null> {

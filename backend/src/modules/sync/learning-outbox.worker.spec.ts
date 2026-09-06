@@ -32,6 +32,7 @@ describe("LearningOutboxWorker", () => {
     const worker = new LearningOutboxWorker(
       database as never,
       logger as never,
+      { report: jest.fn() } as never,
       publisher,
     );
 

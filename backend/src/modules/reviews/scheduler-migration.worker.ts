@@ -9,10 +9,20 @@ import {
 } from "@prisma/client";
 
 import { JsonLoggerService } from "../../common/logging/json-logger.service";
+import {
+  WorkerBacklogService,
+  type WorkerBacklogSnapshot,
+} from "../../common/telemetry/worker-backlog.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 
 const POLL_INTERVAL_MS = 2_000;
 const PAGE_SIZE = 100;
+/** The `queue` label every scheduler-migration gauge, log line and alert is written against. */
+const SCHEDULER_MIGRATION_QUEUE = "scheduler-migration";
+const UNFINISHED_RUN_STATUSES = [
+  ReconciliationJobStatus.PENDING,
+  ReconciliationJobStatus.PROCESSING,
+];
 
 @Injectable()
 export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
@@ -22,6 +32,7 @@ export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly database: PrismaService,
     private readonly logger: JsonLoggerService,
+    private readonly backlog: WorkerBacklogService,
   ) {}
 
   onModuleInit(): void {
@@ -43,6 +54,47 @@ export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
         errorClass: error instanceof Error ? error.name : "UnknownError",
       });
     });
+    void this.reportBacklog().catch(() => undefined);
+  }
+
+  /**
+   * A migration run is a backlog of one long job rather than of many small ones,
+   * so the age reported is time since the run last advanced, not time since it
+   * started: a run over millions of card states is legitimately old, and only a
+   * run that stopped moving is worth an alert. `processNextPage` writes `status`
+   * on every poll it claims a run in, which is what keeps `updatedAt` fresh
+   * while work is actually happening.
+   */
+  async metrics(): Promise<WorkerBacklogSnapshot> {
+    const [unfinished, processing, failed, stalest] = await Promise.all([
+      this.database.schedulerMigrationRun.count({
+        where: { status: { in: UNFINISHED_RUN_STATUSES } },
+      }),
+      this.database.schedulerMigrationRun.count({
+        where: { status: ReconciliationJobStatus.PROCESSING },
+      }),
+      this.database.schedulerMigrationRun.count({
+        where: { status: ReconciliationJobStatus.FAILED },
+      }),
+      this.database.schedulerMigrationRun.findFirst({
+        where: { status: { in: UNFINISHED_RUN_STATUSES } },
+        orderBy: { updatedAt: "asc" },
+        select: { updatedAt: true },
+      }),
+    ]);
+    return {
+      pending: unfinished,
+      processing,
+      deadLetter: failed,
+      oldestPendingAgeMs:
+        stalest === null
+          ? null
+          : Math.max(0, Date.now() - stalest.updatedAt.getTime()),
+    };
+  }
+
+  private async reportBacklog(): Promise<void> {
+    this.backlog.report(SCHEDULER_MIGRATION_QUEUE, await this.metrics());
   }
 
   async drain(): Promise<number> {

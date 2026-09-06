@@ -46,7 +46,11 @@ describe("SchedulerMigrationWorker", () => {
       ),
     };
 
-    const worker = new SchedulerMigrationWorker(database as never, {} as never);
+    const worker = new SchedulerMigrationWorker(
+      database as never,
+      {} as never,
+      { report: jest.fn() } as never,
+    );
     await expect(worker.drain()).resolves.toBe(2);
     expect(queued).toEqual([
       expect.objectContaining({
@@ -93,7 +97,11 @@ describe("SchedulerMigrationWorker", () => {
       ),
     };
 
-    const worker = new SchedulerMigrationWorker(database as never, {} as never);
+    const worker = new SchedulerMigrationWorker(
+      database as never,
+      {} as never,
+      { report: jest.fn() } as never,
+    );
     await expect(worker.drain()).resolves.toBe(0);
     const completion = runUpdates.at(-1) as {
       status: ReconciliationJobStatus;

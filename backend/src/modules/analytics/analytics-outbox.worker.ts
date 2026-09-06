@@ -13,7 +13,10 @@ import {
 } from "@prisma/client";
 
 import { JsonLoggerService } from "../../common/logging/json-logger.service";
-import { MetricsService } from "../../common/telemetry/metrics.service";
+import {
+  WorkerBacklogService,
+  type WorkerBacklogSnapshot,
+} from "../../common/telemetry/worker-backlog.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
   ANALYTICS_EXPORTER,
@@ -24,6 +27,8 @@ const MAX_ATTEMPTS = 5;
 const POLL_INTERVAL_MS = 1_000;
 const LEASE_MS = 5 * 60 * 1_000;
 const DELIVERED_RETENTION_MS = 60 * 60 * 1_000;
+/** The `queue` label every analytics-outbox gauge, log line and alert is written against. */
+const ANALYTICS_OUTBOX_QUEUE = "analytics";
 
 interface ClaimedOutboxEvent {
   eventId: string;
@@ -47,7 +52,7 @@ export class AnalyticsOutboxWorker implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly database: PrismaService,
     private readonly logger: JsonLoggerService,
-    private readonly metricsService: MetricsService,
+    private readonly backlog: WorkerBacklogService,
     @Inject(ANALYTICS_EXPORTER)
     private readonly exporter: AnalyticsExporter,
   ) {}
@@ -73,7 +78,7 @@ export class AnalyticsOutboxWorker implements OnModuleInit, OnModuleDestroy {
         errorClass: error instanceof Error ? error.name : "UnknownError",
       });
     });
-    void this.recordMetrics().catch(() => undefined);
+    void this.reportBacklog().catch(() => undefined);
     void this.expireDelivered().catch(() => undefined);
   }
 
@@ -140,7 +145,7 @@ export class AnalyticsOutboxWorker implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async metrics(): Promise<Record<string, number | null>> {
+  async metrics(): Promise<WorkerBacklogSnapshot> {
     const [pending, processing, failed, oldest] = await Promise.all([
       this.database.analyticsOutboxEvent.count({
         where: { deliveryStatus: OutboxDeliveryStatus.PENDING },
@@ -168,13 +173,8 @@ export class AnalyticsOutboxWorker implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-  private async recordMetrics(): Promise<void> {
-    const snapshot = await this.metrics();
-    this.metricsService.recordOutboxDepth(
-      "analytics",
-      snapshot.pending ?? 0,
-      (snapshot.oldestPendingAgeMs ?? 0) / 1_000,
-    );
+  private async reportBacklog(): Promise<void> {
+    this.backlog.report(ANALYTICS_OUTBOX_QUEUE, await this.metrics());
   }
 
   private async claim(): Promise<ClaimedOutboxEvent | null> {
