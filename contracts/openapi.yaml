@@ -645,6 +645,14 @@ paths:
     get:
       tags: [Content]
       summary: Get content changes after an opaque cursor
+      description: >-
+        The feed carries no account context and is filtered to what a caller
+        with no purchases may have. It is filtered again by client build: a
+        build that does not understand `Deck.access` hears about no locked
+        deck and none of a locked deck's material, because an event naming one
+        would be the first it ever learned of a deck it cannot draw. A RETIRE
+        always survives, whatever the build — it is the event that tells a
+        client to forget something.
       operationId: getContentChanges
       x-implementation-status: implemented
       security: []
@@ -652,9 +660,14 @@ paths:
         - $ref: ./openapi/components.yaml#/parameters/AfterCursor
         - $ref: ./openapi/components.yaml#/parameters/Locale
         - $ref: ./openapi/components.yaml#/parameters/Limit
+        - $ref: ./openapi/components.yaml#/parameters/ClientPlatform
+        - $ref: ./openapi/components.yaml#/parameters/ClientAppVersion
       responses:
         "200":
           description: Ordered page of content changes
+          headers:
+            Vary:
+              $ref: ./openapi/components.yaml#/headers/ClientVary
           content:
             application/json:
               schema:
@@ -690,6 +703,13 @@ paths:
     get:
       tags: [Content]
       summary: List localized decks
+      description: >-
+        The catalog publishes locked decks to everybody, because a deck nobody
+        can discover is a deck nobody buys — but only to a build that can draw
+        one. A client that does not send X-Client-App-Version, or that sends a
+        release older than the deployment's minimum, is served every free deck
+        and no locked one; the page is narrowed before it is cut, so its pages
+        stay full and its cursor is unaffected.
       operationId: listDecks
       x-implementation-status: implemented
       security:
@@ -699,9 +719,14 @@ paths:
         - $ref: ./openapi/components.yaml#/parameters/Locale
         - $ref: ./openapi/components.yaml#/parameters/Cursor
         - $ref: ./openapi/components.yaml#/parameters/Limit
+        - $ref: ./openapi/components.yaml#/parameters/ClientPlatform
+        - $ref: ./openapi/components.yaml#/parameters/ClientAppVersion
       responses:
         "200":
           description: Cursor page of decks
+          headers:
+            Vary:
+              $ref: ./openapi/components.yaml#/headers/ClientVary
           content:
             application/json:
               schema:
@@ -714,7 +739,9 @@ paths:
       summary: Get one localized deck
       description: >-
         Returns the same deck representation as the list page. Learning
-        progress for the deck is served by getDeckProgress.
+        progress for the deck is served by getDeckProgress. A locked deck is
+        absent from an older build's catalog and from its change feed, so to
+        that build it answers 404 — the same answer an unpublished deck gives.
       operationId: getDeck
       x-implementation-status: implemented
       security:
@@ -723,9 +750,14 @@ paths:
       parameters:
         - $ref: ./openapi/components.yaml#/parameters/DeckId
         - $ref: ./openapi/components.yaml#/parameters/Locale
+        - $ref: ./openapi/components.yaml#/parameters/ClientPlatform
+        - $ref: ./openapi/components.yaml#/parameters/ClientAppVersion
       responses:
         "200":
           description: Deck
+          headers:
+            Vary:
+              $ref: ./openapi/components.yaml#/headers/ClientVary
           content:
             application/json:
               schema:
