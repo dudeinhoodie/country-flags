@@ -9,8 +9,15 @@ import ListItemText from "@mui/material/ListItemText";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { useMemo, useState } from "react";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownwardOutlined";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpwardOutlined";
+import CloseIcon from "@mui/icons-material/CloseOutlined";
+import StarIcon from "@mui/icons-material/StarOutlined";
+import StarBorderIcon from "@mui/icons-material/StarBorderOutlined";
+import { visuallyHidden } from "@mui/utils";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CARD_TEMPLATES,
   cardIdentity,
@@ -21,12 +28,21 @@ import {
   templateOf,
 } from "./deck-cards";
 import type { CardRef, DeckDefaults, EntityType } from "./deck-cards";
-import { useDraftEntityPool } from "./useDraftDecks";
-import type { DeckMembers, DraftEntityListItem } from "./useDraftDecks";
+import {
+  EMPTY_CANDIDATE_QUERY,
+  useCardCandidates,
+  useDraftEntityPool,
+} from "./useDraftDecks";
+import type {
+  CandidateQuery,
+  CardCandidate,
+  DeckMembers,
+  DraftEntityListItem,
+} from "./useDraftDecks";
 
 type MembersMode = "all-current" | "explicit" | "taxonomy";
 
-const MAX_PREVIEW_CARDS = 3;
+export const MAX_PREVIEW_CARDS = 3;
 
 const ENTITY_TYPES: readonly EntityType[] = [
   "country",
@@ -50,178 +66,236 @@ export function modeOf(members: DeckMembers): MembersMode {
   return Array.isArray(members) ? "explicit" : "taxonomy";
 }
 
-/** Whether the entity already carries the drawing this template shows. */
-function hasAssetFor(
-  entity: DraftEntityListItem | undefined,
-  assetType: "FLAG" | "COAT_OF_ARMS" | null,
-): boolean | undefined {
-  if (entity === undefined) {
-    return undefined;
-  }
-  if (assetType === "FLAG") {
-    return entity.hasFlag;
-  }
-  if (assetType === "COAT_OF_ARMS") {
-    return entity.hasCoatOfArms;
-  }
-  return true;
-}
-
-const UNITED_STATES_KEYS = new Set(["united-states", "usa", "us"]);
-
-/**
- * The fifty states, as a click.
- *
- * `parentKey` is what says an administrative unit belongs to the United
- * States; a deployment whose entity list does not carry it yet is read from
- * the key instead, which is how the catalog names them.
- */
-function isUnitedStatesSubdivision(entity: DraftEntityListItem): boolean {
-  if (entity.type !== "subdivision") {
-    return false;
-  }
-  // The catalog has spelled the country both ways over the years, and the
-  // namespace in front of it is not part of the answer.
-  const parent = (entity.parentKey ?? "").split(".").pop() ?? "";
-  return (
-    UNITED_STATES_KEYS.has(parent.replace(/_/gu, "-")) ||
-    entity.key.startsWith("subdivision.us.")
-  );
-}
-
 function nameOf(entity: DraftEntityListItem | undefined, key: string): string {
   return entity?.publishedName ?? key;
 }
 
-function MemberFilters({
-  entities,
-  assetsKnown,
-  filters,
-  onChange,
-}: {
-  entities: DraftEntityListItem[];
-  assetsKnown: boolean;
-  filters: MemberFilterState;
-  onChange: (next: MemberFilterState) => void;
-}) {
-  const parents = useMemo(() => {
-    const keys = new Set<string>();
-    for (const entity of entities) {
-      if (entity.parentKey !== null && entity.parentKey !== undefined) {
-        keys.add(entity.parentKey);
-      }
-    }
-    return [...keys].sort();
-  }, [entities]);
+/**
+ * Which cards the deck holds, and in what order (§8.2).
+ *
+ * The library on the left is searched on the server: which entity/template
+ * pairs exist, which are ready, and why a row cannot be added are projection
+ * rules, and a browser deciding them from a list of entities would be a
+ * second implementation of the same rules quietly drifting from the first
+ * (§12). Every unavailable row says why, so a greyed-out line is
+ * instructions rather than a dead end.
+ *
+ * The order on the right is the deck's editorial order and the release build
+ * keeps it. Dragging is a convenience; the arrows are the interface, and
+ * they keep focus on the card they moved so a whole deck can be arranged
+ * without a mouse (§11).
+ */
+
+interface CardLibraryProps {
+  draftId: string;
+  deckKey: string | undefined;
+  defaults: DeckDefaults;
+  held: ReadonlySet<string>;
+  disabled: boolean;
+  onAdd: (refs: CardRef[]) => void;
+}
+
+function CardLibrary({
+  draftId,
+  deckKey,
+  defaults,
+  held,
+  disabled,
+  onAdd,
+}: CardLibraryProps) {
+  const [query, setQuery] = useState<CandidateQuery>({
+    ...EMPTY_CANDIDATE_QUERY,
+    templateCode: defaults.templateCode,
+  });
+  const { candidates, total, error } = useCardCandidates(
+    draftId,
+    deckKey,
+    query,
+  );
+
+  const addable = (candidates ?? []).filter(
+    (candidate) => candidate.available && !held.has(candidate.cardId),
+  );
+
+  function refOf(candidate: CardCandidate): CardRef {
+    return {
+      entityKey: candidate.entityKey,
+      templateCode: candidate.templateCode,
+      templateSchemaVersion: candidate.templateSchemaVersion,
+    };
+  }
 
   return (
-    <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1 }}>
-      <TextField
-        label="Search"
-        value={filters.query}
-        size="small"
-        onChange={(event) =>
-          onChange({ ...filters, query: event.target.value })
-        }
-        sx={{ minWidth: 180 }}
-      />
-      <TextField
-        select
-        label="Kind"
-        value={filters.kind}
-        size="small"
-        onChange={(event) => onChange({ ...filters, kind: event.target.value })}
-        sx={{ minWidth: 150 }}
-      >
-        <MenuItem value="">Any kind</MenuItem>
-        {ENTITY_TYPES.map((type) => (
-          <MenuItem key={type} value={type}>
-            {type}
-          </MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        select
-        label="Parent"
-        value={filters.parent}
-        size="small"
-        disabled={parents.length === 0}
-        onChange={(event) =>
-          onChange({ ...filters, parent: event.target.value })
-        }
-        sx={{ minWidth: 180 }}
-        helperText={parents.length === 0 ? "No parents in this draft" : " "}
-      >
-        <MenuItem value="">Any parent</MenuItem>
-        {parents.map((parent) => (
-          <MenuItem key={parent} value={parent}>
-            {parent}
-          </MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        select
-        label="Asset"
-        value={filters.asset}
-        size="small"
-        disabled={!assetsKnown}
-        onChange={(event) =>
-          onChange({
-            ...filters,
-            asset: event.target.value as MemberFilterState["asset"],
-          })
-        }
-        sx={{ minWidth: 190 }}
-        helperText={
-          assetsKnown ? " " : "This draft does not report drawings yet"
-        }
-      >
-        <MenuItem value="any">Any</MenuItem>
-        <MenuItem value="present">Has the drawing</MenuItem>
-        <MenuItem value="missing">Missing the drawing</MenuItem>
-      </TextField>
-      <TextField
-        select
-        label="Add as"
-        value={filters.templateCode}
-        size="small"
-        onChange={(event) =>
-          onChange({ ...filters, templateCode: event.target.value })
-        }
-        sx={{ minWidth: 200 }}
-      >
-        {CARD_TEMPLATES.map((template) => (
-          <MenuItem key={template.code} value={template.code}>
-            {template.label}
-          </MenuItem>
-        ))}
-      </TextField>
-    </Stack>
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Typography variant="subtitle2" component="h3" sx={{ mb: 1 }}>
+        Card library
+      </Typography>
+      {error !== null && (
+        <Alert severity="warning" sx={{ mb: 1 }}>
+          {error}
+        </Alert>
+      )}
+      <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1 }}>
+        <TextField
+          label="Search"
+          value={query.search}
+          size="small"
+          onChange={(event) => {
+            setQuery({ ...query, search: event.target.value });
+          }}
+          helperText="Matched against the key and the published name"
+          sx={{ minWidth: 200 }}
+        />
+        <TextField
+          select
+          label="Kind"
+          value={query.entityType}
+          size="small"
+          onChange={(event) => {
+            setQuery({ ...query, entityType: event.target.value });
+          }}
+          sx={{ minWidth: 150 }}
+        >
+          <MenuItem value="">Any kind</MenuItem>
+          {ENTITY_TYPES.map((type) => (
+            <MenuItem key={type} value={type}>
+              {type}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          label="Parent"
+          value={query.parentKey}
+          size="small"
+          onChange={(event) => {
+            setQuery({ ...query, parentKey: event.target.value });
+          }}
+          helperText="The country a subdivision belongs to"
+          sx={{ minWidth: 200 }}
+        />
+        <TextField
+          select
+          label="Readiness"
+          value={query.readiness}
+          size="small"
+          onChange={(event) => {
+            setQuery({
+              ...query,
+              readiness: event.target.value as CandidateQuery["readiness"],
+            });
+          }}
+          sx={{ minWidth: 160 }}
+        >
+          <MenuItem value="any">Any</MenuItem>
+          <MenuItem value="ready">Ready to teach</MenuItem>
+          <MenuItem value="blocked">Blocked</MenuItem>
+        </TextField>
+        <TextField
+          select
+          label="Add as"
+          value={query.templateCode}
+          size="small"
+          onChange={(event) => {
+            setQuery({ ...query, templateCode: event.target.value });
+          }}
+          sx={{ minWidth: 200 }}
+        >
+          {CARD_TEMPLATES.map((template) => (
+            <MenuItem key={template.code} value={template.code}>
+              {template.label}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Stack>
+
+      {/* A bulk recipe over what the filters already say, rather than a
+          hard-coded list of countries: `U.S. states` is kind=subdivision
+          under a parent, and so is every recipe anybody will want next. */}
+      <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: "center" }}>
+        <Button
+          size="small"
+          variant="outlined"
+          disabled={disabled || addable.length === 0}
+          onClick={() => {
+            onAdd(addable.map(refOf));
+          }}
+        >
+          {`Add all ${String(addable.length)} matching`}
+        </Button>
+        <Typography variant="caption" color="text.secondary">
+          {candidates === null
+            ? "Searching…"
+            : `${String(total)} ${total === 1 ? "candidate" : "candidates"} matched`}
+        </Typography>
+      </Stack>
+
+      <List dense sx={{ maxHeight: 340, overflowY: "auto" }}>
+        {(candidates ?? []).map((candidate) => {
+          const alreadyHeld = held.has(candidate.cardId);
+          // The reason a row cannot be added is what turns a greyed-out line
+          // into instructions; the server writes it, except for a card this
+          // unsaved form has already picked up.
+          const reason = alreadyHeld
+            ? "This deck already holds the card"
+            : (candidate.disabledReason?.message ?? null);
+          return (
+            <ListItem
+              key={candidate.cardId}
+              secondaryAction={
+                <Button
+                  size="small"
+                  aria-label={`Add ${candidate.cardId}`}
+                  disabled={disabled || alreadyHeld || !candidate.available}
+                  onClick={() => {
+                    onAdd([refOf(candidate)]);
+                  }}
+                >
+                  Add
+                </Button>
+              }
+            >
+              <ListItemText
+                primary={candidate.entityName ?? candidate.entityKey}
+                secondary={
+                  reason === null
+                    ? `${candidate.entityKey} · ${templateLabel(candidate.templateCode)}`
+                    : `${candidate.entityKey} — ${reason}`
+                }
+              />
+            </ListItem>
+          );
+        })}
+        {candidates !== null && candidates.length === 0 && (
+          <ListItem>
+            <ListItemText secondary="Nothing matches these filters." />
+          </ListItem>
+        )}
+        {candidates === null && (
+          <ListItem>
+            <ListItemText secondary="Reading the card library…" />
+          </ListItem>
+        )}
+      </List>
+    </Box>
   );
 }
 
-interface MemberFilterState {
-  query: string;
-  kind: string;
-  parent: string;
-  asset: "any" | "present" | "missing";
-  templateCode: string;
+/** Where focus goes after a card is moved, so the keyboard keeps its place. */
+interface PendingFocus {
+  cardId: string;
+  direction: "up" | "down";
 }
 
-function ExplicitMembers({
+function MemberList({
   refs,
-  defaults,
   previewCardIds,
   entities,
-  entitiesError,
   disabled,
   onChange,
 }: {
   refs: CardRef[];
-  defaults: DeckDefaults;
   previewCardIds: string[];
   entities: DraftEntityListItem[] | null;
-  entitiesError: string | null;
   disabled: boolean;
   /**
    * One patch rather than two callbacks: removing a starred member changes
@@ -230,88 +304,32 @@ function ExplicitMembers({
    */
   onChange: (patch: { refs?: CardRef[]; previewCardIds?: string[] }) => void;
 }) {
-  const [filters, setFilters] = useState<MemberFilterState>({
-    query: "",
-    kind: "",
-    parent: "",
-    asset: "any",
-    templateCode: defaults.templateCode,
-  });
   const [dragIndex, setDragIndex] = useState<number | null>(null);
-
-  const pool = useMemo(() => entities ?? [], [entities]);
+  const [announcement, setAnnouncement] = useState("");
+  const [pending, setPending] = useState<PendingFocus | null>(null);
+  const list = useRef<HTMLUListElement | null>(null);
   const byKey = useMemo(
-    () => new Map(pool.map((entity) => [entity.key, entity])),
-    [pool],
+    () => new Map((entities ?? []).map((entity) => [entity.key, entity])),
+    [entities],
   );
-  const assetsKnown = pool.some(
-    (entity) =>
-      entity.hasFlag !== undefined || entity.hasCoatOfArms !== undefined,
-  );
-  const template = templateOf(filters.templateCode) ?? DEFAULT_TEMPLATE;
-  const held = new Set(refs.map(cardIdentity));
 
-  const candidates = useMemo(() => {
-    const query = filters.query.trim().toLowerCase();
-    return pool
-      .filter((entity) => {
-        if (filters.kind !== "" && entity.type !== filters.kind) {
-          return false;
-        }
-        if (filters.parent !== "" && entity.parentKey !== filters.parent) {
-          return false;
-        }
-        if (!template.subjectTypes.includes(entity.type)) {
-          return false;
-        }
-        if (filters.asset !== "any") {
-          const has = hasAssetFor(entity, template.assetType);
-          if (has === undefined) {
-            return false;
-          }
-          if (filters.asset === "present" ? !has : has) {
-            return false;
-          }
-        }
-        if (query.length === 0) {
-          return true;
-        }
-        return (
-          entity.key.toLowerCase().includes(query) ||
-          (entity.publishedName ?? "").toLowerCase().includes(query)
-        );
-      })
-      .slice(0, 60);
-  }, [filters, pool, template]);
-
-  const states = useMemo(() => pool.filter(isUnitedStatesSubdivision), [pool]);
-
-  function add(entityKey: string): void {
-    const ref: CardRef = {
-      entityKey,
-      templateCode: template.code,
-      templateSchemaVersion: template.schemaVersion,
-    };
-    if (held.has(cardIdentity(ref))) {
+  // The button that moved a card may now be at an end and disabled, so focus
+  // falls back to the other arrow on the same card: a keyboard reader must
+  // never be thrown back to the top of the document mid-sort (§11).
+  useEffect(() => {
+    if (pending === null || list.current === null) {
       return;
     }
-    onChange({ refs: [...refs, ref] });
-  }
-
-  function addAllStates(): void {
-    const additions = states
-      .map(
-        (entity): CardRef => ({
-          entityKey: entity.key,
-          templateCode: template.code,
-          templateSchemaVersion: template.schemaVersion,
-        }),
-      )
-      .filter((ref) => !held.has(cardIdentity(ref)));
-    if (additions.length > 0) {
-      onChange({ refs: [...refs, ...additions] });
-    }
-  }
+    const escaped = CSS.escape(pending.cardId);
+    const wanted = list.current.querySelector<HTMLButtonElement>(
+      `[data-move="${pending.direction}"][data-card="${escaped}"]`,
+    );
+    const other = list.current.querySelector<HTMLButtonElement>(
+      `[data-move="${pending.direction === "up" ? "down" : "up"}"][data-card="${escaped}"]`,
+    );
+    (wanted?.disabled === false ? wanted : other)?.focus();
+    setPending(null);
+  }, [pending, refs]);
 
   function move(from: number, to: number): void {
     if (to < 0 || to >= refs.length || from === to) {
@@ -325,6 +343,11 @@ function ExplicitMembers({
     next.splice(from, 1);
     next.splice(to, 0, moved);
     onChange({ refs: next });
+    const identity = cardIdentity(moved);
+    setPending({ cardId: identity, direction: to < from ? "up" : "down" });
+    setAnnouncement(
+      `${identity} moved to position ${String(to + 1)} of ${String(refs.length)}`,
+    );
   }
 
   function remove(identity: string): void {
@@ -332,6 +355,7 @@ function ExplicitMembers({
       refs: refs.filter((ref) => cardIdentity(ref) !== identity),
       previewCardIds: previewCardIds.filter((id) => id !== identity),
     });
+    setAnnouncement(`${identity} removed from the deck`);
   }
 
   function togglePreview(identity: string): void {
@@ -348,191 +372,182 @@ function ExplicitMembers({
   }
 
   return (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-      <Box sx={{ flex: 1 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Add cards
-        </Typography>
-        {entitiesError !== null && (
-          <Alert severity="warning" sx={{ mb: 1 }}>
-            {entitiesError}
-          </Alert>
-        )}
-        <MemberFilters
-          entities={pool}
-          assetsKnown={assetsKnown}
-          filters={filters}
-          onChange={setFilters}
-        />
-        <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: "center" }}>
-          <Button
-            size="small"
-            variant="outlined"
-            disabled={disabled || states.length === 0}
-            onClick={addAllStates}
-          >
-            Add the U.S. states ({states.length})
-          </Button>
-          <Typography variant="caption" color="text.secondary">
-            as {templateLabel(template.code)}
-          </Typography>
-        </Stack>
-        <List dense sx={{ maxHeight: 340, overflowY: "auto" }}>
-          {candidates.map((entity) => {
-            const identity = cardIdentity({
-              entityKey: entity.key,
-              templateCode: template.code,
-              templateSchemaVersion: template.schemaVersion,
-            });
-            const drawing = hasAssetFor(entity, template.assetType);
-            return (
-              <ListItem
-                key={entity.key}
-                secondaryAction={
-                  <Button
-                    size="small"
-                    aria-label={`Add ${identity}`}
-                    disabled={disabled || held.has(identity)}
-                    onClick={() => add(entity.key)}
-                  >
-                    Add
-                  </Button>
-                }
-              >
-                <ListItemText
-                  primary={nameOf(entity, entity.key)}
-                  secondary={
-                    drawing === false
-                      ? `${entity.key} — no ${template.assetType ?? "asset"} yet`
-                      : entity.key
-                  }
-                />
-              </ListItem>
-            );
-          })}
-          {candidates.length === 0 && (
-            <ListItem>
-              <ListItemText secondary="Nothing matches these filters." />
-            </ListItem>
-          )}
-        </List>
+    <Box sx={{ flex: 1, minWidth: 0 }} data-field="/members">
+      <Typography variant="subtitle2" component="h3">
+        In this deck ({refs.length})
+      </Typography>
+      <Typography variant="caption" color="text.secondary">
+        This order is the deck&apos;s editorial order, and the release build
+        keeps it. Drag a card, use the arrows, or hold Alt and press the up and
+        down arrow keys.
+      </Typography>
+      {/* Focus alone does not say what happened; the move is announced. */}
+      <Box aria-live="polite" sx={visuallyHidden}>
+        {announcement}
       </Box>
-
-      <Box sx={{ flex: 1 }}>
-        <Typography variant="subtitle2">
-          In this deck ({refs.length})
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          Drag a card, or use the arrows: this order is the deck's editorial
-          order, and the release build keeps it.
-        </Typography>
-        <List dense sx={{ maxHeight: 380, overflowY: "auto" }}>
-          {refs.map((ref, index) => {
-            const identity = cardIdentity(ref);
-            const entity = byKey.get(ref.entityKey);
-            const drawing = hasAssetFor(
-              entity,
-              templateOf(ref.templateCode)?.assetType ?? null,
-            );
-            const isPreview = previewCardIds.includes(identity);
-            return (
-              <ListItem
-                key={identity}
-                draggable={!disabled}
-                onDragStart={(event) => {
-                  setDragIndex(index);
-                  // Firefox refuses to start a drag with an empty payload.
-                  event.dataTransfer.effectAllowed = "move";
-                  event.dataTransfer.setData("text/plain", identity);
-                }}
-                onDragOver={(event) => {
+      <List dense sx={{ maxHeight: 380, overflowY: "auto" }} ref={list}>
+        {refs.map((ref, index) => {
+          const identity = cardIdentity(ref);
+          const entity = byKey.get(ref.entityKey);
+          const isPreview = previewCardIds.includes(identity);
+          return (
+            <ListItem
+              key={identity}
+              data-field={`/members/${String(index)}`}
+              draggable={!disabled}
+              aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+              onKeyDown={(event) => {
+                if (!event.altKey || disabled) {
+                  return;
+                }
+                if (event.key === "ArrowUp") {
                   event.preventDefault();
-                }}
-                onDrop={(event) => {
+                  move(index, index - 1);
+                }
+                if (event.key === "ArrowDown") {
                   event.preventDefault();
-                  if (dragIndex !== null) {
-                    move(dragIndex, index);
-                  }
-                  setDragIndex(null);
-                }}
-                onDragEnd={() => setDragIndex(null)}
-                sx={{ cursor: disabled ? "default" : "grab" }}
-                secondaryAction={
-                  <Stack direction="row" spacing={0.5}>
-                    <IconButton
+                  move(index, index + 1);
+                }
+              }}
+              onDragStart={(event) => {
+                setDragIndex(index);
+                // Firefox refuses to start a drag with an empty payload.
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", identity);
+              }}
+              onDragOver={(event) => {
+                event.preventDefault();
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                if (dragIndex !== null) {
+                  move(dragIndex, index);
+                }
+                setDragIndex(null);
+              }}
+              onDragEnd={() => {
+                setDragIndex(null);
+              }}
+              sx={{ cursor: disabled ? "default" : "grab" }}
+              secondaryAction={
+                <Stack direction="row" spacing={0.5}>
+                  <IconAction
+                    label={`${isPreview ? "Unset" : "Set"} ${identity} as a preview card`}
+                    disabled={
+                      disabled ||
+                      (!isPreview && previewCardIds.length >= MAX_PREVIEW_CARDS)
+                    }
+                    onClick={() => {
+                      togglePreview(identity);
+                    }}
+                  >
+                    {isPreview ? (
+                      <StarIcon fontSize="small" />
+                    ) : (
+                      <StarBorderIcon fontSize="small" />
+                    )}
+                  </IconAction>
+                  <IconAction
+                    label={`Move ${identity} up`}
+                    disabled={disabled || index === 0}
+                    data-move="up"
+                    data-card={identity}
+                    onClick={() => {
+                      move(index, index - 1);
+                    }}
+                  >
+                    <ArrowUpwardIcon fontSize="small" />
+                  </IconAction>
+                  <IconAction
+                    label={`Move ${identity} down`}
+                    disabled={disabled || index === refs.length - 1}
+                    data-move="down"
+                    data-card={identity}
+                    onClick={() => {
+                      move(index, index + 1);
+                    }}
+                  >
+                    <ArrowDownwardIcon fontSize="small" />
+                  </IconAction>
+                  <IconAction
+                    label={`Remove ${identity}`}
+                    disabled={disabled}
+                    onClick={() => {
+                      remove(identity);
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconAction>
+                </Stack>
+              }
+            >
+              <ListItemText
+                primary={
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{ alignItems: "center" }}
+                  >
+                    <span>{`${String(index + 1)}. ${nameOf(entity, ref.entityKey)}`}</span>
+                    <Chip
                       size="small"
-                      aria-label={`${isPreview ? "Unset" : "Set"} ${identity} as a preview card`}
-                      disabled={
-                        disabled ||
-                        (!isPreview &&
-                          previewCardIds.length >= MAX_PREVIEW_CARDS)
-                      }
-                      onClick={() => togglePreview(identity)}
-                    >
-                      {isPreview ? "★" : "☆"}
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      aria-label={`Move ${identity} up`}
-                      disabled={disabled || index === 0}
-                      onClick={() => move(index, index - 1)}
-                    >
-                      ↑
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      aria-label={`Move ${identity} down`}
-                      disabled={disabled || index === refs.length - 1}
-                      onClick={() => move(index, index + 1)}
-                    >
-                      ↓
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      aria-label={`Remove ${identity}`}
-                      disabled={disabled}
-                      onClick={() => remove(identity)}
-                    >
-                      ×
-                    </IconButton>
+                      variant="outlined"
+                      label={templateLabel(ref.templateCode)}
+                    />
                   </Stack>
                 }
-              >
-                <ListItemText
-                  primary={
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      sx={{ alignItems: "center" }}
-                    >
-                      <span>{nameOf(entity, ref.entityKey)}</span>
-                      <Chip
-                        size="small"
-                        variant="outlined"
-                        label={templateLabel(ref.templateCode)}
-                      />
-                      {drawing === false && (
-                        <Chip size="small" color="warning" label="no drawing" />
-                      )}
-                    </Stack>
-                  }
-                  secondary={ref.entityKey}
-                />
-              </ListItem>
-            );
-          })}
-          {refs.length === 0 && (
-            <ListItem>
-              <ListItemText secondary="This deck holds nothing yet." />
+                secondary={ref.entityKey}
+              />
             </ListItem>
-          )}
-        </List>
-      </Box>
-    </Stack>
+          );
+        })}
+        {refs.length === 0 && (
+          <ListItem>
+            <ListItemText secondary="This deck holds nothing yet." />
+          </ListItem>
+        )}
+      </List>
+    </Box>
   );
 }
 
-function PreviewCards({
+/**
+ * An icon-only control, always with a name (§11).
+ *
+ * The tooltip is for the eye and the label is for everything else; a button
+ * that is only a glyph is unusable to half the people who have to use it.
+ */
+function IconAction({
+  label,
+  disabled,
+  onClick,
+  children,
+  ...rest
+}: {
+  label: string;
+  disabled: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+} & Record<`data-${string}`, string | undefined>) {
+  return (
+    <Tooltip title={label}>
+      <span>
+        <IconButton
+          size="small"
+          aria-label={label}
+          disabled={disabled}
+          onClick={onClick}
+          {...rest}
+        >
+          {children}
+        </IconButton>
+      </span>
+    </Tooltip>
+  );
+}
+
+/** The cards a locked deck shows before it is bought (§8.3). */
+export function PreviewCards({
   previewCardIds,
   refs,
   entities,
@@ -570,13 +585,14 @@ function PreviewCards({
   }
 
   return (
-    <Stack spacing={1}>
-      <Typography variant="subtitle2">
+    <Stack spacing={1} data-field="/previewCardIds">
+      <Typography variant="subtitle2" component="h3">
         Public preview ({previewCardIds.length} of {MAX_PREVIEW_CARDS})
       </Typography>
       <Typography variant="caption" color="text.secondary">
         The cards a locked deck shows before it is bought, in this order. Each
-        one is published as public on purpose; star a member above to add it.
+        one is published as public on purpose; star a member on the Cards tab to
+        add it.
       </Typography>
       {previewCardIds.length === 0 ? (
         <Typography variant="body2" color="text.secondary">
@@ -589,34 +605,38 @@ function PreviewCards({
             return (
               <ListItem
                 key={identity}
+                data-field={`/previewCardIds/${String(index)}`}
                 secondaryAction={
                   <Stack direction="row" spacing={0.5}>
-                    <IconButton
-                      size="small"
-                      aria-label={`Move preview ${identity} up`}
+                    <IconAction
+                      label={`Move preview ${identity} up`}
                       disabled={disabled || index === 0}
-                      onClick={() => move(index, -1)}
+                      onClick={() => {
+                        move(index, -1);
+                      }}
                     >
-                      ↑
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      aria-label={`Move preview ${identity} down`}
+                      <ArrowUpwardIcon fontSize="small" />
+                    </IconAction>
+                    <IconAction
+                      label={`Move preview ${identity} down`}
                       disabled={disabled || index === previewCardIds.length - 1}
-                      onClick={() => move(index, 1)}
+                      onClick={() => {
+                        move(index, 1);
+                      }}
                     >
-                      ↓
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      aria-label={`Remove preview ${identity}`}
+                      <ArrowDownwardIcon fontSize="small" />
+                    </IconAction>
+                    <IconAction
+                      label={`Remove preview ${identity}`}
                       disabled={disabled}
-                      onClick={() =>
-                        onChange(previewCardIds.filter((id) => id !== identity))
-                      }
+                      onClick={() => {
+                        onChange(
+                          previewCardIds.filter((id) => id !== identity),
+                        );
+                      }}
                     >
-                      ×
-                    </IconButton>
+                      <CloseIcon fontSize="small" />
+                    </IconAction>
                   </Stack>
                 }
               >
@@ -649,22 +669,26 @@ function PreviewCards({
   );
 }
 
+/** Everything the Cards tab holds: how membership is decided, and by whom. */
 export function DeckMembersEditor({
   draftId,
+  deckKey,
   value,
   savedMemberCount,
   disabled,
   onChange,
 }: {
   draftId: string;
+  deckKey: string | undefined;
   value: DeckMembership;
   savedMemberCount: number | null;
   disabled: boolean;
   onChange: (next: DeckMembership) => void;
 }) {
-  const { entities, error: entitiesError } = useDraftEntityPool(draftId);
+  const { entities } = useDraftEntityPool(draftId);
   const mode = modeOf(value.members);
   const refs = membersToRefs(value.members, value.defaults);
+  const held = new Set(refs.map(cardIdentity));
 
   function setDefaults(templateCode: string): void {
     const template = templateOf(templateCode) ?? DEFAULT_TEMPLATE;
@@ -739,7 +763,9 @@ export function DeckMembersEditor({
           disabled={disabled}
           sx={{ minWidth: 220 }}
           helperText="What a member with no template of its own teaches"
-          onChange={(event) => setDefaults(event.target.value)}
+          onChange={(event) => {
+            setDefaults(event.target.value);
+          }}
         >
           {CARD_TEMPLATES.map((template) => (
             <MenuItem key={template.code} value={template.code}>
@@ -776,33 +802,37 @@ export function DeckMembersEditor({
           }
           size="small"
           disabled={disabled}
-          onChange={(event) =>
-            onChange({ ...value, members: { taxonomy: event.target.value } })
-          }
+          onChange={(event) => {
+            onChange({ ...value, members: { taxonomy: event.target.value } });
+          }}
           sx={{ maxWidth: 420 }}
         />
       )}
 
       {mode === "explicit" && (
-        <ExplicitMembers
-          refs={refs}
-          defaults={value.defaults}
-          previewCardIds={value.previewCardIds}
-          entities={entities}
-          entitiesError={entitiesError}
-          disabled={disabled}
-          onChange={applyPatch}
-        />
+        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+          <CardLibrary
+            draftId={draftId}
+            deckKey={deckKey}
+            defaults={value.defaults}
+            held={held}
+            disabled={disabled}
+            onAdd={(added) => {
+              const fresh = added.filter((ref) => !held.has(cardIdentity(ref)));
+              if (fresh.length > 0) {
+                applyPatch({ refs: [...refs, ...fresh] });
+              }
+            }}
+          />
+          <MemberList
+            refs={refs}
+            previewCardIds={value.previewCardIds}
+            entities={entities}
+            disabled={disabled}
+            onChange={applyPatch}
+          />
+        </Stack>
       )}
-
-      <PreviewCards
-        previewCardIds={value.previewCardIds}
-        refs={refs}
-        entities={entities}
-        curated={mode === "explicit"}
-        disabled={disabled}
-        onChange={(previewCardIds) => onChange({ ...value, previewCardIds })}
-      />
     </Stack>
   );
 }
