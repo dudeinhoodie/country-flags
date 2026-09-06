@@ -1,6 +1,9 @@
 # ADR-020 — Страны, административные единицы и варианты учебных карточек
 
-- Статус: Proposed
+- Статус: Принято (2026-09-06). Реализовано: стадии A–D эпика #309 в master —
+  `SUBDIVISION` в `geo_entities`, типизированные ассеты и варианты, членство
+  колоды по `entityKey + templateCode + templateSchemaVersion`, реестр
+  шаблонов карточек на iOS.
 - Дата: 2026-09-04
 - Полное ТЗ: [18-multi-content-paid-decks.md](../18-multi-content-paid-decks.md)
 
