@@ -28,6 +28,20 @@ public enum AnalyticsEventName: String, Hashable, Sendable, CaseIterable {
     case authCompleted = "auth.completed"
     case syncCompleted = "sync.completed"
     case contentUpdateCompleted = "content.update_completed"
+    // Commerce. The names are document 18 §12's, which is the one place both
+    // paid-deck documents take them from.
+    case paidDeckImpression = "paid_deck.impression"
+    case paidDeckOpened = "paid_deck.opened"
+    case paywallViewed = "paywall.viewed"
+    case purchaseStarted = "purchase.started"
+    case purchaseCompleted = "purchase.completed"
+    case purchasePending = "purchase.pending"
+    case purchaseCancelled = "purchase.cancelled"
+    case purchaseFailed = "purchase.failed"
+    case purchaseRestoreCompleted = "purchase.restore_completed"
+    case paidDeckContentLoaded = "paid_deck.content_loaded"
+    case paidDeckStudyStarted = "paid_deck.study_started"
+    case cardDetailOpened = "card.detail_opened"
 
     public var consentCategory: AnalyticsConsentCategory {
         switch self {
@@ -102,6 +116,16 @@ public enum AnalyticsDeckType: String, Hashable, Sendable, CaseIterable {
 public enum AnalyticsStudyMode: String, Hashable, Sendable, CaseIterable {
     case selfRated = "self_rated"
     case multipleChoice = "multiple_choice"
+}
+
+extension StudyAnswerMode {
+    /// The same mode, spelled the way the registry spells it.
+    public var analytics: AnalyticsStudyMode {
+        switch self {
+        case .selfRated: .selfRated
+        case .multipleChoice: .multipleChoice
+        }
+    }
 }
 
 /// How long a session took, as a bucket. The exact duration stays on the
@@ -211,6 +235,120 @@ public enum AnalyticsSyncDurationBucket: String, Hashable, Sendable, CaseIterabl
 public enum AnalyticsContentUpdateResult: String, Hashable, Sendable, CaseIterable {
     case success
     case failed
+}
+
+// MARK: - Commerce, and what it is allowed to say
+
+/// Whether the account held the deck at the moment the event happened.
+///
+/// A paid deck is one thing before it is bought and another afterwards, and
+/// the same row, the same screen and the same event serve both. Nothing here
+/// names the deck: which country somebody is learning is not what a purchase
+/// funnel is about, and a deck code would be one more column to join against a
+/// person.
+public enum AnalyticsPaidDeckAccess: String, Hashable, Sendable, CaseIterable {
+    case locked
+    case owned
+}
+
+/// What the paywall could say about the price, as a state rather than as a
+/// number.
+///
+/// The number itself is the store's — localized, taxed and approved in App
+/// Store Connect — and it is exactly the kind of value document 17 §17.2
+/// forbids sending. What is worth measuring is whether the screen had one at
+/// all: a paywall that offers nothing to press is a storefront problem.
+public enum AnalyticsStorePriceState: String, Hashable, Sendable, CaseIterable {
+    case loading
+    case priced
+    case unavailable
+
+    public init(_ state: StorePriceState) {
+        switch state {
+        case .loading: self = .loading
+        case .priced: self = .priced
+        case .unavailable: self = .unavailable
+        }
+    }
+}
+
+/// Whether the backend had acknowledged the purchase by the time the deck
+/// opened.
+///
+/// `queued` is not a failure: the money moved, the device wrote the
+/// transaction down and the outbox is retrying. It is measured because the
+/// difference between the two is what says whether delivery is healthy.
+public enum AnalyticsPurchaseDelivery: String, Hashable, Sendable, CaseIterable {
+    case acknowledged
+    case queued
+}
+
+/// The bounded reason a purchase failed.
+///
+/// One case per `PurchaseFailure.Reason`, and no case that carries a message:
+/// a store error string is written for an operator, may be localized, and has
+/// no place in a funnel.
+public enum AnalyticsPurchaseFailureReason: String, Hashable, Sendable, CaseIterable {
+    case accountRequired = "account_required"
+    case couldNotVerify = "could_not_verify"
+    case productUnavailable = "product_unavailable"
+    case purchasesNotAllowed = "purchases_not_allowed"
+    case network
+    case store
+    case backendUnreachable = "backend_unreachable"
+
+    public init(_ reason: PurchaseFailure.Reason) {
+        switch reason {
+        case .accountRequired: self = .accountRequired
+        case .couldNotVerify: self = .couldNotVerify
+        case .productUnavailable: self = .productUnavailable
+        case .purchasesNotAllowed: self = .purchasesNotAllowed
+        case .network: self = .network
+        case .store: self = .store
+        case .backendUnreachable: self = .backendUnreachable
+        }
+    }
+}
+
+/// How a restore ended.
+///
+/// Finding nothing is its own value rather than a failure: somebody who never
+/// bought anything has not hit an error, and counting them as errors is how a
+/// working app looks broken on a dashboard.
+public enum AnalyticsRestoreResult: String, Hashable, Sendable, CaseIterable {
+    case restored
+    case nothingFound = "nothing_found"
+    case failed
+}
+
+/// Whether the cards of a deck that has just been opened reached the device.
+public enum AnalyticsPaidDeckLoadResult: String, Hashable, Sendable, CaseIterable {
+    case success
+    case failed
+}
+
+/// What a card is a drawing of.
+///
+/// The registry's own list, mapped from `AssetType` so a kind published after
+/// this release reports as `unknown` rather than as free text. It answers the
+/// one question the multi-content work asks — are coats of arms looked at the
+/// way flags are — and nothing about which country was on screen.
+public enum AnalyticsContentKind: String, Hashable, Sendable, CaseIterable {
+    case flag
+    case coatOfArms = "coat_of_arms"
+    case map
+    case other
+    case unknown
+
+    public init(_ type: AssetType) {
+        switch type {
+        case .flag: self = .flag
+        case .coatOfArms: self = .coatOfArms
+        case .map: self = .map
+        case .other: self = .other
+        case .unknown: self = .unknown
+        }
+    }
 }
 
 // MARK: - The event itself
@@ -385,6 +523,144 @@ public struct AnalyticsEvent: Hashable, Sendable {
         Self(
             name: .contentUpdateCompleted,
             properties: ["result": .string(result.rawValue)],
+            occurredAt: instant
+        )
+    }
+
+    // MARK: - Commerce
+
+    /// A deck that is sold appeared in the catalogue.
+    ///
+    /// Reported once per deck per run rather than once per row that scrolled
+    /// past: a lazy list draws the same row several times, and counting those
+    /// would measure scrolling rather than reach.
+    public static func paidDeckImpression(
+        access: AnalyticsPaidDeckAccess,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .paidDeckImpression,
+            properties: ["access": .string(access.rawValue)],
+            occurredAt: instant
+        )
+    }
+
+    /// A deck that is sold was opened, whether or not it is owned.
+    public static func paidDeckOpened(
+        access: AnalyticsPaidDeckAccess,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .paidDeckOpened,
+            properties: ["access": .string(access.rawValue)],
+            occurredAt: instant
+        )
+    }
+
+    /// The locked deck screen was shown, and what it could say about the
+    /// price. Never the price itself.
+    public static func paywallViewed(
+        offerState: AnalyticsStorePriceState,
+        isPurchaseOffered: Bool,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .paywallViewed,
+            properties: [
+                "offerState": .string(offerState.rawValue),
+                "isPurchaseOffered": .boolean(isPurchaseOffered),
+            ],
+            occurredAt: instant
+        )
+    }
+
+    /// A purchase was started. No product identifier: the funnel is about how
+    /// many people get this far, and the product is derivable from the offer
+    /// catalogue without carrying it on every event.
+    public static func purchaseStarted(at instant: Date) -> Self {
+        Self(name: .purchaseStarted, properties: [:], occurredAt: instant)
+    }
+
+    public static func purchaseCompleted(
+        delivery: AnalyticsPurchaseDelivery,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .purchaseCompleted,
+            properties: ["delivery": .string(delivery.rawValue)],
+            occurredAt: instant
+        )
+    }
+
+    /// Ask to Buy and its relatives.
+    public static func purchasePending(at instant: Date) -> Self {
+        Self(name: .purchasePending, properties: [:], occurredAt: instant)
+    }
+
+    /// The person changed their mind. Counted, never treated as an error.
+    public static func purchaseCancelled(at instant: Date) -> Self {
+        Self(name: .purchaseCancelled, properties: [:], occurredAt: instant)
+    }
+
+    public static func purchaseFailed(
+        reason: AnalyticsPurchaseFailureReason,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .purchaseFailed,
+            properties: ["reason": .string(reason.rawValue)],
+            occurredAt: instant
+        )
+    }
+
+    public static func purchaseRestoreCompleted(
+        result: AnalyticsRestoreResult,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .purchaseRestoreCompleted,
+            properties: ["result": .string(result.rawValue)],
+            occurredAt: instant
+        )
+    }
+
+    /// The cards of a deck the account has just been granted either arrived or
+    /// did not. A purchase whose content never lands is the failure a customer
+    /// writes to support about, so it is measured separately from the payment.
+    public static func paidDeckContentLoaded(
+        result: AnalyticsPaidDeckLoadResult,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .paidDeckContentLoaded,
+            properties: ["result": .string(result.rawValue)],
+            occurredAt: instant
+        )
+    }
+
+    /// A study session started in a deck that was bought. Reported beside
+    /// `study.session_started` rather than instead of it: one measures
+    /// learning, the other measures whether a purchase is used.
+    public static func paidDeckStudyStarted(
+        mode: AnalyticsStudyMode,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .paidDeckStudyStarted,
+            properties: ["mode": .string(mode.rawValue)],
+            occurredAt: instant
+        )
+    }
+
+    /// A card's details were opened, and what kind of drawing it was. No
+    /// country, no card identifier, no free text.
+    public static func cardDetailOpened(
+        contentKind: AnalyticsContentKind,
+        at instant: Date
+    ) -> Self {
+        Self(
+            name: .cardDetailOpened,
+            properties: ["contentKind": .string(contentKind.rawValue)],
             occurredAt: instant
         )
     }

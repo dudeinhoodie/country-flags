@@ -151,6 +151,78 @@ actor SwiftDataContentRepository: ContentRepository {
         }
     }
 
+    /// Takes the payload of decks this device may no longer open off the store.
+    ///
+    /// One pass over the join table, then one over the cards, then one over
+    /// the assets — deliberately, rather than a query per deck: the whole of
+    /// this runs when an entitlement goes, which is rare, and three fetches of
+    /// a catalogue are cheaper than a fetch per card.
+    ///
+    /// Nothing outside a membership is a candidate. An asset that arrived with
+    /// an entity rather than as a card's prompt is never considered, so the
+    /// country details of a free deck keep everything they draw.
+    @discardableResult
+    func removeContent(ofDecks deckIDs: [UUID]) async throws -> RemovedDeckContent {
+        guard !deckIDs.isEmpty else { return .none }
+        var removed = RemovedDeckContent.none
+        try transaction {
+            let dropped = Set(deckIDs)
+            let memberships = try modelContext.fetch(FetchDescriptor<StoredDeckCard>())
+            let doomed = memberships.filter { dropped.contains($0.deckID) }
+            guard !doomed.isEmpty else { return }
+            for membership in doomed {
+                modelContext.delete(membership)
+            }
+
+            // What another deck, a public preview or an unfinished session
+            // still needs. Sessions are pinned whatever account they belong
+            // to: this is a shared store, and the alternative to keeping a
+            // handful of cards is a sitting that cannot be finished.
+            var kept = Set(
+                memberships.lazy
+                    .filter { !dropped.contains($0.deckID) }
+                    .map(\.learningCardID)
+            )
+            for deck in try modelContext.fetch(FetchDescriptor<StoredDeck>()) {
+                kept.formUnion(deck.previewCardIDs)
+            }
+            for card in try modelContext.fetch(FetchDescriptor<StoredStudySessionCard>()) {
+                kept.insert(card.learningCardID)
+            }
+
+            let candidates = Set(doomed.map(\.learningCardID)).subtracting(kept)
+            var removedCardIDs: [UUID] = []
+            var candidateAssetIDs: Set<UUID> = []
+            var keptAssetIDs: Set<UUID> = []
+            for card in try modelContext.fetch(FetchDescriptor<StoredLearningCard>()) {
+                guard candidates.contains(card.id) else {
+                    keptAssetIDs.insert(card.promptAssetID)
+                    continue
+                }
+                candidateAssetIDs.insert(card.promptAssetID)
+                removedCardIDs.append(card.id)
+                modelContext.delete(card)
+            }
+
+            var removedAssets: [AssetRecord] = []
+            let doomedAssetIDs = candidateAssetIDs.subtracting(keptAssetIDs)
+            if !doomedAssetIDs.isEmpty {
+                let assets = try modelContext.fetch(FetchDescriptor<StoredAsset>())
+                for asset in assets where doomedAssetIDs.contains(asset.id) {
+                    removedAssets.append(Self.record(asset))
+                    modelContext.delete(asset)
+                }
+            }
+
+            removed = RemovedDeckContent(
+                membershipCount: doomed.count,
+                cardIDs: removedCardIDs,
+                assets: removedAssets
+            )
+        }
+        return removed
+    }
+
     // MARK: - Writing
 
     /// Writes a page over whatever is already stored for the same identifiers.

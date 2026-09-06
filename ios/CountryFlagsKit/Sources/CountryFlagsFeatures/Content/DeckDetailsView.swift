@@ -86,8 +86,19 @@ public struct DeckDetailsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedCountry) { subject in
             CountryDetailsSheet(subject: subject, store: store, assets: assets)
+                // One place for every way into the sheet — the free deck's
+                // list, the owned deck's list, a search result — so a kind
+                // that is looked at is counted wherever it was tapped.
+                .task(id: subject.cardID) {
+                    await store.recordCardDetailOpened(promptAssetID: subject.promptAssetID)
+                }
         }
         .task { await model.load() }
+        // Which of the two commerce screens this became, once the deck is
+        // known. Both report once per deck: `task` re-runs whenever a purchase
+        // changes the screen underneath, and a funnel counting that would be
+        // counting SwiftUI rather than people.
+        .task(id: model.deck?.id) { await reportOpened() }
         // A purchase that has just landed replaces the paywall with the deck,
         // on this screen, without a pop and without a relaunch: the keys
         // moved, the cards were fetched, and the deck is re-read here.
@@ -193,6 +204,11 @@ public struct DeckDetailsView: View {
                 searchText: searchBinding,
                 onOpenCard: { selectedCountry = CountryDetailsSubject(card: $0) },
                 onStart: {
+                    // Reported beside `study.session_started` rather than
+                    // instead of it: one measures learning, this one measures
+                    // whether a purchase is being used.
+                    let started = continuable?.mode ?? mode
+                    Task { await commerce.recordStudyStarted(in: deck, mode: started.analytics) }
                     if let continuable {
                         onStartStudy?(deckID, continuable.size, continuable.mode)
                     } else {
@@ -208,6 +224,14 @@ public struct DeckDetailsView: View {
                 }
             }
         }
+    }
+
+    /// A deck that is for sale was opened, and — when it is locked — that the
+    /// paywall was the screen. A free deck reports neither.
+    private func reportOpened() async {
+        guard let commerce, let deck = model.deck, deck.isSold else { return }
+        await commerce.recordOpened(deck)
+        await commerce.recordPaywallViewed(deck)
     }
 
     private func isDeliveringCards(_ deck: DeckRecord, cards: [LearningCardRecord]) -> Bool {
