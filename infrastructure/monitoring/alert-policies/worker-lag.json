@@ -1,0 +1,61 @@
+{
+  "displayName": "${SERVICE_NAME} worker backlog is not draining",
+  "documentation": {
+    "mimeType": "text/markdown",
+    "subject": "${SERVICE_NAME}: a queue has stopped draining",
+    "content": "A queue's oldest unfinished item is older than fifteen minutes, or its dead-letter pile has passed ten. The `queue` label on the incident says which: `analytics`, `learning`, `reconciliation` or `scheduler-migration`.\n\nAge rather than depth: a queue draining a thousand items a second and a queue that stopped an hour ago both read as deep, and only one of them is a problem.\n\nRunbook: `docs/ops/deployment-runbooks.md`, \"A worker backlog is not draining\".\n\nFirst three commands:\n\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.event=\"worker_backlog_snapshot\"' --freshness 1h --limit 30 --format='value(timestamp,jsonPayload.queue,jsonPayload.pending,jsonPayload.deadLetter,jsonPayload.oldestPendingAgeSeconds)'\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.event=~\"_dead_lettered$\"' --freshness 6h --limit 30 --format='value(timestamp,jsonPayload.event,jsonPayload.errorClass)'\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.event=~\"_poll_failed$\"' --freshness 1h --limit 30 --format='value(timestamp,jsonPayload.event,jsonPayload.errorClass)'\n\nStop conditions:\n\n- If `pending` is falling between snapshots, the queue is draining and only slowly. Do not restart anything; raise the threshold instead if this recurs.\n- Dead-lettered items are not retried and their count never falls on its own, so this condition stays firing until they are cleared. Clearing them is a deliberate act, not a way to silence the alert.\n- If `dev` scaled to zero, its workers stop with it and their backlog is expected to age. On dev this alert is informational."
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "severity": "ERROR",
+  "conditions": [
+    {
+      "displayName": "Oldest pending item older than fifteen minutes",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/api_worker_oldest_pending_age_seconds\" AND resource.type=\"cloud_run_revision\" AND metric.labels.environment=\"${DEPLOYMENT_ENV}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_PERCENTILE_95",
+            "crossSeriesReducer": "REDUCE_MAX",
+            "groupByFields": ["metric.label.queue"]
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 900,
+        "duration": "600s",
+        "trigger": { "count": 1 },
+        "evaluationMissingData": "EVALUATION_MISSING_DATA_INACTIVE"
+      }
+    },
+    {
+      "displayName": "More than ten dead-lettered items",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/api_worker_dead_letter_depth\" AND resource.type=\"cloud_run_revision\" AND metric.labels.environment=\"${DEPLOYMENT_ENV}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "600s",
+            "perSeriesAligner": "ALIGN_MAX",
+            "crossSeriesReducer": "REDUCE_MAX",
+            "groupByFields": ["metric.label.queue"]
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 10,
+        "duration": "1800s",
+        "trigger": { "count": 1 },
+        "evaluationMissingData": "EVALUATION_MISSING_DATA_INACTIVE"
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "7200s",
+    "notificationRateLimit": { "period": "3600s" }
+  },
+  "notificationChannels": ["${NOTIFICATION_CHANNEL}"],
+  "userLabels": {
+    "deployment_env": "${DEPLOYMENT_ENV}",
+    "owner": "country-flags",
+    "source": "infrastructure-monitoring"
+  }
+}

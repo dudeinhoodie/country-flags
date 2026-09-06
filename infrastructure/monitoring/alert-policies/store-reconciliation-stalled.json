@@ -1,0 +1,38 @@
+{
+  "displayName": "Store reconciliation has not run (${DEPLOYMENT_ENV})",
+  "documentation": {
+    "mimeType": "text/markdown",
+    "subject": "Store reconciliation has not completed for a day",
+    "content": "The hourly reconciliation sweep has recorded no completed run for twenty-six hours. Apple retries a notification for about a day and then stops, so a sweep that is not running is how a refund nobody heard about becomes a customer studying a deck they no longer own.\n\nWritten as an absence on purpose: a cron that stopped firing produces no failed run to notice, and `store_reconciliation_runs_total{outcome=\"failed\"}` would stay at zero throughout.\n\nRunbook: `docs/ops/commerce-reconciliation-runbook.md` and `docs/ops/deployment-runbooks.md`, \"A scheduled job stopped running\".\n\nFirst two commands:\n\n    gh run list --workflow 'Store reconciliation (dev)' --limit 10\n    gcloud logging read 'jsonPayload.event=\"store_reconciliation_finished\"' --freshness 2d --limit 10 --format='value(timestamp,jsonPayload.environment,jsonPayload.runId)'\n\nStop conditions:\n\n- If `gh run list` shows recent successful runs, the sweeps are happening and only the heartbeat write is failing. Check that `github-deployer` still holds `roles/logging.logWriter`; the API is unaffected and this is not an incident.\n- If there are no runs at all, GitHub disabled the schedule — scheduled workflows are switched off after sixty days of repository inactivity. Re-enable it and dispatch one run by hand."
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "severity": "WARNING",
+  "conditions": [
+    {
+      "displayName": "No completed sweep for twenty-six hours",
+      "conditionAbsent": {
+        "filter": "metric.type=\"logging.googleapis.com/user/api_store_reconciliation_finished\" AND metric.labels.environment=\"${DEPLOYMENT_ENV}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "3600s",
+            "perSeriesAligner": "ALIGN_DELTA",
+            "crossSeriesReducer": "REDUCE_SUM"
+          }
+        ],
+        "duration": "93600s",
+        "trigger": { "count": 1 }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "86400s",
+    "notificationRateLimit": { "period": "86400s" }
+  },
+  "notificationChannels": ["${NOTIFICATION_CHANNEL}"],
+  "userLabels": {
+    "deployment_env": "${DEPLOYMENT_ENV}",
+    "owner": "country-flags",
+    "source": "infrastructure-monitoring"
+  }
+}

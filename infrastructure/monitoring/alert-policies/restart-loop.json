@@ -1,0 +1,42 @@
+{
+  "displayName": "${SERVICE_NAME} is restarting in a loop",
+  "documentation": {
+    "mimeType": "text/markdown",
+    "subject": "${SERVICE_NAME}: the process keeps restarting",
+    "content": "The API process started more than six times in ten minutes. A deploy produces one or two; a crash loop produces this.\n\nCounted from the API's own `application_started` log line rather than from container starts, so it means \"the process booted\" and not \"the platform scheduled an instance\".\n\nRunbook: `docs/ops/deployment-runbooks.md`, \"A revision will not stay up\".\n\nFirst three commands:\n\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.event=\"application_started\"' --freshness 30m --limit 20 --format='value(timestamp,jsonPayload.release,jsonPayload.deploymentId)'\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND severity>=ERROR' --freshness 30m --limit 50\n    gcloud run revisions list --service ${SERVICE_NAME} --region europe-west3 --sort-by='~metadata.creationTimestamp' --limit 5 --format='table(metadata.name,metadata.labels.release)'\n\nStop condition: if every start reports the same release, the release is the cause — roll back. If the release changes between starts, two deploys are racing and the concurrency group is not doing its job; stop deploying before investigating further.\n\nNot enabled for `dev`: dev scales to zero, so a start after every idle period is normal there and this would only ever be noise."
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "severity": "ERROR",
+  "conditions": [
+    {
+      "displayName": "More than six process starts in ten minutes",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/api_process_started\" AND resource.type=\"cloud_run_revision\" AND metric.labels.environment=\"${DEPLOYMENT_ENV}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "600s",
+            "perSeriesAligner": "ALIGN_DELTA",
+            "crossSeriesReducer": "REDUCE_SUM",
+            "groupByFields": ["resource.label.service_name"]
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 6,
+        "duration": "600s",
+        "trigger": { "count": 1 },
+        "evaluationMissingData": "EVALUATION_MISSING_DATA_INACTIVE"
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "3600s",
+    "notificationRateLimit": { "period": "1800s" }
+  },
+  "notificationChannels": ["${NOTIFICATION_CHANNEL}"],
+  "userLabels": {
+    "deployment_env": "${DEPLOYMENT_ENV}",
+    "owner": "country-flags",
+    "source": "infrastructure-monitoring"
+  }
+}

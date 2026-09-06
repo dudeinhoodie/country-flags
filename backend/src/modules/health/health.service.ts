@@ -23,6 +23,16 @@ interface ReadinessResponse {
   };
 }
 
+/**
+ * Above this, a readiness check has stopped being a yes/no answer and started
+ * being a measurement. `SELECT 1` over a pooled connection is single-digit
+ * milliseconds when the database is healthy; a quarter of a second means the
+ * pool is queueing, the branch is waking, or the provider is degraded — the
+ * "database connection threshold" alert has nothing else to read, because a
+ * connection that is merely slow still answers and never fails the check.
+ */
+const SLOW_READINESS_MS = 250;
+
 @Injectable()
 export class HealthService implements BeforeApplicationShutdown {
   private shuttingDown = false;
@@ -70,12 +80,23 @@ export class HealthService implements BeforeApplicationShutdown {
       });
     }
 
+    const latencyMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+    if (latencyMs > SLOW_READINESS_MS) {
+      this.logger.warn({
+        message: "Readiness database check was slow",
+        event: "readiness_check_slow",
+        dependency: "postgresql",
+        latencyMs,
+        thresholdMs: SLOW_READINESS_MS,
+      });
+    }
+
     return {
       status: "ok",
       checks: {
         database: {
           status: "up",
-          latencyMs: Number(process.hrtime.bigint() - startedAt) / 1_000_000,
+          latencyMs,
         },
       },
     };

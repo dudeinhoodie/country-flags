@@ -96,3 +96,25 @@ jobs:
           COMMERCE_APPLE_IAP_ISSUER_ID: ${{ steps.credentials.outputs.dev_commerce_apple_iap_issuer_id }}
           COMMERCE_APPLE_IAP_PRIVATE_KEY: ${{ steps.credentials.outputs.dev_commerce_apple_iap_private_key }}
         run: corepack yarn commerce:reconcile
+
+      # The sweep runs on a GitHub runner, so everything it logs stays in
+      # GitHub. The alert that matters is not "a sweep failed" — a failed sweep
+      # fails this job and mails the owner — it is "no sweep happened", and a
+      # cron that stopped firing produces no run to notice. Copying one line
+      # into Cloud Logging is what gives that alert something to be absent from.
+      #
+      # Non-fatal on purpose: a sweep that reconciled correctly must not be
+      # reported as broken because a monitoring write was refused. The write
+      # needs roles/logging.logWriter on github-deployer — see
+      # infrastructure/monitoring/README.md; without it this warns and the
+      # "reconciliation has not run" alert stays blind.
+      - name: Record the sweep where the alert can see it
+        if: success()
+        run: |
+          set -uo pipefail
+          if ! gcloud logging write commerce-reconciliation \
+            '{"event":"store_reconciliation_finished","environment":"dev","service":"country-flags-reconciliation","runId":"${{ github.run_id }}"}' \
+            --payload-type=json --project "${PROJECT_ID}"
+          then
+            echo "::warning::Could not write the reconciliation heartbeat; the 'has not run' alert is blind until github-deployer has roles/logging.logWriter."
+          fi

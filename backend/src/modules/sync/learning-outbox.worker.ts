@@ -9,6 +9,10 @@ import {
 import { OutboxDeliveryStatus, type Prisma } from "@prisma/client";
 
 import { JsonLoggerService } from "../../common/logging/json-logger.service";
+import {
+  WorkerBacklogService,
+  type WorkerBacklogSnapshot,
+} from "../../common/telemetry/worker-backlog.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import {
   LEARNING_EVENT_PUBLISHER,
@@ -18,6 +22,8 @@ import {
 const MAX_ATTEMPTS = 5;
 const POLL_INTERVAL_MS = 1_000;
 const LEASE_MS = 5 * 60 * 1_000;
+/** The `queue` label every learning-outbox gauge, log line and alert is written against. */
+const LEARNING_OUTBOX_QUEUE = "learning";
 
 interface ClaimedOutboxEvent {
   id: string;
@@ -36,6 +42,7 @@ export class LearningOutboxWorker implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly database: PrismaService,
     private readonly logger: JsonLoggerService,
+    private readonly backlog: WorkerBacklogService,
     @Inject(LEARNING_EVENT_PUBLISHER)
     private readonly publisher: LearningEventPublisher,
   ) {}
@@ -61,6 +68,7 @@ export class LearningOutboxWorker implements OnModuleInit, OnModuleDestroy {
         errorClass: error instanceof Error ? error.name : "UnknownError",
       });
     });
+    void this.backlog.report(LEARNING_OUTBOX_QUEUE, () => this.metrics());
   }
 
   async drain(limit = 100): Promise<number> {
@@ -106,7 +114,7 @@ export class LearningOutboxWorker implements OnModuleInit, OnModuleDestroy {
     return processed;
   }
 
-  async metrics(): Promise<Record<string, number | null>> {
+  async metrics(): Promise<WorkerBacklogSnapshot> {
     const [pending, processing, failed, oldest] = await Promise.all([
       this.database.learningOutboxEvent.count({
         where: { deliveryStatus: OutboxDeliveryStatus.PENDING },

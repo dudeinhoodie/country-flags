@@ -1,7 +1,7 @@
 import { Injectable, type LoggerService } from "@nestjs/common";
 import { trace } from "@opentelemetry/api";
 
-import { readDeploymentEnvironment } from "../../config/deployment-environment";
+import { readReleaseMetadata } from "../../config/release-metadata";
 import { redact } from "./redaction";
 
 type LogLevel = "debug" | "info" | "warn" | "error" | "fatal";
@@ -12,6 +12,8 @@ interface LogEntry {
   service: string;
   environment: string;
   release: string;
+  deploymentId?: string;
+  migrationVersion?: string;
   message: string;
   context?: string;
   stack?: string;
@@ -20,11 +22,37 @@ interface LogEntry {
   [key: string]: unknown;
 }
 
-const SERVICE_NAME = process.env.SERVICE_NAME ?? "country-flags-api";
-// The deployment environment, not NODE_ENV: dev and prod both run the production
-// build, so NODE_ENV alone cannot tell one deployment's logs from the other's.
-const ENVIRONMENT = readDeploymentEnvironment();
-const RELEASE = process.env.SERVICE_RELEASE ?? "dev";
+/**
+ * The fields that make a log line attributable to one deployment. `environment`
+ * is the deployment environment, not NODE_ENV: dev and prod both run the
+ * production build, so NODE_ENV alone cannot tell one deployment's logs from the
+ * other's. `deploymentId` and `migrationVersion` are omitted rather than
+ * defaulted when the platform does not supply them, so a local log line keeps
+ * its old shape and a hosted one is never labelled with a rollout or a schema
+ * that does not exist.
+ */
+interface DeploymentFields {
+  service: string;
+  environment: string;
+  release: string;
+  deploymentId?: string;
+  migrationVersion?: string;
+}
+
+function deploymentFields(): DeploymentFields {
+  const metadata = readReleaseMetadata();
+  return {
+    service: metadata.service,
+    environment: metadata.environment,
+    release: metadata.release,
+    ...(metadata.deploymentId !== undefined
+      ? { deploymentId: metadata.deploymentId }
+      : {}),
+    ...(metadata.migrationVersion !== undefined
+      ? { migrationVersion: metadata.migrationVersion }
+      : {}),
+  };
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -32,6 +60,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 @Injectable()
 export class JsonLoggerService implements LoggerService {
+  // Read once, when the singleton is built: the process cannot change
+  // deployment mid-flight, and re-reading `process.env` per line would only
+  // make two lines from one revision capable of disagreeing.
+  private readonly deployment = deploymentFields();
+
   log(message: unknown, ...optionalParams: unknown[]): void {
     this.write("info", message, optionalParams);
   }
@@ -76,9 +109,7 @@ export class JsonLoggerService implements LoggerService {
     const entry: LogEntry = redact({
       timestamp: new Date().toISOString(),
       level,
-      service: SERVICE_NAME,
-      environment: ENVIRONMENT,
-      release: RELEASE,
+      ...this.deployment,
       message:
         typeof structuredMessage?.message === "string"
           ? structuredMessage.message

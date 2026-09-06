@@ -1,0 +1,42 @@
+{
+  "displayName": "${SERVICE_NAME} readiness is unreachable",
+  "documentation": {
+    "mimeType": "text/markdown",
+    "subject": "${SERVICE_NAME}: readiness stopped answering from outside",
+    "content": "The external probe of `/v1/health/ready` has been failing for ten minutes. This is the outside view: it fires whether the API answered 503, timed out, or never accepted the connection at all — including when no instance is running.\n\nRunbook: `docs/ops/deployment-runbooks.md`, \"Readiness is failing\".\n\nFirst three commands:\n\n    curl -sS -o /dev/null -w '%{http_code} in %{time_total}s\\n' \"$(gcloud run services describe ${SERVICE_NAME} --region europe-west3 --format='value(status.url)')/v1/health/ready\"\n    gcloud run services describe ${SERVICE_NAME} --region europe-west3 --format='yaml(status.conditions,status.latestReadyRevisionName)'\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\"' --freshness 30m --limit 30 --order desc --format='value(timestamp,jsonPayload.event,jsonPayload.message,textPayload)'\n\nStop conditions:\n\n- On `dev`, a cold start after a long idle period can exceed the probe timeout once. One failed probe is not this alert; ten minutes of them is.\n- If the service reports `Ready: True` and the probe still fails, the fault is between the probe and the service — check the provider status page before touching the release."
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "severity": "CRITICAL",
+  "conditions": [
+    {
+      "displayName": "Uptime check failing for ten minutes",
+      "conditionThreshold": {
+        "filter": "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.type=\"uptime_url\" AND metric.labels.check_id=\"${UPTIME_CHECK_ID}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_FRACTION_TRUE",
+            "crossSeriesReducer": "REDUCE_MEAN",
+            "groupByFields": ["resource.label.host"]
+          }
+        ],
+        "comparison": "COMPARISON_LT",
+        "thresholdValue": 1,
+        "duration": "600s",
+        "trigger": { "count": 1 },
+        "evaluationMissingData": "EVALUATION_MISSING_DATA_ACTIVE"
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "3600s",
+    "notificationRateLimit": { "period": "900s" }
+  },
+  "notificationChannels": ["${NOTIFICATION_CHANNEL}"],
+  "userLabels": {
+    "deployment_env": "${DEPLOYMENT_ENV}",
+    "owner": "country-flags",
+    "source": "infrastructure-monitoring"
+  }
+}

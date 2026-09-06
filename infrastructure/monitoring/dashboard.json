@@ -1,0 +1,316 @@
+{
+  "$comment": [
+    "One screen an operator can answer 'is it healthy, and did the last deploy do",
+    "this?' from. Applied by ./apply.sh.",
+    "",
+    "Row order is the order of the questions: is it up, is it erroring, is it",
+    "slow, are the queues moving, what released and when. The release row is last",
+    "because it is the one you look at after the others told you something is",
+    "wrong.",
+    "",
+    "Every filter carries the environment, so a dev dashboard cannot quietly show",
+    "prod numbers. docs/20-deployment-observability.md section 4 gives the same",
+    "queries in a form that survives leaving this provider."
+  ],
+  "displayName": "Country Flags API — ${DEPLOYMENT_ENV}",
+  "mosaicLayout": {
+    "columns": 12,
+    "tiles": [
+      {
+        "xPos": 0,
+        "yPos": 0,
+        "width": 6,
+        "height": 4,
+        "widget": {
+          "title": "Requests by status class",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "STACKED_AREA",
+                "targetAxis": "Y1",
+                "legendTemplate": "${metric.labels.response_code_class}",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"run.googleapis.com/request_count\" resource.type=\"cloud_run_revision\" resource.label.service_name=\"${SERVICE_NAME}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_RATE",
+                      "crossSeriesReducer": "REDUCE_SUM",
+                      "groupByFields": ["metric.label.response_code_class"]
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "requests/s", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 6,
+        "yPos": 0,
+        "width": 6,
+        "height": 4,
+        "widget": {
+          "title": "Request latency (p50 / p95)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "legendTemplate": "p50",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"run.googleapis.com/request_latencies\" resource.type=\"cloud_run_revision\" resource.label.service_name=\"${SERVICE_NAME}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_PERCENTILE_50",
+                      "crossSeriesReducer": "REDUCE_MEAN"
+                    }
+                  }
+                }
+              },
+              {
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "legendTemplate": "p95",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"run.googleapis.com/request_latencies\" resource.type=\"cloud_run_revision\" resource.label.service_name=\"${SERVICE_NAME}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_PERCENTILE_95",
+                      "crossSeriesReducer": "REDUCE_MEAN"
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "ms", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 4,
+        "width": 4,
+        "height": 4,
+        "widget": {
+          "title": "Readiness failures",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"logging.googleapis.com/user/api_readiness_check_failed\" resource.type=\"cloud_run_revision\" metric.label.environment=\"${DEPLOYMENT_ENV}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_DELTA",
+                      "crossSeriesReducer": "REDUCE_SUM"
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "failures", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 4,
+        "yPos": 4,
+        "width": 4,
+        "height": 4,
+        "widget": {
+          "title": "Slow readiness probe (p95 ms)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"logging.googleapis.com/user/api_readiness_latency_ms\" resource.type=\"cloud_run_revision\" metric.label.environment=\"${DEPLOYMENT_ENV}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_PERCENTILE_95",
+                      "crossSeriesReducer": "REDUCE_MAX"
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "ms", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 8,
+        "yPos": 4,
+        "width": 4,
+        "height": 4,
+        "widget": {
+          "title": "Prisma errors by class",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "legendTemplate": "${metric.labels.error_class}",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"logging.googleapis.com/user/api_database_errors\" resource.type=\"cloud_run_revision\" metric.label.environment=\"${DEPLOYMENT_ENV}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_RATE",
+                      "crossSeriesReducer": "REDUCE_SUM",
+                      "groupByFields": ["metric.label.error_class"]
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "errors/s", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 8,
+        "width": 6,
+        "height": 4,
+        "widget": {
+          "title": "Worker backlog age by queue (p95 seconds)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "legendTemplate": "${metric.labels.queue}",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"logging.googleapis.com/user/api_worker_oldest_pending_age_seconds\" resource.type=\"cloud_run_revision\" metric.label.environment=\"${DEPLOYMENT_ENV}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_PERCENTILE_95",
+                      "crossSeriesReducer": "REDUCE_MAX",
+                      "groupByFields": ["metric.label.queue"]
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "seconds", "scale": "LOG10" },
+            "thresholds": [{ "value": 900, "label": "alert threshold" }]
+          }
+        }
+      },
+      {
+        "xPos": 6,
+        "yPos": 8,
+        "width": 6,
+        "height": 4,
+        "widget": {
+          "title": "Worker heartbeats by queue",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "legendTemplate": "${metric.labels.queue}",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"logging.googleapis.com/user/api_worker_backlog_heartbeat\" resource.type=\"cloud_run_revision\" metric.label.environment=\"${DEPLOYMENT_ENV}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_DELTA",
+                      "crossSeriesReducer": "REDUCE_SUM",
+                      "groupByFields": ["metric.label.queue"]
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "reports", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 12,
+        "width": 6,
+        "height": 4,
+        "widget": {
+          "title": "Dead-lettered items by queue",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "legendTemplate": "${metric.labels.queue}",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"logging.googleapis.com/user/api_worker_dead_letter_depth\" resource.type=\"cloud_run_revision\" metric.label.environment=\"${DEPLOYMENT_ENV}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_MAX",
+                      "crossSeriesReducer": "REDUCE_MAX",
+                      "groupByFields": ["metric.label.queue"]
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "items", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 6,
+        "yPos": 12,
+        "width": 6,
+        "height": 4,
+        "widget": {
+          "title": "Process starts by release (deployments and restarts)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "plotType": "STACKED_BAR",
+                "targetAxis": "Y1",
+                "legendTemplate": "${metric.labels.release}",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"logging.googleapis.com/user/api_process_started\" resource.type=\"cloud_run_revision\" metric.label.environment=\"${DEPLOYMENT_ENV}\"",
+                    "aggregation": {
+                      "alignmentPeriod": "300s",
+                      "perSeriesAligner": "ALIGN_DELTA",
+                      "crossSeriesReducer": "REDUCE_SUM",
+                      "groupByFields": ["metric.label.release"]
+                    }
+                  }
+                }
+              }
+            ],
+            "yAxis": { "label": "starts", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 0,
+        "yPos": 16,
+        "width": 12,
+        "height": 4,
+        "widget": {
+          "title": "Errors and worker faults",
+          "logsPanel": {
+            "filter": "resource.type=\"cloud_run_revision\" resource.labels.service_name=\"${SERVICE_NAME}\" (severity>=WARNING OR jsonPayload.event=~\"_dead_lettered$\")",
+            "resourceNames": ["projects/${PROJECT_ID}"]
+          }
+        }
+      }
+    ]
+  },
+  "labels": {}
+}

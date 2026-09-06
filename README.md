@@ -155,6 +155,11 @@ backup/PITR runbook и migration/deployment runbook — в
 Deployment environments и agent handoff (local/CI/dev/prod, CI/CD, migrations,
 backup, rollback) — в [13-deployment-environments.md](./docs/13-deployment-environments.md)
 и [14-deployment-agent-handoff.md](./docs/14-deployment-agent-handoff.md).
+Что оператор видит о деплое и как действует по каждому сигналу — в
+[20-deployment-observability.md](./docs/20-deployment-observability.md) и
+[ops/deployment-runbooks.md](./docs/ops/deployment-runbooks.md); определения
+alerts, log-based метрик и dashboard — в
+[infrastructure/monitoring/](./infrastructure/monitoring/README.md).
 
 Команды явно используют `corepack yarn`, чтобы системный Yarn Classic не мог
 случайно проигнорировать закреплённую в проекте версию Yarn.

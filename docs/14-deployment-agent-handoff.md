@@ -206,6 +206,13 @@ Label: priority:p1.
 
 Label: priority:p1.
 
+Реализовано поверх DPL-3: [20-deployment-observability.md](./20-deployment-observability.md)
+(сигналы, запросы, каталог alerts, release verification checklist),
+[ops/deployment-runbooks.md](./ops/deployment-runbooks.md) (deploy, rollback,
+migration, backup, ротация секретов) и `infrastructure/monitoring/` (alerts,
+log-based метрики, dashboard — применяет владелец). DPL-4 отсутствует, поэтому
+production-часть написана по ТЗ и помечена как невыполненная.
+
 ## 9. Отложенный DPL-7 — Staging и previews
 
 Issue пока не создаётся. Триггеры:

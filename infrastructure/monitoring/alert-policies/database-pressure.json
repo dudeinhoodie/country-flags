@@ -1,0 +1,61 @@
+{
+  "displayName": "${SERVICE_NAME} database is under pressure",
+  "documentation": {
+    "mimeType": "text/markdown",
+    "subject": "${SERVICE_NAME}: the database is slow or refusing work",
+    "content": "Either the readiness probe is taking longer than half a second, or the Prisma client is raising errors at a sustained rate. Both are the shape of connection-pool exhaustion, a sleeping or overloaded branch, or a provider incident.\n\nThis is only half of the database signal. Connection-count and storage quotas belong to the database provider and are not visible from this project — the other half is an alert configured in the provider's own console. See `docs/20-deployment-observability.md` section 5.\n\nRunbook: `docs/ops/deployment-runbooks.md`, \"The database is slow or refusing connections\".\n\nFirst three commands:\n\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.event=\"readiness_check_slow\"' --freshness 1h --limit 20 --format='value(timestamp,jsonPayload.latencyMs)'\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.errorClass=~\"^Prisma\"' --freshness 1h --limit 30 --format='value(timestamp,jsonPayload.event,jsonPayload.errorClass)'\n    curl -sS \"$(gcloud run services describe ${SERVICE_NAME} --region europe-west3 --format='value(status.url)')/v1/health/ready\"\n\nStop condition: `PrismaClientInitializationError` means the connection string or the pooler is wrong and no amount of waiting fixes it. `PrismaClientKnownRequestError` at a low rate around a deploy or a shutdown is the pool closing and is not an incident."
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "severity": "WARNING",
+  "conditions": [
+    {
+      "displayName": "Readiness probe p95 above 500ms",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/api_readiness_latency_ms\" AND resource.type=\"cloud_run_revision\" AND metric.labels.environment=\"${DEPLOYMENT_ENV}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_PERCENTILE_95",
+            "crossSeriesReducer": "REDUCE_MAX",
+            "groupByFields": ["resource.label.service_name"]
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 500,
+        "duration": "600s",
+        "trigger": { "count": 1 },
+        "evaluationMissingData": "EVALUATION_MISSING_DATA_INACTIVE"
+      }
+    },
+    {
+      "displayName": "Prisma errors above six a minute",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/api_database_errors\" AND resource.type=\"cloud_run_revision\" AND metric.labels.environment=\"${DEPLOYMENT_ENV}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_RATE",
+            "crossSeriesReducer": "REDUCE_SUM",
+            "groupByFields": ["resource.label.service_name"]
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0.1,
+        "duration": "600s",
+        "trigger": { "count": 1 },
+        "evaluationMissingData": "EVALUATION_MISSING_DATA_INACTIVE"
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "3600s",
+    "notificationRateLimit": { "period": "1800s" }
+  },
+  "notificationChannels": ["${NOTIFICATION_CHANNEL}"],
+  "userLabels": {
+    "deployment_env": "${DEPLOYMENT_ENV}",
+    "owner": "country-flags",
+    "source": "infrastructure-monitoring"
+  }
+}

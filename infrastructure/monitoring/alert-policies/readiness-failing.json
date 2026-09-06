@@ -1,0 +1,42 @@
+{
+  "displayName": "${SERVICE_NAME} readiness is failing",
+  "documentation": {
+    "mimeType": "text/markdown",
+    "subject": "${SERVICE_NAME}: readiness is failing",
+    "content": "The API answered `/v1/health/ready` with 503 because PostgreSQL did not respond.\n\nRunbook: `docs/ops/deployment-runbooks.md`, \"Readiness is failing\".\n\nFirst three commands:\n\n    gcloud run services describe ${SERVICE_NAME} --region europe-west3 --format='value(status.conditions)'\n    gcloud logging read 'resource.labels.service_name=\"${SERVICE_NAME}\" AND jsonPayload.event=\"readiness_check_failed\"' --freshness 1h --limit 20\n    curl -sS -o /dev/null -w '%{http_code}\\n' \"$(gcloud run services describe ${SERVICE_NAME} --region europe-west3 --format='value(status.url)')/v1/health/ready\"\n\nStop condition: if readiness recovers on its own within one deploy cycle and no revision changed, this is the database provider, not the release. Escalate to the database provider's status page rather than rolling back."
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "severity": "CRITICAL",
+  "conditions": [
+    {
+      "displayName": "Readiness check failed in the last 5 minutes",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/api_readiness_check_failed\" AND resource.type=\"cloud_run_revision\" AND metric.labels.environment=\"${DEPLOYMENT_ENV}\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_DELTA",
+            "crossSeriesReducer": "REDUCE_SUM",
+            "groupByFields": ["resource.label.service_name"]
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0,
+        "duration": "300s",
+        "trigger": { "count": 1 },
+        "evaluationMissingData": "EVALUATION_MISSING_DATA_INACTIVE"
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "3600s",
+    "notificationRateLimit": { "period": "900s" }
+  },
+  "notificationChannels": ["${NOTIFICATION_CHANNEL}"],
+  "userLabels": {
+    "deployment_env": "${DEPLOYMENT_ENV}",
+    "owner": "country-flags",
+    "source": "infrastructure-monitoring"
+  }
+}

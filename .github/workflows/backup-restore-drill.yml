@@ -66,3 +66,38 @@ jobs:
 
       - name: Run restore drill
         run: bash backend/scripts/db-backup-restore-drill.sh
+
+      # There is no cloud alert for this: the drill holds no credentials and
+      # writes nothing outside the job, so the only notification is GitHub's own
+      # mail on a failed scheduled run. That mail names the workflow and nothing
+      # else, so the summary is where the reader finds out what a failure means
+      # and where to go next.
+      #
+      # Sanitized by construction — it reports the outcome and a document path,
+      # never a dump, a row or a connection string (spec section 16).
+      - name: Summarise the drill
+        if: always()
+        env:
+          RESULT: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Restore drill"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Result | \`${RESULT}\` |"
+            echo "| Scope | throwaway PostgreSQL inside this job |"
+            echo "| Production data touched | none |"
+            echo
+            if [ "${RESULT}" = "success" ]; then
+              echo "The restore procedure still works. Next drill: next month's schedule."
+            else
+              echo "**The restore procedure is unproven until this passes.** No backup is"
+              echo "lost — this drill restores into a throwaway database and holds no"
+              echo "credentials — but the RTO target in docs/10-backup-restore-runbook.md"
+              echo "is not evidence-backed while it fails."
+              echo
+              echo "Triage: docs/ops/deployment-runbooks.md, \"A backup or restore drill failed\"."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

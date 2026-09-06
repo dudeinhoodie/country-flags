@@ -20,6 +20,9 @@ const outboxOldestPendingAgeSeconds = meter.createGauge(
   "outbox_oldest_pending_age_seconds",
   { description: "Age of the oldest pending outbox item", unit: "s" },
 );
+const outboxDeadLetterDepth = meter.createGauge("outbox_dead_letter_depth", {
+  description: "Items a queue gave up on and will not retry",
+});
 const storeTransactionVerificationsTotal = meter.createCounter(
   "store_transaction_verifications_total",
   { description: "Signed store transactions accepted or refused, by outcome" },
@@ -135,12 +138,22 @@ export class MetricsService {
     clientVersionGateTotal.add(1, { route, outcome });
   }
 
+  /**
+   * The three numbers an alert needs from a queue. Depth alone cannot tell a
+   * busy worker from a stopped one — a queue draining at a thousand a second
+   * and a queue that stopped draining an hour ago both read as "deep" — so the
+   * age of the oldest pending item is what the lag alert is written against.
+   * Dead-letter depth is the third: retries exhausted stop aging the queue and
+   * would otherwise disappear from both other numbers.
+   */
   recordOutboxDepth(
     queue: string,
     depth: number,
     oldestPendingAgeSeconds: number,
+    deadLetterDepth = 0,
   ): void {
     outboxDepth.record(depth, { queue });
     outboxOldestPendingAgeSeconds.record(oldestPendingAgeSeconds, { queue });
+    outboxDeadLetterDepth.record(deadLetterDepth, { queue });
   }
 }
