@@ -105,6 +105,13 @@ jobs:
       - name: Check the advertising policy
         run: ./Scripts/check-advertising-policy.sh
 
+      # Sign in with Apple is the only door into a Prod build, and it needs an
+      # entitlement to open. The archive below is unsigned, so it carries no
+      # entitlements to read — the project and the file are what can be
+      # checked, and losing either is how the door was found shut.
+      - name: Check the signing entitlements
+        run: ./Scripts/check-signing-entitlements.sh
+
       # The device depends on the runner image, so it is picked from a
       # preference list and printed to the log.
       - name: Select simulator
