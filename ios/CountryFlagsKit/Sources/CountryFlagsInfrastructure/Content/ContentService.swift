@@ -17,6 +17,37 @@ public struct ContentCursorPage<Element: Sendable>: Sendable {
     }
 }
 
+/// What one page of the catalogue yields.
+///
+/// The decks, and the handful of cards a locked deck is allowed to show before
+/// it is bought. Those arrive with the deck list rather than from the cards
+/// endpoint on purpose: they are a projection published as public, not a hole
+/// in the guard, and a client that had to ask the guarded endpoint for them
+/// would be asking to be refused.
+public struct ContentDeckPage: Sendable {
+    public let items: [DeckRecord]
+    /// The public preview cards of every deck on this page.
+    public let previewCards: [LearningCardRecord]
+    /// Their prompt assets, so the fan has something to draw.
+    public let previewAssets: [AssetRecord]
+    public let nextCursor: String?
+    public let hasMore: Bool
+
+    public init(
+        items: [DeckRecord],
+        previewCards: [LearningCardRecord] = [],
+        previewAssets: [AssetRecord] = [],
+        nextCursor: String?,
+        hasMore: Bool
+    ) {
+        self.items = items
+        self.previewCards = previewCards
+        self.previewAssets = previewAssets
+        self.nextCursor = nextCursor
+        self.hasMore = hasMore
+    }
+}
+
 /// What one page of a deck's cards yields.
 public struct ContentCardPage: Sendable {
     public let cards: [LearningCardRecord]
@@ -159,7 +190,7 @@ public struct ContentService: Sendable {
         cursor: String? = nil,
         limit: Int? = nil,
         sortOffset: Int = 0
-    ) async throws -> ContentCursorPage<DeckRecord> {
+    ) async throws -> ContentDeckPage {
         let client = clientFactory.makeClient()
         let output: Operations.listDecks.Output
         do {
@@ -203,14 +234,74 @@ public struct ContentService: Sendable {
                     }
                 )
             }
-            return ContentCursorPage(
+            // The preview cards of every deck on the page, flattened: they are
+            // stored as cards without a deck membership, so a locked deck has
+            // three drawable cards and no card list, no progress and no
+            // session that could be composed out of them.
+            var previewCards: [LearningCardRecord] = []
+            var previewAssets: [AssetRecord] = []
+            for deck in payload.items {
+                for card in deck.previewCards ?? [] {
+                    guard
+                        let record = Self.previewCard(card, displayScale: displayScale)
+                    else {
+                        continue
+                    }
+                    previewCards.append(record.card)
+                    previewAssets.append(record.asset)
+                }
+            }
+
+            return ContentDeckPage(
                 items: decks,
+                previewCards: previewCards,
+                previewAssets: previewAssets,
                 nextCursor: payload.page.nextCursor,
                 hasMore: payload.page.hasMore
             )
         case .default(let statusCode, _):
             throw Self.unmapped(statusCode)
         }
+    }
+
+    /// One public preview card, or nothing.
+    ///
+    /// No template-version filter here: a preview is drawn as a picture beside
+    /// a price, never studied, so a card built on a template this release
+    /// cannot answer with is still a card it can show. What it must have is a
+    /// usable prompt, because a fan of empty frames is worse than no fan.
+    private static func previewCard(
+        _ card: Components.Schemas.LearningCard,
+        displayScale: Double
+    ) -> (card: LearningCardRecord, asset: AssetRecord)? {
+        guard
+            let cardID = UUID(uuidString: card.id),
+            let entityID = UUID(uuidString: card.answer.entityId),
+            let asset = assetRecord(
+                card.prompt.asset,
+                contentVersion: card.contentVersion,
+                displayScale: displayScale
+            )
+        else {
+            return nil
+        }
+        return (
+            LearningCardRecord(
+                id: cardID,
+                subjectEntityID: entityID,
+                templateCode: card.templateCode,
+                templateSchemaVersion: card.templateSchemaVersion,
+                semanticVersion: card.semanticVersion,
+                revision: card.revision,
+                answerMode: card.answerMode.rawValue,
+                promptAssetID: asset.id,
+                displayName: card.answer.displayName,
+                aliases: card.answer.aliases,
+                contentVersion: card.contentVersion,
+                backSideFacts: (card.backSideFacts ?? []).map(Self.factRecord)
+            ),
+            asset
+        )
     }
 
     /// - Parameter supportedTemplateSchemaVersions: from the manifest being

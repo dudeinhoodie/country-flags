@@ -33,6 +33,17 @@ public protocol ContentSynchronizing: Sendable {
     func restoreStatus() async
     @discardableResult
     func synchronize(locale: String) async -> ContentSyncStatus
+
+    /// Downloads the cards of one deck the account has just been granted.
+    ///
+    /// Separate from `synchronize` because it is a different job: the release
+    /// on the device is current and complete for everything the account could
+    /// open a moment ago. What changed is one deck, and re-running the whole
+    /// bootstrap to fetch it would page every other deck again.
+    ///
+    /// - Returns: whether the cards are on the device afterwards.
+    @discardableResult
+    func loadCards(inDeck deckID: UUID, locale: String) async -> Bool
 }
 
 public enum ContentSyncPhase: Hashable, Sendable {

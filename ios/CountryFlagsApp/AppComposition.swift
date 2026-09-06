@@ -38,6 +38,8 @@ protocol AppDependencies {
     var assets: any AssetLoading { get }
     var scopes: any AccountScopeResolving { get }
     var sync: SyncCenter { get }
+    /// Everything the app does about money, as the screens see it.
+    var commerce: CommerceCenter { get }
     var advertising: any AdvertisingProviding { get }
     var analytics: any AnalyticsTracking { get }
     var errorReporter: any ErrorReporting { get }
@@ -73,6 +75,7 @@ struct AppComposition: AppDependencies {
     /// the only caller is the account screen.
     let accountService: AccountService
     let sync: SyncCenter
+    let commerce: CommerceCenter
     let advertising: any AdvertisingProviding
     let analytics: any AnalyticsTracking
     /// The live analytics queue behind `analytics`, kept because the privacy
@@ -205,13 +208,23 @@ struct AppComposition: AppDependencies {
             dates: dates,
             displayScale: Double(UITraitCollection.current.displayScale)
         )
+        // What the account may open, read straight from the durable snapshot.
+        // The purchase coordinator is assembled below and would be a cycle
+        // here; the snapshot is the server's own answer and is exactly what
+        // the bootstrap needs, because a purchase made since then downloads
+        // its own cards without waiting for a release.
+        let entitlements = store.makeEntitlementRepository()
         let coordinator = ContentBootstrapCoordinator(
             service: contentService,
             repository: contentRepository,
             tags: UserDefaultsContentManifestTagStore(),
             dates: dates,
             logger: logger,
-            appVersion: Self.appVersion(from: bundle)
+            appVersion: Self.appVersion(from: bundle),
+            entitlementKeys: { [sessions] in
+                let scope = await sessions.currentScope()
+                return (try? await entitlements.snapshot(scope: scope).entitlementKeys) ?? []
+            }
         )
 
         // The guest's work follows its owner: the coordinator reads the guest
@@ -315,17 +328,8 @@ struct AppComposition: AppDependencies {
         // itself when that moment is.
         MainActor.assumeIsolated { sync.observe(progress) }
 
-        return AppComposition(
-            configuration: configuration,
-            router: AppRouter(),
-            deepLinkParser: DeepLinkParser(scheme: configuration.deepLinkScheme),
-            apiClientFactory: apiClientFactory,
-            store: store,
-            tokens: tokens,
-            dates: dates,
-            identifiers: identifiers,
-            featureFlags: FeatureFlagCenter(flags: activatedFlags),
-            content: ContentStore(
+        let content = MainActor.assumeIsolated {
+            ContentStore(
                 repository: contentRepository,
                 coordinator: coordinator,
                 analytics: analyticsCoordinator,
@@ -351,7 +355,58 @@ struct AppComposition: AppDependencies {
                     }
                     return entity
                 }
-            ),
+            )
+        }
+
+        // Money. One coordinator owns the store, the queue and the backend;
+        // the centre above it is what a screen reads, and it is the only place
+        // the storefront flag is consulted — a flag decides whether buying is
+        // offered, never whether a deck is open.
+        let featureFlags = MainActor.assumeIsolated {
+            FeatureFlagCenter(flags: activatedFlags)
+        }
+        let storeKit = StoreKitPurchaseClient(logger: logger)
+        let purchases = PurchaseCoordinator(
+            store: storeKit,
+            products: storeKit,
+            repository: store.makeCommerceRepository(),
+            backend: CommerceService(clientFactory: apiClientFactory, dates: dates),
+            scopes: sessions,
+            dates: dates,
+            identifiers: identifiers,
+            logger: logger
+        )
+        let commerce = MainActor.assumeIsolated {
+            CommerceCenter(
+                coordinator: purchases,
+                isPurchasingOffered: { featureFlags.isEnabled(.commerceAppleIapEnabled) },
+                confirmed: entitlements,
+                scopes: sessions,
+                onEntitlementsChanged: { [sync] keys in
+                    // Commerce says what changed; content decides what that
+                    // costs — the catalogue regroups and a deck that has just
+                    // been paid for downloads its cards.
+                    await content.apply(entitlementKeys: keys)
+                    // A deck that has just arrived is cards the progress
+                    // screens have never counted. This is the app's one "the
+                    // numbers changed" signal, and a purchase is one of the
+                    // moments it exists for.
+                    await sync.refreshObservers()
+                }
+            )
+        }
+
+        return AppComposition(
+            configuration: configuration,
+            router: AppRouter(),
+            deepLinkParser: DeepLinkParser(scheme: configuration.deepLinkScheme),
+            apiClientFactory: apiClientFactory,
+            store: store,
+            tokens: tokens,
+            dates: dates,
+            identifiers: identifiers,
+            featureFlags: featureFlags,
+            content: content,
             progress: progress,
             assets: assetCache,
             // Who the repositories write as: the session when somebody signed
@@ -378,6 +433,7 @@ struct AppComposition: AppDependencies {
                 logger: logger
             ),
             sync: sync,
+            commerce: commerce,
             // Advertising is off in the MVP: no SDK is linked and nothing is
             // initialized. The boundary exists so that changing it later is a
             // composition change rather than a change to every screen.
@@ -463,8 +519,13 @@ struct AppComposition: AppDependencies {
             dates: dates,
             logger: logger
         )
-        store.onSignedIn = { [sync] in
+        store.onSignedIn = { [sync, commerce] in
             await sync.synchronize(trigger: .signedIn)
+            // A tag issued for one account says nothing about another, and a
+            // purchase this device was holding for nobody now has somebody to
+            // be granted to. Asking again is what turns signing in on a second
+            // device into the deck being there.
+            await commerce.refresh(trigger: .login)
         }
         return store
     }
@@ -609,16 +670,31 @@ struct AppComposition: AppDependencies {
                 "reauthenticateGoogle": MockAuth.reauthenticationProof(now: dates.now()),
             ]
             var handlers: [String: MockClientTransport.Handler] = [:]
+            // One deck for sale, and an account that comes to own it. The
+            // commerce endpoints answer whether or not content does: a
+            // storefront must still be walkable on the launch that proves the
+            // catalogue survives a dead backend.
+            let commerce = MockCommerce(
+                isGranted: ProcessInfo.processInfo.arguments.contains(ownedDeckArgument)
+            )
+            handlers.merge(commerce.handlers()) { current, _ in current }
             // A UI test needs a launch where content requests fail while the store
             // is intact, which is the only way to prove that a relaunch without a
             // network still shows what was downloaded. An unregistered operation
             // fails loudly, so this is a refusal rather than an empty success.
             if !ProcessInfo.processInfo.arguments.contains(offlineContentArgument) {
-                fallbacks.merge(MockContent.responses()) { current, _ in current }
-                handlers = MockContent.handlers()
+                fallbacks.merge(MockContent.responses(commerce: commerce)) { current, _ in current }
+                handlers.merge(MockContent.handlers(commerce: commerce)) { current, _ in current }
             }
             return MockClientTransport(fallbacks: fallbacks, handlers: handlers)
         }
+
+        /// Starts the Mock build with the paid deck already owned, so a test
+        /// can reach the owned screen without driving a payment sheet. It
+        /// grants nothing on its own: it moves the mock backend's answer,
+        /// which is the same thing a purchase does. A release binary does not
+        /// contain this at all.
+        static let ownedDeckArgument = "-owned-deck"
     #endif
 
     /// Simulates a launch with no reachable backend. Mock only: every other

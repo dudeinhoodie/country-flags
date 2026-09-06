@@ -553,6 +553,90 @@ public enum L10n {
         )
     }
 
+    // MARK: - Commerce
+    //
+    // Every word the paywall says lives here rather than in a view: the
+    // purchase promise ships in Russian and English together, and legal reads
+    // it in one file rather than across five screens.
+
+    public static var catalogFeaturedSection: String { localized("catalog.section.featured") }
+    public static var catalogFreeSection: String { localized("catalog.section.free") }
+
+    public static var commercePaidBadge: String { localized("commerce.badge.paid") }
+    public static var commercePendingBadge: String { localized("commerce.badge.pending") }
+    /// What VoiceOver hears where the badge is only a word beside a symbol.
+    public static var commercePaidBadgeAccessibility: String {
+        localized("commerce.badge.paid.accessibility")
+    }
+
+    /// "One-time purchase · 249 ₽", where the price is the store's own string
+    /// and never one this app assembled.
+    public static func commerceOneTimePrice(_ displayPrice: String) -> String {
+        String(format: localized("commerce.price.one_time"), displayPrice)
+    }
+    public static var commercePriceLoading: String { localized("commerce.price.loading") }
+    public static var commercePriceUnavailable: String {
+        localized("commerce.price.unavailable")
+    }
+    public static var commerceExploreDeck: String { localized("commerce.cta.explore") }
+
+    public static var commerceOneTimeTitle: String {
+        localized("commerce.paywall.one_time_title")
+    }
+    public static var commerceAccessForever: String { localized("commerce.paywall.forever") }
+    public static var commerceBelongsToAccount: String {
+        localized("commerce.paywall.account")
+    }
+    public static var commerceOtherDevice: String {
+        localized("commerce.paywall.other_device")
+    }
+
+    public static func commerceBuy(_ displayPrice: String) -> String {
+        String(format: localized("commerce.action.buy"), displayPrice)
+    }
+    public static var commerceSignInToBuy: String { localized("commerce.action.sign_in") }
+    public static var commerceAwaitingConfirmation: String {
+        localized("commerce.action.pending")
+    }
+    public static var commerceOpeningDeck: String { localized("commerce.action.delivering") }
+    public static var commerceRestore: String { localized("commerce.action.restore") }
+    public static var commerceRetry: String { localized("commerce.action.retry") }
+    public static var commerceFinishSession: String {
+        localized("commerce.action.finish_session")
+    }
+    public static var commerceRestoredNothing: String { localized("commerce.restore.none") }
+    public static var commerceRestored: String { localized("commerce.restore.done") }
+
+    static func commerceStatusTitle(_ state: CommerceStatus) -> String {
+        localized("commerce.status.\(state.rawValue).title")
+    }
+    static func commerceStatusBody(_ state: CommerceStatus) -> String {
+        localized("commerce.status.\(state.rawValue).body")
+    }
+    /// The number a person reads out to support. Never a transaction
+    /// identifier: that is personal data, and it is not something to say aloud.
+    public static func commerceSupportID(_ supportID: String) -> String {
+        String(format: localized("commerce.support_id"), supportID)
+    }
+
+    /// What a deck teaches, from the kinds the release published.
+    public static func contentKind(_ rawValue: String) -> String? {
+        switch rawValue {
+        case "FLAG": localized("content.kind.flag")
+        case "COAT_OF_ARMS": localized("content.kind.coat_of_arms")
+        // A kind published after this release has no word here. It is left
+        // out of the summary rather than shown as a code.
+        default: nil
+        }
+    }
+
+    public static var deckAllCards: String { localized("deck.owned.all_cards") }
+    public static func deckLearnedOf(_ learned: Int, _ total: Int) -> String {
+        String(format: localized("deck.owned.learned"), learned, total)
+    }
+    public static var deckCardSearchPrompt: String { localized("deck.owned.search") }
+    public static var deckStartLearning: String { localized("deck.owned.start") }
+
     /// The resource bundle of the package. Tests use it to verify that the
     /// string catalog is actually compiled instead of falling back to keys.
     static var bundle: Bundle { .module }

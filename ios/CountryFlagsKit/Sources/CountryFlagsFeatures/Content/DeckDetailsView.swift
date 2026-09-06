@@ -38,6 +38,14 @@ public struct DeckDetailsView: View {
     private let progress: ProgressStore?
     private let isObjectiveModeEnabled: Bool
     private let onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)?
+    /// Commerce, when this build has any. Nil is a deck screen that has never
+    /// heard of money — every free deck, every preview, and every build made
+    /// without a store — and it behaves exactly as it did before paid decks
+    /// existed.
+    private let commerce: CommerceCenter?
+    /// Where a guest goes to get an account, because a purchase needs one to
+    /// be granted to.
+    private let onSignIn: (() -> Void)?
 
     public init(
         deckID: UUID,
@@ -47,6 +55,8 @@ public struct DeckDetailsView: View {
         makeSettings: (() -> SettingsStore)? = nil,
         progress: ProgressStore? = nil,
         isObjectiveModeEnabled: Bool = false,
+        commerce: CommerceCenter? = nil,
+        onSignIn: (() -> Void)? = nil,
         onStartStudy: ((UUID, StudySessionSize, StudyAnswerMode) -> Void)? = nil
     ) {
         _model = State(wrappedValue: DeckDetailsModel(deckID: deckID, store: store))
@@ -57,16 +67,80 @@ public struct DeckDetailsView: View {
         self.makeSettings = makeSettings
         self.progress = progress
         self.isObjectiveModeEnabled = isObjectiveModeEnabled
+        self.commerce = commerce
+        self.onSignIn = onSignIn
         self.onStartStudy = onStartStudy
     }
 
     public var body: some View {
+        Group {
+            switch presentation {
+            case .paywall(let deck):
+                paywall(deck)
+            case .owned(let deck, let cards):
+                owned(deck, cards: cards)
+            case .standard:
+                standard
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $selectedCountry) { subject in
+            CountryDetailsSheet(subject: subject, store: store, assets: assets)
+        }
+        .task { await model.load() }
+        // A purchase that has just landed replaces the paywall with the deck,
+        // on this screen, without a pop and without a relaunch: the keys
+        // moved, the cards were fetched, and the deck is re-read here.
+        .task(id: commerce?.entitlementKeys) { await model.load() }
+        // The learner chose a session size once, in the settings; a deck
+        // that ignored it and always offered ten would make that setting
+        // a lie. Read once per visit, before anything is tapped.
+        .task {
+            guard let makeSettings, !didApplyStoredPreferences else { return }
+            let settings = makeSettings()
+            await settings.load()
+            guard !didApplyStoredPreferences else { return }
+            didApplyStoredPreferences = true
+            sessionSize = StudySessionSize(storedValue: settings.settings.sessionSize)
+            // The stored mode is applied only where the mode can be seen
+            // and changed: with the flag off there is no picker, and a
+            // quiz nobody asked for on this screen must not start.
+            if isObjectiveModeEnabled,
+                let stored = StudyAnswerMode(rawValue: settings.settings.defaultAnswerMode) {
+                mode = stored
+            }
+        }
+    }
+
+    /// Which of the three screens this deck is.
+    ///
+    /// Derived rather than stored, so a purchase settling under an open screen
+    /// moves it: `CommerceCenter` is observed, and the answer to `isOpen`
+    /// changes the moment the keys do.
+    private enum Presentation {
+        /// A deck that has to be bought and has not been.
+        case paywall(DeckRecord)
+        /// A deck that was bought. Not the same screen as a free one: it
+        /// carries the compact hero the design approved and the emblem names
+        /// beside the countries.
+        case owned(DeckRecord, [LearningCardRecord])
+        /// Everything else, which is every deck the app has ever shown.
+        case standard
+    }
+
+    private var presentation: Presentation {
+        guard let commerce, let deck = model.deck, deck.isSold else { return .standard }
+        return commerce.isOpen(deck)
+            ? .owned(deck, model.visibleCards)
+            : .paywall(deck)
+    }
+
+    // MARK: - The three screens
+
+    /// The deck screen the app has always had, unchanged.
+    private var standard: some View {
         content
             .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
-            .sheet(item: $selectedCountry) { subject in
-                CountryDetailsSheet(subject: subject, store: store, assets: assets)
-            }
             .searchable(text: searchBinding, prompt: L10n.deckSearchPrompt)
             .refreshable {
                 await RefreshGesture.perform {
@@ -74,25 +148,78 @@ public struct DeckDetailsView: View {
                     await model.load()
                 }
             }
-            .task { await model.load() }
-            // The learner chose a session size once, in the settings; a deck
-            // that ignored it and always offered ten would make that setting
-            // a lie. Read once per visit, before anything is tapped.
-            .task {
-                guard let makeSettings, !didApplyStoredPreferences else { return }
-                let settings = makeSettings()
-                await settings.load()
-                guard !didApplyStoredPreferences else { return }
-                didApplyStoredPreferences = true
-                sessionSize = StudySessionSize(storedValue: settings.settings.sessionSize)
-                // The stored mode is applied only where the mode can be seen
-                // and changed: with the flag off there is no picker, and a
-                // quiz nobody asked for on this screen must not start.
-                if isObjectiveModeEnabled,
-                    let stored = StudyAnswerMode(rawValue: settings.settings.defaultAnswerMode) {
-                    mode = stored
+    }
+
+    @ViewBuilder
+    private func paywall(_ deck: DeckRecord) -> some View {
+        if let commerce {
+            LockedDeckPaywallView(
+                deck: deck,
+                store: store,
+                assets: assets,
+                commerce: commerce,
+                continuable: continuable,
+                // Studied and now locked is a purchase taken back, which is
+                // the one case that gets the neutral "access has ended" card.
+                hasProgress: (progressRow?.startedCards ?? 0) > 0,
+                onSignIn: { onSignIn?() },
+                onContinue: { session in
+                    onStartStudy?(deckID, session.size, session.mode)
+                }
+            )
+            .refreshable {
+                await RefreshGesture.perform {
+                    await commerce.refresh(trigger: .foreground)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func owned(_ deck: DeckRecord, cards: [LearningCardRecord]) -> some View {
+        if let commerce {
+            OwnedDeckView(
+                deck: deck,
+                cards: cards,
+                store: store,
+                assets: assets,
+                progress: progressRow,
+                continuable: continuable,
+                // Bought a moment ago and the cards have not arrived: the
+                // download is a content state, not a spinner over an empty
+                // screen.
+                isDownloading: isDeliveringCards(deck, cards: cards),
+                isAwaitingSync: commerce.isAwaitingSync(deck),
+                searchText: searchBinding,
+                onOpenCard: { selectedCountry = CountryDetailsSubject(card: $0) },
+                onStart: {
+                    if let continuable {
+                        onStartStudy?(deckID, continuable.size, continuable.mode)
+                    } else {
+                        onStartStudy?(deckID, sessionSize, mode)
+                    }
+                }
+            )
+            .searchable(text: searchBinding, prompt: L10n.deckCardSearchPrompt)
+            .refreshable {
+                await RefreshGesture.perform {
+                    await store.refresh()
+                    await model.load()
+                }
+            }
+        }
+    }
+
+    private func isDeliveringCards(_ deck: DeckRecord, cards: [LearningCardRecord]) -> Bool {
+        guard cards.isEmpty, model.searchText.isEmpty else { return false }
+        switch commerce?.phase(of: deck) {
+        case .delivering, .purchasing: return true
+        default: return false
+        }
+    }
+
+    private var progressRow: DeckProgressRow? {
+        progress?.decks.first { $0.id == deckID }
     }
 
     private var title: String {

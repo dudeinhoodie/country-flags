@@ -49,12 +49,22 @@ public enum DeckKind: Hashable, Sendable {
 
 /// One group of decks in the catalog.
 public struct CatalogSection: Identifiable, Hashable, Sendable {
-    public var id: String { kind.rawValue }
+    public var id: String { isFeatured ? "FEATURED.\(kind.rawValue)" : kind.rawValue }
     public let kind: DeckKind
+    /// Whether this group belongs to the shelf of decks that are for sale and
+    /// not yet owned.
+    ///
+    /// It is not derived from `kind`: a paid deck can be curated or a taxonomy,
+    /// and what the shelf is about is access rather than shape. It is not a
+    /// property of the deck either — the same deck leaves the shelf the moment
+    /// the account owns it, which is what makes an owned deck look like every
+    /// other deck.
+    public let isFeatured: Bool
     public let decks: [DeckRecord]
 
-    public init(kind: DeckKind, decks: [DeckRecord]) {
+    public init(kind: DeckKind, isFeatured: Bool = false, decks: [DeckRecord]) {
         self.kind = kind
+        self.isFeatured = isFeatured
         self.decks = decks
     }
 }
@@ -64,11 +74,34 @@ public struct CatalogSection: Identifiable, Hashable, Sendable {
 /// It is a pure function of the records so the same grouping can be asserted in
 /// a unit test and rendered by a view without either owning the rule.
 public enum CatalogGrouping {
-    public static func sections(for decks: [DeckRecord]) -> [CatalogSection] {
-        let grouped = Dictionary(grouping: decks) { DeckKind(rawValue: $0.kind) }
-        return grouped
+    /// - Parameter entitlementKeys: what the account may open, as the app last
+    ///   heard. A deck that is for sale and not in there goes to the shelf at
+    ///   the top; everything else — free, or bought — is grouped by kind the
+    ///   way it always was. Empty by default, which is a catalogue of nothing
+    ///   but free decks: exactly today's behaviour, and what a build that has
+    ///   never asked about money shows.
+    public static func sections(
+        for decks: [DeckRecord],
+        entitlementKeys: Set<String> = []
+    ) -> [CatalogSection] {
+        let locked = decks.filter { !$0.isOpen(given: entitlementKeys) }
+        let open = decks.filter { $0.isOpen(given: entitlementKeys) }
+        // Featured first, whatever their kinds: a deck somebody has not bought
+        // yet is the one thing on this screen that is not already theirs.
+        return group(locked, isFeatured: true) + group(open, isFeatured: false)
+    }
+
+    private static func group(
+        _ decks: [DeckRecord],
+        isFeatured: Bool
+    ) -> [CatalogSection] {
+        Dictionary(grouping: decks) { DeckKind(rawValue: $0.kind) }
             .map { kind, decks in
-                CatalogSection(kind: kind, decks: decks.sorted(by: Self.ordered))
+                CatalogSection(
+                    kind: kind,
+                    isFeatured: isFeatured,
+                    decks: decks.sorted(by: Self.ordered)
+                )
             }
             .sorted { left, right in
                 (left.kind.displayRank, left.kind.rawValue) < (right.kind.displayRank, right.kind.rawValue)
