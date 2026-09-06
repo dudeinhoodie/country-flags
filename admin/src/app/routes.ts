@@ -25,6 +25,8 @@ export const routes = {
     `/drafts/${draftId}/decks/${deckKey}`,
   draftMedia: (draftId: string) => `/drafts/${draftId}/media`,
   draftRelease: (draftId: string) => `/drafts/${draftId}/release`,
+  /** Publishing and rolling back what every client reads (ADR-017). */
+  releases: "/releases",
   commerceOffers: "/commerce/offers",
   commerceOffer: (offerId: string) => `/commerce/offers/${offerId}`,
   commerceEntitlements: "/commerce/entitlements",
