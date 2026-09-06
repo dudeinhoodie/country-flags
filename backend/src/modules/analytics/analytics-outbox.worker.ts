@@ -78,7 +78,7 @@ export class AnalyticsOutboxWorker implements OnModuleInit, OnModuleDestroy {
         errorClass: error instanceof Error ? error.name : "UnknownError",
       });
     });
-    void this.reportBacklog().catch(() => undefined);
+    void this.backlog.report(ANALYTICS_OUTBOX_QUEUE, () => this.metrics());
     void this.expireDelivered().catch(() => undefined);
   }
 
@@ -171,10 +171,6 @@ export class AnalyticsOutboxWorker implements OnModuleInit, OnModuleDestroy {
           ? null
           : Math.max(0, Date.now() - oldest.receivedAt.getTime()),
     };
-  }
-
-  private async reportBacklog(): Promise<void> {
-    this.backlog.report(ANALYTICS_OUTBOX_QUEUE, await this.metrics());
   }
 
   private async claim(): Promise<ClaimedOutboxEvent | null> {

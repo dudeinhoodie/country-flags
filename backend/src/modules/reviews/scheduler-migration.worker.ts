@@ -54,7 +54,7 @@ export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
         errorClass: error instanceof Error ? error.name : "UnknownError",
       });
     });
-    void this.reportBacklog().catch(() => undefined);
+    void this.backlog.report(SCHEDULER_MIGRATION_QUEUE, () => this.metrics());
   }
 
   /**
@@ -91,10 +91,6 @@ export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
           ? null
           : Math.max(0, Date.now() - stalest.updatedAt.getTime()),
     };
-  }
-
-  private async reportBacklog(): Promise<void> {
-    this.backlog.report(SCHEDULER_MIGRATION_QUEUE, await this.metrics());
   }
 
   async drain(): Promise<number> {

@@ -65,7 +65,7 @@ export class ReconciliationWorker implements OnModuleInit, OnModuleDestroy {
         errorClass: error instanceof Error ? error.name : "UnknownError",
       });
     });
-    void this.reportBacklog().catch(() => undefined);
+    void this.backlog.report(RECONCILIATION_QUEUE, () => this.metrics());
   }
 
   async drain(limit = 25): Promise<number> {
@@ -142,10 +142,6 @@ export class ReconciliationWorker implements OnModuleInit, OnModuleDestroy {
           ? null
           : Math.max(0, Date.now() - oldest.createdAt.getTime()),
     };
-  }
-
-  private async reportBacklog(): Promise<void> {
-    this.backlog.report(RECONCILIATION_QUEUE, await this.metrics());
   }
 
   private async claim(): Promise<ClaimedJob | null> {

@@ -236,6 +236,12 @@ Four polling workers run inside the API process. Every one of them now reports
 `pending`, `processing`, `deadLetter` and the age of the oldest unfinished item,
 once a minute per queue, as both a metric and a log line.
 
+The minute is claimed before the queue is counted, not after. Counting one queue
+is four database queries and the workers poll every second; a throttle applied
+to the publish rather than to the count would have paid for sixty counts to
+publish one. That is also how the analytics outbox behaved before this — it
+counted its queue once a second, all year.
+
 | Queue | Worker | What "oldest pending age" means |
 | --- | --- | --- |
 | `analytics` | `AnalyticsOutboxWorker` | oldest undelivered analytics event |

@@ -35,8 +35,9 @@ const REPORT_INTERVAL_MS = 60_000;
  * alert policy can be written against it with no collector at all — see
  * `infrastructure/monitoring/`.
  *
- * Nothing here may throw into a worker's poll loop: a telemetry failure must
- * cost the signal, never the drain.
+ * Nothing here may throw into a worker's poll loop, and nothing here may cost
+ * the database anything worth noticing: a telemetry failure must cost the
+ * signal, never the drain.
  */
 @Injectable()
 export class WorkerBacklogService {
@@ -47,7 +48,18 @@ export class WorkerBacklogService {
     private readonly logger: JsonLoggerService,
   ) {}
 
-  report(queue: string, snapshot: WorkerBacklogSnapshot): void {
+  /**
+   * Takes a loader rather than a snapshot: counting a queue is four database
+   * queries, and a worker polling every second would otherwise pay for sixty
+   * counts to publish one. The throttle is claimed before the load so a slow
+   * count cannot let a second poll through behind it.
+   *
+   * Never rejects.
+   */
+  async report(
+    queue: string,
+    load: () => Promise<WorkerBacklogSnapshot>,
+  ): Promise<void> {
     const now = Date.now();
     const previous = this.lastReportedAt.get(queue);
     if (previous !== undefined && now - previous < REPORT_INTERVAL_MS) {
@@ -55,8 +67,10 @@ export class WorkerBacklogService {
     }
     this.lastReportedAt.set(queue, now);
 
-    const oldestPendingAgeSeconds = (snapshot.oldestPendingAgeMs ?? 0) / 1_000;
     try {
+      const snapshot = await load();
+      const oldestPendingAgeSeconds =
+        (snapshot.oldestPendingAgeMs ?? 0) / 1_000;
       this.metrics.recordOutboxDepth(
         queue,
         snapshot.pending,
@@ -77,7 +91,9 @@ export class WorkerBacklogService {
         oldestPendingAgeSeconds,
       });
     } catch {
-      // Deliberately swallowed. See the class comment.
+      // Deliberately swallowed. See the class comment. The next report is a
+      // minute away, so a database that is refusing counts is not asked again
+      // straight afterwards.
     }
   }
 }

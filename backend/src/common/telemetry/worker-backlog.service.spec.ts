@@ -37,10 +37,10 @@ describe("WorkerBacklogService", () => {
     jest.useRealTimers();
   });
 
-  it("publishes the backlog as both a metric and a log line", () => {
+  it("publishes the backlog as both a metric and a log line", async () => {
     const { metrics, logger, service } = build();
 
-    service.report("analytics", snapshot());
+    await service.report("analytics", () => Promise.resolve(snapshot()));
 
     expect(metrics.recordOutboxDepth).toHaveBeenCalledWith(
       "analytics",
@@ -59,12 +59,11 @@ describe("WorkerBacklogService", () => {
     });
   });
 
-  it("reports an idle queue too, so a worker that stopped can be told from one with nothing to do", () => {
+  it("reports an idle queue too, so a stopped worker can be told from one with nothing to do", async () => {
     const { logger, service } = build();
 
-    service.report(
-      "learning",
-      snapshot({ pending: 0, oldestPendingAgeMs: null }),
+    await service.report("learning", () =>
+      Promise.resolve(snapshot({ pending: 0, oldestPendingAgeMs: null })),
     );
 
     expect(logger.log).toHaveBeenCalledWith(
@@ -72,37 +71,71 @@ describe("WorkerBacklogService", () => {
     );
   });
 
-  it("throttles a queue polled every second down to one report a minute", () => {
+  it("does not count the queue at all when the report is throttled", async () => {
     jest.useFakeTimers().setSystemTime(new Date("2026-09-06T10:00:00Z"));
     const { logger, service } = build();
+    const load = jest.fn(() => Promise.resolve(snapshot()));
 
-    service.report("analytics", snapshot());
+    await service.report("analytics", load);
     jest.setSystemTime(new Date("2026-09-06T10:00:30Z"));
-    service.report("analytics", snapshot());
+    await service.report("analytics", load);
+
+    // Counting a queue is four database queries. A worker polling every second
+    // must not pay for sixty counts to publish one.
+    expect(load).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenCalledTimes(1);
 
     jest.setSystemTime(new Date("2026-09-06T10:01:01Z"));
-    service.report("analytics", snapshot());
+    await service.report("analytics", load);
+    expect(load).toHaveBeenCalledTimes(2);
     expect(logger.log).toHaveBeenCalledTimes(2);
   });
 
-  it("throttles each queue on its own clock", () => {
+  it("throttles each queue on its own clock", async () => {
     jest.useFakeTimers().setSystemTime(new Date("2026-09-06T10:00:00Z"));
     const { logger, service } = build();
+    const load = (): Promise<WorkerBacklogSnapshot> =>
+      Promise.resolve(snapshot());
 
-    service.report("analytics", snapshot());
-    service.report("learning", snapshot());
-    service.report("reconciliation", snapshot());
+    await service.report("analytics", load);
+    await service.report("learning", load);
+    await service.report("reconciliation", load);
 
     expect(logger.log).toHaveBeenCalledTimes(3);
   });
 
-  it("swallows a telemetry failure rather than breaking the worker's poll", () => {
+  it("swallows a failing count rather than breaking the worker's poll", async () => {
+    const { logger, service } = build();
+
+    await expect(
+      service.report("analytics", () =>
+        Promise.reject(new Error("connection refused")),
+      ),
+    ).resolves.toBeUndefined();
+    expect(logger.log).not.toHaveBeenCalled();
+  });
+
+  it("swallows a failing exporter too", async () => {
     const { metrics, service } = build();
     metrics.recordOutboxDepth.mockImplementation(() => {
       throw new Error("exporter unavailable");
     });
 
-    expect(() => service.report("analytics", snapshot())).not.toThrow();
+    await expect(
+      service.report("analytics", () => Promise.resolve(snapshot())),
+    ).resolves.toBeUndefined();
+  });
+
+  it("does not retry a failed count until the next window", async () => {
+    jest.useFakeTimers().setSystemTime(new Date("2026-09-06T10:00:00Z"));
+    const { service } = build();
+    const load = jest.fn(() => Promise.reject(new Error("connection refused")));
+
+    await service.report("analytics", load);
+    jest.setSystemTime(new Date("2026-09-06T10:00:05Z"));
+    await service.report("analytics", load);
+
+    // A database that is refusing counts must not be asked again a second later.
+    expect(load).toHaveBeenCalledTimes(1);
   });
 });

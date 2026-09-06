@@ -68,7 +68,7 @@ export class LearningOutboxWorker implements OnModuleInit, OnModuleDestroy {
         errorClass: error instanceof Error ? error.name : "UnknownError",
       });
     });
-    void this.reportBacklog().catch(() => undefined);
+    void this.backlog.report(LEARNING_OUTBOX_QUEUE, () => this.metrics());
   }
 
   async drain(limit = 100): Promise<number> {
@@ -140,10 +140,6 @@ export class LearningOutboxWorker implements OnModuleInit, OnModuleDestroy {
           ? null
           : Math.max(0, Date.now() - oldest.createdAt.getTime()),
     };
-  }
-
-  private async reportBacklog(): Promise<void> {
-    this.backlog.report(LEARNING_OUTBOX_QUEUE, await this.metrics());
   }
 
   private async claim(): Promise<ClaimedOutboxEvent | null> {
