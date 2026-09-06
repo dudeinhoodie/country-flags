@@ -34,12 +34,21 @@ COPY contracts contracts
 # The shared asset core is a workspace dependency of the runtime, so its
 # compiled output has to exist in the image, not only on a developer machine.
 COPY tools/asset-core tools/asset-core
+# The publisher job builds the release it is about to sign, from the catalog
+# this image carries, with the very command CI builds the committed fixture
+# with (ADR-017 §1). It is the same image the API runs, started differently:
+# the pipeline's only runtime dependencies — ajv, ajv-formats and the asset
+# core's resvg — are already the backend's, so carrying it costs the compiled
+# output and two megabytes of source snapshots and not one extra package.
+COPY tools/content-pipeline tools/content-pipeline
 
 RUN corepack yarn workspace @country-flags/asset-core build
 
 RUN corepack yarn prisma:generate
 RUN corepack yarn workspace @country-flags/backend build
-RUN corepack yarn workspaces focus @country-flags/backend --production
+RUN corepack yarn workspace @country-flags/content-pipeline build
+RUN corepack yarn workspaces focus \
+  @country-flags/backend @country-flags/content-pipeline --production
 
 FROM base AS runner
 
@@ -69,6 +78,17 @@ COPY --from=builder --chown=node:node /workspace/backend/prisma ./backend/prisma
 # sit where that link points.
 COPY --from=builder --chown=node:node /workspace/tools/asset-core/package.json ./tools/asset-core/package.json
 COPY --from=builder --chown=node:node /workspace/tools/asset-core/dist ./tools/asset-core/dist
+# The publisher job's half of the image. The pipeline resolves its own root
+# from where its entry point sits, so the package has to keep the layout it
+# has in the repository: `dist` beside `sources` and `editorial`, two levels
+# below the tree that holds `content/schemas` and `contracts/`.
+COPY --from=builder --chown=node:node /workspace/tools/content-pipeline/package.json ./tools/content-pipeline/package.json
+COPY --from=builder --chown=node:node /workspace/tools/content-pipeline/dist ./tools/content-pipeline/dist
+COPY --chown=node:node tools/content-pipeline/sources ./tools/content-pipeline/sources
+COPY --chown=node:node tools/content-pipeline/editorial ./tools/content-pipeline/editorial
+# The schemas a publish-ready build validates its own output against. Without
+# them the build fails at the last step, after twelve minutes of rasterising.
+COPY --chown=node:node content/schemas ./content/schemas
 # The admin console imports drafts from the editorial catalog, and the
 # runtime has no git checkout: the catalog and its schema ride in the image,
 # belonging to exactly the commit this image was built from (SERVICE_RELEASE).

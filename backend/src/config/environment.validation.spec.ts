@@ -364,6 +364,37 @@ describe("validateEnvironment", () => {
     });
   });
 
+  describe("publisher job coordinates", () => {
+    /// A run that nothing executes sits queued forever, and the only sign of
+    /// it is a screen saying so. Half a configuration is the state that
+    /// looks like it works (ADR-017 §2).
+    it("rejects a partial configuration instead of queueing into nothing", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          PUBLISHER_JOB_PROJECT: "speedy-web-235610",
+        }),
+      ).toThrow(
+        "PUBLISHER_JOB_PROJECT, PUBLISHER_JOB_REGION, PUBLISHER_JOB_NAME must be set together",
+      );
+    });
+
+    it("accepts all three together", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          PUBLISHER_JOB_PROJECT: "speedy-web-235610",
+          PUBLISHER_JOB_REGION: "europe-west3",
+          PUBLISHER_JOB_NAME: "content-publisher-dev",
+        }),
+      ).not.toThrow();
+    });
+
+    it("accepts a deployment with no publisher job at all", () => {
+      expect(() => validateEnvironment(validConfig)).not.toThrow();
+    });
+  });
+
   describe("Apple store environment", () => {
     // Bytes that begin like DER: an ASN.1 SEQUENCE, which is all the
     // configuration check looks at.

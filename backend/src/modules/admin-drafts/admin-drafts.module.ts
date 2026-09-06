@@ -32,6 +32,10 @@ import { EditorialDocumentService } from "./editorial-document.service";
 import { createGitHubClient, GitHubClient } from "./github-client";
 import { PublishRunController } from "./publish-run.controller";
 import { PublishRunService } from "./publish-run.service";
+import {
+  createPublisherJobClient,
+  PublisherJobClient,
+} from "./publisher-job.client";
 import { ReleaseRunController } from "./release-run.controller";
 import { ReleaseRunService } from "./release-run.service";
 import { TaxonomySourceService } from "./taxonomy-source.service";
@@ -68,6 +72,13 @@ import { TaxonomySourceService } from "./taxonomy-source.service";
     {
       provide: GitHubClient,
       useFactory: (): GitHubClient => createGitHubClient(),
+    },
+    {
+      // The console's whole reach into the publisher: it may ask for a run.
+      // The signing key and the right to write content belong to the job's
+      // own service account, and this process has neither (ADR-017 §1).
+      provide: PublisherJobClient,
+      useFactory: (): PublisherJobClient => createPublisherJobClient(),
     },
     DraftAssetCleanupService,
     DraftObjectStore,
