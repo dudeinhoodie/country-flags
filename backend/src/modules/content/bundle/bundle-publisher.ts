@@ -18,6 +18,7 @@ import {
 
 import type { ObjectStorage } from "../../../infrastructure/object-storage/object-storage";
 import { assetBaseUrl, uploadBundleAssets } from "./bundle-assets";
+import { lockActiveContentPointer } from "./content-pointer-lock";
 import type { LoadedBundle } from "./bundle-reader";
 import { validateBundle } from "./bundle-validator";
 import { diffBundleAgainstActive, type BundleDiff } from "./bundle-diff";
@@ -983,6 +984,11 @@ export async function publishBundle(
 
   return prisma.$transaction(
     async (tx) => {
+      // First, before anything is written: whoever else is moving the active
+      // pointer right now is applying a different release, and the two would
+      // end with one of them pointed at nothing (ADR-017 §4).
+      await lockActiveContentPointer(tx);
+
       const previousPointer = await tx.contentPointer.findUnique({
         where: { key: "active" },
       });
