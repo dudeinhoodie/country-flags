@@ -93,7 +93,7 @@ export async function buildContentBundle(
     // item(s)" or a missing asset — and the wrapper's own "Command failed"
     // is not. The run's failure message is the only thing an operator sees
     // in the console, so it has to carry the reason rather than the shape.
-    throw new Error(reasonOf(error));
+    throw new Error(reasonOf(error), { cause: error });
   }
   return bundleDirectory;
 }

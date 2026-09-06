@@ -1,0 +1,181 @@
+name: Deploy publisher dev
+
+# The publisher runs the bytes the API runs.
+#
+# It is the same image with a different command (ADR-017 §1), so this hangs
+# off the API deploy and reads the digest that deploy left on the service
+# rather than resolving a tag of its own: a job built from "the same commit"
+# is not the same guarantee as a job running the same digest, and the second
+# is the one worth having when the thing being started holds the signing key.
+on:
+  workflow_run:
+    workflows: ["Deploy dev"]
+    types: [completed]
+  # Redeploying the job without redeploying the API — a configuration change,
+  # or a first deploy after the service account exists.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  REGION: europe-west3
+  API_SERVICE: api-dev
+  JOB: content-publisher-dev
+  BUCKET: country-flags-dev
+  # Not a secret: it names which key signed a release, and the public half it
+  # is verified against is published beside it.
+  SIGNING_KEY_ID: dev-2026-08
+
+concurrency:
+  # Redefining the job under a running execution would leave the two
+  # disagreeing about what is executing.
+  group: deploy-publisher-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # Whatever `api-dev` is serving right now, by digest. A tag can be
+      # moved; the point of this step is that the publisher cannot end up a
+      # commit ahead of or behind the service that queues work for it.
+      - name: Read the image the API is running
+        id: image
+        run: |
+          set -euo pipefail
+          reference="$(gcloud run services describe "${API_SERVICE}" \
+            --region "${REGION}" \
+            --format='value(spec.template.spec.containers[0].image)' 2>/dev/null || true)"
+          if [ -z "${reference}" ]; then
+            echo "::error::Cloud Run service ${API_SERVICE} does not exist in ${REGION}"
+            echo "See docs/13-deployment-environments.md, section 6.1."
+            exit 1
+          fi
+          case "${reference}" in
+            *@sha256:*) ;;
+            *)
+              echo "::error::${API_SERVICE} is running a tag rather than a digest: ${reference}"
+              exit 1 ;;
+          esac
+          echo "reference=${reference}" >> "$GITHUB_OUTPUT"
+          # Which commit those bytes are, for the label and for the log line.
+          # The run that triggered this knows; a manual run asks the service,
+          # which the API deploy labels with exactly this.
+          sha="${{ github.event.workflow_run.head_sha }}"
+          if [ -z "${sha}" ]; then
+            sha="$(gcloud run services describe "${API_SERVICE}" \
+              --region "${REGION}" \
+              --format='value(spec.template.metadata.labels.release)' 2>/dev/null || true)"
+          fi
+          echo "sha=${sha:-unknown}" >> "$GITHUB_OUTPUT"
+          echo "Publisher will run ${reference} (${sha:-unknown})"
+
+      # Unlike the services, the job is created here rather than by hand: its
+      # entire configuration is in this file, and there is no "deploy any
+      # starting image" bootstrap for a job to make a pre-created one useful.
+      # What must exist first is the identity and its grants — see
+      # docs/13-deployment-environments.md §6.2.
+      #
+      # The whole configuration is set on every deploy rather than updated in
+      # place, so what the job runs with is readable here instead of being
+      # whatever a console session last left on it.
+      #
+      # `^;^` makes the separator a semicolon for symmetry with the service
+      # deploy, where a client-id list makes a comma unusable.
+      - name: Deploy the publisher job
+        run: |
+          set -euo pipefail
+          gcloud run jobs deploy "${JOB}" \
+            --region "${REGION}" \
+            --image "${{ steps.image.outputs.reference }}" \
+            --service-account "content-publisher@${PROJECT_ID}.iam.gserviceaccount.com" \
+            --command node \
+            --args backend/dist/cli/content-publisher-job.js \
+            --cpu 2 \
+            --memory 2Gi \
+            --task-timeout 30m \
+            --max-retries 0 \
+            --parallelism 1 \
+            --tasks 1 \
+            --labels "release=${{ steps.image.outputs.sha }},deployment-env=dev,managed-by=github-actions" \
+            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-publisher;SERVICE_RELEASE=${{ steps.image.outputs.sha }};CONTENT_SIGNING_KEY_ID=${SIGNING_KEY_ID};CONTENT_BUILD_OUTPUT_ROOT=/tmp/content-build;OBJECT_STORAGE_PROVIDER=s3;OBJECT_STORAGE_BUCKET=${BUCKET};OBJECT_STORAGE_REGION=${REGION};OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;OBJECT_STORAGE_FORCE_PATH_STYLE=true;OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${BUCKET}" \
+            --set-secrets "DATABASE_URL=dev-direct-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,OBJECT_STORAGE_ACCESS_KEY_ID=dev-object-storage-access-key-id:latest,OBJECT_STORAGE_SECRET_ACCESS_KEY=dev-object-storage-secret-access-key:latest,CONTENT_SIGNING_PRIVATE_KEY=dev-content-signing-private-key:latest,CONTENT_SIGNING_PUBLIC_KEYS=dev-content-signing-public-keys:latest" \
+            --quiet
+
+      # Both halves of the twenty-minute transaction: it runs on the direct
+      # connection because a pooler cannot hold one that long, and it holds
+      # the signing key that the API deliberately cannot read. A job deployed
+      # against the pooled URL would fail an hour into a publish, so it is
+      # checked now instead.
+      - name: Check the job runs on the direct connection
+        run: |
+          set -euo pipefail
+          secret="$(gcloud run jobs describe "${JOB}" --region "${REGION}" \
+            --format='value(spec.template.spec.template.spec.containers[0].env)' )"
+          echo "${secret}" | grep -q 'dev-direct-database-url' || {
+            echo "::error::${JOB} is not configured against the direct database URL"
+            exit 1
+          }
+
+      # Deployed is not the same as working. `--check` asks for everything a
+      # release would need — the private key, its public half, the database,
+      # the pipeline — and claims nothing: a deploy must never be the thing
+      # that publishes, and a run somebody queued while the executor was
+      # missing must not go out as a side effect of fixing the executor.
+      - name: Check the job can do what it will be asked to
+        run: |
+          set -euo pipefail
+          gcloud run jobs execute "${JOB}" \
+            --region "${REGION}" \
+            --args backend/dist/cli/content-publisher-job.js,--check \
+            --wait --quiet
+
+      # The coordinates that turn a red run into a query: which release, which
+      # image, and the filter that finds what the execution said. Written
+      # whether the deploy worked or not, because a failure is when they matter.
+      - name: Summarise the deployment
+        if: always()
+        env:
+          SHA: ${{ steps.image.outputs.sha }}
+          IMAGE: ${{ steps.image.outputs.reference }}
+        run: |
+          {
+            echo "### Publisher job ${JOB}"
+            echo
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| Release | \`${SHA:-unknown}\` |"
+            echo "| Image | \`${IMAGE:-none}\` |"
+            echo "| Logs | \`resource.type=cloud_run_job AND resource.labels.job_name=${JOB}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report what the execution logged
+        if: failure()
+        run: |
+          set -euo pipefail
+          gcloud logging read \
+            "resource.type=cloud_run_job AND resource.labels.job_name=${JOB}" \
+            --project "${PROJECT_ID}" \
+            --freshness 15m \
+            --limit 50 \
+            --order desc \
+            --format 'value(textPayload,jsonPayload.message)' || true

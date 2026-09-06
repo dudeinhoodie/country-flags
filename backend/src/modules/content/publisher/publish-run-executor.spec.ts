@@ -31,7 +31,19 @@ function queuedRun(overrides: Partial<PublishRun> = {}): PublishRun {
   };
 }
 
-function storeHolding(run: PublishRun | null): jest.Mocked<PublishRunStore> {
+/**
+ * The store as four spies rather than as a typed mock of the interface: the
+ * assertions below read the calls straight off the object, which a method
+ * declared on an interface would make an unbound reference to.
+ */
+interface FakeStore {
+  claim: jest.Mock;
+  recordStage: jest.Mock;
+  recordSuccess: jest.Mock;
+  recordFailure: jest.Mock;
+}
+
+function storeHolding(run: PublishRun | null): FakeStore {
   return {
     claim: jest.fn().mockResolvedValue(run),
     recordStage: jest.fn().mockResolvedValue(undefined),
@@ -40,17 +52,27 @@ function storeHolding(run: PublishRun | null): jest.Mocked<PublishRunStore> {
   };
 }
 
+function asStore(store: FakeStore): PublishRunStore {
+  return store;
+}
+
+interface FakeWork {
+  publish: jest.Mock;
+  rollback: jest.Mock;
+}
+
 function workThat(
   behaviour: Partial<Record<"publish" | "rollback", () => Promise<void>>> = {},
-): jest.Mocked<ReleaseWork> {
+): FakeWork {
+  const resolved = (): Promise<void> => Promise.resolve();
   return {
-    publish: jest
-      .fn()
-      .mockImplementation(behaviour.publish ?? (() => Promise.resolve())),
-    rollback: jest
-      .fn()
-      .mockImplementation(behaviour.rollback ?? (() => Promise.resolve())),
+    publish: jest.fn().mockImplementation(behaviour.publish ?? resolved),
+    rollback: jest.fn().mockImplementation(behaviour.rollback ?? resolved),
   };
+}
+
+function asWork(work: FakeWork): ReleaseWork {
+  return work;
 }
 
 describe("executing a release run", () => {
@@ -58,7 +80,9 @@ describe("executing a release run", () => {
     const store = storeHolding(null);
     const work = workThat();
 
-    await expect(executePublishRun(store, work)).resolves.toEqual({
+    await expect(
+      executePublishRun(asStore(store), asWork(work)),
+    ).resolves.toEqual({
       taken: false,
     });
     expect(work.publish).not.toHaveBeenCalled();
@@ -71,7 +95,7 @@ describe("executing a release run", () => {
     const store = storeHolding(run);
 
     await expect(
-      executePublishRun(store, workThat(), {
+      executePublishRun(asStore(store), asWork(workThat()), {
         runId: run.id,
         executionName: "executions/content-publisher-dev-abcde",
       }),
@@ -90,7 +114,7 @@ describe("executing a release run", () => {
     });
     const work = workThat();
 
-    await executePublishRun(storeHolding(run), work);
+    await executePublishRun(asStore(storeHolding(run)), asWork(work));
 
     expect(work.rollback).toHaveBeenCalledTimes(1);
     expect(work.publish).not.toHaveBeenCalled();
@@ -101,16 +125,18 @@ describe("executing a release run", () => {
     const store = storeHolding(run);
 
     const outcome = await executePublishRun(
-      store,
-      workThat({
-        publish: () =>
-          Promise.reject(
-            new PublishRunFailure(
-              "PUBLISH_RUN_BUILD_FAILED",
-              "3 blocking report item(s)",
+      asStore(store),
+      asWork(
+        workThat({
+          publish: () =>
+            Promise.reject(
+              new PublishRunFailure(
+                "PUBLISH_RUN_BUILD_FAILED",
+                "3 blocking report item(s)",
+              ),
             ),
-          ),
-      }),
+        }),
+      ),
     );
 
     expect(outcome).toEqual({ taken: true, run, succeeded: false });
@@ -126,8 +152,12 @@ describe("executing a release run", () => {
     const store = storeHolding(queuedRun());
 
     await executePublishRun(
-      store,
-      workThat({ publish: () => Promise.reject(new Error("socket hang up")) }),
+      asStore(store),
+      asWork(
+        workThat({
+          publish: () => Promise.reject(new Error("socket hang up")),
+        }),
+      ),
     );
 
     expect(store.recordFailure).toHaveBeenCalledWith(
@@ -145,8 +175,8 @@ describe("executing a release run", () => {
 
     await expect(
       executePublishRun(
-        store,
-        workThat({ publish: () => Promise.reject(new Error("nope")) }),
+        asStore(store),
+        asWork(workThat({ publish: () => Promise.reject(new Error("nope")) })),
       ),
     ).resolves.toMatchObject({ taken: true, succeeded: false });
   });
@@ -155,14 +185,14 @@ describe("executing a release run", () => {
     const run = queuedRun();
     const store = storeHolding(run);
 
-    await executePublishRun(store, workThat({}));
+    await executePublishRun(asStore(store), asWork(workThat({})));
     // The work is a fake here, so nothing is staged by it; what this pins is
     // that the executor hands the work a way to report and does not stage on
     // its behalf.
     expect(store.recordStage).not.toHaveBeenCalled();
 
     const staging = storeHolding(run);
-    await executePublishRun(staging, {
+    await executePublishRun(asStore(staging), {
       publish: async (_run, stage) => {
         await stage("building");
         await stage("applying");

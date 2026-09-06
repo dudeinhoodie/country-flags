@@ -48,6 +48,15 @@ function executorThatRefuses(reason: string): PublisherJobClient {
 const noExecutor = new PublisherJobClient(null);
 
 /**
+ * One conditional write, kept as the two halves the service sent: the filter
+ * is the guard being asserted as much as the data is.
+ */
+interface Patch {
+  where: Record<string, unknown>;
+  data: Record<string, unknown>;
+}
+
+/**
  * The service is exercised through the same seam it uses in production: a
  * transaction callback handed a client. What is asserted is the rule — which
  * requests are refused, and what the record says when one is accepted —
@@ -59,12 +68,12 @@ function serviceWith(fakes: Fakes = {}): {
   updated: () => Record<string, unknown> | null;
   audited: () => string | null;
   /** Every `updateMany` the service made, in order. */
-  patches: () => Record<string, unknown>[];
+  patches: () => Patch[];
 } {
   let created: Record<string, unknown> | null = null;
   let updated: Record<string, unknown> | null = null;
   let audited: string | null = null;
-  const patches: Record<string, unknown>[] = [];
+  const patches: Patch[] = [];
   const client = {
     contentPointer: {
       findUnique: (): Promise<{ contentVersion: string } | null> =>
@@ -115,14 +124,8 @@ function serviceWith(fakes: Fakes = {}): {
           ...data,
         } as unknown as PublishRun);
       },
-      updateMany: ({
-        where,
-        data,
-      }: {
-        where: Record<string, unknown>;
-        data: Record<string, unknown>;
-      }): Promise<{ count: number }> => {
-        patches.push({ ...where, ...data });
+      updateMany: (patch: Patch): Promise<{ count: number }> => {
+        patches.push(patch);
         return Promise.resolve({ count: 1 });
       },
     },
@@ -277,10 +280,13 @@ describe("PublishRunService", () => {
       "projects/p/locations/europe-west3/jobs/content-publisher-dev/executions/x-9",
     );
     expect(patches()).toEqual([
-      expect.objectContaining({
-        executionName:
-          "projects/p/locations/europe-west3/jobs/content-publisher-dev/executions/x-9",
-      }),
+      {
+        where: { id: "run-1" },
+        data: {
+          executionName:
+            "projects/p/locations/europe-west3/jobs/content-publisher-dev/executions/x-9",
+        },
+      },
     ]);
   });
 
@@ -300,14 +306,17 @@ describe("PublishRunService", () => {
     );
 
     expect(patches()).toEqual([
-      expect.objectContaining({
-        status: PublishRunStatus.FAILED,
-        failureCode: "PUBLISH_RUN_NOT_STARTED",
-        failureMessage: "Cloud Run refused to start the job",
+      {
         // Only while it is still queued: a start that failed on the way back
-        // may well have started.
-        id: expect.any(String),
-      }),
+        // may well have started, and a job already running must not be
+        // declared dead by the request that asked for it.
+        where: { id: "run-1", status: PublishRunStatus.QUEUED },
+        data: expect.objectContaining({
+          status: PublishRunStatus.FAILED,
+          failureCode: "PUBLISH_RUN_NOT_STARTED",
+          failureMessage: "Cloud Run refused to start the job",
+        }) as unknown,
+      },
     ]);
   });
 
