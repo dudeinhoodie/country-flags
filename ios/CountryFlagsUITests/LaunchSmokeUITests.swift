@@ -31,6 +31,51 @@ final class LaunchSmokeUITests: XCTestCase {
         XCTAssertFalse(hero.label.contains("study."), app.debugDescription)
     }
 
+    /// The claim of #301, demonstrated rather than argued: an install that has
+    /// never reached a backend opens on a catalogue it can study.
+    ///
+    /// Nothing in the store and every content request refused — a fresh phone
+    /// on a plane, and what a reviewer sees when the host is not answering.
+    /// Before the app carried a catalogue this ran out the request timeout on
+    /// a blocking screen and landed on "you are offline" over three empty
+    /// tabs, which is the guideline 2.1 reading of an app that does not work.
+    func testAFirstLaunchWithNoBackendOpensOnTheBundledCatalog() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-reset-store", "-offline-content"]
+        app.launch()
+
+        let hero = app.buttons["home.deck.ALL"]
+        XCTAssertTrue(hero.waitForExistence(timeout: 60), app.debugDescription)
+        // Neither of the two screens this replaces: the blocking wait and the
+        // empty state behind it.
+        XCTAssertFalse(
+            app.descendants(matching: .any)
+                .matching(identifier: "root.launchWait").firstMatch.exists,
+            app.debugDescription
+        )
+        XCTAssertFalse(
+            app.staticTexts["content.placeholder.title"].exists,
+            app.debugDescription
+        )
+        // And it says what it is rather than pretending to be up to date: a
+        // catalogue on the device with no connection behind it.
+        XCTAssertTrue(
+            app.staticTexts["content.statusBanner"].waitForExistence(timeout: 30),
+            app.debugDescription
+        )
+
+        // A catalogue that can be opened and studied, not a list of names: the
+        // deck reports the cards it holds and offers to start.
+        hero.tap()
+        let cardCount = app.staticTexts["deck.cardCount"]
+        XCTAssertTrue(cardCount.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertFalse(cardCount.label.isEmpty)
+        XCTAssertTrue(
+            app.buttons["study.start"].waitForExistence(timeout: 20),
+            app.debugDescription
+        )
+    }
+
     func testTypedRouteOpensAndReturns() {
         let app = XCUIApplication()
         app.launchArguments += ["-reset-store"]

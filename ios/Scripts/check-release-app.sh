@@ -130,6 +130,29 @@ for binary in "${binaries[@]}"; do
   fi
 done
 
+# The catalogue the app opens on before any network answers (ADR-021). Losing
+# the resource is silent — the app still builds, still launches and still
+# synchronises — and the only symptom is the screen this whole file exists to
+# keep off a reviewer's phone: a first launch that times out and says it is
+# offline over three empty tabs.
+catalogue="$(find "${app}" -name "BundledCatalog.json" -print -quit)"
+if [[ -z "${catalogue}" ]]; then
+  echo "::error::${name} carries no bundled catalogue, so its first launch needs the network." >&2
+  status=1
+elif ! python3 -c '
+import json, sys
+
+catalogue = json.load(open(sys.argv[1], encoding="utf-8"))
+# Readable, and a catalogue rather than any JSON that happened to be copied
+# under the name: a release with no decks in it seeds an empty store.
+assert catalogue["decks"], "no decks"
+assert catalogue["cards"], "no cards"
+assert catalogue["contentVersion"].startswith("bundled:"), "not a bundled release"
+' "${catalogue}" 2>/dev/null; then
+  echo "::error::The bundled catalogue in ${name} is not a readable release." >&2
+  status=1
+fi
+
 # The environment the build says it is. A store build that still points at dev
 # would pass every other check in this file.
 environment="$(/usr/libexec/PlistBuddy -c "Print :CFAppEnvironment" "${app}/Info.plist" 2>/dev/null || echo "")"
