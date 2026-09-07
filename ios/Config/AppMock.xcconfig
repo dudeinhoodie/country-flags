@@ -1,0 +1,22 @@
+// The app plus the canned backend: what `CountryFlagsAppMock` builds.
+//
+// The mock backend is a Swift package product, and Xcode links every product a
+// target depends on whatever the configuration it is building — so the only
+// way to keep the fixtures out of the store build is to keep the dependency
+// out of the target that ships. That is the whole reason there are two app
+// targets; see Config/README.md.
+//
+// Everything below is deliberately independent of the configuration this
+// target is built with. A mock app built as "Prod" would still be the mock
+// app, and pinning the environment and the name here means it can never be
+// mistaken for the one that ships: it is called "CountryFlags Mock", it
+// installs under its own bundle identifier, and `check-release-app.sh` looks
+// for `CountryFlags.app`, which this target does not produce.
+#include "Mock.xcconfig"
+#include "App.xcconfig"
+
+// The flag the app target reads to decide whether the mock backend exists.
+// It is a property of this target, not of the Mock configuration: the
+// shipping target has to compile under Mock too, and it has no mock module to
+// import.
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) MOCK_BACKEND

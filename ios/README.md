@@ -13,8 +13,8 @@ visual language every screen follows in
 
 ```text
 ios/
-├── CountryFlags.xcodeproj      # composition root, three configurations
-├── CountryFlagsApp/            # @main, dependency wiring, assets
+├── CountryFlags.xcodeproj      # composition root, two app targets, three configurations
+├── CountryFlagsApp/            # @main, dependency wiring, assets — both app targets build it
 ├── CountryFlagsKit/            # local Swift package holding the logic
 │   ├── Contracts/                      # mirror of the bundled OpenAPI contract
 │   └── Sources/
@@ -22,9 +22,11 @@ ios/
 │       ├── CountryFlagsInfrastructure  # generated client, transport, SwiftData
 │       └── CountryFlagsFeatures        # SwiftUI, navigation, design tokens
 ├── CountryFlagsUITests/        # launch smoke
-├── Config/                     # one xcconfig per configuration
+├── Config/                     # one xcconfig per configuration, two per app target
 └── Scripts/
     ├── check-advertising-policy.sh  # fails when ad or tracking machinery appears
+    ├── check-release-app.sh    # reads a built app for what must never ship
+    ├── check-signing-entitlements.sh  # every app target still carries the entitlements
     ├── select-simulator.sh     # picks an xcodebuild destination
     └── sync-openapi.sh         # refreshes and verifies the contract mirror
 ```
@@ -50,15 +52,25 @@ SDK, which its dependencies in `Package.swift` enforce.
 
 ## Schemes and configurations
 
-| Scheme              | Configuration | Environment | Purpose                                      |
-| ------------------- | ------------- | ----------- | -------------------------------------------- |
-| `CountryFlags-Mock` | `Mock`        | `mock`      | deterministic run and tests without network   |
-| `CountryFlags-Dev`  | `Dev`         | `dev`       | build against the dev backend deployment      |
-| `CountryFlags-Prod` | `Prod`        | `prod`      | release build, no mock transport, no debug UI |
+| Scheme              | Target                | Configuration | Environment | Purpose                                       |
+| ------------------- | --------------------- | ------------- | ----------- | --------------------------------------------- |
+| `CountryFlags-Mock` | `CountryFlagsAppMock` | `Mock`        | `mock`      | deterministic run and tests without network   |
+| `CountryFlags-Dev`  | `CountryFlagsApp`     | `Dev`         | `dev`       | build against the dev backend deployment      |
+| `CountryFlags-Prod` | `CountryFlagsApp`     | `Prod`        | `prod`      | release build, no mock transport, no debug UI |
+
+There are two application targets because linking is a property of a target:
+Xcode links every Swift package product a target depends on whatever the
+configuration, and copies its resources along, so the only way to keep the mock
+backend out of the app that ships is to keep it out of that target.
+`CountryFlagsAppMock` builds the same sources with the module added and is what
+the UI tests launch; `Config/README.md` has the full reasoning, and
+`Config/App.xcconfig` is the one place both targets read so they cannot drift.
 
 The environment travels from an xcconfig into Info.plist and is read by
-`RuntimeConfigurationLoader`. Conditional compilation does not pick it: there
-are three configurations and only two compilation conditions.
+`RuntimeConfigurationLoader`. Conditional compilation does not pick it: it
+answers a narrower question, whether the mock backend exists to be imported,
+and `MOCK_BACKEND` is defined by the mock target rather than by a
+configuration — Dev is a debug build too, and links no mock.
 
 Tests come in two runs, because a package test target cannot join the test
 action of a host project scheme — Xcode only exposes it through the package's

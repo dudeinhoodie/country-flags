@@ -7,7 +7,11 @@ CF_API_BASE_URL =
 CF_BUNDLE_ID_SUFFIX = .mock
 PRODUCT_NAME = CountryFlags Mock
 
-SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) DEBUG MOCK
+// `MOCK` used to be defined here and was read by nothing. What decides
+// whether the mock backend is compiled in is the target rather than the
+// configuration — one app target links the module and the other cannot — so
+// the flag lives in AppMock.xcconfig under the name of what it means.
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) DEBUG
 SWIFT_OPTIMIZATION_LEVEL = -Onone
 GCC_OPTIMIZATION_LEVEL = 0
 ONLY_ACTIVE_ARCH = YES

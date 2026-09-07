@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CF0000000000000000000010"
-               BuildableName = "CountryFlags Dev.app"
+               BuildableName = "CountryFlags.app"
                BlueprintName = "CountryFlagsApp"
                ReferencedContainer = "container:CountryFlags.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CF0000000000000000000010"
-            BuildableName = "CountryFlags Dev.app"
+            BuildableName = "CountryFlags.app"
             BlueprintName = "CountryFlagsApp"
             ReferencedContainer = "container:CountryFlags.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CF0000000000000000000010"
-            BuildableName = "CountryFlags Dev.app"
+            BuildableName = "CountryFlags.app"
             BlueprintName = "CountryFlagsApp"
             ReferencedContainer = "container:CountryFlags.xcodeproj">
          </BuildableReference>
