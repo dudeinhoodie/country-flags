@@ -18,10 +18,12 @@ import CountryFlagsDomain
 ///   is what an empty store is filled from once, and the first successful sync
 ///   replaces it whole.
 /// - a source of truth. It is stored under a content version of its own —
-///   `bundled:<release>` — because the identifiers here are derived from
-///   content keys while a server allocates its own. Under the release's own
+///   `bundled:<release>` — and under identifiers of its own, because a server
+///   allocates identifiers this build cannot predict. Under the release's own
 ///   version the two sets would answer every read at once and every deck would
-///   appear twice.
+///   appear twice; under the publisher's own identifiers an arriving release
+///   would rewrite these rows rather than land beside them, and the catalogue
+///   would read empty for as long as the download took.
 struct BundledCatalog: Sendable {
     private let document: Document
 

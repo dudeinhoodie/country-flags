@@ -58,12 +58,23 @@ throws it away whole the first time a real release arrives.
   2026-09-04 addendum applied to the catalogue rather than a new position on
   paid content.
 
-- **Stored under a content version of its own.** The seeded release is
-  `bundled:<release>` and never the release's own version. This is the
-  load-bearing detail. Reads answer from the release the current manifest
-  names; under the release's own version the derived identifiers and a
-  server's allocated ones would both answer every read and every deck would
-  appear twice.
+- **Stored under a content version of its own, and under identifiers of its
+  own.** The seeded release is `bundled:<release>` and its records are keyed
+  by `bundled-content-<kind>:<key>` rather than by the construction the
+  publisher uses. This is the load-bearing detail, and both halves of it are
+  load-bearing:
+
+  - the version, because reads answer from the release the current manifest
+    names, and under the release's own version the derived identifiers and a
+    server's allocated ones would both answer every read — every deck twice;
+  - the identifiers, because a record is upserted on its identifier. A release
+    arriving under identifiers the seed already used does not land beside the
+    seeded rows, it rewrites them a page at a time with its own content
+    version, and the catalogue reads *empty* for as long as the download
+    takes: the manifest still names the seeded release and no row belongs to
+    it any more. The Mock build derives its identifiers from the same content
+    keys and collided exactly this way — a deck opened mid-download had no
+    cards in it.
 
 - **Seeded only into an empty store.** `seedFromBundleIfEmpty` does nothing
   whenever a manifest is stored. Whatever is there came from the server or
@@ -120,9 +131,19 @@ throws it away whole the first time a real release arrives.
 - The seeded rows stay in the store after they stop being readable, the same
   way every superseded release's rows do. Nothing prunes them today.
 
-- The Mock build rehearses the whole sequence: it derives identifiers the same
-  way, so a card seeded from the bundle and the same card served by the mock
-  are the same card, and the seed-then-sync path can be watched end to end.
+- **A deck screen already open when the first sync commits keeps showing what
+  it read and does not refresh.** The route carries a deck identifier and the
+  seeded deck's is not the server's, so the screen is holding a deck that is
+  no longer current. It reloads on appearance, so leaving and coming back is
+  the whole of the recovery, and the catalogue, home and search are all
+  correct immediately. It is the ordinary "a release changed underneath you"
+  case, which this makes common instead of rare; resolving a deck across
+  releases by its code would end it and is not in this change.
+
+- The Mock build rehearses the whole sequence, including the identifier swap:
+  it serves a release whose identifiers this build cannot predict, which is
+  what a real backend does, so the seed-then-supersede path can be watched end
+  to end.
 
 - A build whose document is missing or will not decode seeds nothing and
   behaves exactly as the app did before this ADR. The seed can never cost the

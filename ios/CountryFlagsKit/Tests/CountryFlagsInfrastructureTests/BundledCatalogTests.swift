@@ -69,6 +69,29 @@ final class BundledCatalogTests: XCTestCase {
         }
     }
 
+    /// The seeded release must be invisible to an arriving one.
+    ///
+    /// A record is upserted on its identifier, so a release that arrives under
+    /// an identifier the seed already used rewrites that row with its own
+    /// content version instead of landing beside it — and the catalogue reads
+    /// empty for as long as the download takes, because the manifest still
+    /// names the seeded release and no row belongs to it any more.
+    ///
+    /// The Mock build is where this is checkable: it serves a real projection
+    /// of the same content release, so if any construction can collide with
+    /// the seed's, that one does. It did, and a deck opened mid-download had
+    /// no cards in it.
+    func testNothingTheMockServesSharesAnIdentifierWithTheSeed() throws {
+        let seed = try shippedSeed()
+        let served = try mockIdentifiers()
+
+        XCTAssertFalse(served.isEmpty)
+        for id in seed.page.decks.map(\.id) { XCTAssertFalse(served.contains(id)) }
+        for id in seed.page.cards.map(\.id) { XCTAssertFalse(served.contains(id)) }
+        for id in seed.page.assets.map(\.id) { XCTAssertFalse(served.contains(id)) }
+        for id in seed.page.entities.map(\.id) { XCTAssertFalse(served.contains(id)) }
+    }
+
     /// A build that ships a catalogue must ship the flags of the same release,
     /// or the first launch draws 250 placeholders. The checksum a card's
     /// prompt carries is what the bundled index is keyed by.
@@ -169,6 +192,31 @@ final class BundledCatalogTests: XCTestCase {
         XCTAssertEqual(decks.map(\.code), ["ALL_COUNTRIES", "EUROPE"])
     }
 
+    /// A screen is opened with the identifier the catalogue had a moment ago,
+    /// and the first sync renumbers every deck. The store has to be able to
+    /// say which deck that identifier was, or the screen is left holding a row
+    /// nothing can answer for.
+    func testADeckKeepsItsIdentityAcrossTheReleaseThatSupersedesIt() async throws {
+        let transport = MockClientTransport(
+            fallbacks: SyntheticContent.responses(now: ContentTestClient.now)
+        )
+        let store = try LocalStore(location: .inMemory)
+        let repository = store.makeContentRepository()
+        let coordinator = makeCoordinator(transport: transport, repository: repository)
+        await coordinator.seedFromBundleIfEmpty()
+        let seeded = try await repository.decks()
+        let openedDeckID = try XCTUnwrap(seeded.first).id
+
+        await coordinator.synchronize(locale: "en")
+
+        // Gone from the current release, and still answerable.
+        let current = try await repository.decks()
+        XCTAssertFalse(current.contains { $0.id == openedDeckID })
+        let superseded = try await repository.deck(id: openedDeckID)
+        XCTAssertEqual(superseded?.id, openedDeckID)
+        XCTAssertEqual(superseded?.code, seeded.first?.code)
+    }
+
     // MARK: - What the device reads
 
     func testTheCatalogueIsSeededInTheLanguageTheDeviceReads() throws {
@@ -235,15 +283,53 @@ final class BundledCatalogTests: XCTestCase {
     /// does not depend on.
     private func bundledFlagChecksums() throws -> Set<String> {
         struct Index: Decodable { let assetNames: [String: String] }
-        let url = URL(filePath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appending(
-                path: "Sources/CountryFlagsFeatures/Resources/BundledFlags.json"
+        let index = try JSONDecoder().decode(
+            Index.self,
+            from: try Data(
+                contentsOf: packageRoot.appending(
+                    path: "Sources/CountryFlagsFeatures/Resources/BundledFlags.json"
+                )
             )
-        let index = try JSONDecoder().decode(Index.self, from: try Data(contentsOf: url))
+        )
         return Set(index.assetNames.keys)
+    }
+
+    /// Every identifier the mock's documents name, whatever it names.
+    ///
+    /// Read as text rather than decoded: what matters is that no identifier in
+    /// the seed appears in what a release serves, and a shape-agnostic sweep
+    /// keeps that true for whatever the documents grow next.
+    private func mockIdentifiers() throws -> Set<UUID> {
+        let directory = packageRoot.appending(
+            path: "Sources/CountryFlagsMockBackend/Resources/MockContent"
+        )
+        let pattern = try NSRegularExpression(
+            pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+        )
+        var identifiers: Set<UUID> = []
+        for name in try FileManager.default.contentsOfDirectory(atPath: directory.path())
+        where name.hasSuffix(".json") {
+            let text = try String(contentsOf: directory.appending(path: name), encoding: .utf8)
+            for match in pattern.matches(
+                in: text,
+                range: NSRange(text.startIndex..., in: text)
+            ) {
+                guard
+                    let range = Range(match.range, in: text),
+                    let id = UUID(uuidString: String(text[range]))
+                else { continue }
+                identifiers.insert(id)
+            }
+        }
+        return identifiers
+    }
+
+    /// This file sits at `ios/CountryFlagsKit/Tests/CountryFlagsInfrastructureTests/`.
+    private var packageRoot: URL {
+        URL(filePath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
     }
 
     private func makeCoordinator(

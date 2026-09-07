@@ -287,8 +287,22 @@ public final class ContentStore {
         (try? await repository.decks()) ?? []
     }
 
+    /// One deck of the current release, found by the identifier a screen was
+    /// opened with.
+    ///
+    /// The identifier is not always the current release's. A screen is opened
+    /// from a catalogue that was read a moment ago, and a release that landed
+    /// in between renumbered every deck — which happens on every first launch
+    /// now that an empty store is seeded from the bundle and superseded by the
+    /// first sync. So a miss is answered by asking the store which deck that
+    /// identifier *was* and returning the current deck of the same code: a
+    /// deck is the same deck across releases by what it is called, not by the
+    /// row it happens to occupy.
     public func deck(id: UUID) async -> DeckRecord? {
-        await decks().first { $0.id == id }
+        let current = await decks()
+        if let match = current.first(where: { $0.id == id }) { return match }
+        guard let superseded = (try? await repository.deck(id: id)) ?? nil else { return nil }
+        return current.first { $0.code == superseded.code }
     }
 
     public func cards(inDeck deckID: UUID) async -> [LearningCardRecord] {
@@ -378,7 +392,10 @@ public final class DeckDetailsModel {
             return
         }
         deck = record
-        loaded = DeckDetails(deck: record, cards: await store.cards(inDeck: deckID))
+        // The record's identifier rather than the one this screen was opened
+        // with: they differ whenever a release landed in between, and the
+        // cards belong to the deck that is current.
+        loaded = DeckDetails(deck: record, cards: await store.cards(inDeck: record.id))
         recompute()
     }
 

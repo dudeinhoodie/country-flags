@@ -29,13 +29,10 @@ import { dirname, join } from "node:path";
 import {
   CONTENT_VERSION,
   bundleDirectory,
-  assetId,
-  cardId,
   deckAccess,
   deckCode,
-  deckId,
   deckMemberCards,
-  entityId,
+  deterministicUuid,
   factsOf,
   isGrantedToAnonymous,
   isPubliclyVisible,
@@ -65,6 +62,31 @@ import {
 /// current manifest names, so the bundled rows stop being visible the moment
 /// the server's release lands. The bundle is a baseline, never the truth.
 const BUNDLED_CONTENT_VERSION = `bundled:${CONTENT_VERSION}`;
+
+/// The identifiers of the seeded release, in a namespace of their own.
+///
+/// The same reasoning as the version above, and the same consequence if it is
+/// got wrong. A record is upserted on its identifier, so a release arriving
+/// under identifiers the seed already used does not land beside the seeded
+/// rows — it rewrites them, one page at a time, with its own content version.
+/// The catalogue then reads empty for as long as the download takes: the
+/// manifest still names the seeded release and no row claims to belong to it
+/// any more.
+///
+/// That is not hypothetical. The Mock build derives its identifiers from the
+/// same content keys, so the seed and the mock's release collided exactly this
+/// way and a deck opened mid-download had no cards in it.
+///
+/// Under a namespace of its own the seeded release is untouched while the real
+/// one is staged beside it, stays whole and readable until the moment it is
+/// committed, and becomes invisible in the same transaction. It also makes the
+/// Mock build rehearse what a real backend does, which is to allocate
+/// identifiers this build cannot predict.
+const bundledUuid = (kind, key) => deterministicUuid(`bundled-content-${kind}:${key}`);
+const entityId = (key) => bundledUuid("entity", key);
+const assetId = (key) => bundledUuid("asset", key);
+const deckId = (key) => bundledUuid("deck", key);
+const cardId = (card) => bundledUuid("card", `${card.entityKey}:${card.semanticVersion}`);
 
 const outputPath = join(
   repositoryRoot,
