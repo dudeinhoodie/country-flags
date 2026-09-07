@@ -142,23 +142,31 @@ export class DraftAssetsController {
   /**
    * Draft bytes are served through the backend rather than linked at
    * storage: the draft bucket is not public, and it must stay that way.
+   *
+   * The response is written here rather than returned. A returned Buffer is
+   * an object, and the framework answers an object with `res.json` — which
+   * leaves the Content-Type this method set and replaces the drawing with
+   * `{"type":"Buffer","data":[137,80,78,71,...]}`. The status was 200, the
+   * header said `image/png`, the body was JSON three and a half times the
+   * size, and every preview in the console was a broken image.
    */
   @Get(":assetId/preview")
   async preview(
     @Param("draftId") rawDraftId: string,
     @Param("assetId") rawAssetId: string,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<Buffer> {
+    @Res() response: Response,
+  ): Promise<void> {
     const { body, mimeType } = await this.assets.bytesOf(
       uuid(rawDraftId, "draftId"),
       uuid(rawAssetId, "assetId"),
     );
     response.setHeader("Content-Type", mimeType);
+    response.setHeader("Content-Length", String(body.byteLength));
     response.setHeader("Cache-Control", "private, no-store");
     response.setHeader("X-Content-Type-Options", "nosniff");
     // A drawing served from the API origin must not be able to act there.
     response.setHeader("Content-Security-Policy", "default-src 'none'");
-    return body;
+    response.end(body);
   }
 
   /**
