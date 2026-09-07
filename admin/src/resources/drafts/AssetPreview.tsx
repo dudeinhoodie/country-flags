@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { useState } from "react";
 
 /**
  * The drawing as a card will show it: aspect-fit inside the card's box, on
@@ -62,6 +63,12 @@ function SafeAreaBox({
   caption: string;
   label: string;
 }) {
+  // A drawing that will not load is a fact worth stating. The browser's
+  // broken-image glyph says only that something is wrong, and in the one
+  // place anyone looks at a symbol before a learner does, "wrong how" is
+  // the whole question.
+  const [failed, setFailed] = useState(false);
+
   return (
     <Stack spacing={0.5} sx={{ alignItems: "center" }}>
       <Box
@@ -70,7 +77,7 @@ function SafeAreaBox({
           height,
           backgroundColor: ground,
           border: "1px dashed",
-          borderColor: "divider",
+          borderColor: failed ? "error.main" : "divider",
           borderRadius: 1,
           display: "flex",
           alignItems: "center",
@@ -79,12 +86,25 @@ function SafeAreaBox({
           p: 0.5,
         }}
       >
-        <Box
-          component="img"
-          src={src}
-          alt={`${label}, ${caption}`}
-          sx={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-        />
+        {failed ? (
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ textAlign: "center", px: 0.5 }}
+          >
+            Could not be loaded
+          </Typography>
+        ) : (
+          <Box
+            component="img"
+            src={src}
+            alt={`${label}, ${caption}`}
+            onError={() => {
+              setFailed(true);
+            }}
+            sx={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+          />
+        )}
       </Box>
       <Typography variant="caption" color="text.secondary">
         {caption}

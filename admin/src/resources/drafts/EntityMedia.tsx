@@ -9,7 +9,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useRuntimeConfig } from "../../config/RuntimeConfigContext";
 import type { components } from "../../api/generated/admin-api";
@@ -402,9 +402,44 @@ function UploadDrawer({
   onCancel: () => void;
   onUpload: (request: UploadRequest) => void;
 }) {
-  const [file, setFile] = useState<File | null>(null);
+  // The chosen file and the URL that draws it, held together so neither can
+  // outlive the other.
+  //
+  // The drawing is shown the way a card will lay it out, before it is sent
+  // anywhere: this is the last moment picking a different file costs nothing,
+  // and a filename does not tell anyone whether the crown survives aspect-fit.
+  // The URL is made and revoked where the choice is made — a blob nobody
+  // released is a leak that lasts as long as the tab.
+  const [chosen, setChosen] = useState<{ file: File; url: string } | null>(
+    null,
+  );
+  const file = chosen?.file ?? null;
   const [variant, setVariant] = useState("default");
   const [fields, setFields] = useState<SymbolFieldsState>(EMPTY_SYMBOL_FIELDS);
+
+  function choose(next: File | null): void {
+    setChosen((current) => {
+      if (current !== null) {
+        URL.revokeObjectURL(current.url);
+      }
+      return next === null
+        ? null
+        : { file: next, url: URL.createObjectURL(next) };
+    });
+  }
+
+  // The drawer closing is the other way a choice ends.
+  useEffect(
+    () => () => {
+      setChosen((current) => {
+        if (current !== null) {
+          URL.revokeObjectURL(current.url);
+        }
+        return null;
+      });
+    },
+    [],
+  );
 
   return (
     <Stack spacing={2}>
@@ -435,7 +470,7 @@ function UploadDrawer({
             hidden
             accept="image/svg+xml,image/png"
             onChange={(event) => {
-              setFile(event.target.files?.[0] ?? null);
+              choose(event.target.files?.[0] ?? null);
             }}
           />
         </Button>
@@ -449,6 +484,18 @@ function UploadDrawer({
           helperText="default, 1949, civil…"
         />
       </Stack>
+      {chosen !== null && (
+        <Stack spacing={0.5}>
+          <Typography variant="caption" color="text.secondary">
+            What a card will show
+          </Typography>
+          <AssetPreview
+            src={chosen.url}
+            ratio={kind.ratio}
+            label={`${entityKey} ${kind.label}, chosen file`}
+          />
+        </Stack>
+      )}
       <Divider />
       <SymbolFieldsEditor
         fields={fields}
