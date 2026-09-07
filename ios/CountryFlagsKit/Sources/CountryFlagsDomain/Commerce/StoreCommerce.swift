@@ -186,10 +186,12 @@ public protocol EntitlementRepository: Sendable {
 
 /// Supplies the stable token that ties a purchase to one of our accounts.
 ///
-/// A seam rather than a value because nothing publishes it yet: the token is
-/// `User.storeAccountToken` on the backend and the consumer contract does not
-/// return it. Until it does, a build answers `nil` here and a purchase is
-/// attributed by the authenticated request that delivers it.
+/// `User.storeAccountToken` on `GET /v1/me` is where it comes from.
+/// `nil` is a real answer and not a failure: a guest has no account to name,
+/// and a build that could not reach the profile attaches nothing rather than
+/// naming the wrong one. The purchase still lands on the right account,
+/// because the request that submits the transaction is authenticated — the
+/// token is what covers the notifications that arrive with no request at all.
 public protocol StoreAccountTokenProviding: Sendable {
     func storeAccountToken() async -> UUID?
 }
