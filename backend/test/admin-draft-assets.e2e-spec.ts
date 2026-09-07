@@ -240,6 +240,18 @@ describe("Admin draft asset upload (integration)", () => {
     expect(preview.headers["content-type"]).toContain("image/svg+xml");
     expect(preview.headers["cache-control"]).toContain("no-store");
     expect(preview.headers["content-security-policy"]).toContain("default-src");
+
+    // The body, and not only the headers around it. This assertion is the
+    // one that was missing: the endpoint answered 200 with `image/svg+xml`
+    // and a JSON serialisation of the Buffer in the body — three and a half
+    // times the size of the drawing — and every preview in the console was
+    // a broken image while every header said it should not be.
+    const drawing = Buffer.isBuffer(preview.body)
+      ? preview.body
+      : Buffer.from(preview.text, "utf8");
+    expect(drawing.subarray(0, 4).toString("utf8")).toBe("<svg");
+    expect(drawing.toString("utf8")).not.toContain('"type":"Buffer"');
+    expect(preview.headers["content-length"]).toBe(String(drawing.byteLength));
   });
 
   it("is idempotent for identical bytes", async () => {
