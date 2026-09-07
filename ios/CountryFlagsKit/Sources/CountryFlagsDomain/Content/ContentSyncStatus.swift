@@ -29,6 +29,13 @@ public enum ContentSyncFailure: Hashable, Sendable {
 /// a generated DTO is a view model that will eventually render one.
 public protocol ContentSynchronizing: Sendable {
     func currentStatus() async -> ContentSyncStatus
+    /// Fills an empty store from the catalogue this build ships, so the first
+    /// launch has decks and cards before a request is made — and so a launch
+    /// with no network at all has them too.
+    ///
+    /// Does nothing whenever the device already holds a release: the bundle is
+    /// a baseline, and a baseline never overwrites what the server said.
+    func seedFromBundleIfEmpty() async
     /// Publishes what the stored release already implies, before any request.
     func restoreStatus() async
     @discardableResult
@@ -44,6 +51,12 @@ public protocol ContentSynchronizing: Sendable {
     /// - Returns: whether the cards are on the device afterwards.
     @discardableResult
     func loadCards(inDeck deckID: UUID, locale: String) async -> Bool
+}
+
+extension ContentSynchronizing {
+    /// A build that ships no catalogue seeds nothing, which is the app as it
+    /// behaved before one was bundled: a first launch waits for the network.
+    public func seedFromBundleIfEmpty() async {}
 }
 
 public enum ContentSyncPhase: Hashable, Sendable {

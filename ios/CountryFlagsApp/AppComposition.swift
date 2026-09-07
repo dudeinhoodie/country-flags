@@ -206,10 +206,11 @@ struct AppComposition: AppDependencies {
         // The scale of the screen this app is running on, read once at
         // assembly: it decides which raster every asset record points at, and
         // it cannot change under a running app.
+        let displayScale = Double(UITraitCollection.current.displayScale)
         let contentService = ContentService(
             clientFactory: apiClientFactory,
             dates: dates,
-            displayScale: Double(UITraitCollection.current.displayScale)
+            displayScale: displayScale
         )
         // What the account may open, read straight from the durable snapshot.
         // The purchase coordinator is assembled below and would be a cycle
@@ -233,7 +234,15 @@ struct AppComposition: AppDependencies {
                 let scope = await sessions.currentScope()
                 return (try? await entitlements.snapshot(scope: scope).entitlementKeys) ?? []
             },
-            errors: errorReporter
+            errors: errorReporter,
+            // The catalogue this build ships, so a first launch with no
+            // network opens on decks rather than on a timeout (ADR-021). Read
+            // only when the store is empty, and superseded by the first
+            // release the server hands over.
+            bundledCatalog: ContentBootstrapCoordinator.shippedCatalog(
+                displayScale: displayScale,
+                dates: dates
+            )
         )
 
         // The guest's work follows its owner: the coordinator reads the guest

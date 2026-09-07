@@ -109,6 +109,10 @@ public final class ContentStore {
     public func start() async {
         guard !hasStarted else { return }
         hasStarted = true
+        // Before the status is read and before anything is asked of the
+        // network: a device with nothing gets the catalogue this build ships,
+        // so the first frame has decks on it whether or not there is a signal.
+        await coordinator.seedFromBundleIfEmpty()
         await coordinator.restoreStatus()
         status = await coordinator.currentStatus()
         await reload()

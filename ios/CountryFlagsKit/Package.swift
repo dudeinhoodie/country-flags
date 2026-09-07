@@ -46,6 +46,11 @@ let package = Package(
                 .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
                 .product(name: "OpenFeature", package: "swift-sdk"),
             ],
+            // The catalogue the app opens on before any network answers
+            // (ADR-021). It belongs to the shipping app rather than to the
+            // mock, so it lives beside the code that reads it and both app
+            // targets get it by linking this module.
+            resources: [.process("Resources")],
             plugins: [
                 .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")
             ]
