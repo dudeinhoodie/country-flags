@@ -13,6 +13,7 @@ const DEPLOYMENT_VARIABLES = [
   "DEPLOYMENT_ID",
   "K_REVISION",
   "MIGRATION_VERSION",
+  "LOG_LEVEL",
 ];
 
 /**
@@ -129,6 +130,68 @@ describe("JsonLoggerService", () => {
       email: "[REDACTED]",
       accessToken: "[REDACTED]",
       release: "c7d7c42",
+    });
+  });
+
+  describe("the level it was asked for", () => {
+    it("writes everything from the level up", () => {
+      const lines = loggerUnder({ LOG_LEVEL: "warn" }, (logger) => {
+        logger.warn("a queue is deeper than it was");
+        logger.error("a sweep failed");
+        logger.fatal("the process cannot continue");
+      });
+
+      expect(lines.map((line) => line.level)).toEqual([
+        "warn",
+        "error",
+        "fatal",
+      ]);
+    });
+
+    it("writes nothing below it", () => {
+      const lines = loggerUnder({ LOG_LEVEL: "warn" }, (logger) => {
+        logger.debug("a value nobody asked about");
+        logger.log("a request was served");
+        logger.verbose("the same, at length");
+      });
+
+      expect(lines).toEqual([]);
+    });
+
+    // The operator who raised the threshold to quieten a worker must see the
+    // difference, or they will conclude the variable never reached the
+    // service — which is what it looked like before this was honoured at all.
+    it("is the difference between a quiet deployment and a loud one", () => {
+      const quiet = loggerUnder({ LOG_LEVEL: "error" }, (logger) => {
+        logger.log("a request was served");
+      });
+      const loud = loggerUnder({ LOG_LEVEL: "debug" }, (logger) => {
+        logger.log("a request was served");
+      });
+
+      expect(quiet).toEqual([]);
+      expect(loud).toHaveLength(1);
+    });
+
+    it("defaults to info when nothing says otherwise", () => {
+      const lines = loggerUnder({}, (logger) => {
+        logger.debug("a value nobody asked about");
+        logger.log("a request was served");
+      });
+
+      expect(lines.map((line) => line.level)).toEqual(["info"]);
+    });
+
+    // Refusing an unreadable level is environment validation's job, and it
+    // stops the boot. A logger that threw here would replace that error with
+    // one raised from inside the thing meant to report it.
+    it("falls back to info rather than throwing on a level it cannot read", () => {
+      const lines = loggerUnder({ LOG_LEVEL: "chatty" }, (logger) => {
+        logger.debug("a value nobody asked about");
+        logger.log("a request was served");
+      });
+
+      expect(lines.map((line) => line.level)).toEqual(["info"]);
     });
   });
 });
