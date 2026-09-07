@@ -55,6 +55,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tirana",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tirana",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -64,6 +73,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Albanian Lek (ALL)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "ALL",
+                "name": "Albanian Lek",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -73,6 +92,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Albanian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sq",
+                "name": "Albanian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -82,6 +110,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,377,128 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2377128,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -146,6 +179,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Andorra la Vella",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Andorra la Vella",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -155,6 +197,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -164,6 +216,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Catalan",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ca",
+                "name": "Catalan"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -173,6 +234,11 @@
         {
           "type": "POPULATION",
           "displayValue": "81,938 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 81938,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -237,6 +303,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Vienna",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Vienna",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -246,6 +321,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -255,6 +340,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "German",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "de",
+                "name": "German"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -264,6 +358,11 @@
         {
           "type": "POPULATION",
           "displayValue": "9,177,982 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 9177982,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -328,6 +427,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Minsk",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Minsk",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -337,6 +445,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Belarusian Ruble (BYN)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "BYN",
+                "name": "Belarusian Ruble",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -346,6 +464,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Belarusian, Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "be",
+                "name": "Belarusian"
+              },
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -355,6 +486,11 @@
         {
           "type": "POPULATION",
           "displayValue": "9,132,629 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 9132629,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -419,6 +555,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Brussels",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Brussels",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -428,6 +573,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -437,6 +592,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Dutch, French, German",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "nl",
+                "name": "Dutch"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "de",
+                "name": "German"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -446,6 +618,11 @@
         {
           "type": "POPULATION",
           "displayValue": "11,858,610 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 11858610,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -510,6 +687,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Sarajevo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Sarajevo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -519,6 +705,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Bosnia-Herzegovina Convertible Mark (BAM)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "BAM",
+                "name": "Bosnia-Herzegovina Convertible Mark",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -528,6 +724,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Bosnian, Croatian, Serbian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "bs",
+                "name": "Bosnian"
+              },
+              {
+                "code": "hr",
+                "name": "Croatian"
+              },
+              {
+                "code": "sr",
+                "name": "Serbian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -537,6 +750,11 @@
         {
           "type": "POPULATION",
           "displayValue": "3,164,253 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 3164253,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -601,6 +819,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Sofia",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Sofia",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -610,6 +837,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -619,6 +856,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Bulgarian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "bg",
+                "name": "Bulgarian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -628,6 +874,11 @@
         {
           "type": "POPULATION",
           "displayValue": "6,441,421 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 6441421,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -692,6 +943,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Zagreb",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Zagreb",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -701,6 +961,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -710,6 +980,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Croatian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "hr",
+                "name": "Croatian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -719,6 +998,11 @@
         {
           "type": "POPULATION",
           "displayValue": "3,866,200 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 3866200,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -783,6 +1067,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Prague",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Prague",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -792,6 +1085,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Czech Koruna (CZK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "CZK",
+                "name": "Czech Koruna",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -801,6 +1104,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Czech",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "cs",
+                "name": "Czech"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -810,6 +1122,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,905,028 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10905028,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -874,6 +1191,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Copenhagen",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Copenhagen",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -883,6 +1209,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Danish Krone (DKK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "DKK",
+                "name": "Danish Krone",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -892,6 +1228,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Danish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "da",
+                "name": "Danish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -901,6 +1246,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,976,992 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5976992,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -965,6 +1315,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tallinn",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tallinn",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -974,6 +1333,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -983,6 +1352,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Estonian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "et",
+                "name": "Estonian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -992,6 +1370,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,372,341 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1372341,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1056,6 +1439,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Helsinki",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Helsinki",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1065,6 +1457,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1074,6 +1476,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Finnish, Swedish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fi",
+                "name": "Finnish"
+              },
+              {
+                "code": "sv",
+                "name": "Swedish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1083,6 +1498,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,619,911 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5619911,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1147,6 +1567,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Paris",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Paris",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1156,6 +1585,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1165,6 +1604,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1174,6 +1622,11 @@
         {
           "type": "POPULATION",
           "displayValue": "68,551,653 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 68551653,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1238,6 +1691,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Berlin",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Berlin",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1247,6 +1709,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1256,6 +1728,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "German",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "de",
+                "name": "German"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1265,6 +1746,11 @@
         {
           "type": "POPULATION",
           "displayValue": "83,516,593 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 83516593,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1329,6 +1815,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Athens",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Athens",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1338,6 +1833,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1347,6 +1852,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Greek",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "el",
+                "name": "Greek"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1356,6 +1870,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,405,134 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10405134,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1420,6 +1939,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Vatican City",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Vatican City",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1429,6 +1957,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1438,6 +1976,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Italian, Latin",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "it",
+                "name": "Italian"
+              },
+              {
+                "code": "la",
+                "name": "Latin"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1502,6 +2053,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Budapest",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Budapest",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1511,6 +2071,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Hungarian Forint (HUF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "HUF",
+                "name": "Hungarian Forint",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1520,6 +2090,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Hungarian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "hu",
+                "name": "Hungarian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1529,6 +2108,11 @@
         {
           "type": "POPULATION",
           "displayValue": "9,562,065 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 9562065,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1593,6 +2177,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Reykjavik",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Reykjavik",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1602,6 +2195,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Icelandic Króna (ISK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "ISK",
+                "name": "Icelandic Króna",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1611,6 +2214,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Icelandic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "is",
+                "name": "Icelandic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1620,6 +2232,11 @@
         {
           "type": "POPULATION",
           "displayValue": "386,506 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 386506,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1684,6 +2301,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Dublin",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Dublin",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1693,6 +2319,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1702,6 +2338,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Irish, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ga",
+                "name": "Irish"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1711,6 +2360,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,395,790 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5395790,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1775,6 +2429,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Rome",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Rome",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1784,6 +2447,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1793,6 +2466,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Italian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "it",
+                "name": "Italian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1802,6 +2484,11 @@
         {
           "type": "POPULATION",
           "displayValue": "58,952,704 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 58952704,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1866,6 +2553,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Pristina",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Pristina",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1875,6 +2571,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1884,6 +2590,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Albanian, Serbian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sq",
+                "name": "Albanian"
+              },
+              {
+                "code": "sr",
+                "name": "Serbian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1948,6 +2667,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Riga",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Riga",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1957,6 +2685,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1966,6 +2704,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Latvian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "lv",
+                "name": "Latvian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1975,6 +2722,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,866,124 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1866124,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2039,6 +2791,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Vaduz",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Vaduz",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2048,6 +2809,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Swiss Franc (CHF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "CHF",
+                "name": "Swiss Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2057,6 +2828,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "German",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "de",
+                "name": "German"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2066,6 +2846,11 @@
         {
           "type": "POPULATION",
           "displayValue": "40,450 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 40450,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2130,6 +2915,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Vilnius",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Vilnius",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2139,6 +2933,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2148,6 +2952,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Lithuanian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "lt",
+                "name": "Lithuanian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2157,6 +2970,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,888,278 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2888278,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2221,6 +3039,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Luxembourg",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Luxembourg",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2230,6 +3057,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2239,6 +3076,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, German, Luxembourgish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "de",
+                "name": "German"
+              },
+              {
+                "code": "lb",
+                "name": "Luxembourgish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2248,6 +3102,11 @@
         {
           "type": "POPULATION",
           "displayValue": "677,012 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 677012,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2312,6 +3171,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Valletta",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Valletta",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2321,6 +3189,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2330,6 +3208,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Maltese, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "mt",
+                "name": "Maltese"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2339,6 +3230,11 @@
         {
           "type": "POPULATION",
           "displayValue": "568,847 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 568847,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2403,6 +3299,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Monaco",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Monaco",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2412,6 +3317,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2421,6 +3336,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2430,6 +3354,11 @@
         {
           "type": "POPULATION",
           "displayValue": "38,631 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 38631,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2494,6 +3423,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Podgorica",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Podgorica",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2503,6 +3441,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2512,6 +3460,27 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Serbian, Bosnian, Albanian, Croatian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sr",
+                "name": "Serbian"
+              },
+              {
+                "code": "bs",
+                "name": "Bosnian"
+              },
+              {
+                "code": "sq",
+                "name": "Albanian"
+              },
+              {
+                "code": "hr",
+                "name": "Croatian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2521,6 +3490,11 @@
         {
           "type": "POPULATION",
           "displayValue": "623,525 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 623525,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2585,6 +3559,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Amsterdam",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Amsterdam",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2594,6 +3577,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2603,6 +3596,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Dutch",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "nl",
+                "name": "Dutch"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2612,6 +3614,11 @@
         {
           "type": "POPULATION",
           "displayValue": "17,993,485 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 17993485,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2676,6 +3683,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Skopje",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Skopje",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2685,6 +3701,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Macedonian Denar (MKD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MKD",
+                "name": "Macedonian Denar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2694,6 +3720,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Macedonian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "mk",
+                "name": "Macedonian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2703,6 +3738,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,824,359 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1824359,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2767,6 +3807,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Oslo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Oslo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2776,6 +3825,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Norwegian Krone (NOK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NOK",
+                "name": "Norwegian Krone",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2785,6 +3844,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Norwegian, Norwegian Bokmål, Norwegian Nynorsk",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "no",
+                "name": "Norwegian"
+              },
+              {
+                "code": "nb",
+                "name": "Norwegian Bokmål"
+              },
+              {
+                "code": "nn",
+                "name": "Norwegian Nynorsk"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2794,6 +3870,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,572,279 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5572279,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2858,6 +3939,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Warsaw",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Warsaw",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2867,6 +3957,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Polish Zloty (PLN)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "PLN",
+                "name": "Polish Zloty",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2876,6 +3976,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Polish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "pl",
+                "name": "Polish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2885,6 +3994,11 @@
         {
           "type": "POPULATION",
           "displayValue": "36,559,233 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 36559233,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2949,6 +4063,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Lisbon",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Lisbon",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2958,6 +4081,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2967,6 +4100,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Portuguese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "pt",
+                "name": "Portuguese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2976,6 +4118,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,694,681 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10694681,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3040,6 +4187,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Chișinău",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Chișinău",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3049,6 +4205,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Moldovan Leu (MDL)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MDL",
+                "name": "Moldovan Leu",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3058,6 +4224,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Romanian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ro",
+                "name": "Romanian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3067,6 +4242,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,402,306 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2402306,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3131,6 +4311,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bucharest",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bucharest",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3140,6 +4329,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Romanian Leu (RON)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "RON",
+                "name": "Romanian Leu",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3149,6 +4348,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Romanian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ro",
+                "name": "Romanian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3158,6 +4366,11 @@
         {
           "type": "POPULATION",
           "displayValue": "19,051,804 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 19051804,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3222,6 +4435,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Moscow",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Moscow",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3231,6 +4453,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Russian Ruble (RUB)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "RUB",
+                "name": "Russian Ruble",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3240,6 +4472,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3249,6 +4490,11 @@
         {
           "type": "POPULATION",
           "displayValue": "143,669,648 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 143669648,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3313,6 +4559,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "City of San Marino",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "City of San Marino",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3322,6 +4577,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3331,6 +4596,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Italian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "it",
+                "name": "Italian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3340,6 +4614,11 @@
         {
           "type": "POPULATION",
           "displayValue": "33,977 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 33977,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3404,6 +4683,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Belgrade",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Belgrade",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3413,6 +4701,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Serbian Dinar (RSD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "RSD",
+                "name": "Serbian Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3422,6 +4720,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Serbian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sr",
+                "name": "Serbian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3431,6 +4738,11 @@
         {
           "type": "POPULATION",
           "displayValue": "6,586,476 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 6586476,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3495,6 +4807,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bratislava",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bratislava",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3504,6 +4825,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3513,6 +4844,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Slovak",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sk",
+                "name": "Slovak"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3522,6 +4862,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,422,069 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5422069,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3586,6 +4931,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Ljubljana",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Ljubljana",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3595,6 +4949,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3604,6 +4968,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Slovenian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sl",
+                "name": "Slovenian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3613,6 +4986,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,127,400 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2127400,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3677,6 +5055,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Madrid",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Madrid",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3686,6 +5073,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3695,6 +5092,31 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Spanish, Basque, Catalan, Galician, Occitan",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "es",
+                "name": "Spanish"
+              },
+              {
+                "code": "eu",
+                "name": "Basque"
+              },
+              {
+                "code": "ca",
+                "name": "Catalan"
+              },
+              {
+                "code": "gl",
+                "name": "Galician"
+              },
+              {
+                "code": "oc",
+                "name": "Occitan"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3704,6 +5126,11 @@
         {
           "type": "POPULATION",
           "displayValue": "48,848,840 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 48848840,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3768,6 +5195,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Stockholm",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Stockholm",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3777,6 +5213,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Swedish Krona (SEK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SEK",
+                "name": "Swedish Krona",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3786,6 +5232,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Swedish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sv",
+                "name": "Swedish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3795,6 +5250,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,569,709 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10569709,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3859,6 +5319,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bern",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bern",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3868,6 +5337,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Swiss Franc (CHF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "CHF",
+                "name": "Swiss Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3877,6 +5356,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "German, French, Italian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "de",
+                "name": "German"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "it",
+                "name": "Italian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3886,6 +5382,11 @@
         {
           "type": "POPULATION",
           "displayValue": "9,005,582 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 9005582,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3950,6 +5451,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kyiv",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kyiv",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3959,6 +5469,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Ukrainian Hryvnia (UAH)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "UAH",
+                "name": "Ukrainian Hryvnia",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3968,6 +5488,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Ukrainian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "uk",
+                "name": "Ukrainian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3977,6 +5506,11 @@
         {
           "type": "POPULATION",
           "displayValue": "37,860,221 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 37860221,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4041,6 +5575,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "London",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "London",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4050,6 +5593,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "British Pound (GBP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GBP",
+                "name": "British Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4059,6 +5612,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4068,6 +5630,11 @@
         {
           "type": "POPULATION",
           "displayValue": "69,281,000 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 69281000,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4132,6 +5699,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Mariehamn",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Mariehamn",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4141,6 +5717,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4150,6 +5736,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Swedish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sv",
+                "name": "Swedish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4214,6 +5809,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tórshavn",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tórshavn",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4223,6 +5827,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Danish Krone (DKK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "DKK",
+                "name": "Danish Krone",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4232,6 +5846,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Faroese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fo",
+                "name": "Faroese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4241,6 +5864,11 @@
         {
           "type": "POPULATION",
           "displayValue": "54,640 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 54640,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4305,6 +5933,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Gibraltar",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Gibraltar",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4314,6 +5951,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Gibraltar Pound (GIP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GIP",
+                "name": "Gibraltar Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4323,6 +5970,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4332,6 +5988,11 @@
         {
           "type": "POPULATION",
           "displayValue": "39,329 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 39329,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4396,6 +6057,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "St. Peter Port",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "St. Peter Port",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4405,6 +6075,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "British Pound (GBP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GBP",
+                "name": "British Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4414,6 +6094,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4478,6 +6171,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Douglas",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Douglas",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4487,6 +6189,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "British Pound (GBP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GBP",
+                "name": "British Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4496,6 +6208,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Manx",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "gv",
+                "name": "Manx"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4505,6 +6230,11 @@
         {
           "type": "POPULATION",
           "displayValue": "84,160 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 84160,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4569,6 +6299,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Saint Helier",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Saint Helier",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4578,6 +6317,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "British Pound (GBP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GBP",
+                "name": "British Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4587,6 +6336,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4651,6 +6413,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Longyearbyen",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Longyearbyen",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4660,6 +6431,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Norwegian Krone (NOK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NOK",
+                "name": "Norwegian Krone",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4669,6 +6450,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Norwegian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "no",
+                "name": "Norwegian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",

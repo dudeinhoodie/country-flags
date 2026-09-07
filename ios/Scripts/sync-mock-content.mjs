@@ -11,23 +11,31 @@
 // documents keyed by content key become API responses keyed by UUID — so the
 // mock serves the real release without a database. It is a projection, not a
 // second source of truth: everything here is derived from
-// content/generated/<version>, and --check fails when the committed output
-// drifts from it.
+// content/generated/<version> through Scripts/lib/content-release.mjs, which
+// the bundled catalogue is projected through as well, and --check fails when
+// the committed output drifts from it.
 //
 //   node ios/Scripts/sync-mock-content.mjs           update the served release
 //   node ios/Scripts/sync-mock-content.mjs --check   fail when it is stale (CI)
 
-import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-
-/// The release the Mock build serves. The same one the app bundles its flags
-/// from, which is what makes every flag resolve out of the bundle and the run
-/// need no network at all.
-const CONTENT_VERSION = "fixture-v1";
+import {
+  CONTENT_VERSION,
+  assetId,
+  cardId,
+  deckCode,
+  deckId,
+  deckMemberCards,
+  entityId,
+  factsOf,
+  liveRevision,
+  localizedText,
+  readRelease,
+  repositoryRoot,
+  stableJson,
+} from "./lib/content-release.mjs";
 
 /// The locale the mock answers in. A response carries one language because the
 /// transport answers per operation rather than per request, and the client's
@@ -35,51 +43,10 @@ const CONTENT_VERSION = "fixture-v1";
 const PRIMARY_LOCALE = "en";
 const ALIAS_LOCALE = "ru";
 
-const bundleDirectory = join(repositoryRoot, "content/generated", CONTENT_VERSION);
 const outputDirectory = join(
   repositoryRoot,
   "ios/CountryFlagsKit/Sources/CountryFlagsMockBackend/Resources/MockContent",
 );
-
-function stableJson(value) {
-  return `${JSON.stringify(value, null, 2)}\n`;
-}
-
-async function readDocument(path) {
-  return JSON.parse(await readFile(join(bundleDirectory, path), "utf8"));
-}
-
-/// The backend allocates content identifiers in its database, so nothing maps a
-/// content key to a UUID outside one deployment. The mock derives them instead,
-/// by the same construction the publisher uses for source rows
-/// (backend/src/modules/content/bundle/bundle-mapper.ts), so a rebuild of this
-/// file does not invalidate what a previous run stored on a device.
-function deterministicUuid(seed) {
-  const bytes = Buffer.from(createHash("sha256").update(seed).digest().subarray(0, 16));
-  bytes[6] = (bytes[6] & 0x0f) | 0x50;
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
-  const hex = bytes.toString("hex");
-  return [
-    hex.slice(0, 8),
-    hex.slice(8, 12),
-    hex.slice(12, 16),
-    hex.slice(16, 20),
-    hex.slice(20),
-  ].join("-");
-}
-
-/// A deck is published under its content key, and the contract requires a code
-/// of `^[A-Z][A-Z0-9_]*$`, so `deck.europe` is served as `EUROPE`.
-function deckCode(key) {
-  return key
-    .replace(/^deck\./u, "")
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/gu, "_");
-}
-
-function localizedName(names, locale) {
-  return names[locale] ?? names[PRIMARY_LOCALE] ?? Object.values(names)[0];
-}
 
 function buildManifest(manifest) {
   const { $schema, ...served } = manifest;
@@ -94,7 +61,7 @@ function buildManifest(manifest) {
 
 function buildAsset(asset, assetBaseUrl) {
   return {
-    id: deterministicUuid(`content-asset:${asset.key}`),
+    id: assetId(asset.key),
     type: "FLAG",
     // Contract v2: an encoding is described in `representations` and nowhere
     // else. The asset used to repeat its vector here, and the release stopped
@@ -117,17 +84,30 @@ function buildAsset(asset, assetBaseUrl) {
   };
 }
 
+/// One fact as the contract carries it: the composed line and the parts.
+///
+/// Both, deliberately, the way `mapBackSideFacts` sends both — the line keeps
+/// an older client whole while the parts let the screen word the fact itself.
+/// The publisher never records an observation day, only when the value was
+/// retrieved, so the card reports none; for a population the year is part of
+/// the parts instead.
+function servedFact({ type, displayValue, details, source }) {
+  return {
+    type,
+    displayValue,
+    ...(details === null ? {} : { details }),
+    observedAt: null,
+    source,
+  };
+}
+
 function buildCard({ card, entity, asset, assetBaseUrl, template, facts }) {
-  // The revision a client is served is the live one; a retired revision is
-  // history the change feed carries rather than something to study.
-  const revision = card.revisions
-    .filter(({ retiredAt }) => retiredAt === null)
-    .sort((left, right) => right.revision - left.revision)[0];
-  const primary = localizedName(entity.names, PRIMARY_LOCALE);
-  const alias = localizedName(entity.names, ALIAS_LOCALE);
+  const revision = liveRevision(card);
+  const primary = localizedText(entity.names, PRIMARY_LOCALE, PRIMARY_LOCALE);
+  const alias = localizedText(entity.names, ALIAS_LOCALE, PRIMARY_LOCALE);
 
   return {
-    id: deterministicUuid(`content-card:${card.entityKey}:${card.semanticVersion}`),
+    id: cardId(card),
     templateCode: card.templateCode,
     templateSchemaVersion: card.templateSchemaVersion,
     semanticVersion: card.semanticVersion,
@@ -135,144 +115,15 @@ function buildCard({ card, entity, asset, assetBaseUrl, template, facts }) {
     answerMode: template.gradingMode.toUpperCase(),
     prompt: { asset: buildAsset(asset, assetBaseUrl) },
     answer: {
-      entityId: deterministicUuid(`content-entity:${entity.key}`),
+      entityId: entityId(entity.key),
       displayName: primary.short,
       // The read path treats every other name the release carries for the
       // entity as an alias, which is what lets a quiz accept either language.
       aliases: alias.short === primary.short ? [] : [alias.short],
     },
-    backSideFacts: facts,
+    backSideFacts: facts.map(servedFact),
     contentVersion: CONTENT_VERSION,
   };
-}
-
-/// The sources the pipeline names, as the publisher records them
-/// (backend/src/modules/content/bundle/bundle-mapper.ts). A key with no entry
-/// falls back the same way the publisher's does.
-const SOURCES = {
-  annexare: { name: "annexare/Countries", url: "https://github.com/annexare/Countries" },
-  cldr: { name: "Unicode CLDR", url: "https://github.com/unicode-org/cldr-json" },
-  "world-bank": { name: "World Bank Open Data", url: "https://data.worldbank.org/" },
-  wikidata: { name: "Wikidata", url: "https://www.wikidata.org/" },
-  "flag-icons": { name: "lipis/flag-icons", url: "https://github.com/lipis/flag-icons" },
-  editorial: {
-    name: "Country Flags editorial overrides",
-    url: "https://country-flags.app/content/editorial",
-  },
-};
-
-const FACT_TYPES = {
-  capitals: "CAPITAL",
-  currencies: "CURRENCY",
-  languages: "LANGUAGE",
-  population: "POPULATION",
-};
-
-const languageNames = new Intl.DisplayNames([PRIMARY_LOCALE], {
-  type: "language",
-  fallback: "none",
-});
-
-/// A name as a label rather than as a word in a sentence: English capitalises
-/// a language or a currency lexically while CLDR gives the Russian common noun
-/// in its dictionary form, and the same card should not look unfinished in one
-/// locale. Mirrors `capitalized` in fact-display.ts.
-function capitalized(name, locale) {
-  const [first] = name;
-  if (first === undefined) return name;
-  const upper = first.toLocaleUpperCase(locale);
-  return upper === first ? name : upper + name.slice(first.length);
-}
-
-/// The same rendering the API performs on read
-/// (backend/src/modules/content/fact-display.ts). A value whose shape is not
-/// recognised yields null and the fact is left out, because a card that
-/// reported its own JSON is the defect this exists to end.
-function factDisplayValue(factType, value) {
-  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
-    if (typeof value.displayValue === "string" && value.displayValue.length > 0) {
-      return value.displayValue;
-    }
-  }
-  const entries = Array.isArray(value) ? value : [];
-  const join = (values) => (values.length > 0 ? values.join(", ") : null);
-
-  switch (factType) {
-    case "CAPITAL":
-      return join(
-        entries
-          .filter((seat) => seat.role === undefined || seat.role === "official")
-          // `name` is the shape releases published before the seat carried a
-          // name map still hold, and the API keeps reading it too.
-          .map((seat) => seat.names?.[PRIMARY_LOCALE] ?? seat.name)
-          .filter((name) => typeof name === "string")
-          .map((name) => capitalized(name, PRIMARY_LOCALE)),
-      );
-    case "POPULATION": {
-      if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
-      if (typeof value.value !== "number" || !Number.isFinite(value.value)) return null;
-      const formatted = new Intl.NumberFormat(PRIMARY_LOCALE).format(value.value);
-      return typeof value.year === "number" ? `${formatted} (${String(value.year)})` : formatted;
-    }
-    case "CURRENCY":
-      return join(
-        entries
-          .filter((entry) => entry.role === undefined || entry.role === "legal_tender")
-          .map((entry) => {
-            if (typeof entry.code !== "string") return null;
-            const name = entry.names?.[PRIMARY_LOCALE];
-            return typeof name === "string" && name.length > 0
-              ? `${capitalized(name, PRIMARY_LOCALE)} (${entry.code})`
-              : entry.code;
-          })
-          .filter((entry) => entry !== null),
-      );
-    case "LANGUAGE":
-      return join(
-        entries
-          .map((entry) => {
-            const published = entry.names?.[PRIMARY_LOCALE];
-            if (typeof published === "string" && published.length > 0) {
-              return published;
-            }
-            if (typeof entry.code !== "string") return null;
-            try {
-              return languageNames.of(entry.code) ?? null;
-            } catch {
-              return null;
-            }
-          })
-          .filter((name) => name !== null)
-          .map((name) => capitalized(name, PRIMARY_LOCALE)),
-      );
-    default:
-      return null;
-  }
-}
-
-/// The facts of one entity, ordered by type as the API orders them.
-function backSideFacts(factsByEntity, entityKey) {
-  return (factsByEntity.get(entityKey) ?? [])
-    .map(({ factType, record }) => {
-      const displayValue = factDisplayValue(factType, record.value);
-      if (displayValue === null) return null;
-      const source = SOURCES[record.provenance?.sourceKey] ?? {
-        name: record.provenance?.sourceKey ?? "unknown",
-        url: `https://country-flags.app/content-sources/${record.provenance?.sourceKey ?? "unknown"}`,
-      };
-      return {
-        _type: factType,
-        displayValue,
-        // The publisher never records an observation day, only when the value
-        // was retrieved, so the card reports none. For a population the year
-        // is part of the sentence instead.
-        observedAt: null,
-        source,
-      };
-    })
-    .filter((fact) => fact !== null)
-    .sort((left, right) => left._type.localeCompare(right._type, "en"))
-    .map(({ _type, ...fact }) => ({ type: _type, ...fact }));
 }
 
 function page(items) {
@@ -280,45 +131,10 @@ function page(items) {
 }
 
 async function buildDocuments() {
-  const [manifest, catalog, learningCards, cardTemplates, assetRegistry] =
-    await Promise.all([
-      readDocument("manifest.json"),
-      readDocument("catalog.json"),
-      readDocument("learning-cards.json"),
-      readDocument("card-templates.json"),
-      readDocument("assets/assets.json"),
-    ]);
-
-  // The facts the release publishes about each entity, which is what the back
-  // of a card is made of. A record marked as a gap has no value to show.
-  const factsByEntity = new Map();
-  for (const [file, factType] of Object.entries(FACT_TYPES)) {
-    const collection = await readDocument(`facts/${file}.json`);
-    for (const record of collection.records) {
-      if (record.gap === true) continue;
-      const existing = factsByEntity.get(record.entityKey) ?? [];
-      existing.push({ factType, record });
-      factsByEntity.set(record.entityKey, existing);
-    }
-  }
-
+  const release = await readRelease();
+  const { manifest, catalog, entities, assets, templates, cardsByVariant } =
+    release;
   const assetBaseUrl = manifest.assetBaseUrl;
-  const entities = new Map(catalog.entities.map((entity) => [entity.key, entity]));
-  const assets = new Map(assetRegistry.assets.map((asset) => [asset.key, asset]));
-  const templates = new Map(
-    cardTemplates.templates.map((template) => [template.code, template]),
-  );
-  // Keyed by the variant, because one entity is several questions: a card
-  // index keyed by the entity would serve a country's coat of arms wherever
-  // its flag was asked for.
-  const cardsByVariant = new Map(
-    learningCards.cards
-      .filter(({ status }) => status === "active")
-      .map((card) => [
-        `${card.entityKey}:${card.templateCode}:${card.templateSchemaVersion}`,
-        card,
-      ]),
-  );
 
   const documents = new Map();
   documents.set("manifest.json", buildManifest(manifest));
@@ -334,35 +150,27 @@ async function buildDocuments() {
   const decks = [];
   for (const deck of catalog.decks) {
     const code = deckCode(deck.key);
-    // The deck declares its members in a fixed order, and that order is what a
-    // learner walks the deck in.
-    const cards = deck.memberCards
-      .map((member) =>
-        cardsByVariant.get(
-          `${member.entityKey}:${member.templateCode}:${member.templateSchemaVersion}`,
-        ),
-      )
-      .filter((card) => card !== undefined)
-      .map((card) => {
-        const entity = entities.get(card.entityKey);
-        const revision = card.revisions.find(({ retiredAt }) => retiredAt === null);
-        const asset = assets.get(revision.promptAssetKey);
-        if (entity === undefined || asset === undefined) {
-          throw new Error(`${card.entityKey} refers to content the release does not publish`);
-        }
-        return buildCard({
-          card,
-          entity,
-          asset,
-          assetBaseUrl,
-          template: templates.get(card.templateCode),
-          facts: backSideFacts(factsByEntity, card.entityKey),
-        });
+    const cards = deckMemberCards(deck, cardsByVariant).map((card) => {
+      const entity = entities.get(card.entityKey);
+      const asset = assets.get(liveRevision(card).promptAssetKey);
+      if (entity === undefined || asset === undefined) {
+        throw new Error(
+          `${card.entityKey} refers to content the release does not publish`,
+        );
+      }
+      return buildCard({
+        card,
+        entity,
+        asset,
+        assetBaseUrl,
+        template: templates.get(card.templateCode),
+        facts: factsOf(release.factsByEntity, card.entityKey, PRIMARY_LOCALE),
       });
+    });
 
-    const names = localizedName(deck.names, PRIMARY_LOCALE);
+    const names = localizedText(deck.names, PRIMARY_LOCALE, PRIMARY_LOCALE);
     decks.push({
-      id: deterministicUuid(`content-deck:${deck.key}`),
+      id: deckId(deck.key),
       code,
       kind: deck.kind.toUpperCase(),
       name: names.name,
@@ -382,12 +190,12 @@ const checkOnly = process.argv.includes("--check");
 const documents = await buildDocuments();
 
 if (checkOnly) {
-  const committed = new Set(
-    await readdir(outputDirectory).catch(() => []),
-  );
+  const committed = new Set(await readdir(outputDirectory).catch(() => []));
   const stale = [];
   for (const [name, document] of documents) {
-    const current = await readFile(join(outputDirectory, name), "utf8").catch(() => "");
+    const current = await readFile(join(outputDirectory, name), "utf8").catch(
+      () => "",
+    );
     if (current !== stableJson(document)) {
       stale.push(name);
     }

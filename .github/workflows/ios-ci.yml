@@ -92,6 +92,13 @@ jobs:
       - name: Check the bundled flag set
         run: node Scripts/sync-flag-assets.mjs --check
 
+      # The catalogue the app opens on before any network answers is projected
+      # from the same release. A committed snapshot that drifted from it would
+      # be a catalogue no release ever published, seeded onto every first
+      # launch.
+      - name: Check the bundled catalogue
+        run: node Scripts/sync-bundled-catalog.mjs --check
+
       # The Mock build serves a projection of the same release rather than a
       # second, hand-written catalogue, and a projection that drifted from it
       # would be exactly the hand-written catalogue again.

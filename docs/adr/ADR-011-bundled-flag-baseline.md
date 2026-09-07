@@ -122,6 +122,17 @@ The baseline is therefore scoped, not abandoned:
 This is about not giving paid artwork away in a free binary. It is not a
 protection against a modified client, and this ADR does not claim one.
 
+## Addendum 2026-09-07 — the catalogue is bundled too
+
+This ADR bundled the drawings and left the catalogue they belong to on the
+network, so "the first launch renders flags with no network" was only half
+true: there was nothing to draw them for. The other half —
+`BundledCatalog.json`, generated from the same pinned release, seeded into an
+empty store before the network is touched and superseded whole by the first
+successful sync — is
+[ADR-021](./ADR-021-bundled-catalogue-snapshot.md), which follows every rule
+set out here and adds one of its own about identifier spaces.
+
 ## Addendum 2026-09-05 — paid delivery is private and deck-scoped
 
 The existing stable public CDN path remains valid only for assets reachable

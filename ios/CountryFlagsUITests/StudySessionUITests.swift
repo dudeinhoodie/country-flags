@@ -127,10 +127,21 @@ final class StudySessionUITests: XCTestCase {
         )
     }
 
+    /// Opens the hero deck and waits for the screen behind it to be drawable.
+    ///
+    /// The wait is on the deck screen rather than on the row: the catalogue is
+    /// on screen from the first frame now that the app seeds itself from the
+    /// bundle, so a tap can land before the deck's own screen has read its
+    /// cards. Tapping `study.start` without waiting for it used to work only
+    /// because nothing was tappable until the whole release had downloaded.
     private func openDeck(in app: XCUIApplication) {
         let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
         deck.tap()
+        XCTAssertTrue(
+            app.buttons["study.start"].waitForExistence(timeout: 30),
+            app.debugDescription
+        )
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {

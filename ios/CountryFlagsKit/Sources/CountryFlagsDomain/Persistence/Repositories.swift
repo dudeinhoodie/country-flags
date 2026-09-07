@@ -45,6 +45,18 @@ public protocol ContentRepository: Sendable {
     func commitRelease(manifest: ContentManifestRecord) async throws
 
     func decks() async throws -> [DeckRecord]
+    /// One deck by identifier, whatever release it belongs to.
+    ///
+    /// The same reason `card(id:)` ignores the release: a screen is opened
+    /// with the identifier the catalogue had a moment ago, and a release that
+    /// landed in between must not turn it into nothing. What the caller does
+    /// with a deck of a superseded release is the caller's business — the
+    /// answer here is only "this is which deck that was".
+    ///
+    /// The default answers from the current release, which is what a store
+    /// that holds one release can say. A store that keeps the others answers
+    /// better.
+    func deck(id: UUID) async throws -> DeckRecord?
     func cards(inDeck deckID: UUID) async throws -> [LearningCardRecord]
     /// One card by identifier, retired or not: a running session holds cards
     /// the current release may already have retired, and their backs still
@@ -128,6 +140,10 @@ public struct RemovedDeckContent: Hashable, Sendable {
 }
 
 extension ContentRepository {
+    public func deck(id: UUID) async throws -> DeckRecord? {
+        try await decks().first { $0.id == id }
+    }
+
     /// One entity per distinct subject, and a card whose entity the device
     /// does not hold is left out rather than guessed at — the caller reads a
     /// missing card as `CardSubjectKind.unresolved`, which is what a card

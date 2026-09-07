@@ -100,6 +100,12 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
     /// for, and the people who fix it have to see it whether or not analytics
     /// was allowed.
     private let errors: (any ErrorReporting)?
+    /// The catalogue this build ships, read only when the store is empty.
+    ///
+    /// A closure so the document is decoded at the one moment it can be used —
+    /// a device that already has a release never pays for it — and so a build
+    /// with no bundled catalogue, or a test that wants none, passes nothing.
+    private let bundledCatalog: @Sendable () -> BundledContentSeed?
 
     private var status = ContentSyncStatus()
     /// Templates already reported, by `CODE@vN`. Once per pair per run: a
@@ -116,7 +122,8 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         appVersion: String,
         pageLimit: Int = 100,
         entitlementKeys: @escaping @Sendable () async -> Set<String> = { [] },
-        errors: (any ErrorReporting)? = nil
+        errors: (any ErrorReporting)? = nil,
+        bundledCatalog: @escaping @Sendable () -> BundledContentSeed? = { nil }
     ) {
         self.service = service
         self.repository = repository
@@ -127,6 +134,29 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         self.pageLimit = pageLimit
         self.entitlementKeys = entitlementKeys
         self.errors = errors
+        self.bundledCatalog = bundledCatalog
+    }
+
+    /// The catalogue this build ships, in the language this device reads and
+    /// at the scale its screen draws.
+    ///
+    /// Handed to `bundledCatalog:` by the composition. It is a factory rather
+    /// than a default argument because the answer depends on the device, and
+    /// the decoding happens inside the closure so a device that already holds
+    /// a release never reads the document at all.
+    public static func shippedCatalog(
+        preferredLanguages: [String] = Locale.preferredLanguages,
+        displayScale: Double,
+        dates: any DateProviding = SystemDateProvider()
+    ) -> @Sendable () -> BundledContentSeed? {
+        {
+            BundledCatalog.shipped()?
+                .seed(
+                    preferredLanguages: preferredLanguages,
+                    displayScale: displayScale,
+                    at: dates.now()
+                )
+        }
     }
 
     /// Downloads the cards of one deck that has just become openable.
@@ -205,6 +235,63 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
     }
 
     public func currentStatus() -> ContentSyncStatus { status }
+
+    /// Fills an empty store from the catalogue this build ships.
+    ///
+    /// The first launch used to sit on a blocking screen until a request
+    /// timed out and then say "you are offline" over three empty tabs, with
+    /// the flags of the same release already in the bundle and nothing to draw
+    /// them for (#301). This puts the catalogue beside them.
+    ///
+    /// Two rules make it safe to call on every launch:
+    ///
+    /// - it does nothing when a manifest is stored. Whatever is there came
+    ///   from the server or from an earlier seed, and either way the bundle
+    ///   has nothing to add;
+    /// - what it writes is stored under a content version of its own, so the
+    ///   first successful synchronisation supersedes it whole rather than
+    ///   merging with it. The identifiers here are derived from content keys
+    ///   and a server allocates its own, so the two releases must never be
+    ///   readable at the same time.
+    ///
+    /// It writes content and only content. Progress lives in a store of its
+    /// own, keyed by card, scoped to an account, and nothing here touches it.
+    public func seedFromBundleIfEmpty() async {
+        guard (try? await repository.currentManifest()) == nil else { return }
+        guard let seed = bundledCatalog() else { return }
+        do {
+            // The page first and the manifest after, because the manifest is
+            // what makes a release readable: an interruption between them
+            // leaves a store that still has no current release, and the next
+            // launch seeds again over the same rows.
+            try await repository.applyStagedPage(
+                seed.page,
+                staging: ContentStagingState(
+                    contentVersion: seed.manifest.contentVersion,
+                    stage: .ready,
+                    cursor: nil,
+                    pendingDeckIDs: [],
+                    updatedAt: dates.now()
+                )
+            )
+            try await repository.commitRelease(manifest: seed.manifest)
+            logger.log(
+                .info,
+                .content,
+                "Seeded the catalogue this build ships",
+                [
+                    "contentVersion": .safe(seed.manifest.contentVersion),
+                    "decks": .count(seed.page.decks.count),
+                    "cards": .count(seed.page.cards.count),
+                ]
+            )
+        } catch {
+            // A store that would not take the seed is a store the download
+            // will not fill either, and the sync that follows reports that in
+            // terms the screen already knows.
+            logger.log(.error, .content, "Could not seed the bundled catalogue")
+        }
+    }
 
     /// Restores the status a screen should show before any network call.
     ///

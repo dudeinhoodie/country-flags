@@ -55,6 +55,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Port-aux-Français",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Port-aux-Français",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -64,6 +73,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -73,6 +92,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -137,6 +165,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Algiers",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Algiers",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -146,6 +183,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Algerian Dinar (DZD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "DZD",
+                "name": "Algerian Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -155,6 +202,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -164,6 +220,11 @@
         {
           "type": "POPULATION",
           "displayValue": "46,814,308 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 46814308,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -228,6 +289,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Luanda",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Luanda",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -237,6 +307,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Angolan Kwanza (AOA)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AOA",
+                "name": "Angolan Kwanza",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -246,6 +326,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Portuguese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "pt",
+                "name": "Portuguese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -255,6 +344,11 @@
         {
           "type": "POPULATION",
           "displayValue": "37,885,849 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 37885849,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -319,6 +413,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Porto-Novo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Porto-Novo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -328,6 +431,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "West African CFA Franc (XOF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XOF",
+                "name": "West African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -337,6 +450,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -346,6 +468,11 @@
         {
           "type": "POPULATION",
           "displayValue": "14,462,724 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 14462724,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -410,6 +537,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Gaborone",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Gaborone",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -419,6 +555,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Botswanan Pula (BWP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "BWP",
+                "name": "Botswanan Pula",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -428,6 +574,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Tswana",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "tn",
+                "name": "Tswana"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -437,6 +596,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,521,139 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2521139,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -501,6 +665,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Ouagadougou",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Ouagadougou",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -510,6 +683,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "West African CFA Franc (XOF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XOF",
+                "name": "West African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -519,6 +702,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Fula",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "ff",
+                "name": "Fula"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -528,6 +724,11 @@
         {
           "type": "POPULATION",
           "displayValue": "23,548,781 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 23548781,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -592,6 +793,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Gitega",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Gitega",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -601,6 +811,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Burundian Franc (BIF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "BIF",
+                "name": "Burundian Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -610,6 +830,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Rundi",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "rn",
+                "name": "Rundi"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -619,6 +852,11 @@
         {
           "type": "POPULATION",
           "displayValue": "14,047,786 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 14047786,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -683,6 +921,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Praia",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Praia",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -692,6 +939,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Cape Verdean Escudo (CVE)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "CVE",
+                "name": "Cape Verdean Escudo",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -701,6 +958,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Portuguese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "pt",
+                "name": "Portuguese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -710,6 +976,11 @@
         {
           "type": "POPULATION",
           "displayValue": "524,877 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 524877,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -774,6 +1045,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Yaoundé",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Yaoundé",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -783,6 +1063,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Central African CFA Franc (XAF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XAF",
+                "name": "Central African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -792,6 +1082,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -801,6 +1104,11 @@
         {
           "type": "POPULATION",
           "displayValue": "29,123,744 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 29123744,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -865,6 +1173,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bangui",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bangui",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -874,6 +1191,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Central African CFA Franc (XAF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XAF",
+                "name": "Central African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -883,6 +1210,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Sango",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "sg",
+                "name": "Sango"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -892,6 +1232,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,330,690 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5330690,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -956,6 +1301,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "N'Djamena",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "N'Djamena",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -965,6 +1319,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Central African CFA Franc (XAF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XAF",
+                "name": "Central African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -974,6 +1338,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -983,6 +1360,11 @@
         {
           "type": "POPULATION",
           "displayValue": "20,299,123 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 20299123,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1047,6 +1429,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Moroni",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Moroni",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1056,6 +1447,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Comorian Franc (KMF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "KMF",
+                "name": "Comorian Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1065,6 +1466,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic, French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1074,6 +1488,11 @@
         {
           "type": "POPULATION",
           "displayValue": "866,628 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 866628,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1138,6 +1557,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Brazzaville",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Brazzaville",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1147,6 +1575,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Central African CFA Franc (XAF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XAF",
+                "name": "Central African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1156,6 +1594,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Lingala",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "ln",
+                "name": "Lingala"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1165,6 +1616,11 @@
         {
           "type": "POPULATION",
           "displayValue": "6,332,961 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 6332961,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1229,6 +1685,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Yamoussoukro",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Yamoussoukro",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1238,6 +1703,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "West African CFA Franc (XOF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XOF",
+                "name": "West African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1247,6 +1722,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1256,6 +1740,11 @@
         {
           "type": "POPULATION",
           "displayValue": "31,934,230 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 31934230,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1320,6 +1809,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kinshasa",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kinshasa",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1329,6 +1827,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Congolese Franc (CDF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "CDF",
+                "name": "Congolese Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1338,6 +1846,31 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Lingala, Kongo, Swahili, Luba-Katanga",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "ln",
+                "name": "Lingala"
+              },
+              {
+                "code": "kg",
+                "name": "Kongo"
+              },
+              {
+                "code": "sw",
+                "name": "Swahili"
+              },
+              {
+                "code": "lu",
+                "name": "Luba-Katanga"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1347,6 +1880,11 @@
         {
           "type": "POPULATION",
           "displayValue": "109,276,265 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 109276265,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1411,6 +1949,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Djibouti",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Djibouti",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1420,6 +1967,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Djiboutian Franc (DJF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "DJF",
+                "name": "Djiboutian Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1429,6 +1986,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1438,6 +2008,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,168,722 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1168722,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1502,6 +2077,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Cairo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Cairo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1511,6 +2095,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Egyptian Pound (EGP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EGP",
+                "name": "Egyptian Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1520,6 +2114,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1529,6 +2132,11 @@
         {
           "type": "POPULATION",
           "displayValue": "116,538,258 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 116538258,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1593,6 +2201,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Malabo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Malabo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1602,6 +2219,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Central African CFA Franc (XAF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XAF",
+                "name": "Central African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1611,6 +2238,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Spanish, French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "es",
+                "name": "Spanish"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1620,6 +2260,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,892,516 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1892516,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1684,6 +2329,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Asmara",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Asmara",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1693,6 +2347,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Eritrean Nakfa (ERN)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "ERN",
+                "name": "Eritrean Nakfa",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1702,6 +2366,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Tigrinya, Arabic, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ti",
+                "name": "Tigrinya"
+              },
+              {
+                "code": "ar",
+                "name": "Arabic"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1711,6 +2392,11 @@
         {
           "type": "POPULATION",
           "displayValue": "3,535,603 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 3535603,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1775,6 +2461,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Lobamba",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Lobamba",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1784,6 +2479,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Swazi Lilangeni (SZL)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SZL",
+                "name": "Swazi Lilangeni",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1793,6 +2498,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Swati",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "ss",
+                "name": "Swati"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1802,6 +2520,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,242,822 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1242822,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1866,6 +2589,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Addis Ababa",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Addis Ababa",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1875,6 +2607,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Ethiopian Birr (ETB)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "ETB",
+                "name": "Ethiopian Birr",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1884,6 +2626,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Amharic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "am",
+                "name": "Amharic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1893,6 +2644,11 @@
         {
           "type": "POPULATION",
           "displayValue": "132,059,767 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 132059767,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1957,6 +2713,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Libreville",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Libreville",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1966,6 +2731,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Central African CFA Franc (XAF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XAF",
+                "name": "Central African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1975,6 +2750,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1984,6 +2768,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,538,952 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2538952,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2048,6 +2837,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Banjul",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Banjul",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2057,6 +2855,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Gambian Dalasi (GMD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GMD",
+                "name": "Gambian Dalasi",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2066,6 +2874,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2075,6 +2892,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,759,988 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2759988,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2139,6 +2961,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Accra",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Accra",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2148,6 +2979,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Ghanaian Cedi (GHS)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GHS",
+                "name": "Ghanaian Cedi",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2157,6 +2998,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2166,6 +3016,11 @@
         {
           "type": "POPULATION",
           "displayValue": "34,427,414 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 34427414,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2230,6 +3085,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Conakry",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Conakry",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2239,6 +3103,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Guinean Franc (GNF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GNF",
+                "name": "Guinean Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2248,6 +3122,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Fula",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "ff",
+                "name": "Fula"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2257,6 +3144,11 @@
         {
           "type": "POPULATION",
           "displayValue": "14,754,785 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 14754785,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2321,6 +3213,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bissau",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bissau",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2330,6 +3231,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "West African CFA Franc (XOF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XOF",
+                "name": "West African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2339,6 +3250,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Portuguese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "pt",
+                "name": "Portuguese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2348,6 +3268,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,201,352 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2201352,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2412,6 +3337,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Nairobi",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Nairobi",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2421,6 +3355,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Kenyan Shilling (KES)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "KES",
+                "name": "Kenyan Shilling",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2430,6 +3374,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Swahili",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "sw",
+                "name": "Swahili"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2439,6 +3396,11 @@
         {
           "type": "POPULATION",
           "displayValue": "56,432,944 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 56432944,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2503,6 +3465,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Maseru",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Maseru",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2512,6 +3483,21 @@
         {
           "type": "CURRENCY",
           "displayValue": "Lesotho Loti (LSL), South African Rand (ZAR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "LSL",
+                "name": "Lesotho Loti",
+                "role": "legal_tender"
+              },
+              {
+                "code": "ZAR",
+                "name": "South African Rand",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2521,6 +3507,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Southern Sotho",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "st",
+                "name": "Southern Sotho"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2530,6 +3529,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,337,423 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2337423,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2594,6 +3598,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Monrovia",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Monrovia",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2603,6 +3616,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Liberian Dollar (LRD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "LRD",
+                "name": "Liberian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2612,6 +3635,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2621,6 +3653,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,612,817 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5612817,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2685,6 +3722,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tripoli",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tripoli",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2694,6 +3740,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Libyan Dinar (LYD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "LYD",
+                "name": "Libyan Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2703,6 +3759,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2712,6 +3777,11 @@
         {
           "type": "POPULATION",
           "displayValue": "7,381,023 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 7381023,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2776,6 +3846,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Antananarivo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Antananarivo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2785,6 +3864,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Malagasy Ariary (MGA)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MGA",
+                "name": "Malagasy Ariary",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2794,6 +3883,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, Malagasy",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "mg",
+                "name": "Malagasy"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2803,6 +3905,11 @@
         {
           "type": "POPULATION",
           "displayValue": "31,964,956 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 31964956,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2867,6 +3974,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Lilongwe",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Lilongwe",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2876,6 +3992,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Malawian Kwacha (MWK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MWK",
+                "name": "Malawian Kwacha",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2885,6 +4011,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Nyanja",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "ny",
+                "name": "Nyanja"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2894,6 +4033,11 @@
         {
           "type": "POPULATION",
           "displayValue": "21,655,286 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 21655286,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2958,6 +4102,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bamako",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bamako",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2967,6 +4120,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "West African CFA Franc (XOF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XOF",
+                "name": "West African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2976,6 +4139,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2985,6 +4157,11 @@
         {
           "type": "POPULATION",
           "displayValue": "24,478,595 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 24478595,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3049,6 +4226,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Nouakchott",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Nouakchott",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3058,6 +4244,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Mauritanian Ouguiya (MRU)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MRU",
+                "name": "Mauritanian Ouguiya",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3067,6 +4263,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3076,6 +4281,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,169,395 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5169395,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3140,6 +4350,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Port Louis",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Port Louis",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3149,6 +4368,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Mauritian Rupee (MUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MUR",
+                "name": "Mauritian Rupee",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3158,6 +4387,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3167,6 +4405,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,245,779 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1245779,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3231,6 +4474,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Rabat",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Rabat",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3240,6 +4492,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Moroccan Dirham (MAD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MAD",
+                "name": "Moroccan Dirham",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3249,6 +4511,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3258,6 +4529,11 @@
         {
           "type": "POPULATION",
           "displayValue": "38,081,173 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 38081173,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3322,6 +4598,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Maputo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Maputo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3331,6 +4616,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Mozambican Metical (MZN)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MZN",
+                "name": "Mozambican Metical",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3340,6 +4635,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Portuguese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "pt",
+                "name": "Portuguese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3349,6 +4653,11 @@
         {
           "type": "POPULATION",
           "displayValue": "34,631,766 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 34631766,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3413,6 +4722,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Windhoek",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Windhoek",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3422,6 +4740,21 @@
         {
           "type": "CURRENCY",
           "displayValue": "Namibian Dollar (NAD), South African Rand (ZAR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NAD",
+                "name": "Namibian Dollar",
+                "role": "legal_tender"
+              },
+              {
+                "code": "ZAR",
+                "name": "South African Rand",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3431,6 +4764,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Afrikaans",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "af",
+                "name": "Afrikaans"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3440,6 +4786,11 @@
         {
           "type": "POPULATION",
           "displayValue": "3,030,131 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 3030131,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3504,6 +4855,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Niamey",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Niamey",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3513,6 +4873,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "West African CFA Franc (XOF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XOF",
+                "name": "West African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3522,6 +4892,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3531,6 +4910,11 @@
         {
           "type": "POPULATION",
           "displayValue": "27,032,412 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 27032412,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3595,6 +4979,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Abuja",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Abuja",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3604,6 +4997,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Nigerian Naira (NGN)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NGN",
+                "name": "Nigerian Naira",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3613,6 +5016,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3622,6 +5034,11 @@
         {
           "type": "POPULATION",
           "displayValue": "232,679,478 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 232679478,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3686,6 +5103,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kigali",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kigali",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3695,6 +5121,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Rwandan Franc (RWF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "RWF",
+                "name": "Rwandan Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3704,6 +5140,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Kinyarwanda, English, French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "rw",
+                "name": "Kinyarwanda"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3713,6 +5166,11 @@
         {
           "type": "POPULATION",
           "displayValue": "14,256,567 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 14256567,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3777,6 +5235,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "São Tomé",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "São Tomé",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3786,6 +5253,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "São Tomé & Príncipe Dobra (STN)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "STN",
+                "name": "São Tomé & Príncipe Dobra",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3795,6 +5272,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Portuguese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "pt",
+                "name": "Portuguese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3804,6 +5290,11 @@
         {
           "type": "POPULATION",
           "displayValue": "235,536 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 235536,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3868,6 +5359,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Dakar",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Dakar",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3877,6 +5377,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "West African CFA Franc (XOF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XOF",
+                "name": "West African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3886,6 +5396,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3895,6 +5414,11 @@
         {
           "type": "POPULATION",
           "displayValue": "18,501,984 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 18501984,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3959,6 +5483,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Victoria",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Victoria",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3968,6 +5501,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Seychellois Rupee (SCR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SCR",
+                "name": "Seychellois Rupee",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3977,6 +5520,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3986,6 +5542,11 @@
         {
           "type": "POPULATION",
           "displayValue": "121,354 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 121354,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4050,6 +5611,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Freetown",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Freetown",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4059,6 +5629,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Sierra Leonean Leone (SLE)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SLE",
+                "name": "Sierra Leonean Leone",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4068,6 +5648,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4077,6 +5666,11 @@
         {
           "type": "POPULATION",
           "displayValue": "8,642,022 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 8642022,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4141,6 +5735,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Mogadishu",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Mogadishu",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4150,6 +5753,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Somali Shilling (SOS)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SOS",
+                "name": "Somali Shilling",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4159,6 +5772,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Somali, Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "so",
+                "name": "Somali"
+              },
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4168,6 +5794,11 @@
         {
           "type": "POPULATION",
           "displayValue": "19,009,151 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 19009151,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4232,6 +5863,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Pretoria",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Pretoria",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4241,6 +5881,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "South African Rand (ZAR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "ZAR",
+                "name": "South African Rand",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4250,6 +5900,51 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Afrikaans, English, South Ndebele, Southern Sotho, Swati, Tswana, Tsonga, Venda, Xhosa, Zulu",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "af",
+                "name": "Afrikaans"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "nr",
+                "name": "South Ndebele"
+              },
+              {
+                "code": "st",
+                "name": "Southern Sotho"
+              },
+              {
+                "code": "ss",
+                "name": "Swati"
+              },
+              {
+                "code": "tn",
+                "name": "Tswana"
+              },
+              {
+                "code": "ts",
+                "name": "Tsonga"
+              },
+              {
+                "code": "ve",
+                "name": "Venda"
+              },
+              {
+                "code": "xh",
+                "name": "Xhosa"
+              },
+              {
+                "code": "zu",
+                "name": "Zulu"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4259,6 +5954,11 @@
         {
           "type": "POPULATION",
           "displayValue": "64,007,187 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 64007187,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4323,6 +6023,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Juba",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Juba",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4332,6 +6041,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "South Sudanese Pound (SSP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SSP",
+                "name": "South Sudanese Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4341,6 +6060,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4350,6 +6078,11 @@
         {
           "type": "POPULATION",
           "displayValue": "11,943,408 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 11943408,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4414,6 +6147,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Khartoum",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Khartoum",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4423,6 +6165,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Sudanese Pound (SDG)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SDG",
+                "name": "Sudanese Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4432,6 +6184,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4441,6 +6206,11 @@
         {
           "type": "POPULATION",
           "displayValue": "50,448,963 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 50448963,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4505,6 +6275,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Lomé",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Lomé",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4514,6 +6293,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "West African CFA Franc (XOF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XOF",
+                "name": "West African CFA Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4523,6 +6312,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4532,6 +6330,11 @@
         {
           "type": "POPULATION",
           "displayValue": "8,406,558 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 8406558,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4596,6 +6399,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tunis",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tunis",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4605,6 +6417,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Tunisian Dinar (TND)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "TND",
+                "name": "Tunisian Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4614,6 +6436,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4623,6 +6454,11 @@
         {
           "type": "POPULATION",
           "displayValue": "12,277,109 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 12277109,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4687,6 +6523,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kampala",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kampala",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4696,6 +6541,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Ugandan Shilling (UGX)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "UGX",
+                "name": "Ugandan Shilling",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4705,6 +6560,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Swahili",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "sw",
+                "name": "Swahili"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4714,6 +6582,11 @@
         {
           "type": "POPULATION",
           "displayValue": "50,015,092 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 50015092,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4778,6 +6651,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Dodoma",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Dodoma",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4787,6 +6669,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Tanzanian Shilling (TZS)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "TZS",
+                "name": "Tanzanian Shilling",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4796,6 +6688,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Swahili, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sw",
+                "name": "Swahili"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4805,6 +6710,11 @@
         {
           "type": "POPULATION",
           "displayValue": "68,560,157 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 68560157,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4869,6 +6779,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "El Aaiún",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "El Aaiún",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4878,6 +6797,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Moroccan Dirham (MAD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MAD",
+                "name": "Moroccan Dirham",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4887,6 +6816,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Spanish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "es",
+                "name": "Spanish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4951,6 +6889,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Lusaka",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Lusaka",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4960,6 +6907,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Zambian Kwacha (ZMW)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "ZMW",
+                "name": "Zambian Kwacha",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4969,6 +6926,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4978,6 +6944,11 @@
         {
           "type": "POPULATION",
           "displayValue": "21,314,956 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 21314956,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -5042,6 +7013,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Harare",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Harare",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5051,6 +7031,21 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD), Zimbabwean Gold (ZWG)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              },
+              {
+                "code": "ZWG",
+                "name": "Zimbabwean Gold",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -5060,6 +7055,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Shona, North Ndebele",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "sn",
+                "name": "Shona"
+              },
+              {
+                "code": "nd",
+                "name": "North Ndebele"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5069,6 +7081,11 @@
         {
           "type": "POPULATION",
           "displayValue": "16,634,373 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 16634373,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -5133,6 +7150,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Diego Garcia",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Diego Garcia",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5142,6 +7168,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -5151,6 +7187,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5215,6 +7260,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Mamoudzou",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Mamoudzou",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5224,6 +7278,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -5233,6 +7297,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5297,6 +7370,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Saint-Denis",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Saint-Denis",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5306,6 +7388,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -5315,6 +7407,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5379,6 +7480,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Jamestown",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Jamestown",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -5388,6 +7498,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "St. Helena Pound (SHP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SHP",
+                "name": "St. Helena Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -5397,6 +7517,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",

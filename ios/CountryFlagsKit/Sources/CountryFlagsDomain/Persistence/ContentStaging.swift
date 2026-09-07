@@ -38,6 +38,23 @@ public struct ContentPage: Hashable, Sendable {
     }
 }
 
+/// A release a build carries inside itself, ready to be stored.
+///
+/// The catalogue the app opens on before any network answers: one manifest and
+/// the records it names, produced from the same content release the bundled
+/// flags come from. It is a baseline and never the truth — the first
+/// successful synchronisation replaces it whole — so it is a value handed to
+/// the coordinator rather than anything the store distinguishes.
+public struct BundledContentSeed: Hashable, Sendable {
+    public let manifest: ContentManifestRecord
+    public let page: ContentPage
+
+    public init(manifest: ContentManifestRecord, page: ContentPage) {
+        self.manifest = manifest
+        self.page = page
+    }
+}
+
 /// Where an interrupted download resumes.
 ///
 /// It is written in the same transaction as the page it describes, which is

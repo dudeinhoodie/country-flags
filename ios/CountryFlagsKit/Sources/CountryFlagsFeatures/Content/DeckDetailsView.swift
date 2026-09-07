@@ -22,9 +22,17 @@ public struct DeckDetailsView: View {
     /// app's progress store rather than loaded here: the store is refreshed
     /// centrally after a session ends, so the offer disappears on its own.
     private var continuable: ContinuableSession? {
-        guard let session = progress?.continuable, session.deckID == deckID else { return nil }
+        guard let session = progress?.continuable, session.deckID == liveDeckID else { return nil }
         return session
     }
+    /// The identifier of the deck as the release that is current numbers it.
+    ///
+    /// Not the one this screen was opened with: a release that landed in
+    /// between renumbered every deck, and everything downstream of here — the
+    /// session that is started, the progress row that is read — belongs to the
+    /// deck the store can actually answer for. It falls back to the route's
+    /// own identifier while the deck is still being read.
+    private var liveDeckID: UUID { model.deck?.id ?? deckID }
     /// The country whose drawer is open. The same sheet the session shows on
     /// the back of a card: a learner browsing a deck asks the same question
     /// about a flag as a learner answering one, and should not get a second,
@@ -94,6 +102,11 @@ public struct DeckDetailsView: View {
                 }
         }
         .task { await model.load() }
+        // A release landing under an open screen renumbers every deck, which
+        // is what happens on every first launch now that an empty store is
+        // seeded from the bundle and superseded by the first sync. The deck is
+        // re-read rather than left holding a row that is no longer current.
+        .task(id: store.status.contentVersion) { await model.load() }
         // Which of the two commerce screens this became, once the deck is
         // known. Both report once per deck: `task` re-runs whenever a purchase
         // changes the screen underneath, and a funnel counting that would be
@@ -175,7 +188,7 @@ public struct DeckDetailsView: View {
                 hasProgress: (progressRow?.startedCards ?? 0) > 0,
                 onSignIn: { onSignIn?() },
                 onContinue: { session in
-                    onStartStudy?(deckID, session.size, session.mode)
+                    onStartStudy?(liveDeckID, session.size, session.mode)
                 }
             )
             .refreshable {
@@ -210,9 +223,9 @@ public struct DeckDetailsView: View {
                     let started = continuable?.mode ?? mode
                     Task { await commerce.recordStudyStarted(in: deck, mode: started.analytics) }
                     if let continuable {
-                        onStartStudy?(deckID, continuable.size, continuable.mode)
+                        onStartStudy?(liveDeckID, continuable.size, continuable.mode)
                     } else {
-                        onStartStudy?(deckID, sessionSize, mode)
+                        onStartStudy?(liveDeckID, sessionSize, mode)
                     }
                 }
             )
@@ -243,7 +256,7 @@ public struct DeckDetailsView: View {
     }
 
     private var progressRow: DeckProgressRow? {
-        progress?.decks.first { $0.id == deckID }
+        progress?.decks.first { $0.id == liveDeckID }
     }
 
     private var title: String {
@@ -297,9 +310,9 @@ public struct DeckDetailsView: View {
             if let onStartStudy {
                 Button(continuable == nil ? L10n.studyStart : L10n.homeContinue) {
                     if let continuable {
-                        onStartStudy(deckID, continuable.size, continuable.mode)
+                        onStartStudy(liveDeckID, continuable.size, continuable.mode)
                     } else {
-                        onStartStudy(deckID, sessionSize, mode)
+                        onStartStudy(liveDeckID, sessionSize, mode)
                     }
                 }
                 .buttonStyle(GlassProminentActionStyle())
@@ -342,7 +355,7 @@ public struct DeckDetailsView: View {
             // bottom button offers, because a block that says "training
             // waits" and answers a tap with nothing reads as broken.
             Button {
-                onStartStudy?(deckID, continuable.size, continuable.mode)
+                onStartStudy?(liveDeckID, continuable.size, continuable.mode)
             } label: {
                 GlassCard(padding: DesignTokens.Spacing.medium) {
                     HStack(spacing: DesignTokens.Spacing.medium) {

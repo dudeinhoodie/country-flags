@@ -109,6 +109,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Avarua",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Avarua",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -118,6 +127,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "New Zealand Dollar (NZD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NZD",
+                "name": "New Zealand Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -127,6 +146,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -191,6 +219,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -200,6 +238,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -264,6 +311,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Alofi",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Alofi",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -273,6 +329,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "New Zealand Dollar (NZD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NZD",
+                "name": "New Zealand Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -282,6 +348,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -346,6 +421,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -355,6 +440,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -419,6 +513,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Canberra",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Canberra",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -428,6 +531,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -437,6 +550,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -446,6 +568,11 @@
         {
           "type": "POPULATION",
           "displayValue": "27,194,286 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 27194286,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -510,6 +637,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Suva",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Suva",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -519,6 +655,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Fijian Dollar (FJD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "FJD",
+                "name": "Fijian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -528,6 +674,27 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Fijian, Hindi, Urdu",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "fj",
+                "name": "Fijian"
+              },
+              {
+                "code": "hi",
+                "name": "Hindi"
+              },
+              {
+                "code": "ur",
+                "name": "Urdu"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -537,6 +704,11 @@
         {
           "type": "POPULATION",
           "displayValue": "928,784 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 928784,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -601,6 +773,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "South Tarawa",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "South Tarawa",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -610,6 +791,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -619,6 +810,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -628,6 +828,11 @@
         {
           "type": "POPULATION",
           "displayValue": "134,518 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 134518,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -692,6 +897,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Majuro",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Majuro",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -701,6 +915,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -710,6 +934,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Marshallese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "mh",
+                "name": "Marshallese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -719,6 +956,11 @@
         {
           "type": "POPULATION",
           "displayValue": "37,548 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 37548,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -783,6 +1025,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Palikir",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Palikir",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -792,6 +1043,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -801,6 +1062,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -810,6 +1080,11 @@
         {
           "type": "POPULATION",
           "displayValue": "113,160 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 113160,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -874,6 +1149,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Yaren",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Yaren",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -883,6 +1167,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -892,6 +1186,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Nauru",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "na",
+                "name": "Nauru"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -901,6 +1208,11 @@
         {
           "type": "POPULATION",
           "displayValue": "11,947 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 11947,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -965,6 +1277,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Wellington",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Wellington",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -974,6 +1295,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "New Zealand Dollar (NZD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NZD",
+                "name": "New Zealand Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -983,6 +1314,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Māori",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "mi",
+                "name": "Māori"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -992,6 +1336,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,290,000 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5290000,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1056,6 +1405,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Ngerulmud",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Ngerulmud",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1065,6 +1423,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1074,6 +1442,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1083,6 +1460,11 @@
         {
           "type": "POPULATION",
           "displayValue": "17,695 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 17695,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1147,6 +1529,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Port Moresby",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Port Moresby",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1156,6 +1547,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Papua New Guinean Kina (PGK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "PGK",
+                "name": "Papua New Guinean Kina",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1165,6 +1566,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1174,6 +1584,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,576,502 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10576502,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1238,6 +1653,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Apia",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Apia",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1247,6 +1671,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Samoan Tala (WST)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "WST",
+                "name": "Samoan Tala",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1256,6 +1690,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Samoan, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "sm",
+                "name": "Samoan"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1265,6 +1712,11 @@
         {
           "type": "POPULATION",
           "displayValue": "218,019 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 218019,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1329,6 +1781,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Honiara",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Honiara",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1338,6 +1799,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Solomon Islands Dollar (SBD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SBD",
+                "name": "Solomon Islands Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1347,6 +1818,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1356,6 +1836,11 @@
         {
           "type": "POPULATION",
           "displayValue": "819,198 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 819198,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1420,6 +1905,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Nuku'alofa",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Nuku'alofa",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1429,6 +1923,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Tongan Paʻanga (TOP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "TOP",
+                "name": "Tongan Paʻanga",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1438,6 +1942,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Tongan",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "to",
+                "name": "Tongan"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1447,6 +1964,11 @@
         {
           "type": "POPULATION",
           "displayValue": "104,175 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 104175,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1511,6 +2033,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Funafuti",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Funafuti",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1520,6 +2051,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1529,6 +2070,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1538,6 +2088,11 @@
         {
           "type": "POPULATION",
           "displayValue": "9,646 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 9646,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1602,6 +2157,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Port Vila",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Port Vila",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1611,6 +2175,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Vanuatu Vatu (VUV)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "VUV",
+                "name": "Vanuatu Vatu",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1620,6 +2194,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Bislama, English, French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "bi",
+                "name": "Bislama"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1629,6 +2220,11 @@
         {
           "type": "POPULATION",
           "displayValue": "327,777 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 327777,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1693,6 +2289,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Pago Pago",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Pago Pago",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1702,6 +2307,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1711,6 +2326,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Samoan",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "sm",
+                "name": "Samoan"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1720,6 +2348,11 @@
         {
           "type": "POPULATION",
           "displayValue": "46,765 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 46765,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1784,6 +2417,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Flying Fish Cove",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Flying Fish Cove",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1793,6 +2435,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1802,6 +2454,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1866,6 +2527,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "West Island",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "West Island",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1875,6 +2545,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1884,6 +2564,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1948,6 +2637,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Papeetē",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Papeetē",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1957,6 +2655,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "CFP Franc (XPF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XPF",
+                "name": "CFP Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1966,6 +2674,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1975,6 +2692,11 @@
         {
           "type": "POPULATION",
           "displayValue": "281,807 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 281807,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2039,6 +2761,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Hagåtña",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Hagåtña",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2048,6 +2779,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2057,6 +2798,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Chamorro, Spanish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "ch",
+                "name": "Chamorro"
+              },
+              {
+                "code": "es",
+                "name": "Spanish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2066,6 +2824,11 @@
         {
           "type": "POPULATION",
           "displayValue": "167,777 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 167777,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2130,6 +2893,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Nouméa",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Nouméa",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2139,6 +2911,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "CFP Franc (XPF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XPF",
+                "name": "CFP Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2148,6 +2930,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2157,6 +2948,11 @@
         {
           "type": "POPULATION",
           "displayValue": "292,639 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 292639,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2221,6 +3017,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kingston",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kingston",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2230,6 +3035,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2239,6 +3054,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2303,6 +3127,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Saipan",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Saipan",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2312,6 +3145,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2321,6 +3164,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Chamorro",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "ch",
+                "name": "Chamorro"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2330,6 +3186,11 @@
         {
           "type": "POPULATION",
           "displayValue": "44,278 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 44278,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2394,6 +3255,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Adamstown",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Adamstown",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2403,6 +3273,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "New Zealand Dollar (NZD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NZD",
+                "name": "New Zealand Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2412,6 +3292,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2476,6 +3365,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Fakaofo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Fakaofo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2485,6 +3383,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "New Zealand Dollar (NZD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NZD",
+                "name": "New Zealand Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2494,6 +3402,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2558,6 +3475,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Mata-Utu",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Mata-Utu",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2567,6 +3493,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "CFP Franc (XPF)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "XPF",
+                "name": "CFP Franc",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2576,6 +3512,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",

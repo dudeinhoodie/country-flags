@@ -61,6 +61,15 @@ actor SwiftDataContentRepository: ContentRepository {
         return try modelContext.fetch(descriptor).map(Self.record)
     }
 
+    /// Unfiltered by release, the way `card(id:)` is: a screen opened with the
+    /// identifier the catalogue had a moment ago must still be able to say
+    /// which deck that was after a new release has landed.
+    func deck(id: UUID) async throws -> DeckRecord? {
+        try modelContext.fetch(
+            FetchDescriptor<StoredDeck>(predicate: #Predicate { $0.id == id })
+        ).first.map(Self.record)
+    }
+
     func cards(inDeck deckID: UUID) async throws -> [LearningCardRecord] {
         guard let version = try currentStoredManifest()?.contentVersion else { return [] }
         let memberships = try modelContext.fetch(
