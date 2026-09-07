@@ -55,6 +55,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kabul",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kabul",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -64,6 +73,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Afghan Afghani (AFN)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AFN",
+                "name": "Afghan Afghani",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -73,6 +92,27 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Pashto, Persian, Uzbek, Turkmen",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ps",
+                "name": "Pashto"
+              },
+              {
+                "code": "fa",
+                "name": "Persian"
+              },
+              {
+                "code": "uz",
+                "name": "Uzbek"
+              },
+              {
+                "code": "tk",
+                "name": "Turkmen"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -82,6 +122,11 @@
         {
           "type": "POPULATION",
           "displayValue": "42,647,492 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 42647492,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -146,6 +191,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Yerevan",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Yerevan",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -155,6 +209,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Armenian Dram (AMD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AMD",
+                "name": "Armenian Dram",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -164,6 +228,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Armenian, Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "hy",
+                "name": "Armenian"
+              },
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -173,6 +250,11 @@
         {
           "type": "POPULATION",
           "displayValue": "3,033,500 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 3033500,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -237,6 +319,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Baku",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Baku",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -246,6 +337,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Azerbaijani Manat (AZN)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AZN",
+                "name": "Azerbaijani Manat",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -255,6 +356,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Azerbaijani",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "az",
+                "name": "Azerbaijani"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -264,6 +374,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,202,830 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10202830,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -328,6 +443,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Manama",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Manama",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -337,6 +461,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Bahraini Dinar (BHD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "BHD",
+                "name": "Bahraini Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -346,6 +480,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -355,6 +498,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,588,670 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1588670,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -419,6 +567,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Dhaka",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Dhaka",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -428,6 +585,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Bangladeshi Taka (BDT)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "BDT",
+                "name": "Bangladeshi Taka",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -437,6 +604,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Bangla",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "bn",
+                "name": "Bangla"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -446,6 +622,11 @@
         {
           "type": "POPULATION",
           "displayValue": "173,562,364 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 173562364,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -510,6 +691,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Thimphu",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Thimphu",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -519,6 +709,21 @@
         {
           "type": "CURRENCY",
           "displayValue": "Bhutanese Ngultrum (BTN), Indian Rupee (INR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "BTN",
+                "name": "Bhutanese Ngultrum",
+                "role": "legal_tender"
+              },
+              {
+                "code": "INR",
+                "name": "Indian Rupee",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -528,6 +733,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Dzongkha",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "dz",
+                "name": "Dzongkha"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -537,6 +751,11 @@
         {
           "type": "POPULATION",
           "displayValue": "791,524 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 791524,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -601,6 +820,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bandar Seri Begawan",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bandar Seri Begawan",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -610,6 +838,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Brunei Dollar (BND)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "BND",
+                "name": "Brunei Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -619,6 +857,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Malay",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ms",
+                "name": "Malay"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -628,6 +875,11 @@
         {
           "type": "POPULATION",
           "displayValue": "462,721 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 462721,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -692,6 +944,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Phnom Penh",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Phnom Penh",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -701,6 +962,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Cambodian Riel (KHR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "KHR",
+                "name": "Cambodian Riel",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -710,6 +981,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Khmer",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "km",
+                "name": "Khmer"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -719,6 +999,11 @@
         {
           "type": "POPULATION",
           "displayValue": "17,638,801 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 17638801,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -783,6 +1068,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Beijing",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Beijing",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -792,6 +1086,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Chinese Yuan (CNY)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "CNY",
+                "name": "Chinese Yuan",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -801,6 +1105,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Chinese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "zh",
+                "name": "Chinese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -810,6 +1123,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,408,975,000 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1408975000,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -874,6 +1192,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Nicosia",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Nicosia",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -883,6 +1210,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -892,6 +1229,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Greek, Turkish, Armenian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "el",
+                "name": "Greek"
+              },
+              {
+                "code": "tr",
+                "name": "Turkish"
+              },
+              {
+                "code": "hy",
+                "name": "Armenian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -901,6 +1255,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,358,282 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1358282,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -965,6 +1324,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Pyongyang",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Pyongyang",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -974,6 +1342,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "North Korean Won (KPW)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "KPW",
+                "name": "North Korean Won",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -983,6 +1361,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Korean",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ko",
+                "name": "Korean"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -992,6 +1379,11 @@
         {
           "type": "POPULATION",
           "displayValue": "26,498,823 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 26498823,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1056,6 +1448,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tbilisi",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tbilisi",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1065,6 +1466,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Georgian Lari (GEL)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "GEL",
+                "name": "Georgian Lari",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1074,6 +1485,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Georgian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ka",
+                "name": "Georgian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1083,6 +1503,11 @@
         {
           "type": "POPULATION",
           "displayValue": "3,812,518 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 3812518,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1147,6 +1572,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "New Delhi",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "New Delhi",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1156,6 +1590,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Indian Rupee (INR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "INR",
+                "name": "Indian Rupee",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1165,6 +1609,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Hindi, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "hi",
+                "name": "Hindi"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1174,6 +1631,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,450,935,791 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1450935791,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1238,6 +1700,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Jakarta",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Jakarta",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1247,6 +1718,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Indonesian Rupiah (IDR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "IDR",
+                "name": "Indonesian Rupiah",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1256,6 +1737,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Indonesian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "id",
+                "name": "Indonesian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1265,6 +1755,11 @@
         {
           "type": "POPULATION",
           "displayValue": "283,487,931 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 283487931,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1329,6 +1824,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tehran",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tehran",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1338,6 +1842,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Iranian Rial (IRR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "IRR",
+                "name": "Iranian Rial",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1347,6 +1861,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Persian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fa",
+                "name": "Persian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1356,6 +1879,11 @@
         {
           "type": "POPULATION",
           "displayValue": "91,567,738 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 91567738,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1420,6 +1948,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Baghdad",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Baghdad",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1429,6 +1966,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Iraqi Dinar (IQD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "IQD",
+                "name": "Iraqi Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1438,6 +1985,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic, Kurdish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              },
+              {
+                "code": "ku",
+                "name": "Kurdish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1447,6 +2007,11 @@
         {
           "type": "POPULATION",
           "displayValue": "46,042,015 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 46042015,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1511,6 +2076,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Jerusalem",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Jerusalem",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1520,6 +2094,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Israeli New Shekel (ILS)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "ILS",
+                "name": "Israeli New Shekel",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1529,6 +2113,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Hebrew, Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "he",
+                "name": "Hebrew"
+              },
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1538,6 +2135,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,002,200 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10002200,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1602,6 +2204,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tokyo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tokyo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1611,6 +2222,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Japanese Yen (JPY)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "JPY",
+                "name": "Japanese Yen",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1620,6 +2241,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Japanese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ja",
+                "name": "Japanese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1629,6 +2259,11 @@
         {
           "type": "POPULATION",
           "displayValue": "123,975,371 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 123975371,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1693,6 +2328,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Amman",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Amman",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1702,6 +2346,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Jordanian Dinar (JOD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "JOD",
+                "name": "Jordanian Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1711,6 +2365,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1720,6 +2383,11 @@
         {
           "type": "POPULATION",
           "displayValue": "11,552,876 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 11552876,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1784,6 +2452,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Astana",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Astana",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1793,6 +2470,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Kazakhstani Tenge (KZT)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "KZT",
+                "name": "Kazakhstani Tenge",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1802,6 +2489,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Kazakh, Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "kk",
+                "name": "Kazakh"
+              },
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1811,6 +2511,11 @@
         {
           "type": "POPULATION",
           "displayValue": "20,592,571 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 20592571,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1875,6 +2580,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kuwait City",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kuwait City",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1884,6 +2598,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Kuwaiti Dinar (KWD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "KWD",
+                "name": "Kuwaiti Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1893,6 +2617,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1902,6 +2635,11 @@
         {
           "type": "POPULATION",
           "displayValue": "4,897,263 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 4897263,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -1966,6 +2704,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bishkek",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bishkek",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1975,6 +2722,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Kyrgyz Som (KGS)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "KGS",
+                "name": "Kyrgyz Som",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -1984,6 +2741,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Kyrgyz, Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ky",
+                "name": "Kyrgyz"
+              },
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -1993,6 +2763,11 @@
         {
           "type": "POPULATION",
           "displayValue": "7,221,868 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 7221868,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2057,6 +2832,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Vientiane",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Vientiane",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2066,6 +2850,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Laotian Kip (LAK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "LAK",
+                "name": "Laotian Kip",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2075,6 +2869,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Lao",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "lo",
+                "name": "Lao"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2084,6 +2887,11 @@
         {
           "type": "POPULATION",
           "displayValue": "7,769,819 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 7769819,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2148,6 +2956,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Beirut",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Beirut",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2157,6 +2974,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Lebanese Pound (LBP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "LBP",
+                "name": "Lebanese Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2166,6 +2993,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic, French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              },
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2175,6 +3015,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,805,962 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5805962,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2239,6 +3084,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kuala Lumpur",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kuala Lumpur",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2248,6 +3102,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Malaysian Ringgit (MYR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MYR",
+                "name": "Malaysian Ringgit",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2257,6 +3121,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Malay",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ms",
+                "name": "Malay"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2266,6 +3139,11 @@
         {
           "type": "POPULATION",
           "displayValue": "35,557,673 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 35557673,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2330,6 +3208,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Malé",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Malé",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2339,6 +3226,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Maldivian Rufiyaa (MVR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MVR",
+                "name": "Maldivian Rufiyaa",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2348,6 +3245,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Divehi",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "dv",
+                "name": "Divehi"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2357,6 +3263,11 @@
         {
           "type": "POPULATION",
           "displayValue": "527,799 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 527799,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2421,6 +3332,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Ulan Bator",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Ulan Bator",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2430,6 +3350,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Mongolian Tugrik (MNT)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MNT",
+                "name": "Mongolian Tugrik",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2439,6 +3369,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Mongolian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "mn",
+                "name": "Mongolian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2448,6 +3387,11 @@
         {
           "type": "POPULATION",
           "displayValue": "3,524,788 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 3524788,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2512,6 +3456,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Naypyidaw",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Naypyidaw",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2521,6 +3474,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Myanmar Kyat (MMK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MMK",
+                "name": "Myanmar Kyat",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2530,6 +3493,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Burmese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "my",
+                "name": "Burmese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2539,6 +3511,11 @@
         {
           "type": "POPULATION",
           "displayValue": "54,500,091 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 54500091,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2603,6 +3580,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Kathmandu",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Kathmandu",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2612,6 +3598,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Nepalese Rupee (NPR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NPR",
+                "name": "Nepalese Rupee",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2621,6 +3617,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Nepali",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ne",
+                "name": "Nepali"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2630,6 +3635,11 @@
         {
           "type": "POPULATION",
           "displayValue": "29,651,054 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 29651054,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2694,6 +3704,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Muscat",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Muscat",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2703,6 +3722,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Omani Rial (OMR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "OMR",
+                "name": "Omani Rial",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2712,6 +3741,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2721,6 +3759,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,281,538 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5281538,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2785,6 +3828,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Islamabad",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Islamabad",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2794,6 +3846,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Pakistani Rupee (PKR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "PKR",
+                "name": "Pakistani Rupee",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2803,6 +3865,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Urdu",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "ur",
+                "name": "Urdu"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2812,6 +3887,11 @@
         {
           "type": "POPULATION",
           "displayValue": "251,269,164 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 251269164,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2876,6 +3956,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Manila",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Manila",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2885,6 +3974,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Philippine Peso (PHP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "PHP",
+                "name": "Philippine Peso",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2894,6 +3993,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Tagalog",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "tl",
+                "name": "Tagalog"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2903,6 +4015,11 @@
         {
           "type": "POPULATION",
           "displayValue": "115,843,670 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 115843670,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -2967,6 +4084,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Doha",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Doha",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2976,6 +4102,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Qatari Riyal (QAR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "QAR",
+                "name": "Qatari Riyal",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -2985,6 +4121,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -2994,6 +4139,11 @@
         {
           "type": "POPULATION",
           "displayValue": "2,857,822 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 2857822,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3058,6 +4208,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Seoul",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Seoul",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3067,6 +4226,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "South Korean Won (KRW)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "KRW",
+                "name": "South Korean Won",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3076,6 +4245,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Korean",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ko",
+                "name": "Korean"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3085,6 +4263,11 @@
         {
           "type": "POPULATION",
           "displayValue": "51,751,065 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 51751065,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3149,6 +4332,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Moscow",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Moscow",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3158,6 +4350,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Russian Ruble (RUB)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "RUB",
+                "name": "Russian Ruble",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3167,6 +4369,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3176,6 +4387,11 @@
         {
           "type": "POPULATION",
           "displayValue": "143,669,648 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 143669648,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3240,6 +4456,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Riyadh",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Riyadh",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3249,6 +4474,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Saudi Riyal (SAR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SAR",
+                "name": "Saudi Riyal",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3258,6 +4493,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3267,6 +4511,11 @@
         {
           "type": "POPULATION",
           "displayValue": "35,300,280 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 35300280,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3331,6 +4580,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Singapore",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Singapore",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3340,6 +4598,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Singapore Dollar (SGD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SGD",
+                "name": "Singapore Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3349,6 +4617,27 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English, Malay, Tamil, Chinese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              },
+              {
+                "code": "ms",
+                "name": "Malay"
+              },
+              {
+                "code": "ta",
+                "name": "Tamil"
+              },
+              {
+                "code": "zh",
+                "name": "Chinese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3358,6 +4647,11 @@
         {
           "type": "POPULATION",
           "displayValue": "6,036,860 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 6036860,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3422,6 +4716,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Colombo",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Colombo",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3431,6 +4734,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Sri Lankan Rupee (LKR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "LKR",
+                "name": "Sri Lankan Rupee",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3440,6 +4753,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Sinhala, Tamil",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "si",
+                "name": "Sinhala"
+              },
+              {
+                "code": "ta",
+                "name": "Tamil"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3449,6 +4775,11 @@
         {
           "type": "POPULATION",
           "displayValue": "21,916,000 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 21916000,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3513,6 +4844,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Ramallah",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Ramallah",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3522,6 +4862,21 @@
         {
           "type": "CURRENCY",
           "displayValue": "Israeli New Shekel (ILS), Jordanian Dinar (JOD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "ILS",
+                "name": "Israeli New Shekel",
+                "role": "legal_tender"
+              },
+              {
+                "code": "JOD",
+                "name": "Jordanian Dinar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3531,6 +4886,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3540,6 +4904,11 @@
         {
           "type": "POPULATION",
           "displayValue": "5,289,152 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 5289152,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3604,6 +4973,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Damascus",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Damascus",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3613,6 +4991,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Syrian Pound (SYP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "SYP",
+                "name": "Syrian Pound",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3622,6 +5010,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3631,6 +5028,11 @@
         {
           "type": "POPULATION",
           "displayValue": "24,672,760 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 24672760,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3695,6 +5097,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Taipei",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Taipei",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3704,6 +5115,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "New Taiwan Dollar (TWD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "TWD",
+                "name": "New Taiwan Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3713,6 +5134,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Chinese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "zh",
+                "name": "Chinese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3777,6 +5207,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Dushanbe",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Dushanbe",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3786,6 +5225,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Tajikistani Somoni (TJS)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "TJS",
+                "name": "Tajikistani Somoni",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3795,6 +5244,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Tajik, Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "tg",
+                "name": "Tajik"
+              },
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3804,6 +5266,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,590,927 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10590927,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3868,6 +5335,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Bangkok",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Bangkok",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3877,6 +5353,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Thai Baht (THB)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "THB",
+                "name": "Thai Baht",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3886,6 +5372,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Thai",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "th",
+                "name": "Thai"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3895,6 +5390,11 @@
         {
           "type": "POPULATION",
           "displayValue": "71,668,011 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 71668011,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -3959,6 +5459,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Dili",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Dili",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3968,6 +5477,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -3977,6 +5496,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Portuguese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "pt",
+                "name": "Portuguese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -3986,6 +5514,11 @@
         {
           "type": "POPULATION",
           "displayValue": "1,400,638 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 1400638,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4050,6 +5583,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Ankara",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Ankara",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4059,6 +5601,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Turkish Lira (TRY)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "TRY",
+                "name": "Turkish Lira",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4068,6 +5620,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Turkish",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "tr",
+                "name": "Turkish"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4077,6 +5638,11 @@
         {
           "type": "POPULATION",
           "displayValue": "85,518,661 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 85518661,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4141,6 +5707,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Ashgabat",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Ashgabat",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4150,6 +5725,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Turkmenistani Manat (TMT)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "TMT",
+                "name": "Turkmenistani Manat",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4159,6 +5744,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Turkmen, Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "tk",
+                "name": "Turkmen"
+              },
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4168,6 +5766,11 @@
         {
           "type": "POPULATION",
           "displayValue": "7,494,498 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 7494498,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4232,6 +5835,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Abu Dhabi",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Abu Dhabi",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4241,6 +5853,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "United Arab Emirates Dirham (AED)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AED",
+                "name": "United Arab Emirates Dirham",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4250,6 +5872,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4259,6 +5890,11 @@
         {
           "type": "POPULATION",
           "displayValue": "10,986,400 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 10986400,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4323,6 +5959,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Tashkent",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Tashkent",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4332,6 +5977,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Uzbekistani Som (UZS)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "UZS",
+                "name": "Uzbekistani Som",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4341,6 +5996,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Uzbek, Russian",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "uz",
+                "name": "Uzbek"
+              },
+              {
+                "code": "ru",
+                "name": "Russian"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4350,6 +6018,11 @@
         {
           "type": "POPULATION",
           "displayValue": "36,361,859 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 36361859,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4414,6 +6087,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Hanoi",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Hanoi",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4423,6 +6105,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Vietnamese Dong (VND)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "VND",
+                "name": "Vietnamese Dong",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4432,6 +6124,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Vietnamese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "vi",
+                "name": "Vietnamese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4441,6 +6142,11 @@
         {
           "type": "POPULATION",
           "displayValue": "100,987,686 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 100987686,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4505,6 +6211,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Sana'a",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Sana'a",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4514,6 +6229,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Yemeni Rial (YER)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "YER",
+                "name": "Yemeni Rial",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4523,6 +6248,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Arabic",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "ar",
+                "name": "Arabic"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4532,6 +6266,11 @@
         {
           "type": "POPULATION",
           "displayValue": "40,583,164 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 40583164,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4596,6 +6335,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Diego Garcia",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Diego Garcia",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4605,6 +6353,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4614,6 +6372,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4678,6 +6445,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "City of Victoria",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "City of Victoria",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4687,6 +6463,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Hong Kong Dollar (HKD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "HKD",
+                "name": "Hong Kong Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4696,6 +6482,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Chinese, English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "zh",
+                "name": "Chinese"
+              },
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4705,6 +6504,11 @@
         {
           "type": "POPULATION",
           "displayValue": "7,524,100 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 7524100,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4769,6 +6573,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Macanese Pataca (MOP)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "MOP",
+                "name": "Macanese Pataca",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4778,6 +6592,19 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Chinese, Portuguese",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "zh",
+                "name": "Chinese"
+              },
+              {
+                "code": "pt",
+                "name": "Portuguese"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4787,6 +6614,11 @@
         {
           "type": "POPULATION",
           "displayValue": "687,000 (2024)",
+          "details": {
+            "kind": "population",
+            "value": 687000,
+            "year": 2024
+          },
           "observedAt": null,
           "source": {
             "name": "World Bank Open Data",
@@ -4851,6 +6683,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Flying Fish Cove",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Flying Fish Cove",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4860,6 +6701,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4869,6 +6720,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4933,6 +6793,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "West Island",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "West Island",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -4942,6 +6811,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -4951,6 +6830,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",

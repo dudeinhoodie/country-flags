@@ -109,6 +109,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Norwegian Krone (NOK)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NOK",
+                "name": "Norwegian Krone",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -118,6 +128,23 @@
         {
           "type": "LANGUAGE",
           "displayValue": "Norwegian, Norwegian Bokmål, Norwegian Nynorsk",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "no",
+                "name": "Norwegian"
+              },
+              {
+                "code": "nb",
+                "name": "Norwegian Bokmål"
+              },
+              {
+                "code": "nn",
+                "name": "Norwegian Nynorsk"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -182,6 +209,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Avarua",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Avarua",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -191,6 +227,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "New Zealand Dollar (NZD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NZD",
+                "name": "New Zealand Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -200,6 +246,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -264,6 +319,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Port-aux-Français",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Port-aux-Français",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -273,6 +337,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Euro (EUR)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "EUR",
+                "name": "Euro",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -282,6 +356,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "French",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "fr",
+                "name": "French"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -346,6 +429,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "Australian Dollar (AUD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "AUD",
+                "name": "Australian Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -355,6 +448,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -419,6 +521,15 @@
         {
           "type": "CAPITAL",
           "displayValue": "Alofi",
+          "details": {
+            "kind": "capital",
+            "seats": [
+              {
+                "name": "Alofi",
+                "role": "official"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -428,6 +539,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "New Zealand Dollar (NZD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "NZD",
+                "name": "New Zealand Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -437,6 +558,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
@@ -501,6 +631,16 @@
         {
           "type": "CURRENCY",
           "displayValue": "US Dollar (USD)",
+          "details": {
+            "kind": "currency",
+            "tenders": [
+              {
+                "code": "USD",
+                "name": "US Dollar",
+                "role": "legal_tender"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "Unicode CLDR",
@@ -510,6 +650,15 @@
         {
           "type": "LANGUAGE",
           "displayValue": "English",
+          "details": {
+            "kind": "language",
+            "languages": [
+              {
+                "code": "en",
+                "name": "English"
+              }
+            ]
+          },
           "observedAt": null,
           "source": {
             "name": "annexare/Countries",
