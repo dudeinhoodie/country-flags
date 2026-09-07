@@ -397,6 +397,11 @@ struct AppComposition: AppDependencies {
             repository: store.makeCommerceRepository(),
             backend: CommerceService(clientFactory: apiClientFactory, dates: dates),
             scopes: sessions,
+            accountTokens: StoreAccountTokenProvider(
+                clientFactory: apiClientFactory,
+                scopes: sessions,
+                logger: logger
+            ),
             dates: dates,
             identifiers: identifiers,
             logger: logger
