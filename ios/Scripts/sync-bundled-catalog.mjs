@@ -202,17 +202,14 @@ async function buildSnapshot() {
 
   // MARK: Assets
 
+  // Reachability, not ownership. An entity draws more than the flag its card
+  // prompts with — a coat of arms, a map (ADR-020) — and a drawing no
+  // published card prompts with is withheld even from the entity that owns it,
+  // because that is what `assetVisibility` does: the projection publishes what
+  // is known to be free rather than what has not yet been proved paid.
   const publicAssetKeys = new Set(
     [...reachByAsset.keys()].filter((key) => isAssetPublic(key)),
   );
-  // An entity draws more than the flag its card prompts with — a coat of arms,
-  // a map — and the sheet behind a card shows them. They ride along under the
-  // same verdict as the entity that owns them.
-  for (const key of publicEntityKeys) {
-    for (const assetKey of entities.get(key)?.assetKeys ?? []) {
-      if (assets.has(assetKey)) publicAssetKeys.add(assetKey);
-    }
-  }
 
   const snapshotAssets = [...publicAssetKeys]
     .sort((left, right) => left.localeCompare(right, "en"))
