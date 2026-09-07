@@ -80,6 +80,9 @@ jobs:
       - name: Check the bundled flag set
         run: node Scripts/sync-flag-assets.mjs --check
 
+      - name: Check the bundled catalogue
+        run: node Scripts/sync-bundled-catalog.mjs --check
+
       - name: Check the advertising policy
         run: ./Scripts/check-advertising-policy.sh
 

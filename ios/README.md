@@ -27,7 +27,11 @@ ios/
     ├── check-advertising-policy.sh  # fails when ad or tracking machinery appears
     ├── check-release-app.sh    # reads a built app for what must never ship
     ├── check-signing-entitlements.sh  # every app target still carries the entitlements
+    ├── lib/content-release.mjs  # one reading of a content release, shared by the three below
     ├── select-simulator.sh     # picks an xcodebuild destination
+    ├── sync-bundled-catalog.mjs # the catalogue the app opens on before any network
+    ├── sync-flag-assets.mjs    # the drawings of that release, into the asset catalog
+    ├── sync-mock-content.mjs   # the same release, as the documents the Mock build serves
     └── sync-openapi.sh         # refreshes and verifies the contract mirror
 ```
 
@@ -233,11 +237,24 @@ shows a placeholder with the failure in the log. `FileAssetCache` stores files
 under their checksum and evicts only what the caller has not pinned, so the
 flags of an unfinished session survive.
 
+The app also carries the catalogue of that release, so the *first* launch reads
+the store too. `Scripts/sync-bundled-catalog.mjs` projects
+`content/generated/fixture-v1` into
+`CountryFlagsInfrastructure/Resources/BundledCatalog.json`, and
+`ContentStore.start` seeds an empty store from it before it asks the network
+anything. It is a baseline and not a second source of truth: it is stored under
+a content version of its own — the identifiers in it are derived from content
+keys while a server allocates its own — so the first successful synchronisation
+supersedes it whole through the ordinary bootstrap. A device that already holds
+a release is never seeded. See
+[ADR-021](../docs/adr/ADR-021-bundled-catalogue-snapshot.md), which also states
+what this costs: progress made before that first sync does not survive it.
+
 Every content screen reads the store and never a network response, which is why
 a relaunch with no connection is the same code path as one with it. The Mock
-scheme serves a published release — `content/generated/fixture-v1`, projected
-into API documents by `Scripts/sync-mock-content.mjs` and committed under
-`CountryFlagsInfrastructure/Resources/MockContent` — so a run without a backend
+scheme serves a published release — the same one, projected into API documents
+by `Scripts/sync-mock-content.mjs` and committed under
+`CountryFlagsMockBackend/Resources/MockContent` — so a run without a backend
 shows the real catalogue. It hosts no assets at all: the same release is the one
 the app bundles, so every flag is drawn from the asset catalog and a download
 would mean the bundled baseline missed. `-offline-content` refuses every content
