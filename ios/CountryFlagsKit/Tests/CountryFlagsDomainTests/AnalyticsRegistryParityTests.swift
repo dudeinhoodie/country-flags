@@ -127,6 +127,13 @@ final class AnalyticsRegistryParityTests: XCTestCase {
             .union(AnalyticsSyncResult.allCases.map(\.rawValue))
             .union(AnalyticsSyncDurationBucket.allCases.map(\.rawValue))
             .union(AnalyticsContentUpdateResult.allCases.map(\.rawValue))
+            .union(AnalyticsPaidDeckAccess.allCases.map(\.rawValue))
+            .union(AnalyticsStorePriceState.allCases.map(\.rawValue))
+            .union(AnalyticsPurchaseDelivery.allCases.map(\.rawValue))
+            .union(AnalyticsPurchaseFailureReason.allCases.map(\.rawValue))
+            .union(AnalyticsRestoreResult.allCases.map(\.rawValue))
+            .union(AnalyticsPaidDeckLoadResult.allCases.map(\.rawValue))
+            .union(AnalyticsContentKind.allCases.map(\.rawValue))
             .union(AuthProvider.allCases.map { $0.rawValue.lowercased() })
 
         for event in registry.events {
@@ -194,6 +201,18 @@ final class AnalyticsRegistryParityTests: XCTestCase {
             .authCompleted(provider: .apple, result: .success, at: instant),
             .syncCompleted(result: .success, duration: .underOneSecond, at: instant),
             .contentUpdateCompleted(result: .success, at: instant),
+            .paidDeckImpression(access: .locked, at: instant),
+            .paidDeckOpened(access: .owned, at: instant),
+            .paywallViewed(offerState: .priced, isPurchaseOffered: true, at: instant),
+            .purchaseStarted(at: instant),
+            .purchaseCompleted(delivery: .acknowledged, at: instant),
+            .purchasePending(at: instant),
+            .purchaseCancelled(at: instant),
+            .purchaseFailed(reason: .network, at: instant),
+            .purchaseRestoreCompleted(result: .nothingFound, at: instant),
+            .paidDeckContentLoaded(result: .success, at: instant),
+            .paidDeckStudyStarted(mode: .selfRated, at: instant),
+            .cardDetailOpened(contentKind: .coatOfArms, at: instant),
         ]
     }
 

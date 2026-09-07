@@ -214,6 +214,11 @@ struct AppComposition: AppDependencies {
         // the bootstrap needs, because a purchase made since then downloads
         // its own cards without waiting for a release.
         let entitlements = store.makeEntitlementRepository()
+        // Advertising is off and no crash reporter is linked, so this drops
+        // what it is given. It is wired anyway: the reports are built, the
+        // tests read them, and turning a reporter on later is a change here
+        // rather than a change at every call site.
+        let errorReporter: any ErrorReporting = NoOpErrorReporter()
         let coordinator = ContentBootstrapCoordinator(
             service: contentService,
             repository: contentRepository,
@@ -224,7 +229,8 @@ struct AppComposition: AppDependencies {
             entitlementKeys: { [sessions] in
                 let scope = await sessions.currentScope()
                 return (try? await entitlements.snapshot(scope: scope).entitlementKeys) ?? []
-            }
+            },
+            errors: errorReporter
         )
 
         // The guest's work follows its owner: the coordinator reads the guest
@@ -328,6 +334,13 @@ struct AppComposition: AppDependencies {
         // itself when that moment is.
         MainActor.assumeIsolated { sync.observe(progress) }
 
+        // Read by the catalogue and by commerce, so it is assembled before
+        // either. Neither of them captures a value: both flags are
+        // `immediate`, and a refresh that switches the storefront off has to
+        // reach a screen that is already open.
+        let featureFlags = MainActor.assumeIsolated {
+            FeatureFlagCenter(flags: activatedFlags)
+        }
         let content = MainActor.assumeIsolated {
             ContentStore(
                 repository: contentRepository,
@@ -354,6 +367,18 @@ struct AppComposition: AppDependencies {
                         )
                     }
                     return entity
+                },
+                // A deck that stops being open takes its drawings with it.
+                // They are the part of a paid deck that takes up room, and
+                // the file cache is the only thing that can delete them.
+                dropCachedAssets: { [assetCache] assets in
+                    await assetCache.remove(assets)
+                },
+                // `commerce.paid_decks.discovery.enabled`. It hides the shelf
+                // of decks nobody here has bought; an owner keeps every deck
+                // they hold, because no flag decides what is open.
+                showsDecksForSale: {
+                    featureFlags.isEnabled(.commercePaidDecksDiscoveryEnabled)
                 }
             )
         }
@@ -362,9 +387,6 @@ struct AppComposition: AppDependencies {
         // the centre above it is what a screen reads, and it is the only place
         // the storefront flag is consulted — a flag decides whether buying is
         // offered, never whether a deck is open.
-        let featureFlags = MainActor.assumeIsolated {
-            FeatureFlagCenter(flags: activatedFlags)
-        }
         let storeKit = StoreKitPurchaseClient(logger: logger)
         let purchases = PurchaseCoordinator(
             store: storeKit,
@@ -382,6 +404,8 @@ struct AppComposition: AppDependencies {
                 isPurchasingOffered: { featureFlags.isEnabled(.commerceAppleIapEnabled) },
                 confirmed: entitlements,
                 scopes: sessions,
+                analytics: analyticsCoordinator,
+                dates: dates,
                 onEntitlementsChanged: { [sync] keys in
                     // Commerce says what changed; content decides what that
                     // costs — the catalogue regroups and a deck that has just
@@ -447,7 +471,7 @@ struct AppComposition: AppDependencies {
                 coordinator: diagnosticsCoordinator,
                 dates: dates
             ),
-            errorReporter: NoOpErrorReporter(),
+            errorReporter: errorReporter,
             diagnostics: NoOpDiagnosticsReporter(),
             logger: logger,
             flagClient: flagClient,
@@ -526,6 +550,12 @@ struct AppComposition: AppDependencies {
             // be granted to. Asking again is what turns signing in on a second
             // device into the deck being there.
             await commerce.refresh(trigger: .login)
+        }
+        store.onSignedOut = { [commerce] in
+            // What somebody bought is theirs, not this device's. Commerce
+            // re-reads what the scope it is in now may open — a guest owns
+            // nothing — and content takes the paid payload off the disk.
+            await commerce.signedOut()
         }
         return store
     }

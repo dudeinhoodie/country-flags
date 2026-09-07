@@ -93,8 +93,18 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
     /// a request to be told so. The default answers "nothing", which is a
     /// catalogue of free decks — the only kind a build without commerce has.
     private let entitlementKeys: @Sendable () async -> Set<String>
+    /// Where a template this build cannot draw is reported.
+    ///
+    /// Operational rather than product analytics: a release that halves a deck
+    /// on arrival is the app failing to deliver content somebody may have paid
+    /// for, and the people who fix it have to see it whether or not analytics
+    /// was allowed.
+    private let errors: (any ErrorReporting)?
 
     private var status = ContentSyncStatus()
+    /// Templates already reported, by `CODE@vN`. Once per pair per run: a
+    /// deck of fifty unknown cards is one fact about the release.
+    private var reportedTemplates: Set<String> = []
     private var running: Task<ContentSyncStatus, Never>?
 
     public init(
@@ -105,7 +115,8 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         logger: any AppLogging = NoOpLogger(),
         appVersion: String,
         pageLimit: Int = 100,
-        entitlementKeys: @escaping @Sendable () async -> Set<String> = { [] }
+        entitlementKeys: @escaping @Sendable () async -> Set<String> = { [] },
+        errors: (any ErrorReporting)? = nil
     ) {
         self.service = service
         self.repository = repository
@@ -115,6 +126,7 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         self.appVersion = appVersion
         self.pageLimit = pageLimit
         self.entitlementKeys = entitlementKeys
+        self.errors = errors
     }
 
     /// Downloads the cards of one deck that has just become openable.
@@ -171,10 +183,25 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             } catch {
                 return false
             }
+            report(page.unsupportedTemplates)
             applied += page.cards.count
             cursor = page.hasMore ? page.nextCursor : nil
         } while cursor != nil
         return true
+    }
+
+    /// Says that this build met a template it has no renderer for.
+    ///
+    /// Reported at download as well as where a session is composed. The two
+    /// are different moments and both matter: a deck bought this morning that
+    /// arrived half the size it advertises is a release problem to see now,
+    /// not the first time somebody presses Start.
+    private func report(_ templates: [CardTemplateKey]) {
+        guard let errors else { return }
+        for key in templates where reportedTemplates.insert(key.identifier).inserted {
+            let fact = UnsupportedCardTemplate(key: key)
+            errors.capture(error: fact, context: fact.context)
+        }
     }
 
     public func currentStatus() -> ContentSyncStatus { status }
@@ -442,6 +469,7 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                         "skipped": .count(page.unsupportedCardIDs.count),
                     ]
                 )
+                report(page.unsupportedTemplates)
             }
 
             let hasNextPage = page.hasMore && page.nextCursor != nil

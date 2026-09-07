@@ -145,9 +145,21 @@ public enum CardTemplateRegistry {
 /// can draw is a fact about the release rather than a failure of the code
 /// looking at it.
 public struct UnsupportedCardTemplate: Error, Hashable, Sendable {
+    /// The operation every such report is filed under, wherever the card was
+    /// met — composing a session, drawing one, or downloading a deck. One
+    /// constant so a search finds all three.
+    public static let operation = "unsupported_card_template"
+
     public let key: CardTemplateKey
 
     public init(key: CardTemplateKey) {
         self.key = key
+    }
+
+    /// How the fact is reported. Nothing in it but the template's own code and
+    /// version, both constants the pipeline publishes: no card identifier, no
+    /// country, no account.
+    public var context: ErrorContext {
+        ErrorContext(category: .content, operation: Self.operation, errorCode: key.identifier)
     }
 }

@@ -80,11 +80,20 @@ public enum CatalogGrouping {
     ///   way it always was. Empty by default, which is a catalogue of nothing
     ///   but free decks: exactly today's behaviour, and what a build that has
     ///   never asked about money shows.
+    /// - Parameter isDiscoveryEnabled: `commerce.paid_decks.discovery.enabled`.
+    ///   False takes the shelf away and nothing else: an owner keeps every
+    ///   deck they have bought, because a flag decides what is offered for
+    ///   sale and never what is open (document 17 §10, ADR-019). It defaults
+    ///   to true so that a caller with no storefront at all — every test of
+    ///   the free catalogue — groups the way it always did.
     public static func sections(
         for decks: [DeckRecord],
-        entitlementKeys: Set<String> = []
+        entitlementKeys: Set<String> = [],
+        isDiscoveryEnabled: Bool = true
     ) -> [CatalogSection] {
-        let locked = decks.filter { !$0.isOpen(given: entitlementKeys) }
+        let locked = isDiscoveryEnabled
+            ? decks.filter { !$0.isOpen(given: entitlementKeys) }
+            : []
         let open = decks.filter { $0.isOpen(given: entitlementKeys) }
         // Featured first, whatever their kinds: a deck somebody has not bought
         // yet is the one thing on this screen that is not already theirs.

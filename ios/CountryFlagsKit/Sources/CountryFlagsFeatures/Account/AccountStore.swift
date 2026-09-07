@@ -44,6 +44,14 @@ public final class AccountStore {
     /// in that order, so the sync it starts uploads the imported work rather
     /// than racing it. The composition points this at the sync coordinator.
     public var onSignedIn: (@Sendable () async -> Void)?
+    /// Called after a sign-out, once the session is gone and the scope has
+    /// flipped back to the guest.
+    ///
+    /// It exists for one thing the app must not skip: whatever the account
+    /// bought is theirs and not this device's, so the paid payload comes off
+    /// it. The composition points this at commerce, which re-reads what the
+    /// new scope may open — nothing — and content takes the cards away.
+    public var onSignedOut: (@Sendable () async -> Void)?
 
     /// Present when the build carries Google credentials; the button follows.
     public let google: (any GoogleSignInPresenting)?
@@ -247,5 +255,8 @@ public final class AccountStore {
         state = await session.currentState()
         profile = nil
         migration = nil
+        // After the session is gone, so that whoever answers reads the scope
+        // this device is in now rather than the one it has just left.
+        await onSignedOut?()
     }
 }

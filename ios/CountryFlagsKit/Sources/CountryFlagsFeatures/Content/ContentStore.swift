@@ -59,6 +59,17 @@ public final class ContentStore {
     /// content service and persists what it fetched; nil leaves the store's
     /// answer final.
     private let fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)?
+    /// Drops the bytes of drawings that have left the store.
+    ///
+    /// A closure rather than a dependency: the file cache lives in the
+    /// infrastructure this module deliberately cannot see, and a build with no
+    /// cache at all — a preview, a unit test — passes nothing and loses
+    /// nothing by it.
+    private let dropCachedAssets: (@Sendable ([AssetRecord]) async -> Void)?
+    /// `commerce.paid_decks.discovery.enabled`, read at the moment the shelf
+    /// is built rather than captured: it is an `immediate` flag, and a refresh
+    /// that switched discovery off has to reach a catalogue already on screen.
+    private let showsDecksForSale: @MainActor () -> Bool
     private let analytics: (any AnalyticsTracking)?
     /// Whether the launch's first read and sync have already run.
     private var hasStarted = false
@@ -71,7 +82,9 @@ public final class ContentStore {
         analytics: (any AnalyticsTracking)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         preferredLanguages: [String] = Locale.preferredLanguages,
-        fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)? = nil
+        fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)? = nil,
+        dropCachedAssets: (@Sendable ([AssetRecord]) async -> Void)? = nil,
+        showsDecksForSale: @escaping @MainActor () -> Bool = { true }
     ) {
         self.repository = repository
         self.coordinator = coordinator
@@ -79,6 +92,8 @@ public final class ContentStore {
         self.dates = dates
         self.preferredLanguages = preferredLanguages
         self.fetchEntity = fetchEntity
+        self.dropCachedAssets = dropCachedAssets
+        self.showsDecksForSale = showsDecksForSale
     }
 
     /// Draws what the device already has, then brings it up to date.
@@ -171,10 +186,15 @@ public final class ContentStore {
     public func apply(entitlementKeys keys: Set<String>) async -> Bool {
         let opened = keys.subtracting(entitlementKeys)
         entitlementKeys = keys
+        // Whatever is for sale and is not open holds nothing on this device.
+        // Asked as a rule about every deck rather than about the keys that
+        // moved: a refund, a sign-out and an account swap all arrive here as
+        // a smaller set, and the answer for all three is the same one.
+        await dropContentOfDecksThatAreNotOpen()
         guard !opened.isEmpty else {
-            // A refund goes down this path too: the keys shrank, nothing is
-            // downloaded, and the regroup is what puts the deck back on the
-            // shelf.
+            // A refund goes down this path too: nothing is downloaded, the
+            // cleanup above has taken the cards, and the regroup is what puts
+            // the deck back on the shelf.
             await reload()
             return true
         }
@@ -184,13 +204,57 @@ public final class ContentStore {
         }
         var complete = true
         for deck in waiting ?? [] where await cards(inDeck: deck.id).isEmpty {
-            complete = await coordinator.loadCards(
+            let arrived = await coordinator.loadCards(
                 inDeck: deck.id,
                 locale: await requestLocale()
-            ) && complete
+            )
+            complete = arrived && complete
+            // A purchase whose content never lands is what a customer writes
+            // to support about, so it is measured apart from the payment.
+            await analytics?.track(
+                .paidDeckContentLoaded(result: arrived ? .success : .failed, at: dates.now())
+            )
         }
         await reload()
         return complete
+    }
+
+    /// Takes the payload of every deck that is for sale and is not open off
+    /// the device.
+    ///
+    /// Best-effort, and access control rather than DRM: the backend refuses
+    /// the cards of a deck this account does not hold, and that refusal is
+    /// what protects the content. What this buys is that somebody else's
+    /// purchase does not sit on the device after they sign out, and that a
+    /// refunded deck composes no session.
+    private func dropContentOfDecksThatAreNotOpen() async {
+        let decks = (try? await repository.decks()) ?? []
+        let closed = decks
+            .filter { $0.isSold && !$0.isOpen(given: entitlementKeys) }
+            .map(\.id)
+        guard !closed.isEmpty else { return }
+        guard let removed = try? await repository.removeContent(ofDecks: closed),
+            !removed.isEmpty
+        else { return }
+        // The drawings go with the cards. They are the part of a paid deck
+        // that actually takes up room, and leaving them would be leaving the
+        // content on the device with only the index removed.
+        await dropCachedAssets?(removed.assets)
+    }
+
+    /// A card's details were opened, and what kind of drawing was on it.
+    ///
+    /// Reported from here rather than from the sheet because the store is what
+    /// knows the asset behind a card, and because a view holding an analytics
+    /// tracker would be one more thing every preview has to be given. Nothing
+    /// about the country reaches the event — only which of the registry's
+    /// kinds it was.
+    public func recordCardDetailOpened(promptAssetID: UUID) async {
+        guard let analytics else { return }
+        let kind =
+            await asset(id: promptAssetID)
+            .map { AnalyticsContentKind(AssetType(rawValue: $0.type)) } ?? .unknown
+        await analytics.track(.cardDetailOpened(contentKind: kind, at: dates.now()))
     }
 
     /// Re-reads the store and recomputes what the catalog screen shows.
@@ -202,7 +266,11 @@ public final class ContentStore {
         }
 
         let decks = (try? await repository.decks()) ?? []
-        let sections = CatalogGrouping.sections(for: decks, entitlementKeys: entitlementKeys)
+        let sections = CatalogGrouping.sections(
+            for: decks,
+            entitlementKeys: entitlementKeys,
+            isDiscoveryEnabled: showsDecksForSale()
+        )
         catalog = ContentViewState.resolve(
             value: sections,
             isEmpty: sections.isEmpty,

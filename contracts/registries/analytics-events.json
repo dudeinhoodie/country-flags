@@ -223,6 +223,192 @@
           "enumValues": ["success", "failed"]
         }
       }
+    },
+    {
+      "name": "paid_deck.impression",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure how often a deck that is sold is seen in the catalogue",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "access": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["locked", "owned"]
+        }
+      }
+    },
+    {
+      "name": "paid_deck.opened",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure how often a deck that is sold is opened from the catalogue",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "access": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["locked", "owned"]
+        }
+      }
+    },
+    {
+      "name": "paywall.viewed",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure how often the locked deck screen is shown and whether it could quote a price",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "offerState": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["loading", "priced", "unavailable"]
+        },
+        "isPurchaseOffered": {
+          "type": "boolean",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "purchase.started",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure purchase attempts, as the first step of the purchase funnel",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {}
+    },
+    {
+      "name": "purchase.completed",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure purchases that unlocked a deck, and whether the backend had acknowledged them yet",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "delivery": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["acknowledged", "queued"]
+        }
+      }
+    },
+    {
+      "name": "purchase.pending",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure purchases left waiting for approval, such as Ask to Buy",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {}
+    },
+    {
+      "name": "purchase.cancelled",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure purchases the customer chose not to complete",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {}
+    },
+    {
+      "name": "purchase.failed",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure purchase failures by a bounded reason, so a broken storefront is visible",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "required": true,
+          "enumValues": [
+            "account_required",
+            "could_not_verify",
+            "product_unavailable",
+            "purchases_not_allowed",
+            "network",
+            "store",
+            "backend_unreachable"
+          ]
+        }
+      }
+    },
+    {
+      "name": "purchase.restore_completed",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure how restores end, including the neutral case that found nothing",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "result": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["restored", "nothing_found", "failed"]
+        }
+      }
+    },
+    {
+      "name": "paid_deck.content_loaded",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure whether the cards of a newly opened deck reached the device",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "result": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["success", "failed"]
+        }
+      }
+    },
+    {
+      "name": "paid_deck.study_started",
+      "schemaVersion": 1,
+      "owner": "monetization",
+      "purpose": "Measure study sessions started in a deck that was bought",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["self_rated", "multiple_choice"]
+        }
+      }
+    },
+    {
+      "name": "card.detail_opened",
+      "schemaVersion": 1,
+      "owner": "content",
+      "purpose": "Measure which kind of symbol learners look at in detail",
+      "category": "product",
+      "consentCategory": "product_analytics",
+      "retentionClass": "product_standard",
+      "properties": {
+        "contentKind": {
+          "type": "string",
+          "required": true,
+          "enumValues": ["flag", "coat_of_arms", "map", "other", "unknown"]
+        }
+      }
     }
   ]
 }

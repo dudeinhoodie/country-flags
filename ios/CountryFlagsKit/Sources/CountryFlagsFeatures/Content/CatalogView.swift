@@ -251,10 +251,17 @@ public struct CatalogView: View {
         return isFirstFree ? L10n.catalogFreeSection : nil
     }
 
-    /// Asks the store about the decks that are for sale.
+    /// Asks the store about the decks that are for sale, and counts them as
+    /// seen.
+    ///
+    /// The impression is recorded here rather than per row: a lazy list draws
+    /// the same row several times, and counting those would measure scrolling.
+    /// What the catalogue is showing is what has been seen.
     private func prepareProducts() async {
         guard let commerce, case .ready(let sections, _, _) = store.catalog else { return }
-        await commerce.prepare(for: sections.flatMap(\.decks))
+        let decks = sections.flatMap(\.decks)
+        await commerce.prepare(for: decks)
+        await commerce.recordImpressions(of: decks)
     }
 
     /// "250 cards · Learned: 34", and just the count until something is.

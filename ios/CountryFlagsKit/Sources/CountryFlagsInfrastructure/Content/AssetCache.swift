@@ -79,6 +79,14 @@ public protocol AssetCaching: AssetLoading {
     ///   Assets are pinned whole rather than by checksum: the checksum no
     ///   longer names a file on its own.
     func evict(keeping pinned: Set<AssetCacheKey>) async
+
+    /// Drops the bytes of assets that have gone from the store.
+    ///
+    /// The counterpart of `evict(keeping:)` for the case where the caller
+    /// knows exactly what left rather than exactly what stays: an entitlement
+    /// that goes takes a known handful of drawings with it, and enumerating
+    /// everything that survives to express that would be the whole catalogue.
+    func remove(_ assets: [AssetRecord]) async
 }
 
 /// Stores verified asset bytes on disk under the asset's identifier, its type
@@ -172,6 +180,12 @@ public actor FileAssetCache: AssetCaching {
 
         store(data, for: asset)
         return data
+    }
+
+    public func remove(_ assets: [AssetRecord]) async {
+        for asset in assets {
+            try? fileManager.removeItem(at: fileURL(for: asset))
+        }
     }
 
     public func evict(keeping pinned: Set<AssetCacheKey>) async {

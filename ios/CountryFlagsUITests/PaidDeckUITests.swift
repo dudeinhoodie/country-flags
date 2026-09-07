@@ -16,6 +16,11 @@ final class PaidDeckUITests: XCTestCase {
     /// An unsigned build has no keychain entitlement, so a pinned identity is
     /// what keeps one guest across a relaunch.
     private let identity = ["-installation-id", "44444444-5555-4666-8777-888888888888"]
+    /// `commerce.paid_decks.discovery.enabled`, which is off by default and is
+    /// what puts a deck nobody here has bought in the catalogue at all. It is
+    /// stated only where a locked deck has to be visible; the owned test below
+    /// deliberately runs without it.
+    private let discovery = ["-feature-flag", "commerce.paid_decks.discovery.enabled=true"]
 
     override func setUp() {
         super.setUp()
@@ -25,7 +30,7 @@ final class PaidDeckUITests: XCTestCase {
     /// The lock is on the row, before anything is opened, and the row opens
     /// the paywall rather than a card list.
     func testALockedDeckShowsItsLockInTheCatalogAndOpensThePaywall() {
-        let app = launch(arguments: ["-reset-store"])
+        let app = launch(arguments: ["-reset-store"] + discovery)
         XCTAssertTrue(
             app.buttons["home.deck.ALL"].waitForExistence(timeout: 30),
             app.debugDescription
@@ -89,6 +94,10 @@ final class PaidDeckUITests: XCTestCase {
     /// account to be granted to, so a guest holds no entitlement however much
     /// the store has been asked — which is exactly what the locked test above
     /// shows. Owning anything starts with an account.
+    ///
+    /// It also runs with `commerce.paid_decks.discovery.enabled` at its
+    /// default of false, which is the rule PD-21 names: a storefront switched
+    /// off hides what is for sale and never what somebody already holds.
     func testAnOwnedDeckShowsItsCardsAndNoCommerceChrome() {
         let app = launch(arguments: ["-reset-store", "-owned-deck"] + fixtures + identity)
         XCTAssertTrue(
