@@ -1,8 +1,10 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { DECK_LOCALES } from "./deck-form";
 import type {
   AssetLocalizations,
   AssetPatch,
@@ -194,17 +196,21 @@ export function SymbolFieldsEditor({
       <TextField
         label="Source URL"
         size="small"
+        required
         disabled={disabled}
         value={fields.sourceUrl}
         onChange={(event) => set("sourceUrl", event.target.value)}
+        helperText="Where the drawing came from. Prefer the page that states the licence over the image itself."
       />
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <TextField
           label="License"
           size="small"
+          required
           disabled={disabled}
           value={fields.licenseName}
           onChange={(event) => set("licenseName", event.target.value)}
+          helperText="Public domain, CC0, CC BY-SA 4.0…"
           sx={{ flex: 1 }}
         />
         <TextField
@@ -251,6 +257,7 @@ export function SymbolFieldsEditor({
       <TextField
         label="Why replace the upstream drawing?"
         size="small"
+        required
         multiline
         minRows={2}
         disabled={disabled}
@@ -275,14 +282,21 @@ export function SymbolFieldsEditor({
         >
           <TextField
             label="Locale"
+            select
             size="small"
             disabled={disabled}
             value={row.locale}
             onChange={(event) =>
               setRow(index, { ...row, locale: event.target.value })
             }
-            sx={{ width: 96 }}
-          />
+            sx={{ width: 120 }}
+          >
+            {DECK_LOCALES.map((locale) => (
+              <MenuItem key={locale} value={locale}>
+                {locale}
+              </MenuItem>
+            ))}
+          </TextField>
           <TextField
             label="Display name"
             size="small"
