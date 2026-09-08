@@ -112,6 +112,27 @@ def settings_of_xcconfig(path, seen):
     return settings
 
 
+REFERENCE = re.compile(r"^\$\((?P<name>[A-Za-z0-9_]+)(?::default=(?P<fallback>[^)]*))?\)$")
+
+
+def expand(value, settings):
+    """One level of `$(NAME)` or `$(NAME:default=…)`, as Xcode reads it.
+
+    The entitlements path is written through a variable so a machine whose
+    Apple team is a free personal one can empty it in the uncommitted
+    Local.xcconfig and still build for a device (#394). Nothing committed
+    assigns that variable, so here — and on CI, which has no Local.xcconfig —
+    the default is what applies, and that is exactly what must be checked.
+    """
+    match = REFERENCE.match(value.strip())
+    if match is None:
+        return value
+    name = match.group("name")
+    if name in settings:
+        return settings[name]
+    return match.group("fallback") or ""
+
+
 def settings_of_configuration(identifier):
     """A build configuration's settings: its xcconfig chain, then its own."""
     configuration = objects[identifier]
@@ -171,6 +192,9 @@ for identifier, target in applications:
         configuration = objects[configuration_id]
         resolved = dict(project_configurations.get(configuration["name"], {}))
         resolved.update(settings_of_configuration(configuration_id))
+        for key, value in list(resolved.items()):
+            if isinstance(value, str):
+                resolved[key] = expand(value, resolved)
         where = f"{name}/{configuration['name']}"
         if resolved.get("INFOPLIST_FILE") != expected_info_plist:
             error(
