@@ -352,6 +352,30 @@ final class SessionCoordinatorTests: XCTestCase {
         XCTAssertNil(stored)
     }
 
+    /// The launch has two doors to a rotation and they must not both open.
+    ///
+    /// `restore()` refreshes at launch; the first request of that same launch
+    /// meets a 401 and refreshes through the middleware. A refresh spends the
+    /// token it presents, so the second call carried what the first had just
+    /// replaced, was refused, and ended the session — signed out on every
+    /// launch (#392). The middleware's own coordinator cannot see this,
+    /// because one of the two doors is not the middleware's.
+    func testRestoreAndAMiddlewareRefreshShareOneRotation() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        try await tokens.setValue("refresh-stored", for: .refreshToken)
+        try await tokens.setValue(UUID().uuidString, for: .accountUserID)
+        let session = makeCoordinator(service: service, tokens: tokens)
+
+        async let restored: Void = session.restore()
+        async let refreshed = session.refreshAccessToken()
+        _ = await restored
+        _ = try await refreshed
+
+        let count = await service.refreshCount
+        XCTAssertEqual(count, 1, "one launch spends one refresh token")
+    }
+
     // MARK: - A keychain that refuses
 
     /// The failure behind #392: the keychain refuses, the sign-in looks

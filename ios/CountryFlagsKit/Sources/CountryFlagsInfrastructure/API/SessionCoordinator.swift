@@ -86,7 +86,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
             return
         }
         do {
-            let session = try await service.refresh(refreshToken: refreshToken)
+            let session = try await rotate(presenting: refreshToken)
             await adopt(session)
             // The rotation says nothing about whose account it is; the
             // identifier stored beside the token does, which is why a relaunch
@@ -200,7 +200,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
             )
         }
         do {
-            let session = try await service.refresh(refreshToken: refreshToken)
+            let session = try await rotate(presenting: refreshToken)
             await adopt(session)
             return session.accessToken
         } catch {
@@ -263,6 +263,36 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
             return nil
         }
         return token
+    }
+
+    /// The rotation in flight, if there is one.
+    ///
+    /// A refresh spends the token it presents, so a second one carrying the
+    /// same token is refused and a refused refresh ends the session. The
+    /// middleware above has a coordinator for exactly this, but it cannot see
+    /// this actor's other door: `restore()` refreshes at launch, and the first
+    /// request of that same launch meets a 401 and refreshes through the
+    /// middleware. Two doors, one token — the launch rotated, the request
+    /// presented what it had just replaced, and the person was signed out
+    /// (#392).
+    ///
+    /// An actor does not prevent it: both callers await the network, and the
+    /// second enters while the first is suspended. So the rotation itself is
+    /// what is shared, and both doors lead to it.
+    private var rotation: Task<RefreshedSessionRecord, any Error>?
+
+    private func rotate(
+        presenting refreshToken: String
+    ) async throws -> RefreshedSessionRecord {
+        if let inFlight = rotation {
+            return try await inFlight.value
+        }
+        let started = Task { [service] in
+            try await service.refresh(refreshToken: refreshToken)
+        }
+        rotation = started
+        defer { rotation = nil }
+        return try await started.value
     }
 
     /// Takes the tokens of a rotation. The account it belongs to is unchanged,
