@@ -360,6 +360,7 @@ describe("recentActivity", () => {
     id: DRAFT_ID,
     baseContentVersion: "2026.09.01",
     baseCatalogCommit: "abc1234",
+    catalogCommit: "abc1234",
     schemaVersion: 1,
     revision: 3,
     status: "DRAFT",

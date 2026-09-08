@@ -26,6 +26,7 @@ const draft = {
   schemaVersion: 1,
   baseContentVersion: "2026.08.20",
   baseCatalogCommit: "abc1234",
+  catalogCommit: "abc1234",
   proposalUrl: null,
   validationReport: null,
   createdAt: "2026-09-05T10:00:00Z",
