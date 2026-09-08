@@ -155,11 +155,31 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         }
         // The secrets go first: a failed network call must not leave a device
         // holding a session it believes it no longer has.
-        try? await tokens.setValue(nil, for: .refreshToken)
-        try? await tokens.setValue(nil, for: .accountUserID)
-        try? await tokens.setValue(nil, for: .accountDisplayName)
-        try? await tokens.setValue(nil, for: .accountAvatarURL)
-        try? await tokens.setValue(nil, for: .accountDeviceID)
+        //
+        // A clearing that fails is the graver direction. The interface says
+        // signed out and the refresh token is still on disk, so the next
+        // launch restores the session of somebody who asked to leave. It is
+        // reported as an error rather than skipped, and the memory is dropped
+        // regardless: this process must not go on holding what it just tried
+        // to destroy.
+        var refused: [String] = []
+        for kind in [
+            SecureTokenKind.refreshToken,
+            .accountUserID,
+            .accountDisplayName,
+            .accountAvatarURL,
+            .accountDeviceID,
+        ] where await persist(nil, as: kind, during: "a sign-out") == false {
+            refused.append(kind.rawValue)
+        }
+        if !refused.isEmpty {
+            logger.log(
+                .error,
+                .sync,
+                "Signing out left session material on the device",
+                ["items": .safe(refused.joined(separator: ","))]
+            )
+        }
         accessToken = nil
         state = .guest
     }
@@ -249,15 +269,74 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
     /// so the state is left to whoever knows it.
     private func adopt(_ session: RefreshedSessionRecord) async {
         accessToken = session.accessToken
-        try? await tokens.setValue(session.refreshToken, for: .refreshToken)
+        // A rotation that cannot be written down is the worst of the three
+        // outcomes and used to be the quietest: the server has already spent
+        // the old token, this launch carries on happily on the access token in
+        // memory, and the next one reads a refresh token that is no longer
+        // accepted. The signing out happens tomorrow; the fault is here.
+        await persist(session.refreshToken, as: .refreshToken, during: "a rotation")
     }
 
     private func adopt(_ session: AuthSessionRecord) async {
         accessToken = session.accessToken
         state = .authenticated(userID: session.userID)
-        try? await tokens.setValue(session.refreshToken, for: .refreshToken)
-        try? await tokens.setValue(session.userID.uuidString, for: .accountUserID)
-        try? await tokens.setValue(session.displayName, for: .accountDisplayName)
+        await persist(session.refreshToken, as: .refreshToken, during: "a sign-in")
+        await persist(
+            session.userID.uuidString,
+            as: .accountUserID,
+            during: "a sign-in"
+        )
+        await persist(
+            session.displayName,
+            as: .accountDisplayName,
+            during: "a sign-in"
+        )
+    }
+
+    /// Writes one part of the session down, and says so when it cannot.
+    ///
+    /// `try?` was how every one of these was written, and a keychain that
+    /// refuses is not a detail to skip: it is the difference between what this
+    /// process believes about itself and what survives a relaunch. Swallowed,
+    /// it turns a reproducible fault into behaviour nobody can explain — a
+    /// person signed out on every launch with nothing in the log to say why
+    /// (#392, #393).
+    ///
+    /// The value never enters the message. The status does, because it is the
+    /// difference between a locked keychain, a missing entitlement (-34018)
+    /// and a device out of space, and that is what anyone reading the line
+    /// needs to know.
+    @discardableResult
+    private func persist(
+        _ value: String?,
+        as kind: SecureTokenKind,
+        during moment: String
+    ) async -> Bool {
+        do {
+            try await tokens.setValue(value, for: kind)
+            return true
+        } catch {
+            let status: String
+            if case SecureTokenStoreError.unavailable(let code) = error {
+                status = String(code)
+            } else {
+                status = "unknown"
+            }
+            logger.log(
+                .error,
+                .sync,
+                "The session could not be written to the keychain",
+                [
+                    "moment": .safe(moment),
+                    "item": .safe(kind.rawValue),
+                    "status": .safe(status),
+                    // Said plainly, because this is the sentence that explains
+                    // tomorrow's support request.
+                    "consequence": .safe("this session will not survive a relaunch"),
+                ]
+            )
+            return false
+        }
     }
 
     private static func failure(from error: any Error) -> SignInFailure {

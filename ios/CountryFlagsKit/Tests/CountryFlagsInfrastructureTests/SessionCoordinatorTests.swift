@@ -352,6 +352,67 @@ final class SessionCoordinatorTests: XCTestCase {
         XCTAssertNil(stored)
     }
 
+    // MARK: - A keychain that refuses
+
+    /// The failure behind #392: the keychain refuses, the sign-in looks
+    /// perfect because the access token is in memory, and the next launch
+    /// reads a refresh token the server has already spent. Written with
+    /// `try?`, that happened without a line in the log to say why — and the
+    /// person signed out every launch with nothing to explain it.
+    func testASignInThatCannotBeWrittenDownSaysSoRatherThanLookingFine() async {
+        let logger = RecordingLogger()
+        let service = StubAuthService()
+        let session = SessionCoordinator(
+            service: service,
+            tokens: RefusingTokenStore(),
+            guestScopes: FixedGuestScopes(scope: guestScope),
+            logger: logger
+        )
+
+        let outcome = await session.signIn(with: .google(idToken: "t"))
+
+        // The sign-in itself succeeded: the server accepted the identity, and
+        // pretending otherwise would be its own lie.
+        XCTAssertEqual(outcome, .succeeded(userID: service.userID))
+        let transcript = logger.transcript
+        XCTAssertTrue(
+            transcript.contains("could not be written to the keychain"),
+            "a session that will not survive a relaunch has to be reported"
+        )
+        XCTAssertTrue(
+            transcript.contains("will not survive a relaunch"),
+            "the consequence is the part that explains tomorrow's report"
+        )
+        // The status is what separates a locked keychain from a missing
+        // entitlement, and it is the first thing anyone reading this asks.
+        XCTAssertTrue(transcript.contains("-34018"))
+    }
+
+    /// The graver direction. The interface says signed out and the refresh
+    /// token is still on disk, so the next launch restores the session of
+    /// somebody who asked to leave.
+    func testASignOutThatCannotClearTheKeychainIsReportedAndStillDropsMemory() async {
+        let logger = RecordingLogger()
+        let session = SessionCoordinator(
+            service: StubAuthService(),
+            tokens: RefusingTokenStore(),
+            guestScopes: FixedGuestScopes(scope: guestScope),
+            logger: logger
+        )
+        _ = await session.signIn(with: .google(idToken: "t"))
+
+        await session.signOut(everywhere: false)
+
+        let state = await session.currentState()
+        XCTAssertEqual(state, .guest, "this process must not go on holding it")
+        let accessToken = await session.currentAccessToken()
+        XCTAssertNil(accessToken)
+        XCTAssertTrue(
+            logger.transcript.contains("left session material on the device"),
+            "a sign-out that did not remove the token is not a sign-out"
+        )
+    }
+
     private func makeCoordinator(
         service: any AuthenticationService,
         tokens: any SecureTokenStoring = InMemoryTokenStore()
@@ -362,5 +423,20 @@ final class SessionCoordinatorTests: XCTestCase {
             guestScopes: FixedGuestScopes(scope: guestScope),
             logger: NoOpLogger()
         )
+    }
+}
+
+/// A keychain that answers every write with the status a device gives when
+/// the app carries no keychain entitlement. Reads answer nothing, which is
+/// what a store that never accepted a write would hold.
+private actor RefusingTokenStore: SecureTokenStoring {
+    func value(for kind: SecureTokenKind) async throws -> String? { nil }
+
+    func setValue(_ value: String?, for kind: SecureTokenKind) async throws {
+        throw SecureTokenStoreError.unavailable(status: -34018)
+    }
+
+    func removeAll() async throws {
+        throw SecureTokenStoreError.unavailable(status: -34018)
     }
 }

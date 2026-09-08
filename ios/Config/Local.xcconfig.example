@@ -18,6 +18,17 @@ CF_DEVELOPMENT_TEAM =
 // identifier when installing on a device.
 // CF_BUNDLE_ID_SUFFIX = .dev.yourname
 
+// Empty the entitlements file so a device build works on a free Apple team.
+//
+// A personal team does not support Sign in with Apple, and a build that asks
+// for the capability cannot be signed at all — Xcode refuses before it
+// compiles. Emptying this is how you get the app onto a phone in the
+// meantime, and what it costs is exactly one thing: Sign in with Apple does
+// not work in that build. Google still does in Dev.
+//
+// Leave it alone on a paid team. It is not a preference.
+// CF_CODE_SIGN_ENTITLEMENTS =
+
 // A local backend instead of the dev deployment.
 // The `/$()/` escape is required: a bare `//` starts an xcconfig comment.
 // CF_API_BASE_URL = http:/$()/localhost:3000
