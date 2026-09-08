@@ -132,6 +132,59 @@ final class APIAuthenticationTests: XCTestCase {
         XCTAssertEqual(attempts, 1)
     }
 
+    /// The same, across the clients one factory makes — which is how the app
+    /// actually issues requests.
+    ///
+    /// Every service asks the factory for a client per call, and four of them
+    /// leave together in `ProgressService.download` alone. While the refresh
+    /// queue was built per client, each of those refreshed on its own: the
+    /// first rotated the refresh token and the rest presented what it
+    /// replaced, were refused, and ended the session. Signed out on every
+    /// launch, reproducibly, with the dev logs showing one 200 and two 401s
+    /// in the same millisecond (#392).
+    ///
+    /// The old test proved the coordinator and never the wiring: it drove
+    /// eight requests through one client, and one client always had one queue.
+    func testClientsFromOneFactoryShareOneRefresh() async throws {
+        let parallelRequests = 4
+        let transport = MockClientTransport()
+        for _ in 0..<parallelRequests {
+            await transport.enqueue(
+                .errorEnvelope(statusCode: 401, code: "ACCESS_TOKEN_EXPIRED"),
+                for: "getAppConfig"
+            )
+        }
+        await transport.always(.json(TestFixtures.appConfigJSON), for: "getAppConfig")
+        let tokens = StubTokenProvider(
+            initialToken: "expired",
+            refreshedToken: "fresh",
+            delay: .milliseconds(50)
+        )
+        let factory = APIClientFactory(
+            configuration: APITestClient.configuration,
+            transport: transport,
+            tokens: tokens,
+            identifiers: SequentialIdentifierProvider(),
+            logger: NoOpAPIRequestLogger(),
+            retryPolicy: RetryPolicy(maximumAttempts: 3),
+            scheduler: RecordingBackoffScheduler(),
+            jitter: ZeroJitterProvider()
+        )
+
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0..<parallelRequests {
+                group.addTask {
+                    // A client per call, exactly as every service does it.
+                    let client = factory.makeClient()
+                    _ = try await client.getAppConfig(APITestClient.appConfigInput())
+                }
+            }
+            try await group.waitForAll()
+        }
+
+        await XCTAssertEqualAsync(await tokens.observedRefreshCount(), 1)
+    }
+
     /// Every request that meets a 401 at the same time must share one refresh.
     /// A second refresh would present an already rotated refresh token and the
     /// backend would reject it, logging everyone out.

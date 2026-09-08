@@ -22,6 +22,19 @@ public struct APIClientFactory: Sendable {
     private let retryPolicy: RetryPolicy
     private let scheduler: any BackoffScheduling
     private let jitter: any JitterProviding
+    /// One queue for the whole app, and the reason this is stored rather than
+    /// built where it is used.
+    ///
+    /// A refresh rotates the token: whoever presents the spent one is refused,
+    /// and a refused refresh ends the session. So the single-flight has to
+    /// span every request in flight, and a coordinator built per client spans
+    /// one client. Clients are made per call — four of them leave together in
+    /// `ProgressService.download` alone — so at launch each met the same
+    /// expired token, each refreshed on its own, the first rotated, and the
+    /// rest were signed out for holding what it replaced (#392).
+    ///
+    /// The actor is a reference, so every copy of this struct shares it.
+    private let refreshCoordinator: TokenRefreshCoordinator
 
     /// - Parameter transport: defaults to URLSession. The Mock configuration
     ///   and the tests pass `MockClientTransport` instead, which is why the
@@ -45,6 +58,7 @@ public struct APIClientFactory: Sendable {
         self.retryPolicy = retryPolicy
         self.scheduler = scheduler
         self.jitter = jitter
+        refreshCoordinator = TokenRefreshCoordinator(provider: tokens)
     }
 
     /// The transport used unless a caller supplies one, such as the Mock build
@@ -132,7 +146,7 @@ public struct APIClientFactory: Sendable {
             RetryMiddleware(policy: retryPolicy, scheduler: scheduler, jitter: jitter),
             AuthenticationMiddleware(
                 tokens: tokens,
-                refreshCoordinator: TokenRefreshCoordinator(provider: tokens)
+                refreshCoordinator: refreshCoordinator
             ),
         ]
     }
