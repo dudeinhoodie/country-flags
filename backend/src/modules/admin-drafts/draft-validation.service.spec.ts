@@ -490,6 +490,10 @@ describe("DraftValidationService", () => {
     it("blocks a locked deck previewing more than three cards", () => {
       const report = service.validate(
         deckHolding(["country.france", "country.japan", "country.spain"], {
+          access: {
+            model: "ENTITLEMENT",
+            requiredEntitlementKey: "entitlement.symbols",
+          },
           previewCards: [
             "country.france",
             "country.japan",
@@ -501,6 +505,26 @@ describe("DraftValidationService", () => {
         [],
       );
       expect(codes(report)).toContain("DECK_PREVIEW_NOT_PUBLIC");
+    });
+
+    /// The cap is about a shop window, and a free deck has none: everything
+    /// it holds is already shown. Held to three anyway, it earned a
+    /// paid-deck refusal for not being for sale — and this test read as
+    /// proof of the rule while its own fixture was a free deck.
+    it("does not hold a free deck to a locked deck's preview count", () => {
+      const report = service.validate(
+        deckHolding(["country.france", "country.japan", "country.spain"], {
+          previewCards: [
+            "country.france",
+            "country.japan",
+            "country.spain",
+            "country.france",
+          ],
+        }),
+        context,
+        [],
+      );
+      expect(codes(report)).not.toContain("DECK_PREVIEW_NOT_PUBLIC");
     });
   });
 
