@@ -407,6 +407,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/content/drafts/{draftId}/carry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Carry a draft onto the catalog this deployment now carries
+         * @description A draft records the catalog commit it was imported from, and a proposal built on a stale base is refused because it would silently revert whatever landed in `master` meanwhile (ADR-014 §4). Since every merge redeploys with a new catalog, that refusal used to kill every open draft at once — uploaded drawings included, which live on the draft and cannot be re-created by starting again.
+         *
+         *     This moves the base forward instead, by a three-way merge of the document the draft was imported from, the document it holds now, and the catalog this deployment carries. Where only one side moved a field, that side wins; where both moved it to the same value they agree; where both moved it to different values nothing is merged and the call is refused with the collisions named by object, tab and field. A refused carry writes nothing: the draft, its edits and its uploads are exactly as they were.
+         *
+         *     Carrying re-bases the document, so the stored validation verdict is dropped and the draft returns to `DRAFT`: it has to be validated again before it can be proposed.
+         */
+        post: operations["adminCarryDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/content/drafts/{draftId}/export": {
         parameters: {
             query?: never;
@@ -893,6 +917,8 @@ export interface components {
             total: number;
         };
         AdminDraftDetail: components["schemas"]["AdminDraftSummary"] & {
+            /** @description The editorial catalog this deployment carries. When it differs from `baseCatalogCommit` the draft was imported from an older one and has to be carried forward before it can be proposed. */
+            catalogCommit: string;
             /** @description The editorial catalog document, validated server-side against the versioned editorial-catalog JSON Schema. */
             document: Record<string, never>;
             validationReport: Record<string, never> | null;
@@ -1585,6 +1611,31 @@ export interface components {
             /** Format: uri */
             proposalUrl: string;
             pullRequestNumber: number;
+        };
+        /** @description What the console believed when it asked. Any disagreement is refused rather than resolved silently. */
+        AdminCarryRequest: {
+            draftRevision: number;
+            /** @description The catalog commit the console believes the draft is based on. */
+            baseCatalogCommit: string;
+        };
+        /** @description One thing the catalog moved while the draft was open, now carried into it. Informational: the draft did not touch these, which is why they could be brought in at all. */
+        AdminCarriedChange: {
+            /** @enum {string} */
+            objectType: "catalog" | "entity" | "deck" | "asset" | "relation";
+            objectKey: string;
+            /** @enum {string} */
+            change: "added" | "changed" | "removed";
+        };
+        AdminCarryResult: {
+            draftId: components["schemas"]["Uuid"];
+            /** @description The draft's revision after the carry; unchanged when nothing moved. */
+            revision: number;
+            status: components["schemas"]["AdminDraftStatus"];
+            previousBaseCatalogCommit: string;
+            baseCatalogCommit: string;
+            /** @description False when the catalog had not moved: nothing was merged, nothing was written, and the draft's revision stands. */
+            carried: boolean;
+            incoming: components["schemas"]["AdminCarriedChange"][];
         };
         AdminWorkflowRun: {
             id: number;
@@ -2877,6 +2928,63 @@ export interface operations {
             };
             422: components["responses"]["ValidationResponse"];
             /** @description This deployment has no GitHub credential; download the export and open the pull request by hand. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminCarryDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCarryRequest"];
+            };
+        };
+        responses: {
+            /** @description The draft is based on the current catalog. `carried` is false when the catalog had not moved and nothing was written. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCarryResult"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role, or the request origin is not an admin console origin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            /** @description The catalog and the draft changed the same field (`CATALOG_CARRY_COLLISION`, whose `details.collisions` are findings in the same shape validation returns, so the console can open each one); the draft moved since it was read (`DRAFT_REVISION_CONFLICT`); the caller expected a different base (`BASE_CATALOG_MISMATCH`); the draft already has a pull request (`DRAFT_ALREADY_PROPOSED`); or it was started before the catalog it was imported from was recorded and so cannot be carried (`DRAFT_BASE_NOT_RECORDED`). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            422: components["responses"]["ValidationResponse"];
+            /** @description The editorial catalog is not available to this deployment. */
             503: {
                 headers: {
                     [name: string]: unknown;
