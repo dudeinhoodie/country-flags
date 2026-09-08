@@ -86,11 +86,15 @@ export class DraftProposalService {
     // The catalog this deployment carries is the one the draft was imported
     // from; if master has moved since, the proposal would be built on a
     // stale base and quietly revert whatever landed meanwhile.
+    //
+    // The refusal stands, but it is no longer the end of the draft: it names
+    // the carry, which moves the base forward wherever it can prove nothing
+    // is being reverted and refuses field by field where it cannot (#395).
     const current = this.catalog.read();
     if (current.commit !== draft.baseCatalogCommit) {
       conflict(
         "CATALOG_MOVED_ON",
-        "The editorial catalog changed since this draft was imported; start a new draft from the current catalog",
+        "The editorial catalog changed since this draft was imported; carry the draft onto the current catalog before proposing it",
         { draftBase: draft.baseCatalogCommit, current: current.commit },
       );
     }
