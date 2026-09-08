@@ -352,6 +352,14 @@ public struct RootView: View {
             guard failure == .unauthorized else { return }
             Task { await accountToolbar?.refreshState() }
         }
+        // Signing in or out changes whose records these are. The counts on
+        // Home are read once, on the shell's own `.task`, and coming back
+        // from the account screen does not run it again — so a guest was
+        // shown the numbers of the account they had just left (#401).
+        .onChange(of: accountToolbar?.state) { previous, current in
+            guard previous != nil, previous != current else { return }
+            Task { await progress.reload() }
+        }
         // A warm launch opens straight into the shell, so the first read of
         // the counts happens here rather than on the waiting screen. Both
         // calls are idempotent; whichever screen the launch lands on, the
@@ -492,7 +500,16 @@ public struct RootView: View {
             if let makeAccountLifecycleStore {
                 AccountScreen(
                     store: makeAccountLifecycleStore(),
-                    makeAccount: makeAccountStore,
+                    // The shell's own store, not another one. Signing in
+                    // changes the account, and the avatar and the guest row
+                    // are drawn from this object: handed a second instance,
+                    // the screen changed one account while the shell went on
+                    // reading the other, and only a relaunch agreed with what
+                    // had happened (#401). `AccountStore` is `@Observable`, so
+                    // one shared object is the whole of the fix for the parts
+                    // that are drawn from it.
+                    makeAccount: accountToolbar.map { store in { store } }
+                        ?? makeAccountStore,
                     makeClearProgress: makeClearProgressStore,
                     privacyPolicyURL: configuration.privacyPolicyURL,
                     termsURL: configuration.termsURL,
