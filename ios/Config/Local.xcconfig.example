@@ -27,7 +27,7 @@ CF_DEVELOPMENT_TEAM =
 // not work in that build. Google still does in Dev.
 //
 // Leave it alone on a paid team. It is not a preference.
-// CF_CODE_SIGN_ENTITLEMENTS =
+// CF_APP_ENTITLEMENTS = none
 
 // A local backend instead of the dev deployment.
 // The `/$()/` escape is required: a bare `//` starts an xcconfig comment.

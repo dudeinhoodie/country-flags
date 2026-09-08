@@ -97,6 +97,14 @@ def settings_of_xcconfig(path, seen):
                 continue
             included = include.match(line)
             if included:
+                # Local.xcconfig is one machine's, uncommitted, and is where a
+                # developer on a free Apple team turns entitlements off to get
+                # a build onto a phone. This check answers what the committed
+                # configuration ships and what CI — which has no such file —
+                # will say, so reading it here would make the local run
+                # disagree with the only run that decides.
+                if os.path.basename(included.group(1)) == "Local.xcconfig":
+                    continue
                 settings.update(
                     settings_of_xcconfig(
                         os.path.normpath(
@@ -112,25 +120,36 @@ def settings_of_xcconfig(path, seen):
     return settings
 
 
-REFERENCE = re.compile(r"^\$\((?P<name>[A-Za-z0-9_]+)(?::default=(?P<fallback>[^)]*))?\)$")
+INNERMOST = re.compile(r"\$\((?P<name>[A-Za-z0-9_]+)(?::default=(?P<fallback>[^()]*))?\)")
 
 
 def expand(value, settings):
-    """One level of `$(NAME)` or `$(NAME:default=…)`, as Xcode reads it.
+    """`$(NAME)` and `$(NAME:default=…)`, nested, as Xcode reads them.
 
-    The entitlements path is written through a variable so a machine whose
-    Apple team is a free personal one can empty it in the uncommitted
-    Local.xcconfig and still build for a device (#394). Nothing committed
-    assigns that variable, so here — and on CI, which has no Local.xcconfig —
-    the default is what applies, and that is exactly what must be checked.
+    The entitlements path is written as a name composed from a switch — the
+    machine whose Apple team is a free personal one turns it off in the
+    uncommitted Local.xcconfig and can then build for a device (#394). A
+    composed name rather than an emptied path because `:default=` falls back
+    on an empty value as well as on an absent one, so a variable set to
+    nothing cannot override anything.
+
+    Nothing committed sets the switch, so here — and on CI, which has no
+    Local.xcconfig — the declared entitlements file is what resolves, and
+    that is exactly what has to be checked.
     """
-    match = REFERENCE.match(value.strip())
-    if match is None:
-        return value
-    name = match.group("name")
-    if name in settings:
-        return settings[name]
-    return match.group("fallback") or ""
+    seen = 0
+    while "$(" in value and seen < 10:
+        replaced = INNERMOST.sub(
+            lambda match: settings.get(
+                match.group("name"), match.group("fallback") or ""
+            ),
+            value,
+        )
+        if replaced == value:
+            break
+        value = replaced
+        seen += 1
+    return value
 
 
 def settings_of_configuration(identifier):

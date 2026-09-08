@@ -27,7 +27,12 @@ INFOPLIST_FILE = Config/App-Info.plist
 // ships. Nothing committed assigns the variable, so the default is what
 // every build here and on CI uses, and Scripts/check-signing-entitlements.sh
 // resolves it the same way.
-CODE_SIGN_ENTITLEMENTS = $(CF_CODE_SIGN_ENTITLEMENTS:default=Config/CountryFlags.entitlements)
+// A composed name rather than an overridable path, because `:default=`
+// falls back on an empty value as well as on an absent one: a variable set
+// to nothing cannot override anything, so the escape has to be a switch.
+CF_ENTITLEMENTS_declared = Config/CountryFlags.entitlements
+CF_ENTITLEMENTS_none =
+CODE_SIGN_ENTITLEMENTS = $(CF_ENTITLEMENTS_$(CF_APP_ENTITLEMENTS:default=declared))
 
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
 ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor
