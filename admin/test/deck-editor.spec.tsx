@@ -354,6 +354,7 @@ function stubApi(
         id: DRAFT_ID,
         baseContentVersion: "2026.09.01",
         baseCatalogCommit: "dev",
+        catalogCommit: "dev",
         schemaVersion: 3,
         revision: 7,
         status: "DRAFT",

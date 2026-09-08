@@ -382,6 +382,42 @@ export function parseProposalRequest(body: unknown): ProposalRequestInput {
   };
 }
 
+export interface CarryRequestInput {
+  draftRevision: number;
+  baseCatalogCommit: string;
+}
+
+/**
+ * What the console believed when it asked to carry the draft forward.
+ *
+ * The same two expectations a proposal states, minus the content version: a
+ * carry moves the base the draft was imported from and never touches the
+ * release it is diffed against. Both are still checked rather than trusted,
+ * because the answer to a stale one is a refusal the console can recover
+ * from, not a merge nobody asked for.
+ */
+export function parseCarryRequest(body: unknown): CarryRequestInput {
+  const root = requestRecord(body, "body");
+  exactRequestKeys(root, ["draftRevision", "baseCatalogCommit"], "body");
+  const revision = root.draftRevision;
+  if (
+    typeof revision !== "number" ||
+    !Number.isInteger(revision) ||
+    revision < 1
+  ) {
+    validationError("draftRevision", "must be a positive integer");
+  }
+  return {
+    draftRevision: revision,
+    baseCatalogCommit: requiredString(
+      root.baseCatalogCommit,
+      "baseCatalogCommit",
+      1,
+      200,
+    ),
+  };
+}
+
 export interface PublishRunInput {
   contentVersion: string;
   minimumClientVersion: string;

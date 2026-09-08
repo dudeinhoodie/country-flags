@@ -47,6 +47,14 @@ const clientVersionGateTotal = meter.createCounter(
   },
 );
 
+const adminDraftCarriesTotal = meter.createCounter(
+  "admin_draft_carries_total",
+  {
+    description:
+      "Attempts to carry an editorial draft onto the current catalog, by outcome",
+  },
+);
+
 export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx";
 
 export function statusClassOf(statusCode: number): StatusClass {
@@ -136,6 +144,19 @@ export class MetricsService {
    */
   recordClientVersionGate(route: string, outcome: string): void {
     clientVersionGateTotal.add(1, { route, outcome });
+  }
+
+  /**
+   * How often a draft could be carried onto a catalog that moved under it,
+   * and how often it collided instead. Both labels are a closed set, so no
+   * draft id or catalog commit becomes a series.
+   *
+   * `collided` staying near zero is what says the editorial cycle survives
+   * an ordinary deploy; a rise in it means two writers are working the same
+   * objects and the split of ownership needs looking at, not the merge.
+   */
+  recordDraftCarry(outcome: "carried" | "collided" | "unchanged"): void {
+    adminDraftCarriesTotal.add(1, { outcome });
   }
 
   /**

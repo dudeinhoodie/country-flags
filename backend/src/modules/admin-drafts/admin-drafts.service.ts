@@ -119,6 +119,11 @@ export class AdminDraftsService {
           baseCatalogCommit: snapshot.commit,
           schemaVersion: document.schemaVersion,
           document: document as Prisma.InputJsonValue,
+          // The same bytes, kept as the base the draft is measured against.
+          // Without them a draft whose catalog moved could only be thrown
+          // away, because nothing could tell an edit of this draft's from a
+          // change of somebody else's (#395).
+          baseDocument: document as Prisma.InputJsonValue,
           createdByAdminUserId: actor.id,
           updatedByAdminUserId: actor.id,
         },

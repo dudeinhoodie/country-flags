@@ -26,11 +26,14 @@ import { RequireAdminRole } from "../admin-auth/admin-roles";
 import { AdminRolesGuard } from "../admin-auth/admin-roles.guard";
 import { parseAdminListQuery } from "../admin-auth/admin-users.request";
 import {
+  parseCarryRequest,
   parseDraftUpdateRequest,
   parseIfMatchRevision,
   parseProposalRequest,
 } from "./admin-drafts.request";
 import { AdminDraftsService } from "./admin-drafts.service";
+import { CatalogSourceService } from "./catalog-source.service";
+import { DraftCarryService } from "./draft-carry.service";
 import { DraftDiffService } from "./draft-diff.service";
 import { DraftProposalService } from "./draft-proposal.service";
 import {
@@ -55,9 +58,16 @@ function toDraftSummary(draft: ContentDraft): Record<string, unknown> {
   };
 }
 
-function toDraftDetail(draft: ContentDraft): Record<string, unknown> {
+function toDraftDetail(
+  draft: ContentDraft,
+  catalogCommit: string,
+): Record<string, unknown> {
   return {
     ...toDraftSummary(draft),
+    // Which catalog this deployment carries, so the screen can see that the
+    // draft's base has moved before an editor spends an afternoon on it and
+    // is told at the proposal (#395).
+    catalogCommit,
     document: draft.document,
     validationReport: draft.validationReport,
   };
@@ -73,6 +83,8 @@ export class AdminDraftsController {
     private readonly diffs: DraftDiffService,
     private readonly taxonomy: TaxonomySourceService,
     private readonly proposals: DraftProposalService,
+    private readonly carries: DraftCarryService,
+    private readonly catalog: CatalogSourceService,
   ) {}
 
   @Get()
@@ -95,14 +107,17 @@ export class AdminDraftsController {
       request.adminUser,
       request.requestId,
     );
-    return toDraftDetail(draft);
+    return toDraftDetail(draft, this.catalog.commit());
   }
 
   @Get(":draftId")
   async get(
     @Param("draftId") rawDraftId: string,
   ): Promise<Record<string, unknown>> {
-    return toDraftDetail(await this.drafts.get(uuid(rawDraftId, "draftId")));
+    return toDraftDetail(
+      await this.drafts.get(uuid(rawDraftId, "draftId")),
+      this.catalog.commit(),
+    );
   }
 
   @Patch(":draftId")
@@ -124,7 +139,7 @@ export class AdminDraftsController {
       parsed.document,
       request.requestId,
     );
-    return toDraftDetail(draft);
+    return toDraftDetail(draft, this.catalog.commit());
   }
 
   @Post(":draftId/validate")
@@ -188,6 +203,31 @@ export class AdminDraftsController {
       draftId,
       parseProposalRequest(body),
       diff,
+      request.requestId,
+    );
+    return result as unknown as Record<string, unknown>;
+  }
+
+  /**
+   * Carries the draft onto the catalog this deployment now carries (#395).
+   *
+   * An edit rather than a release, so it is the editor's to make: it opens
+   * no pull request, publishes nothing, and leaves the draft exactly where
+   * it was when it cannot prove the move reverts nobody.
+   */
+  @Post(":draftId/carry")
+  @RequireAdminRole(AdminRole.EDITOR)
+  @HttpCode(HttpStatus.OK)
+  async carry(
+    @Req() request: AdminAuthenticatedRequest,
+    @Param("draftId") rawDraftId: string,
+    @Body() body: unknown,
+  ): Promise<Record<string, unknown>> {
+    this.assertTrustedOrigin(request);
+    const result = await this.carries.carry(
+      request.adminUser,
+      uuid(rawDraftId, "draftId"),
+      parseCarryRequest(body),
       request.requestId,
     );
     return result as unknown as Record<string, unknown>;

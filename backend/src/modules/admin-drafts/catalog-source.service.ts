@@ -22,6 +22,17 @@ export interface CatalogSnapshot {
 export class CatalogSourceService {
   constructor(private readonly config: ConfigService<EnvironmentVariables>) {}
 
+  /**
+   * Which catalog this deployment carries, without reading the file.
+   *
+   * Answering "has the catalog moved under this draft" costs a config
+   * lookup; parsing ninety kilobytes of JSON to find out would make every
+   * read of a draft pay for a question it only wants a yes or no to.
+   */
+  commit(): string {
+    return this.config.getOrThrow<string>("SERVICE_RELEASE");
+  }
+
   read(): CatalogSnapshot {
     const path = resolve(
       process.cwd(),
@@ -37,9 +48,6 @@ export class CatalogSourceService {
         "The editorial catalog is not available to this deployment",
       );
     }
-    return {
-      document: JSON.parse(raw) as unknown,
-      commit: this.config.getOrThrow<string>("SERVICE_RELEASE"),
-    };
+    return { document: JSON.parse(raw) as unknown, commit: this.commit() };
   }
 }

@@ -8,6 +8,7 @@ import { MetaItem, PageHeader } from "../../components/PageHeader";
 import { relativeTime } from "../../components/relative-time";
 import { ErrorState } from "../../components/StateViews";
 import { StatusChip } from "../../components/StatusChip";
+import { CarryDraftPanel } from "./CarryDraftPanel";
 import { ReleasePanel } from "./ReleasePanel";
 import { useDraftWithDecks } from "./useDraftDecks";
 
@@ -59,6 +60,14 @@ export function DraftRelease() {
             <MetaItem label="Updated">{relativeTime(draft.updatedAt)}</MetaItem>
           </>
         }
+      />
+      <CarryDraftPanel
+        draftId={draft.id}
+        draftRevision={draft.revision}
+        baseCatalogCommit={draft.baseCatalogCommit}
+        catalogCommit={draft.catalogCommit}
+        editable={canEdit(permissions)}
+        onCarried={reload}
       />
       <Card>
         <CardContent>

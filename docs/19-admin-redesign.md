@@ -369,6 +369,16 @@ Production mapping нельзя менять без роли и typed confirmati
   открывал источник ошибки.
 - Publish screen группирует diff по Entity, Asset, Card template, Membership,
   Presentation, Access и Commerce mapping.
+- Каталог, уехавший под черновиком (каждый мердж в master разворачивает dev с
+  новым каталогом), больше не убивает черновик: экран Validation & release
+  показывает «carry onto the current catalog», и `POST
+  /v1/admin/content/drafts/{id}/carry` переносит базу трёхсторонним merge —
+  правки и загруженные ассеты остаются как есть. Пересечение по объекту и
+  полю не мержится, а возвращается как `CATALOG_CARRY_COLLISION` с findings в
+  том же формате (`target`, `route`), что и validation, и рисуется тем же
+  `FindingList`. Молчаливый откат чужой правки по-прежнему невозможен: если
+  непересечение недоказуемо, carry отказывает целиком и ничего не пишет
+  (#395).
 
 ## 10. Visual language
 

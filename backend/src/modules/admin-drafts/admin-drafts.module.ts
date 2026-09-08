@@ -16,6 +16,7 @@ import { DraftCandidatesService } from "./draft-candidates.service";
 import { DraftReadModelService } from "./draft-read-model.service";
 import { DraftAssetsController } from "./draft-assets.controller";
 import { DraftAssetsService } from "./draft-assets.service";
+import { DraftCarryService } from "./draft-carry.service";
 import { DraftDecksController } from "./draft-decks.controller";
 import {
   createDraftObjectStorage,
@@ -67,6 +68,7 @@ import { TaxonomySourceService } from "./taxonomy-source.service";
     DraftDiffService,
     DraftValidationService,
     DraftProposalService,
+    DraftCarryService,
     ReleaseRunService,
     PublishRunService,
     {

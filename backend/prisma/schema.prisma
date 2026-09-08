@@ -1406,6 +1406,10 @@ model ContentDraft {
   revision             Int                @default(1)
   status               ContentDraftStatus @default(DRAFT)
   document             Json               @db.JsonB
+  /// The catalog document this draft was imported from, kept so the draft
+  /// can be carried onto a catalog that moved without guessing which side
+  /// changed what (#395). Null on drafts started before it was recorded.
+  baseDocument         Json?              @map("base_document") @db.JsonB
   validationReport     Json?              @map("validation_report") @db.JsonB
   proposalUrl          String?            @map("proposal_url")
   createdByAdminUserId String             @map("created_by_admin_user_id") @db.Uuid

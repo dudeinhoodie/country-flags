@@ -1150,6 +1150,93 @@ paths:
                 $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
         default:
           $ref: ./openapi/components.yaml#/responses/ErrorResponse
+  /v1/admin/content/drafts/{draftId}/carry:
+    post:
+      tags: [AdminDrafts]
+      summary: Carry a draft onto the catalog this deployment now carries
+      operationId: adminCarryDraft
+      x-implementation-status: implemented
+      description: >-
+        A draft records the catalog commit it was imported from, and a
+        proposal built on a stale base is refused because it would silently
+        revert whatever landed in `master` meanwhile (ADR-014 §4). Since
+        every merge redeploys with a new catalog, that refusal used to kill
+        every open draft at once — uploaded drawings included, which live on
+        the draft and cannot be re-created by starting again.
+
+
+        This moves the base forward instead, by a three-way merge of the
+        document the draft was imported from, the document it holds now, and
+        the catalog this deployment carries. Where only one side moved a
+        field, that side wins; where both moved it to the same value they
+        agree; where both moved it to different values nothing is merged and
+        the call is refused with the collisions named by object, tab and
+        field. A refused carry writes nothing: the draft, its edits and its
+        uploads are exactly as they were.
+
+
+        Carrying re-bases the document, so the stored validation verdict is
+        dropped and the draft returns to `DRAFT`: it has to be validated
+        again before it can be proposed.
+      parameters:
+        - name: draftId
+          in: path
+          required: true
+          schema:
+            $ref: ./openapi/components.yaml#/schemas/Uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCarryRequest"
+      responses:
+        "200":
+          description: >-
+            The draft is based on the current catalog. `carried` is false
+            when the catalog had not moved and nothing was written.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCarryResult"
+        "401":
+          $ref: ./openapi/components.yaml#/responses/UnauthorizedResponse
+        "403":
+          description: >-
+            The caller is below the EDITOR role, or the request origin is
+            not an admin console origin.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "404":
+          $ref: ./openapi/components.yaml#/responses/NotFoundResponse
+        "409":
+          description: >-
+            The catalog and the draft changed the same field
+            (`CATALOG_CARRY_COLLISION`, whose `details.collisions` are
+            findings in the same shape validation returns, so the console can
+            open each one); the draft moved since it was read
+            (`DRAFT_REVISION_CONFLICT`); the caller expected a different base
+            (`BASE_CATALOG_MISMATCH`); the draft already has a pull request
+            (`DRAFT_ALREADY_PROPOSED`); or it was started before the catalog
+            it was imported from was recorded and so cannot be carried
+            (`DRAFT_BASE_NOT_RECORDED`).
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        "422":
+          $ref: ./openapi/components.yaml#/responses/ValidationResponse
+        "503":
+          description: >-
+            The editorial catalog is not available to this deployment.
+          content:
+            application/json:
+              schema:
+                $ref: ./openapi/components.yaml#/schemas/ErrorEnvelope
+        default:
+          $ref: ./openapi/components.yaml#/responses/ErrorResponse
   /v1/admin/content/drafts/{draftId}/export:
     get:
       tags: [AdminDrafts]
@@ -2174,8 +2261,14 @@ components:
       allOf:
         - $ref: "#/components/schemas/AdminDraftSummary"
         - type: object
-          required: [document, validationReport]
+          required: [catalogCommit, document, validationReport]
           properties:
+            catalogCommit:
+              description: >-
+                The editorial catalog this deployment carries. When it differs
+                from `baseCatalogCommit` the draft was imported from an older
+                one and has to be carried forward before it can be proposed.
+              type: string
             document:
               type: object
               description: >-
@@ -3979,6 +4072,69 @@ components:
         pullRequestNumber:
           type: integer
           minimum: 0
+    AdminCarryRequest:
+      type: object
+      additionalProperties: false
+      required: [draftRevision, baseCatalogCommit]
+      description: >-
+        What the console believed when it asked. Any disagreement is refused
+        rather than resolved silently.
+      properties:
+        draftRevision:
+          type: integer
+          minimum: 1
+        baseCatalogCommit:
+          description: The catalog commit the console believes the draft is based on.
+          type: string
+          minLength: 1
+    AdminCarriedChange:
+      description: >-
+        One thing the catalog moved while the draft was open, now carried
+        into it. Informational: the draft did not touch these, which is why
+        they could be brought in at all.
+      type: object
+      required: [objectType, objectKey, change]
+      properties:
+        objectType:
+          type: string
+          enum: [catalog, entity, deck, asset, relation]
+        objectKey:
+          type: string
+        change:
+          type: string
+          enum: [added, changed, removed]
+    AdminCarryResult:
+      type: object
+      required:
+        - draftId
+        - revision
+        - status
+        - previousBaseCatalogCommit
+        - baseCatalogCommit
+        - carried
+        - incoming
+      properties:
+        draftId:
+          $ref: ./openapi/components.yaml#/schemas/Uuid
+        revision:
+          description: The draft's revision after the carry; unchanged when nothing moved.
+          type: integer
+          minimum: 1
+        status:
+          $ref: "#/components/schemas/AdminDraftStatus"
+        previousBaseCatalogCommit:
+          type: string
+        baseCatalogCommit:
+          type: string
+        carried:
+          description: >-
+            False when the catalog had not moved: nothing was merged, nothing
+            was written, and the draft's revision stands.
+          type: boolean
+        incoming:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminCarriedChange"
     AdminWorkflowRun:
       type: object
       required: [id, status, conclusion, url, createdAt]

@@ -25,6 +25,7 @@ const DRAFT = {
   id: DRAFT_ID,
   baseContentVersion: "fixture-v1",
   baseCatalogCommit: "abc1234",
+  catalogCommit: "abc1234",
   schemaVersion: 1,
   revision: 3,
   status: "READY",
