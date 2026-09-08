@@ -218,7 +218,13 @@ function collectReferenceIssues(domain: BundleDomain): string[] {
         );
       }
     }
-    if ((deck.previewCards ?? []).length > 3) {
+    // Only a deck with a shop window is held to the size of it. A free deck
+    // shows everything it holds, so the count means nothing there and used to
+    // refuse the release anyway.
+    if (
+      deck.access?.model === "ENTITLEMENT" &&
+      (deck.previewCards ?? []).length > 3
+    ) {
       issues.push(
         `deck ${deck.key} previews ${String((deck.previewCards ?? []).length)} cards; a locked deck may show at most three`,
       );

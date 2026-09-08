@@ -636,7 +636,14 @@ export class DraftValidationService {
           );
         }
       });
-      if ((deck.previewCards ?? []).length > 3) {
+      // The cap is a rule about a shop window, so it applies to a deck that
+      // has one. A free deck shows all of its cards to everybody: there is no
+      // "before it is bought", and holding it to three was a paid-deck
+      // refusal raised against decks that are not for sale.
+      if (
+        deck.access?.model === "ENTITLEMENT" &&
+        (deck.previewCards ?? []).length > 3
+      ) {
         findings.push(
           blocking(
             "DECK_PREVIEW_NOT_PUBLIC",
