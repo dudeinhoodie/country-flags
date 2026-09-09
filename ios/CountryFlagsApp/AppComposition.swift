@@ -214,8 +214,10 @@ struct AppComposition: AppDependencies {
             logger: logger
         )
         let contentRepository = store.makeContentRepository()
-        // Whatever the carry above could not place, so the progress screen can
-        // say so once rather than a number quietly going down.
+        // Whatever the carry below could not place, so the progress screen can
+        // say so once rather than a number quietly going down. Written by the
+        // bootstrap and read by the progress store, which is why it is built
+        // here and handed to both.
         let strandedNotices = UserDefaultsStrandedProgressNoticeStore()
         // The scale of the screen this app is running on, read once at
         // assembly: it decides which raster every asset record points at, and

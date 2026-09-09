@@ -506,9 +506,7 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
                     "stranded": .count(carried.strandedCards),
                 ]
             )
-            guard carried.strandedCards > 0 else {
-                return
-            }
+            guard carried.strandedCards > 0 else { return }
             // Work on a card the arriving release does not carry has nowhere
             // to go. The rows stay; what must not happen is the learner
             // finding out by noticing a number went down.
