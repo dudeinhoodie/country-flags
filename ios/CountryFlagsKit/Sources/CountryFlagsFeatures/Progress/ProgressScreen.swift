@@ -119,6 +119,13 @@ public struct ProgressScreen: View {
                         Image(systemName: "xmark")
                             .font(DesignTokens.Typography.caption)
                             .foregroundStyle(.white.opacity(0.6))
+                            // A glyph is not a target. The hit area is the
+                            // one every other control on this screen has.
+                            .frame(
+                                width: DesignTokens.Layout.minimumTouchTarget,
+                                height: DesignTokens.Layout.minimumTouchTarget
+                            )
+                            .contentShape(.rect)
                     }
                     .accessibilityLabel(L10n.progressStrandedDismiss)
                     .accessibilityIdentifier(AccessibilityIdentifier.progressStrandedDismiss)

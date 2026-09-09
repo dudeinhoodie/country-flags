@@ -182,10 +182,13 @@ public struct ContentIdentityMapping: Hashable, Sendable {
         var cards: [UUID: Card] = [:]
         var stranded: Set<UUID> = []
         for card in superseded.cards {
-            guard let match = arrivingByIdentity[card.identity], match.id != card.id else {
-                if arrivingByIdentity[card.identity] == nil { stranded.insert(card.id) }
+            guard let match = arrivingByIdentity[card.identity] else {
+                stranded.insert(card.id)
                 continue
             }
+            // An identifier the arriving release kept has not moved, and a
+            // mapping that named it would be a rewrite with nothing to write.
+            guard match.id != card.id else { continue }
             cards[card.id] = Card(
                 id: match.id,
                 promptAssetID: match.promptAssetID,
