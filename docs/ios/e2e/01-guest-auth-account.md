@@ -352,7 +352,8 @@
 ## IOS-E2E-008 Переключение между двумя аккаунтами на одном устройстве
 
 - Priority: P0
-- Execution: Mock CI для progress isolation; Dev E2E для полного набора данных
+- Execution: Mock CI для progress/settings/entitlement isolation; Dev E2E для
+  private assets и outbox isolation
 - Fixtures: `A1`, `A2`, разные progress/settings/entitlements
 
 ### Description

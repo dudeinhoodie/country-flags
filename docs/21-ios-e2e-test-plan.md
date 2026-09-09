@@ -375,8 +375,8 @@ Fixtures не должны делить keychain/session между паралл
 1. Guest migration и базовый sign-out покрыты через fixture auth; системные
    Apple/Google sheets, cancellation и provider failures ещё требуют Device и
    Dev E2E.
-2. Базовая изоляция progress при A → B → A покрыта в Mock CI; settings,
-   entitlements, private assets и sign-out с pending outbox ещё не покрыты.
+2. Изоляция progress, settings и entitlements при A → B → A покрыта в Mock CI;
+   private assets и sign-out с pending outbox ещё не покрыты.
 3. StoreKit UI проверяет locked/free/owned presentation, но не purchase,
    pending, cancellation, restore, unverified transaction и refund.
 4. Из настроек UI-тестом проверяется только session size; отсутствуют
@@ -397,7 +397,7 @@ Fixtures не должны делить keychain/session между паралл
 - восстановление account session после relaunch без повторного import;
 - sign-out → гостевой интерфейс и доступное обучение;
 - Account A → sign-out → Account B → sign-out → Account A с проверкой
-  изоляции и восстановления progress;
+  изоляции и восстановления progress, session size и paid entitlement;
 - `GuestAuthUITests` включён в pull-request smoke suite, а полный набор по-прежнему
   выполняется nightly.
 

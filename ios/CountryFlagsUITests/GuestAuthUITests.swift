@@ -17,6 +17,9 @@ final class GuestAuthUITests: XCTestCase {
     private let accountB = [
         "-fixture-account-id", "9f000000-0000-4000-8000-00000000000b",
     ]
+    private let paidDeckDiscovery = [
+        "-feature-flag", "commerce.paid_decks.discovery.enabled=true",
+    ]
 
     override func setUp() {
         super.setUp()
@@ -70,9 +73,10 @@ final class GuestAuthUITests: XCTestCase {
         )
     }
 
-    func testSwitchingAccountsKeepsTheirProgressIsolated() {
+    func testSwitchingAccountsKeepsPrivateStateIsolated() {
         let first = launch(
-            arguments: ["-reset-store", "-fake-signin"] + identity + accountA
+            arguments: ["-reset-store", "-fake-signin", "-owned-deck"]
+                + identity + accountA
         )
         answerOneCard(in: first)
         openAccount(in: first)
@@ -82,28 +86,40 @@ final class GuestAuthUITests: XCTestCase {
                 .waitForExistence(timeout: 20),
             first.debugDescription
         )
+        first.navigationBars.buttons.element(boundBy: 0).tap()
+        selectSessionSize(20, in: first)
+        assertPaidDeckIsOwned(in: first)
+        openAccount(in: first)
         signOut(in: first)
         first.terminate()
 
-        let second = launch(arguments: ["-fake-signin"] + identity + accountB)
+        let second = launch(
+            arguments: ["-fake-signin"] + identity + accountB + paidDeckDiscovery
+        )
         openAccount(in: second)
         signInWithFixture(in: second)
         second.navigationBars.buttons.element(boundBy: 0).tap()
+        assertSessionSize(10, in: second)
         second.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(
             second.staticTexts["progress.empty"].waitForExistence(timeout: 20),
             "Account B must not see Account A's progress\n\(second.debugDescription)"
         )
         XCTAssertFalse(element("progress.deck.ALL.counts", in: second).exists)
+        assertPaidDeckIsLocked(in: second)
 
+        second.tabBars.buttons["Home"].tap()
         openAccount(in: second)
         signOut(in: second)
         second.terminate()
 
-        let restored = launch(arguments: ["-fake-signin"] + identity + accountA)
+        let restored = launch(
+            arguments: ["-fake-signin", "-owned-deck"] + identity + accountA
+        )
         openAccount(in: restored)
         signInWithFixture(in: restored)
         restored.navigationBars.buttons.element(boundBy: 0).tap()
+        assertSessionSize(20, in: restored)
         restored.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(
             element("progress.deck.ALL.counts", in: restored)
@@ -111,6 +127,7 @@ final class GuestAuthUITests: XCTestCase {
             "Returning to Account A must restore its own progress\n\(restored.debugDescription)"
         )
         XCTAssertFalse(restored.staticTexts["progress.empty"].exists)
+        assertPaidDeckIsOwned(in: restored)
     }
 
     private func answerOneCard(in app: XCUIApplication) {
@@ -175,6 +192,61 @@ final class GuestAuthUITests: XCTestCase {
             app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
             app.debugDescription
         )
+    }
+
+    private func selectSessionSize(_ size: Int, in app: XCUIApplication) {
+        openSettings(in: app)
+        let option = app.buttons["settings.sessionSize.\(size)"]
+        XCTAssertTrue(option.waitForExistence(timeout: 15), app.debugDescription)
+        option.tap()
+        XCTAssertTrue(option.isSelected, app.debugDescription)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(
+            app.buttons["root.shell.openSettings"].waitForExistence(timeout: 30),
+            app.debugDescription
+        )
+    }
+
+    private func assertSessionSize(_ size: Int, in app: XCUIApplication) {
+        openSettings(in: app)
+        let option = app.buttons["settings.sessionSize.\(size)"]
+        XCTAssertTrue(option.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(option.isSelected, app.debugDescription)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+    }
+
+    private func openSettings(in app: XCUIApplication) {
+        let settings = app.buttons["root.shell.openSettings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 30), app.debugDescription)
+        settings.tap()
+    }
+
+    private func assertPaidDeckIsOwned(in app: XCUIApplication) {
+        app.tabBars.buttons["Catalog"].tap()
+        let deck = app.buttons["catalog.deck.SPECIAL_AREAS"]
+        XCTAssertTrue(deck.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertFalse(deck.label.contains("Paid"), deck.label)
+        deck.tap()
+        XCTAssertTrue(
+            app.buttons["study.start"].waitForExistence(timeout: 15),
+            "Account A must keep its paid entitlement\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(element("deck.paywall", in: app).exists)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+    }
+
+    private func assertPaidDeckIsLocked(in app: XCUIApplication) {
+        app.tabBars.buttons["Catalog"].tap()
+        let deck = app.buttons["catalog.deck.SPECIAL_AREAS"]
+        XCTAssertTrue(deck.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(deck.label.contains("Paid"), deck.label)
+        deck.tap()
+        XCTAssertTrue(
+            element("deck.paywall", in: app).waitForExistence(timeout: 15),
+            "Account B must not inherit Account A's paid entitlement\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(app.buttons["study.start"].exists)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
     }
 
     private func element(_ identifier: String, in app: XCUIApplication) -> XCUIElement {
