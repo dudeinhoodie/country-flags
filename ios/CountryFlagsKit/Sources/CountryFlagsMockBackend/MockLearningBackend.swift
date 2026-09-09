@@ -30,7 +30,8 @@ public final class MockLearningBackend: @unchecked Sendable {
         self.defaults = defaults
         self.now = now
         let installationID = Self.value(after: "-installation-id", in: arguments) ?? "default"
-        storageKey = "countryflags.mock.learning.\(installationID)"
+        let accountUserID = MockAuth.fixtureUserID(arguments: arguments)
+        storageKey = "countryflags.mock.learning.\(installationID).\(accountUserID)"
         if arguments.contains("-reset-store") {
             defaults.removeObject(forKey: storageKey)
         }

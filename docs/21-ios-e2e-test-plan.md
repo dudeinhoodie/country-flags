@@ -353,7 +353,7 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 9 сентября 2026 года в `ios/CountryFlagsUITests` есть 29 UI-тестов, включая
+На 9 сентября 2026 года в `ios/CountryFlagsUITests` есть 30 UI-тестов, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
@@ -365,7 +365,7 @@ Fixtures не должны делить keychain/session между паралл
 | Progress/settings | `ProgressSettingsUITests` (3) |
 | Sync presentation | `SyncStatusUITests` (1) |
 | Paid deck presentation | `PaidDeckUITests` (3) |
-| Guest → account migration и sign-out | `GuestAuthUITests` (2) |
+| Guest migration, sign-out и account isolation | `GuestAuthUITests` (3) |
 | Account deletion | `AccountLifecycleUITests` (1) |
 | Accessibility/localization | `AccessibilityUITests` (4) |
 | Store screenshots | `StoreScreenshotUITests` (1) |
@@ -375,7 +375,8 @@ Fixtures не должны делить keychain/session между паралл
 1. Guest migration и базовый sign-out покрыты через fixture auth; системные
    Apple/Google sheets, cancellation и provider failures ещё требуют Device и
    Dev E2E.
-2. Нет E2E account switching/scope isolation и sign-out с pending outbox.
+2. Базовая изоляция progress при A → B → A покрыта в Mock CI; settings,
+   entitlements, private assets и sign-out с pending outbox ещё не покрыты.
 3. StoreKit UI проверяет locked/free/owned presentation, но не purchase,
    pending, cancellation, restore, unverified transaction и refund.
 4. Из настроек UI-тестом проверяется только session size; отсутствуют
@@ -395,6 +396,8 @@ Fixtures не должны делить keychain/session между паралл
 - guest review → fixture sign-in → backend import → account progress;
 - восстановление account session после relaunch без повторного import;
 - sign-out → гостевой интерфейс и доступное обучение;
+- Account A → sign-out → Account B → sign-out → Account A с проверкой
+  изоляции и восстановления progress;
 - `GuestAuthUITests` включён в pull-request smoke suite, а полный набор по-прежнему
   выполняется nightly.
 

@@ -352,7 +352,7 @@
 ## IOS-E2E-008 Переключение между двумя аккаунтами на одном устройстве
 
 - Priority: P0
-- Execution: Dev E2E
+- Execution: Mock CI для progress isolation; Dev E2E для полного набора данных
 - Fixtures: `A1`, `A2`, разные progress/settings/entitlements
 
 ### Description
@@ -392,6 +392,14 @@
   - данные A1 не появляются даже кратковременно;
   - toolbar avatar/profile соответствует A2;
   - никакой outbox A1 не отправляется в account A2.
+
+- Выйти из A2 и снова войти как A1.
+
+  **Expected result**
+
+  - progress A1 снова доступен;
+  - пустое состояние A2 не затёрло данные A1;
+  - повторный вход не запускает guest import заново.
 
 ## IOS-E2E-009 Очистка прогресса без удаления аккаунта
 

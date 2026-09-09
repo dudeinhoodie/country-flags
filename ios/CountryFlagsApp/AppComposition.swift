@@ -704,12 +704,19 @@ struct AppComposition: AppDependencies {
             dates: any DateProviding
         ) -> MockClientTransport? {
             guard configuration.environment == .mock else { return nil }
+            let fixtureUserID = MockAuth.fixtureUserID()
             var fallbacks: [String: MockClientTransport.Response] = [
                 "getAppConfig": MockAppConfig.response(now: dates.now()),
                 // The account surface, offline: exchange, rotation, sign-out and
                 // the guest import all answer deterministically.
-                "authenticateWithApple": MockAuth.session(now: dates.now()),
-                "authenticateWithGoogle": MockAuth.session(now: dates.now()),
+                "authenticateWithApple": MockAuth.session(
+                    now: dates.now(),
+                    userID: fixtureUserID
+                ),
+                "authenticateWithGoogle": MockAuth.session(
+                    now: dates.now(),
+                    userID: fixtureUserID
+                ),
                 "refreshSession": MockAuth.refreshedTokens(now: dates.now()),
                 "logout": MockAuth.loggedOut,
                 "logoutAll": MockAuth.loggedOut,

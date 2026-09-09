@@ -11,6 +11,12 @@ final class GuestAuthUITests: XCTestCase {
     private let identity = [
         "-installation-id", "7a8ef513-a7be-4cc8-9ee8-8e852acb3659",
     ]
+    private let accountA = [
+        "-fixture-account-id", "9f000000-0000-4000-8000-00000000000a",
+    ]
+    private let accountB = [
+        "-fixture-account-id", "9f000000-0000-4000-8000-00000000000b",
+    ]
 
     override func setUp() {
         super.setUp()
@@ -54,21 +60,7 @@ final class GuestAuthUITests: XCTestCase {
         let app = launch(arguments: ["-reset-store", "-fake-signin"] + identity)
         openAccount(in: app)
         signInWithFixture(in: app)
-
-        let signOut = app.buttons["settings.account.signOut"]
-        XCTAssertTrue(signOut.waitForExistence(timeout: 10), app.debugDescription)
-        signOut.tap()
-
-        let confirmation = app.buttons.matching(
-            identifier: "settings.account.signOut.confirm"
-        ).firstMatch
-        XCTAssertTrue(confirmation.waitForExistence(timeout: 10), app.debugDescription)
-        confirmation.tap()
-
-        XCTAssertTrue(
-            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
-            app.debugDescription
-        )
+        signOut(in: app)
         XCTAssertFalse(element("settings.account.signedIn", in: app).exists)
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -76,6 +68,49 @@ final class GuestAuthUITests: XCTestCase {
             app.buttons["home.deck.ALL"].waitForExistence(timeout: 20),
             "Signing out must leave the guest learning flow available\n\(app.debugDescription)"
         )
+    }
+
+    func testSwitchingAccountsKeepsTheirProgressIsolated() {
+        let first = launch(
+            arguments: ["-reset-store", "-fake-signin"] + identity + accountA
+        )
+        answerOneCard(in: first)
+        openAccount(in: first)
+        signInWithFixture(in: first)
+        XCTAssertTrue(
+            element("settings.account.migrationImported", in: first)
+                .waitForExistence(timeout: 20),
+            first.debugDescription
+        )
+        signOut(in: first)
+        first.terminate()
+
+        let second = launch(arguments: ["-fake-signin"] + identity + accountB)
+        openAccount(in: second)
+        signInWithFixture(in: second)
+        second.navigationBars.buttons.element(boundBy: 0).tap()
+        second.tabBars.buttons["Progress"].tap()
+        XCTAssertTrue(
+            second.staticTexts["progress.empty"].waitForExistence(timeout: 20),
+            "Account B must not see Account A's progress\n\(second.debugDescription)"
+        )
+        XCTAssertFalse(element("progress.deck.ALL.counts", in: second).exists)
+
+        openAccount(in: second)
+        signOut(in: second)
+        second.terminate()
+
+        let restored = launch(arguments: ["-fake-signin"] + identity + accountA)
+        openAccount(in: restored)
+        signInWithFixture(in: restored)
+        restored.navigationBars.buttons.element(boundBy: 0).tap()
+        restored.tabBars.buttons["Progress"].tap()
+        XCTAssertTrue(
+            element("progress.deck.ALL.counts", in: restored)
+                .waitForExistence(timeout: 20),
+            "Returning to Account A must restore its own progress\n\(restored.debugDescription)"
+        )
+        XCTAssertFalse(restored.staticTexts["progress.empty"].exists)
     }
 
     private func answerOneCard(in app: XCUIApplication) {
@@ -124,6 +159,22 @@ final class GuestAuthUITests: XCTestCase {
         XCTAssertTrue(signIn.waitForExistence(timeout: 20), app.debugDescription)
         signIn.tap()
         XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
+    }
+
+    private func signOut(in app: XCUIApplication) {
+        let signOut = app.buttons["settings.account.signOut"]
+        XCTAssertTrue(signOut.waitForExistence(timeout: 10), app.debugDescription)
+        signOut.tap()
+
+        let confirmation = app.buttons.matching(
+            identifier: "settings.account.signOut.confirm"
+        ).firstMatch
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 10), app.debugDescription)
+        confirmation.tap()
+        XCTAssertTrue(
+            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
+            app.debugDescription
+        )
     }
 
     private func element(_ identifier: String, in app: XCUIApplication) -> XCUIElement {
