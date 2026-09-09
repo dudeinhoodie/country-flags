@@ -79,7 +79,11 @@ actor SwiftDataProgressCarry: ProgressCarrying {
         var moved = 0
         var merged = 0
         var stranded: Set<UUID> = []
-        for state in states {
+        // A row this pass has already merged away is not looked at again. It
+        // is still in the array being walked, and reading a deleted model is
+        // not something to rely on.
+        var dropped: Set<ObjectIdentifier> = []
+        for state in states where !dropped.contains(ObjectIdentifier(state)) {
             if mapping.strandedCardIDs.contains(state.learningCardID) {
                 stranded.insert(state.learningCardID)
                 continue
@@ -89,9 +93,11 @@ actor SwiftDataProgressCarry: ProgressCarrying {
                 merged += 1
                 if Self.survives(existing, over: state) {
                     modelContext.delete(state)
+                    dropped.insert(ObjectIdentifier(state))
                     continue
                 }
                 modelContext.delete(existing)
+                dropped.insert(ObjectIdentifier(existing))
             }
             state.learningCardID = destination.id
             byScopeAndCard[state.scopeKey]?[destination.id] = state
