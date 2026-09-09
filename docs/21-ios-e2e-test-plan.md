@@ -112,7 +112,7 @@ Fixtures не должны делить keychain/session между паралл
 | `J-13` | `A1`: удалить аккаунт с re-auth → relaunch | Устройство становится guest; private scope очищен; pending deletion notice переживает relaunch | Dev E2E + Device |
 | `J-14` | `A1`: access token истёк во время foreground sync | Выполнен single refresh; при невосстановимой сессии показан re-sign-in без удаления локальной работы | Dev E2E |
 | `J-15` | `G0`: пройти multiple-choice с правильными и неправильными ответами | До выбора ответ не раскрыт; результат и scheduler mapping сохранены корректно | Mock CI |
-| `J-16` | `A1`: sign out при непустом outbox | Показано число несинхронизированных ответов; Cancel сохраняет сессию, подтверждение следует выбранному scope policy | Mock CI + Dev E2E |
+| `J-16` | `A1`: sign out при непустом outbox | Показано число несинхронизированных ответов; Cancel сохраняет сессию; после подтверждения pending review остаются в изолированном account scope и не видны guest/другому аккаунту | Mock CI + Dev E2E |
 
 ## 5. Детальная E2E-матрица
 
@@ -169,7 +169,7 @@ Fixtures не должны делить keychain/session между паралл
 | --- | --- | --- | --- | --- |
 | `IOS-E2E-AC-01` | P0 | Sign out без pending work | Возврат в новый/закреплённый guest scope; account-only данные скрыты | Mock CI + Dev E2E |
 | `IOS-E2E-AC-02` | P0 | Sign out с pending review → Cancel | Session/account/outbox остаются без изменений | Mock CI |
-| `IOS-E2E-AC-03` | P0 | Sign out current device с pending review → Confirm | Применяется согласованная policy; UI не заявляет sync неотправленных данных как успешный | Dev E2E |
+| `IOS-E2E-AC-03` | P0 | Sign out current device с pending review → Confirm | Pending review остаются в account scope до повторного входа того же account; guest scope их не видит и UI не заявляет их синхронизированными | Mock CI + Dev E2E |
 | `IOS-E2E-AC-04` | P1 | Sign out everywhere | Текущая session завершается; другое устройство теряет session при следующем запросе | Dev E2E |
 | `IOS-E2E-AC-05` | P0 | Account A → sign out → Account B | Progress/settings/entitlements A не видны B; общедоступный content cache переиспользуется безопасно | Dev E2E |
 | `IOS-E2E-AC-06` | P0 | Clear progress: открыть dialog → Cancel | Ни local, ни server progress не меняются | Mock CI |
@@ -353,7 +353,7 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 9 сентября 2026 года в `ios/CountryFlagsUITests` есть 30 UI-тестов, включая
+На 9 сентября 2026 года в `ios/CountryFlagsUITests` есть 31 UI-тест, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
@@ -365,7 +365,7 @@ Fixtures не должны делить keychain/session между паралл
 | Progress/settings | `ProgressSettingsUITests` (3) |
 | Sync presentation | `SyncStatusUITests` (1) |
 | Paid deck presentation | `PaidDeckUITests` (3) |
-| Guest migration, sign-out и account isolation | `GuestAuthUITests` (3) |
+| Guest migration, sign-out и account isolation | `GuestAuthUITests` (4) |
 | Account deletion | `AccountLifecycleUITests` (1) |
 | Accessibility/localization | `AccessibilityUITests` (4) |
 | Store screenshots | `StoreScreenshotUITests` (1) |
@@ -375,8 +375,9 @@ Fixtures не должны делить keychain/session между паралл
 1. Guest migration и базовый sign-out покрыты через fixture auth; системные
    Apple/Google sheets, cancellation и provider failures ещё требуют Device и
    Dev E2E.
-2. Изоляция progress, settings и entitlements при A → B → A покрыта в Mock CI;
-   private assets и sign-out с pending outbox ещё не покрыты.
+2. Изоляция progress, settings и entitlements при A → B → A, а также pending
+   outbox при Cancel/Confirm sign-out покрыты в Mock CI; private assets ещё не
+   покрыты.
 3. StoreKit UI проверяет locked/free/owned presentation, но не purchase,
    pending, cancellation, restore, unverified transaction и refund.
 4. Из настроек UI-тестом проверяется только session size; отсутствуют
@@ -398,6 +399,8 @@ Fixtures не должны делить keychain/session между паралл
 - sign-out → гостевой интерфейс и доступное обучение;
 - Account A → sign-out → Account B → sign-out → Account A с проверкой
   изоляции и восстановления progress, session size и paid entitlement;
+- sign-out с двумя pending review: точный warning, Cancel без потери сессии,
+  Confirm без утечки в guest и восстановление очереди после повторного входа;
 - `GuestAuthUITests` включён в pull-request smoke suite, а полный набор по-прежнему
   выполняется nightly.
 

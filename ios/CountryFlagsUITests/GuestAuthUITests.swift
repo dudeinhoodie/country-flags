@@ -130,20 +130,67 @@ final class GuestAuthUITests: XCTestCase {
         assertPaidDeckIsOwned(in: restored)
     }
 
+    func testPendingAnswersSurviveCancelledAndConfirmedSignOut() {
+        let app = launch(
+            arguments: ["-reset-store", "-fake-signin"] + identity + accountA
+        )
+        openAccount(in: app)
+        signInWithFixture(in: app)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        answerCards(2, in: app)
+
+        openAccount(in: app)
+        requestSignOut(in: app)
+        assertPendingAnswerWarning(count: 2, in: app)
+
+        let cancel = app.buttons.matching(
+            identifier: "settings.account.signOut.cancel"
+        ).firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10), app.debugDescription)
+        cancel.tap()
+        XCTAssertTrue(
+            element("settings.account.signedIn", in: app).waitForExistence(timeout: 10),
+            "Cancelling sign-out must keep the account session\n\(app.debugDescription)"
+        )
+
+        requestSignOut(in: app)
+        assertPendingAnswerWarning(count: 2, in: app)
+        confirmSignOut(in: app)
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.tabBars.buttons["Progress"].tap()
+        XCTAssertTrue(
+            app.staticTexts["progress.empty"].waitForExistence(timeout: 20),
+            "Account progress must not leak into the guest scope\n\(app.debugDescription)"
+        )
+
+        openAccount(in: app)
+        signInWithFixture(in: app)
+        requestSignOut(in: app)
+        assertPendingAnswerWarning(count: 2, in: app)
+        app.buttons.matching(identifier: "settings.account.signOut.cancel").firstMatch.tap()
+    }
+
     private func answerOneCard(in app: XCUIApplication) {
+        answerCards(1, in: app)
+    }
+
+    private func answerCards(_ count: Int, in app: XCUIApplication) {
         let start = app.buttons["study.start"]
         openHomeDeck(in: app, until: start)
         XCTAssertTrue(start.waitForExistence(timeout: 20), app.debugDescription)
         start.tap()
 
-        let reveal = app.buttons["study.reveal"]
-        XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)
-        reveal.tap()
-        XCTAssertTrue(
-            element("study.answer", in: app).waitForExistence(timeout: 10),
-            app.debugDescription
-        )
-        element("study.card", in: app).swipeRight()
+        for _ in 0..<count {
+            let reveal = app.buttons["study.reveal"]
+            XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)
+            reveal.tap()
+            XCTAssertTrue(
+                element("study.answer", in: app).waitForExistence(timeout: 10),
+                app.debugDescription
+            )
+            element("study.card", in: app).swipeRight()
+        }
         app.buttons["study.close"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
     }
@@ -179,10 +226,17 @@ final class GuestAuthUITests: XCTestCase {
     }
 
     private func signOut(in app: XCUIApplication) {
+        requestSignOut(in: app)
+        confirmSignOut(in: app)
+    }
+
+    private func requestSignOut(in app: XCUIApplication) {
         let signOut = app.buttons["settings.account.signOut"]
         XCTAssertTrue(signOut.waitForExistence(timeout: 10), app.debugDescription)
         signOut.tap()
+    }
 
+    private func confirmSignOut(in app: XCUIApplication) {
         let confirmation = app.buttons.matching(
             identifier: "settings.account.signOut.confirm"
         ).firstMatch
@@ -191,6 +245,16 @@ final class GuestAuthUITests: XCTestCase {
         XCTAssertTrue(
             app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
             app.debugDescription
+        )
+    }
+
+    private func assertPendingAnswerWarning(count: Int, in app: XCUIApplication) {
+        let warning = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "\(count) answers are not on the server yet.")
+        ).firstMatch
+        XCTAssertTrue(
+            warning.waitForExistence(timeout: 10),
+            "Sign-out must explain how many answers are pending\n\(app.debugDescription)"
         )
     }
 

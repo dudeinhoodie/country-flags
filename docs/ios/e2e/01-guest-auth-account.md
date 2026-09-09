@@ -343,11 +343,18 @@
 
   **Expected result**
 
-  - применяется документированная policy для pending work;
+  - 2 pending review остаются в изолированном account scope до повторного входа A1;
   - приложение не сообщает неотправленные review как синхронизированные;
   - auth tokens удалены;
   - UI возвращается в guest state;
   - account progress/paid content не протекают в guest scope.
+
+- Повторно войти в A1 и снова открыть Sign out.
+
+  **Expected result**
+
+  - warning снова сообщает о тех же 2 pending review;
+  - очередь не была удалена или перепривязана к guest scope при выходе.
 
 ## IOS-E2E-008 Переключение между двумя аккаунтами на одном устройстве
 
