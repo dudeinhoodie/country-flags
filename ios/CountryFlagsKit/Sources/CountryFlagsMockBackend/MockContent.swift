@@ -52,6 +52,7 @@ public enum MockContent {
         struct Item: Decodable {
             let id: String
             let code: String
+            let cardCount: Int
         }
 
         let items: [Item]
@@ -72,6 +73,20 @@ public enum MockContent {
             uniquingKeysWith: { first, _ in first }
         )
     }()
+
+    private static let cardCountsByDeckID: [String: Int] = {
+        guard let page = try? JSONDecoder().decode(DeckPage.self, from: document("decks")) else {
+            preconditionFailure("The generated deck page cannot be read")
+        }
+        return Dictionary(
+            page.items.map { ($0.id.lowercased(), $0.cardCount) },
+            uniquingKeysWith: { first, _ in first }
+        )
+    }()
+
+    public static func cardCount(forDeckID id: String) -> Int? {
+        cardCountsByDeckID[id.lowercased()]
+    }
 
     /// The deck identifier out of `/v1/decks/{deckId}/cards`.
     private static func deckID(in path: String) -> String? {

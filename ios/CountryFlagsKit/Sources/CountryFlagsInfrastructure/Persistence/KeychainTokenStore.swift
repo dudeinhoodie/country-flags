@@ -10,9 +10,11 @@ import CountryFlagsDomain
 /// while the device is locked. `ThisDeviceOnly` keeps the secrets out of an
 /// encrypted backup restored onto another device.
 public struct KeychainTokenStore: SecureTokenStoring {
+    public static let defaultService = "app.countryflags.session"
+
     private let service: String
 
-    public init(service: String = "app.countryflags.session") {
+    public init(service: String = Self.defaultService) {
         self.service = service
     }
 

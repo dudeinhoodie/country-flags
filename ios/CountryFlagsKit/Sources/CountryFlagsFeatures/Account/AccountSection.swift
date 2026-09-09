@@ -52,9 +52,11 @@ struct AccountSection: View {
             Button(L10n.accountSignOut, role: .destructive) {
                 Task { await store.confirmSignOut(everywhere: false) }
             }
+            .accessibilityIdentifier(AccessibilityIdentifier.accountSignOutConfirm)
             Button(L10n.accountSignOutEverywhere, role: .destructive) {
                 Task { await store.confirmSignOut(everywhere: true) }
             }
+            .accessibilityIdentifier(AccessibilityIdentifier.accountSignOutEverywhereConfirm)
             Button(L10n.accountCancel, role: .cancel) {
                 store.cancelSignOut()
             }

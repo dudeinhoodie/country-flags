@@ -69,12 +69,13 @@ public enum MockAuth {
     public static func importResult(
         now: Date,
         migrationID: String = "00000000-0000-4000-8000-00000000f00d",
+        acceptedEventCount: Int = 2,
         statusCode: Int = 202
     ) -> MockClientTransport.Response {
         .json(
             """
             {"migrationId":"\(migrationID)","status":"APPLIED",\
-            "acceptedEventCount":2,"duplicateEventCount":0,"rejectedEventCount":0,\
+            "acceptedEventCount":\(acceptedEventCount),"duplicateEventCount":0,"rejectedEventCount":0,\
             "createdAt":"\(timestamp(now))","completedAt":"\(timestamp(now))"}
             """,
             statusCode: statusCode

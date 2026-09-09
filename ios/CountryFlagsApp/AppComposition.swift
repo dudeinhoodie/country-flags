@@ -2,6 +2,10 @@ import Foundation
 import SwiftUI
 import UIKit
 
+#if DEBUG
+    import Security
+#endif
+
 import CountryFlagsDomain
 import CountryFlagsFeatures
 import CountryFlagsInfrastructure
@@ -147,7 +151,14 @@ struct AppComposition: AppDependencies {
             let transport: (any ClientTransport)? = nil
         #endif
 
-        let tokens = KeychainTokenStore()
+        #if MOCK_BACKEND
+            // The CI app is unsigned, so its fixture session needs a store
+            // that survives relaunch without pretending to test a keychain
+            // entitlement it does not have. Prod does not link this type.
+            let tokens: any SecureTokenStoring = MockPersistentTokenStore()
+        #else
+            let tokens: any SecureTokenStoring = KeychainTokenStore()
+        #endif
         let accountScopes = accountScopes(tokens: tokens, identifiers: identifiers, logger: logger)
         // The auth endpoints authenticate by what is in their bodies -- an
         // identity token, a refresh token -- not by a bearer, so their client
@@ -702,8 +713,6 @@ struct AppComposition: AppDependencies {
                 "refreshSession": MockAuth.refreshedTokens(now: dates.now()),
                 "logout": MockAuth.loggedOut,
                 "logoutAll": MockAuth.loggedOut,
-                "createGuestImport": MockAuth.importResult(now: dates.now()),
-                "getGuestImport": MockAuth.importResult(now: dates.now(), statusCode: 200),
                 // The account surface: its ways in, its devices, an export that is
                 // ready by the time it is asked about, and a deletion that is
                 // accepted. All of it offline.
@@ -718,6 +727,8 @@ struct AppComposition: AppDependencies {
                 "reauthenticateGoogle": MockAuth.reauthenticationProof(now: dates.now()),
             ]
             var handlers: [String: MockClientTransport.Handler] = [:]
+            let learning = MockLearningBackend(now: dates.now)
+            handlers.merge(learning.handlers()) { current, _ in current }
             // One deck for sale, and an account that comes to own it. The
             // commerce endpoints answer whether or not content does: a
             // storefront must still be walkable on the launch that proves the
@@ -763,7 +774,9 @@ struct AppComposition: AppDependencies {
     ) -> any AccountScopeResolving {
         #if DEBUG
             if let pinned = pinnedInstallationID() {
-                return FixedAccountScopeResolver(scope: .guest(installationID: pinned))
+                return FixedGuestAccountScopeResolver(
+                    guestScope: .guest(installationID: pinned)
+                )
             }
         #endif
         return GuestScopeProvider(tokens: tokens, identifiers: identifiers, logger: logger)
@@ -831,10 +844,23 @@ struct AppComposition: AppDependencies {
             for url in LocalStore.fileURLs(forName: name) {
                 try? fileManager.removeItem(at: url)
             }
-            // The store is not the only thing a launch remembers: the deletion
-            // notice deliberately lives outside it, so a reset that left it
-            // standing would hand the next test somebody else's account state.
-            UserDefaultsAccountDeletionStateStore().store(pendingDeletion: nil)
+            // The store is not the only thing a launch remembers. Reset the
+            // session as well, otherwise a UI test can inherit the previous
+            // test's signed-in account from the simulator keychain while its
+            // local account scope has just been deleted.
+            let sessionQuery: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: KeychainTokenStore.defaultService,
+            ]
+            SecItemDelete(sessionQuery as CFDictionary)
+
+            // Migration records, reminder preferences, cached flags and the
+            // account-deletion notice all live outside SwiftData. A reset is
+            // the Mock build's equivalent of a clean install, so retaining
+            // any one of those values makes tests order-dependent.
+            if let bundleIdentifier = Bundle.main.bundleIdentifier {
+                UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
+            }
         }
     #endif
 
@@ -880,9 +906,9 @@ struct AppComposition: AppDependencies {
 
 #if DEBUG
     /// A guest identity a UI test can keep across relaunches.
-    struct FixedAccountScopeResolver: AccountScopeResolving {
-        let scope: AccountScope
+    struct FixedGuestAccountScopeResolver: AccountScopeResolving {
+        let guestScope: AccountScope
 
-        func currentScope() async -> AccountScope { scope }
+        func currentScope() async -> AccountScope { guestScope }
     }
 #endif

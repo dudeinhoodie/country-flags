@@ -31,6 +31,8 @@
 - [19-admin-redesign.md](./19-admin-redesign.md) — task-oriented редизайн админки: draft workspace, entity/media editor, deck builder, validation и release UX.
 - [20-admin-parity-checklist.md](./20-admin-parity-checklist.md) — чем закрыты entity/asset/deck workflows редизайна, что осталось за feature flag и чего проверка не покрывает.
 - [20-deployment-observability.md](./20-deployment-observability.md) — что оператор видит о деплое, деградации воркера и восстановлении: сигналы, запросы, alerts, dashboard и release verification checklist.
+- [21-ios-e2e-test-plan.md](./21-ios-e2e-test-plan.md) — сквозная iOS E2E-матрица: guest/auth migration, обучение, sync, настройки, StoreKit, paid multi-content decks и release gaps.
+- [ios/e2e/README.md](./ios/e2e/README.md) — подробные пошаговые iOS E2E test cases с предусловиями и expected result после каждого значимого действия.
 - [ops/deployment-runbooks.md](./ops/deployment-runbooks.md) — deploy, rollback, отказ миграции, отказ backup и ротация секретов: команды, ожидаемый вывод и условия остановки.
 - [ops/commerce-reconciliation-runbook.md](./ops/commerce-reconciliation-runbook.md) — сверка со Store: что делает джоб, его alerts и ручные действия.
 - [ios/README.md](./ios/README.md) — порядок iOS-разработки и отдельные agent-ready спецификации IOS-000…IOS-013.
