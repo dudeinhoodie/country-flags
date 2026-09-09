@@ -135,6 +135,15 @@ public final class AccountStore {
     /// is the one question a refused sync run reopens.
     public func refreshState() async {
         state = await session.currentState()
+        // Not every way out of an account goes through `confirmSignOut` —
+        // deleting one ends the session from another store entirely — so
+        // whoever re-reads the state also drops what belonged to the account
+        // that is no longer signed in.
+        guard case .authenticated = state else {
+            profile = nil
+            await loadAvatar()
+            return
+        }
     }
 
     private func loadAvatar() async {
@@ -255,6 +264,11 @@ public final class AccountStore {
         state = await session.currentState()
         profile = nil
         migration = nil
+        // The picture goes with the person. `profile = nil` alone left the
+        // bytes in `avatar`, and the toolbar went on drawing the face of
+        // somebody who had signed out (#401). `loadAvatar` is the one place
+        // that knows how to clear both it and the URL it was fetched from.
+        await loadAvatar()
         // After the session is gone, so that whoever answers reads the scope
         // this device is in now rather than the one it has just left.
         await onSignedOut?()

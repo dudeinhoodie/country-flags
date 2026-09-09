@@ -298,6 +298,59 @@ final class AccountAvatarTests: XCTestCase {
         XCTAssertEqual(afterSecond, 1)
     }
 
+    /// The picture goes with the person. Clearing the profile alone left the
+    /// bytes behind, and the toolbar drew the face of somebody who had signed
+    /// out until the app was relaunched (#401).
+    func testTheAvatarLeavesWithTheAccount() async {
+        let session = ScriptedSession(
+            outcome: .succeeded(userID: Fixtures.userID),
+            avatarURL: avatarURL,
+        )
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let store = AccountStore(
+            session: session,
+            migrations: RecordingMigrations(),
+            outbox: StubOutbox(pendingCount: 0),
+            scopes: StubScopes(),
+            nonces: StubNonces(),
+            avatars: CountingAvatarLoader(bytes: Data([1, 2, 3])),
+        )
+        await store.start()
+        XCTAssertEqual(store.avatar, Data([1, 2, 3]))
+
+        await store.confirmSignOut(everywhere: false)
+
+        XCTAssertNil(store.avatar)
+        XCTAssertNil(store.profile)
+    }
+
+    /// Deleting an account ends the session from another store entirely, so
+    /// the one the toolbar reads learns of it by re-reading the state.
+    func testReReadingTheStateDropsWhatBelongedToTheAccount() async {
+        let session = ScriptedSession(
+            outcome: .succeeded(userID: Fixtures.userID),
+            avatarURL: avatarURL,
+        )
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let store = AccountStore(
+            session: session,
+            migrations: RecordingMigrations(),
+            outbox: StubOutbox(pendingCount: 0),
+            scopes: StubScopes(),
+            nonces: StubNonces(),
+            avatars: CountingAvatarLoader(bytes: Data([1, 2, 3])),
+        )
+        await store.start()
+        XCTAssertEqual(store.avatar, Data([1, 2, 3]))
+
+        // Somebody else ended it.
+        await session.signOut(everywhere: false)
+        await store.refreshState()
+
+        XCTAssertNil(store.avatar)
+        XCTAssertNil(store.profile)
+    }
+
     /// A missing picture and a picture that would not load look the same on
     /// screen — the glyph — and neither is worth a message.
     func testAFailedFetchLeavesNoAvatarAndNoError() async {
