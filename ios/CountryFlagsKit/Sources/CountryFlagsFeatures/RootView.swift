@@ -586,6 +586,10 @@ public enum AccessibilityIdentifier {
 
     public static let homeOpenProgress = "home.openProgress"
     public static let progressEmpty = "progress.empty"
+    /// Work a catalogue change could not carry across, and the control that
+    /// says it has been read.
+    public static let progressStrandedNotice = "progress.stranded"
+    public static let progressStrandedDismiss = "progress.stranded.dismiss"
 
     public static func progressDeckRow(_ code: String) -> String {
         "progress.deck.\(code)"

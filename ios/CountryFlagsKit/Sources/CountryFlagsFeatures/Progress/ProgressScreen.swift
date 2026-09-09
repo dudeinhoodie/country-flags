@@ -53,6 +53,8 @@ public struct ProgressScreen: View {
     /// looks like a screen that failed to load.
     private var empty: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
+            strandedNotice
+
             Spacer(minLength: 0)
 
             Image(systemName: "chart.bar")
@@ -78,8 +80,57 @@ public struct ProgressScreen: View {
         .sceneChrome()
     }
 
+    /// What a catalogue change could not carry across, said out loud.
+    ///
+    /// The seeded catalogue this build ships is superseded whole by the first
+    /// release a server hands over, and the work done on it is moved onto the
+    /// arriving identifiers card by card (ADR-021). A card the arriving
+    /// release no longer publishes has nowhere to move to. Its rows are still
+    /// on the device — nothing is deleted — but they can never be counted
+    /// again, and #404 is precisely about that happening without a word: the
+    /// owner studied, signed in, and the numbers were gone.
+    ///
+    /// Dismissible, and said once: it describes something that has already
+    /// finished happening.
+    @ViewBuilder
+    private var strandedNotice: some View {
+        if let notice = store.strandedNotice {
+            GlassCard(padding: DesignTokens.Spacing.medium) {
+                HStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
+                    Image(systemName: "exclamationmark.circle")
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(.white.opacity(0.75))
+
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                        Text(L10n.progressStrandedTitle)
+                            .font(DesignTokens.Typography.sectionTitle)
+                            .foregroundStyle(.white)
+                        Text(L10n.progressStrandedBody(notice.cardCount))
+                            .font(DesignTokens.Typography.body)
+                            .foregroundStyle(.white.opacity(0.65))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier(AccessibilityIdentifier.progressStrandedNotice)
+
+                    Button {
+                        store.dismissStrandedNotice()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
+                    .accessibilityLabel(L10n.progressStrandedDismiss)
+                    .accessibilityIdentifier(AccessibilityIdentifier.progressStrandedDismiss)
+                }
+            }
+        }
+    }
+
     private var loaded: some View {
         SceneScrollView {
+            strandedNotice
+
             // The hero is the world itself: every continent drawn from the
             // app's own geodata, its brightness the share of it learned. The
             // rows underneath answer "where exactly"; this answers "how much
