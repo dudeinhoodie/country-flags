@@ -129,11 +129,19 @@ final class SeededProgressCarryTests: XCTestCase {
         let queued = pending.filter { $0.kind == .reviewBatch }
         XCTAssertEqual(queued.count, 1)
         let operation = try XCTUnwrap(queued.first)
-        let payload = try XCTUnwrap(
-            JSONSerialization.jsonObject(with: operation.payload) as? [String: Any]
+        // Read back the way the uploader reads it: the payload is edited as
+        // JSON rather than re-encoded from today's types, so what matters is
+        // that it still decodes into the shape that goes on the wire.
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let stored = try decoder.decode(
+            ReviewUploader.StoredReview.self,
+            from: operation.payload
         )
-        let cardID = try XCTUnwrap(UUID(uuidString: try XCTUnwrap(payload["learningCardID"] as? String)))
-        XCTAssertEqual(cardID, UUID(uuidString: SyntheticContent.flags[0].cardID))
+        XCTAssertEqual(stored.learningCardID, UUID(uuidString: SyntheticContent.flags[0].cardID))
+        // Everything else the learner did is untouched.
+        XCTAssertEqual(stored.rating, "GOOD")
+        XCTAssertEqual(stored.clientSequence, 1)
     }
 
     // MARK: - What cannot be carried
