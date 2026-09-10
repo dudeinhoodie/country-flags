@@ -248,8 +248,9 @@ public final class AccountStore {
     /// user. The sign-out happens only in `confirmSignOut`.
     public func requestSignOut() async {
         let scope = await scopes.currentScope()
-        let pending = (try? await outbox.pendingOperations(for: scope)) ?? []
-        signOutAssessment = SignOutAssessment(unsyncedCount: pending.count)
+        let pendingReviews = ((try? await outbox.pendingOperations(for: scope)) ?? [])
+            .filter { $0.kind == .reviewBatch }
+        signOutAssessment = SignOutAssessment(unsyncedCount: pendingReviews.count)
     }
 
     public func cancelSignOut() {

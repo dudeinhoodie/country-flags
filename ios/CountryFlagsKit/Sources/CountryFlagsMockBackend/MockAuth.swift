@@ -8,8 +8,26 @@ import Foundation
 /// offline. The values satisfy the contract's shapes — token lengths, the
 /// settings envelope — so the same decoding runs as against the real thing.
 public enum MockAuth {
-    /// The one account the mock backend knows.
+    /// The account used when a test does not choose one explicitly.
     public static let userID = "9f000000-0000-4000-8000-000000000001"
+
+    public static let fixtureAccountIDArgument = "-fixture-account-id"
+
+    /// Selects the account represented by this Mock app process.
+    ///
+    /// A real backend reads the account from the bearer token. The offline
+    /// fixture has no identity service, so an explicit launch argument gives
+    /// account-switching tests the same boundary without making the shipping
+    /// application aware of test users.
+    public static func fixtureUserID(
+        arguments: [String] = ProcessInfo.processInfo.arguments
+    ) -> String {
+        guard let index = arguments.firstIndex(of: fixtureAccountIDArgument),
+            index + 1 < arguments.count,
+            UUID(uuidString: arguments[index + 1]) != nil
+        else { return userID }
+        return arguments[index + 1].lowercased()
+    }
 
     private static func timestamp(_ date: Date) -> String {
         let formatter = ISO8601DateFormatter()
@@ -27,7 +45,10 @@ public enum MockAuth {
     }
 
     /// `POST /v1/auth/apple` and `/google`.
-    public static func session(now: Date) -> MockClientTransport.Response {
+    public static func session(
+        now: Date,
+        userID: String = userID
+    ) -> MockClientTransport.Response {
         .json(
             """
             {"tokens":{"accessToken":"mock-access-token-0123456789abcdef0123",\
@@ -69,12 +90,13 @@ public enum MockAuth {
     public static func importResult(
         now: Date,
         migrationID: String = "00000000-0000-4000-8000-00000000f00d",
+        acceptedEventCount: Int = 2,
         statusCode: Int = 202
     ) -> MockClientTransport.Response {
         .json(
             """
             {"migrationId":"\(migrationID)","status":"APPLIED",\
-            "acceptedEventCount":2,"duplicateEventCount":0,"rejectedEventCount":0,\
+            "acceptedEventCount":\(acceptedEventCount),"duplicateEventCount":0,"rejectedEventCount":0,\
             "createdAt":"\(timestamp(now))","completedAt":"\(timestamp(now))"}
             """,
             statusCode: statusCode

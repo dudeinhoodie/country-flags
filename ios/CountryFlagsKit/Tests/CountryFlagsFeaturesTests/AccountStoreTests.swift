@@ -90,6 +90,19 @@ final class AccountStoreTests: XCTestCase {
         XCTAssertEqual(store.signOutAssessment?.requiresWarning, false)
     }
 
+    func testSignOutWarningCountsAnswersInsteadOfEveryQueuedOperation() async {
+        let store = makeStore(
+            session: ScriptedSession(outcome: .succeeded(userID: Fixtures.userID)),
+            migrations: RecordingMigrations(),
+            pendingOperations: 2,
+            otherPendingOperations: 3
+        )
+
+        await store.requestSignOut()
+
+        XCTAssertEqual(store.signOutAssessment?.unsyncedCount, 2)
+    }
+
     /// The provider sheet being dismissed is a change of mind, not a failure:
     /// nothing is worded and nothing is reported.
     func testACancelledSignInLeavesNoFailureBehind() {
@@ -110,12 +123,16 @@ final class AccountStoreTests: XCTestCase {
     private func makeStore(
         session: ScriptedSession,
         migrations: RecordingMigrations,
-        pendingOperations: Int = 0
+        pendingOperations: Int = 0,
+        otherPendingOperations: Int = 0
     ) -> AccountStore {
         AccountStore(
             session: session,
             migrations: migrations,
-            outbox: StubOutbox(pendingCount: pendingOperations),
+            outbox: StubOutbox(
+                pendingCount: pendingOperations,
+                otherPendingCount: otherPendingOperations
+            ),
             scopes: StubScopes(),
             nonces: StubNonces()
         )
@@ -200,11 +217,12 @@ private struct StubNonces: NonceGenerating {
 
 private struct StubOutbox: OutboxRepository {
     let pendingCount: Int
+    var otherPendingCount = 0
 
     func enqueue(_ operation: OutboxOperationRecord, for scope: AccountScope) async throws {}
 
     func pendingOperations(for scope: AccountScope) async throws -> [OutboxOperationRecord] {
-        (0..<pendingCount).map { index in
+        let reviews = (0..<pendingCount).map { index in
             OutboxOperationRecord(
                 id: UUID(uuidString: String(format: "90000000-0000-4000-8000-%012d", index))!,
                 kind: .reviewBatch,
@@ -217,6 +235,20 @@ private struct StubOutbox: OutboxRepository {
                 updatedAt: Date(timeIntervalSince1970: 1_800_000_000)
             )
         }
+        let other = (0..<otherPendingCount).map { index in
+            OutboxOperationRecord(
+                id: UUID(uuidString: String(format: "91000000-0000-4000-8000-%012d", index))!,
+                kind: .settingsUpdate,
+                dependencyID: nil,
+                payload: Data(),
+                state: .pending,
+                attemptCount: 0,
+                lastFailureCode: nil,
+                createdAt: Date(timeIntervalSince1970: 1_800_000_000),
+                updatedAt: Date(timeIntervalSince1970: 1_800_000_000)
+            )
+        }
+        return reviews + other
     }
 
     func updateState(

@@ -159,6 +159,7 @@ jobs:
             -skipPackagePluginValidation \
             -only-testing:CountryFlagsUITests/LaunchSmokeUITests \
             -only-testing:CountryFlagsUITests/StudySessionUITests \
+            -only-testing:CountryFlagsUITests/GuestAuthUITests \
             -only-testing:CountryFlagsUITests/SyncStatusUITests \
             -only-testing:CountryFlagsUITests/PaidDeckUITests \
             -resultBundlePath build/CountryFlags-Mock.xcresult \

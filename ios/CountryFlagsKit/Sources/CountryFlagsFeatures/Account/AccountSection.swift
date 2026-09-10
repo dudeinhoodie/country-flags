@@ -52,12 +52,19 @@ struct AccountSection: View {
             Button(L10n.accountSignOut, role: .destructive) {
                 Task { await store.confirmSignOut(everywhere: false) }
             }
+            .accessibilityIdentifier(AccessibilityIdentifier.accountSignOutConfirm)
             Button(L10n.accountSignOutEverywhere, role: .destructive) {
                 Task { await store.confirmSignOut(everywhere: true) }
             }
-            Button(L10n.accountCancel, role: .cancel) {
+            .accessibilityIdentifier(AccessibilityIdentifier.accountSignOutEverywhereConfirm)
+            // A cancel-role button is omitted by the iPad/popover adaptation
+            // of `confirmationDialog`, leaving only tap-outside dismissal.
+            // This choice protects unsent work, so it stays an explicit action
+            // on every size class instead of relying on hidden chrome.
+            Button(L10n.accountCancel) {
                 store.cancelSignOut()
             }
+            .accessibilityIdentifier(AccessibilityIdentifier.accountSignOutCancel)
         }
     }
 
