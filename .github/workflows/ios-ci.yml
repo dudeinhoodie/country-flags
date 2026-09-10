@@ -148,7 +148,10 @@ jobs:
       # runs nightly — thirty-five minutes is too long to hold a review, and a
       # check nobody waits for is a check nobody reads. Paid decks earn their
       # minute here because a lock that stops being drawn is content given
-      # away, and nothing else in the smoke set would notice.
+      # away, and nothing else in the smoke set would notice. Clearing progress
+      # earns its place for the mirror-image reason: it is the one flow that
+      # deletes a learner's history, and a regression there is unrecoverable
+      # rather than merely visible.
       - name: Build and smoke-test Mock
         run: |
           set -o pipefail
@@ -160,6 +163,7 @@ jobs:
             -only-testing:CountryFlagsUITests/LaunchSmokeUITests \
             -only-testing:CountryFlagsUITests/StudySessionUITests \
             -only-testing:CountryFlagsUITests/GuestAuthUITests \
+            -only-testing:CountryFlagsUITests/AccountProgressUITests \
             -only-testing:CountryFlagsUITests/SyncStatusUITests \
             -only-testing:CountryFlagsUITests/PaidDeckUITests \
             -resultBundlePath build/CountryFlags-Mock.xcresult \

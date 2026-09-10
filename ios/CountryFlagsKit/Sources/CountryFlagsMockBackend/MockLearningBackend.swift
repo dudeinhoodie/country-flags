@@ -11,12 +11,19 @@ import Foundation
 /// This small stateful fixture persists only card identifiers and deck
 /// membership in the Mock app's defaults. It survives an app relaunch, is
 /// namespaced by the fixed installation ID a UI test supplies, and is cleared
-/// by `-reset-store`. All handlers are invoked serially by
+/// by `-reset-store` — or by the account's own progress deletion, which is
+/// the fixture's half of that flow. All handlers are invoked serially by
 /// `MockClientTransport`, which owns the closures that capture this object.
 public final class MockLearningBackend: @unchecked Sendable {
     private struct StoredState: Codable {
         var cardsByDeckID: [String: [String]] = [:]
     }
+
+    /// The contract's one accepted word. Spelled out here rather than reached
+    /// for through the generated client: the fixture answers requests, so it
+    /// checks what arrived on the wire.
+    private static let deletionConfirmation = "DELETE_PROGRESS"
+    private static let deletionOperationID = "c1000000-0000-4000-8000-00000000c1ea"
 
     private let defaults: UserDefaults
     private let storageKey: String
@@ -43,6 +50,7 @@ public final class MockLearningBackend: @unchecked Sendable {
             "getGuestImport": { [self] request in importStatus(request) },
             "getUserChanges": { [self] _ in userChanges() },
             "getProgress": { [self] _ in progress() },
+            "deleteProgress": { [self] request in clearProgress(request) },
         ]
     }
 
@@ -176,6 +184,37 @@ public final class MockLearningBackend: @unchecked Sendable {
         ])
     }
 
+    /// `DELETE /v1/me/progress`.
+    ///
+    /// The fixture forgets what it holds rather than answering `202` and
+    /// keeping it. A mock that accepted the deletion and went on serving the
+    /// same history would let a device clear itself, resynchronize, and
+    /// quietly get everything back — which is the one failure this endpoint
+    /// exists to prevent, and the one a UI test must be able to see.
+    private func clearProgress(
+        _ request: MockClientTransport.RecordedRequest
+    ) -> MockClientTransport.Response {
+        guard let body = request.body,
+            let payload = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
+            payload["confirmation"] as? String == Self.deletionConfirmation
+        else {
+            return .errorEnvelope(
+                statusCode: 422,
+                code: "VALIDATION_FAILED",
+                message: "The mock progress deletion carries no confirmation"
+            )
+        }
+        defaults.removeObject(forKey: storageKey)
+        return Self.json(
+            [
+                "operationId": Self.deletionOperationID,
+                "status": "COMPLETED",
+                "requestedAt": Self.timestamp(now()),
+            ],
+            statusCode: 202
+        )
+    }
+
     private func load() -> StoredState {
         guard let data = defaults.data(forKey: storageKey),
             let state = try? JSONDecoder().decode(StoredState.self, from: data)
@@ -187,11 +226,14 @@ public final class MockLearningBackend: @unchecked Sendable {
         defaults.set(try? JSONEncoder().encode(state), forKey: storageKey)
     }
 
-    private static func json(_ object: [String: Any]) -> MockClientTransport.Response {
+    private static func json(
+        _ object: [String: Any],
+        statusCode: Int = 200
+    ) -> MockClientTransport.Response {
         guard let data = try? JSONSerialization.data(withJSONObject: object) else {
             return .errorEnvelope(statusCode: 500, code: "MOCK_ENCODING_FAILED")
         }
-        return .json(data)
+        return .json(data, statusCode: statusCode)
     }
 
     private static func timestamp(_ date: Date) -> String {

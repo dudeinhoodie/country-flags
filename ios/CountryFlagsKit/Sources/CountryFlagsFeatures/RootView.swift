@@ -619,6 +619,7 @@ public enum AccessibilityIdentifier {
     public static let privacyConflict = "settings.privacy.conflict"
     public static let settingsClearProgress = "settings.clearProgress"
     public static let settingsClearProgressConfirm = "settings.clearProgress.confirm"
+    public static let settingsClearProgressCancel = "settings.clearProgress.cancel"
     public static let settingsClearProgressStatus = "settings.clearProgress.status"
     public static let accountOpen = "account.open"
     public static let settingsDeletionPending = "settings.account.deletionPending"

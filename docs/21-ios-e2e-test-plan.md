@@ -1,7 +1,7 @@
 # iOS E2E test plan
 
 Статус: `Implementation started — Wave 1`
-Дата: 9 сентября 2026 года
+Дата: 10 сентября 2026 года
 
 Документ задаёт сквозное E2E-покрытие текущего iOS-приложения: от первого
 запуска и гостевого обучения до авторизации, синхронизации, покупок, настроек
@@ -108,7 +108,7 @@ Fixtures не должны делить keychain/session между паралл
 | `J-09` | `A0`: Restore purchases для ранее купленного Apple product | Backend entitlement появляется, owned deck открывается на этом устройстве | StoreKit Test + Sandbox |
 | `J-10` | `P1`: начать paid session → получить refund/revocation | Текущая сессия завершается; новая не стартует; прогресс не удалён | Dev E2E + Sandbox |
 | `J-11` | `A1`: изменить session size и privacy consent → открыть приложение на втором устройстве | Account settings сходятся с backend; локальное permission state не копируется | Dev E2E |
-| `J-12` | `A1`: удалить прогресс с re-auth → синхронизировать два устройства | Сервер и оба устройства показывают пустой progress; аккаунт и purchases сохранены | Dev E2E + Device |
+| `J-12` | `A1`: удалить прогресс из аккаунта → синхронизировать два устройства | Сервер и оба устройства показывают пустой progress; аккаунт и purchases сохранены | Dev E2E + Device |
 | `J-13` | `A1`: удалить аккаунт с re-auth → relaunch | Устройство становится guest; private scope очищен; pending deletion notice переживает relaunch | Dev E2E + Device |
 | `J-14` | `A1`: access token истёк во время foreground sync | Выполнен single refresh; при невосстановимой сессии показан re-sign-in без удаления локальной работы | Dev E2E |
 | `J-15` | `G0`: пройти multiple-choice с правильными и неправильными ответами | До выбора ответ не раскрыт; результат и scheduler mapping сохранены корректно | Mock CI |
@@ -172,8 +172,8 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-AC-03` | P0 | Sign out current device с pending review → Confirm | Pending review остаются в account scope до повторного входа того же account; guest scope их не видит и UI не заявляет их синхронизированными | Mock CI + Dev E2E |
 | `IOS-E2E-AC-04` | P1 | Sign out everywhere | Текущая session завершается; другое устройство теряет session при следующем запросе | Dev E2E |
 | `IOS-E2E-AC-05` | P0 | Account A → sign out → Account B | Progress/settings/entitlements A не видны B; общедоступный content cache переиспользуется безопасно | Dev E2E |
-| `IOS-E2E-AC-06` | P0 | Clear progress: открыть dialog → Cancel | Ни local, ни server progress не меняются | Mock CI |
-| `IOS-E2E-AC-07` | P0 | Clear progress с re-auth → Confirm | Progress/outbox очищены после server success; account/purchases/settings сохранены | Dev E2E + Device |
+| `IOS-E2E-AC-06` | P0 | Clear progress: открыть dialog → Cancel | Ни local, ни server progress не меняются; outbox, session и settings нетронуты | Mock CI |
+| `IOS-E2E-AC-07` | P0 | Clear progress → Confirm | Progress/outbox/курсоры очищены после server success; account/purchases/settings сохранены, и история не возвращается после relaunch и повторного входа | Mock CI + Dev E2E + Device |
 | `IOS-E2E-AC-08` | P1 | Clear progress backend failure | Локальная история не удаляется; доступен retry | Mock CI |
 | `IOS-E2E-AC-09` | P0 | Delete account → Cancel | Account остаётся активным, данные не меняются | Mock CI |
 | `IOS-E2E-AC-10` | P0 | Delete account с re-auth → success | App возвращается в guest; private scope/token очищены; notice переживает relaunch | Dev E2E + Device |
@@ -353,7 +353,7 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 9 сентября 2026 года в `ios/CountryFlagsUITests` есть 31 UI-тест, включая
+На 10 сентября 2026 года в `ios/CountryFlagsUITests` есть 33 UI-теста, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
@@ -366,6 +366,7 @@ Fixtures не должны делить keychain/session между паралл
 | Sync presentation | `SyncStatusUITests` (1) |
 | Paid deck presentation | `PaidDeckUITests` (3) |
 | Guest migration, sign-out и account isolation | `GuestAuthUITests` (4) |
+| Clear progress: Cancel и Confirm | `AccountProgressUITests` (2) |
 | Account deletion | `AccountLifecycleUITests` (1) |
 | Accessibility/localization | `AccessibilityUITests` (4) |
 | Store screenshots | `StoreScreenshotUITests` (1) |
@@ -375,9 +376,9 @@ Fixtures не должны делить keychain/session между паралл
 1. Guest migration и базовый sign-out покрыты через fixture auth; системные
    Apple/Google sheets, cancellation и provider failures ещё требуют Device и
    Dev E2E.
-2. Изоляция progress, settings и entitlements при A → B → A, а также pending
-   outbox при Cancel/Confirm sign-out покрыты в Mock CI; private assets ещё не
-   покрыты.
+2. Изоляция progress, settings и entitlements при A → B → A, pending outbox при
+   Cancel/Confirm sign-out и обе ветки Clear progress покрыты в Mock CI;
+   private assets и multi-device convergence после очистки ещё не покрыты.
 3. StoreKit UI проверяет locked/free/owned presentation, но не purchase,
    pending, cancellation, restore, unverified transaction и refund.
 4. Из настроек UI-тестом проверяется только session size; отсутствуют
@@ -401,8 +402,13 @@ Fixtures не должны делить keychain/session между паралл
   изоляции и восстановления progress, session size и paid entitlement;
 - sign-out с двумя pending review: точный warning, Cancel без потери сессии,
   Confirm без утечки в guest и восстановление очереди после повторного входа;
-- `GuestAuthUITests` включён в pull-request smoke suite, а полный набор по-прежнему
-  выполняется nightly.
+- Clear progress → Cancel: текст последствий, явная кнопка отмены, сохранённые
+  progress, outbox, session и session size, в том числе после relaunch;
+- Clear progress → Confirm: пустой Progress, удалённая очередь и курсоры,
+  сохранённые session, session size и paid entitlement, отсутствие возврата
+  истории после relaunch, sign-out и повторного входа;
+- `GuestAuthUITests` и `AccountProgressUITests` включены в pull-request smoke
+  suite, а полный набор по-прежнему выполняется nightly.
 
 ### Wave 2 — settings и content expansion
 

@@ -10,11 +10,11 @@ import CountryFlagsDomain
 /// hanging off the section itself could only run once the section was already
 /// on screen — which it never was.
 ///
-/// It is one section rather than two copies because it is offered in two
-/// places — the settings and the account screen — and a destructive action
+/// It is a section rather than a screen's worth of code because the offer
+/// travels: it sits on the account screen today, and a destructive action
 /// that confirms in one place and not the other is a bug waiting for the
-/// version where somebody edits only one of them. A guest never sees it:
-/// there is no server-side history to erase.
+/// version where somebody adds the second place and edits only one of them.
+/// A guest never sees it: there is no server-side history to erase.
 struct ClearProgressSection: View {
     /// Owned for the same reason every screen owns its store.
     @State private var store: ClearProgressStore
@@ -42,7 +42,16 @@ struct ClearProgressSection: View {
                         Task { await store.confirm() }
                     }
                     .accessibilityIdentifier(AccessibilityIdentifier.settingsClearProgressConfirm)
-                    Button(L10n.accountCancel, role: .cancel) { store.cancel() }
+                    // Not a cancel-role button, for the reason the sign-out
+                    // dialog is not one either: the iPad/popover adaptation of
+                    // `confirmationDialog` omits that role and leaves only
+                    // tap-outside dismissal. Backing out of erasing a learner's
+                    // whole history stays an explicit action on every size
+                    // class.
+                    Button(L10n.accountCancel) { store.cancel() }
+                        .accessibilityIdentifier(
+                            AccessibilityIdentifier.settingsClearProgressCancel
+                        )
                 } message: {
                     Text(L10n.settingsClearProgressBody)
                 }
