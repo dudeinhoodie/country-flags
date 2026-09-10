@@ -25,9 +25,20 @@ public final class MockLearningBackend: @unchecked Sendable {
     private static let deletionConfirmation = "DELETE_PROGRESS"
     private static let deletionOperationID = "c1000000-0000-4000-8000-00000000c1ea"
 
+    /// Makes this run's backend refuse to clear progress. Mock only; a release
+    /// binary does not contain this module at all.
+    public static let refusedDeletionArgument = "-refuse-progress-deletion"
+
     private let defaults: UserDefaults
     private let storageKey: String
     private let now: @Sendable () -> Date
+    /// Whether this run's backend refuses to delete progress.
+    ///
+    /// The safety of the whole operation rests on the order — the server
+    /// agrees first, the device erases second — and the only way to see that
+    /// order hold is to watch a refusal happen and find the history still
+    /// there. A fixture that could only succeed could not prove it.
+    private let refusesDeletion: Bool
 
     public init(
         arguments: [String] = ProcessInfo.processInfo.arguments,
@@ -36,6 +47,7 @@ public final class MockLearningBackend: @unchecked Sendable {
     ) {
         self.defaults = defaults
         self.now = now
+        refusesDeletion = arguments.contains(Self.refusedDeletionArgument)
         let installationID = Self.value(after: "-installation-id", in: arguments) ?? "default"
         let accountUserID = MockAuth.fixtureUserID(arguments: arguments)
         storageKey = "countryflags.mock.learning.\(installationID).\(accountUserID)"
@@ -202,6 +214,15 @@ public final class MockLearningBackend: @unchecked Sendable {
                 statusCode: 422,
                 code: "VALIDATION_FAILED",
                 message: "The mock progress deletion carries no confirmation"
+            )
+        }
+        // Refused before anything is forgotten: a backend that failed after
+        // deleting would be a different bug from the one this simulates.
+        if refusesDeletion {
+            return .errorEnvelope(
+                statusCode: 503,
+                code: "SERVICE_UNAVAILABLE",
+                message: "The mock backend refuses to clear progress"
             )
         }
         defaults.removeObject(forKey: storageKey)

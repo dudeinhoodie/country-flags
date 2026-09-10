@@ -46,6 +46,48 @@ final class AccountLifecycleStoreTests: XCTestCase {
         XCTAssertEqual(signOuts, 1)
     }
 
+    /// The deletion has to say that the session ended, because it ends it from
+    /// a store of its own: everything that belonged to the account — the
+    /// counts on screen, the decks a purchase opened — is put back by whoever
+    /// listens here. Nothing did once, and a deleted account's progress and
+    /// paid deck stayed on the device until the next launch.
+    func testAnAcceptedDeletionAnnouncesTheSignOut() async throws {
+        let store = makeStore(
+            deleting: StubDeleting(
+                result: .success(
+                    AccountDeletionRecord(
+                        requestedAt: now,
+                        expectedCompletionAt: now.addingTimeInterval(7 * 86_400)
+                    )
+                )
+            )
+        )
+        let announced = Announced()
+        store.onSignedOut = { await announced.note() }
+        await store.load()
+        store.requestDeletion()
+
+        await store.confirmDeletion()
+
+        let wasAnnounced = await announced.wasAnnounced()
+        XCTAssertTrue(wasAnnounced)
+    }
+
+    /// A refusal ended nothing, so nothing is announced: the account is still
+    /// signed in and everything it opens must stay open.
+    func testARefusedDeletionAnnouncesNothing() async throws {
+        let store = makeStore(deleting: StubDeleting(result: .failure(Failure.refused)))
+        let announced = Announced()
+        store.onSignedOut = { await announced.note() }
+        await store.load()
+        store.requestDeletion()
+
+        await store.confirmDeletion()
+
+        let wasAnnounced = await announced.wasAnnounced()
+        XCTAssertFalse(wasAnnounced)
+    }
+
     /// Asking for the dialog is a question, not a consent: nothing may run
     /// until the destructive button inside it is tapped.
     func testRequestingAloneDeletesNothing() async throws {
@@ -218,4 +260,11 @@ private final class InMemoryDeletionState: AccountDeletionStateStoring, @uncheck
     func pendingDeletion() -> AccountDeletionRecord? { stored }
 
     func store(pendingDeletion: AccountDeletionRecord?) { stored = pendingDeletion }
+}
+
+private actor Announced {
+    private var announced = false
+
+    func note() { announced = true }
+    func wasAnnounced() -> Bool { announced }
 }

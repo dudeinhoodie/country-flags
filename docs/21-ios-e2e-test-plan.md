@@ -109,7 +109,7 @@ Fixtures не должны делить keychain/session между паралл
 | `J-10` | `P1`: начать paid session → получить refund/revocation | Текущая сессия завершается; новая не стартует; прогресс не удалён | Dev E2E + Sandbox |
 | `J-11` | `A1`: изменить session size и privacy consent → открыть приложение на втором устройстве | Account settings сходятся с backend; локальное permission state не копируется | Dev E2E |
 | `J-12` | `A1`: удалить прогресс из аккаунта → синхронизировать два устройства | Сервер и оба устройства показывают пустой progress; аккаунт и purchases сохранены | Dev E2E + Device |
-| `J-13` | `A1`: удалить аккаунт с re-auth → relaunch | Устройство становится guest; private scope очищен; pending deletion notice переживает relaunch | Dev E2E + Device |
+| `J-13` | `A1`: удалить аккаунт → relaunch | Устройство становится guest; private scope очищен; pending deletion notice переживает relaunch | Dev E2E + Device |
 | `J-14` | `A1`: access token истёк во время foreground sync | Выполнен single refresh; при невосстановимой сессии показан re-sign-in без удаления локальной работы | Dev E2E |
 | `J-15` | `G0`: пройти multiple-choice с правильными и неправильными ответами | До выбора ответ не раскрыт; результат и scheduler mapping сохранены корректно | Mock CI |
 | `J-16` | `A1`: sign out при непустом outbox | Показано число несинхронизированных ответов; Cancel сохраняет сессию; после подтверждения pending review остаются в изолированном account scope и не видны guest/другому аккаунту | Mock CI + Dev E2E |
@@ -174,9 +174,9 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-AC-05` | P0 | Account A → sign out → Account B | Progress/settings/entitlements A не видны B; общедоступный content cache переиспользуется безопасно | Dev E2E |
 | `IOS-E2E-AC-06` | P0 | Clear progress: открыть dialog → Cancel | Ни local, ни server progress не меняются; outbox, session и settings нетронуты | Mock CI |
 | `IOS-E2E-AC-07` | P0 | Clear progress → Confirm | Progress/outbox/курсоры очищены после server success; account/purchases/settings сохранены, и история не возвращается после relaunch и повторного входа | Mock CI + Dev E2E + Device |
-| `IOS-E2E-AC-08` | P1 | Clear progress backend failure | Локальная история не удаляется; доступен retry | Mock CI |
-| `IOS-E2E-AC-09` | P0 | Delete account → Cancel | Account остаётся активным, данные не меняются | Mock CI |
-| `IOS-E2E-AC-10` | P0 | Delete account с re-auth → success | App возвращается в guest; private scope/token очищены; notice переживает relaunch | Dev E2E + Device |
+| `IOS-E2E-AC-08` | P1 | Clear progress backend failure | Локальная история и очередь не удаляются; сессия сохранена; доступен retry | Mock CI |
+| `IOS-E2E-AC-09` | P0 | Delete account → Cancel | Account остаётся активным, данные не меняются, notice не появляется даже после relaunch | Mock CI |
+| `IOS-E2E-AC-10` | P0 | Delete account → success | App возвращается в guest; private scope/token/entitlement очищены; notice переживает relaunch; повторное удаление не предлагается | Mock CI + Dev E2E + Device |
 
 ### 5.5 Catalog, deck и content browsing
 
@@ -353,7 +353,7 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 10 сентября 2026 года в `ios/CountryFlagsUITests` есть 33 UI-теста, включая
+На 10 сентября 2026 года в `ios/CountryFlagsUITests` есть 36 UI-тестов, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
@@ -366,8 +366,8 @@ Fixtures не должны делить keychain/session между паралл
 | Sync presentation | `SyncStatusUITests` (1) |
 | Paid deck presentation | `PaidDeckUITests` (3) |
 | Guest migration, sign-out и account isolation | `GuestAuthUITests` (4) |
-| Clear progress: Cancel и Confirm | `AccountProgressUITests` (2) |
-| Account deletion | `AccountLifecycleUITests` (1) |
+| Clear progress и удаление приватных данных | `AccountProgressUITests` (4) |
+| Account deletion: Cancel и Confirm | `AccountLifecycleUITests` (2) |
 | Accessibility/localization | `AccessibilityUITests` (4) |
 | Store screenshots | `StoreScreenshotUITests` (1) |
 
@@ -377,8 +377,9 @@ Fixtures не должны делить keychain/session между паралл
    Apple/Google sheets, cancellation и provider failures ещё требуют Device и
    Dev E2E.
 2. Изоляция progress, settings и entitlements при A → B → A, pending outbox при
-   Cancel/Confirm sign-out и обе ветки Clear progress покрыты в Mock CI;
-   private assets и multi-device convergence после очистки ещё не покрыты.
+   Cancel/Confirm sign-out, обе ветки Clear progress вместе с отказом бэкенда и
+   обе ветки удаления аккаунта покрыты в Mock CI; private assets и multi-device
+   convergence после очистки ещё не покрыты.
 3. StoreKit UI проверяет locked/free/owned presentation, но не purchase,
    pending, cancellation, restore, unverified transaction и refund.
 4. Из настроек UI-тестом проверяется только session size; отсутствуют
@@ -407,8 +408,16 @@ Fixtures не должны делить keychain/session между паралл
 - Clear progress → Confirm: пустой Progress, удалённая очередь и курсоры,
   сохранённые session, session size и paid entitlement, отсутствие возврата
   истории после relaunch, sign-out и повторного входа;
-- `GuestAuthUITests` и `AccountProgressUITests` включены в pull-request smoke
-  suite, а полный набор по-прежнему выполняется nightly.
+- Clear progress при отказе бэкенда: история, очередь и сессия сохранены,
+  показан текст неудачи, повторная попытка доступна;
+- Delete account → Cancel: текст последствий, явная кнопка отмены, активная
+  сессия, отсутствие notice и после relaunch;
+- Delete account → Confirm: возврат в guest, пустой Progress, снова запертая
+  платная колода, notice и невозможность удалить повторно, работающее гостевое
+  обучение;
+- `GuestAuthUITests`, `AccountProgressUITests` и `AccountLifecycleUITests`
+  включены в pull-request smoke suite, а полный набор по-прежнему выполняется
+  nightly.
 
 ### Wave 2 — settings и content expansion
 

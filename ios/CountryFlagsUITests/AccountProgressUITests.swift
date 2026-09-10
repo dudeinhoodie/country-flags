@@ -3,10 +3,11 @@ import XCTest
 /// Erasing a learner's history, from the side that matters: what they are told
 /// before it happens, and what is still there afterwards.
 ///
-/// The two branches are separate tests on purpose. Backing out and going
-/// through are different promises — one keeps everything, the other keeps the
-/// account, the settings and the purchases while taking the answers — and a
-/// single test that walked both would prove neither in isolation.
+/// Two ways lose it — clearing the progress, and ending the account — and the
+/// difference between them is the point: one keeps the account, the settings
+/// and the purchases, the other keeps nothing at all. Each branch is its own
+/// test on purpose. Backing out and going through are different promises, and
+/// a single test that walked both would prove neither in isolation.
 ///
 /// The fixture credential drives the same session the provider sheets do, so
 /// this runs on `CountryFlags-Mock` without contacting Apple or Google.
@@ -31,6 +32,15 @@ final class AccountProgressUITests: XCTestCase {
         "Answers, cards, sessions and awards are deleted on every device. "
         + "The account, its settings and the catalog stay."
     private let clearedStatus = "Done — the progress is cleared."
+    private let refusedStatus = "The progress is still here — nothing was deleted."
+    private let deletionTitle = "Delete this account?"
+    private let deletionBody =
+        "Your progress, awards, settings and every way in are gone. "
+        + "The app stays — you just start from nothing."
+    /// A locked paid deck is only drawn where the storefront is switched on.
+    private let paidDeckDiscovery = [
+        "-feature-flag", "commerce.paid_decks.discovery.enabled=true",
+    ]
 
     override func setUp() {
         super.setUp()
@@ -116,12 +126,7 @@ final class AccountProgressUITests: XCTestCase {
         assertTheConsequencesAreStated(in: app)
         tap("settings.clearProgress.confirm", in: app)
 
-        let status = element("settings.clearProgress.status", in: app)
-        XCTAssertTrue(status.waitForExistence(timeout: 30), app.debugDescription)
-        // Compared rather than merely found: the failure copy carries the same
-        // identifier, and "the progress is still here" would satisfy any test
-        // that only asked whether a status appeared.
-        XCTAssertEqual(status.label, clearedStatus, app.debugDescription)
+        awaitClearProgressStatus(clearedStatus, in: app)
         XCTAssertTrue(
             element("settings.account.signedIn", in: app).exists,
             "Clearing progress must not sign the learner out\n\(app.debugDescription)"
@@ -158,6 +163,155 @@ final class AccountProgressUITests: XCTestCase {
         assertProgressIsEmpty(in: relaunched)
     }
 
+    // MARK: - IOS-E2E-AC-08
+
+    /// The backend refused, so the account's history is intact on its side —
+    /// and the device must not pretend otherwise. This is the order the whole
+    /// operation rests on: the server agrees first, the device erases second.
+    /// A device that wiped itself first would turn a dropped connection into
+    /// lost work with nothing left to restore it from.
+    func testARefusedClearProgressKeepsEverythingAndOffersAnotherTry() {
+        let app = launch(
+            arguments: ["-reset-store", "-fake-signin", "-refuse-progress-deletion"]
+                + identity + account
+        )
+        answerCards(1, in: app)
+        openAccount(in: app)
+        signInWithFixture(in: app)
+        assertGuestWorkWasImported(in: app)
+        leaveScreen(in: app)
+
+        answerCards(2, in: app)
+        let counted = progressCounts(in: app)
+
+        openAccount(in: app)
+        requestClearProgress(in: app)
+        assertTheConsequencesAreStated(in: app)
+        tap("settings.clearProgress.confirm", in: app)
+
+        awaitClearProgressStatus(refusedStatus, in: app)
+        XCTAssertTrue(
+            element("settings.account.signedIn", in: app).exists,
+            "A refused deletion is not a sign-out\n\(app.debugDescription)"
+        )
+
+        // The queue belongs to the history, and the history is still here.
+        requestSignOut(in: app)
+        assertPendingAnswerWarning(count: 2, in: app)
+        tap("settings.account.signOut.cancel", in: app)
+
+        // Another try is offered rather than the operation being spent.
+        requestClearProgress(in: app)
+        assertTheConsequencesAreStated(in: app)
+        cancelClearProgress(in: app)
+
+        leaveScreen(in: app)
+        XCTAssertEqual(progressCounts(in: app), counted)
+    }
+
+    // MARK: - IOS-E2E-AC-10
+
+    /// Ending the account takes everything it owned with it. The notice and
+    /// the relaunch are covered elsewhere; what this proves is the part a
+    /// person would only discover later — that no private data of the deleted
+    /// account is left behind for the guest who inherits the device.
+    func testDeletingTheAccountLeavesNoPrivateStateBehind() {
+        let app = launch(
+            arguments: ["-reset-store", "-fake-signin", "-owned-deck"]
+                + identity + account + paidDeckDiscovery
+        )
+        answerCards(1, in: app)
+        openAccount(in: app)
+        signInWithFixture(in: app)
+        assertGuestWorkWasImported(in: app)
+        leaveScreen(in: app)
+
+        XCTAssertFalse(progressCounts(in: app).isEmpty)
+        assertPaidDeckIsOwned(in: app)
+
+        openAccount(in: app)
+        requestAccountDeletion(in: app)
+        assertTheDeletionConsequencesAreStated(in: app)
+        confirmAccountDeletion(in: app)
+
+        // The account screen is about an account that no longer exists, so the
+        // deletion closes it rather than leaving it standing: the app comes
+        // back to the shell on its own and nothing here navigates.
+        XCTAssertTrue(
+            app.buttons["root.shell.openSettings"].waitForExistence(timeout: 20),
+            "A deletion returns the device to its guest shell\n\(app.debugDescription)"
+        )
+
+        assertProgressIsEmpty(in: app)
+        assertPaidDeckIsLocked(in: app)
+
+        openAccount(in: app)
+        XCTAssertTrue(
+            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
+            "A deletion leaves a guest who can sign in again\n\(app.debugDescription)"
+        )
+        XCTAssertTrue(
+            element("account.deletionPending", in: app).waitForExistence(timeout: 20),
+            "The accepted deletion is reported\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(
+            app.buttons["account.delete"].exists,
+            "There is nothing left to delete a second time\n\(app.debugDescription)"
+        )
+        leaveScreen(in: app)
+
+        // The app is not over: a guest studies, which is the state a fresh
+        // install is in and the one a deleted account must land back in.
+        answerCards(1, in: app)
+        XCTAssertFalse(progressCounts(in: app).isEmpty)
+    }
+
+    // MARK: - Ending the account
+
+    private func requestAccountDeletion(in app: XCUIApplication) {
+        let delete = scrollTo(app.buttons["account.delete"], in: app)
+        XCTAssertTrue(delete.waitForExistence(timeout: 15), app.debugDescription)
+        delete.tap()
+    }
+
+    private func assertTheDeletionConsequencesAreStated(in app: XCUIApplication) {
+        for copy in [deletionTitle, deletionBody] {
+            let text = app.staticTexts.matching(
+                NSPredicate(format: "label == %@", copy)
+            ).firstMatch
+            XCTAssertTrue(
+                text.waitForExistence(timeout: 10),
+                "Ending an account must state its consequences\n\(app.debugDescription)"
+            )
+        }
+    }
+
+    private func confirmAccountDeletion(in app: XCUIApplication) {
+        // The dialog puts its button in the hierarchy twice — the row and the
+        // element inside it — so the query names which one to press.
+        let confirm = app.sheets.buttons
+            .matching(identifier: "account.delete.confirm")
+            .firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: 10), app.debugDescription)
+        confirm.tap()
+    }
+
+    /// A form builds its rows as they come into view, so ending an account is
+    /// not simply waiting to be found — the screen has to be walked down first.
+    @discardableResult
+    private func scrollTo(
+        _ target: XCUIElement,
+        in app: XCUIApplication,
+        swipes: Int = 6
+    ) -> XCUIElement {
+        var remaining = swipes
+        while !target.exists, remaining > 0 {
+            app.swipeUp()
+            remaining -= 1
+        }
+        return target
+    }
+
     // MARK: - Clearing progress
 
     private func requestClearProgress(in app: XCUIApplication) {
@@ -181,6 +335,31 @@ final class AccountProgressUITests: XCTestCase {
                 "Clearing progress must state its consequences\n\(app.debugDescription)"
             )
         }
+    }
+
+    /// Waits for the operation to *settle* on the given outcome.
+    ///
+    /// The status line is written three times — working, then done or failed —
+    /// and the identifier is the same on all of them, so reading the label the
+    /// moment the element appears catches "Clearing…" and proves nothing. A
+    /// refused deletion takes the longest to settle, because the refusal goes
+    /// through the retry policy before the screen hears about it.
+    ///
+    /// Matching on the label rather than polling it keeps this deterministic:
+    /// the query resolves when the app says what happened, and the identifier
+    /// is still part of the match so an unrelated label cannot satisfy it.
+    private func awaitClearProgressStatus(_ expected: String, in app: XCUIApplication) {
+        let settled = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier == %@ AND label == %@",
+                "settings.clearProgress.status",
+                expected
+            )
+        ).firstMatch
+        XCTAssertTrue(
+            settled.waitForExistence(timeout: 60),
+            "Clearing progress must report \(expected)\n\(app.debugDescription)"
+        )
     }
 
     private func cancelClearProgress(in app: XCUIApplication) {
@@ -387,6 +566,20 @@ final class AccountProgressUITests: XCTestCase {
             "A purchase is not progress and must survive it\n\(app.debugDescription)"
         )
         XCTAssertFalse(element("deck.paywall", in: app).exists)
+        leaveScreen(in: app)
+    }
+
+    private func assertPaidDeckIsLocked(in app: XCUIApplication) {
+        openCatalog(in: app)
+        let deck = app.buttons["catalog.deck.SPECIAL_AREAS"]
+        XCTAssertTrue(deck.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(deck.label.contains("Paid"), deck.label)
+        deck.tap()
+        XCTAssertTrue(
+            element("deck.paywall", in: app).waitForExistence(timeout: 15),
+            "A deleted account's purchase must not follow the device\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(app.buttons["study.start"].exists)
         leaveScreen(in: app)
     }
 

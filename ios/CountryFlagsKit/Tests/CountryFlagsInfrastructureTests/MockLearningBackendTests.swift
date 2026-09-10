@@ -99,6 +99,28 @@ final class MockLearningBackendTests: XCTestCase {
         XCTAssertTrue(changes.changes.isEmpty)
     }
 
+    /// A refused deletion keeps the history, on the fixture's side as well as
+    /// the device's. This is the affordance a UI test needs to watch the
+    /// order hold: the server agrees first, the device erases second, and a
+    /// refusal must leave a learner with everything they had.
+    func testARefusedDeletionKeepsTheHistory() async throws {
+        let context = makeContext(refusesDeletion: true)
+        _ = try await context.imports.submit(Self.archive())
+
+        do {
+            _ = try await context.progress.clearProgress()
+            XCTFail("A refused deletion must reach the caller as an error")
+        } catch {
+            // The shape of the refusal is the API layer's business; that it is
+            // an error at all is this test's.
+        }
+
+        let changes = try await context.changes.changes(after: nil, limit: 100)
+        XCTAssertEqual(changes.changes.count, 1, "The refusal must not have deleted anything")
+        let decks = try await deckProgress(from: context.progress)
+        XCTAssertFalse(decks.isEmpty)
+    }
+
     // MARK: - Harness
 
     private struct Context {
@@ -107,9 +129,9 @@ final class MockLearningBackendTests: XCTestCase {
         let changes: UserChangesService
     }
 
-    private func makeContext() -> Context {
+    private func makeContext(refusesDeletion: Bool = false) -> Context {
         let backend = MockLearningBackend(
-            arguments: [],
+            arguments: refusesDeletion ? [MockLearningBackend.refusedDeletionArgument] : [],
             defaults: defaults,
             now: { Self.instant }
         )

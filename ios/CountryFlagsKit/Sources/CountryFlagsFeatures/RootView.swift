@@ -636,6 +636,7 @@ public enum AccessibilityIdentifier {
     public static let accountTerms = "account.terms"
     public static let accountDelete = "account.delete"
     public static let accountDeleteConfirm = "account.delete.confirm"
+    public static let accountDeleteCancel = "account.delete.cancel"
     public static let accountDeleteStatus = "account.delete.status"
     public static let accountProveApple = "account.prove.apple"
     public static let accountProveGoogle = "account.prove.google"
