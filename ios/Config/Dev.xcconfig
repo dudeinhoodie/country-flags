@@ -8,6 +8,7 @@ CF_APP_ENVIRONMENT = dev
 // `//` so xcconfig does not read the rest of the line as a comment.
 CF_API_BASE_URL = https:/$()/api-dev-337239833704.europe-west3.run.app
 CF_BUNDLE_ID_SUFFIX = .dev
+CF_APPICON_SUFFIX = -Dev
 
 // The dev Google OAuth clients. Public identifiers, not secrets: the iOS one
 // names this app to Google, the server one is the audience the backend
