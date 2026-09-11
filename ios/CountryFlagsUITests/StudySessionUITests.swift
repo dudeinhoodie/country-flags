@@ -134,6 +134,41 @@ final class StudySessionUITests: XCTestCase {
     /// bundle, so a tap can land before the deck's own screen has read its
     /// cards. Tapping `study.start` without waiting for it used to work only
     /// because nothing was tappable until the whole release had downloaded.
+    /// IOS-E2E-ST-01: the size chosen in the settings is the size studied.
+    ///
+    /// A preference that is stored, shown back, and then ignored by the one
+    /// thing it exists to govern is worse than no preference: the learner
+    /// asked for a short sitting and got a long one, and nothing on screen
+    /// admits it. The counter is where the sitting says how long it is, so
+    /// that is where this is checked.
+    func testTheSessionSizeChosenInSettingsIsTheSizeOfTheSitting() {
+        let identity = ["-installation-id", "0d63f7a2-b418-4e59-9c27-5a80e6d14b73"]
+        let app = launch(arguments: ["-reset-store"] + identity)
+
+        let settings = app.buttons["root.shell.openSettings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
+        settings.tap()
+        let five = app.buttons["settings.sessionSize.5"]
+        XCTAssertTrue(five.waitForExistence(timeout: 20), app.debugDescription)
+        five.tap()
+        XCTAssertTrue(five.isSelected, app.debugDescription)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        openDeck(in: app)
+        let start = app.buttons["study.start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 30), app.debugDescription)
+        start.tap()
+
+        // "1 / 5": the second half is the sitting's own account of its length.
+        let counter = app.staticTexts["study.progress"]
+        XCTAssertTrue(counter.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertTrue(
+            counter.label.hasSuffix("5"),
+            "A sitting asked for five cards must be five long, not \(counter.label)\n"
+                + app.debugDescription
+        )
+    }
+
     /// IOS-E2E-ST-14: a sitting nobody got right is not a success.
     ///
     /// Every card is thrown `Again`, which is the learner saying they knew

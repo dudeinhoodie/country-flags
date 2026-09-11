@@ -200,7 +200,7 @@ Fixtures не должны делить keychain/session между паралл
 | ID | P | Сценарий | Ожидаемый результат | Контур |
 | --- | --- | --- | --- | --- |
 | `IOS-E2E-ST-01` | P0 | Deck detail использует default session size | Выбранное в Settings значение отображается и передаётся в snapshot | Mock CI |
-| `IOS-E2E-ST-02` | P1 | Изменить размер только для текущего запуска | Сессия использует override; account default не меняется | Mock CI |
+| `IOS-E2E-ST-02` | — | Изменить размер только для текущего запуска | Переключателя размера «на один запуск» в UI нет: экран колоды предлагает выбор режима, а размер только читает из настроек. Строка перенесена в раздел 9 и до появления контрола не является E2E | — |
 | `IOS-E2E-ST-03` | P1 | В колоде меньше карточек, чем limit | Используются все уникальные доступные карточки; нет дублей ради заполнения | Mock CI |
 | `IOS-E2E-ST-04` | P0 | Front card до reveal | Видны symbol/image и context, но ни visual, ни VoiceOver не раскрывают ответ | Mock CI |
 | `IOS-E2E-ST-05` | P0 | Reveal answer | Показаны локализованное имя, template facts и доступ к detail | Mock CI |
@@ -353,14 +353,14 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 49 UI-тестов, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 50 UI-тестов, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
 | --- | --- |
 | Launch/bundled/offline, поиск и country detail | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (5) |
 | Navigation | `TabToolbarUITests` (2) |
-| Self-rated | `StudySessionUITests` (8), `CardBackFactsUITests` (1) |
+| Self-rated | `StudySessionUITests` (9), `CardBackFactsUITests` (1) |
 | Objective | `ObjectiveSessionUITests` (3) |
 | Progress/settings | `ProgressSettingsUITests` (5) |
 | Sync presentation и offline → online upload | `SyncStatusUITests` (2) |
@@ -444,6 +444,7 @@ Fixtures не должны делить keychain/session между паралл
 - `ST-03`: колода короче размера сессии не добивается повторами;
 - `AC-04`: выход везде оставляет гостем и это устройство, в том числе после
   перезапуска;
+- `ST-01`: размер сессии, выбранный в настройках, доходит до самой сессии;
 - `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
   `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
   по-прежнему выполняется nightly.
@@ -487,6 +488,10 @@ accessibility matrix и advertising no-fill.
 нужен отдельный product/implementation task:
 
 - выбор языка контента внутри приложения;
+- размер сессии только для текущего запуска: экран колоды читает значение
+  из настроек и не даёт его переопределить;
+- оценки `Hard` и `Easy` касанием: карточка принимает два броска, а все
+  четыре рейтинга доступны лишь как accessibility actions;
 - default answer mode;
 - настройка набора дополнительных facts;
 - reminder time и дни недели;
