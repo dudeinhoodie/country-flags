@@ -319,7 +319,9 @@ public struct RootView: View {
             NavigationStack(path: $router.progressNavigationPath) {
                 ProgressScreen(
                     store: progress,
-                    onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
+                    onOpenDeck: { router.push(.deckProgress(deckID: $0)) },
+                    account: accountToolbar,
+                    onOpenAccount: { router.push(.account) }
                 )
                 .toolbar { accountAndSettings }
                 .navigationDestination(for: AppRoute.self) { route in
@@ -463,7 +465,9 @@ public struct RootView: View {
         case .progress:
             ProgressScreen(
                 store: progress,
-                onOpenDeck: { router.push(.deckProgress(deckID: $0)) }
+                onOpenDeck: { router.push(.deckProgress(deckID: $0)) },
+                account: accountToolbar,
+                onOpenAccount: { router.push(.account) }
             )
         case .deckProgress(let deckID):
             DeckProgressDetailsView(
@@ -590,6 +594,9 @@ public enum AccessibilityIdentifier {
     /// says it has been read.
     public static let progressStrandedNotice = "progress.stranded"
     public static let progressStrandedDismiss = "progress.stranded.dismiss"
+    /// The guest's word about the account, on the screen that shows what
+    /// they would lose.
+    public static let progressGuestPrompt = "progress.guestPrompt"
 
     public static func progressDeckRow(_ code: String) -> String {
         "progress.deck.\(code)"

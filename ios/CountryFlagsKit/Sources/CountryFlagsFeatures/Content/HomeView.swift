@@ -86,11 +86,6 @@ public struct HomeView: View {
         self.onStartStudy = onStartStudy
     }
 
-    /// How many learned countries make a guest's work worth a word. Below it
-    /// the offer is noise on a fresh install; above it there is something to
-    /// lose, and the row says how much.
-    private static let guestPromptThreshold = 5
-
     public var body: some View {
         content
             .navigationTitle(L10n.homeTitle)
@@ -469,7 +464,7 @@ public struct HomeView: View {
 
     private var isGuestWithSomethingToLose: Bool {
         guard case .guest? = account?.state else { return false }
-        return learnedCountries >= Self.guestPromptThreshold
+        return learnedCountries >= AccountPromptRow.guestThreshold
     }
 
     /// Whether the learner has ever answered anything: what separates a
@@ -480,16 +475,23 @@ public struct HomeView: View {
 
     /// Countries carried all the way to learned, and countries under way.
     ///
-    /// Summed over the curated decks alone: those partition the world once,
-    /// while a country can also sit in any number of themed decks, and adding
-    /// those in would count the same flag several times and show a learner
-    /// more countries than there are.
+    /// The whole-world deck's own figures, the same ones the progress screen
+    /// puts under its map: that deck holds every country exactly once, which
+    /// is what lets the label call the number "countries". These used to be
+    /// summed over the curated decks, which was the same thing while the
+    /// whole-world deck was the only curated one; the catalogue since gained
+    /// special areas as a second, and the sum quietly began counting places
+    /// that are not countries — 98 here against 91 on the progress screen,
+    /// for the same phone. A release without a whole-world deck falls back to
+    /// the sum, which is then all there is.
     private var learnedCountries: Int {
-        curatedDecks.reduce(0) { $0 + $1.learnedCards }
+        progress?.whole?.learnedCards
+            ?? curatedDecks.reduce(0) { $0 + $1.learnedCards }
     }
 
     private var countriesInProgress: Int {
-        curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
+        progress?.whole.map { max(0, $0.startedCards - $0.learnedCards) }
+            ?? curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
     }
 
     // Both read the deck rows, and the rows are the backend's own counts

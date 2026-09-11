@@ -2,13 +2,6 @@ import SwiftUI
 
 import CountryFlagsDomain
 
-/// The deck that holds every card the release publishes.
-///
-/// A release may carry several curated decks, so being curated no longer
-/// picks this one out. The code is what the publisher gives the all-countries
-/// membership, and it is stable across releases.
-let ALL_COUNTRIES_DECK_CODE = "ALL"
-
 /// What the learner has done so far.
 ///
 /// The counts are the device's own: a guest studies durably and is never
@@ -27,10 +20,23 @@ public struct ProgressScreen: View {
     /// different number than the home screen for the same deck.
     private let store: ProgressStore
     private let onOpenDeck: ((UUID) -> Void)?
+    /// Whose phone this is, for the one row that is about the person rather
+    /// than the numbers. The shell's own store, observed, so a sign-in made
+    /// on the account screen takes the row away without a relaunch.
+    private let account: AccountStore?
+    /// Opens the account screen, where the sign-in buttons live.
+    private let onOpenAccount: (() -> Void)?
 
-    public init(store: ProgressStore, onOpenDeck: ((UUID) -> Void)? = nil) {
+    public init(
+        store: ProgressStore,
+        onOpenDeck: ((UUID) -> Void)? = nil,
+        account: AccountStore? = nil,
+        onOpenAccount: (() -> Void)? = nil
+    ) {
         self.store = store
         self.onOpenDeck = onOpenDeck
+        self.account = account
+        self.onOpenAccount = onOpenAccount
     }
 
     public var body: some View {
@@ -78,6 +84,31 @@ public struct ProgressScreen: View {
         .frame(maxWidth: .infinity)
         .padding(DesignTokens.Spacing.large)
         .sceneChrome()
+    }
+
+    /// A guest with something to lose, told so on the screen that shows it.
+    ///
+    /// The home screen already says this once the work is worth a word; this
+    /// is the same row, the same threshold and the same number, because a
+    /// person who opened this tab is looking at exactly what a lost phone
+    /// would take, and the map above it is the argument. It cannot be
+    /// dismissed and goes away when they sign in. A sign-in that expired is
+    /// the home screen's to announce: its caption counts answers waiting to
+    /// upload, which this screen does not read.
+    @ViewBuilder
+    private var accountPrompt: some View {
+        if let onOpenAccount,
+            case .guest? = account?.state,
+            learnedCards >= AccountPromptRow.guestThreshold
+        {
+            AccountPromptRow(
+                symbol: "person.crop.circle",
+                title: L10n.homeGuestPromptTitle,
+                caption: L10n.homeGuestPromptCount(learnedCards),
+                identifier: AccessibilityIdentifier.progressGuestPrompt,
+                action: onOpenAccount
+            )
+        }
     }
 
     /// What a catalogue change could not carry across, said out loud.
@@ -137,6 +168,7 @@ public struct ProgressScreen: View {
     private var loaded: some View {
         SceneScrollView {
             strandedNotice
+            accountPrompt
 
             // The hero is the world itself: every continent drawn from the
             // app's own geodata, its brightness the share of it learned. The
@@ -180,7 +212,7 @@ public struct ProgressScreen: View {
                     // for the single element would find a crowd.
                     .accessibilityIdentifier(
                         AccessibilityIdentifier.progressDeckCounts(
-                            whole?.code ?? ALL_COUNTRIES_DECK_CODE
+                            store.whole?.code ?? ALL_COUNTRIES_DECK_CODE
                         )
                     )
                 }
@@ -257,25 +289,17 @@ public struct ProgressScreen: View {
     /// deck. New decks appeared in the catalogue and this tab did not admit
     /// they existed.
     private var otherDecks: [DeckProgressRow] {
-        store.decks.filter { $0.id != whole?.id }
+        store.decks.filter { $0.id != store.whole?.id }
     }
 
-    /// The deck that spans the whole catalogue, when the release has one.
-    ///
-    /// Identified by the membership it is published under rather than by
-    /// being curated, because being curated no longer distinguishes it. Its
-    /// numbers are the ones that count each card exactly once, which is what
-    /// makes them the hero's; another curated deck is a slice like any other.
-    private var whole: DeckProgressRow? {
-        store.decks.first { $0.code == ALL_COUNTRIES_DECK_CODE }
-    }
-
+    /// The hero's numbers: the whole-world deck's, when the release has one.
+    /// Which deck that is, the store decides once for every screen.
     private var learnedCards: Int {
-        whole?.learnedCards ?? otherDecks.reduce(0) { $0 + $1.learnedCards }
+        store.whole?.learnedCards ?? otherDecks.reduce(0) { $0 + $1.learnedCards }
     }
 
     private var totalCards: Int {
-        whole?.totalCards ?? otherDecks.reduce(0) { $0 + $1.totalCards }
+        store.whole?.totalCards ?? otherDecks.reduce(0) { $0 + $1.totalCards }
     }
 }
 

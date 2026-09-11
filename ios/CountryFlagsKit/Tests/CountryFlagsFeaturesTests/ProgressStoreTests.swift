@@ -185,7 +185,7 @@ private struct StubSettingsSync: SettingsSyncing {
 
 private let fixedNow = Date(timeIntervalSince1970: 1_800_000_000)
 
-private func deck(id: UUID, code: String, cardCount: Int) -> DeckRecord {
+private func deck(id: UUID, code: String, cardCount: Int, sortOrder: Int = 0) -> DeckRecord {
     DeckRecord(
         id: id,
         code: code,
@@ -194,7 +194,7 @@ private func deck(id: UUID, code: String, cardCount: Int) -> DeckRecord {
         deckDescription: "",
         cardCount: cardCount,
         contentVersion: "v1",
-        sortOrder: 0
+        sortOrder: sortOrder
     )
 }
 
@@ -613,6 +613,41 @@ final class ProgressStoreTests: XCTestCase {
             totalDue: 23,
             serverTime: serverTime
         )
+    }
+
+    /// Which deck is the whole world is decided by its code, not by coming
+    /// first among the curated decks. A release carries special areas as a
+    /// curated deck too, and when the editors sort it ahead, the day's queue
+    /// used to be read off it — the home screen then owed three cards on a
+    /// day the world owed one, and its "countries learned" added the two
+    /// decks together and called the sum countries.
+    func testTheWholeWorldIsTheDeckWithTheAllCode() async {
+        let special = UUID()
+        let world = UUID()
+        let specialCards = [UUID(), UUID(), UUID()]
+        let worldCards = [UUID(), UUID()]
+        let store = ProgressStore(
+            content: FakeContentRepository(
+                decks: [
+                    deck(id: special, code: "SPECIAL_AREAS", cardCount: 3, sortOrder: 0),
+                    deck(id: world, code: "ALL", cardCount: 2, sortOrder: 1),
+                ],
+                cards: [special: specialCards.map(card), world: worldCards.map(card)]
+            ),
+            learning: StoringLearningRepository(
+                states: specialCards.map { state($0, state: "REVIEW", dueAt: fixedNow) }
+                    + [state(worldCards[0], state: "REVIEW", dueAt: fixedNow)]
+            ),
+            scopes: FixedScopeResolver(scope: .guest(installationID: UUID())),
+            dates: FixedDateProvider(instant: fixedNow)
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.decks.first?.code, "SPECIAL_AREAS", "the rows keep the catalogue's order")
+        XCTAssertEqual(store.whole?.code, "ALL")
+        XCTAssertEqual(store.whole?.learnedCards, 1)
+        XCTAssertEqual(store.totalDue, 1)
     }
 
     /// A deck that has to be bought and has none of its cards on the device
