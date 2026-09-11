@@ -45,23 +45,26 @@ public enum LocalSchedulerProjection {
     }
 
     /// Short, growing intervals that never promise more than a day or so, and
-    /// never bring a card back inside the hour.
+    /// never bring a card back inside three hours.
     ///
     /// Being conservative is the point: showing a card sooner than the backend
     /// would costs the learner a little repetition, while showing it later
-    /// would silently drop it out of their queue until the next sync. What
-    /// changed with `fsrs-6-default-21-v2` is the floor — the backend's ladder
-    /// is an hour, three hours and a day, so a projection that still answered
-    /// "one minute" would put a card back on the screen offline that the server
-    /// has no intention of asking for until after lunch.
+    /// would silently drop it out of their queue until the next sync. The
+    /// floor follows the backend's ladder: `fsrs-6-default-21-v2` made it an
+    /// hour, `fsrs-6-default-21-v3` makes it three (ADR-022) — three hours,
+    /// three hours and a day — so a projection that still answered "one hour"
+    /// would put a card back on the screen offline that the server has no
+    /// intention of asking for until the afternoon is out. A swipe reaches
+    /// only "again" and "good"; the other two rungs are here for the
+    /// accessibility actions and keep their order.
     static func interval(base: CardStateRecord?, rating: StudyRating) -> TimeInterval {
         let hour: TimeInterval = 60 * 60
         let day: TimeInterval = 24 * hour
         // Spelled with `return` because the constants above make the switch a
         // statement rather than the whole body.
         return switch rating {
-        case .again: hour
-        case .hard: 2 * hour
+        case .again: 3 * hour
+        case .hard: 6 * hour
         case .good: base.map { _ in day } ?? 3 * hour
         case .easy: base.map { _ in 3 * day } ?? day
         }
