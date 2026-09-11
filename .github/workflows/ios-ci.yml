@@ -25,6 +25,19 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # Six pushes to one branch queued six 40-minute runs behind each other on
+  # the macOS pool, and the newest — the only one anybody was waiting for —
+  # went last. Superseded work on a branch is superseded, so it is cancelled.
+  #
+  # Master is the exception, and deliberately not the flat `true` Admin CI
+  # uses: this job is three full builds deep, so a cancellation there throws
+  # away half an hour of a scarce runner, and it erases the per-commit record
+  # of when master went red, which is the one place that record is worth
+  # keeping. Admin CI pays neither cost — its suite is minutes long.
+  group: ios-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 defaults:
   run:
     working-directory: ios
