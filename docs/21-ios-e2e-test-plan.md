@@ -353,7 +353,7 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 10 сентября 2026 года в `ios/CountryFlagsUITests` есть 36 UI-тестов, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 36 UI-тестов, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
@@ -384,7 +384,13 @@ Fixtures не должны делить keychain/session между паралл
    pending, cancellation, restore, unverified transaction и refund.
 4. Из настроек UI-тестом проверяется только session size; отсутствуют
    reminders, sound/haptics, privacy consent и conflict convergence.
-5. Нет сквозного offline → online upload и multi-device convergence.
+5. Нет сквозного offline → online upload и multi-device convergence. Mock
+   научился принимать импорт офлайновой сессии и батч ответов
+   (`-accept-reviews`, см. `MockLearningBackendTests`), но очередь на
+   перезапуске всё равно не пустеет, и причина пока не найдена: выгрузка
+   молчит там, где UI-тест её не видит. Прежде чем писать E2E, нужен
+   способ увидеть результат sync run — иначе тест будет измерять
+   не очередь, а экран ожидания.
 6. Нет E2E для coats/subdivisions и template-compatible distractors.
 
 ## 7. Рекомендуемый порядок автоматизации
@@ -415,9 +421,9 @@ Fixtures не должны делить keychain/session между паралл
 - Delete account → Confirm: возврат в guest, пустой Progress, снова запертая
   платная колода, notice и невозможность удалить повторно, работающее гостевое
   обучение;
-- `GuestAuthUITests`, `AccountProgressUITests` и `AccountLifecycleUITests`
-  включены в pull-request smoke suite, а полный набор по-прежнему выполняется
-  nightly.
+- `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
+  `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
+  по-прежнему выполняется nightly.
 
 ### Wave 2 — settings и content expansion
 

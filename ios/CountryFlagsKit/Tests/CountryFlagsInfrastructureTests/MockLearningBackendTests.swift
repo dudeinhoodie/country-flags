@@ -121,17 +121,58 @@ final class MockLearningBackendTests: XCTestCase {
         XCTAssertFalse(decks.isEmpty)
     }
 
+    /// The other half of the offline story. With nothing answering
+    /// `createReviewBatch` an answer stays queued for ever — which is the
+    /// state the sign-out tests are about — so the fixture has to be able to
+    /// take a batch as well, or the network can never come back.
+    func testTheFixtureTakesAnUploadedBatchWhenTheLaunchAsks() async throws {
+        let context = makeContext(acceptsReviews: true)
+        let card = UUID(uuidString: "50000000-0000-4000-8000-000000000001")!
+
+        let outcome = try await context.reviews.upload([Self.queuedReview(cardID: card)])
+
+        XCTAssertEqual(outcome.acknowledgements.count, 1, "Every answer is acknowledged")
+        let changes = try await context.changes.changes(after: nil, limit: 100)
+        XCTAssertTrue(
+            changes.changes.contains { $0.cardID == card },
+            "An answer the server said it took has to be in the stream it serves"
+        )
+    }
+
+    /// And by default it cannot, because an unregistered operation fails
+    /// loudly — which is what keeps the queue full for the tests that are
+    /// about a full queue.
+    func testTheFixtureRefusesAnUploadedBatchByDefault() async throws {
+        let context = makeContext()
+        let card = UUID(uuidString: "50000000-0000-4000-8000-000000000002")!
+
+        do {
+            _ = try await context.reviews.upload([Self.queuedReview(cardID: card)])
+            XCTFail("Without the launch argument there is nothing to upload to")
+        } catch {
+            // The shape of the refusal is the transport's business; that the
+            // upload does not quietly succeed is this test's.
+        }
+    }
+
     // MARK: - Harness
 
     private struct Context {
         let progress: ProgressService
         let imports: GuestImportService
         let changes: UserChangesService
+        let reviews: ReviewUploader
     }
 
-    private func makeContext(refusesDeletion: Bool = false) -> Context {
+    private func makeContext(
+        refusesDeletion: Bool = false,
+        acceptsReviews: Bool = false
+    ) -> Context {
+        var arguments: [String] = []
+        if refusesDeletion { arguments.append(MockLearningBackend.refusedDeletionArgument) }
+        if acceptsReviews { arguments.append(MockLearningBackend.acceptedReviewsArgument) }
         let backend = MockLearningBackend(
-            arguments: refusesDeletion ? [MockLearningBackend.refusedDeletionArgument] : [],
+            arguments: arguments,
             defaults: defaults,
             now: { Self.instant }
         )
@@ -146,9 +187,40 @@ final class MockLearningBackendTests: XCTestCase {
         return Context(
             progress: ProgressService(clientFactory: factory),
             imports: GuestImportService(clientFactory: factory),
-            changes: UserChangesService(clientFactory: factory)
+            changes: UserChangesService(clientFactory: factory),
+            reviews: ReviewUploader(clientFactory: factory, devices: FixedDevice())
         )
     }
+
+    /// One answer as the study runner queues it: the stored bytes, not a
+    /// rebuilt event, because the stored bytes are what the uploader reads.
+    private static func queuedReview(cardID: UUID) -> OutboxOperationRecord {
+        let payload = "{"
+            + PAYLOAD_REVIEW_ID
+            + PAYLOAD_SESSION_ID
+            + "\"learningCardID\":\"\(cardID.uuidString)\","
+            + "\"rating\":\"GOOD\",\"answerMode\":\"SELF_RATED\","
+            + "\"clientOccurredAt\":\"2027-01-15T08:00:00Z\","
+            + "\"clientSequence\":1,\"baseStateVersion\":0,"
+            + "\"selectedOptionID\":null}"
+        return OutboxOperationRecord(
+            id: UUID(uuidString: "b0000000-0000-4000-8000-000000000009")!,
+            kind: .reviewBatch,
+            dependencyID: PersistenceFixtures.sessionID,
+            payload: Data(payload.utf8),
+            state: .pending,
+            attemptCount: 0,
+            lastFailureCode: nil,
+            createdAt: instant,
+            updatedAt: instant
+        )
+    }
+
+    private static let PAYLOAD_REVIEW_ID =
+        "\"reviewID\":\"92000000-0000-4000-8000-000000000009\","
+    private static let PAYLOAD_SESSION_ID =
+        "\"sessionID\":\"90000000-0000-4000-8000-000000000001\","
+
 
     /// The fixture answers the deck progress and nothing else — achievements,
     /// settings and the due summary have no handler — so a full download
@@ -168,5 +240,13 @@ final class MockLearningBackendTests: XCTestCase {
             sessions: [PersistenceFixtures.session()],
             reviews: [PersistenceFixtures.review()]
         )
+    }
+}
+
+/// A device that is registered, which is the precondition for attributing an
+/// answer to anything at all.
+private struct FixedDevice: DeviceIdentityProviding {
+    func registeredDeviceID() async -> UUID? {
+        UUID(uuidString: "d0000000-0000-4000-8000-000000000001")
     }
 }
