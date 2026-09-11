@@ -86,11 +86,6 @@ public struct HomeView: View {
         self.onStartStudy = onStartStudy
     }
 
-    /// How many learned countries make a guest's work worth a word. Below it
-    /// the offer is noise on a fresh install; above it there is something to
-    /// lose, and the row says how much.
-    private static let guestPromptThreshold = 5
-
     public var body: some View {
         content
             .navigationTitle(L10n.homeTitle)
@@ -429,10 +424,13 @@ public struct HomeView: View {
     /// A sign-in the backend has stopped honouring comes first, and is not
     /// conditional on anything else: from that moment every answer stays on
     /// the phone, and the caption says how many already do. A guest is told
-    /// only once there is something to lose, with the number. Neither row
-    /// can be dismissed: the first goes away when the person signs in again,
-    /// the second when they sign in at all. Both lead to the account screen,
-    /// where the buttons already are, rather than repeating them here.
+    /// from the first answer on — the moment there is anything on the phone
+    /// that a lost phone would take — and the caption carries the number of
+    /// countries once there is one. A fresh install with nothing answered is
+    /// not nagged. Neither row can be dismissed: the first goes away when the
+    /// person signs in again, the second when they sign in at all. Both lead
+    /// to the account screen, where the buttons already are, rather than
+    /// repeating them here.
     @ViewBuilder
     private var accountPrompt: some View {
         if let onOpenAccount {
@@ -450,7 +448,9 @@ public struct HomeView: View {
                 AccountPromptRow(
                     symbol: "person.crop.circle",
                     title: L10n.homeGuestPromptTitle,
-                    caption: L10n.homeGuestPromptCount(learnedCountries),
+                    caption: learnedCountries > 0
+                        ? L10n.homeGuestPromptCount(learnedCountries)
+                        : L10n.accountGuestNote,
                     identifier: AccessibilityIdentifier.homeGuestPrompt,
                     action: onOpenAccount
                 )
@@ -469,7 +469,7 @@ public struct HomeView: View {
 
     private var isGuestWithSomethingToLose: Bool {
         guard case .guest? = account?.state else { return false }
-        return learnedCountries >= Self.guestPromptThreshold
+        return hasAnyProgress
     }
 
     /// Whether the learner has ever answered anything: what separates a

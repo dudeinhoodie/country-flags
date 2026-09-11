@@ -358,9 +358,19 @@ public struct RootView: View {
         // Home are read once, on the shell's own `.task`, and coming back
         // from the account screen does not run it again — so a guest was
         // shown the numbers of the account they had just left (#401).
+        //
+        // The sync chip is the same story one door over: its status is
+        // published by a run, and a sign-out starts none. Left alone it goes
+        // on describing the session that just ended — an account's clean
+        // queue over a guest's held answers, or the reverse — until the next
+        // foreground or pull. Re-read, not re-run: a guest's queue is held,
+        // not sent, and an account's run starts on its own triggers.
         .onChange(of: accountToolbar?.state) { previous, current in
             guard previous != nil, previous != current else { return }
-            Task { await progress.reload() }
+            Task {
+                await progress.reload()
+                await sync.refreshStatus()
+            }
         }
         // A warm launch opens straight into the shell, so the first read of
         // the counts happens here rather than on the waiting screen. Both
