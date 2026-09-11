@@ -34,7 +34,11 @@ CF_ENTITLEMENTS_declared = Config/CountryFlags.entitlements
 CF_ENTITLEMENTS_none =
 CODE_SIGN_ENTITLEMENTS = $(CF_ENTITLEMENTS_$(CF_APP_ENTITLEMENTS:default=declared))
 
-ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+// One drawing, three sets: the App Store build gets the icon as drawn, and
+// the configurations that are not it get a corner cut in their own colour so
+// three builds on one phone are told apart (Scripts/render-app-icon.mjs).
+// The suffix is the configuration's to set, the way the bundle id's is.
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon$(CF_APPICON_SUFFIX)
 ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor
 
 // The version the App Store shows, and the build number under it. The release

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!--
+    The app icon, drawn once and rasterised by Scripts/render-app-icon.mjs.
+
+    The scene is the app's own: a dark ground with a cool glow behind it
+    (ADR-012), and the deck — three cards fanned the way the home screen fans
+    the flags it is about to ask. The cards are the accent blue, white, and
+    the accent's lighter dark-mode twin, not any country's colours: an icon
+    that read as one flag would be a claim the catalogue does not make.
+
+    No text and no fonts: the renderer loads none, so the bytes are the same
+    on every machine, which is what lets CI check them.
+  -->
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101733"/>
+      <stop offset="1" stop-color="#080B18"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.28" cy="0.22" r="0.75">
+      <stop offset="0" stop-color="#2E6FD0" stop-opacity="0.55"/>
+      <stop offset="0.55" stop-color="#1D60AD" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#1D60AD" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ember" cx="0.86" cy="0.9" r="0.5">
+      <stop offset="0" stop-color="#C0392B" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#C0392B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cardBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2468C2"/>
+      <stop offset="1" stop-color="#1D60AD"/>
+    </linearGradient>
+    <linearGradient id="cardMiddle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E9EEF7"/>
+    </linearGradient>
+    <linearGradient id="cardFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6FAAE6"/>
+      <stop offset="1" stop-color="#5A98D9"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="18"/>
+      <feOffset dx="0" dy="22" result="blurred"/>
+      <feComponentTransfer in="blurred" result="faded">
+        <feFuncA type="linear" slope="0.45"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="faded"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#ground)"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+  <rect width="1024" height="1024" fill="url(#ember)"/>
+
+  <!-- The fan pivots below the cards, so the spread reads as a hand of cards
+       rather than a stack that slipped. -->
+  <g transform="translate(512 548)">
+    <g transform="rotate(-16) translate(-250 -172)" filter="url(#shadow)">
+      <rect width="500" height="344" rx="52" fill="url(#cardBack)"/>
+      <rect x="2" y="2" width="496" height="340" rx="50" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="4"/>
+    </g>
+    <g transform="rotate(0) translate(-250 -196)" filter="url(#shadow)">
+      <rect width="500" height="344" rx="52" fill="url(#cardMiddle)"/>
+      <rect x="2" y="2" width="496" height="340" rx="50" fill="none" stroke="#0B1020" stroke-opacity="0.08" stroke-width="4"/>
+    </g>
+    <g transform="rotate(16) translate(-250 -172)" filter="url(#shadow)">
+      <rect width="500" height="344" rx="52" fill="url(#cardFront)"/>
+      <rect x="2" y="2" width="496" height="340" rx="50" fill="none" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="4"/>
+      <!-- A flag on the front card: a pole and a pennant, the shape every
+           catalogue row draws in miniature. -->
+      <rect x="150" y="82" width="22" height="196" rx="11" fill="#FFFFFF" fill-opacity="0.96"/>
+      <path d="M186 96 C 236 72, 286 120, 350 96 L 350 202 C 286 226, 236 178, 186 202 Z" fill="#FFFFFF" fill-opacity="0.96"/>
+    </g>
+  </g>
+</svg>

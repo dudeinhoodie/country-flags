@@ -4,6 +4,7 @@
 CF_APP_ENVIRONMENT = prod
 CF_API_BASE_URL = https:/$()/api.country-flags.app
 CF_BUNDLE_ID_SUFFIX =
+CF_APPICON_SUFFIX =
 PRODUCT_NAME = CountryFlags
 
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited)

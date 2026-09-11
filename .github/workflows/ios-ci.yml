@@ -118,6 +118,12 @@ jobs:
       - name: Check the mock content
         run: node Scripts/sync-mock-content.mjs --check
 
+      # The icon is rendered from one drawing rather than exported by hand, so
+      # a committed set that drifted from the drawing would ship an icon
+      # nobody drew.
+      - name: Check the app icon
+        run: node Scripts/render-app-icon.mjs --check
+
       # Advertising is off in the MVP: no ad SDK, no advertising identifier and
       # no tracking prompt may enter the app target. The unit tests can only
       # prove the package stays clean, not the app target, so it is checked
