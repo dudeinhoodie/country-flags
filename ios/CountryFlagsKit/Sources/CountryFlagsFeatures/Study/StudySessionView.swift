@@ -457,6 +457,12 @@ struct StudySessionResultView: View {
             .textCase(.uppercase)
             .foregroundStyle(.white.opacity(0.55))
             .multilineTextAlignment(.center)
+            // The objective result screen has carried this identifier since it
+            // was written; this one never did, so the two screens disagreed
+            // about their own marker and only the quiz could be asked whether
+            // a sitting had ended. A test on this screen had to match the
+            // copy instead, which is a test that agrees with any wording.
+            .accessibilityIdentifier(AccessibilityIdentifier.studyResultTitle)
     }
 
     /// The scale and what stands in its bowl, one element for VoiceOver.

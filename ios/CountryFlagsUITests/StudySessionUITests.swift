@@ -208,12 +208,21 @@ final class StudySessionUITests: XCTestCase {
     /// The honest answer is every card it has, once. Repeating one to reach a
     /// number would quietly tell the learner they had studied twenty things.
     func testADeckSmallerThanTheSessionSizeIsNotPaddedWithRepeats() {
+        // The only deck in the release shorter than a sitting is the paid one
+        // — seven cards against a longest sitting of twenty, where the next
+        // smallest deck has thirty. So this study test has to own a deck, and
+        // owning starts with an account: `-owned-deck` moves the mock
+        // backend's answer, but an entitlement belongs to somebody, and a
+        // guest is correctly told to sign in to buy.
+        //
+        // Discovery stays at its default of false on purpose. That is the rule
+        // `PD-21` names: a storefront switched off hides what is for sale and
+        // never what somebody already holds.
+        let identity = ["-installation-id", "5c1b9e47-2a83-4d16-9e50-6f4a2c8b7d31"]
         let app = launch(
-            arguments: [
-                "-reset-store", "-owned-deck",
-                "-feature-flag", "commerce.paid_decks.discovery.enabled=true",
-            ]
+            arguments: ["-reset-store", "-owned-deck", "-fake-signin"] + identity
         )
+        signIn(in: app)
 
         let settings = app.buttons["root.shell.openSettings"]
         XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
@@ -441,6 +450,40 @@ final class StudySessionUITests: XCTestCase {
     /// bundle, so a tap can land before the deck's own screen has read its
     /// cards. Tapping `study.start` without waiting for it used to work only
     /// because nothing was tappable until the whole release had downloaded.
+    /// Signs in through the fixture provider, which is what makes an
+    /// entitlement reachable: a deck is owned by an account and not by a
+    /// device. Shaped after the paid-deck suite's own helper, including the
+    /// second offer of the tap — the account screen is assembled while the
+    /// launch is still importing content and rebuilds once it has read its
+    /// own state, so a tap that lands in that moment is dropped.
+    private func signIn(in app: XCUIApplication) {
+        let account = app.buttons["account.open"]
+        XCTAssertTrue(account.waitForExistence(timeout: 60), app.debugDescription)
+        account.tap()
+
+        let signedIn = app.descendants(matching: .any)
+            .matching(identifier: "settings.account.signedIn")
+            .firstMatch
+        // A session lives in the keychain, which outlives the store the launch
+        // resets, so a device that signed in for an earlier test arrives here
+        // already signed in. That is a starting state, not a failure.
+        if signedIn.waitForExistence(timeout: 5) {
+            app.tabBars.buttons["Home"].tap()
+            return
+        }
+
+        let fixture = app.buttons["settings.account.fakeSignIn"]
+        XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
+        fixture.tap()
+        if !signedIn.waitForExistence(timeout: 15), fixture.exists {
+            fixture.tap()
+        }
+        XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
+        // Left by the tab bar rather than by a back button, which is the way
+        // the paid-deck suite already proves works from this screen.
+        app.tabBars.buttons["Home"].tap()
+    }
+
     private func openDeck(in app: XCUIApplication) {
         let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
