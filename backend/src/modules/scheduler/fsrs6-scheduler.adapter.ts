@@ -16,9 +16,10 @@ export const FSRS_ALGORITHM_MAJOR = 6;
 /// card answered under v1 keeps its v1 timings until it is answered again.
 export const FSRS_PARAMETERS_VERSION = "fsrs-6-default-21-v1";
 export const FSRS_PARAMETERS_VERSION_V2 = "fsrs-6-default-21-v2";
+export const FSRS_PARAMETERS_VERSION_V3 = "fsrs-6-default-21-v3";
 /// The definition row the migration installs. Named by the day it became
 /// active, because that is the question anybody debugging a due date asks.
-export const FSRS_ACTIVE_DEFINITION_VERSION = "fsrs-6-2026-08-21";
+export const FSRS_ACTIVE_DEFINITION_VERSION = "fsrs-6-2026-09-11";
 
 type FsrsState = 0 | 1 | 2 | 3;
 type FsrsRating = 1 | 2 | 3 | 4;
@@ -86,6 +87,21 @@ export const FSRS6_PARAMETERS_V2 = {
   ...FSRS6_DEFAULT_PARAMETERS,
   learning_steps: ["1h", "3h", "1d"],
   relearning_steps: ["1h"],
+} as const;
+
+/// The same ladder with the first rung raised from an hour to three.
+///
+/// The product answers with a swipe now — left is "again", right is "good" —
+/// so the hour was the only time a card ever came back inside the sitting's
+/// afternoon: "good" on a new card already waited three hours. The owner
+/// wants the deck back once every three hours, and this is that floor: a
+/// lapse and a first "good" both come back in three hours, the next rung is
+/// still a day, and "easy" still graduates at once. Weights, retention target
+/// and fuzz are untouched, as with v2 (ADR-022).
+export const FSRS6_PARAMETERS_V3 = {
+  ...FSRS6_DEFAULT_PARAMETERS,
+  learning_steps: ["3h", "3h", "1d"],
+  relearning_steps: ["3h"],
 } as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {

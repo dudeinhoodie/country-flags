@@ -1,6 +1,6 @@
 # ADR-013: первый повтор через час, а не через минуту
 
-- Status: Accepted
+- Status: Accepted — ступень поднята до трёх часов в [ADR-022](./ADR-022-first-repetition-after-three-hours.md)
 - Date: 2026-08-21
 
 ## Context
