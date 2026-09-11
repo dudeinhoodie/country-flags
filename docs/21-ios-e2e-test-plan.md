@@ -353,12 +353,12 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 44 UI-теста, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 46 UI-тестов, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
 | --- | --- |
-| Launch/bundled/offline и поиск каталога | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (3) |
+| Launch/bundled/offline, поиск и country detail | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (5) |
 | Navigation | `TabToolbarUITests` (2) |
 | Self-rated | `StudySessionUITests` (6), `CardBackFactsUITests` (1) |
 | Objective | `ObjectiveSessionUITests` (3) |
@@ -435,6 +435,10 @@ Fixtures не должны делить keychain/session между паралл
 - `ST-11`: экран колоды предлагает именно незавершённую сессию, а не новую;
 - `CO-04/05`: поиск сужает каталог, отсутствие совпадений сказано словами,
   а очистка возвращает каталог целиком;
+- `CO-06`: поиск внутри колоды фильтрует страны и говорит об отсутствии
+  совпадений своими словами, а не словами каталога;
+- `CO-07`: страна открывается из списка, показывает факты релиза, а карта
+  открывается и закрывается, не запирая browsing;
 - `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
   `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
   по-прежнему выполняется nightly.
