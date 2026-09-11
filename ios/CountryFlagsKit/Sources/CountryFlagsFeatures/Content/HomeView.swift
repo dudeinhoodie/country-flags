@@ -86,11 +86,6 @@ public struct HomeView: View {
         self.onStartStudy = onStartStudy
     }
 
-    /// How many learned countries make a guest's work worth a word. Below it
-    /// the offer is noise on a fresh install; above it there is something to
-    /// lose, and the row says how much.
-    private static let guestPromptThreshold = 5
-
     public var body: some View {
         content
             .navigationTitle(L10n.homeTitle)
@@ -429,10 +424,13 @@ public struct HomeView: View {
     /// A sign-in the backend has stopped honouring comes first, and is not
     /// conditional on anything else: from that moment every answer stays on
     /// the phone, and the caption says how many already do. A guest is told
-    /// only once there is something to lose, with the number. Neither row
-    /// can be dismissed: the first goes away when the person signs in again,
-    /// the second when they sign in at all. Both lead to the account screen,
-    /// where the buttons already are, rather than repeating them here.
+    /// from the first answer on — the moment there is anything on the phone
+    /// that a lost phone would take — and the caption carries the number of
+    /// countries once there is one. A fresh install with nothing answered is
+    /// not nagged. Neither row can be dismissed: the first goes away when the
+    /// person signs in again, the second when they sign in at all. Both lead
+    /// to the account screen, where the buttons already are, rather than
+    /// repeating them here.
     @ViewBuilder
     private var accountPrompt: some View {
         if let onOpenAccount {
@@ -450,7 +448,9 @@ public struct HomeView: View {
                 AccountPromptRow(
                     symbol: "person.crop.circle",
                     title: L10n.homeGuestPromptTitle,
-                    caption: L10n.homeGuestPromptCount(learnedCountries),
+                    caption: learnedCountries > 0
+                        ? L10n.homeGuestPromptCount(learnedCountries)
+                        : L10n.accountGuestNote,
                     identifier: AccessibilityIdentifier.homeGuestPrompt,
                     action: onOpenAccount
                 )
@@ -469,7 +469,7 @@ public struct HomeView: View {
 
     private var isGuestWithSomethingToLose: Bool {
         guard case .guest? = account?.state else { return false }
-        return learnedCountries >= Self.guestPromptThreshold
+        return hasAnyProgress
     }
 
     /// Whether the learner has ever answered anything: what separates a
@@ -480,16 +480,23 @@ public struct HomeView: View {
 
     /// Countries carried all the way to learned, and countries under way.
     ///
-    /// Summed over the curated decks alone: those partition the world once,
-    /// while a country can also sit in any number of themed decks, and adding
-    /// those in would count the same flag several times and show a learner
-    /// more countries than there are.
+    /// The whole-world deck's own figures, the same ones the progress screen
+    /// puts under its map: that deck holds every country exactly once, which
+    /// is what lets the label call the number "countries". These used to be
+    /// summed over the curated decks, which was the same thing while the
+    /// whole-world deck was the only curated one; the catalogue since gained
+    /// special areas as a second, and the sum quietly began counting places
+    /// that are not countries — 98 here against 91 on the progress screen,
+    /// for the same phone. A release without a whole-world deck falls back to
+    /// the sum, which is then all there is.
     private var learnedCountries: Int {
-        curatedDecks.reduce(0) { $0 + $1.learnedCards }
+        progress?.whole?.learnedCards
+            ?? curatedDecks.reduce(0) { $0 + $1.learnedCards }
     }
 
     private var countriesInProgress: Int {
-        curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
+        progress?.whole.map { max(0, $0.startedCards - $0.learnedCards) }
+            ?? curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
     }
 
     // Both read the deck rows, and the rows are the backend's own counts

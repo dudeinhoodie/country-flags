@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A word about the account, as one line on the home screen.
+/// A word about the account, as one line on the home and progress screens.
 ///
 /// Two occasions, one shape. A sign-in the backend no longer honours: the
 /// answers are piling up on the phone, and until now nothing said so anywhere
