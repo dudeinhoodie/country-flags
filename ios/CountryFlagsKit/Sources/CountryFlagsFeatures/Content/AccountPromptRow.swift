@@ -10,13 +10,6 @@ import SwiftUI
 /// drawn like the door back into an unfinished sitting so the two read as the
 /// same kind of thing: a line, a reason, a chevron.
 struct AccountPromptRow: View {
-    /// How many learned countries make a guest's work worth a word. Below it
-    /// the offer is noise on a fresh install; above it there is something to
-    /// lose, and the row says how much. One number for every screen that
-    /// carries the row, so the offer does not appear on one and not another
-    /// for the same phone.
-    static let guestThreshold = 5
-
     let symbol: String
     let title: String
     let caption: String

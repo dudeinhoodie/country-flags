@@ -86,6 +86,11 @@ public struct HomeView: View {
         self.onStartStudy = onStartStudy
     }
 
+    /// How many learned countries make a guest's work worth a word. Below it
+    /// the offer is noise on a fresh install; above it there is something to
+    /// lose, and the row says how much.
+    private static let guestPromptThreshold = 5
+
     public var body: some View {
         content
             .navigationTitle(L10n.homeTitle)
@@ -464,7 +469,7 @@ public struct HomeView: View {
 
     private var isGuestWithSomethingToLose: Bool {
         guard case .guest? = account?.state else { return false }
-        return learnedCountries >= AccountPromptRow.guestThreshold
+        return learnedCountries >= Self.guestPromptThreshold
     }
 
     /// Whether the learner has ever answered anything: what separates a

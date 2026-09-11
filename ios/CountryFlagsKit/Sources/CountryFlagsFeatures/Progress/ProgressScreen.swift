@@ -60,6 +60,7 @@ public struct ProgressScreen: View {
     private var empty: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
             strandedNotice
+            accountPrompt
 
             Spacer(minLength: 0)
 
@@ -86,25 +87,27 @@ public struct ProgressScreen: View {
         .sceneChrome()
     }
 
-    /// A guest with something to lose, told so on the screen that shows it.
+    /// A guest, told on the screen about their progress that it lives on this
+    /// phone alone.
     ///
-    /// The home screen already says this once the work is worth a word; this
-    /// is the same row, the same threshold and the same number, because a
-    /// person who opened this tab is looking at exactly what a lost phone
-    /// would take, and the map above it is the argument. It cannot be
-    /// dismissed and goes away when they sign in. A sign-in that expired is
-    /// the home screen's to announce: its caption counts answers waiting to
-    /// upload, which this screen does not read.
+    /// The home screen's row, but without the home screen's threshold: there
+    /// the offer waits until the work is worth a word, because the screen is
+    /// about today; here the person has opened the tab that is about what
+    /// they have kept, and that it is kept nowhere else is the first thing to
+    /// know about it — before there is anything to count, and on the empty
+    /// screen as much as on the full one. The caption carries the number once
+    /// there is one. It cannot be dismissed and goes away when they sign in.
+    /// A sign-in that expired is the home screen's to announce: its caption
+    /// counts answers waiting to upload, which this screen does not read.
     @ViewBuilder
     private var accountPrompt: some View {
-        if let onOpenAccount,
-            case .guest? = account?.state,
-            learnedCards >= AccountPromptRow.guestThreshold
-        {
+        if let onOpenAccount, case .guest? = account?.state {
             AccountPromptRow(
                 symbol: "person.crop.circle",
                 title: L10n.homeGuestPromptTitle,
-                caption: L10n.homeGuestPromptCount(learnedCards),
+                caption: learnedCards > 0
+                    ? L10n.homeGuestPromptCount(learnedCards)
+                    : L10n.accountGuestNote,
                 identifier: AccessibilityIdentifier.progressGuestPrompt,
                 action: onOpenAccount
             )
