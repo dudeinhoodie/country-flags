@@ -1,7 +1,7 @@
 # iOS E2E test plan
 
 Статус: `Implementation started — Wave 1`
-Дата: 9 сентября 2026 года
+Дата: 10 сентября 2026 года
 
 Документ задаёт сквозное E2E-покрытие текущего iOS-приложения: от первого
 запуска и гостевого обучения до авторизации, синхронизации, покупок, настроек
@@ -108,8 +108,8 @@ Fixtures не должны делить keychain/session между паралл
 | `J-09` | `A0`: Restore purchases для ранее купленного Apple product | Backend entitlement появляется, owned deck открывается на этом устройстве | StoreKit Test + Sandbox |
 | `J-10` | `P1`: начать paid session → получить refund/revocation | Текущая сессия завершается; новая не стартует; прогресс не удалён | Dev E2E + Sandbox |
 | `J-11` | `A1`: изменить session size и privacy consent → открыть приложение на втором устройстве | Account settings сходятся с backend; локальное permission state не копируется | Dev E2E |
-| `J-12` | `A1`: удалить прогресс с re-auth → синхронизировать два устройства | Сервер и оба устройства показывают пустой progress; аккаунт и purchases сохранены | Dev E2E + Device |
-| `J-13` | `A1`: удалить аккаунт с re-auth → relaunch | Устройство становится guest; private scope очищен; pending deletion notice переживает relaunch | Dev E2E + Device |
+| `J-12` | `A1`: удалить прогресс из аккаунта → синхронизировать два устройства | Сервер и оба устройства показывают пустой progress; аккаунт и purchases сохранены | Dev E2E + Device |
+| `J-13` | `A1`: удалить аккаунт → relaunch | Устройство становится guest; private scope очищен; pending deletion notice переживает relaunch | Dev E2E + Device |
 | `J-14` | `A1`: access token истёк во время foreground sync | Выполнен single refresh; при невосстановимой сессии показан re-sign-in без удаления локальной работы | Dev E2E |
 | `J-15` | `G0`: пройти multiple-choice с правильными и неправильными ответами | До выбора ответ не раскрыт; результат и scheduler mapping сохранены корректно | Mock CI |
 | `J-16` | `A1`: sign out при непустом outbox | Показано число несинхронизированных ответов; Cancel сохраняет сессию; после подтверждения pending review остаются в изолированном account scope и не видны guest/другому аккаунту | Mock CI + Dev E2E |
@@ -172,11 +172,11 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-AC-03` | P0 | Sign out current device с pending review → Confirm | Pending review остаются в account scope до повторного входа того же account; guest scope их не видит и UI не заявляет их синхронизированными | Mock CI + Dev E2E |
 | `IOS-E2E-AC-04` | P1 | Sign out everywhere | Текущая session завершается; другое устройство теряет session при следующем запросе | Dev E2E |
 | `IOS-E2E-AC-05` | P0 | Account A → sign out → Account B | Progress/settings/entitlements A не видны B; общедоступный content cache переиспользуется безопасно | Dev E2E |
-| `IOS-E2E-AC-06` | P0 | Clear progress: открыть dialog → Cancel | Ни local, ни server progress не меняются | Mock CI |
-| `IOS-E2E-AC-07` | P0 | Clear progress с re-auth → Confirm | Progress/outbox очищены после server success; account/purchases/settings сохранены | Dev E2E + Device |
-| `IOS-E2E-AC-08` | P1 | Clear progress backend failure | Локальная история не удаляется; доступен retry | Mock CI |
-| `IOS-E2E-AC-09` | P0 | Delete account → Cancel | Account остаётся активным, данные не меняются | Mock CI |
-| `IOS-E2E-AC-10` | P0 | Delete account с re-auth → success | App возвращается в guest; private scope/token очищены; notice переживает relaunch | Dev E2E + Device |
+| `IOS-E2E-AC-06` | P0 | Clear progress: открыть dialog → Cancel | Ни local, ни server progress не меняются; outbox, session и settings нетронуты | Mock CI |
+| `IOS-E2E-AC-07` | P0 | Clear progress → Confirm | Progress/outbox/курсоры очищены после server success; account/purchases/settings сохранены, и история не возвращается после relaunch и повторного входа | Mock CI + Dev E2E + Device |
+| `IOS-E2E-AC-08` | P1 | Clear progress backend failure | Локальная история и очередь не удаляются; сессия сохранена; доступен retry | Mock CI |
+| `IOS-E2E-AC-09` | P0 | Delete account → Cancel | Account остаётся активным, данные не меняются, notice не появляется даже после relaunch | Mock CI |
+| `IOS-E2E-AC-10` | P0 | Delete account → success | App возвращается в guest; private scope/token/entitlement очищены; notice переживает relaunch; повторное удаление не предлагается | Mock CI + Dev E2E + Device |
 
 ### 5.5 Catalog, deck и content browsing
 
@@ -200,12 +200,12 @@ Fixtures не должны делить keychain/session между паралл
 | ID | P | Сценарий | Ожидаемый результат | Контур |
 | --- | --- | --- | --- | --- |
 | `IOS-E2E-ST-01` | P0 | Deck detail использует default session size | Выбранное в Settings значение отображается и передаётся в snapshot | Mock CI |
-| `IOS-E2E-ST-02` | P1 | Изменить размер только для текущего запуска | Сессия использует override; account default не меняется | Mock CI |
+| `IOS-E2E-ST-02` | — | Изменить размер только для текущего запуска | Переключателя размера «на один запуск» в UI нет: экран колоды предлагает выбор режима, а размер только читает из настроек. Строка перенесена в раздел 9 и до появления контрола не является E2E | — |
 | `IOS-E2E-ST-03` | P1 | В колоде меньше карточек, чем limit | Используются все уникальные доступные карточки; нет дублей ради заполнения | Mock CI |
 | `IOS-E2E-ST-04` | P0 | Front card до reveal | Видны symbol/image и context, но ни visual, ни VoiceOver не раскрывают ответ | Mock CI |
 | `IOS-E2E-ST-05` | P0 | Reveal answer | Показаны локализованное имя, template facts и доступ к detail | Mock CI |
-| `IOS-E2E-ST-06` | P0 | Оценки Again/Hard/Good/Easy | Каждая оценка принимается один раз; открывается следующая карточка | Mock CI |
-| `IOS-E2E-ST-07` | P0 | Again | Карточка повторяется по session policy, не увеличивая unique-card limit | Mock CI |
+| `IOS-E2E-ST-06` | P0 | Оценки Again и Good | Каждая оценка принимается один раз; открывается следующая карточка. Свайпом доступны только эти две: `Hard` и `Easy` существуют как accessibility actions на карточке и обычным касанием недостижимы, поэтому строка описывает то, что есть, а не четыре кнопки | Mock CI |
+| `IOS-E2E-ST-07` | P0 | Again | Оценка принимается один раз и не удлиняет присест: состав сессии фиксируется на старте, и карточка не спрашивается в нём повторно. Обещание возврата держит планировщик — `.again` даёт час и состояние `RELEARNING`, — поэтому повтор приходится на следующий присест; экран результата говорит, сколько карточек вернётся в колоду | Mock CI |
 | `IOS-E2E-ST-08` | P1 | Double tap/swipe при commit | Создаётся один review, позиция сдвигается один раз | Mock CI |
 | `IOS-E2E-ST-09` | P1 | Review save fails | Текущая карточка остаётся ответимой; показан non-destructive status | Mock CI |
 | `IOS-E2E-ST-10` | P1 | Close до первого ответа | Пустая сессия не создаёт progress и не вызывает ложный sync success | Mock CI |
@@ -306,7 +306,7 @@ Fixtures не должны делить keychain/session между паралл
 | ID | P | Сценарий | Ожидаемый результат | Контур |
 | --- | --- | --- | --- | --- |
 | `IOS-E2E-SY-01` | P0 | Offline free study | Никакой blocking error; review попадают в outbox | Mock CI |
-| `IOS-E2E-SY-02` | P0 | Network restored | Sync запускается и pending count доходит до нуля | Dev E2E |
+| `IOS-E2E-SY-02` | P0 | Network restored | Sync запускается и pending count доходит до нуля; выгруженные ответы остаются прогрессом | Mock CI + Dev E2E |
 | `IOS-E2E-SY-03` | P0 | Один review отправлен повторно | Backend idempotency не меняет статистику; UI не дублирует ответ | Dev E2E |
 | `IOS-E2E-SY-04` | P1 | Batch partial acceptance | Accepted удаляются из outbox, retryable остаются, terminal не зацикливаются | Dev E2E |
 | `IOS-E2E-SY-05` | P1 | 5xx/timeout во время sync | Account не разлогинивается; status показывает retryable failure | Dev E2E |
@@ -316,7 +316,7 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-SY-09` | P1 | Out-of-order canonical change feed | Итог соответствует server cursor/version; старое состояние не перезаписывает новое | Dev E2E |
 | `IOS-E2E-SY-10` | P1 | Tombstone/delete приходит на client | Удалённые записи исчезают; cursor продвигается; повтор безопасен | Dev E2E |
 | `IOS-E2E-SY-11` | P1 | Pull-to-refresh при pending outbox | Content и account sync завершаются без двух параллельных runs | Mock CI |
-| `IOS-E2E-SY-12` | P1 | Relaunch/crash между local commit и upload | Записанный review остаётся и отправляется после запуска | Mock CI |
+| `IOS-E2E-SY-12` | P0 | Relaunch/crash между local commit и upload | Записанный review переживает завершение процесса и уходит на первом запуске, который может его отправить | Mock CI |
 
 ### 5.13 Feature flags, compatibility и failure recovery
 
@@ -353,20 +353,21 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 9 сентября 2026 года в `ios/CountryFlagsUITests` есть 31 UI-тест, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 50 UI-тестов, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
 | --- | --- |
-| Launch/bundled/offline | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (2) |
+| Launch/bundled/offline, поиск и country detail | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (5) |
 | Navigation | `TabToolbarUITests` (2) |
-| Self-rated | `StudySessionUITests` (3), `CardBackFactsUITests` (1) |
-| Objective | `ObjectiveSessionUITests` (2) |
-| Progress/settings | `ProgressSettingsUITests` (3) |
-| Sync presentation | `SyncStatusUITests` (1) |
+| Self-rated | `StudySessionUITests` (9), `CardBackFactsUITests` (1) |
+| Objective | `ObjectiveSessionUITests` (3) |
+| Progress/settings | `ProgressSettingsUITests` (5) |
+| Sync presentation и offline → online upload | `SyncStatusUITests` (2) |
 | Paid deck presentation | `PaidDeckUITests` (3) |
-| Guest migration, sign-out и account isolation | `GuestAuthUITests` (4) |
-| Account deletion | `AccountLifecycleUITests` (1) |
+| Guest migration, sign-out и account isolation | `GuestAuthUITests` (5) |
+| Clear progress и удаление приватных данных | `AccountProgressUITests` (4) |
+| Account deletion: Cancel и Confirm | `AccountLifecycleUITests` (2) |
 | Accessibility/localization | `AccessibilityUITests` (4) |
 | Store screenshots | `StoreScreenshotUITests` (1) |
 
@@ -375,14 +376,23 @@ Fixtures не должны делить keychain/session между паралл
 1. Guest migration и базовый sign-out покрыты через fixture auth; системные
    Apple/Google sheets, cancellation и provider failures ещё требуют Device и
    Dev E2E.
-2. Изоляция progress, settings и entitlements при A → B → A, а также pending
-   outbox при Cancel/Confirm sign-out покрыты в Mock CI; private assets ещё не
-   покрыты.
+2. Изоляция progress, settings и entitlements при A → B → A, pending outbox при
+   Cancel/Confirm sign-out, обе ветки Clear progress вместе с отказом бэкенда и
+   обе ветки удаления аккаунта покрыты в Mock CI; private assets и multi-device
+   convergence после очистки ещё не покрыты.
 3. StoreKit UI проверяет locked/free/owned presentation, но не purchase,
    pending, cancellation, restore, unverified transaction и refund.
-4. Из настроек UI-тестом проверяется только session size; отсутствуют
-   reminders, sound/haptics, privacy consent и conflict convergence.
-5. Нет сквозного offline → online upload и multi-device convergence.
+4. Из настроек проверяются session size, sound/haptics и product analytics
+   consent — все через relaunch, потому что теряется такая настройка именно
+   там. Остаются reminders с системным permission и сходимость конфликтов
+   настроек между устройствами.
+5. Offline → online upload покрыт в Mock CI на одном устройстве; multi-device
+   convergence, partial batch acceptance и 401/refresh во время sync ещё нет.
+   Диагностировать такие отказы через UI нельзя: sync run не сообщает исход
+   ничему, что видно на экране, поэтому полная очередь выглядит как
+   неустоявшийся запуск. Для этого в `MockLearningBackendTests` есть прогон
+   настоящего координатора против фикстуры — он превращает «ответы не ушли»
+   в номер строки.
 6. Нет E2E для coats/subdivisions и template-compatible distractors.
 
 ## 7. Рекомендуемый порядок автоматизации
@@ -401,8 +411,45 @@ Fixtures не должны делить keychain/session между паралл
   изоляции и восстановления progress, session size и paid entitlement;
 - sign-out с двумя pending review: точный warning, Cancel без потери сессии,
   Confirm без утечки в guest и восстановление очереди после повторного входа;
-- `GuestAuthUITests` включён в pull-request smoke suite, а полный набор по-прежнему
-  выполняется nightly.
+- Clear progress → Cancel: текст последствий, явная кнопка отмены, сохранённые
+  progress, outbox, session и session size, в том числе после relaunch;
+- Clear progress → Confirm: пустой Progress, удалённая очередь и курсоры,
+  сохранённые session, session size и paid entitlement, отсутствие возврата
+  истории после relaunch, sign-out и повторного входа;
+- Clear progress при отказе бэкенда: история, очередь и сессия сохранены,
+  показан текст неудачи, повторная попытка доступна;
+- Delete account → Cancel: текст последствий, явная кнопка отмены, активная
+  сессия, отсутствие notice и после relaunch;
+- Delete account → Confirm: возврат в guest, пустой Progress, снова запертая
+  платная колода, notice и невозможность удалить повторно, работающее гостевое
+  обучение;
+- offline → online: два ответа, записанные когда их некому принять, переживают
+  завершение процесса и уходят на первом запуске, который достаёт до сервера;
+  очередь пустеет, а сам прогресс остаётся;
+- `QZ-07`: перезапуск посреди quiz возвращает тот же вопрос с теми же
+  вариантами в том же порядке, а не свежесобранный;
+- `ST-07`: карточка, брошенная `Again`, спрашивается снова до конца сессии;
+- `SE`: звук, haptics и product analytics consent переживают перезапуск;
+- `ST-10`: сессия, закрытая до первого ответа, не создаёт прогресс и не
+  сообщает о несуществующей синхронизации;
+- `ST-11`: экран колоды предлагает именно незавершённую сессию, а не новую;
+- `CO-04/05`: поиск сужает каталог, отсутствие совпадений сказано словами,
+  а очистка возвращает каталог целиком;
+- `CO-06`: поиск внутри колоды фильтрует страны и говорит об отсутствии
+  совпадений своими словами, а не словами каталога;
+- `CO-07`: страна открывается из списка, показывает факты релиза, а карта
+  открывается и закрывается, не запирая browsing;
+- `ST-14`: сессия, где всё отвечено `Again`, не поздравляет и сообщает ноль
+  запомненных;
+- `ST-03`: колода короче размера сессии не добивается повторами;
+- `AC-04`: выход везде оставляет гостем и это устройство, в том числе после
+  перезапуска;
+- `ST-01`: размер сессии, выбранный в настройках, доходит до самой сессии;
+- `ST-07`: `Again` берётся один раз, не удлиняет присест и попадает в
+  «вернутся в колоду» на экране результата;
+- `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
+  `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
+  по-прежнему выполняется nightly.
 
 ### Wave 2 — settings и content expansion
 
@@ -428,6 +475,22 @@ accessibility matrix и advertising no-fill.
 - backend reset/seed endpoint, доступный только в test environment;
 - accessibility identifiers для каждого CTA/status, но assertions по
   пользовательскому результату, а не по внутреннему implementation state;
+- учёт того, что launch wait — отдельный экран, а не оверлей: оболочка вместе
+  с таб-баром создаётся только после него, поэтому первый интерактивный кадр
+  заменяет всю иерархию. Тап, попавший в этот момент, подтверждается, но не
+  приводит ни к чему — и это касается таб-бара так же, как строк списка. Это
+  решение продукта (за экраном ожидания нечего доставать), а не flakiness, и
+  UI-тест обязан предлагать такой тап повторно, а не удлинять таймаут;
+- учёт того, что открытая сессия прячет таб-бар (`RootView` держит
+  `.toolbar(isStudyOpen ? .hidden : .automatic, for: .tabBar)`), поэтому
+  из присеста нельзя перейти на вкладку: сначала закрыть сессию и вернуться
+  в оболочку. Это не гонка, а детерминированное отсутствие элемента, и оно
+  роняло ночной `StoreScreenshotUITests` каждую ночь;
+- учёт того, что право на платную колоду принадлежит аккаунту, а не
+  устройству: `-owned-deck` двигает ответ мока, но гость всё равно увидит
+  пейволл. Тест, которому нужна платная колода, обязан залогиниться. Это
+  единственный способ получить колоду короче размера сессии — в релизе она
+  одна на семь карточек, а следующая по размеру уже на тридцать;
 - attachment screenshot + app log + request ID + mock/backend scenario trace
   при каждом падении.
 
@@ -437,6 +500,16 @@ accessibility matrix и advertising no-fill.
 нужен отдельный product/implementation task:
 
 - выбор языка контента внутри приложения;
+- размер сессии только для текущего запуска: экран колоды читает значение
+  из настроек и не даёт его переопределить;
+- повтор карточки `Again` внутри того же присеста: состав сессии
+  фиксируется на старте и не переселектируется, а `.again` планирует
+  карточку на час вперёд в `RELEARNING`. Минутный пол, который вернул бы
+  её раньше, убран сознательно вместе с `fsrs-6-default-21-v2`: офлайн он
+  возвращал на экран карточки, которые сервер не собирался спрашивать
+  раньше обеда. Строка `ST-07` переписана на то, что есть;
+- оценки `Hard` и `Easy` касанием: карточка принимает два броска, а все
+  четыре рейтинга доступны лишь как accessibility actions;
 - default answer mode;
 - настройка набора дополнительных facts;
 - reminder time и дни недели;

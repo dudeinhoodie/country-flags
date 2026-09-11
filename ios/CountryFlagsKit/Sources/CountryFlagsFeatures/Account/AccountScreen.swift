@@ -84,10 +84,26 @@ public struct AccountScreen: View {
             titleVisibility: .visible
         ) {
             Button(L10n.accountDeleteConfirm, role: .destructive) {
-                Task { await store.confirmDeletion() }
+                Task {
+                    await store.confirmDeletion()
+                    // The deletion ends the session from a store of its own,
+                    // so the one the rest of the app reads "who is signed in"
+                    // from would go on saying the account is still there —
+                    // and the shell reloads the counts off that state. Left
+                    // unsaid, a deleted account's progress stayed on the
+                    // Progress tab until the next launch. `refreshState` is
+                    // the seam this case was written for.
+                    await account?.refreshState()
+                }
             }
             .accessibilityIdentifier(AccessibilityIdentifier.accountDeleteConfirm)
-            Button(L10n.accountCancel, role: .cancel) { store.cancelDeletion() }
+            // Not a cancel-role button, for the reason the sign-out and
+            // clear-progress dialogs are not either: the iPad/popover
+            // adaptation of `confirmationDialog` omits that role and leaves
+            // only tap-outside dismissal. Backing out of ending an account
+            // stays an explicit action on every size class.
+            Button(L10n.accountCancel) { store.cancelDeletion() }
+                .accessibilityIdentifier(AccessibilityIdentifier.accountDeleteCancel)
         } message: {
             Text(L10n.accountDeleteBody)
         }

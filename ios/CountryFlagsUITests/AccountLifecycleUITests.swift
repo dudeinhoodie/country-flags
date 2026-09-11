@@ -67,6 +67,90 @@ final class AccountLifecycleUITests: XCTestCase {
         )
     }
 
+    /// Backing out. An account is the one thing in this app that cannot be
+    /// recovered by studying again, so the dialog has to be a question rather
+    /// than a formality: the way out is an explicit button on every size
+    /// class, and taking it leaves the account exactly as it was — signed in,
+    /// still deletable, and with nothing reported as having happened.
+    func testCancellingTheDeletionLeavesTheAccountUntouched() {
+        let app = launch(arguments: ["-reset-store"] + fixtures + identity)
+        signIn(in: app)
+
+        let delete = scrollTo(app.buttons["account.delete"], in: app)
+        XCTAssertTrue(delete.waitForExistence(timeout: 15), app.debugDescription)
+        delete.tap()
+
+        // The consequences are named before anything is asked of the person.
+        for copy in [
+            "Delete this account?",
+            "Your progress, awards, settings and every way in are gone. "
+                + "The app stays — you just start from nothing.",
+        ] {
+            let text = app.staticTexts.matching(
+                NSPredicate(format: "label == %@", copy)
+            ).firstMatch
+            XCTAssertTrue(
+                text.waitForExistence(timeout: 10),
+                "Ending an account must state its consequences\n\(app.debugDescription)"
+            )
+        }
+
+        let cancel = app.buttons
+            .matching(identifier: "account.delete.cancel")
+            .firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10), app.debugDescription)
+        cancel.tap()
+
+        // Nothing ran, so nothing is reported: a status line here would be the
+        // app telling somebody it did something they declined.
+        XCTAssertFalse(
+            app.descendants(matching: .any)
+                .matching(identifier: "account.delete.status")
+                .firstMatch
+                .exists,
+            "Cancelling must not report an outcome\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(
+            app.descendants(matching: .any)
+                .matching(identifier: "account.deletionPending")
+                .firstMatch
+                .exists,
+            "Cancelling must not leave a deletion notice\n\(app.debugDescription)"
+        )
+        XCTAssertTrue(
+            app.descendants(matching: .any)
+                .matching(identifier: "settings.account.signedIn")
+                .firstMatch
+                .exists,
+            "Cancelling must not end the session\n\(app.debugDescription)"
+        )
+        // Still offered, so the decision stays the person's to make later.
+        XCTAssertTrue(
+            scrollTo(app.buttons["account.delete"], in: app).exists,
+            app.debugDescription
+        )
+
+        // A relaunch reads the session and the notice from storage, which is
+        // where a cancelled deletion could still have left a mark.
+        app.terminate()
+        let relaunched = launch(arguments: fixtures + identity)
+        openAccount(in: relaunched)
+        XCTAssertTrue(
+            relaunched.descendants(matching: .any)
+                .matching(identifier: "settings.account.signedIn")
+                .firstMatch
+                .waitForExistence(timeout: 20),
+            relaunched.debugDescription
+        )
+        XCTAssertFalse(
+            relaunched.descendants(matching: .any)
+                .matching(identifier: "settings.account.deletionPending")
+                .firstMatch
+                .exists,
+            "A cancelled deletion is not a pending one\n\(relaunched.debugDescription)"
+        )
+    }
+
     // MARK: - Helpers
 
     /// Signs in and leaves the app on the account screen, which is where both
@@ -119,8 +203,35 @@ final class AccountLifecycleUITests: XCTestCase {
     /// so a test that is somewhere else has to come back first.
     private func openAccount(in app: XCUIApplication) {
         let account = app.buttons["account.open"]
-        XCTAssertTrue(account.waitForExistence(timeout: 30), app.debugDescription)
-        account.tap()
+        XCTAssertTrue(account.waitForExistence(timeout: 60), app.debugDescription)
+
+        // The launch wait is a screen rather than an overlay, so the shell is
+        // built only after it and the first interactive frame replaces the
+        // hierarchy. A tap that lands in that moment is acknowledged and does
+        // nothing — the button is there either way, so the answer is to offer
+        // the tap again rather than to wait longer for a screen that is never
+        // coming. Section 8 of the plan records why.
+        //
+        // Arrival is read off the account section in whichever state it is in:
+        // signed in, signed out, mid-sign-in or expired. Waiting for one of
+        // those in particular would make this helper care which test called it.
+        let arrived = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier IN %@",
+                [
+                    "settings.account.signedIn",
+                    "settings.account.signInApple",
+                    "settings.account.signingIn",
+                    "settings.account.expired",
+                ]
+            )
+        ).firstMatch
+
+        for _ in 0..<3 {
+            account.tap()
+            if arrived.waitForExistence(timeout: 15) { return }
+        }
+        XCTFail("The account screen never opened\n\(app.debugDescription)")
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {

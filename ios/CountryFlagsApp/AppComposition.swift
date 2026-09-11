@@ -618,10 +618,16 @@ struct AppComposition: AppDependencies {
             deletionState: UserDefaultsAccountDeletionStateStore(),
             logger: logger
         )
-        account.onSignedOut = { [router] in
+        account.onSignedOut = { [router, commerce] in
             // A deletion ended the session; the screen it happened on is
             // about an account that is no longer there.
             await MainActor.run { router.popToRoot() }
+            // And it is a sign-out like any other as far as everything the
+            // account could open is concerned. Without this the deck the
+            // deleted account had bought stayed unlocked on the device until
+            // the next launch, which is somebody else's purchase being given
+            // away.
+            await commerce.signedOut()
         }
         return account
     }

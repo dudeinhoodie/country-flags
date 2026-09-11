@@ -66,7 +66,16 @@ final class StoreScreenshotUITests: XCTestCase {
         capture(app, named: "04-answer")
 
         // 5. Progress: the world, lit by how much of it is known.
-        app.tabBars.buttons["Progress"].tap()
+        //
+        // Out of the sitting first. `RootView` hides the tab bar while a
+        // session is open, so there is no Progress tab to tap until this
+        // screen is closed — which is why this run had been failing here
+        // every night: the tap found no tab bar at all, not a slow one.
+        app.buttons["study.close"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let tab = app.tabBars.buttons["Progress"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 30), app.debugDescription)
+        tab.tap()
         XCTAssertTrue(
             app.descendants(matching: .any).matching(identifier: "progress.deck.ALL.counts")
                 .firstMatch.waitForExistence(timeout: 30),
