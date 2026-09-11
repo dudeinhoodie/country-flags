@@ -17,6 +17,14 @@ private actor StubAuthService: AuthenticationService {
     private var exchange: Behaviour
     private var refreshBehaviour: Behaviour
     private(set) var refreshCount = 0
+    /// Every refresh token this service was shown, in the order it saw them.
+    ///
+    /// A real backend spends the token it is presented, so seeing one twice is
+    /// not a detail of timing — it is the failure #392 was: the second caller
+    /// presented what the first had already replaced. Recorded rather than
+    /// refused, because the tests that assert the refusal path set their own
+    /// behaviour and should keep deciding it.
+    private(set) var presentedRefreshTokens: [String] = []
     private(set) var loggedOutRefreshTokens: [String] = []
     private(set) var didLogOutEverywhere = false
     let userID = UUID()
@@ -49,6 +57,7 @@ private actor StubAuthService: AuthenticationService {
     }
 
     func refresh(refreshToken: String) async throws -> RefreshedSessionRecord {
+        presentedRefreshTokens.append(refreshToken)
         refreshCount += 1
         switch refreshBehaviour {
         case .succeeds:
@@ -352,7 +361,8 @@ final class SessionCoordinatorTests: XCTestCase {
         XCTAssertNil(stored)
     }
 
-    /// The launch has two doors to a rotation and they must not both open.
+    /// The launch has two doors to a rotation and neither may present a
+    /// token the other has spent.
     ///
     /// `restore()` refreshes at launch; the first request of that same launch
     /// meets a 401 and refreshes through the middleware. A refresh spends the
@@ -360,7 +370,18 @@ final class SessionCoordinatorTests: XCTestCase {
     /// replaced, was refused, and ended the session — signed out on every
     /// launch (#392). The middleware's own coordinator cannot see this,
     /// because one of the two doors is not the middleware's.
-    func testRestoreAndAMiddlewareRefreshShareOneRotation() async throws {
+    ///
+    /// This used to assert that the launch made exactly one refresh call, and
+    /// that assertion was a coin flip: `async let` starts both doors but does
+    /// not make them overlap, and two calls that do not overlap are two honest
+    /// rotations presenting two different tokens. It failed roughly one run in
+    /// three and cost a CI run every time — including one that skipped the UI
+    /// suite entirely.
+    ///
+    /// What is actually wrong, in every interleaving, is presenting a token
+    /// twice. That is the property, so that is what is asserted: it cannot
+    /// fail for scheduling, and it cannot pass while #392 is back.
+    func testALaunchNeverPresentsARefreshTokenTwice() async throws {
         let service = StubAuthService()
         let tokens = InMemoryTokenStore()
         try await tokens.setValue("refresh-stored", for: .refreshToken)
@@ -372,8 +393,13 @@ final class SessionCoordinatorTests: XCTestCase {
         _ = await restored
         _ = try await refreshed
 
-        let count = await service.refreshCount
-        XCTAssertEqual(count, 1, "one launch spends one refresh token")
+        let presented = await service.presentedRefreshTokens
+        XCTAssertEqual(
+            presented.count,
+            Set(presented).count,
+            "a spent refresh token must never be presented again: \(presented)"
+        )
+        XCTAssertFalse(presented.isEmpty, "the launch refreshed nothing at all")
     }
 
     // MARK: - A keychain that refuses
