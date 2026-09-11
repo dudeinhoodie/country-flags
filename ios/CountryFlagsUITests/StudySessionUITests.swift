@@ -127,13 +127,6 @@ final class StudySessionUITests: XCTestCase {
         )
     }
 
-    /// Opens the hero deck and waits for the screen behind it to be drawable.
-    ///
-    /// The wait is on the deck screen rather than on the row: the catalogue is
-    /// on screen from the first frame now that the app seeds itself from the
-    /// bundle, so a tap can land before the deck's own screen has read its
-    /// cards. Tapping `study.start` without waiting for it used to work only
-    /// because nothing was tappable until the whole release had downloaded.
     /// IOS-E2E-ST-01: the size chosen in the settings is the size studied.
     ///
     /// A preference that is stored, shown back, and then ignored by the one
@@ -351,44 +344,79 @@ final class StudySessionUITests: XCTestCase {
         )
     }
 
-    /// IOS-E2E-ST-07: `Again` is a promise that the card comes back.
+    /// IOS-E2E-ST-07: `Again` costs the sitting nothing and is still owed.
     ///
-    /// It is the one rating that says "I did not know this", and the sitting
-    /// answers it by asking again before it ends. A card thrown left and never
-    /// seen again would quietly turn the honest answer into the expensive one:
-    /// the learner admits they do not know a flag and the app moves on.
+    /// `Again` is the rating that says "I did not know this", and the promise
+    /// that the card comes back is real — but it is kept by the scheduler and
+    /// not by the sitting in progress. A session's cards are chosen when it
+    /// starts and walked once; `.again` books the card an hour out in
+    /// `RELEARNING`, which is the backend's own ladder, so the repeat falls in
+    /// a later sitting. The minute-long floor that would have brought it back
+    /// sooner was removed on purpose with `fsrs-6-default-21-v2`, because
+    /// offline it put cards back on screen that the server had no intention of
+    /// asking for until after lunch.
     ///
-    /// Identity is read off the revealed answer rather than off a position,
-    /// because what has to come back is the country, not a slot.
-    func testAThrownAgainCardIsAskedBeforeTheSittingEnds() {
+    /// So what is checked here is the half the sitting owns: the refusal is
+    /// taken once, it does not quietly lengthen the sitting, and the result
+    /// screen admits that the card is coming back rather than counting it as
+    /// remembered. Identity is read off the revealed answer rather than off a
+    /// position, because the claim is about a country, not a slot.
+    func testAThrownAgainCardIsTakenOnceAndReportedAsReturning() {
         let identity = ["-installation-id", "7d2e9b14-3c60-4a85-9f27-1b8de5a0c934"]
         let app = launch(arguments: ["-reset-store"] + identity)
         openDeck(in: app)
         XCTAssertTrue(app.buttons["study.start"].waitForExistence(timeout: 30), app.debugDescription)
         app.buttons["study.start"].tap()
 
+        // "1 / 20": the sitting's own account of how long it means to be, read
+        // before anything is answered so the comparison is against the plan.
+        let counter = app.staticTexts["study.progress"]
+        XCTAssertTrue(counter.waitForExistence(timeout: 30), app.debugDescription)
+        let planned = Int(
+            counter.label.split(separator: "/").last?
+                .trimmingCharacters(in: .whitespaces) ?? ""
+        )
+        XCTAssertNotNil(planned, "Unreadable counter: \(counter.label)")
+        guard let planned else { return }
+
         // The first card, refused. Left is `Again`; the hints beside the card
         // say so, and the gesture is the answer.
         let refused = revealAnswer(in: app)
         card(in: app).swipeLeft()
 
-        // Everything after it is accepted, so the only reason the sitting can
-        // still be running is the card that was thrown back.
-        var seenAgain = false
+        // Everything after it is accepted, so the sitting ends when its own
+        // plan is spent and not a card later.
+        var asked = [refused]
         let result = app.staticTexts["study.result.title"]
-        var answered = 0
-        while !result.exists && answered < 40 {
+        while !result.exists && asked.count < planned + 5 {
             guard app.buttons["study.reveal"].waitForExistence(timeout: 20) else { break }
-            let name = revealAnswer(in: app)
-            if name == refused { seenAgain = true }
+            asked.append(revealAnswer(in: app))
             card(in: app).swipeRight()
-            answered += 1
         }
+        XCTAssertTrue(result.waitForExistence(timeout: 30), app.debugDescription)
 
-        XCTAssertTrue(
-            seenAgain,
-            "A card thrown Again must be asked again before the sitting ends\n"
+        XCTAssertEqual(
+            asked.filter { $0 == refused }.count,
+            1,
+            "The refusal is one answer, not a card asked twice: \(asked)\n"
                 + app.debugDescription
+        )
+        XCTAssertEqual(
+            asked.count,
+            planned,
+            "A refusal must not lengthen the sitting past what it planned\n"
+                + app.debugDescription
+        )
+
+        // The gauge speaks the whole outcome in one sentence: how many were
+        // remembered out of the plan, and how many are coming back. One card
+        // was refused, so exactly one is owed and it is not counted as known.
+        let gauge = app.descendants(matching: .any)["study.result.answered"]
+        XCTAssertTrue(gauge.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertTrue(
+            gauge.label.contains("\(planned - 1)") && gauge.label.contains("\(planned)"),
+            "A refused card is not remembered, so \(planned - 1) of \(planned) were: "
+                + "\(gauge.label)\n\(app.debugDescription)"
         )
     }
 
@@ -406,6 +434,13 @@ final class StudySessionUITests: XCTestCase {
         app.descendants(matching: .any).matching(identifier: "study.card").firstMatch
     }
 
+    /// Opens the hero deck and waits for the screen behind it to be drawable.
+    ///
+    /// The wait is on the deck screen rather than on the row: the catalogue is
+    /// on screen from the first frame now that the app seeds itself from the
+    /// bundle, so a tap can land before the deck's own screen has read its
+    /// cards. Tapping `study.start` without waiting for it used to work only
+    /// because nothing was tappable until the whole release had downloaded.
     private func openDeck(in app: XCUIApplication) {
         let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)

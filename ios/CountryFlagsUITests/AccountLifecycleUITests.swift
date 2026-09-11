@@ -203,8 +203,35 @@ final class AccountLifecycleUITests: XCTestCase {
     /// so a test that is somewhere else has to come back first.
     private func openAccount(in app: XCUIApplication) {
         let account = app.buttons["account.open"]
-        XCTAssertTrue(account.waitForExistence(timeout: 30), app.debugDescription)
-        account.tap()
+        XCTAssertTrue(account.waitForExistence(timeout: 60), app.debugDescription)
+
+        // The launch wait is a screen rather than an overlay, so the shell is
+        // built only after it and the first interactive frame replaces the
+        // hierarchy. A tap that lands in that moment is acknowledged and does
+        // nothing — the button is there either way, so the answer is to offer
+        // the tap again rather than to wait longer for a screen that is never
+        // coming. Section 8 of the plan records why.
+        //
+        // Arrival is read off the account section in whichever state it is in:
+        // signed in, signed out, mid-sign-in or expired. Waiting for one of
+        // those in particular would make this helper care which test called it.
+        let arrived = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier IN %@",
+                [
+                    "settings.account.signedIn",
+                    "settings.account.signInApple",
+                    "settings.account.signingIn",
+                    "settings.account.expired",
+                ]
+            )
+        ).firstMatch
+
+        for _ in 0..<3 {
+            account.tap()
+            if arrived.waitForExistence(timeout: 15) { return }
+        }
+        XCTFail("The account screen never opened\n\(app.debugDescription)")
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {
