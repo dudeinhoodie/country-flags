@@ -5,6 +5,7 @@ export type SourceKey =
   | "world-bank"
   | "wikidata"
   | "flag-icons"
+  | "us-state-flags"
   | "editorial";
 
 export interface SourceDefinition {

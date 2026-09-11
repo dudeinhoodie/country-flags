@@ -2,26 +2,6 @@
   "schemaVersion": 1,
   "sources": [
     {
-      "adapter": "cldr",
-      "key": "cldr",
-      "license": "Unicode-3.0",
-      "retrievedAt": "2026-08-25T12:35:50.489Z",
-      "revision": "48.2.0",
-      "sha256": "8c78694aaf9dd22bec1f64fb295e9a2202ef347b828ef017647bb23e53a554bf",
-      "snapshotPath": "sources/snapshots/cldr.json",
-      "url": "https://github.com/unicode-org/cldr-json/releases/tag/48.2.0"
-    },
-    {
-      "adapter": "un-m49",
-      "key": "un-m49",
-      "license": "UN terms of use",
-      "retrievedAt": "2026-07-28T13:05:12.292Z",
-      "revision": "snapshot-2026-07-28",
-      "sha256": "3860fc27b83a237e634357fec3e7542ed36c47e8afcc490500efd2e7da88557b",
-      "snapshotPath": "sources/snapshots/un-m49.json",
-      "url": "https://unstats.un.org/unsd/methodology/m49/overview/"
-    },
-    {
       "adapter": "annexare",
       "key": "annexare",
       "license": "MIT",
@@ -32,24 +12,24 @@
       "url": "https://github.com/annexare/Countries/tree/1c393325611d89d3511de01269a4f60fe9dc1c6f"
     },
     {
-      "adapter": "world-bank",
-      "key": "world-bank",
-      "license": "CC-BY-4.0",
-      "retrievedAt": "2026-07-28T13:07:17.935Z",
-      "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
-      "sha256": "c0fbd5f54e4a31e5a26f181637853b3e7840adfb5a07d5bfde73fe218b529b46",
-      "snapshotPath": "sources/snapshots/world-bank.json",
-      "url": "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json&date=2024&per_page=400"
+      "adapter": "cldr",
+      "key": "cldr",
+      "license": "Unicode-3.0",
+      "retrievedAt": "2026-08-25T12:35:50.489Z",
+      "revision": "48.2.0",
+      "sha256": "8c78694aaf9dd22bec1f64fb295e9a2202ef347b828ef017647bb23e53a554bf",
+      "snapshotPath": "sources/snapshots/cldr.json",
+      "url": "https://github.com/unicode-org/cldr-json/releases/tag/48.2.0"
     },
     {
-      "adapter": "wikidata",
-      "key": "wikidata",
-      "license": "CC0-1.0",
-      "retrievedAt": "2026-08-25T12:36:30.959Z",
-      "revision": "query-snapshot-2026-07-28",
-      "sha256": "9cb1824b2590883ac74e62054bfe7add66fe7ccb67bf8ac1e3f81689607a65f0",
-      "snapshotPath": "sources/snapshots/wikidata.json",
-      "url": "https://query.wikidata.org/sparql"
+      "adapter": "editorial",
+      "key": "editorial",
+      "license": "Proprietary editorial data",
+      "retrievedAt": "2026-09-06T12:17:52.347Z",
+      "revision": "editorial-v14",
+      "sha256": "5ca5bc3ebbd215bccebfa962e95727519c2841e8fcdddd6b0c1f004042e4f300",
+      "snapshotPath": "editorial/catalog.json",
+      "url": "file:editorial/catalog.json"
     },
     {
       "adapter": "flag-icons",
@@ -62,14 +42,44 @@
       "url": "https://github.com/lipis/flag-icons/releases/tag/v7.5.0"
     },
     {
-      "adapter": "editorial",
-      "key": "editorial",
-      "license": "Proprietary editorial data",
-      "retrievedAt": "2026-09-06T12:17:52.347Z",
-      "revision": "editorial-v14",
-      "sha256": "5ca5bc3ebbd215bccebfa962e95727519c2841e8fcdddd6b0c1f004042e4f300",
-      "snapshotPath": "editorial/catalog.json",
-      "url": "file:editorial/catalog.json"
+      "adapter": "un-m49",
+      "key": "un-m49",
+      "license": "UN terms of use",
+      "retrievedAt": "2026-07-28T13:05:12.292Z",
+      "revision": "snapshot-2026-07-28",
+      "sha256": "3860fc27b83a237e634357fec3e7542ed36c47e8afcc490500efd2e7da88557b",
+      "snapshotPath": "sources/snapshots/un-m49.json",
+      "url": "https://unstats.un.org/unsd/methodology/m49/overview/"
+    },
+    {
+      "adapter": "us-state-flags",
+      "key": "us-state-flags",
+      "license": "Per-file, recorded per asset (public domain for all 49)",
+      "retrievedAt": "2026-09-11T11:42:42.790Z",
+      "revision": "snapshot-2026-09-11",
+      "sha256": "cdb89385b2678720cdfcf5ff1bc573d050015d9ef043a695ab02f2cc7b79d54f",
+      "snapshotPath": "sources/snapshots/us-state-flags.json",
+      "url": "https://commons.wikimedia.org/wiki/Category:SVG_flags_of_states_of_the_United_States"
+    },
+    {
+      "adapter": "wikidata",
+      "key": "wikidata",
+      "license": "CC0-1.0",
+      "retrievedAt": "2026-08-25T12:36:30.959Z",
+      "revision": "query-snapshot-2026-07-28",
+      "sha256": "9cb1824b2590883ac74e62054bfe7add66fe7ccb67bf8ac1e3f81689607a65f0",
+      "snapshotPath": "sources/snapshots/wikidata.json",
+      "url": "https://query.wikidata.org/sparql"
+    },
+    {
+      "adapter": "world-bank",
+      "key": "world-bank",
+      "license": "CC-BY-4.0",
+      "retrievedAt": "2026-07-28T13:07:17.935Z",
+      "revision": "SP.POP.TOTL-2024-snapshot-2026-07-28",
+      "sha256": "c0fbd5f54e4a31e5a26f181637853b3e7840adfb5a07d5bfde73fe218b529b46",
+      "snapshotPath": "sources/snapshots/world-bank.json",
+      "url": "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json&date=2024&per_page=400"
     }
   ]
 }

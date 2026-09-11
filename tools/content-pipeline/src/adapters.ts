@@ -777,6 +777,212 @@ function flagIconsAdapter(): SourceAdapter {
   };
 }
 
+/// The licences a state flag may carry.
+///
+/// Forty-nine of the fifty are public domain with no obligations whatsoever,
+/// so a narrow set is the honest default: anything else has to be read by a
+/// person before it ships inside something people paid for. Mississippi is the
+/// one that is not here — its file is "Copyrighted free use" with an insignia
+/// restriction rather than public domain (#411) — and this set is what keeps
+/// it, or any future surprise, from arriving quietly.
+const ACCEPTED_STATE_FLAG_LICENSES = new Set(["pd", "cc0"]);
+
+/// How many file titles one Commons query carries. The API takes fifty; half
+/// of that leaves room for the titles to grow without a silent truncation.
+const COMMONS_TITLES_PER_QUERY = 25;
+
+function commonsMetadataUrl(titles: string[]): string {
+  const query = new URLSearchParams({
+    action: "query",
+    titles: titles.join("|"),
+    prop: "imageinfo",
+    iiprop: "url|extmetadata|sha1|size",
+    format: "json",
+  });
+  return `https://commons.wikimedia.org/w/api.php?${query.toString()}`;
+}
+
+/// Commons returns its credit fields as HTML; the snapshot keeps text.
+function plainText(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const stripped = value
+    .replace(/<[^>]+>/gu, " ")
+    .replace(/&amp;/gu, "&")
+    .replace(/&quot;/gu, '"')
+    .replace(/&#0?39;/gu, "'")
+    .replace(/&lt;/gu, "<")
+    .replace(/&gt;/gu, ">")
+    .replace(/\s+/gu, " ")
+    .trim();
+  return stripped.length === 0 ? undefined : stripped;
+}
+
+/// One `extmetadata` field as text.
+///
+/// Commons wraps every field as `{ value, source }` and the value is a string
+/// even for the booleans — `"false"`, not `false`. Anything else is treated as
+/// absent rather than stringified, which is what keeps `[object Object]` from
+/// ever reaching a licence field.
+function metadataText(extmetadata: unknown, field: string): string | undefined {
+  if (extmetadata === null || typeof extmetadata !== "object") {
+    return undefined;
+  }
+  const entry = (extmetadata as JsonRecord)[field];
+  if (entry === null || typeof entry !== "object") {
+    return undefined;
+  }
+  const value = (entry as JsonRecord).value;
+  return typeof value === "string" ? value : undefined;
+}
+
+/// U.S. state flags, drawn from Wikimedia Commons.
+///
+/// `flag-icons` does not carry subdivisions — checked at the pinned v7.5.0 and
+/// on its main branch, where `gb-eng` exists and `us-ca` is a 404 — so the
+/// only source that publishes all of these with machine-readable terms is
+/// Commons. That is why this adapter reads the licence on every pull instead
+/// of trusting the source-level one: a file can be relicensed upstream without
+/// its drawing changing at all, and a deck people paid for is the wrong place
+/// to find that out late.
+function usStateFlagsAdapter(): SourceAdapter {
+  return {
+    async pull(source, fetchJson, currentSnapshot) {
+      const assets = records(currentSnapshot, "assets");
+      const titles = assets.map((asset) => String(asset.commonsTitle));
+      const chunks = Array.from(
+        { length: Math.ceil(titles.length / COMMONS_TITLES_PER_QUERY) },
+        (_, index) =>
+          titles.slice(
+            index * COMMONS_TITLES_PER_QUERY,
+            index * COMMONS_TITLES_PER_QUERY + COMMONS_TITLES_PER_QUERY,
+          ),
+      );
+      const pages = await mapWithConcurrency(chunks, 2, async (chunk) =>
+        fetchJson(commonsMetadataUrl(chunk)),
+      );
+      const byTitle = new Map<string, JsonRecord>();
+      for (const page of pages) {
+        const listed = (page as JsonRecord).query as JsonRecord | undefined;
+        const entries = listed?.pages;
+        if (entries === undefined || typeof entries !== "object") {
+          throw new Error("Commons returned no pages for a metadata query");
+        }
+        for (const value of Object.values(entries as JsonRecord)) {
+          const record = value as JsonRecord;
+          const info = record.imageinfo;
+          if (!Array.isArray(info) || info.length === 0) {
+            throw new Error(`Commons has no file for ${String(record.title)}`);
+          }
+          byTitle.set(String(record.title), info[0] as JsonRecord);
+        }
+      }
+      return mapWithConcurrency(assets, 4, async (asset) => {
+        const title = String(asset.commonsTitle);
+        const info = byTitle.get(title);
+        if (info === undefined) {
+          throw new Error(`Commons did not answer for ${title}`);
+        }
+        // The canonical file URL, without the analytics query Commons
+        // appends to the one it reports.
+        const [url] = String(info.url).split("?");
+        if (url === undefined || url.length === 0) {
+          throw new Error(`Commons reported no file URL for ${title}`);
+        }
+        return { current: asset, info, svg: await fetchJson(url), url };
+      });
+    },
+    parse(payload) {
+      if (!Array.isArray(payload)) {
+        throw new Error("us-state-flags response must contain selected assets");
+      }
+      return {
+        assets: payload.map((entry) => {
+          const { current, info, svg, url } = entry as {
+            current: JsonRecord;
+            info: JsonRecord;
+            svg: unknown;
+            url: string;
+          };
+          if (typeof svg !== "string") {
+            throw new Error("us-state-flags asset response is not SVG text");
+          }
+          const width = Number(info.width);
+          const height = Number(info.height);
+          if (
+            !Number.isFinite(width) ||
+            !Number.isFinite(height) ||
+            height === 0
+          ) {
+            throw new Error(
+              `${String(current.commonsTitle)} has no usable dimensions`,
+            );
+          }
+          const extmetadata = info.extmetadata;
+          // Commons does not always name an artist, and an absent one is an
+          // absent key rather than a null: `optionalString` reads the key
+          // being missing as "no attribution", and reads a null as a mistake.
+          const attribution = plainText(metadataText(extmetadata, "Artist"));
+          // Built field by field rather than spread over the previous record:
+          // everything but the three identity fields is re-read on every pull,
+          // and spreading would carry a stale artist or licence forward if
+          // Commons stopped publishing one.
+          return {
+            commonsTitle: String(current.commonsTitle),
+            editorialKey: String(current.editorialKey),
+            isoSubdivision: String(current.isoSubdivision),
+            aspectRatio: Number((width / height).toFixed(6)),
+            ...(attribution === undefined ? {} : { attribution }),
+            attributionRequired:
+              (
+                metadataText(extmetadata, "AttributionRequired") ?? ""
+              ).toLowerCase() === "true",
+            license: metadataText(extmetadata, "License") ?? "",
+            licenseName: metadataText(extmetadata, "LicenseShortName") ?? "",
+            sha1: String(info.sha1),
+            svg,
+            url,
+          };
+        }),
+      };
+    },
+    normalize: normalizeUsStateFlags,
+  };
+}
+
+function normalizeUsStateFlags(
+  snapshot: unknown,
+  source: SourceDefinition,
+): NormalizedSource {
+  const assets: AssetCandidate[] = records(snapshot, "assets").map((record) => {
+    const title = String(record.commonsTitle);
+    const license = String(record.license);
+    if (!ACCEPTED_STATE_FLAG_LICENSES.has(license)) {
+      throw new Error(
+        `${title} carries licence "${license}", which this source does not accept`,
+      );
+    }
+    const attribution = optionalString(record.attribution, "attribution");
+    return {
+      entity: { isoSubdivision: String(record.isoSubdivision) },
+      // Commons publishes a state's seal and its flag under names a glance
+      // cannot tell apart, so the type is stated rather than inferred.
+      assetType: "flag" as const,
+      variant: DEFAULT_ASSET_VARIANT,
+      upstreamPath: title,
+      svg: String(record.svg),
+      aspectRatio: Number(record.aspectRatio),
+      provenance: provenance(source),
+      // The file's own terms, not the source's: this is the one registered
+      // source whose licence differs per asset.
+      license: String(record.licenseName),
+      ...(attribution === undefined ? {} : { attribution }),
+    };
+  });
+  return { patches: [], relations: [], assets };
+}
+
 function wikidataAdapter(): SourceAdapter {
   return {
     async pull(source, fetchJson, currentSnapshot) {
@@ -934,6 +1140,7 @@ const adapters: Record<SourceKey, SourceAdapter> = {
   },
   wikidata: wikidataAdapter(),
   "flag-icons": flagIconsAdapter(),
+  "us-state-flags": usStateFlagsAdapter(),
   editorial: adapter(() => empty()),
 };
 

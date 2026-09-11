@@ -14,6 +14,10 @@ const ALLOWED_HOSTS = new Set([
   "query.wikidata.org",
   "raw.githubusercontent.com",
   "unstats.un.org",
+  // Two hosts because Commons separates the catalogue from the bytes: the
+  // API answers what a file's licence is, `upload` serves the drawing.
+  "commons.wikimedia.org",
+  "upload.wikimedia.org",
 ]);
 
 export async function loadRegistry(root: string): Promise<SourceRegistry> {
