@@ -82,6 +82,7 @@ const LIST = [UNITED_STATES, FRANCE, EUROPE, CALIFORNIA];
 interface Detail {
   entity: Record<string, unknown>;
   publishedNames: Record<string, string>;
+  publishedFacts: Record<string, unknown>;
   draftRevision?: number;
   delivery?: string;
   locales?: Record<string, unknown>;
@@ -245,6 +246,7 @@ const countryDetail: Detail = {
     identifiers: { isoAlpha2: "FR" },
   },
   publishedNames: { en: "France" },
+  publishedFacts: {},
 };
 
 const publishedSubdivision: Detail = {
@@ -259,6 +261,11 @@ const publishedSubdivision: Detail = {
     facts: { capital: { en: "Sacramento" }, statehoodDate: "1850-09-09" },
   },
   publishedNames: { en: "California" },
+  publishedFacts: {
+    capital: { en: "Sacramento" },
+    area: { value: 423967, unit: "km2", observedAt: "2024-01-15" },
+    statehoodDate: "1850-09-09",
+  },
 };
 
 /** MUI opens a select on mousedown, not on click. */
@@ -455,6 +462,44 @@ describe("EntityEditor", () => {
         languages: [{ en: "English" }, { en: "Spanish" }],
       },
     });
+  });
+
+  it("shows what the release serves beside a fact the draft leaves empty", async () => {
+    stubApi(publishedSubdivision);
+    renderEditor("subdivision.us.california");
+    await screen.findByDisplayValue("subdivision.us.california");
+    openTab("Facts");
+
+    // The draft carries no area, so the field is empty and the release
+    // answers for it — as a hint, not as a value. Saving without touching it
+    // must not adopt it, which is the whole reason this is a placeholder.
+    const area = screen.getByRole("textbox", { name: "Area" });
+    expect(area).toHaveValue("");
+    expect(area).toHaveAttribute("placeholder", "423967");
+    expect(screen.getByText("Published: 423967")).toBeInTheDocument();
+    expect(screen.getByText("Published: km2")).toBeInTheDocument();
+    expect(screen.getByText("Published: 2024-01-15")).toBeInTheDocument();
+
+    // The draft's own capital wins the field, and the release still says
+    // underneath what it holds.
+    expect(screen.getByRole("textbox", { name: "Capital (en)" })).toHaveValue(
+      "Sacramento",
+    );
+    expect(screen.getByText("Published: Sacramento")).toBeInTheDocument();
+  });
+
+  it("says nothing under a fact the release has never carried", async () => {
+    stubApi(countryDetail);
+    renderEditor("country.france");
+    await screen.findByDisplayValue("country.france");
+    openTab("Facts");
+
+    expect(screen.getByRole("textbox", { name: "Capital (en)" })).toHaveValue(
+      "",
+    );
+    // No release value, so no claim about one: an empty hint rather than the
+    // word "Published" standing over nothing.
+    expect(screen.queryByText(/^Published:/u)).not.toBeInTheDocument();
   });
 
   it("asks before moving a published subdivision to another country", async () => {

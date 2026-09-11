@@ -106,6 +106,19 @@ const DELIVERY_LABEL: Record<string, string> = {
   PAID_ONLY: "Paid-only",
 };
 
+/**
+ * The line under a field that says what the active release already serves.
+ *
+ * A space rather than nothing when there is no published value, so a field
+ * that gains one later does not shift the row it sits in — the same shape the
+ * name fields have used since they started showing their fallback.
+ */
+function publishedNote(value: string | undefined): string {
+  return value === undefined || value.length === 0
+    ? " "
+    : `Published: ${value}`;
+}
+
 function canEdit(permissions: unknown): boolean {
   return (
     permissions === "EDITOR" ||
@@ -726,6 +739,10 @@ export function EntityEditor() {
                       }}
                       size="small"
                       disabled={!editable}
+                      placeholder={detail.publishedFacts[key]?.[locale] ?? ""}
+                      helperText={publishedNote(
+                        detail.publishedFacts[key]?.[locale],
+                      )}
                       sx={{ minWidth: 240 }}
                     />
                   ))}
@@ -733,6 +750,7 @@ export function EntityEditor() {
               ))}
               {MEASURED_FACTS.map(({ key, label, unit }) => {
                 const measured = form.measuredFacts[key] ?? EMPTY_MEASURED;
+                const release = detail.publishedFacts[key];
                 const set = (next: Partial<typeof measured>): void => {
                   patch({
                     measuredFacts: {
@@ -757,6 +775,14 @@ export function EntityEditor() {
                       size="small"
                       disabled={!editable}
                       inputMode="numeric"
+                      placeholder={
+                        release === undefined ? "" : String(release.value)
+                      }
+                      helperText={publishedNote(
+                        release === undefined
+                          ? undefined
+                          : String(release.value),
+                      )}
                       sx={{ minWidth: 200 }}
                     />
                     <TextField
@@ -767,7 +793,11 @@ export function EntityEditor() {
                       }}
                       size="small"
                       disabled={!editable}
-                      placeholder={unit}
+                      // The expected unit stays the hint when the release has
+                      // nothing to say: it tells an editor what to type, which
+                      // an empty box does not.
+                      placeholder={release?.unit ?? unit}
+                      helperText={publishedNote(release?.unit)}
                     />
                     <TextField
                       label={`${label} observed at`}
@@ -777,7 +807,8 @@ export function EntityEditor() {
                       }}
                       size="small"
                       disabled={!editable}
-                      placeholder="YYYY-MM-DD"
+                      placeholder={release?.observedAt ?? "YYYY-MM-DD"}
+                      helperText={publishedNote(release?.observedAt)}
                     />
                   </Stack>
                 );
@@ -792,8 +823,14 @@ export function EntityEditor() {
                   }}
                   size="small"
                   disabled={!editable}
-                  placeholder="YYYY-MM-DD"
-                  helperText="When the unit joined the entity above it."
+                  placeholder={
+                    detail.publishedFacts.statehoodDate ?? "YYYY-MM-DD"
+                  }
+                  helperText={
+                    detail.publishedFacts.statehoodDate === undefined
+                      ? "When the unit joined the entity above it."
+                      : `Published: ${detail.publishedFacts.statehoodDate}`
+                  }
                   sx={{ minWidth: 240 }}
                 />
               </Stack>
