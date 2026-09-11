@@ -134,6 +134,108 @@ final class StudySessionUITests: XCTestCase {
     /// bundle, so a tap can land before the deck's own screen has read its
     /// cards. Tapping `study.start` without waiting for it used to work only
     /// because nothing was tappable until the whole release had downloaded.
+    /// IOS-E2E-ST-14: a sitting nobody got right is not a success.
+    ///
+    /// Every card is thrown `Again`, which is the learner saying they knew
+    /// none of them. Congratulating that would be the app lying to somebody
+    /// about their own work — the most expensive kind of encouragement,
+    /// because it is the kind they will believe.
+    func testASittingAnsweredEntirelyWithAgainIsNotCongratulated() {
+        let app = launch(arguments: ["-reset-store"])
+        openDeck(in: app)
+        XCTAssertTrue(app.buttons["study.start"].waitForExistence(timeout: 30), app.debugDescription)
+        app.buttons["study.start"].tap()
+
+        // Thrown left until the sitting gives up asking. `Again` puts a card
+        // back, so this ends when the session decides it has, not when a
+        // count says so.
+        let result = app.staticTexts["study.result.title"]
+        var thrown = 0
+        while !result.exists && thrown < 60 {
+            guard app.buttons["study.reveal"].waitForExistence(timeout: 20) else { break }
+            app.buttons["study.reveal"].tap()
+            guard app.staticTexts["study.answer"].waitForExistence(timeout: 10) else { break }
+            card(in: app).swipeLeft()
+            thrown += 1
+        }
+
+        XCTAssertTrue(result.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertFalse(
+            app.staticTexts["Excellent!"].exists,
+            "Nothing was remembered, so nothing may be celebrated\n\(app.debugDescription)"
+        )
+        let remembered = app.staticTexts["study.result.answered"]
+        XCTAssertTrue(remembered.exists, app.debugDescription)
+        XCTAssertTrue(
+            remembered.label.hasPrefix("0 "),
+            "A sitting with no correct answers must report none: \(remembered.label)\n"
+                + app.debugDescription
+        )
+    }
+
+    /// IOS-E2E-ST-03: a short deck is short, not padded.
+    ///
+    /// The special areas deck holds fewer cards than the largest sitting, so
+    /// asking for twenty from it is asking for something that does not exist.
+    /// The honest answer is every card it has, once. Repeating one to reach a
+    /// number would quietly tell the learner they had studied twenty things.
+    func testADeckSmallerThanTheSessionSizeIsNotPaddedWithRepeats() {
+        let app = launch(
+            arguments: [
+                "-reset-store", "-owned-deck",
+                "-feature-flag", "commerce.paid_decks.discovery.enabled=true",
+            ]
+        )
+
+        let settings = app.buttons["root.shell.openSettings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
+        settings.tap()
+        let twenty = app.buttons["settings.sessionSize.20"]
+        XCTAssertTrue(twenty.waitForExistence(timeout: 20), app.debugDescription)
+        twenty.tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        let catalog = app.tabBars.buttons["Catalog"]
+        XCTAssertTrue(catalog.waitForExistence(timeout: 30), app.debugDescription)
+        let deck = app.buttons["catalog.deck.SPECIAL_AREAS"]
+        for _ in 0..<3 {
+            catalog.tap()
+            if deck.waitForExistence(timeout: 20) { break }
+        }
+        XCTAssertTrue(deck.waitForExistence(timeout: 20), app.debugDescription)
+        deck.tap()
+
+        let start = app.buttons["study.start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 30), app.debugDescription)
+        start.tap()
+
+        // Every card accepted, so each one is asked exactly once and the
+        // sitting is over when the deck is.
+        var answers: [String] = []
+        let result = app.staticTexts["study.result.title"]
+        while !result.exists && answers.count < 30 {
+            guard app.buttons["study.reveal"].waitForExistence(timeout: 20) else { break }
+            app.buttons["study.reveal"].tap()
+            guard app.staticTexts["study.answer"].waitForExistence(timeout: 10) else { break }
+            answers.append(app.staticTexts["study.answer"].label)
+            card(in: app).swipeRight()
+        }
+
+        XCTAssertTrue(result.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertEqual(
+            answers.count,
+            Set(answers).count,
+            "A deck shorter than the sitting must not repeat a card to fill it: \(answers)\n"
+                + app.debugDescription
+        )
+        XCTAssertLessThan(
+            answers.count,
+            20,
+            "The sitting cannot be longer than the deck it was drawn from\n"
+                + app.debugDescription
+        )
+    }
+
     /// IOS-E2E-ST-10: opening a sitting and walking away is not studying.
     ///
     /// Nothing was answered, so there is nothing to count and nothing to send.

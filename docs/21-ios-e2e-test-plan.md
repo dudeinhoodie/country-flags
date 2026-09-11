@@ -353,19 +353,19 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 46 UI-тестов, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 49 UI-тестов, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
 | --- | --- |
 | Launch/bundled/offline, поиск и country detail | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (5) |
 | Navigation | `TabToolbarUITests` (2) |
-| Self-rated | `StudySessionUITests` (6), `CardBackFactsUITests` (1) |
+| Self-rated | `StudySessionUITests` (8), `CardBackFactsUITests` (1) |
 | Objective | `ObjectiveSessionUITests` (3) |
 | Progress/settings | `ProgressSettingsUITests` (5) |
 | Sync presentation и offline → online upload | `SyncStatusUITests` (2) |
 | Paid deck presentation | `PaidDeckUITests` (3) |
-| Guest migration, sign-out и account isolation | `GuestAuthUITests` (4) |
+| Guest migration, sign-out и account isolation | `GuestAuthUITests` (5) |
 | Clear progress и удаление приватных данных | `AccountProgressUITests` (4) |
 | Account deletion: Cancel и Confirm | `AccountLifecycleUITests` (2) |
 | Accessibility/localization | `AccessibilityUITests` (4) |
@@ -439,6 +439,11 @@ Fixtures не должны делить keychain/session между паралл
   совпадений своими словами, а не словами каталога;
 - `CO-07`: страна открывается из списка, показывает факты релиза, а карта
   открывается и закрывается, не запирая browsing;
+- `ST-14`: сессия, где всё отвечено `Again`, не поздравляет и сообщает ноль
+  запомненных;
+- `ST-03`: колода короче размера сессии не добивается повторами;
+- `AC-04`: выход везде оставляет гостем и это устройство, в том числе после
+  перезапуска;
 - `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
   `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
   по-прежнему выполняется nightly.

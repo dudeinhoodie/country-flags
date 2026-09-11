@@ -171,6 +171,47 @@ final class GuestAuthUITests: XCTestCase {
         app.buttons.matching(identifier: "settings.account.signOut.cancel").firstMatch.tap()
     }
 
+    /// IOS-E2E-AC-04: signing out everywhere ends this device too.
+    ///
+    /// It is the button somebody reaches for after losing a phone, so the
+    /// thing that must not happen is the one that would be hardest to notice:
+    /// this device quietly staying signed in while the person believes every
+    /// session is closed.
+    func testSigningOutEverywhereLeavesThisDeviceAGuestToo() {
+        let app = launch(
+            arguments: ["-reset-store", "-fake-signin"] + identity + accountA
+        )
+        openAccount(in: app)
+        signInWithFixture(in: app)
+
+        requestSignOut(in: app)
+        let everywhere = app.buttons.matching(
+            identifier: "settings.account.signOutEverywhere.confirm"
+        ).firstMatch
+        XCTAssertTrue(everywhere.waitForExistence(timeout: 15), app.debugDescription)
+        everywhere.tap()
+
+        XCTAssertTrue(
+            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 30),
+            "Signing out everywhere includes the device it was asked from\n"
+                + app.debugDescription
+        )
+        XCTAssertFalse(
+            element("settings.account.signedIn", in: app).exists,
+            app.debugDescription
+        )
+
+        // And it stays out: a session that came back on the next launch would
+        // be the same failure one relaunch later.
+        app.terminate()
+        let relaunched = launch(arguments: ["-fake-signin"] + identity + accountA)
+        openAccount(in: relaunched)
+        XCTAssertTrue(
+            relaunched.buttons["settings.account.signInApple"].waitForExistence(timeout: 30),
+            relaunched.debugDescription
+        )
+    }
+
     private func answerOneCard(in app: XCUIApplication) {
         answerCards(1, in: app)
     }
