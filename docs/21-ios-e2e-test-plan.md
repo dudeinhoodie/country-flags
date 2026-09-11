@@ -204,7 +204,7 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-ST-03` | P1 | В колоде меньше карточек, чем limit | Используются все уникальные доступные карточки; нет дублей ради заполнения | Mock CI |
 | `IOS-E2E-ST-04` | P0 | Front card до reveal | Видны symbol/image и context, но ни visual, ни VoiceOver не раскрывают ответ | Mock CI |
 | `IOS-E2E-ST-05` | P0 | Reveal answer | Показаны локализованное имя, template facts и доступ к detail | Mock CI |
-| `IOS-E2E-ST-06` | P0 | Оценки Again/Hard/Good/Easy | Каждая оценка принимается один раз; открывается следующая карточка | Mock CI |
+| `IOS-E2E-ST-06` | P0 | Оценки Again и Good | Каждая оценка принимается один раз; открывается следующая карточка. Свайпом доступны только эти две: `Hard` и `Easy` существуют как accessibility actions на карточке и обычным касанием недостижимы, поэтому строка описывает то, что есть, а не четыре кнопки | Mock CI |
 | `IOS-E2E-ST-07` | P0 | Again | Карточка повторяется по session policy, не увеличивая unique-card limit | Mock CI |
 | `IOS-E2E-ST-08` | P1 | Double tap/swipe при commit | Создаётся один review, позиция сдвигается один раз | Mock CI |
 | `IOS-E2E-ST-09` | P1 | Review save fails | Текущая карточка остаётся ответимой; показан non-destructive status | Mock CI |
@@ -353,16 +353,16 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 37 UI-тестов, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 41 UI-тест, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
 | --- | --- |
 | Launch/bundled/offline | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (2) |
 | Navigation | `TabToolbarUITests` (2) |
-| Self-rated | `StudySessionUITests` (3), `CardBackFactsUITests` (1) |
-| Objective | `ObjectiveSessionUITests` (2) |
-| Progress/settings | `ProgressSettingsUITests` (3) |
+| Self-rated | `StudySessionUITests` (4), `CardBackFactsUITests` (1) |
+| Objective | `ObjectiveSessionUITests` (3) |
+| Progress/settings | `ProgressSettingsUITests` (5) |
 | Sync presentation и offline → online upload | `SyncStatusUITests` (2) |
 | Paid deck presentation | `PaidDeckUITests` (3) |
 | Guest migration, sign-out и account isolation | `GuestAuthUITests` (4) |
@@ -382,8 +382,10 @@ Fixtures не должны делить keychain/session между паралл
    convergence после очистки ещё не покрыты.
 3. StoreKit UI проверяет locked/free/owned presentation, но не purchase,
    pending, cancellation, restore, unverified transaction и refund.
-4. Из настроек UI-тестом проверяется только session size; отсутствуют
-   reminders, sound/haptics, privacy consent и conflict convergence.
+4. Из настроек проверяются session size, sound/haptics и product analytics
+   consent — все через relaunch, потому что теряется такая настройка именно
+   там. Остаются reminders с системным permission и сходимость конфликтов
+   настроек между устройствами.
 5. Offline → online upload покрыт в Mock CI на одном устройстве; multi-device
    convergence, partial batch acceptance и 401/refresh во время sync ещё нет.
    Диагностировать такие отказы через UI нельзя: sync run не сообщает исход
@@ -424,6 +426,10 @@ Fixtures не должны делить keychain/session между паралл
 - offline → online: два ответа, записанные когда их некому принять, переживают
   завершение процесса и уходят на первом запуске, который достаёт до сервера;
   очередь пустеет, а сам прогресс остаётся;
+- `QZ-07`: перезапуск посреди quiz возвращает тот же вопрос с теми же
+  вариантами в том же порядке, а не свежесобранный;
+- `ST-07`: карточка, брошенная `Again`, спрашивается снова до конца сессии;
+- `SE`: звук, haptics и product analytics consent переживают перезапуск;
 - `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
   `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
   по-прежнему выполняется nightly.
@@ -452,6 +458,12 @@ accessibility matrix и advertising no-fill.
 - backend reset/seed endpoint, доступный только в test environment;
 - accessibility identifiers для каждого CTA/status, но assertions по
   пользовательскому результату, а не по внутреннему implementation state;
+- учёт того, что launch wait — отдельный экран, а не оверлей: оболочка вместе
+  с таб-баром создаётся только после него, поэтому первый интерактивный кадр
+  заменяет всю иерархию. Тап, попавший в этот момент, подтверждается, но не
+  приводит ни к чему — и это касается таб-бара так же, как строк списка. Это
+  решение продукта (за экраном ожидания нечего доставать), а не flakiness, и
+  UI-тест обязан предлагать такой тап повторно, а не удлинять таймаут;
 - attachment screenshot + app log + request ID + mock/backend scenario trace
   при каждом падении.
 

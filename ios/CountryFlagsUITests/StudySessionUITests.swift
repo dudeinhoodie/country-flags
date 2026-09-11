@@ -134,6 +134,61 @@ final class StudySessionUITests: XCTestCase {
     /// bundle, so a tap can land before the deck's own screen has read its
     /// cards. Tapping `study.start` without waiting for it used to work only
     /// because nothing was tappable until the whole release had downloaded.
+    /// IOS-E2E-ST-07: `Again` is a promise that the card comes back.
+    ///
+    /// It is the one rating that says "I did not know this", and the sitting
+    /// answers it by asking again before it ends. A card thrown left and never
+    /// seen again would quietly turn the honest answer into the expensive one:
+    /// the learner admits they do not know a flag and the app moves on.
+    ///
+    /// Identity is read off the revealed answer rather than off a position,
+    /// because what has to come back is the country, not a slot.
+    func testAThrownAgainCardIsAskedBeforeTheSittingEnds() {
+        let identity = ["-installation-id", "7d2e9b14-3c60-4a85-9f27-1b8de5a0c934"]
+        let app = launch(arguments: ["-reset-store"] + identity)
+        openDeck(in: app)
+        XCTAssertTrue(app.buttons["study.start"].waitForExistence(timeout: 30), app.debugDescription)
+        app.buttons["study.start"].tap()
+
+        // The first card, refused. Left is `Again`; the hints beside the card
+        // say so, and the gesture is the answer.
+        let refused = revealAnswer(in: app)
+        card(in: app).swipeLeft()
+
+        // Everything after it is accepted, so the only reason the sitting can
+        // still be running is the card that was thrown back.
+        var seenAgain = false
+        let result = app.staticTexts["study.result.title"]
+        var answered = 0
+        while !result.exists && answered < 40 {
+            guard app.buttons["study.reveal"].waitForExistence(timeout: 20) else { break }
+            let name = revealAnswer(in: app)
+            if name == refused { seenAgain = true }
+            card(in: app).swipeRight()
+            answered += 1
+        }
+
+        XCTAssertTrue(
+            seenAgain,
+            "A card thrown Again must be asked again before the sitting ends\n"
+                + app.debugDescription
+        )
+    }
+
+    /// Turns the card over and returns the country it was about.
+    private func revealAnswer(in app: XCUIApplication) -> String {
+        let reveal = app.buttons["study.reveal"]
+        XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)
+        reveal.tap()
+        let answer = app.staticTexts["study.answer"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 10), app.debugDescription)
+        return answer.label
+    }
+
+    private func card(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: "study.card").firstMatch
+    }
+
     private func openDeck(in app: XCUIApplication) {
         let deck = app.buttons["home.deck.ALL"]
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
