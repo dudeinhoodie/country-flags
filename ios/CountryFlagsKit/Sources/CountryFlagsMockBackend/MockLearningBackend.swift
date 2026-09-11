@@ -267,7 +267,10 @@ public final class MockLearningBackend: @unchecked Sendable {
                 "contentVersion": sent["contentVersion"] as? String ?? "mock-v1",
                 "schedulerVersion": "mock-v1",
                 "startedAt": sent["startedAt"] as? String ?? timestamp,
-                "cards": cards,
+                // Empty rather than echoed: a session's cards are described
+                // differently going up than coming back, and an import reads
+                // nothing from this list anyway.
+                "cards": [] as [[String: Any]],
                 "serverTime": timestamp,
             ],
             statusCode: 201

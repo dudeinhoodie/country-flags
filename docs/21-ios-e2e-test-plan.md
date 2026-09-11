@@ -306,7 +306,7 @@ Fixtures не должны делить keychain/session между паралл
 | ID | P | Сценарий | Ожидаемый результат | Контур |
 | --- | --- | --- | --- | --- |
 | `IOS-E2E-SY-01` | P0 | Offline free study | Никакой blocking error; review попадают в outbox | Mock CI |
-| `IOS-E2E-SY-02` | P0 | Network restored | Sync запускается и pending count доходит до нуля | Dev E2E |
+| `IOS-E2E-SY-02` | P0 | Network restored | Sync запускается и pending count доходит до нуля; выгруженные ответы остаются прогрессом | Mock CI + Dev E2E |
 | `IOS-E2E-SY-03` | P0 | Один review отправлен повторно | Backend idempotency не меняет статистику; UI не дублирует ответ | Dev E2E |
 | `IOS-E2E-SY-04` | P1 | Batch partial acceptance | Accepted удаляются из outbox, retryable остаются, terminal не зацикливаются | Dev E2E |
 | `IOS-E2E-SY-05` | P1 | 5xx/timeout во время sync | Account не разлогинивается; status показывает retryable failure | Dev E2E |
@@ -316,7 +316,7 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-SY-09` | P1 | Out-of-order canonical change feed | Итог соответствует server cursor/version; старое состояние не перезаписывает новое | Dev E2E |
 | `IOS-E2E-SY-10` | P1 | Tombstone/delete приходит на client | Удалённые записи исчезают; cursor продвигается; повтор безопасен | Dev E2E |
 | `IOS-E2E-SY-11` | P1 | Pull-to-refresh при pending outbox | Content и account sync завершаются без двух параллельных runs | Mock CI |
-| `IOS-E2E-SY-12` | P1 | Relaunch/crash между local commit и upload | Записанный review остаётся и отправляется после запуска | Mock CI |
+| `IOS-E2E-SY-12` | P0 | Relaunch/crash между local commit и upload | Записанный review переживает завершение процесса и уходит на первом запуске, который может его отправить | Mock CI |
 
 ### 5.13 Feature flags, compatibility и failure recovery
 
@@ -353,7 +353,7 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 36 UI-тестов, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 37 UI-тестов, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
@@ -363,7 +363,7 @@ Fixtures не должны делить keychain/session между паралл
 | Self-rated | `StudySessionUITests` (3), `CardBackFactsUITests` (1) |
 | Objective | `ObjectiveSessionUITests` (2) |
 | Progress/settings | `ProgressSettingsUITests` (3) |
-| Sync presentation | `SyncStatusUITests` (1) |
+| Sync presentation и offline → online upload | `SyncStatusUITests` (2) |
 | Paid deck presentation | `PaidDeckUITests` (3) |
 | Guest migration, sign-out и account isolation | `GuestAuthUITests` (4) |
 | Clear progress и удаление приватных данных | `AccountProgressUITests` (4) |
@@ -384,13 +384,13 @@ Fixtures не должны делить keychain/session между паралл
    pending, cancellation, restore, unverified transaction и refund.
 4. Из настроек UI-тестом проверяется только session size; отсутствуют
    reminders, sound/haptics, privacy consent и conflict convergence.
-5. Нет сквозного offline → online upload и multi-device convergence. Mock
-   научился принимать импорт офлайновой сессии и батч ответов
-   (`-accept-reviews`, см. `MockLearningBackendTests`), но очередь на
-   перезапуске всё равно не пустеет, и причина пока не найдена: выгрузка
-   молчит там, где UI-тест её не видит. Прежде чем писать E2E, нужен
-   способ увидеть результат sync run — иначе тест будет измерять
-   не очередь, а экран ожидания.
+5. Offline → online upload покрыт в Mock CI на одном устройстве; multi-device
+   convergence, partial batch acceptance и 401/refresh во время sync ещё нет.
+   Диагностировать такие отказы через UI нельзя: sync run не сообщает исход
+   ничему, что видно на экране, поэтому полная очередь выглядит как
+   неустоявшийся запуск. Для этого в `MockLearningBackendTests` есть прогон
+   настоящего координатора против фикстуры — он превращает «ответы не ушли»
+   в номер строки.
 6. Нет E2E для coats/subdivisions и template-compatible distractors.
 
 ## 7. Рекомендуемый порядок автоматизации
@@ -421,6 +421,9 @@ Fixtures не должны делить keychain/session между паралл
 - Delete account → Confirm: возврат в guest, пустой Progress, снова запертая
   платная колода, notice и невозможность удалить повторно, работающее гостевое
   обучение;
+- offline → online: два ответа, записанные когда их некому принять, переживают
+  завершение процесса и уходят на первом запуске, который достаёт до сервера;
+  очередь пустеет, а сам прогресс остаётся;
 - `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
   `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
   по-прежнему выполняется nightly.

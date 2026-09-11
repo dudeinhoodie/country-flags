@@ -155,6 +155,66 @@ final class MockLearningBackendTests: XCTestCase {
         }
     }
 
+    /// The whole upload, as the app performs it: a real coordinator, a real
+    /// store, a real uploader, and an answer that belongs to a session the
+    /// backend has never seen.
+    ///
+    /// This is the thing a UI test could not see. The sync run reports its
+    /// outcome to nothing a screen shows, so a queue that stays full looks
+    /// exactly like a launch that has not settled. Driving the coordinator
+    /// directly is what turns "the answers did not go up" into a line number.
+    func testACoordinatorRunDrainsTheQueueAgainstTheFixture() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let outbox = store.makeOutboxRepository()
+        let learning = store.makeLearningRepository()
+        let scope = AccountScope.authenticated(
+            userID: UUID(uuidString: "90000000-0000-4000-8000-0000000000e1")!
+        )
+
+        // The card the answer is about has to be in the catalogue: the import
+        // describes the sitting in terms of what the device was shown.
+        let content = store.makeContentRepository()
+        try await content.applyContent(
+            manifest: PersistenceFixtures.manifest(),
+            entities: [PersistenceFixtures.entity()],
+            decks: [PersistenceFixtures.deck()],
+            cards: [PersistenceFixtures.card()],
+            deckCards: [PersistenceFixtures.deckCard()]
+        )
+
+        // The sitting the answer was given in, composed offline — which is
+        // what makes it something the backend has to be handed first.
+        try await learning.saveSession(PersistenceFixtures.session(), for: scope)
+        try await outbox.enqueue(
+            Self.queuedReview(cardID: PersistenceFixtures.cardID),
+            for: scope
+        )
+
+        let factory = Self.factory(
+            backend: MockLearningBackend(
+                arguments: [MockLearningBackend.acceptedReviewsArgument],
+                defaults: defaults,
+                now: { Self.instant }
+            )
+        )
+        let coordinator = SyncCoordinator(
+            outbox: outbox,
+            learning: learning,
+            uploader: ReviewUploader(clientFactory: factory, devices: FixedDevice()),
+            sessionImports: StudySessionService(clientFactory: factory, content: content),
+            dates: FixedDateProvider(instant: Self.instant)
+        )
+
+        let status = await coordinator.synchronize(scope: scope, trigger: .launch)
+
+        let pending = try await outbox.pendingOperations(for: scope)
+        XCTAssertTrue(
+            pending.isEmpty,
+            "The answer was acknowledged and must leave the queue; "
+                + "the run reported \(String(describing: status.lastFailure))"
+        )
+    }
+
     // MARK: - Harness
 
     private struct Context {
@@ -162,6 +222,19 @@ final class MockLearningBackendTests: XCTestCase {
         let imports: GuestImportService
         let changes: UserChangesService
         let reviews: ReviewUploader
+    }
+
+    /// A client wired to one fixture, with the deterministic policies the
+    /// rest of the API tests use.
+    private static func factory(backend: MockLearningBackend) -> APIClientFactory {
+        APIClientFactory(
+            configuration: APITestClient.configuration,
+            transport: MockClientTransport(handlers: backend.handlers()),
+            identifiers: SequentialIdentifierProvider(),
+            retryPolicy: RetryPolicy(maximumAttempts: 1),
+            scheduler: RecordingBackoffScheduler(),
+            jitter: ZeroJitterProvider()
+        )
     }
 
     private func makeContext(
