@@ -353,7 +353,7 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 50 UI-тестов, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 52 UI-теста, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
@@ -364,7 +364,7 @@ Fixtures не должны делить keychain/session между паралл
 | Objective | `ObjectiveSessionUITests` (3) |
 | Progress/settings | `ProgressSettingsUITests` (5) |
 | Sync presentation и offline → online upload | `SyncStatusUITests` (2) |
-| Paid deck presentation | `PaidDeckUITests` (3) |
+| Paid deck presentation | `PaidDeckUITests` (5) |
 | Guest migration, sign-out и account isolation | `GuestAuthUITests` (5) |
 | Clear progress и удаление приватных данных | `AccountProgressUITests` (4) |
 | Account deletion: Cancel и Confirm | `AccountLifecycleUITests` (2) |
@@ -447,6 +447,9 @@ Fixtures не должны делить keychain/session между паралл
 - `ST-01`: размер сессии, выбранный в настройках, доходит до самой сессии;
 - `ST-07`: `Again` берётся один раз, не удлиняет присест и попадает в
   «вернутся в колоду» на экране результата;
+- `PD-16`: выход владельца запирает колоду и оставляет её листинг в каталоге;
+- `PD-17`: уже скачанная платная колода открывается на запуске без
+  контентного бэкенда;
 - `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
   `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
   по-прежнему выполняется nightly.
@@ -510,6 +513,11 @@ accessibility matrix и advertising no-fill.
   раньше обеда. Строка `ST-07` переписана на то, что есть;
 - оценки `Hard` и `Easy` касанием: карточка принимает два броска, а все
   четыре рейтинга доступны лишь как accessibility actions;
+- проверка entitlement-снапшота в отрыве от стора: `-offline-content`
+  снимает контентные эндпоинты и оставляет commerce, поэтому `PD-17`
+  доказывает кеш контента, но не то, что право пережило недоступный стор.
+  Для этого нужен launch-аргумент, делающий недоступным и commerce;
+  такого нет, и `PD-17` честно ограничен половиной сценария;
 - default answer mode;
 - настройка набора дополнительных facts;
 - reminder time и дни недели;
