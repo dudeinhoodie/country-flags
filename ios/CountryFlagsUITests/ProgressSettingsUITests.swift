@@ -186,10 +186,24 @@ final class ProgressSettingsUITests: XCTestCase {
     /// The toolbar is drawn with the first screen rather than before it, so a
     /// launch on a loaded machine has to be waited for rather than tapped
     /// through."""
+    /// Opens Settings, offering the tap again if the first one is swallowed.
+    ///
+    /// This is the first tap after a cold launch, which is exactly where the
+    /// launch wait costs one: it is a screen rather than an overlay, so the
+    /// shell is built only after it and the first interactive frame replaces
+    /// the hierarchy. Arrival is read off the session-size picker, which is on
+    /// this screen in every state it has.
     private func openSettings(in app: XCUIApplication) {
         let settings = app.buttons["root.shell.openSettings"]
-        XCTAssertTrue(settings.waitForExistence(timeout: 30), app.debugDescription)
-        settings.tap()
+        XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
+        let sizes = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "settings.sessionSize.")
+        ).firstMatch
+        for _ in 0..<3 {
+            settings.tap()
+            if sizes.waitForExistence(timeout: 15) { return }
+        }
+        XCTFail("The settings screen never opened\n\(app.debugDescription)")
     }
 
     private func openProgress(in app: XCUIApplication) {

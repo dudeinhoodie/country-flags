@@ -138,9 +138,7 @@ final class StudySessionUITests: XCTestCase {
         let identity = ["-installation-id", "0d63f7a2-b418-4e59-9c27-5a80e6d14b73"]
         let app = launch(arguments: ["-reset-store"] + identity)
 
-        let settings = app.buttons["root.shell.openSettings"]
-        XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
-        settings.tap()
+        openSettings(in: app)
         let five = app.buttons["settings.sessionSize.5"]
         XCTAssertTrue(five.waitForExistence(timeout: 20), app.debugDescription)
         five.tap()
@@ -224,9 +222,7 @@ final class StudySessionUITests: XCTestCase {
         )
         signIn(in: app)
 
-        let settings = app.buttons["root.shell.openSettings"]
-        XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
-        settings.tap()
+        openSettings(in: app)
         let twenty = app.buttons["settings.sessionSize.20"]
         XCTAssertTrue(twenty.waitForExistence(timeout: 20), app.debugDescription)
         twenty.tap()
@@ -482,6 +478,26 @@ final class StudySessionUITests: XCTestCase {
         // Left by the tab bar rather than by a back button, which is the way
         // the paid-deck suite already proves works from this screen.
         app.tabBars.buttons["Home"].tap()
+    }
+
+    /// Opens Settings, offering the tap again if the first one is swallowed.
+    ///
+    /// This is the first tap after a cold launch, which is exactly where the
+    /// launch wait costs one: it is a screen rather than an overlay, so the
+    /// shell is built only after it and the first interactive frame replaces
+    /// the hierarchy. Arrival is read off the session-size picker, which is on
+    /// this screen in every state it has.
+    private func openSettings(in app: XCUIApplication) {
+        let settings = app.buttons["root.shell.openSettings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
+        let sizes = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "settings.sessionSize.")
+        ).firstMatch
+        for _ in 0..<3 {
+            settings.tap()
+            if sizes.waitForExistence(timeout: 15) { return }
+        }
+        XCTFail("The settings screen never opened\n\(app.debugDescription)")
     }
 
     private func openDeck(in app: XCUIApplication) {
