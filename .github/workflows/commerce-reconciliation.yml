@@ -65,12 +65,43 @@ jobs:
       - name: Generate the Prisma client
         run: corepack yarn prisma:generate
 
+      # The App Store Server API key comes from App Store Connect, and until
+      # the owner has issued one (#332) the three secrets it becomes do not
+      # exist. A sweep without them cannot ask Apple anything, and failing on
+      # that every hour taught the owner to stop reading this workflow's mail
+      # (#380) — which is the one habit that must survive until a real sweep
+      # breaks. So the absence is checked first and answered with a notice and
+      # a green run: the schedule stays as the reminder, the red does not.
+      # Only the store key is optional; the database URL is not, and a missing
+      # one still fails below where it always did.
+      - name: Check the store credential exists
+        id: store
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in \
+            dev-commerce-apple-iap-key-id \
+            dev-commerce-apple-iap-issuer-id \
+            dev-commerce-apple-iap-private-key
+          do
+            if ! gcloud secrets describe "${name}" --project "${PROJECT_ID}" --format='value(name)' >/dev/null 2>&1; then
+              missing+=("${name}")
+            fi
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Reconciliation skipped: the App Store Server API key is not in Secret Manager yet (${missing[*]}). Issue it in App Store Connect (#332) and store it; see docs/ops/commerce-reconciliation-runbook.md."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
       # Read where they live rather than duplicated into GitHub: each
       # credential has one home, and rotating it there is the whole change.
       # The IAP key is the most sensitive of them — it can ask Apple about
       # anybody's purchases — and this job is the only thing that holds it.
       - name: Read the credentials
         id: credentials
+        if: steps.store.outputs.configured == 'true'
         run: |
           set -euo pipefail
           for name in \
@@ -89,6 +120,7 @@ jobs:
           done
 
       - name: Reconcile with the App Store
+        if: steps.store.outputs.configured == 'true'
         env:
           DATABASE_URL: ${{ steps.credentials.outputs.dev_direct_database_url }}
           DIRECT_DATABASE_URL: ${{ steps.credentials.outputs.dev_direct_database_url }}
@@ -108,8 +140,10 @@ jobs:
       # needs roles/logging.logWriter on github-deployer — see
       # infrastructure/monitoring/README.md; without it this warns and the
       # "reconciliation has not run" alert stays blind.
+      # A skipped sweep writes nothing here on purpose: no sweep happened, and
+      # the "has not run" alert saying so is the truth, not noise.
       - name: Record the sweep where the alert can see it
-        if: success()
+        if: success() && steps.store.outputs.configured == 'true'
         run: |
           set -uo pipefail
           if ! gcloud logging write commerce-reconciliation \
