@@ -2,6 +2,8 @@
 
 - Status: Accepted
 - Date: 2026-09-07
+- Amended: 2026-09-09 — the work done on the seed is carried across the
+  supersession ([#404](https://github.com/dudeinhoodie/country-flags/issues/404))
 - Extends: [ADR-011](./ADR-011-bundled-flag-baseline.md)
 - Issue: [#301](https://github.com/dudeinhoodie/country-flags/issues/301) (the
   client half; the production backend is the other half and is not this)
@@ -94,6 +96,51 @@ throws it away whole the first time a real release arrives.
   of its own, keyed by card and scoped to an account, and nothing in the seed
   path touches it.
 
+- **The work done on the seed is carried across the supersession.** Added
+  2026-09-09 by #404, and it reverses the consequence this document accepted
+  below. At the moment the arriving release is about to become current, both
+  releases are in the store and the seeded one is still what every read
+  answers from. The seeded cards are matched to the arriving ones and the
+  learner's rows are rewritten onto the identifiers that now exist. In detail:
+
+  - **The join is the file the drawing is published at.** A release publishes
+    every asset at a path named after the entity — `png/germany@2x.png` — so
+    the last two components of a prompt's URL are the content key in the only
+    form a client ever sees it. A card is the same card when its template, its
+    semantic version and that path agree; a deck is the same deck by its code,
+    which is already how an open deck screen is resolved across releases. An
+    identity the arriving release publishes twice matches nothing: guessing
+    which of two cards somebody's work belongs to would be worse than saying
+    it could not be placed.
+
+  - **What moves:** card states, which is what every count joins against;
+    reviews, which is what a guest import hands to the account; the unfinished
+    session — its deck, its content version, and each card's identifier,
+    prompt and revision, all three of which an import declares; and the
+    answers already queued for upload, whose payload has its card identifier
+    edited in place the way a sequence conflict is cured. Deck mastery,
+    achievements and the due summary are not touched: they are written from
+    the backend's own answers, which never name a seeded identifier.
+
+  - **Nothing is deleted, and nothing is silent.** A card the arriving release
+    does not carry cannot be placed. Its rows stay exactly where they are —
+    still readable by the sitting holding them — and the number of such cards
+    is written down and shown once on the progress screen. The failure this
+    fixes was work disappearing without a word; replacing it with a smaller
+    silent loss would not be a fix.
+
+  - **Once, and safely.** The rewrite is one transaction, so an interrupted
+    supersession leaves the store wholly moved or wholly unmoved. It runs
+    before the commit, so a crash between the two leaves the seeded release
+    current and the next launch finishes the job. And it is idempotent by
+    construction: the mapping contains only identifiers that actually change,
+    so a second run finds nothing of its own to do.
+
+  - **Only the seed.** A backend allocates a content identifier once and keeps
+    it, so an ordinary release renumbers nothing. The carry is gated on the
+    outgoing release being a `bundled:` one. Widening it to every release
+    change would be inventing a renumbering the backend does not do.
+
 - **Read the way a response is read.** The document carries every language the
   release publishes and every encoding of every asset; the device resolves the
   locale with `ContentLocaleResolver` and picks the raster with
@@ -116,17 +163,26 @@ throws it away whole the first time a real release arrives.
   device and the sync that would refresh it failed, which is the state the app
   already had a screen for.
 
-- **Progress made before the first successful sync does not survive it.** The
-  seeded cards carry derived identifiers, the server's cards carry its own,
-  and progress is keyed by card. A learner who studies offline on day one and
-  then comes online keeps a store where those rows point at cards no longer in
-  the current release: they are invisible in every count, which joins against
-  the current release, and any session built from them is refused on import
-  as `OFFLINE_SESSION_COMPOSITION_INVALID` and parked. This is a real loss and
-  it is stated rather than hidden. It cannot be fixed on the client — only the
-  server can say what a card's identifier is — and it is bounded by "studied
-  before ever reaching the backend once". A guest's work is never uploaded
-  anyway, so nothing is sent to the wrong account.
+- **Progress made before the first successful sync survives it.** This is the
+  2026-09-09 amendment, and what it replaced is worth keeping visible. The
+  original position was that the loss was real, stated rather than hidden,
+  bounded by "studied before ever reaching the backend once", and unfixable on
+  the client because only the server can say what a card's identifier is.
+
+  The bound was wrong. Seeding put the offline catalogue on *every* first
+  launch, so "before ever reaching the backend once" is not a corner — it is
+  the first thing a new user does, and the owner met it on the first try:
+  studied as a guest, signed in, and the Progress tab was empty. Signing in is
+  sold to the user as the thing that keeps their work; losing it at exactly
+  that moment is the worst possible reading of the feature.
+
+  The reasoning was wrong too, in a narrow but decisive way. The client cannot
+  invent a card's identifier, which is what the original claim was about. It
+  can recognise the same card in two releases it is holding at once, because
+  both name the file the drawing is published at, and it only needs that for
+  the one instant in which the seed is replaced. What remains impossible is a
+  card the arriving release does not carry: that work is kept, uncounted, and
+  the learner is told the number.
 
 - The seeded rows stay in the store after they stop being readable, the same
   way every superseded release's rows do. Nothing prunes them today.
@@ -169,7 +225,7 @@ throws it away whole the first time a real release arrives.
    This would avoid the orphaned progress above. Rejected: a learning app that
    cannot be learned from until it has been online has not solved the problem
    the issue is about, and the loss it avoids is smaller than the launch it
-   would still break.
+   would still break. #404 rejected it again for the same reason.
 
 4. **Do nothing on the client and rely on the production backend alone.** The
    other half of #301, and necessary regardless. Rejected as a substitute: it
@@ -182,6 +238,8 @@ throws it away whole the first time a real release arrives.
   number holds: tens of megabytes.
 - The backend gains a way to publish stable, derivable content identifiers, at
   which point the seeded release could carry the real ones, the version marker
-  could go, and progress made offline would survive the first sync.
+  could go, and the carry above could go with it — there would be no
+  renumbering to survive, and no card that cannot be placed. This is still the
+  real answer; #404 is the client doing what it can until then.
 - A second client platform needs the same snapshot and cannot share the build
   step.

@@ -117,10 +117,20 @@ public final class ProgressStore: CanonicalDataObserving {
     /// apart, because naming an account to a guest describes work that is not
     /// happening (#270).
     public private(set) var isGuest: Bool?
+    /// Work a catalogue change left with nowhere to go, when there is any.
+    ///
+    /// The seeded catalogue is superseded whole by the first release a server
+    /// hands over, and the work done on it is carried across card by card
+    /// (ADR-021, #404). A card the arriving release stopped publishing cannot
+    /// be carried anywhere — and that is the one thing the learner has to be
+    /// told, because the alternative is what #404 is about: work that vanished
+    /// without a word.
+    public private(set) var strandedNotice: StrandedProgressNotice?
 
     private let content: any ContentRepository
     private let learning: any LearningRepository
     private let scopes: any AccountScopeResolving
+    private let strandedNotices: any StrandedProgressNoticing
     private let dates: any DateProviding
     /// The one reload in flight. A newer request cancels the older, so a slow
     /// early read can no longer land after — and overwrite — a fast late one.
@@ -134,12 +144,20 @@ public final class ProgressStore: CanonicalDataObserving {
         content: any ContentRepository,
         learning: any LearningRepository,
         scopes: any AccountScopeResolving,
+        strandedNotices: any StrandedProgressNoticing = NoStrandedProgressNotices(),
         dates: any DateProviding = SystemDateProvider()
     ) {
         self.content = content
         self.learning = learning
         self.scopes = scopes
+        self.strandedNotices = strandedNotices
         self.dates = dates
+    }
+
+    /// The learner has read the notice. It is said once, not on every launch.
+    public func dismissStrandedNotice() {
+        strandedNotices.clearNotice()
+        strandedNotice = nil
     }
 
     /// A sync run landed. The store re-reads, and remembers whether the
@@ -180,6 +198,10 @@ public final class ProgressStore: CanonicalDataObserving {
         // name an account until it is known there is one, and this is the
         // first moment anything knows.
         isGuest = scope.isGuest
+        // Read on every pass rather than once: the release that strands work
+        // arrives while the app is running, and the screen this is drawn on
+        // may already be open.
+        strandedNotice = strandedNotices.pendingNotice()
         let now = dates.now()
         let loadedContinuable = await continuableSession(for: scope)
         // A summary that has aged out is dropped rather than shown: yesterday's

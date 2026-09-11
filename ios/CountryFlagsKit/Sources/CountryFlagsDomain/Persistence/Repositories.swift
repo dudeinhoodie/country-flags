@@ -44,6 +44,19 @@ public protocol ContentRepository: Sendable {
     /// visible, however far the download got.
     func commitRelease(manifest: ContentManifestRecord) async throws
 
+    /// What one release calls its decks and cards, with the little of each
+    /// that identifies the same thing in another release.
+    ///
+    /// Asked for exactly once per side at the moment one release supersedes
+    /// another, while both are still in the store, so that the work done on
+    /// the outgoing one can be moved onto the incoming one's identifiers
+    /// (ADR-021, #404).
+    ///
+    /// The default answers with nothing, which is what a store that keeps only
+    /// the release it is showing can say; a store that keeps the others
+    /// answers properly.
+    func releaseContents(version: String) async throws -> ReleaseContents
+
     func decks() async throws -> [DeckRecord]
     /// One deck by identifier, whatever release it belongs to.
     ///
@@ -140,6 +153,10 @@ public struct RemovedDeckContent: Hashable, Sendable {
 }
 
 extension ContentRepository {
+    public func releaseContents(version: String) async throws -> ReleaseContents {
+        .none
+    }
+
     public func deck(id: UUID) async throws -> DeckRecord? {
         try await decks().first { $0.id == id }
     }
