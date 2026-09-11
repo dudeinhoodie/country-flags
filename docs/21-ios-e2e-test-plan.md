@@ -353,14 +353,14 @@ Fixtures не должны делить keychain/session между паралл
 
 ## 6. Что уже покрыто XCUITest
 
-На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 41 UI-тест, включая
+На 11 сентября 2026 года в `ios/CountryFlagsUITests` есть 44 UI-теста, включая
 один screenshot flow. Прямое покрытие:
 
 | Область | Существующие тесты |
 | --- | --- |
-| Launch/bundled/offline | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (2) |
+| Launch/bundled/offline и поиск каталога | `LaunchSmokeUITests` (3), `BundledFlagUITests` (1), `ContentBrowseUITests` (3) |
 | Navigation | `TabToolbarUITests` (2) |
-| Self-rated | `StudySessionUITests` (4), `CardBackFactsUITests` (1) |
+| Self-rated | `StudySessionUITests` (6), `CardBackFactsUITests` (1) |
 | Objective | `ObjectiveSessionUITests` (3) |
 | Progress/settings | `ProgressSettingsUITests` (5) |
 | Sync presentation и offline → online upload | `SyncStatusUITests` (2) |
@@ -430,6 +430,11 @@ Fixtures не должны делить keychain/session между паралл
   вариантами в том же порядке, а не свежесобранный;
 - `ST-07`: карточка, брошенная `Again`, спрашивается снова до конца сессии;
 - `SE`: звук, haptics и product analytics consent переживают перезапуск;
+- `ST-10`: сессия, закрытая до первого ответа, не создаёт прогресс и не
+  сообщает о несуществующей синхронизации;
+- `ST-11`: экран колоды предлагает именно незавершённую сессию, а не новую;
+- `CO-04/05`: поиск сужает каталог, отсутствие совпадений сказано словами,
+  а очистка возвращает каталог целиком;
 - `GuestAuthUITests`, `AccountProgressUITests`, `AccountLifecycleUITests` и
   `SyncStatusUITests` включены в pull-request smoke suite, а полный набор
   по-прежнему выполняется nightly.

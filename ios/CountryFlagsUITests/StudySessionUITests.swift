@@ -134,6 +134,86 @@ final class StudySessionUITests: XCTestCase {
     /// bundle, so a tap can land before the deck's own screen has read its
     /// cards. Tapping `study.start` without waiting for it used to work only
     /// because nothing was tappable until the whole release had downloaded.
+    /// IOS-E2E-ST-10: opening a sitting and walking away is not studying.
+    ///
+    /// Nothing was answered, so there is nothing to count and nothing to send.
+    /// The second half matters more than the first: a device that reported
+    /// work it never did would tell the learner their answers were safe on a
+    /// server that had never heard of them, and the sync line is where that
+    /// lie would be told.
+    func testASittingClosedBeforeTheFirstAnswerLeavesNothingBehind() {
+        let app = launch(arguments: ["-reset-store"])
+        openDeck(in: app)
+        XCTAssertTrue(app.buttons["study.start"].waitForExistence(timeout: 30), app.debugDescription)
+        app.buttons["study.start"].tap()
+
+        // On the first card, and away again without answering it.
+        XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 30), app.debugDescription)
+        app.buttons["study.close"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        let progress = app.tabBars.buttons["Progress"]
+        XCTAssertTrue(progress.waitForExistence(timeout: 30), app.debugDescription)
+        progress.tap()
+        XCTAssertTrue(
+            app.staticTexts["progress.empty"].waitForExistence(timeout: 30),
+            "An unanswered sitting is not progress\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(
+            app.descendants(matching: .any)["sync.status"].exists,
+            "Nothing was answered, so nothing may be reported as queued or sent\n"
+                + app.debugDescription
+        )
+    }
+
+    /// IOS-E2E-ST-11: the deck screen keeps its own way back in.
+    ///
+    /// Somebody who walked in through the catalog should not have to go to
+    /// Home to pick up where they left off, and the offer has to be the same
+    /// sitting rather than a fresh one — the button changes what it says for
+    /// exactly that reason.
+    func testTheDeckScreenOffersTheUnfinishedSittingRatherThanANewOne() {
+        let identity = ["-installation-id", "2f5a8c31-7e94-4b06-8d52-a1c3e70f6482"]
+        let app = launch(arguments: ["-reset-store"] + identity)
+        openDeck(in: app)
+
+        let start = app.buttons["study.start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertEqual(start.label, "Start studying", app.debugDescription)
+        start.tap()
+
+        XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 30), app.debugDescription)
+        app.buttons["study.reveal"].tap()
+        XCTAssertTrue(
+            app.staticTexts["study.answer"].waitForExistence(timeout: 10),
+            app.debugDescription
+        )
+        card(in: app).swipeRight()
+
+        // The second card is up, so the first answer committed and the sitting
+        // is unfinished.
+        XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 15), app.debugDescription)
+        let position = app.staticTexts["study.progress"].label
+        app.buttons["study.close"].tap()
+
+        // Back on the deck screen the same button now offers the sitting.
+        XCTAssertTrue(start.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertEqual(
+            start.label,
+            "Continue",
+            "An unfinished sitting must be offered as itself, not as a new one\n"
+                + app.debugDescription
+        )
+        start.tap()
+
+        XCTAssertTrue(app.buttons["study.reveal"].waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertEqual(
+            app.staticTexts["study.progress"].label,
+            position,
+            "Continuing must resume the position it left\n\(app.debugDescription)"
+        )
+    }
+
     /// IOS-E2E-ST-07: `Again` is a promise that the card comes back.
     ///
     /// It is the one rating that says "I did not know this", and the sitting
