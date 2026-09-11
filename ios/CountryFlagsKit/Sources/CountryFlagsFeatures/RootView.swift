@@ -612,7 +612,6 @@ public enum AccessibilityIdentifier {
     public static let accountFailure = "settings.account.failure"
     public static let accountMigrationImported = "settings.account.migrationImported"
 
-    public static let settingsSound = "settings.sound"
     public static let settingsHaptics = "settings.haptics"
     public static let settingsReminders = "settings.reminders"
     public static let settingsRemindersAllow = "settings.reminders.allow"
