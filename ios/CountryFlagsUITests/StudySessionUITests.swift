@@ -190,8 +190,11 @@ final class StudySessionUITests: XCTestCase {
             app.staticTexts["Excellent!"].exists,
             "Nothing was remembered, so nothing may be celebrated\n\(app.debugDescription)"
         )
-        let remembered = app.staticTexts["study.result.answered"]
-        XCTAssertTrue(remembered.exists, app.debugDescription)
+        // The gauge is one element for VoiceOver — a container rather than a
+        // label — so it is addressed by identifier across any type. Asking
+        // `staticTexts` for it finds nothing, which is what failed here.
+        let remembered = app.descendants(matching: .any)["study.result.answered"]
+        XCTAssertTrue(remembered.waitForExistence(timeout: 20), app.debugDescription)
         XCTAssertTrue(
             remembered.label.hasPrefix("0 "),
             "A sitting with no correct answers must report none: \(remembered.label)\n"
