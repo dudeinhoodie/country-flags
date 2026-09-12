@@ -94,11 +94,13 @@ function service(): DraftCandidatesService {
             ],
             // Only Germany has a published coat of arms.
             assets: [{ assetType: "COAT_OF_ARMS" }],
+            facts: [],
           },
           {
             contentKey: "country.france",
             names: [{ locale: "en", value: "France" }],
             assets: [],
+            facts: [],
           },
         ]),
     },
