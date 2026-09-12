@@ -164,10 +164,10 @@ final class PaidDeckUITests: XCTestCase {
         signOutOfThisDevice(in: app)
 
         // The listing survives: a storefront tells everybody what is for sale.
-        let deck = openPaidDeck(in: app)
+        let listing = openPaidDeck(in: app)
         XCTAssertTrue(
-            deck.label.contains("Paid"),
-            "A deck nobody here owns is listed as paid again: \(deck.label)\n"
+            listing.contains("Paid"),
+            "A deck nobody here owns is listed as paid again: \(listing)\n"
                 + app.debugDescription
         )
 
@@ -188,7 +188,7 @@ final class PaidDeckUITests: XCTestCase {
         app.terminate()
         let relaunched = launch(arguments: ["-owned-deck"] + fixtures + identity + discovery)
         let again = openPaidDeck(in: relaunched)
-        XCTAssertTrue(again.label.contains("Paid"), again.label)
+        XCTAssertTrue(again.contains("Paid"), again)
         XCTAssertTrue(
             paywall(in: relaunched).waitForExistence(timeout: 20),
             relaunched.debugDescription
@@ -240,10 +240,10 @@ final class PaidDeckUITests: XCTestCase {
         let offline = launch(
             arguments: ["-owned-deck", "-offline-content"] + fixtures + identity + discovery
         )
-        let deck = openPaidDeck(in: offline)
+        let listing = openPaidDeck(in: offline)
         XCTAssertFalse(
-            deck.label.contains("Paid"),
-            "The owner still owns it with the network gone: \(deck.label)\n"
+            listing.contains("Paid"),
+            "The owner still owns it with the network gone: \(listing)\n"
                 + offline.debugDescription
         )
         XCTAssertFalse(
@@ -264,14 +264,20 @@ final class PaidDeckUITests: XCTestCase {
         )
     }
 
-    /// Walks to the paid deck's own screen and returns the catalogue row it
-    /// was opened from, so a caller can ask what the listing said.
+    /// Walks to the paid deck's own screen and returns what the catalogue row
+    /// said, so a caller can ask how the deck was listed.
+    ///
+    /// The label is read before the tap and handed back as a `String` rather
+    /// than as an element: the row leaves the hierarchy once the deck's screen
+    /// is up, and an `XCUIElement` is a query resolved at the moment it is
+    /// read, so a caller reading `.label` afterwards would be querying a row
+    /// that no longer exists.
     ///
     /// The catalogue tab is offered again if the first tap is swallowed: the
     /// launch wait is a screen, so the shell is built only after it and the
     /// first interactive frame replaces the hierarchy.
     @discardableResult
-    private func openPaidDeck(in app: XCUIApplication) -> XCUIElement {
+    private func openPaidDeck(in app: XCUIApplication) -> String {
         let catalog = app.tabBars.buttons["Catalog"]
         XCTAssertTrue(catalog.waitForExistence(timeout: 60), app.debugDescription)
         let deck = app.buttons["catalog.deck.SPECIAL_AREAS"]
@@ -282,11 +288,7 @@ final class PaidDeckUITests: XCTestCase {
         XCTAssertTrue(deck.waitForExistence(timeout: 20), app.debugDescription)
         let listing = deck.label
         deck.tap()
-        // The row is gone from the hierarchy once its screen is up, so what it
-        // said is captured before the tap and handed back as a static element.
-        return app.descendants(matching: .any).matching(
-            NSPredicate(format: "label == %@", listing)
-        ).firstMatch
+        return listing
     }
 
     /// Ends the session on this device only, and waits for the guest state.
@@ -298,7 +300,12 @@ final class PaidDeckUITests: XCTestCase {
         let signOut = app.buttons["settings.account.signOut"]
         XCTAssertTrue(signOut.waitForExistence(timeout: 30), app.debugDescription)
         signOut.tap()
-        let confirm = app.buttons["settings.account.signOut.confirm"]
+        // The confirmation resolves to more than one element, so it is reached
+        // the way `GuestAuthUITests` and `AccountProgressUITests` reach it: a
+        // subscript demands a single match and fails on the dialog.
+        let confirm = app.buttons.matching(
+            identifier: "settings.account.signOut.confirm"
+        ).firstMatch
         XCTAssertTrue(confirm.waitForExistence(timeout: 15), app.debugDescription)
         confirm.tap()
 
