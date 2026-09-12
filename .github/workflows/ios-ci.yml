@@ -47,14 +47,18 @@ jobs:
     # macos-26 carries Xcode 26, whose SDK the app now genuinely needs:
     # the liquid-glass APIs the UI is built on do not exist in Xcode 16.
     runs-on: macos-26
-    # Headroom, not a target. The job builds the app three times over — Mock
-    # with the UI tests, Dev, and the unsigned archive — on top of the package
-    # suite, and that costs 37 to 41 minutes on a good runner. At 45 a slow
-    # one tips over and a branch fails for having been unlucky, which is worse
-    # than useless: it teaches everyone to rerun red without reading it.
+    # Headroom, not a target. What is left here is one build of the app and
+    # the two suites run against it: 50 minutes on a good runner, 62 on a
+    # slow one. The release builds moved to the job below rather than the
+    # ceiling moving again — three branches were cancelled at 70 minutes in
+    # one afternoon, all three inside the archive, none of them for anything
+    # that was wrong with the branch. A red that means "unlucky" teaches
+    # everyone to rerun without reading, which is worse than no check at all.
     #
-    # The cost is real and worth attacking at the source — three full builds
-    # is the thing to remove, not the ceiling to keep raising.
+    # The remaining cost is the smoke set: seven UI classes, 28 of these
+    # minutes, and two of the seven are half of that. That is the next thing
+    # to attack, and it is an editorial question — which flows are worth
+    # holding a review for — not a scheduling one.
     timeout-minutes: 70
 
     env:
@@ -118,20 +122,6 @@ jobs:
       - name: Check the mock content
         run: node Scripts/sync-mock-content.mjs --check
 
-      # Advertising is off in the MVP: no ad SDK, no advertising identifier and
-      # no tracking prompt may enter the app target. The unit tests can only
-      # prove the package stays clean, not the app target, so it is checked
-      # here.
-      - name: Check the advertising policy
-        run: ./Scripts/check-advertising-policy.sh
-
-      # Sign in with Apple is the only door into a Prod build, and it needs an
-      # entitlement to open. The archive below is unsigned, so it carries no
-      # entitlements to read — the project and the file are what can be
-      # checked, and losing either is how the door was found shut.
-      - name: Check the signing entitlements
-        run: ./Scripts/check-signing-entitlements.sh
-
       # The device depends on the runner image, so it is picked from a
       # preference list and printed to the log.
       - name: Select simulator
@@ -184,6 +174,76 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test
 
+      - name: Upload xcresult
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcresult-${{ github.job }}-${{ github.run_id }}
+          path: ios/build/*.xcresult
+          retention-days: 7
+          if-no-files-found: warn
+
+  # The builds that prove the release configurations still compile. They share
+  # no state with the suites above and nothing reads their output, so running
+  # them afterwards only lengthened the wait: 13 minutes of the 70 the job had,
+  # spent at the very end, which is where a slow runner ran out of them.
+  #
+  # This job wants no Node: the generated client is committed, and the project
+  # carries no run-script build phase, so nothing here reads node_modules.
+  release-builds:
+    runs-on: macos-26
+    # Measured at 15 minutes, 20 on a slow runner. The ceiling is for a hang,
+    # not a budget.
+    timeout-minutes: 40
+
+    env:
+      PROJECT: CountryFlags.xcodeproj
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The Swift 6 language mode needs Xcode 16 or newer. The exact version is
+      # printed so a mismatch with a local machine is visible.
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          minimum=26
+          # The xcodebuild output is read in full: closing the pipe early
+          # (`| head`) kills it with SIGPIPE and exit code 134.
+          version_output="$(xcodebuild -version)"
+          selected="$(printf '%s\n' "${version_output}" | sed -n '1p')"
+          major="$(printf '%s\n' "${selected}" | sed -E 's/Xcode ([0-9]+).*/\1/')"
+          if [[ "${major}" -lt "${minimum}" ]]; then
+            echo "::error::${selected} is older than the required Xcode ${minimum}"
+            exit 1
+          fi
+          echo "${selected}"
+          swift --version
+
+      # Advertising is off in the MVP: no ad SDK, no advertising identifier and
+      # no tracking prompt may enter the app target. The unit tests can only
+      # prove the package stays clean, not the app target, so it is checked
+      # here.
+      - name: Check the advertising policy
+        run: ./Scripts/check-advertising-policy.sh
+
+      # Sign in with Apple is the only door into a Prod build, and it needs an
+      # entitlement to open. The archive below is unsigned, so it carries no
+      # entitlements to read — the project and the file are what can be
+      # checked, and losing either is how the door was found shut.
+      - name: Check the signing entitlements
+        run: ./Scripts/check-signing-entitlements.sh
+
+      # The device depends on the runner image, so it is picked from a
+      # preference list and printed to the log.
+      - name: Select simulator
+        id: simulator
+        run: echo "destination=$(./Scripts/select-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve packages
+        run: xcodebuild -project "${PROJECT}" -resolvePackageDependencies
+
       # Dev is built but not tested: it shares the code base and differs only
       # in the backend endpoint, which this work package does not use yet.
       - name: Build Dev
@@ -222,7 +282,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: xcresult-${{ github.run_id }}
+          name: xcresult-${{ github.job }}-${{ github.run_id }}
           path: ios/build/*.xcresult
           retention-days: 7
           if-no-files-found: warn
