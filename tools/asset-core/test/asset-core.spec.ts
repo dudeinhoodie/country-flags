@@ -190,7 +190,7 @@ void test("an XML declaration is a prolog, not a reason to refuse", () => {
   assert.equal(svgAspectRatio(clean), 1.5);
 });
 
-void test("standalone=\"no\" is not an event handler", () => {
+void test('standalone="no" is not an event handler', () => {
   // `on[a-z]+=` finds the `one=` in `standalone=`. Two state flags were
   // refused as unsafe for declaring their encoding.
   const svg =
