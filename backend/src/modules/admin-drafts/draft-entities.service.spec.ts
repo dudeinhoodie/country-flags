@@ -56,7 +56,10 @@ function entity(
  * current document and records what came back, which is exactly the seam
  * the optimistic-concurrency wrapper owns in production.
  */
-function serviceWith(document: Record<string, unknown>): {
+function serviceWith(
+  document: Record<string, unknown>,
+  published: unknown[] = [],
+): {
   service: DraftEntitiesService;
   written: () => Record<string, unknown> | null;
 } {
@@ -76,7 +79,7 @@ function serviceWith(document: Record<string, unknown>): {
   const database = {
     geoEntity: {
       findUnique: () => Promise.resolve(null),
-      findMany: () => Promise.resolve([]),
+      findMany: () => Promise.resolve(published),
     },
     draftAsset: { findMany: () => Promise.resolve([]) },
     geoRelation: { findMany: () => Promise.resolve([]) },
@@ -492,6 +495,32 @@ describe("DraftEntitiesService", () => {
     expect(detail.entity.parentKey).toBeNull();
   });
 
+  it("hands the editor what the release answers, without adopting it", async () => {
+    const { service, written } = serviceWith({ entities: [entity()] }, [
+      {
+        contentKey: "country.france",
+        names: [{ locale: "en", value: "France" }],
+        assets: [],
+        facts: [
+          {
+            factType: "CAPITAL",
+            value: [{ names: { en: "Paris" }, role: "official" }],
+            unit: null,
+            observedAt: null,
+          },
+        ],
+      },
+    ]);
+    const detail = await service.getOne("draft-1", "country.france");
+    expect(detail.publishedFacts).toEqual({ capital: { en: "Paris" } });
+    // Reading it is not adopting it: the draft stays silent, so the build
+    // keeps falling back to the release rather than to an override nobody
+    // typed.
+    expect(detail.entity.facts).toBeUndefined();
+    // Reading the detail wrote nothing back to the draft document.
+    expect(written()).toBeNull();
+  });
+
   it("lists the parent and what is already drawn, in two queries", async () => {
     let geoCalls = 0;
     let assetCalls = 0;
@@ -518,6 +547,7 @@ describe("DraftEntitiesService", () => {
               contentKey: "country.france",
               names: [{ locale: "en", value: "France" }],
               assets: [{ assetType: "FLAG" }, { assetType: "COAT_OF_ARMS" }],
+              facts: [],
             },
           ]);
         },
