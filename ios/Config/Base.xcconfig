@@ -18,11 +18,15 @@ CF_GOOGLE_SERVER_CLIENT_ID =
 CF_GOOGLE_URL_SCHEME = 
 PRODUCT_BUNDLE_IDENTIFIER = $(CF_BUNDLE_ID_BASE)$(CF_BUNDLE_ID_SUFFIX)
 
-// The published legal documents, served from GitHub Pages out of site/ — a
-// home that does not depend on the API being up, which is the point: the
-// links are shipped inside the app and must answer regardless. The $() is
-// how an xcconfig writes a double slash without starting a comment.
-// Neither is a secret.
+// The published legal documents. The app appends `?lang=<its language>` when
+// it opens one (DocumentLink), and the site picks the text (ADR-023).
+//
+// These are the addresses of the last GitHub Pages publication, which still
+// answer and which the release check requires to answer. They move to the
+// production site (`site-prod`) the moment it exists and serves the
+// documents; Dev.xcconfig already points at the dev site. The $() is how an
+// xcconfig writes a double slash without starting a comment. Neither is a
+// secret.
 CF_PRIVACY_POLICY_URL = https:/$()/dudeinhoodie.github.io/country-flags/privacy.html
 CF_TERMS_URL = https:/$()/dudeinhoodie.github.io/country-flags/terms.html
 

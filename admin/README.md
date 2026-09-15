@@ -21,6 +21,21 @@ this browser never holds. Every screen carries two badges — the deployment's
 and the store's — because mapping a Sandbox product while looking at
 production is the mistake the section exists to prevent.
 
+## Site documents
+
+The **Site** section (`src/resources/site/`) edits the pages the app links
+to — the privacy policy, the terms, whatever else gets a slug — as Markdown
+drafts per language, following
+`docs/adr/ADR-023-public-site-and-legal-documents.md`. A save changes the
+draft and nothing a reader can see; **Publish** (PUBLISHER) records an
+immutable version and writes the static snapshot the public site reads from
+its own bucket, so a policy keeps answering while the API is down. The
+preview beside the editor is rendered by the backend's own Markdown renderer,
+never by the console. Rolling back is two acts: restore a version into the
+draft, then publish. Every screen says whether the deployment has a snapshot
+store at all (`SITE_OBJECT_STORAGE_*`), and links to the page on the site
+when it knows the site's address (`SITE_PUBLIC_URL`).
+
 ## Commands
 
 Run from the repository root:

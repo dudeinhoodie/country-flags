@@ -1,0 +1,583 @@
+/* The app's scene, on the web.
+   One stylesheet, one set of tokens: the values are the ones the iOS client
+   draws with (ADR-012, design/figma-export/10-ui-kit.html), so a reader who
+   tapped a link in the app lands somewhere that is recognisably the same
+   product. Dark only — the scene is the theme. */
+
+:root {
+  color-scheme: dark;
+
+  --scene-base: #0a0a0f;
+  --scene-accent: 43 99 255;
+  --scene-ember: 224 16 47;
+
+  --text: #ffffff;
+  --text-prose: rgba(255, 255, 255, 0.88);
+  --text-dim: rgba(255, 255, 255, 0.7);
+  --text-faint: rgba(255, 255, 255, 0.5);
+  --text-ghost: rgba(255, 255, 255, 0.4);
+
+  --glass-fill: rgba(255, 255, 255, 0.065);
+  --glass-edge: rgba(255, 255, 255, 0.13);
+  --glass-fill-hover: rgba(255, 255, 255, 0.09);
+  --capsule-fill: rgba(255, 255, 255, 0.09);
+  --capsule-edge: rgba(255, 255, 255, 0.16);
+  --capsule-fill-hover: rgba(255, 255, 255, 0.14);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --rule: rgba(255, 255, 255, 0.08);
+  --focus: rgba(255, 255, 255, 0.6);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 20px;
+
+  --font:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
+    system-ui, sans-serif;
+  --measure: 42rem;
+  --touch: 44px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--scene-base);
+  color: var(--text);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font: 17px/1.6 var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* The lights are larger than any phone is wide on purpose: the edge of a
+   light must never be visible as an edge. Fixed, so the scene stays put
+   while a long policy scrolls over it. */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--scene-base);
+  background-image:
+    radial-gradient(
+      420px 420px at 20% 12%,
+      rgb(var(--scene-accent) / 0.21),
+      transparent 70%
+    ),
+    radial-gradient(
+      420px 420px at 85% 30%,
+      rgb(var(--scene-ember) / 0.17),
+      transparent 70%
+    ),
+    radial-gradient(
+      380px 380px at 50% 100%,
+      rgb(var(--scene-accent) / 0.11),
+      transparent 70%
+    );
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Layout ------------------------------------------------------------- */
+
+.page {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+  padding-right: calc(var(--space-3) + env(safe-area-inset-right, 0px));
+  padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(var(--space-3) + env(safe-area-inset-left, 0px));
+}
+
+.section {
+  margin-top: var(--space-5);
+}
+
+.label {
+  margin: 0 0 var(--space-2) var(--space-1);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Glass -------------------------------------------------------------- */
+
+.glass {
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--radius-l);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.list {
+  padding: var(--space-1) 0;
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 56px;
+  margin: 0;
+  padding: var(--space-2) var(--space-3) var(--space-2) 20px;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+
+.row + .row {
+  border-top: 1px solid var(--rule);
+}
+
+a.row:hover {
+  background: var(--glass-fill-hover);
+}
+
+.row--text {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.row-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.row-caption {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-faint);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-ghost);
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Capsules ----------------------------------------------------------- */
+
+.capsule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch);
+  padding: 0 18px;
+  border: 1px solid var(--capsule-edge);
+  border-radius: 999px;
+  background: var(--capsule-fill);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  transition: background-color 160ms ease;
+}
+
+.capsule:hover {
+  background: var(--capsule-fill-hover);
+}
+
+.capsule--back {
+  padding-left: 14px;
+}
+
+/* Wordmark ----------------------------------------------------------- */
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  text-decoration: none;
+}
+
+.mark {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  color: #ffffff;
+  background-image: linear-gradient(135deg, #3a6cff 0%, #1e44a6 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Home --------------------------------------------------------------- */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tagline {
+  margin: 0 0 var(--space-2);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.4px;
+  text-wrap: balance;
+}
+
+.lead {
+  margin: 0;
+  color: var(--text-dim);
+  text-wrap: pretty;
+}
+
+@media (min-width: 640px) {
+  .tagline {
+    font-size: 40px;
+  }
+}
+
+/* Three cards from the deck, thrown down and breathing. */
+.fan {
+  position: relative;
+  width: min(100%, 300px);
+  height: 176px;
+  margin: var(--space-4) auto var(--space-4);
+}
+
+.fan-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 160px;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  background: var(--scene-base);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  transform: translate(calc(-50% + var(--shift)), -50%) rotate(var(--tilt));
+  animation: breathe 6s ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+.fan-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: translate(calc(-50% + var(--shift)), -50%)
+      rotate(calc(var(--tilt) - 1.2deg));
+  }
+  50% {
+    transform: translate(calc(-50% + var(--shift)), calc(-50% - 4px))
+      rotate(calc(var(--tilt) + 1.2deg));
+  }
+}
+
+/* Document ----------------------------------------------------------- */
+
+.topbar {
+  display: flex;
+  margin-bottom: var(--space-4);
+}
+
+.doc-head {
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  margin: var(--space-1) 0 var(--space-2);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.4px;
+  text-wrap: balance;
+}
+
+.title--skeleton {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+}
+
+.caption {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-faint);
+}
+
+.prose {
+  padding: var(--space-4) 20px;
+  color: var(--text-prose);
+  overflow-wrap: anywhere;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose > :last-child {
+  margin-bottom: 0;
+}
+
+.prose h2 {
+  margin: var(--space-5) 0 var(--space-2);
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+  color: var(--text);
+}
+
+.prose h3 {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: 17px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 12px 0;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+
+.prose li {
+  margin: 6px 0;
+}
+
+.prose li::marker {
+  color: var(--text-faint);
+}
+
+.prose strong {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.prose a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 160ms ease;
+}
+
+.prose a:hover {
+  text-decoration-color: var(--text);
+}
+
+.prose blockquote {
+  margin: 12px 0;
+  padding: 0 0 0 var(--space-3);
+  border-left: 1px solid var(--glass-edge);
+  color: var(--text-dim);
+}
+
+.prose hr {
+  height: 1px;
+  margin: var(--space-4) 0;
+  border: 0;
+  background: var(--rule);
+}
+
+.prose code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.92em;
+}
+
+.prose table {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.prose th,
+.prose td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.also {
+  margin-top: var(--space-4);
+}
+
+.also-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Notices ------------------------------------------------------------ */
+
+.notice {
+  padding: var(--space-4) 20px;
+}
+
+.notice-title {
+  margin: 0 0 var(--space-1);
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.2px;
+}
+
+.notice-body {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.notice-actions {
+  margin-top: var(--space-3);
+}
+
+/* Skeletons ---------------------------------------------------------- */
+
+.skeleton-line {
+  display: block;
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.row--skeleton .skeleton-line {
+  width: 48%;
+}
+
+.prose-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.skeleton-line--gap {
+  height: 8px;
+  background: transparent;
+  animation: none;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Footer ------------------------------------------------------------- */
+
+.footer {
+  margin-top: 48px;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rule);
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.footer p {
+  margin: var(--space-1) 0;
+}
+
+.footer a {
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-underline-offset: 3px;
+}
+
+.footer a:hover {
+  text-decoration-color: var(--text-dim);
+}
+
+.footer-stand {
+  margin-top: var(--space-2);
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--capsule-edge);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Motion ------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .fan-card,
+  .skeleton-line {
+    animation: none;
+  }
+
+  .row,
+  .capsule,
+  .prose a {
+    transition: none;
+  }
+}

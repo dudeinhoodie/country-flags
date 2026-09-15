@@ -42,6 +42,10 @@ export const routes = {
   commerceEntitlements: "/commerce/entitlements",
   commerceProducts: "/commerce/products",
   commerceSync: "/commerce/sync",
+  /** The site's documents — the pages the app links to (ADR-023). */
+  siteDocuments: "/site/documents",
+  siteDocument: (slug: string, locale: string) =>
+    `/site/documents/${slug}/${locale}`,
   users: "/users",
 } as const;
 

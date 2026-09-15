@@ -1307,20 +1307,23 @@ enum AdminUserStatus {
 }
 
 model AdminUser {
-  id            String            @id @default(uuid()) @db.Uuid
-  email         String            @unique
-  displayName   String            @map("display_name")
-  role          AdminRole         @default(VIEWER)
-  status        AdminUserStatus   @default(ACTIVE)
-  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt     DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  identities    AdminIdentity[]
-  sessions      AdminSession[]
-  auditEvents   AdminAuditEvent[]
-  createdDrafts ContentDraft[]    @relation("ContentDraftCreatedBy")
-  updatedDrafts ContentDraft[]    @relation("ContentDraftUpdatedBy")
-  publishRuns   PublishRun[]      @relation("PublishRunRequestedBy")
-  storeSyncRuns StoreSyncRun[]    @relation("StoreSyncRunRequestedBy")
+  id                    String                @id @default(uuid()) @db.Uuid
+  email                 String                @unique
+  displayName           String                @map("display_name")
+  role                  AdminRole             @default(VIEWER)
+  status                AdminUserStatus       @default(ACTIVE)
+  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
+  identities            AdminIdentity[]
+  sessions              AdminSession[]
+  auditEvents           AdminAuditEvent[]
+  createdDrafts         ContentDraft[]        @relation("ContentDraftCreatedBy")
+  updatedDrafts         ContentDraft[]        @relation("ContentDraftUpdatedBy")
+  publishRuns           PublishRun[]          @relation("PublishRunRequestedBy")
+  storeSyncRuns         StoreSyncRun[]        @relation("StoreSyncRunRequestedBy")
+  createdSiteDocuments  SiteDocument[]        @relation("SiteDocumentCreatedBy")
+  updatedSiteDocuments  SiteDocument[]        @relation("SiteDocumentUpdatedBy")
+  publishedSiteVersions SiteDocumentVersion[] @relation("SiteDocumentVersionPublishedBy")
 
   @@map("admin_users")
 }
@@ -1836,4 +1839,55 @@ model StoreSyncRun {
 
   @@index([storeEnvironment, startedAt])
   @@map("store_sync_runs")
+}
+
+// The public site's documents (ADR-023): the privacy policy, the terms and
+// any other page the app links to, one row per slug and locale.
+//
+// The draft is `title` and `body` (Markdown), bumped through `revision` so a
+// stale editor is refused rather than overwriting a colleague. What the site
+// serves is the version `publishedVersionId` points at, exported as a static
+// snapshot into the site bucket at publish time; the site never reads this
+// table, so a page keeps answering while the API is down.
+model SiteDocument {
+  id                   String                @id @default(uuid()) @db.Uuid
+  slug                 String
+  locale               String
+  title                String
+  body                 String
+  revision             Int                   @default(1)
+  publishedVersionId   String?               @unique @map("published_version_id") @db.Uuid
+  createdByAdminUserId String                @map("created_by_admin_user_id") @db.Uuid
+  updatedByAdminUserId String                @map("updated_by_admin_user_id") @db.Uuid
+  createdAt            DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy            AdminUser             @relation("SiteDocumentCreatedBy", fields: [createdByAdminUserId], references: [id], onDelete: Restrict)
+  updatedBy            AdminUser             @relation("SiteDocumentUpdatedBy", fields: [updatedByAdminUserId], references: [id], onDelete: Restrict)
+  publishedVersion     SiteDocumentVersion?  @relation("SiteDocumentPublishedVersion", fields: [publishedVersionId], references: [id], onDelete: SetNull)
+  versions             SiteDocumentVersion[] @relation("SiteDocumentVersions")
+
+  @@unique([slug, locale])
+  @@map("site_documents")
+}
+
+/// One publication of a document: immutable, numbered per document, and
+/// kept after it stops being current so a wording can be read back and
+/// restored into the draft. `html` is what the site was given, rendered by
+/// the backend once at publish time.
+model SiteDocumentVersion {
+  id                     String        @id @default(uuid()) @db.Uuid
+  documentId             String        @map("document_id") @db.Uuid
+  version                Int
+  title                  String
+  body                   String
+  html                   String
+  note                   String?
+  publishedByAdminUserId String        @map("published_by_admin_user_id") @db.Uuid
+  publishedAt            DateTime      @default(now()) @map("published_at") @db.Timestamptz(3)
+  document               SiteDocument  @relation("SiteDocumentVersions", fields: [documentId], references: [id], onDelete: Cascade)
+  publishedBy            AdminUser     @relation("SiteDocumentVersionPublishedBy", fields: [publishedByAdminUserId], references: [id], onDelete: Restrict)
+  currentOf              SiteDocument? @relation("SiteDocumentPublishedVersion")
+
+  @@unique([documentId, version])
+  @@map("site_document_versions")
 }

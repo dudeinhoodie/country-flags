@@ -1,0 +1,27 @@
+#!/bin/sh
+# Sourced by the stock nginx entrypoint before it substitutes the config
+# template, so what is exported here is what the template sees.
+#
+# Everything environment-specific arrives at deploy time; the image itself
+# carries no environment and no bucket address. A container started without
+# them must not start at all — a site that cannot say which deployment it is
+# would serve the wrong documents under the wrong address.
+set -eu
+
+: "${SITE_ENVIRONMENT:?SITE_ENVIRONMENT is required (local, dev or prod)}"
+: "${SITE_DOCUMENTS_UPSTREAM:?SITE_DOCUMENTS_UPSTREAM is required (bucket origin and prefix without a trailing slash)}"
+
+case "${SITE_ENVIRONMENT}" in
+  local|dev|prod) ;;
+  *)
+    echo "SITE_ENVIRONMENT must be local, dev or prod, not '${SITE_ENVIRONMENT}'" >&2
+    exit 1 ;;
+esac
+
+# Only production may be indexed: the dev stand serves the same documents
+# under an address nobody should be sent to.
+if [ "${SITE_ENVIRONMENT}" = "prod" ]; then
+  export SITE_ROBOTS_TAG="all"
+else
+  export SITE_ROBOTS_TAG="noindex, nofollow"
+fi

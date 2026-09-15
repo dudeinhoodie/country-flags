@@ -859,6 +859,212 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/site/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Where this deployment's site documents are served from
+         * @description Whether publishing reaches a real bucket, where the snapshot is readable and which site shows it. A deployment without a snapshot store still edits and records versions; the screen says nothing is being served rather than pretending.
+         */
+        get: operations["adminGetSiteStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/site/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List every site document, per locale */
+        get: operations["adminListSiteDocuments"];
+        put?: never;
+        /**
+         * Start a document in one locale
+         * @description Creates the draft; nothing is published until a `PUBLISHER` says so. The slug is the document's address on the site (`/privacy`), shared by every locale of it. Requires `EDITOR`.
+         */
+        post: operations["adminCreateSiteDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/site/documents/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Render Markdown exactly as publishing would
+         * @description The same renderer, the same options: what the editor sees beside the text is what the site will show, so the console never carries a second Markdown implementation that could disagree. Requires `EDITOR`.
+         */
+        post: operations["adminPreviewSiteDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/site/documents/{slug}/{locale}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        /** Read a document's draft and what is published of it */
+        get: operations["adminGetSiteDocument"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete a document that was never published, or is no longer
+         * @description A published document cannot be deleted: unpublish it first, so the site's page disappears deliberately rather than as a side effect. Requires `ADMIN`.
+         */
+        delete: operations["adminDeleteSiteDocument"];
+        options?: never;
+        head?: never;
+        /**
+         * Change the draft
+         * @description Carries the revision the editor read: a draft that moved on since is refused with `SITE_DOCUMENT_REVISION_CONFLICT` rather than silently overwritten. Requires `EDITOR`.
+         */
+        patch: operations["adminUpdateSiteDocument"];
+        trace?: never;
+    };
+    "/v1/admin/site/documents/{slug}/{locale}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish the draft as the next version
+         * @description Records an immutable version of the draft, points the document at it and writes the site's snapshot: this document's file and the index the site lists documents from. The site serves the new text within a minute. Requires `PUBLISHER`.
+         */
+        post: operations["adminPublishSiteDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/site/documents/{slug}/{locale}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Take the document off the site
+         * @description Removes this locale's file from the snapshot and the index. The versions stay recorded, and the draft is untouched. Requires `PUBLISHER`.
+         */
+        post: operations["adminUnpublishSiteDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/site/documents/{slug}/{locale}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        /** List every version ever published, newest first */
+        get: operations["adminListSiteDocumentVersions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/site/documents/{slug}/{locale}/versions/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+                version: components["parameters"]["SiteDocumentVersion"];
+            };
+            cookie?: never;
+        };
+        /** Read one published version in full */
+        get: operations["adminGetSiteDocumentVersion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/site/documents/{slug}/{locale}/versions/{version}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+                version: components["parameters"]["SiteDocumentVersion"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Copy a published version back into the draft
+         * @description Rolling back is two deliberate steps: restore the version into the draft, read it, then publish. Nothing reaches the site from this call. Requires `EDITOR`.
+         */
+        post: operations["adminRestoreSiteDocumentVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1819,6 +2025,90 @@ export interface components {
             localizations: components["schemas"]["AdminDeckLocalization"][];
             ruleSpec: Record<string, never> | null;
         };
+        AdminSiteStatus: {
+            /** @description Whether publishing writes to a bucket a site can read. False means an in-process store: versions are still recorded, but nothing reaches any site until the deployment is configured. */
+            snapshotConfigured: boolean;
+            /**
+             * Format: uri
+             * @description Where the published files are readable, without the `/documents` prefix. Null when no snapshot store is configured.
+             */
+            snapshotBaseUrl: string | null;
+            /**
+             * Format: uri
+             * @description The site that shows this deployment's documents, for a link from the editor to the page. Null when the deployment does not know.
+             */
+            siteUrl: string | null;
+            publishedCount: number;
+        };
+        /** @description Lowercase words joined by hyphens; the path of the page on the site. */
+        AdminSiteDocumentSlug: string;
+        AdminSiteDocumentSummary: {
+            slug: components["schemas"]["AdminSiteDocumentSlug"];
+            locale: components["schemas"]["Locale"];
+            title: string;
+            /** @description Bumped by every change to the draft. Sent back with a write so a stale editor is refused rather than overwriting a colleague. */
+            revision: number;
+            /** @description The version the site serves, or null when none is. */
+            publishedVersion: number | null;
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** @description The draft differs from the published version, or nothing is published yet. */
+            hasUnpublishedChanges: boolean;
+            updatedAt: components["schemas"]["DateTime"];
+            updatedByAdminUserId: components["schemas"]["Uuid"];
+        };
+        AdminSiteDocumentList: {
+            items: components["schemas"]["AdminSiteDocumentSummary"][];
+        };
+        AdminSiteDocumentDetail: components["schemas"]["AdminSiteDocumentSummary"] & {
+            /** @description The draft, as Markdown. */
+            body: string;
+            /** @description The draft rendered as the site would render it. */
+            html: string;
+            createdAt: components["schemas"]["DateTime"];
+            createdByAdminUserId: components["schemas"]["Uuid"];
+        };
+        AdminSiteDocumentCreateRequest: {
+            slug: components["schemas"]["AdminSiteDocumentSlug"];
+            locale: components["schemas"]["Locale"];
+            title: string;
+            body?: string;
+        };
+        AdminSiteDocumentUpdateRequest: {
+            revision: number;
+            title?: string;
+            body?: string;
+        };
+        AdminSiteDocumentPublishRequest: {
+            revision: number;
+            /** @description Why this version exists, for the history. */
+            note?: string;
+        };
+        AdminSiteDocumentRestoreRequest: {
+            revision: number;
+        };
+        AdminSiteDocumentPreviewRequest: {
+            body: string;
+        };
+        AdminSiteDocumentPreview: {
+            html: string;
+        };
+        AdminSiteDocumentVersion: {
+            version: number;
+            title: string;
+            note: string | null;
+            publishedAt: components["schemas"]["DateTime"];
+            publishedByAdminUserId: components["schemas"]["Uuid"];
+            /** @description Whether the site serves this version right now. */
+            current: boolean;
+        };
+        AdminSiteDocumentVersionList: {
+            items: components["schemas"]["AdminSiteDocumentVersion"][];
+        };
+        AdminSiteDocumentVersionDetail: components["schemas"]["AdminSiteDocumentVersion"] & {
+            body: string;
+            html: string;
+        };
         /** Format: uuid */
         Uuid: string;
         ErrorEnvelope: {
@@ -1836,6 +2126,15 @@ export interface components {
         DateTime: string;
     };
     responses: {
+        /** @description The write was refused: the draft moved on since the editor read it (`SITE_DOCUMENT_REVISION_CONFLICT`, with `currentRevision` in the details). Re-read and decide; silent last-write-wins is forbidden. */
+        SiteDocumentRevisionConflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorEnvelope"];
+            };
+        };
         /** @description The If-Match header with the draft revision is missing. */
         DraftIfMatchRequired: {
             headers: {
@@ -1956,6 +2255,10 @@ export interface components {
         };
     };
     parameters: {
+        /** @description The document's address on the site, shared by its locales. */
+        SiteDocumentSlug: components["schemas"]["AdminSiteDocumentSlug"];
+        SiteDocumentLocale: components["schemas"]["Locale"];
+        SiteDocumentVersion: number;
         AdminOffset: number;
         /** @description The draft revision the editor read, for optimistic concurrency. */
         DraftIfMatch: string;
@@ -3849,6 +4152,428 @@ export interface operations {
                 };
             };
             401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetSiteStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The snapshot store and the site it feeds. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteStatus"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListSiteDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One row per slug and locale, with what is published and whether the draft has moved on since. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminCreateSiteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminSiteDocumentCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description The draft exists. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description That slug already exists in that locale. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminPreviewSiteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminSiteDocumentPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description The rendered HTML fragment. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentPreview"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetSiteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The draft, rendered, and the published state beside it. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminDeleteSiteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The draft and its versions are gone. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the ADMIN role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            /** @description The document is published. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUpdateSiteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminSiteDocumentUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description The draft after the change, at its next revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            409: components["responses"]["SiteDocumentRevisionConflict"];
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminPublishSiteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminSiteDocumentPublishRequest"];
+            };
+        };
+        responses: {
+            /** @description The document, now published at the new version. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            409: components["responses"]["SiteDocumentRevisionConflict"];
+            422: components["responses"]["ValidationResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminUnpublishSiteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The document, no longer published. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the PUBLISHER role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            /** @description The document is not published. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminListSiteDocumentVersions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The publication history. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentVersionList"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminGetSiteDocumentVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+                version: components["parameters"]["SiteDocumentVersion"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The version with its Markdown and its rendered HTML. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentVersionDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            404: components["responses"]["NotFoundResponse"];
+            default: components["responses"]["ErrorResponse"];
+        };
+    };
+    adminRestoreSiteDocumentVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The document's address on the site, shared by its locales. */
+                slug: components["parameters"]["SiteDocumentSlug"];
+                locale: components["parameters"]["SiteDocumentLocale"];
+                version: components["parameters"]["SiteDocumentVersion"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminSiteDocumentRestoreRequest"];
+            };
+        };
+        responses: {
+            /** @description The draft now carries that version's text. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSiteDocumentDetail"];
+                };
+            };
+            401: components["responses"]["UnauthorizedResponse"];
+            /** @description The caller is below the EDITOR role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            404: components["responses"]["NotFoundResponse"];
+            409: components["responses"]["SiteDocumentRevisionConflict"];
+            422: components["responses"]["ValidationResponse"];
             default: components["responses"]["ErrorResponse"];
         };
     };

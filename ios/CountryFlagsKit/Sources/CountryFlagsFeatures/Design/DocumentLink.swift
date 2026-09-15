@@ -23,10 +23,46 @@ struct DocumentLink: View {
     var body: some View {
         Button(title) { isOpen = true }
             .sheet(isPresented: $isOpen) {
-                SafariDocumentView(url: url)
+                SafariDocumentView(url: DocumentURL.localized(url))
                     // The controller draws its own bars to the screen's edge.
                     .ignoresSafeArea()
             }
+    }
+}
+
+/// The address a document is opened at: the configured one, told which
+/// language the app is showing.
+///
+/// The site keeps one address per document and picks the text by `?lang=`
+/// (ADR-023), so the app says what it is being read in rather than shipping
+/// a URL per language. What it says is the language of its own interface —
+/// the localization the bundle actually resolved — not the phone's first
+/// preference, which may be a language the app has no words in. The site
+/// falls back to English on its own for anything it has not published.
+enum DocumentURL {
+    static let languageParameter = "lang"
+
+    static func localized(_ url: URL, language: String? = Bundle.module.preferredLocalizations.first) -> URL {
+        guard let language = baseLanguage(of: language),
+              var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        else { return url }
+        // Replace rather than append: a configured address may already carry
+        // the parameter, and two answers to one question is no answer.
+        var items = (components.queryItems ?? []).filter { $0.name != languageParameter }
+        items.append(URLQueryItem(name: languageParameter, value: language))
+        components.queryItems = items
+        return components.url ?? url
+    }
+
+    /// `ru`, whether the localization came as `ru`, `ru-RU` or `ru_RU`. The
+    /// site addresses documents by language alone, so the region is dropped.
+    static func baseLanguage(of identifier: String?) -> String? {
+        guard let identifier, !identifier.isEmpty else { return nil }
+        let normalized = identifier.replacingOccurrences(of: "_", with: "-")
+        guard let language = Locale.Language(identifier: normalized).languageCode?.identifier,
+              !language.isEmpty
+        else { return nil }
+        return language.lowercased()
     }
 }
 

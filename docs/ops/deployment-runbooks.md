@@ -22,6 +22,7 @@ Read §0 once, then jump to the section named by the alert or the task.
 - [9. A backup or restore drill failed](#9-a-backup-or-restore-drill-failed)
 - [10. Rotating a secret](#10-rotating-a-secret)
 - [11. Production](#11-production)
+- [12. The public site and its documents](#12-the-public-site-and-its-documents)
 
 ## 0. Before anything
 
@@ -664,3 +665,56 @@ When that workflow lands, this file needs: `SERVICE=api-prod` in §0, the backup
 gate as a step in §1, and the stop conditions in §2.2 restated for a database
 with real user data — where "fix forward" and "restore" carry a cost that dev
 does not have.
+
+## 12. The public site and its documents
+
+The site (`site-dev`, `site-prod`) is an nginx container that serves a static
+bundle and proxies `/documents/` to the environment's public bucket
+(`country-flags-site-dev`, `country-flags-site-prod`). The documents in that
+bucket are written by the console's Site → Documents section, never by a
+deploy ([ADR-023](../adr/ADR-023-public-site-and-legal-documents.md)).
+
+### 12.1 Deploy and roll back
+
+`Deploy site dev` runs after `Site CI` on master and can be re-run with a
+SHA; `Deploy site prod` promotes the digest `site-dev` serves. Both create
+the service on first run. Rolling back is the same command as §2.3 with
+`SERVICE=site-dev` or `site-prod`; there is no migration and no database, so
+there is nothing else to check.
+
+```bash
+curl -fsS "$URL/config.json"            # {"environment": "dev", ...}
+curl -fsS -o /dev/null -w '%{http_code}\n' "$URL/documents/index.json"   # 200, or 404 before the first publish
+```
+
+### 12.2 A document is wrong on the site
+
+Fix it in the console: open the document, edit, save, **Publish**. The
+bucket file is rewritten and the site shows it within a minute
+(`max-age=60`). To return to an earlier wording, open **Versions**, restore
+the version into the draft, read it, publish. Unpublish takes a language off
+the site; readers get English instead.
+
+### 12.3 The site shows "no such document" for something the console says is published
+
+Read the bucket directly, bypassing nginx:
+
+```bash
+curl -fsS https://storage.googleapis.com/country-flags-site-dev/documents/index.json
+curl -fsS https://storage.googleapis.com/country-flags-site-dev/documents/privacy.en.json | head -c 300
+```
+
+- Missing in the bucket → the publish committed the version but the upload
+  failed. Publish again from the console: a publish always rewrites the
+  document file and rebuilds the index.
+- Present in the bucket but not through the site → `SITE_DOCUMENTS_UPSTREAM`
+  on the revision is wrong; compare it with what the deploy workflow sets.
+- 403 from the bucket → the `allUsers → objectViewer` binding was removed;
+  restore it (§6.4 of the environments document).
+
+### 12.4 Production gets what dev has
+
+Until `admin-prod` exists, `Promote site documents to prod` copies the dev
+snapshot into the prod bucket, deletions included, and refuses an empty
+snapshot. It needs `github-deployer` to hold `roles/storage.objectAdmin` on
+the prod bucket and the `production` environment to exist.
