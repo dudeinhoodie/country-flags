@@ -35,4 +35,4 @@ passes every check in the script.
 - The privacy labels are filled from the table in
   [`docs/ios/release-checklist.md`](../../docs/ios/release-checklist.md), which
   maps them one to one onto `PrivacyInfo.xcprivacy`.
-- The support and marketing URLs point at the published site (`site/`).
+- The support and marketing URLs point at the published site (`web/`).

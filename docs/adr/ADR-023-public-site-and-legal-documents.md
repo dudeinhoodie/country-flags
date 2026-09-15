@@ -7,11 +7,11 @@
 
 The app links to two documents it cannot ship without — the privacy policy
 and the terms of use — and the release check refuses a build whose links do
-not answer. Until now they were five static HTML files in `site/`, published
-to GitHub Pages by a workflow and edited by pull request. That home had one
-property worth keeping: it did not depend on the API being up. An App Store
-reviewer, and anybody who taps the link in the app, is entitled to a page
-that answers.
+not answer. Until now they were five static HTML files in the repository,
+published to GitHub Pages by a workflow and edited by pull request. That home
+had one property worth keeping: it did not depend on the API being up. An
+App Store reviewer, and anybody who taps the link in the app, is entitled to
+a page that answers.
 
 It had three costs. The text lived in the repository, so changing a sentence
 of a policy was a commit, a review and a CI run. The pages were plain and
@@ -29,7 +29,7 @@ to grow a web quiz later.
 
 ### The site is its own workspace and its own Cloud Run service
 
-`site/` is a Yarn workspace (`@country-flags/site`): Vite, React and
+`web/` is a Yarn workspace (`@country-flags/web`): Vite, React and
 TypeScript, the toolchain the console already uses, so the quiz that follows
 does not rewrite the site. It is served the way the console is: a static
 bundle in an nginx container on Cloud Run, `site-dev` and `site-prod` in
@@ -121,7 +121,7 @@ reader is reading in.
 - The iOS app appends `?lang=` when it opens a document; its configured
   addresses move to the site (`Dev.xcconfig` now, `Prod.xcconfig` once
   `site-prod` serves the documents and the release check can see it).
-- `site/` no longer holds the documents' text. The former pages were
+- The repository no longer holds the documents' text. The former pages were
   imported as the first drafts by `corepack yarn site:documents:import` from
   `backend/seed/site-documents/`, which is the seed for a fresh environment
   and not a mirror of what is published.

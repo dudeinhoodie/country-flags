@@ -6,7 +6,7 @@ name: Site CI
 on:
   pull_request:
     paths:
-      - site/**
+      - web/**
       - .github/workflows/site-ci.yml
       - package.json
       - yarn.lock
@@ -44,19 +44,19 @@ jobs:
         run: corepack yarn install --immutable
 
       - name: Check formatting
-        run: corepack yarn workspace @country-flags/site format:check
+        run: corepack yarn workspace @country-flags/web format:check
 
       - name: Lint
-        run: corepack yarn workspace @country-flags/site lint
+        run: corepack yarn workspace @country-flags/web lint
 
       - name: Typecheck
-        run: corepack yarn workspace @country-flags/site typecheck
+        run: corepack yarn workspace @country-flags/web typecheck
 
       - name: Unit tests
-        run: corepack yarn site:test
+        run: corepack yarn web:test
 
       - name: Build
-        run: corepack yarn site:build
+        run: corepack yarn web:build
 
   publish:
     name: Publish site image
@@ -114,7 +114,7 @@ jobs:
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: .
-          file: site/Dockerfile
+          file: web/Dockerfile
           platforms: linux/amd64
           push: true
           # Only the immutable sha- tag: promotion and rollback must name an

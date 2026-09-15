@@ -87,12 +87,12 @@ writes the config file. `/healthz` answers `ok`.
 Run from the repository root:
 
 ```bash
-corepack yarn site:dev      # Vite dev server; /documents/* answered from fixtures/documents
-corepack yarn site:build    # production build into site/dist
-corepack yarn site:test     # Vitest unit tests
-corepack yarn workspace @country-flags/site lint
-corepack yarn workspace @country-flags/site typecheck
-corepack yarn workspace @country-flags/site preview   # the built bundle, with the same fixtures
+corepack yarn web:dev      # Vite dev server; /documents/* answered from fixtures/documents
+corepack yarn web:build    # production build into web/dist
+corepack yarn web:test     # Vitest unit tests
+corepack yarn workspace @country-flags/web lint
+corepack yarn workspace @country-flags/web typecheck
+corepack yarn workspace @country-flags/web preview   # the built bundle, with the same fixtures
 ```
 
 `fixtures/documents/` holds a sample snapshot for local work. It is served
@@ -100,7 +100,7 @@ only by the dev and preview servers (see `vite.config.ts`) and never reaches
 the image. To read a real bucket instead, point the dev server at it:
 
 ```bash
-SITE_DOCUMENTS_PROXY=https://storage.googleapis.com/country-flags-site-dev/documents corepack yarn site:dev
+SITE_DOCUMENTS_PROXY=https://storage.googleapis.com/country-flags-site-dev/documents corepack yarn web:dev
 ```
 
 ## Deployment

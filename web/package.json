@@ -1,5 +1,5 @@
 {
-  "name": "@country-flags/site",
+  "name": "@country-flags/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
