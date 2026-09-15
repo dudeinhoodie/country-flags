@@ -381,7 +381,12 @@ describe("Admin site documents (integration)", () => {
       .get("/v1/admin/site/documents/privacy/en/versions/1")
       .set("Cookie", viewerCookie);
     expect(first.status).toBe(200);
-    expect(bodyOf<VersionBody>(first).body).toContain("**optional**");
+    // Version 1 carries the text as it stood when it was published: the
+    // edit that dropped the emphasis, not the first draft.
+    expect(bodyOf<VersionBody>(first).body).toContain(
+      "An account is optional.",
+    );
+    expect(bodyOf<VersionBody>(first).html).toContain("<h2>Accounts</h2>");
 
     const restored = await request(httpServer)
       .post("/v1/admin/site/documents/privacy/en/versions/1/restore")
