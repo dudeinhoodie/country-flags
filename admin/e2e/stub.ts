@@ -77,6 +77,14 @@ const FRANCE_DETAIL = {
     identifiers: { isoAlpha2: "FR" },
   },
   publishedNames: { en: "France", ru: "Франция" },
+  // The contract makes this required, and the editor reads it on every facts
+  // field. It carries values rather than `{}` so the stub exercises the
+  // placeholder the release fills in, which is the whole point of the field.
+  publishedFacts: {
+    capital: { en: "Paris", ru: "Париж" },
+    population: { value: 68_170_228, unit: "people", observedAt: "2025-01-01" },
+    area: { value: 551_695, unit: "km2" },
+  },
   draftRevision: 3,
   delivery: "PUBLIC",
   locales: NO_LOCALE_GAPS,

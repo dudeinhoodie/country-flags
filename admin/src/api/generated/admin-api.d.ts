@@ -1325,6 +1325,8 @@ export interface components {
             publishedNames: {
                 [key: string]: string;
             };
+            /** @description What the active release already answers about the entity, in the shape the editor's fields are in. Shown beside them as a placeholder, the way `publishedNames` is: an editor should see the capital the release serves rather than an empty box, without the draft adopting it. Never written back — a fact the draft does not carry keeps falling back to the release at build time, and prefilling would turn an inherited fact into an override somebody has to review. Empty when the release does not carry the entity. */
+            publishedFacts: components["schemas"]["AdminEntityFacts"];
             /** @description The revision this view was read at; what `If-Match` takes. */
             draftRevision: number;
             delivery: components["schemas"]["AdminDeliveryStatus"];

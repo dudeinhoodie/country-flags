@@ -7,6 +7,7 @@ import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AdminDraftsService } from "./admin-drafts.service";
 import { CARD_TEMPLATES } from "./deck-cards";
 import { liftEditorialDocumentToV3 } from "./editorial-document.service";
+import type { PublishedFacts } from "./published-facts";
 import {
   ASSET_SLOTS,
   DraftReadModelService,
@@ -379,6 +380,13 @@ export interface EntityDetail {
    * falls back to these at build time.
    */
   publishedNames: Record<string, string>;
+  /**
+   * What the active release answers about this entity, shown beside the
+   * draft's own fields as a placeholder. Never written back: a fact the draft
+   * does not carry keeps falling back to the release at build time, and
+   * prefilling would turn an inherited fact into an override to review.
+   */
+  publishedFacts: PublishedFacts;
   /** The revision this view was read at; the same value `If-Match` takes. */
   draftRevision: number;
   delivery: DeliveryStatus;
@@ -648,6 +656,7 @@ export class DraftEntitiesService {
     return {
       entity: toApiEntity(entity),
       publishedNames: Object.fromEntries(published?.names ?? []),
+      publishedFacts: published?.facts ?? {},
       draftRevision: context.draft.revision,
       delivery: delivery.get(entityKey) ?? "PUBLIC",
       locales: this.readModel.entityLocales(
