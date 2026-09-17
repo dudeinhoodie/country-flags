@@ -54,6 +54,7 @@
 - [ADR-019](./adr/ADR-019-paid-deck-entitlements.md) — Apple non-consumable product выдаёт стабильные backend entitlements, а не открывает Deck напрямую.
 - [ADR-020](./adr/ADR-020-geo-entities-and-card-variants.md) — страны и штаты используют общую GeoEntity-модель, а флаг/герб являются независимыми card variants.
 - [ADR-021](./adr/ADR-021-bundled-catalogue-snapshot.md) — приложение везёт с собой каталог того же релиза и засевает им пустое хранилище до сети; первая же успешная синхронизация заменяет его целиком.
+- [ADR-022](./adr/ADR-022-first-repetition-after-three-hours.md) — первая ступень повтора поднята до трёх часов: при ответе свайпом ни «снова», ни первое «хорошо» не возвращают карточку раньше.
 
 ## Подтверждённые продуктовые решения
 

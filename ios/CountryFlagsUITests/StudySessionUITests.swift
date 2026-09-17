@@ -357,12 +357,12 @@ final class StudySessionUITests: XCTestCase {
     /// `Again` is the rating that says "I did not know this", and the promise
     /// that the card comes back is real — but it is kept by the scheduler and
     /// not by the sitting in progress. A session's cards are chosen when it
-    /// starts and walked once; `.again` books the card an hour out in
+    /// starts and walked once; `.again` books the card three hours out in
     /// `RELEARNING`, which is the backend's own ladder, so the repeat falls in
     /// a later sitting. The minute-long floor that would have brought it back
     /// sooner was removed on purpose with `fsrs-6-default-21-v2`, because
     /// offline it put cards back on screen that the server had no intention of
-    /// asking for until after lunch.
+    /// asking for until after lunch; v3 raised the rung to three hours.
     ///
     /// So what is checked here is the half the sitting owns: the refusal is
     /// taken once, it does not quietly lengthen the sitting, and the result
