@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Country Flags is an app for learning the flags of the world. This policy describes what the app collects, why, and what you can do about it. It is written from what the code actually does; nothing below is aspirational.
+Vexi is an app for learning the flags of the world. This policy describes what the app collects, why, and what you can do about it. It is written from what the code actually does; nothing below is aspirational.
 
 ## Using the app without an account
 
@@ -17,11 +17,11 @@ Signing in is optional and exists for one reason: so your progress survives a lo
 
 When you sign in for the first time, the work you did as a guest is imported into the new account and the local guest copy is erased afterwards.
 
-## In-app purchases
+## Technical data our servers see
 
-Some decks are sold separately as a one-time purchase. Buying one requires signing in, for the same reason as above: the purchase is tied to your account so it can be restored on another device. Apple handles the purchase itself — your card, Apple Pay or any other payment instrument goes to Apple, and we never see or store it. We collect no payment information at all.
+Every request from the app carries the app version, the platform and the language the phone is set to, so the server can answer in a form that build understands. Requests are logged with a random request identifier, the path, the result and how long it took — not with who sent them.
 
-What we do keep, tied to your account, is a record of the purchase: which deck it unlocked, when, and the status of the underlying Apple transaction. We use it to give you access to what you bought, to restore it on a new device, to help you if something goes wrong, to process refunds, and to watch for fraudulent transactions. It is never used for tracking or for third-party advertising.
+Each sign-in session is stored with a keyed hash of your IP address and of the app's network identifier string. It exists to notice a stolen session and for nothing else; the session is invalidated when you sign out and erased with the account. Sign-in attempts and a few other requests are limited per address; the counter keeps a hash of the address for at most a day.
 
 ## Optional analytics and diagnostics
 
@@ -37,12 +37,16 @@ Turn either off and anything still waiting to be sent is deleted on the device.
 - No advertising, no advertising SDK and no advertising identifier (IDFA). The app never asks for tracking permission.
 - No third-party analytics. Everything described above goes to our own servers and nowhere else.
 - No location, camera, microphone, contacts, photos or health data. The app declares no such permissions at all.
-- No collection of payment details. Apple handles the payment instrument for any purchase; we never see or store your card, Apple Pay or other payment information.
+- No purchases and no payment data. There is nothing to buy in the app, so no card, Apple Pay or other payment information ever reaches us.
 - No selling or sharing of personal data, and no profiling.
 
 ## Maps
 
 The country map inside the app is Apple Maps, drawn by the operating system. Apple's own privacy policy governs what Apple receives when a map is displayed; the app sends Apple no personal data of yours.
+
+## Reminders
+
+Study reminders are optional local notifications scheduled on your device. Turning them on asks iOS for permission; nothing about them leaves the phone.
 
 ## Where the data is kept
 
@@ -51,7 +55,7 @@ Account data is stored in Google Cloud in Frankfurt, Germany (europe-west3). Goo
 ## How long it is kept
 
 - Account data — until you delete the account.
-- Purchase records — the signed receipt Apple gives us to verify a purchase is kept only for as long as verifying it takes, no more than 90 days. The purchase record itself — what you bought and its status — is kept for as long as it grants you access, and as long as applicable financial record-keeping rules require.
+- Sign-in sessions — until you sign out, and in any case no longer than 30 days without use.
 - Product analytics — no longer than 13 months.
 - Diagnostics and error reports — no longer than 90 days.
 
@@ -59,13 +63,13 @@ Account data is stored in Google Cloud in Frankfurt, Germany (europe-west3). Goo
 
 Open the account screen in the app and choose to delete the account. The deletion runs immediately: your progress, your sign-in methods, your devices and your settings are erased, and the app returns you to guest mode. It cannot be undone, and there is no separate request to make of us.
 
-Purchases are the one exception. A purchase belongs to your Apple Account, not to your Country Flags account, so deleting the account does not undo it. We keep the minimum purchase record needed for refunds, restore and financial record-keeping even after the rest of your data is gone.
+What remains is a technical record that an account with this internal identifier existed and when it was deleted. It holds no email address, no name and no progress.
 
 You do not need an account to keep using the app afterwards.
 
 ## Your rights
 
-Depending on where you live you may have the right to access, correct or erase your data, to object to its processing, or to receive a copy of it. Deletion is available directly in the app, as described above. For anything else, write to us.
+Depending on where you live you may have the right to access, correct or erase your data, to object to its processing, or to receive a copy of it. Both are available directly in the app: the account screen prepares a copy of your data that you can save or share, and it is where you delete the account, as described above. For anything else, write to us.
 
 ## Children
 
