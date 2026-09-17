@@ -32,7 +32,7 @@ export interface Strings {
 }
 
 const EN: Strings = {
-  brand: "Country Flags",
+  brand: "Vexi",
   tagline: "Learn the flags of the world, one card at a time.",
   lead: "A free iOS app that shows you a flag, asks whether you knew it, and decides when to ask again. No advertising, and everything works without an account. A few decks are an optional one-time purchase.",
   documents: "Documents",
@@ -44,7 +44,7 @@ const EN: Strings = {
   devStand: "dev stand",
   legalLabel: "Legal",
   lastUpdated: (date) => `Last updated ${date}`,
-  backHome: "Country Flags",
+  backHome: "Vexi",
   alsoPublished: "Also published",
   notFoundTitle: "There is no such document",
   notFoundBody: "Check the address, or start from the home page.",
@@ -57,7 +57,7 @@ const EN: Strings = {
 };
 
 const RU: Strings = {
-  brand: "Country Flags",
+  brand: "Vexi",
   tagline: "Флаги мира, по одной карточке за раз.",
   lead: "Бесплатное приложение для iOS: показывает флаг, спрашивает, знали ли вы его, и решает, когда спросить снова. Без рекламы, всё работает без учётной записи. Несколько колод продаются отдельно разовой покупкой.",
   documents: "Документы",
@@ -69,7 +69,7 @@ const RU: Strings = {
   devStand: "dev-стенд",
   legalLabel: "Документ",
   lastUpdated: (date) => `Обновлено ${date}`,
-  backHome: "Country Flags",
+  backHome: "Vexi",
   alsoPublished: "Также опубликовано",
   notFoundTitle: "Такого документа нет",
   notFoundBody: "Проверьте адрес или начните с главной.",

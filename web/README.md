@@ -1,6 +1,6 @@
-# Country Flags site
+# Vexi site
 
-The public website of Country Flags: today the legal documents the iOS app
+The public website of Vexi: today the legal documents the iOS app
 links to (privacy policy, terms of use), later the web quiz. One Vite + React
 page in the app's own visual language — the dark scene, glass panels and
 capsules of ADR-012 — and nothing else: no external fonts, no analytics, no
@@ -40,6 +40,19 @@ headings, paragraphs, lists, links, emphasis, blockquotes, rules, code and
 tables. A missing file answers 404 (the bucket's XML body is ignored). A
 missing index means nothing is published yet, which the page shows as such
 rather than as an error.
+
+## The icon in the tab
+
+`public/` carries the favicon set: `favicon.ico` (16, 32 and 48 px inside),
+`favicon-32x32.png`, `apple-touch-icon.png` (180 px) and the 192 and 512 px
+PNGs that `manifest.json` names. All of them are the app icon
+(`ios/CountryFlagsApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`)
+cut down by hand by the owner; the full set, with the 16 and 48 px PNGs the
+`.ico` also carries, is kept in `design/favicon/`, and `public/` holds the
+copies the page links. There is no script, and no vector, because the app icon
+itself is a raster (`design/app-icon/README.md`). When the app icon changes,
+the set is regenerated from the new 1024 px PNG, replaced in `design/favicon/`
+and copied here again.
 
 ## Addresses and language
 
