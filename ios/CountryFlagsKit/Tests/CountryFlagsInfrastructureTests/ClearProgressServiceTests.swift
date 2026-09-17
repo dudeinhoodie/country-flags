@@ -103,6 +103,66 @@ final class ClearProgressServiceTests: XCTestCase {
         XCTAssertEqual(guestStates.count, 1)
     }
 
+    /// The answers themselves, not only the states projected from them. The
+    /// review events are the account's history; a deletion that left them
+    /// behind would leave the device holding the very records it told the
+    /// learner were gone — and holding them under a session that no longer
+    /// exists.
+    func testClearingProgressDeletesTheRecordedReviews() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        try await learning.saveSession(Self.session(now: now), for: account)
+        try await learning.recordReview(
+            Self.review(now: now),
+            projectedState: Self.cardState(now: now),
+            outbox: Self.operation(now: now),
+            for: account
+        )
+        let recorded = try await learning.reviews(for: account)
+        XCTAssertEqual(recorded.count, 1)
+
+        try await learning.deleteAllProgress(for: account)
+
+        let remaining = try await learning.reviews(for: account)
+        XCTAssertTrue(remaining.isEmpty)
+    }
+
+    /// Two people share a device. One of them erasing their history is not an
+    /// event in the other's account — not their answers, not their queue, not
+    /// their place in the change stream.
+    func testClearingProgressLeavesAnotherAccountAlone() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        let outbox = store.makeOutboxRepository()
+        let other = AccountScope.authenticated(
+            userID: UUID(uuidString: "90000000-0000-4000-8000-00000000000d")!
+        )
+        for scope in [account, other] {
+            try await learning.saveCardStates([Self.cardState(now: now)], for: scope)
+            try await learning.saveDeckProgress([Self.deckProgress(now: now)], for: scope)
+            try await learning.saveAchievements([Self.achievement(now: now)], for: scope)
+            try await outbox.enqueue(Self.operation(now: now), for: scope)
+            try await outbox.saveCursor(
+                SyncCursorRecord(feed: .userChanges, cursor: "cursor-1", updatedAt: now),
+                for: scope
+            )
+        }
+
+        try await learning.deleteAllProgress(for: account)
+        try await outbox.discardQueuedWork(for: account)
+
+        let states = try await learning.cardStates(for: other)
+        let decks = try await learning.deckProgress(for: other)
+        let achievements = try await learning.achievements(for: other)
+        let pending = try await outbox.pendingOperations(for: other)
+        let cursor = try await outbox.cursor(.userChanges, for: other)
+        XCTAssertEqual(states.count, 1)
+        XCTAssertEqual(decks.count, 1)
+        XCTAssertEqual(achievements.count, 1)
+        XCTAssertEqual(pending.count, 1)
+        XCTAssertEqual(cursor?.cursor, "cursor-1")
+    }
+
     /// The queue and the cursors go with the history: an unsent review belongs
     /// to a session the account no longer has, and the cursor points into a
     /// stream the deletion rotated.
@@ -212,6 +272,22 @@ final class ClearProgressServiceTests: XCTestCase {
             startedAt: now,
             completedAt: nil,
             cards: []
+        )
+    }
+
+    private static func review(now: Date) -> ReviewEventRecord {
+        ReviewEventRecord(
+            id: UUID(uuidString: "17000000-0000-4000-8000-000000000001")!,
+            sessionID: UUID(uuidString: "15000000-0000-4000-8000-000000000001")!,
+            learningCardID: UUID(uuidString: "12000000-0000-4000-8000-000000000001")!,
+            rating: "GOOD",
+            answerMode: "SELF_RATED",
+            selectedOptionID: nil,
+            responseTimeMilliseconds: 2_400,
+            clientOccurredAt: now,
+            estimatedServerOccurredAt: now,
+            clientSequence: 1,
+            baseStateVersion: 0
         )
     }
 

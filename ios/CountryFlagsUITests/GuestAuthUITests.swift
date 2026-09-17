@@ -171,6 +171,47 @@ final class GuestAuthUITests: XCTestCase {
         app.buttons.matching(identifier: "settings.account.signOut.cancel").firstMatch.tap()
     }
 
+    /// IOS-E2E-AC-04: signing out everywhere ends this device too.
+    ///
+    /// It is the button somebody reaches for after losing a phone, so the
+    /// thing that must not happen is the one that would be hardest to notice:
+    /// this device quietly staying signed in while the person believes every
+    /// session is closed.
+    func testSigningOutEverywhereLeavesThisDeviceAGuestToo() {
+        let app = launch(
+            arguments: ["-reset-store", "-fake-signin"] + identity + accountA
+        )
+        openAccount(in: app)
+        signInWithFixture(in: app)
+
+        requestSignOut(in: app)
+        let everywhere = app.buttons.matching(
+            identifier: "settings.account.signOutEverywhere.confirm"
+        ).firstMatch
+        XCTAssertTrue(everywhere.waitForExistence(timeout: 15), app.debugDescription)
+        everywhere.tap()
+
+        XCTAssertTrue(
+            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 30),
+            "Signing out everywhere includes the device it was asked from\n"
+                + app.debugDescription
+        )
+        XCTAssertFalse(
+            element("settings.account.signedIn", in: app).exists,
+            app.debugDescription
+        )
+
+        // And it stays out: a session that came back on the next launch would
+        // be the same failure one relaunch later.
+        app.terminate()
+        let relaunched = launch(arguments: ["-fake-signin"] + identity + accountA)
+        openAccount(in: relaunched)
+        XCTAssertTrue(
+            relaunched.buttons["settings.account.signInApple"].waitForExistence(timeout: 30),
+            relaunched.debugDescription
+        )
+    }
+
     private func answerOneCard(in app: XCUIApplication) {
         answerCards(1, in: app)
     }
@@ -211,8 +252,35 @@ final class GuestAuthUITests: XCTestCase {
 
     private func openAccount(in app: XCUIApplication) {
         let account = app.buttons["account.open"]
-        XCTAssertTrue(account.waitForExistence(timeout: 30), app.debugDescription)
-        account.tap()
+        XCTAssertTrue(account.waitForExistence(timeout: 60), app.debugDescription)
+
+        // The launch wait is a screen rather than an overlay, so the shell is
+        // built only after it and the first interactive frame replaces the
+        // hierarchy. A tap that lands in that moment is acknowledged and does
+        // nothing — the button is there either way, so the answer is to offer
+        // the tap again rather than to wait longer for a screen that is never
+        // coming. Section 8 of the plan records why.
+        //
+        // Arrival is read off the account section in whichever state it is in:
+        // signed in, signed out, mid-sign-in or expired. Waiting for one of
+        // those in particular would make this helper care which test called it.
+        let arrived = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier IN %@",
+                [
+                    "settings.account.signedIn",
+                    "settings.account.signInApple",
+                    "settings.account.signingIn",
+                    "settings.account.expired",
+                ]
+            )
+        ).firstMatch
+
+        for _ in 0..<3 {
+            account.tap()
+            if arrived.waitForExistence(timeout: 15) { return }
+        }
+        XCTFail("The account screen never opened\n\(app.debugDescription)")
     }
 
     private func signInWithFixture(in app: XCUIApplication) {
