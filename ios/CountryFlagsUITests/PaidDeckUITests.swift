@@ -129,6 +129,193 @@ final class PaidDeckUITests: XCTestCase {
         )
     }
 
+    /// IOS-E2E-PD-16: signing the owner out takes their deck with them.
+    ///
+    /// This is the leak worth testing for, because it is the one nobody would
+    /// see: a device handed back to a guest — sold, lent, returned — with
+    /// somebody else's purchase still open on it. The same shape already
+    /// produced a real bug on this branch, where a deleted account's unlocked
+    /// deck outlived the account until the next launch.
+    ///
+    /// Discovery is on so the row is in the catalogue in both states. That is
+    /// the other half of the row: what the storefront says about a deck is
+    /// public, and only the cards behind it are the owner's.
+    func testSigningTheOwnerOutLocksTheDeckAndLeavesItsListingAlone() {
+        let app = launch(
+            arguments: ["-reset-store", "-owned-deck"] + fixtures + identity + discovery
+        )
+        XCTAssertTrue(
+            app.buttons["home.deck.ALL"].waitForExistence(timeout: 60),
+            app.debugDescription
+        )
+        signIn(in: app)
+
+        // Owned first, so the test is about losing access rather than never
+        // having had it.
+        openPaidDeck(in: app)
+        XCTAssertTrue(
+            app.buttons["study.start"].waitForExistence(timeout: 20),
+            "The owner must reach the deck before signing out proves anything\n"
+                + app.debugDescription
+        )
+        XCTAssertFalse(paywall(in: app).exists, app.debugDescription)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        signOutOfThisDevice(in: app)
+
+        // The listing survives: a storefront tells everybody what is for sale.
+        let listing = openPaidDeck(in: app)
+        XCTAssertTrue(
+            listing.contains("Paid"),
+            "A deck nobody here owns is listed as paid again: \(listing)\n"
+                + app.debugDescription
+        )
+
+        // The cards do not. This is the assertion the scenario exists for.
+        XCTAssertTrue(
+            paywall(in: app).waitForExistence(timeout: 20),
+            "A guest must meet the paywall, not the previous owner's cards\n"
+                + app.debugDescription
+        )
+        XCTAssertFalse(
+            app.buttons["study.start"].exists,
+            "The deck must not be studiable by whoever holds the device now\n"
+                + app.debugDescription
+        )
+
+        // And it stays that way: access that came back on the next launch
+        // would be the same leak one relaunch later.
+        app.terminate()
+        let relaunched = launch(arguments: ["-owned-deck"] + fixtures + identity + discovery)
+        let again = openPaidDeck(in: relaunched)
+        XCTAssertTrue(again.contains("Paid"), again)
+        XCTAssertTrue(
+            paywall(in: relaunched).waitForExistence(timeout: 20),
+            relaunched.debugDescription
+        )
+    }
+
+    /// IOS-E2E-PD-17: a deck already downloaded opens with no network.
+    ///
+    /// Somebody who paid for a deck and then boarded a plane has bought
+    /// nothing if the app needs a server to show it to them. `-offline-content`
+    /// is the launch this case was written for: content requests fail while
+    /// the store stays intact, so what opens the deck can only be what the
+    /// device already holds.
+    ///
+    /// The session is restored rather than signed in again — it lives in the
+    /// keychain and outlives the launch — which is also what keeps this
+    /// scenario from contradicting `PD-16`: a sign-out is what clears the
+    /// private scope, and this case never asks for one.
+    ///
+    /// What this cannot prove with the arguments that exist: the entitlement
+    /// itself is still answered by the mock store, because `-offline-content`
+    /// takes the content endpoints and leaves commerce. Proving the
+    /// entitlement snapshot alone would need a launch where the store is
+    /// unreachable too, and there is no argument for that yet. Recorded in
+    /// section 9 of the plan rather than faked here.
+    func testADownloadedPaidDeckOpensOnALaunchWithNoContentBackend() {
+        let app = launch(
+            arguments: ["-reset-store", "-owned-deck"] + fixtures + identity + discovery
+        )
+        XCTAssertTrue(
+            app.buttons["home.deck.ALL"].waitForExistence(timeout: 60),
+            app.debugDescription
+        )
+        signIn(in: app)
+
+        // Downloaded: the cards are on the device before the network goes.
+        openPaidDeck(in: app)
+        XCTAssertTrue(
+            app.staticTexts["deck.cardCount"].waitForExistence(timeout: 20),
+            app.debugDescription
+        )
+        let downloaded = app.staticTexts["deck.cardCount"].label
+        XCTAssertTrue(
+            app.buttons["study.start"].waitForExistence(timeout: 20),
+            app.debugDescription
+        )
+        app.terminate()
+
+        let offline = launch(
+            arguments: ["-owned-deck", "-offline-content"] + fixtures + identity + discovery
+        )
+        let listing = openPaidDeck(in: offline)
+        XCTAssertFalse(
+            listing.contains("Paid"),
+            "The owner still owns it with the network gone: \(listing)\n"
+                + offline.debugDescription
+        )
+        XCTAssertFalse(
+            paywall(in: offline).exists,
+            "A deck already paid for must not ask to be bought again offline\n"
+                + offline.debugDescription
+        )
+        XCTAssertTrue(
+            offline.buttons["study.start"].waitForExistence(timeout: 30),
+            "A downloaded deck is studiable without a backend\n"
+                + offline.debugDescription
+        )
+        XCTAssertEqual(
+            offline.staticTexts["deck.cardCount"].label,
+            downloaded,
+            "Offline shows the deck that was downloaded, not a shorter one\n"
+                + offline.debugDescription
+        )
+    }
+
+    /// Walks to the paid deck's own screen and returns what the catalogue row
+    /// said, so a caller can ask how the deck was listed.
+    ///
+    /// The label is read before the tap and handed back as a `String` rather
+    /// than as an element: the row leaves the hierarchy once the deck's screen
+    /// is up, and an `XCUIElement` is a query resolved at the moment it is
+    /// read, so a caller reading `.label` afterwards would be querying a row
+    /// that no longer exists.
+    ///
+    /// The catalogue tab is offered again if the first tap is swallowed: the
+    /// launch wait is a screen, so the shell is built only after it and the
+    /// first interactive frame replaces the hierarchy.
+    @discardableResult
+    private func openPaidDeck(in app: XCUIApplication) -> String {
+        let catalog = app.tabBars.buttons["Catalog"]
+        XCTAssertTrue(catalog.waitForExistence(timeout: 60), app.debugDescription)
+        let deck = app.buttons["catalog.deck.SPECIAL_AREAS"]
+        for _ in 0..<3 {
+            catalog.tap()
+            if deck.waitForExistence(timeout: 20) { break }
+        }
+        XCTAssertTrue(deck.waitForExistence(timeout: 20), app.debugDescription)
+        let listing = deck.label
+        deck.tap()
+        return listing
+    }
+
+    /// Ends the session on this device only, and waits for the guest state.
+    private func signOutOfThisDevice(in app: XCUIApplication) {
+        let account = app.buttons["account.open"]
+        XCTAssertTrue(account.waitForExistence(timeout: 60), app.debugDescription)
+        account.tap()
+
+        let signOut = app.buttons["settings.account.signOut"]
+        XCTAssertTrue(signOut.waitForExistence(timeout: 30), app.debugDescription)
+        signOut.tap()
+        // The confirmation resolves to more than one element, so it is reached
+        // the way `GuestAuthUITests` and `AccountProgressUITests` reach it: a
+        // subscript demands a single match and fails on the dialog.
+        let confirm = app.buttons.matching(
+            identifier: "settings.account.signOut.confirm"
+        ).firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: 15), app.debugDescription)
+        confirm.tap()
+
+        XCTAssertTrue(
+            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 30),
+            "Signing out must leave this device a guest\n" + app.debugDescription
+        )
+        app.tabBars.buttons["Home"].tap()
+    }
+
     private func paywall(in app: XCUIApplication) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: "deck.paywall").firstMatch
     }
