@@ -128,7 +128,15 @@ jobs:
       # The same check the nightly and the pull request run, against the thing
       # that is actually about to be uploaded.
       - name: Check what the release build carries
-        run: ./Scripts/check-release-app.sh "${ARCHIVE}/Products/Applications/CountryFlags.app"
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          apps=("${ARCHIVE}"/Products/Applications/*.app)
+          if [ "${#apps[@]}" -ne 1 ]; then
+            echo "::error::expected one .app in the archive, found ${#apps[@]}"
+            exit 1
+          fi
+          ./Scripts/check-release-app.sh "${apps[0]}"
 
       - name: Export the .ipa
         env:
