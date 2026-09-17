@@ -3,6 +3,13 @@ import Observation
 
 import CountryFlagsDomain
 
+/// The deck that holds every card the release publishes.
+///
+/// A release may carry several curated decks, so being curated no longer
+/// picks this one out. The code is what the publisher gives the all-countries
+/// membership, and it is stable across releases.
+let ALL_COUNTRIES_DECK_CODE = "ALL"
+
 /// One deck as the progress screen shows it.
 public struct DeckProgressRow: Identifiable, Hashable, Sendable {
     public let id: UUID
@@ -338,15 +345,29 @@ public final class ProgressStore: CanonicalDataObserving {
         origin = .backend
     }
 
+    /// The deck that spans the whole catalogue, when the release has one.
+    ///
+    /// Identified by the membership it is published under rather than by
+    /// being curated, because being curated no longer distinguishes it: a
+    /// release also carries special areas as a curated deck, and whatever the
+    /// editors add next. Its numbers are the ones that count each card
+    /// exactly once, which is what makes them the hero's on the progress
+    /// screen and the "countries learned" on the home screen; another curated
+    /// deck is a slice like any other. Decided here, once, so no screen
+    /// picks a different deck than the next.
+    public var whole: DeckProgressRow? {
+        decks.first { $0.code == ALL_COUNTRIES_DECK_CODE }
+    }
+
     /// How much work the day owes, counted once for every screen.
     ///
-    /// The backend's own breakdown when it sent one; otherwise the curated
+    /// The backend's own breakdown when it sent one; otherwise the whole-world
     /// deck's queue, which spans every card. Summing the rows would
     /// double-count, because a country belongs to the whole-world deck and to
     /// its region at the same time.
     public var totalDue: Int {
         if let dueSummary { return dueSummary.totalDue }
-        if let whole = decks.first(where: \.isCurated) { return whole.dueCards }
+        if let whole = whole ?? decks.first(where: \.isCurated) { return whole.dueCards }
         return decks.map(\.dueCards).max() ?? 0
     }
 
