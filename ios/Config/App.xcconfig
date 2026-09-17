@@ -34,6 +34,13 @@ CF_ENTITLEMENTS_declared = Config/CountryFlags.entitlements
 CF_ENTITLEMENTS_none =
 CODE_SIGN_ENTITLEMENTS = $(CF_ENTITLEMENTS_$(CF_APP_ENTITLEMENTS:default=declared))
 
+// One set for every configuration. There were briefly three — the App Store
+// icon plus a corner cut in its own colour for Dev and Mock, so three builds
+// on one phone were told apart — but that cut was drawn into the SVG before
+// it was rasterised, and the icon that shipped is a raster with no drawing
+// behind it. Cutting the corner of a finished PNG is a different job, and
+// nobody has asked for it; until they do, the three builds share a picture
+// and are told apart by their names.
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
 ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor
 
