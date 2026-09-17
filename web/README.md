@@ -41,6 +41,16 @@ tables. A missing file answers 404 (the bucket's XML body is ignored). A
 missing index means nothing is published yet, which the page shows as such
 rather than as an error.
 
+## The icon in the tab
+
+`public/` carries the favicon set: `favicon.ico` (16, 32 and 48 px inside),
+`favicon-32x32.png`, `apple-touch-icon.png` (180 px) and the 192 and 512 px
+PNGs that `manifest.json` names. All of them are the app icon
+(`ios/CountryFlagsApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`)
+cut down by hand by the owner; there is no script, and no vector, because the
+app icon itself is a raster (`design/app-icon/README.md`). When the app icon
+changes, the set is regenerated from the new 1024 px PNG and replaced here.
+
 ## Addresses and language
 
 - `/` — what the app is, the published documents, support and attribution.
