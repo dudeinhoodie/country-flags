@@ -81,12 +81,12 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         await ensureIdentityRestored()
         guard case .authenticated(let userID) = state,
             accessToken == nil,
-            let refreshToken = await storedRefreshToken()
+            await storedRefreshToken() != nil
         else {
             return
         }
         do {
-            let session = try await rotate(presenting: refreshToken)
+            let session = try await rotate()
             await adopt(session)
             // The rotation says nothing about whose account it is; the
             // identifier stored beside the token does, which is why a relaunch
@@ -189,7 +189,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
     public func currentAccessToken() async -> String? { accessToken }
 
     public func refreshAccessToken() async throws -> String {
-        guard let refreshToken = await storedRefreshToken() else {
+        guard await storedRefreshToken() != nil else {
             throw APIError.unauthorized(
                 APIErrorDetails(
                     statusCode: 401,
@@ -200,7 +200,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
             )
         }
         do {
-            let session = try await rotate(presenting: refreshToken)
+            let session = try await rotate()
             await adopt(session)
             return session.accessToken
         } catch {
@@ -281,14 +281,33 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
     /// what is shared, and both doors lead to it.
     private var rotation: Task<RefreshedSessionRecord, any Error>?
 
-    private func rotate(
-        presenting refreshToken: String
-    ) async throws -> RefreshedSessionRecord {
+    /// Rotates the stored refresh token, once for everyone who asks at once.
+    ///
+    /// The token is read *here*, inside the rotation, and not by the caller.
+    /// A caller reads it across a suspension — the keychain is asynchronous —
+    /// and during that suspension the rotation it should have joined can
+    /// finish and replace the very token the caller is holding. The caller
+    /// then wakes to find `rotation` empty, starts a second one, and presents
+    /// a token the server has already spent. Refused, and a refused refresh
+    /// ends the session: #392 again, one step further in than the join that
+    /// was added for it.
+    ///
+    /// The task is created and stored with no `await` between the two, so two
+    /// callers can never both find the rotation empty.
+    private func rotate() async throws -> RefreshedSessionRecord {
         if let inFlight = rotation {
             return try await inFlight.value
         }
-        let started = Task { [service] in
-            try await service.refresh(refreshToken: refreshToken)
+        let started = Task { [service, tokens] in
+            guard let token = try? await tokens.value(for: .refreshToken),
+                !token.isEmpty
+            else {
+                // Not a refusal: nobody was asked. Calling this unauthorized
+                // would end the session for a keychain that was busy, which is
+                // the same mistake as ending it for a tunnel.
+                throw APIError.transport("The refresh token could not be read")
+            }
+            return try await service.refresh(refreshToken: token)
         }
         rotation = started
         defer { rotation = nil }
