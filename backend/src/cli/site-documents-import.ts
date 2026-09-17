@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import "dotenv/config";
+import { randomUUID } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 
@@ -117,7 +118,9 @@ async function run(): Promise<void> {
       new SiteSnapshotStore(createSiteObjectStorage()),
       process.env.SITE_PUBLIC_URL ?? null,
     );
-    const requestId = `cli-site-import-${String(Date.now())}`;
+    // One id for the whole run: the audit column is a UUID, so a readable
+    // prefix would be refused by the database, not just by taste.
+    const requestId = randomUUID();
 
     for (const file of files) {
       const address = `${file.slug}.${file.locale}`;
