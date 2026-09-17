@@ -1,0 +1,8 @@
+{
+  "slug": "privacy",
+  "locale": "en",
+  "title": "Privacy Policy",
+  "version": 1,
+  "publishedAt": "2026-09-15T10:00:00Z",
+  "html": "<p>Country Flags is an app for learning the flags of the world. This policy describes what the app collects, why, and what you can do about it. It is written from what the code actually does; nothing below is aspirational.</p>\n<h2>Using the app without an account</h2>\n<p>You can use everything without signing in: the catalogue, training sessions, your progress and the maps. A guest is identified only by a random installation identifier generated on your device and kept in the system keychain. Your answers and progress stay on the device and are not uploaded.</p>\n<h2>If you create an account</h2>\n<p>Signing in is optional and exists for one reason: so your progress survives a lost or replaced phone. You sign in with Apple or with Google. We never see your password — the provider returns an identity token, and the following is then stored on our servers:</p>\n<ul>\n<li><strong>Your email address</strong>, as the provider reports it. If you use Sign in with Apple and choose to hide your address, we receive and store Apple's relay address instead — that is the provider's choice, not ours.</li>\n<li><strong>Your display name</strong>, if the provider supplies one.</li>\n<li><strong>An account identifier</strong> we generate.</li>\n<li><strong>Your learning progress</strong>: which cards you have answered, how you rated them, and when they are due again.</li>\n</ul>\n<h2>Contact</h2>\n<p>Questions about this policy or about your data: <a href=\"mailto:slmyskov@gmail.com\">slmyskov@gmail.com</a>.</p>\n"
+}

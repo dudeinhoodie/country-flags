@@ -1,0 +1,106 @@
+name: Promote site documents to prod
+
+# Production is promoted, never authored (ADR-008, ADR-023).
+#
+# The site's documents are edited and published in the dev console, which
+# writes a static snapshot — documents/index.json and one file per document
+# and language — into the dev site bucket. Until the production console
+# exists, production gets the very same files: this workflow copies the
+# snapshot the dev site is serving into the bucket the production site
+# reads, and nothing else. Nothing is rendered here, no database is touched,
+# and a file that is not in dev cannot appear in prod.
+#
+# Manual by design: what is put in front of the public is a decision somebody
+# makes, gated by the production environment's reviewers.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  SOURCE_BUCKET: country-flags-site-dev
+  TARGET_BUCKET: country-flags-site-prod
+  # The site proxies this prefix; nothing outside it is served.
+  PREFIX: documents
+
+concurrency:
+  # Two promotions at once would interleave their copies.
+  group: promote-site-content-prod
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # The approval gate. A production change waits for a person even when
+    # the workflow was started by one.
+    environment: production
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # What is about to be promoted, read from the source rather than
+      # assumed: an empty dev snapshot would otherwise empty production.
+      - name: Read what dev serves
+        id: source
+        run: |
+          set -euo pipefail
+          if ! gcloud storage cat "gs://${SOURCE_BUCKET}/${PREFIX}/index.json" > /tmp/index.json 2>/dev/null; then
+            echo "::error::gs://${SOURCE_BUCKET}/${PREFIX}/index.json does not exist; nothing has been published in dev"
+            exit 1
+          fi
+          count="$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["documents"]))' /tmp/index.json)"
+          if [ "${count}" = "0" ]; then
+            echo "::error::The dev snapshot lists no documents; refusing to promote an empty site"
+            exit 1
+          fi
+          echo "count=${count}" >> "$GITHUB_OUTPUT"
+          echo "Promoting ${count} document file(s):"
+          python3 -c 'import json,sys; [print(f"  /{d[\"slug\"]} ({d[\"locale\"]}) v{d[\"version\"]} — {d[\"title\"]}") for d in json.load(open(sys.argv[1]))["documents"]]' /tmp/index.json
+
+      # A mirror of the prefix, deletions included: a document unpublished
+      # in dev disappears from prod too, which is what "the same files"
+      # means. The objects keep their Cache-Control, so the site picks the
+      # change up within a minute.
+      - name: Copy the snapshot
+        run: |
+          set -euo pipefail
+          gcloud storage rsync "gs://${SOURCE_BUCKET}/${PREFIX}" "gs://${TARGET_BUCKET}/${PREFIX}" \
+            --recursive --delete-unmatched-destination-objects
+
+      - name: Verify production reads the same index
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            "https://storage.googleapis.com/${TARGET_BUCKET}/${PREFIX}/index.json" > /tmp/promoted.json
+          if ! cmp -s /tmp/index.json /tmp/promoted.json; then
+            echo "::error::The promoted index differs from the one read from dev"
+            diff /tmp/index.json /tmp/promoted.json || true
+            exit 1
+          fi
+
+      - name: Summarise
+        run: |
+          {
+            echo "## Site documents promoted to prod"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Documents | ${{ steps.source.outputs.count }} |"
+            echo "| From | \`gs://${SOURCE_BUCKET}/${PREFIX}\` |"
+            echo "| To | \`gs://${TARGET_BUCKET}/${PREFIX}\` |"
+            echo
+            echo "The production site serves the new files within a minute (Cache-Control: max-age=60)."
+          } >> "$GITHUB_STEP_SUMMARY"

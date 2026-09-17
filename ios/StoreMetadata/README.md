@@ -30,9 +30,13 @@ passes every check in the script.
 
 ## Before the first submission
 
-- The app's store name is decided here and must match `CFBundleDisplayName`.
+- The app is **Vexi**. `CFBundleDisplayName` is exactly that, from
+  `PRODUCT_NAME` in `ios/Config/Base.xcconfig`. The store name here opens with
+  the same word and adds a descriptor after it, which the store permits and
+  search rewards; what it may not do is start with a different name than the
+  one under the icon.
 - `MARKETING_VERSION` is `0.1.0`; a listing at 0.1.0 reads as pre-release.
 - The privacy labels are filled from the table in
   [`docs/ios/release-checklist.md`](../../docs/ios/release-checklist.md), which
   maps them one to one onto `PrivacyInfo.xcprivacy`.
-- The support and marketing URLs point at the published site (`site/`).
+- The support and marketing URLs point at the published site (`web/`).

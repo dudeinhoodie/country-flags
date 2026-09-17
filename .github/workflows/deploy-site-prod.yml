@@ -1,0 +1,224 @@
+name: Deploy site prod
+
+# Production is promoted, never built.
+#
+# The only thing this workflow chooses is *when*: what it deploys is the exact
+# digest `site-dev` is already serving, so the page people were reading in
+# dev and the page that appears in production are the same bytes. Nothing
+# here rebuilds, and nothing here can deploy a commit that was never in dev.
+#
+# The documents are promoted separately (`promote-site-content-prod.yml`):
+# the image is the page, the bucket is what it reads, and the two move on
+# their own schedules.
+on:
+  workflow_dispatch:
+    inputs:
+      digest:
+        description: >-
+          Image digest to promote (sha256:…). Leave empty to promote whatever
+          site-dev is serving right now.
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+  deployments: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  REGION: europe-west3
+  SERVICE: site-prod
+  DEV_SERVICE: site-dev
+  REPOSITORY: country-flags
+  DOCUMENTS_UPSTREAM: https://storage.googleapis.com/country-flags-site-prod/documents
+
+concurrency:
+  group: deploy-site-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The approval gate. A production deploy waits for a person even when the
+    # workflow was started by one.
+    environment: production
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # A digest, always. A tag can be moved between the moment somebody
+      # decided to promote and the moment the revision starts, and "the image
+      # we tested" has to mean the same bytes or it means nothing.
+      - name: Resolve the image to promote
+        id: image
+        run: |
+          set -euo pipefail
+          target="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/site"
+          digest="${{ inputs.digest }}"
+          if [ -z "${digest}" ]; then
+            running="$(gcloud run services describe "${DEV_SERVICE}" \
+              --region "${REGION}" \
+              --format='value(spec.template.spec.containers[0].image)' 2>/dev/null || true)"
+            if [ -z "${running}" ]; then
+              echo "::error::Cloud Run service ${DEV_SERVICE} does not exist in ${REGION}"
+              exit 1
+            fi
+            digest="${running##*@}"
+            if [ "${digest}" = "${running}" ]; then
+              echo "::error::${DEV_SERVICE} is running a tag rather than a digest: ${running}"
+              exit 1
+            fi
+          fi
+          case "${digest}" in
+            sha256:*) ;;
+            *)
+              echo "::error::${digest} is not an image digest"
+              exit 1 ;;
+          esac
+          # It has to be in the registry production pulls from, and it has to
+          # be there already: promoting is not a licence to copy something new.
+          gcloud artifacts docker images describe "${target}@${digest}" >/dev/null
+          echo "reference=${target}@${digest}" >> "$GITHUB_OUTPUT"
+          echo "Promoting ${target}@${digest}"
+
+      - name: Note the revision serving now
+        id: before
+        run: |
+          set -euo pipefail
+          revision="$(gcloud run services describe "${SERVICE}" --region "${REGION}" \
+            --format='value(status.latestReadyRevisionName)' 2>/dev/null || true)"
+          if [ -z "${revision}" ]; then
+            echo "The service does not exist yet; this deploy creates it."
+          else
+            echo "Serving ${revision} before this deploy"
+          fi
+          echo "revision=${revision}" >> "$GITHUB_OUTPUT"
+
+      # Public by design: this is the address the shipped app's legal links
+      # point at. `--min-instances 0` until launch — the page is static nginx
+      # and starts in about a second, and an always-on instance is a cost
+      # the empty store build does not yet justify; raise it to 1 when the
+      # app is on the store (docs/13 §5).
+      - name: Deploy the revision
+        id: deploy
+        run: |
+          set -euo pipefail
+          gcloud run deploy "${SERVICE}" \
+            --region "${REGION}" \
+            --image "${{ steps.image.outputs.reference }}" \
+            --service-account "site-prod-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
+            --allow-unauthenticated \
+            --min-instances 0 \
+            --max-instances 10 \
+            --memory 256Mi \
+            --labels "deployment-env=prod,managed-by=github-actions" \
+            --set-env-vars "^;^SITE_ENVIRONMENT=prod;SITE_DOCUMENTS_UPSTREAM=${DOCUMENTS_UPSTREAM};SITE_APP_VERSION=${{ steps.image.outputs.reference }}" \
+            --quiet
+          revision="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.latestCreatedRevisionName)')"
+          echo "revision=${revision}" >> "$GITHUB_OUTPUT"
+          echo "Serving ${revision}"
+
+      - name: Resolve the site address
+        id: service
+        run: |
+          set -euo pipefail
+          url="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.url)')"
+          if [ -z "${url}" ]; then
+            echo "::error::Cloud Run service ${SERVICE} has no address after the deploy"
+            exit 1
+          fi
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      # An image that reports the wrong environment is the one mistake the
+      # runtime-config design exists to prevent — and in production it is the
+      # difference between an indexable policy and a `noindex` one.
+      - name: Smoke-test the revision
+        run: |
+          set -euo pipefail
+          url="${{ steps.service.outputs.url }}"
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent --show-error "${url}/config.json" | tee /tmp/config.json; then
+              break
+            fi
+            if [ "${attempt}" = "5" ]; then
+              echo "::error::${url}/config.json never answered"
+              exit 1
+            fi
+            sleep 5
+          done
+          grep -q '"environment": "prod"' /tmp/config.json
+
+          curl --fail --silent --show-error "${url}/" -o /tmp/index.html
+          grep -q '<title>Country Flags' /tmp/index.html
+
+          code="$(curl -sS -o /dev/null -w '%{http_code}' "${url}/documents/index.json" || true)"
+          case "${code}" in
+            200|404) echo "Documents answered ${code}" ;;
+            *)
+              echo "::error::${url}/documents/index.json answered ${code}"
+              exit 1 ;;
+          esac
+
+      - name: Roll back on failure
+        if: failure() && steps.before.outputs.revision != ''
+        run: |
+          set -euo pipefail
+          previous="${{ steps.before.outputs.revision }}"
+          echo "Routing traffic back to ${previous}"
+          gcloud run services update-traffic "${SERVICE}" --region "${REGION}" \
+            --to-revisions "${previous}=100" --quiet
+
+      - name: Record the deployment
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              auto_merge: false,
+              required_contexts: [],
+              description: 'Cloud Run site-prod',
+            });
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: 'success',
+              environment_url: '${{ steps.service.outputs.url }}',
+              description: 'Promoted the digest site-dev was serving',
+            });
+
+      - name: Summarise the deployment
+        if: always()
+        env:
+          IMAGE: ${{ steps.image.outputs.reference }}
+          REVISION: ${{ steps.deploy.outputs.revision }}
+          URL: ${{ steps.service.outputs.url }}
+          RESULT: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Site production deployment"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Result | \`${RESULT}\` |"
+            echo "| Environment | \`prod\` |"
+            echo "| Cloud Run revision | \`${REVISION:-not created}\` |"
+            echo "| Image | \`${IMAGE:-not resolved}\` |"
+            echo "| Site URL | ${URL:-unknown} |"
+            echo "| Documents | ${DOCUMENTS_UPSTREAM} |"
+          } >> "$GITHUB_STEP_SUMMARY"

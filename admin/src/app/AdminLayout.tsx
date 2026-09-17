@@ -3,6 +3,7 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
@@ -213,6 +214,15 @@ function AdminMenu() {
         to={routes.commerceSync}
         primaryText="Diagnostics"
         leftIcon={<SyncOutlinedIcon />}
+      />
+
+      {/* The public site: the documents the app links to. Not content and
+          not commerce — a policy has its own publish path (ADR-023). */}
+      <MenuSection label="Site" />
+      <Menu.Item
+        to={routes.siteDocuments}
+        primaryText="Documents"
+        leftIcon={<ArticleOutlinedIcon />}
       />
 
       {resources.users !== undefined && (

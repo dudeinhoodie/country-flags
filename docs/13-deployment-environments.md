@@ -341,6 +341,50 @@ production-консоль. Публикация в prod требует свое�
 (`content-publisher-prod`) с prod-секретами — та же схема, что в §6.2, с
 префиксом `prod-`.
 
+### 6.4. Публичный сайт и документы (ADR-023)
+
+Сайт — статический bundle в nginx-контейнере на Cloud Run, по образцу
+консоли: `site-dev` разворачивает `.github/workflows/deploy-site-dev.yml`
+после успешного `Site CI` на master, `site-prod` — вручную
+`.github/workflows/deploy-site-prod.yml` тем digest, что уже обслуживает
+`site-dev`. Оба workflow создают service, если его ещё нет.
+
+Документы сайта (политика, условия) редактируются в консоли и публикуются
+снимком — `documents/index.json` и `documents/<slug>.<locale>.json` — в
+ПУБЛИЧНЫЙ bucket среды; nginx сайта проксирует `/documents/` на него, и
+страница отвечает независимо от API. Пока нет `admin-prod`, prod получает
+те же файлы копией из dev: `.github/workflows/promote-site-content-prod.yml`
+(environment `production`).
+
+Создано один раз владельцем (15 сентября 2026):
+
+~~~text
+bucket: country-flags-site-dev, uniform access, europe-west3, allUsers → objectViewer
+bucket: country-flags-site-prod, то же
+service account: site-dev-runtime, site-prod-runtime (без ролей; identity ревизий)
+github-deployer → roles/iam.serviceAccountUser на обоих runtime-аккаунтах
+api-dev-runtime → roles/storage.objectAdmin на country-flags-site-dev
+HMAC-ключ api-dev-runtime → secrets dev-site-storage-access-key-id,
+  dev-site-storage-secret-access-key (secretAccessor выдан api-dev-runtime)
+~~~
+
+Осталось выдать владельцу: `github-deployer` → `roles/storage.objectAdmin`
+на `gs://country-flags-site-prod` (без этого промоушен снимка в prod не
+запишет ни одного файла) и GitHub environment `production` с required
+reviewers, на который завязаны оба prod-workflow:
+
+~~~bash
+gcloud storage buckets add-iam-policy-binding gs://country-flags-site-prod \
+  --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com \
+  --role=roles/storage.objectAdmin
+~~~
+
+Ревизия `api-dev` получает `SITE_OBJECT_STORAGE_*` и `SITE_PUBLIC_URL`
+(deploy-dev.yml); первые документы засеваются из
+`backend/seed/site-documents/` командой
+`corepack yarn site:documents:import --actor-email <admin> --publish` с
+переменными dev-среды.
+
 ## 7. Configuration contract
 
 Hosted environments требуют:
@@ -385,7 +429,12 @@ OTEL_EXPORTER_OTLP_ENDPOINT
 - SERVICE_RELEASE равен git SHA/image version;
 - logs/traces/metrics содержат deployment.environment.name;
 - секреты не передаются как Docker build args и не печатаются;
-- .env.example описывает только форму configuration.
+- .env.example описывает только форму configuration;
+- `SITE_OBJECT_STORAGE_*` (bucket снимка документов сайта, ADR-023) читает
+  running API: публикация из консоли пишет снимок оттуда. Provider без пары
+  `*_ACCESS_KEY_ID`/`*_SECRET_ACCESS_KEY` роняет ревизию на старте — env и
+  secrets задаются вместе; `SITE_PUBLIC_URL` необязателен и нужен только для
+  ссылки из консоли на страницу.
 
 ## 8. Pull request CI
 

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AssetStatus, AssetType } from "@prisma/client";
+import { AssetStatus, AssetType, PublicationStatus } from "@prisma/client";
 import type { ContentDraft, DraftAsset } from "@prisma/client";
 
 import { PrismaService } from "../../infrastructure/database/prisma.service";
@@ -9,6 +9,8 @@ import { AdminDraftsService } from "./admin-drafts.service";
 import { CARD_TEMPLATES } from "./deck-cards";
 import type { EditorialDeck, MembershipContext } from "./deck-membership";
 import { assetSlotKey, indexDraftReach } from "./draft-reach";
+import { publishedFactsOf } from "./published-facts";
+import type { PublishedFacts } from "./published-facts";
 import type { DraftDeckCard, DraftReachIndex } from "./draft-reach";
 import { withFindingRoutes } from "./draft-validation.service";
 import type {
@@ -70,6 +72,8 @@ export function localeCompleteness(
 export interface PublishedEntityContext {
   names: Map<string, string>;
   assetTypes: Set<AssetType>;
+  /** What the release already answers about the entity, in editor shape. */
+  facts: PublishedFacts;
 }
 
 /**
@@ -298,11 +302,13 @@ export class DraftReadModelService {
   }
 
   /**
-   * One query for the names and symbols the active release already carries.
+   * One query for the names, symbols and facts the active release carries.
    *
    * Names come back for every locale rather than only English: the entity
    * list has to say which locales are missing, and asking per row is exactly
-   * the N+1 this endpoint exists to avoid.
+   * the N+1 this endpoint exists to avoid. The facts ride the same query for
+   * the same reason — the editor shows them as placeholders on every field,
+   * so fetching them per entity would reintroduce what this method removes.
    */
   private async publishedContext(
     keys: string[],
@@ -322,6 +328,15 @@ export class DraftReadModelService {
           where: { status: AssetStatus.PUBLISHED },
           select: { assetType: true },
         },
+        facts: {
+          where: { status: PublicationStatus.PUBLISHED },
+          select: {
+            factType: true,
+            value: true,
+            unit: true,
+            observedAt: true,
+          },
+        },
       },
     });
     const byKey = new Map<string, PublishedEntityContext>();
@@ -329,6 +344,7 @@ export class DraftReadModelService {
       byKey.set(row.contentKey, {
         names: new Map(row.names.map((name) => [name.locale, name.value])),
         assetTypes: new Set(row.assets.map((asset) => asset.assetType)),
+        facts: publishedFactsOf(row.facts),
       });
     }
     return byKey;

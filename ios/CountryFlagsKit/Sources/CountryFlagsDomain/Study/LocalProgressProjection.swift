@@ -93,9 +93,10 @@ public enum LocalProgressProjection {
     /// was not counted until an hour after it came due. It existed because the
     /// scheduler brought a card back a minute after "again", so counting those
     /// returns made the queue refill inside the sitting the learner was already
-    /// in. The steps are an hour, three hours and a day now
-    /// (`fsrs-6-default-21-v2`), so a card that has come round is genuinely
-    /// waiting, and hiding it for another hour would hide real work.
+    /// in. The steps are three hours, three hours and a day now
+    /// (`fsrs-6-default-21-v3`, and no rung shorter than an hour since v2), so
+    /// a card that has come round is genuinely waiting, and hiding it for
+    /// another hour would hide real work.
     ///
     /// `LocalCardSelection` asks the same question when it decides which cards
     /// a session is owed, so the number a screen advertises and the cards a

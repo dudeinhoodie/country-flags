@@ -77,6 +77,14 @@ const FRANCE_DETAIL = {
     identifiers: { isoAlpha2: "FR" },
   },
   publishedNames: { en: "France", ru: "Франция" },
+  // The contract makes this required, and the editor reads it on every facts
+  // field. It carries values rather than `{}` so the stub exercises the
+  // placeholder the release fills in, which is the whole point of the field.
+  publishedFacts: {
+    capital: { en: "Paris", ru: "Париж" },
+    population: { value: 68_170_228, unit: "people", observedAt: "2025-01-01" },
+    area: { value: 551_695, unit: "km2" },
+  },
   draftRevision: 3,
   delivery: "PUBLIC",
   locales: NO_LOCALE_GAPS,
@@ -328,6 +336,38 @@ export async function stubApi(
     },
     "/api/v1/admin/commerce/entitlements": { items: [], total: 0 },
     "/api/v1/admin/commerce/offers": { items: [], total: 0 },
+    "/api/v1/admin/site/status": {
+      snapshotConfigured: true,
+      snapshotBaseUrl: "https://storage.googleapis.com/country-flags-site-dev",
+      siteUrl: "https://site-dev.example",
+      publishedCount: 1,
+    },
+    "/api/v1/admin/site/documents": {
+      items: [
+        {
+          slug: "privacy",
+          locale: "en",
+          title: "Privacy Policy",
+          revision: 3,
+          publishedVersion: 2,
+          publishedAt: "2026-09-14T10:00:00Z",
+          hasUnpublishedChanges: true,
+          updatedAt: "2026-09-14T10:00:00Z",
+          updatedByAdminUserId: ADMIN_USER.id,
+        },
+        {
+          slug: "terms",
+          locale: "ru",
+          title: "Условия использования",
+          revision: 1,
+          publishedVersion: null,
+          publishedAt: null,
+          hasUnpublishedChanges: true,
+          updatedAt: "2026-09-14T10:00:00Z",
+          updatedByAdminUserId: ADMIN_USER.id,
+        },
+      ],
+    },
     "/api/v1/admin/content/releases/runs": {
       activeVersion: "fixture-v1",
       current: null,

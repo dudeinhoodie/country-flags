@@ -2,7 +2,14 @@
 
 FROM node:26-bookworm-slim AS base
 
+# The base tag floats, but it is rebuilt on its own schedule rather than
+# Debian's, so a security fix exists in the archive for days before the image
+# carries it. The scan in CI compares against the archive and fails the build
+# meanwhile — two fixed HIGH CVEs in libpcre2 stopped every backend branch on
+# 12.09, none of them anything a branch had done. Upgrading here takes the
+# fixes when they are published instead of when the base is rebuilt.
 RUN apt-get update \
+  && apt-get upgrade --yes --no-install-recommends \
   && apt-get install --yes --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/*
 
@@ -19,6 +26,9 @@ COPY package.json yarn.lock .yarnrc.yml ./
 COPY admin/package.json admin/package.json
 COPY backend/package.json backend/package.json
 COPY contracts/package.json contracts/package.json
+# Every workspace manifest, or `--immutable` refuses the lockfile: the site
+# is built by its own image, but yarn resolves the whole monorepo at once.
+COPY web/package.json web/package.json
 COPY tools/asset-core/package.json tools/asset-core/package.json
 COPY tools/content-pipeline/package.json tools/content-pipeline/package.json
 COPY backend/prisma/schema.prisma backend/prisma/schema.prisma

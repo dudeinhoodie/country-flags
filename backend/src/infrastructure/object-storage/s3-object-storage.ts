@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   NoSuchKey,
@@ -10,7 +11,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 import type { ObjectStorageConfig } from "./object-storage.config";
-import type { ObjectStorage } from "./object-storage";
+import type { ObjectStorage, PutObjectOptions } from "./object-storage";
 
 const SHA256_METADATA_KEY = "sha256";
 
@@ -39,6 +40,7 @@ export class S3ObjectStorage implements ObjectStorage {
     key: string,
     body: Buffer,
     contentType: string,
+    options: PutObjectOptions = {},
   ): Promise<void> {
     await this.client.send(
       new PutObjectCommand({
@@ -46,12 +48,23 @@ export class S3ObjectStorage implements ObjectStorage {
         Key: key,
         Body: body,
         ContentType: contentType,
+        ...(options.cacheControl === undefined
+          ? {}
+          : { CacheControl: options.cacheControl }),
         Metadata: {
           [SHA256_METADATA_KEY]: createHash("sha256")
             .update(body)
             .digest("hex"),
         },
       }),
+    );
+  }
+
+  async deleteObject(key: string): Promise<void> {
+    // S3 answers 204 for a missing key, so nothing to catch: absent is the
+    // state this call asks for.
+    await this.client.send(
+      new DeleteObjectCommand({ Bucket: this.config.bucket, Key: key }),
     );
   }
 

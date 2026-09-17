@@ -77,9 +77,12 @@ public struct SettingsScreen: View {
             }
             .listRowBackground(rowBackground)
 
+            // Haptics alone. There was a sound switch beside it, stored and
+            // synced like this one and read by nothing: the app has never
+            // played a sound, and a switch that changes nothing reads as a
+            // switch that is broken. The preference still travels with the
+            // account so a build that does play sounds finds it set.
             Section {
-                Toggle(L10n.settingsSound, isOn: soundEnabled)
-                    .accessibilityIdentifier(AccessibilityIdentifier.settingsSound)
                 Toggle(L10n.settingsHaptics, isOn: hapticsEnabled)
                     .accessibilityIdentifier(AccessibilityIdentifier.settingsHaptics)
             } header: {
@@ -228,13 +231,6 @@ public struct SettingsScreen: View {
                 chosenSessionSize = size
                 Task { await store.setSessionSize(size) }
             }
-        )
-    }
-
-    private var soundEnabled: Binding<Bool> {
-        Binding(
-            get: { store.settings.soundEnabled },
-            set: { isOn in Task { await store.setSoundEnabled(isOn) } }
         )
     }
 

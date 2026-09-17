@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-09-15T10:00:00Z",
+  "documents": [
+    {
+      "slug": "privacy",
+      "locale": "en",
+      "title": "Privacy Policy",
+      "version": 1,
+      "publishedAt": "2026-09-15T10:00:00Z"
+    },
+    {
+      "slug": "privacy",
+      "locale": "ru",
+      "title": "Политика конфиденциальности",
+      "version": 1,
+      "publishedAt": "2026-09-15T10:00:00Z"
+    },
+    {
+      "slug": "terms",
+      "locale": "en",
+      "title": "Terms of Use",
+      "version": 1,
+      "publishedAt": "2026-09-15T10:00:00Z"
+    },
+    {
+      "slug": "terms",
+      "locale": "ru",
+      "title": "Условия использования",
+      "version": 1,
+      "publishedAt": "2026-09-15T10:00:00Z"
+    }
+  ]
+}

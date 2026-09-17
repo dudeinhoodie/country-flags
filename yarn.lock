@@ -907,6 +907,7 @@ __metadata:
     "@prisma/client": "npm:6.13.0"
     "@types/express": "npm:5.0.3"
     "@types/jest": "npm:29.5.14"
+    "@types/markdown-it": "npm:14.2.0"
     "@types/multer": "npm:2.2.0"
     "@types/node": "npm:22.17.0"
     "@types/supertest": "npm:7.2.1"
@@ -919,6 +920,7 @@ __metadata:
     helmet: "npm:^8.3.0"
     jest: "npm:29.7.0"
     jose: "npm:6.2.4"
+    markdown-it: "npm:15.0.2"
     prettier: "npm:3.6.2"
     prisma: "npm:6.13.0"
     reflect-metadata: "npm:0.2.2"
@@ -961,6 +963,34 @@ __metadata:
     ajv-formats: "npm:3.0.1"
     prettier: "npm:3.6.2"
     yaml: "npm:2.9.0"
+  languageName: unknown
+  linkType: soft
+
+"@country-flags/web@workspace:web":
+  version: 0.0.0-use.local
+  resolution: "@country-flags/web@workspace:web"
+  dependencies:
+    "@eslint/js": "npm:10.0.1"
+    "@testing-library/dom": "npm:10.4.1"
+    "@testing-library/jest-dom": "npm:7.0.1"
+    "@testing-library/react": "npm:16.3.2"
+    "@types/node": "npm:22.17.0"
+    "@types/react": "npm:19.2.18"
+    "@types/react-dom": "npm:19.2.4"
+    "@vitejs/plugin-react": "npm:6.1.0"
+    eslint: "npm:10.8.1"
+    eslint-config-prettier: "npm:10.1.8"
+    eslint-plugin-react-hooks: "npm:7.1.1"
+    globals: "npm:16.3.0"
+    jsdom: "npm:30.0.1"
+    prettier: "npm:3.6.2"
+    react: "npm:19.2.8"
+    react-dom: "npm:19.2.8"
+    react-router-dom: "npm:7.18.2"
+    typescript: "npm:5.8.3"
+    typescript-eslint: "npm:8.67.0"
+    vite: "npm:8.2.2"
+    vitest: "npm:4.1.11"
   languageName: unknown
   linkType: soft
 
@@ -3975,6 +4005,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/linkify-it@npm:^5":
+  version: 5.0.0
+  resolution: "@types/linkify-it@npm:5.0.0"
+  checksum: 10c0/7bbbf45b9dde17bf3f184fee585aef0e7342f6954f0377a24e4ff42ab5a85d5b806aaa5c8d16e2faf2a6b87b2d94467a196b7d2b85c9c7de2f0eaac5487aaab8
+  languageName: node
+  linkType: hard
+
+"@types/markdown-it@npm:14.2.0":
+  version: 14.2.0
+  resolution: "@types/markdown-it@npm:14.2.0"
+  dependencies:
+    "@types/linkify-it": "npm:^5"
+    "@types/mdurl": "npm:^2"
+  checksum: 10c0/60ff1a0495ef303310744566342c49b4b3e76fbdca82c5ec28d88731fc934b0c63335d25bca6133903c877f2c41c59cdfddefb3626c6ee0780b9573ddf6aefe4
+  languageName: node
+  linkType: hard
+
+"@types/mdurl@npm:^2":
+  version: 2.0.0
+  resolution: "@types/mdurl@npm:2.0.0"
+  checksum: 10c0/cde7bb571630ed1ceb3b92a28f7b59890bb38b8f34cd35326e2df43eebfc74985e6aa6fd4184e307393bad8a9e0783a519a3f9d13c8e03788c0f98e5ec869c5e
+  languageName: node
+  linkType: hard
+
 "@types/methods@npm:^1.1.4":
   version: 1.1.4
   resolution: "@types/methods@npm:1.1.4"
@@ -4972,6 +5026,13 @@ __metadata:
   version: 2.0.1
   resolution: "argparse@npm:2.0.1"
   checksum: 10c0/c5640c2d89045371c7cedd6a70212a04e360fd34d6edeae32f6952c63949e3525ea77dbec0289d8213a99bbaeab5abfa860b5c12cf88a2e6cf8106e90dd27a7e
+  languageName: node
+  linkType: hard
+
+"argparse@npm:^3.0.0":
+  version: 3.0.2
+  resolution: "argparse@npm:3.0.2"
+  checksum: 10c0/87691ce3e2d3a8063239d062ef749fd4182c986c7f0efbeb987b2344d9f0043391c497a2c2636541f454f141360e6ef1d4cda4dfd2ce18261e6367acd838fefc
   languageName: node
   linkType: hard
 
@@ -8787,6 +8848,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"linkify-it@npm:^6.0.0":
+  version: 6.1.0
+  resolution: "linkify-it@npm:6.1.0"
+  dependencies:
+    uc.micro: "npm:^3.0.0"
+  checksum: 10c0/9b2b25244088dc345698fae7d3801c505f001dd0fa052298236bbc49f34e9c744ea73b53801635909a6a411e3b046074b13047aba47b72e26922114a89fea691
+  languageName: node
+  linkType: hard
+
 "load-esm@npm:1.0.2":
   version: 1.0.2
   resolution: "load-esm@npm:1.0.2"
@@ -9013,6 +9083,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"markdown-it@npm:15.0.2":
+  version: 15.0.2
+  resolution: "markdown-it@npm:15.0.2"
+  dependencies:
+    argparse: "npm:^3.0.0"
+    entities: "npm:^8.0.0"
+    linkify-it: "npm:^6.0.0"
+    mdurl: "npm:^2.1.0"
+    punycode.js: "npm:^2.3.1"
+    uc.micro: "npm:^3.0.0"
+  bin:
+    markdown-it: bin/markdown-it.mjs
+  checksum: 10c0/a06c47578157bcb01fc161951254158d41386f5f7dc09d335453568c9a95bc58f7099fad235d5be92d8b29fe8672b25c9b809313b64df0eacebdda804c68ca09
+  languageName: node
+  linkType: hard
+
 "marked@npm:^4.3.0":
   version: 4.3.0
   resolution: "marked@npm:4.3.0"
@@ -9033,6 +9119,13 @@ __metadata:
   version: 2.27.1
   resolution: "mdn-data@npm:2.27.1"
   checksum: 10c0/eb8abf5d22e4d1e090346f5e81b67d23cef14c83940e445da5c44541ad874dc8fb9f6ca236e8258c3a489d9fb5884188a4d7d58773adb9089ac2c0b966796393
+  languageName: node
+  linkType: hard
+
+"mdurl@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "mdurl@npm:2.1.0"
+  checksum: 10c0/aed11a75b791d596c7104fa6a3d84680e87cd2bfdb32ecfe512e795481d40a64b21d627b325ffd58aadcd15faf7498ac06130b8f198ebec437aceeead24bd1b1
   languageName: node
   linkType: hard
 
@@ -10134,6 +10227,13 @@ __metadata:
     forwarded: "npm:0.2.0"
     ipaddr.js: "npm:1.9.1"
   checksum: 10c0/c3eed999781a35f7fd935f398b6d8920b6fb00bbc14287bc6de78128ccc1a02c89b95b56742bf7cf0362cc333c61d138532049c7dedc7a328ef13343eff81210
+  languageName: node
+  linkType: hard
+
+"punycode.js@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "punycode.js@npm:2.3.1"
+  checksum: 10c0/1d12c1c0e06127fa5db56bd7fdf698daf9a78104456a6b67326877afc21feaa821257b171539caedd2f0524027fa38e67b13dd094159c8d70b6d26d2bea4dfdb
   languageName: node
   linkType: hard
 
@@ -11917,6 +12017,13 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/39117e346ff8ebd87ae1510b3a77d5d92dae5a89bde588c747d25da5c146603a99c8ee588c7ef80faaf123d89ed46f6dbd918d534d641083177d5fac38b8a1cb
+  languageName: node
+  linkType: hard
+
+"uc.micro@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "uc.micro@npm:3.0.0"
+  checksum: 10c0/891907f5a389cdd48c5bad1a5516242a6db3a700620765b5bfe8b117a5632ccd276177382b0bd37aac85b56c90577840038cdd54f437dfbc30714cd2086a637a
   languageName: node
   linkType: hard
 

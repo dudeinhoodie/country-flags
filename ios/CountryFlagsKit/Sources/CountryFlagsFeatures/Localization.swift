@@ -203,7 +203,6 @@ public enum L10n {
 
     public static var settingsSessionSection: String { localized("settings.session") }
     public static var settingsFeedbackSection: String { localized("settings.feedback") }
-    public static var settingsSound: String { localized("settings.sound") }
     public static var settingsHaptics: String { localized("settings.haptics") }
     public static var settingsRemindersSection: String { localized("settings.reminders_section") }
     public static var settingsReminders: String { localized("settings.reminders") }
