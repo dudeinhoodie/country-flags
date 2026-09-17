@@ -106,7 +106,7 @@ describe("home", () => {
     );
     expect(screen.getByRole("heading", { name: "Документы" })).toBeVisible();
     expect(document.documentElement.lang).toBe("ru");
-    expect(document.title).toBe("Country Flags");
+    expect(document.title).toBe("Vexi");
   });
 
   it("says which stand this is unless it is production", async () => {
@@ -160,9 +160,9 @@ describe("document", () => {
     ).toBeVisible();
     expect(screen.getByText("Обновлено 15 сентября 2026 г.")).toBeVisible();
     expect(document.documentElement.lang).toBe("ru");
-    expect(document.title).toBe("Country Flags — Политика конфиденциальности");
+    expect(document.title).toBe("Vexi — Политика конфиденциальности");
     // The way back keeps the reader's language.
-    expect(screen.getByRole("link", { name: /Country Flags/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Vexi/ })).toHaveAttribute(
       "href",
       "/?lang=ru",
     );

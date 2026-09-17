@@ -1,6 +1,6 @@
-# Country Flags site
+# Vexi site
 
-The public website of Country Flags: today the legal documents the iOS app
+The public website of Vexi: today the legal documents the iOS app
 links to (privacy policy, terms of use), later the web quiz. One Vite + React
 page in the app's own visual language — the dark scene, glass panels and
 capsules of ADR-012 — and nothing else: no external fonts, no analytics, no
