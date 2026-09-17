@@ -5,6 +5,7 @@
 CF_APP_ENVIRONMENT = mock
 CF_API_BASE_URL =
 CF_BUNDLE_ID_SUFFIX = .mock
+CF_APPICON_SUFFIX = -Mock
 PRODUCT_NAME = CountryFlags Mock
 
 // `MOCK` used to be defined here and was read by nothing. What decides

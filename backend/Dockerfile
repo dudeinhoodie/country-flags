@@ -2,7 +2,14 @@
 
 FROM node:26-bookworm-slim AS base
 
+# The base tag floats, but it is rebuilt on its own schedule rather than
+# Debian's, so a security fix exists in the archive for days before the image
+# carries it. The scan in CI compares against the archive and fails the build
+# meanwhile — two fixed HIGH CVEs in libpcre2 stopped every backend branch on
+# 12.09, none of them anything a branch had done. Upgrading here takes the
+# fixes when they are published instead of when the base is rebuilt.
 RUN apt-get update \
+  && apt-get upgrade --yes --no-install-recommends \
   && apt-get install --yes --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/*
 
