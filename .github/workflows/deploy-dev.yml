@@ -208,7 +208,7 @@ jobs:
             --image "${{ steps.image.outputs.reference }}" \
             --service-account "api-dev-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
             --labels "release=${{ steps.commit.outputs.sha }},deployment-env=dev,managed-by=github-actions" \
-            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};MIGRATION_VERSION=${{ steps.migration.outputs.version }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS};ADMIN_DRAFT_OBJECT_STORAGE_PROVIDER=s3;ADMIN_DRAFT_OBJECT_STORAGE_BUCKET=${DRAFT_BUCKET};ADMIN_DRAFT_OBJECT_STORAGE_REGION=${REGION};ADMIN_DRAFT_OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;ADMIN_DRAFT_OBJECT_STORAGE_FORCE_PATH_STYLE=true;ADMIN_DRAFT_OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${DRAFT_BUCKET};ADMIN_GITHUB_OWNER=${ADMIN_GITHUB_OWNER};ADMIN_GITHUB_REPOSITORY=${ADMIN_GITHUB_REPOSITORY};PUBLISHER_JOB_PROJECT=${PROJECT_ID};PUBLISHER_JOB_REGION=${REGION};PUBLISHER_JOB_NAME=${PUBLISHER_JOB}" \
+            --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${{ steps.commit.outputs.sha }};MIGRATION_VERSION=${{ steps.migration.outputs.version }};PUBLIC_BASE_URL=${{ steps.service.outputs.url }};AUTH_ACCESS_TOKEN_ISSUER=country-flags-dev;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_ALLOWED_ORIGINS=${ADMIN_ALLOWED_ORIGINS};ADMIN_DRAFT_OBJECT_STORAGE_PROVIDER=s3;ADMIN_DRAFT_OBJECT_STORAGE_BUCKET=${DRAFT_BUCKET};ADMIN_DRAFT_OBJECT_STORAGE_REGION=${REGION};ADMIN_DRAFT_OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;ADMIN_DRAFT_OBJECT_STORAGE_FORCE_PATH_STYLE=true;ADMIN_DRAFT_OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${DRAFT_BUCKET};ADMIN_GITHUB_OWNER=${ADMIN_GITHUB_OWNER};ADMIN_GITHUB_REPOSITORY=${ADMIN_GITHUB_REPOSITORY};PUBLISHER_JOB_PROJECT=${PROJECT_ID};PUBLISHER_JOB_REGION=${REGION};PUBLISHER_JOB_NAME=${PUBLISHER_JOB};COMMERCE_APPLE_BUNDLE_ID=${COMMERCE_APPLE_BUNDLE_ID};COMMERCE_APPLE_ROOT_CERTIFICATES=${COMMERCE_APPLE_ROOT_CERTIFICATES};PAID_CONTENT_MINIMUM_CLIENT_VERSIONS=${PAID_CONTENT_MINIMUM_CLIENT_VERSIONS}" \
             --set-secrets "DATABASE_URL=dev-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,AUTH_ACCESS_TOKEN_SECRET=dev-auth-access-token-secret:latest,AUTH_RATE_LIMIT_SECRET=dev-auth-rate-limit-secret:latest,ACCOUNT_DATA_HASH_SECRET=dev-account-data-hash-secret:latest,ADMIN_EMAIL_ALLOWLIST=dev-admin-email-allowlist:latest,ADMIN_DRAFT_OBJECT_STORAGE_ACCESS_KEY_ID=dev-admin-draft-storage-access-key-id:latest,ADMIN_DRAFT_OBJECT_STORAGE_SECRET_ACCESS_KEY=dev-admin-draft-storage-secret-access-key:latest,ADMIN_GITHUB_TOKEN=dev-admin-github-token:latest" \
             --quiet
           revision="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.latestCreatedRevisionName)')"
@@ -261,6 +261,52 @@ jobs:
           # (ADR-017 §1, §3). Env validation refuses a deploy carrying some
           # of the three but not all.
           PUBLISHER_JOB: content-publisher-dev
+          # The app record a Sandbox transaction must have been signed for.
+          # Dev sells against its own App Store Connect record: the same
+          # product id under the production bundle is a different product, and
+          # a transaction signed for one opens nothing under the other. Which
+          # store this is talking to is not set here and cannot be —
+          # DEPLOYMENT_ENV decides it (dev means Sandbox), so no configuration
+          # mistake can carry a Sandbox purchase into production or back.
+          COMMERCE_APPLE_BUNDLE_ID: app.countryflags.mobile.dev
+          # The root every Sandbox and Production JWS chains back to: "Apple
+          # Root CA - G3", valid until 2039-04-30, SHA-256
+          # 63:34:3A:BF:B8:9A:6A:03:EB:B5:7E:9B:3F:5F:A7:BE:
+          # 7C:4F:5C:75:6F:30:17:B3:A8:C4:88:C3:65:3E:91:79, taken as DER from
+          # https://www.apple.com/certificateauthority/AppleRootCA-G3.cer and
+          # base64-encoded. Public configuration rather than a credential, so
+          # it is reviewable here instead of living in Secret Manager — but it
+          # is also what decides which signatures are believed, so it is
+          # replaced only against that fingerprint.
+          #
+          # Without it a Sandbox deployment counts as unconfigured and answers
+          # every submitted transaction with STORE_NOT_CONFIGURED.
+          #
+          # COMMERCE_APPLE_APP_APPLE_ID is deliberately absent: only production
+          # needs it, and dev has no App Store record to read one from yet.
+          # The App Store Server API key (COMMERCE_APPLE_IAP_*) is absent for a
+          # different reason — it can ask Apple about anybody's purchases, no
+          # request path touches it, and it belongs to the reconciliation job,
+          # which reads it straight from Secret Manager.
+          COMMERCE_APPLE_ROOT_CERTIFICATES: MIICQzCCAcmgAwIBAgIILcX8iNLFS5UwCgYIKoZIzj0EAwMwZzEbMBkGA1UEAwwSQXBwbGUgUm9vdCBDQSAtIEczMSYwJAYDVQQLDB1BcHBsZSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTETMBEGA1UECgwKQXBwbGUgSW5jLjELMAkGA1UEBhMCVVMwHhcNMTQwNDMwMTgxOTA2WhcNMzkwNDMwMTgxOTA2WjBnMRswGQYDVQQDDBJBcHBsZSBSb290IENBIC0gRzMxJjAkBgNVBAsMHUFwcGxlIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MRMwEQYDVQQKDApBcHBsZSBJbmMuMQswCQYDVQQGEwJVUzB2MBAGByqGSM49AgEGBSuBBAAiA2IABJjpLz1AcqTtkyJygRMc3RCV8cWjTnHcFBbZDuWmBSp3ZHtfTjjTuxxEtX/1H7YyYl3J6YRbTzBPEVoA/VhYDKX1DyxNB0cTddqXl5dvMVztK517IDvYuVTZXpmkOlEKMaNCMEAwHQYDVR0OBBYEFLuw3qFYM4iapIqZ3r6966/ayySrMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEGMAoGCCqGSM49BAMDA2gAMGUCMQCD6cHEFl4aXTQY2e3v9GwOAEZLuN+yRhHFD/3meoyhpmvOwgPUnPWTxnS4at+qIxUCMG1mihDK1A3UT82NQz60imOlM27jbdoXt2QfyFMm+YhidDkLF1vLUagM6BgD56KyKA==
+          # The first iOS build that understands Deck.access (docs/17 §20). A
+          # build below this — and any caller that will not say what it is —
+          # is served the catalog it has always seen: free decks only, 404 on
+          # a paid one, no change event announcing one. Nothing is refused, so
+          # an old free app keeps working.
+          #
+          # Not the content release's minimum_client_version, which puts an
+          # update screen in front of the whole catalogue; this one only
+          # decides who is told that paid decks exist.
+          #
+          # 0.2.0 is what every scheme builds (ios/Config/App.xcconfig) and it
+          # predates the StoreKit work, so here it means "a build from master"
+          # rather than a particular release — acceptable on dev, where the
+          # only clients are ones we rebuild. Production must not copy this
+          # value: its gate has to name a version bumped for the StoreKit
+          # client, or an older build would be handed a locked deck and would
+          # show it as free.
+          PAID_CONTENT_MINIMUM_CLIENT_VERSIONS: ios=0.2.0
 
       # Deployed is not the same as working. The revision has to answer before
       # the run is called a success, or a broken image would be reported green.
