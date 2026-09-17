@@ -4390,23 +4390,6 @@
         }
       }
     },
-    "settings.sound": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sound"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Звук"
-          }
-        }
-      }
-    },
     "settings.title": {
       "extractionState": "manual",
       "localizations": {
