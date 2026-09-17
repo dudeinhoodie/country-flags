@@ -288,13 +288,14 @@ final class LocalSchedulerProjectionTests: XCTestCase {
         XCTAssertLessThan(good, easy)
         XCTAssertLessThanOrEqual(easy, 3 * 24 * 60 * 60)
         // The floor the backend's ladder sets: nothing offline may promise a
-        // card sooner than the server would ask for it.
-        XCTAssertGreaterThanOrEqual(again, 60 * 60)
+        // card sooner than the server would ask for it, and the server's
+        // first rung is three hours (ADR-022).
+        XCTAssertGreaterThanOrEqual(again, 3 * 60 * 60)
         for rating in StudyRating.allCases {
             XCTAssertGreaterThanOrEqual(
                 LocalSchedulerProjection.interval(base: nil, rating: rating),
-                60 * 60,
-                "a first answer must not come back inside the hour either"
+                3 * 60 * 60,
+                "a first answer must not come back inside three hours either"
             )
         }
     }
