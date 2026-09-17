@@ -28,7 +28,8 @@
     "content:bundle:publish": "ts-node src/cli/content-bundle-publish.ts",
     "content:bundle:rollback": "ts-node src/cli/content-bundle-rollback.ts",
     "content:bundle:sign": "ts-node src/cli/content-bundle-sign.ts",
-    "commerce:reconcile": "ts-node src/cli/commerce-reconcile.ts"
+    "commerce:reconcile": "ts-node src/cli/commerce-reconcile.ts",
+    "site:documents:import": "ts-node src/cli/site-documents-import.ts"
   },
   "dependencies": {
     "@apple/app-store-server-library": "3.1.0",
@@ -53,6 +54,7 @@
     "dotenv": "17.4.2",
     "helmet": "^8.3.0",
     "jose": "6.2.4",
+    "markdown-it": "15.0.2",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "ts-fsrs": "5.4.1"
@@ -63,6 +65,7 @@
     "@nestjs/testing": "11.1.6",
     "@types/express": "5.0.3",
     "@types/jest": "29.5.14",
+    "@types/markdown-it": "14.2.0",
     "@types/multer": "2.2.0",
     "@types/node": "22.17.0",
     "@types/supertest": "7.2.1",

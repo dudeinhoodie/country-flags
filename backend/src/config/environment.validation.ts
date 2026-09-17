@@ -80,6 +80,12 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   COMMERCE_APPLE_IAP_PRIVATE_KEY: string;
   PAID_CONTENT_MINIMUM_CLIENT_VERSIONS: MinimumClientVersions;
   SHUTDOWN_DRAIN_MS: number;
+  /**
+   * The public site this deployment's documents appear on, for the link
+   * from the console to the page (ADR-023). Null when nobody has said: the
+   * console then shows the snapshot address instead of guessing a site.
+   */
+  SITE_PUBLIC_URL: string | null;
 }
 
 const TEST_PROVIDER_SECRET =
@@ -848,5 +854,12 @@ export function validateEnvironment(
       0,
       30_000,
     ),
+    // Optional on purpose: the site is its own deployment, and a backend
+    // that does not know its address still edits and publishes documents.
+    SITE_PUBLIC_URL:
+      typeof config.SITE_PUBLIC_URL === "string" &&
+      config.SITE_PUBLIC_URL.trim().length > 0
+        ? validateHttpUrl(config.SITE_PUBLIC_URL.trim(), "SITE_PUBLIC_URL")
+        : null,
   };
 }

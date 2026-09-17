@@ -14,6 +14,9 @@ COPY package.json yarn.lock .yarnrc.yml ./
 COPY admin/package.json admin/package.json
 COPY backend/package.json backend/package.json
 COPY contracts/package.json contracts/package.json
+# Every workspace manifest, or `--immutable` refuses the lockfile: the site
+# is built by its own image, but yarn resolves the whole monorepo at once.
+COPY web/package.json web/package.json
 COPY tools/asset-core/package.json tools/asset-core/package.json
 COPY tools/content-pipeline/package.json tools/content-pipeline/package.json
 COPY backend/prisma/schema.prisma backend/prisma/schema.prisma

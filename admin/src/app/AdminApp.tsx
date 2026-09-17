@@ -32,6 +32,8 @@ import { DraftOverview } from "../resources/drafts/DraftOverview";
 import { DraftRelease } from "../resources/drafts/DraftRelease";
 import { EntityShow } from "../resources/entities/EntityShow";
 import { ReleasesPage } from "../resources/releases/ReleasesPage";
+import { SiteDocumentEditor } from "../resources/site/SiteDocumentEditor";
+import { SiteDocumentsPage } from "../resources/site/SiteDocumentsPage";
 import { AdminLayout } from "./AdminLayout";
 import { createAuthProvider } from "./auth-provider";
 import { ContentWorkspace } from "./ContentWorkspace";
@@ -198,6 +200,16 @@ export function AdminApp({ config }: { config: RuntimeConfig }) {
                   element={<StoreProductsPage />}
                 />
                 <Route path="/commerce/sync" element={<StoreSyncPage />} />
+
+                {/* The site's documents are their own section rather than
+                    a draft: a policy is not catalog content, it does not
+                    ride a content release, and its publish path is its own
+                    (ADR-023). */}
+                <Route path="/site/documents" element={<SiteDocumentsPage />} />
+                <Route
+                  path="/site/documents/:slug/:locale"
+                  element={<SiteDocumentEditor />}
+                />
 
                 {/* Bookmarks and audit-log links from before the redesign
                     keep resolving (§4.3). */}

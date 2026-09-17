@@ -336,6 +336,38 @@ export async function stubApi(
     },
     "/api/v1/admin/commerce/entitlements": { items: [], total: 0 },
     "/api/v1/admin/commerce/offers": { items: [], total: 0 },
+    "/api/v1/admin/site/status": {
+      snapshotConfigured: true,
+      snapshotBaseUrl: "https://storage.googleapis.com/country-flags-site-dev",
+      siteUrl: "https://site-dev.example",
+      publishedCount: 1,
+    },
+    "/api/v1/admin/site/documents": {
+      items: [
+        {
+          slug: "privacy",
+          locale: "en",
+          title: "Privacy Policy",
+          revision: 3,
+          publishedVersion: 2,
+          publishedAt: "2026-09-14T10:00:00Z",
+          hasUnpublishedChanges: true,
+          updatedAt: "2026-09-14T10:00:00Z",
+          updatedByAdminUserId: ADMIN_USER.id,
+        },
+        {
+          slug: "terms",
+          locale: "ru",
+          title: "Условия использования",
+          revision: 1,
+          publishedVersion: null,
+          publishedAt: null,
+          hasUnpublishedChanges: true,
+          updatedAt: "2026-09-14T10:00:00Z",
+          updatedByAdminUserId: ADMIN_USER.id,
+        },
+      ],
+    },
     "/api/v1/admin/content/releases/runs": {
       activeVersion: "fixture-v1",
       current: null,

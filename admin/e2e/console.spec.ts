@@ -209,3 +209,24 @@ test("keeps the summary rail beside the work on a 1280px desktop", async ({
   // The drawer's opener belongs to the narrow layout only.
   await expect(page.getByRole("button", { name: "Summary" })).toBeHidden();
 });
+
+test("lists the site's documents with what the site serves", async ({
+  page,
+}) => {
+  await stubApi(page);
+  await page.goto("/");
+  await page.getByRole("menuitem", { name: "Documents" }).click();
+  await expect(page).toHaveURL(/#\/site\/documents$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Site documents" }),
+  ).toBeVisible();
+  const privacy = page.getByRole("row", { name: /privacy/ });
+  await expect(privacy).toContainText("Published · v2");
+  await expect(privacy).toContainText("Draft changes");
+  await expect(
+    privacy.getByRole("link", { name: "On the site" }),
+  ).toHaveAttribute("href", "https://site-dev.example/privacy?lang=en");
+  await expect(page.getByRole("row", { name: /terms/ })).toContainText(
+    "Not published",
+  );
+});

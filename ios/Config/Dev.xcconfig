@@ -9,6 +9,11 @@ CF_APP_ENVIRONMENT = dev
 CF_API_BASE_URL = https:/$()/api-dev-337239833704.europe-west3.run.app
 CF_BUNDLE_ID_SUFFIX = .dev
 
+// The dev site serves the documents the dev console publishes (ADR-023).
+// One address per document; the app adds `?lang=` when it opens one.
+CF_PRIVACY_POLICY_URL = https:/$()/site-dev-337239833704.europe-west3.run.app/privacy
+CF_TERMS_URL = https:/$()/site-dev-337239833704.europe-west3.run.app/terms
+
 // The dev Google OAuth clients. Public identifiers, not secrets: the iOS one
 // names this app to Google, the server one is the audience the backend
 // verifies, and the scheme is the iOS identifier reversed -- the road back

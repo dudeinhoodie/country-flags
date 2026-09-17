@@ -1077,13 +1077,17 @@ Alerts:
 
 До релиза MUST обновить:
 
-- `site/privacy.html` и `site/privacy.ru.html`;
-- `site/terms.html` и `site/terms.ru.html`;
+- документы сайта `privacy` и `terms` в обоих языках — в консоли (Site →
+  Documents) и публикацией снимка (ADR-023); стартовые тексты для новой среды
+  лежат в `backend/seed/site-documents/`;
 - `ios/StoreMetadata/en.md` и `ios/StoreMetadata/ru.md`;
 - `ios/StoreMetadata/review-notes.md`;
 - App Store Connect App Privacy answers.
 
-Сейчас публичные тексты явно утверждают, что покупок нет (`site/terms.html:27`, `ios/StoreMetadata/en.md:38`), поэтому включать StoreKit без их изменения нельзя.
+Тексты политики и условий уже описывают разовые покупки (разделы «In-app
+purchases» и «Purchases» в `backend/seed/site-documents/`); проверить перед
+релизом нужно, что опубликованные в консоли версии совпадают с ними, и что
+`ios/StoreMetadata/en.md` больше не утверждает, будто покупок нет.
 
 Privacy disclosure:
 
