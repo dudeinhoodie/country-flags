@@ -111,8 +111,18 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             archive
 
+      # Found rather than spelled: the bundle inside the archive is named by
+      # PRODUCT_NAME, which a rename moves.
       - name: Check what the release build carries
-        run: ./Scripts/check-release-app.sh build/CountryFlags-nightly.xcarchive/Products/Applications/CountryFlags.app
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          apps=(build/CountryFlags-nightly.xcarchive/Products/Applications/*.app)
+          if [ "${#apps[@]}" -ne 1 ]; then
+            echo "::error::expected one .app in the archive, found ${#apps[@]}"
+            exit 1
+          fi
+          ./Scripts/check-release-app.sh "${apps[0]}"
 
       # Kept whether it passed or not: a green nightly is evidence too, and the
       # release checklist asks for it by name.

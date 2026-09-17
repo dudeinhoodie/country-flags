@@ -5,7 +5,12 @@
 // uncommitted Local.xcconfig; see Local.xcconfig.example.
 #include? "Local.xcconfig"
 
-PRODUCT_NAME = CountryFlags
+// The name on the home screen and in the store. App-Info.plist feeds it to
+// both CFBundleDisplayName and CFBundleName, so this is the only place it is
+// written. The bundle id below keeps its original spelling on purpose: the
+// app has an App Store Connect record under it, and an identifier is not a
+// name — renaming it would be a different app, not a renamed one.
+PRODUCT_NAME = Vexi
 CF_BUNDLE_ID_BASE = app.countryflags.mobile
 
 // Google OAuth clients. Empty until the console credentials exist for the

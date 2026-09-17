@@ -5,7 +5,7 @@ decision nobody has made yet, not a value to paste.
 
 ## Name (30 characters)
 
-Country Flags
+Vexi — Flags of the World
 
 ## Subtitle (30 characters)
 

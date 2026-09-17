@@ -1,0 +1,74 @@
+[
+  {
+    "variant": "vexi-country-rounded-v2",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha_range": [
+      0,
+      253
+    ],
+    "output_size": [
+      1024,
+      1024
+    ],
+    "mode": "RGB",
+    "profile": "sRGB",
+    "sha256": "f0b07c1ae92205c8c9eada111795342d2829ac94dd74dcde70e08dcb789be878"
+  },
+  {
+    "variant": "vexi-country-angular-v2",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha_range": [
+      0,
+      253
+    ],
+    "output_size": [
+      1024,
+      1024
+    ],
+    "mode": "RGB",
+    "profile": "sRGB",
+    "sha256": "0a5552aff62ed2a1cf57f1cadb600b1253de37bf12f80b45581a5632d1798bb0"
+  },
+  {
+    "variant": "vexi-continents-filled-v1",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha_range": [
+      0,
+      253
+    ],
+    "output_size": [
+      1024,
+      1024
+    ],
+    "mode": "RGB",
+    "profile": "sRGB",
+    "sha256": "d9ef2700c15a4f1d49c299de56d0f12acff97cf9c779fe090a470a47bf2ec29a"
+  },
+  {
+    "variant": "vexi-continents-relief-v1",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha_range": [
+      0,
+      253
+    ],
+    "output_size": [
+      1024,
+      1024
+    ],
+    "mode": "RGB",
+    "profile": "sRGB",
+    "sha256": "ccab533c4326788bd69f924aad9ec3e3bfc2cd255b960a1242e3e8fdb60d1e65"
+  }
+]

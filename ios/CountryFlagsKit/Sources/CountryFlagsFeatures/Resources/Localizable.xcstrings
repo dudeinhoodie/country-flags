@@ -1556,13 +1556,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bought it on another device? Sign in to the same Country Flags account and restore the purchase."
+            "value": "Bought it on another device? Sign in to the same Vexi account and restore the purchase."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Уже купили на другом устройстве? Войдите в тот же аккаунт Country Flags и восстановите покупку."
+            "value": "Уже купили на другом устройстве? Войдите в тот же аккаунт Vexi и восстановите покупку."
           }
         }
       }
@@ -4447,13 +4447,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Country Flags"
+            "value": "Vexi"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Флаги стран"
+            "value": "Vexi"
           }
         }
       }
