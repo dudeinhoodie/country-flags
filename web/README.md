@@ -47,9 +47,12 @@ rather than as an error.
 `favicon-32x32.png`, `apple-touch-icon.png` (180 px) and the 192 and 512 px
 PNGs that `manifest.json` names. All of them are the app icon
 (`ios/CountryFlagsApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`)
-cut down by hand by the owner; there is no script, and no vector, because the
-app icon itself is a raster (`design/app-icon/README.md`). When the app icon
-changes, the set is regenerated from the new 1024 px PNG and replaced here.
+cut down by hand by the owner; the full set, with the 16 and 48 px PNGs the
+`.ico` also carries, is kept in `design/favicon/`, and `public/` holds the
+copies the page links. There is no script, and no vector, because the app icon
+itself is a raster (`design/app-icon/README.md`). When the app icon changes,
+the set is regenerated from the new 1024 px PNG, replaced in `design/favicon/`
+and copied here again.
 
 ## Addresses and language
 
