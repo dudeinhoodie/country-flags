@@ -53,6 +53,20 @@ public struct BundledContentSeed: Hashable, Sendable {
         self.manifest = manifest
         self.page = page
     }
+
+    /// What a seeded release's version starts with.
+    ///
+    /// `ios/Scripts/sync-bundled-catalog.mjs` writes `bundled:<release>`, and
+    /// the marker is what tells a release nobody published from one a server
+    /// did. Named here because two decisions turn on it: the seed is never
+    /// mistaken for the truth, and the work done on it is carried onto the
+    /// release that supersedes it (#404).
+    public static let versionPrefix = "bundled:"
+
+    /// Whether a stored release is one a build seeded itself with.
+    public static func isSeeded(version: String) -> Bool {
+        version.hasPrefix(versionPrefix)
+    }
 }
 
 /// Where an interrupted download resumes.

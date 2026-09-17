@@ -214,6 +214,11 @@ struct AppComposition: AppDependencies {
             logger: logger
         )
         let contentRepository = store.makeContentRepository()
+        // Whatever the carry below could not place, so the progress screen can
+        // say so once rather than a number quietly going down. Written by the
+        // bootstrap and read by the progress store, which is why it is built
+        // here and handed to both.
+        let strandedNotices = UserDefaultsStrandedProgressNoticeStore()
         // The scale of the screen this app is running on, read once at
         // assembly: it decides which raster every asset record points at, and
         // it cannot change under a running app.
@@ -253,7 +258,12 @@ struct AppComposition: AppDependencies {
             bundledCatalog: ContentBootstrapCoordinator.shippedCatalog(
                 displayScale: displayScale,
                 dates: dates
-            )
+            ),
+            // The seed is stored under identifiers no server issued, so the
+            // release that supersedes it renumbers every card the learner has
+            // worked on. This moves the work across in the same breath (#404).
+            progressCarry: store.makeProgressCarry(),
+            strandedNotices: strandedNotices
         )
 
         // The guest's work follows its owner: the coordinator reads the guest
@@ -344,7 +354,12 @@ struct AppComposition: AppDependencies {
         // Built here rather than per screen: the counts belong to the app,
         // and four screens each building their own is how the same deck came
         // to be worth different numbers in different places.
-        let progress = makeProgressStore(store: store, scopes: sessions, dates: dates)
+        let progress = makeProgressStore(
+            store: store,
+            scopes: sessions,
+            strandedNotices: strandedNotices,
+            dates: dates
+        )
         let sync = SyncCenter(
             coordinator: syncCoordinator,
             scopes: sessions,
@@ -538,12 +553,14 @@ struct AppComposition: AppDependencies {
     static func makeProgressStore(
         store: LocalStore,
         scopes: any AccountScopeResolving,
+        strandedNotices: any StrandedProgressNoticing,
         dates: any DateProviding
     ) -> ProgressStore {
         ProgressStore(
             content: store.makeContentRepository(),
             learning: store.makeLearningRepository(),
             scopes: scopes,
+            strandedNotices: strandedNotices,
             dates: dates
         )
     }

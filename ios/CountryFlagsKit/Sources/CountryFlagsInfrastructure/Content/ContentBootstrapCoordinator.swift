@@ -106,6 +106,15 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
     /// a device that already has a release never pays for it — and so a build
     /// with no bundled catalogue, or a test that wants none, passes nothing.
     private let bundledCatalog: @Sendable () -> BundledContentSeed?
+    /// Moves the learner's work onto the identifiers of an arriving release.
+    ///
+    /// Nil in a build that has no store to move anything in — a preview, a
+    /// test about the download alone — and the supersession then behaves the
+    /// way it did before #404.
+    private let progressCarry: (any ProgressCarrying)?
+    /// Where the work that could not be moved is written down, so a screen can
+    /// say so rather than only a log.
+    private let strandedNotices: any StrandedProgressNoticing
 
     private var status = ContentSyncStatus()
     /// Templates already reported, by `CODE@vN`. Once per pair per run: a
@@ -123,7 +132,9 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         pageLimit: Int = 100,
         entitlementKeys: @escaping @Sendable () async -> Set<String> = { [] },
         errors: (any ErrorReporting)? = nil,
-        bundledCatalog: @escaping @Sendable () -> BundledContentSeed? = { nil }
+        bundledCatalog: @escaping @Sendable () -> BundledContentSeed? = { nil },
+        progressCarry: (any ProgressCarrying)? = nil,
+        strandedNotices: any StrandedProgressNoticing = NoStrandedProgressNotices()
     ) {
         self.service = service
         self.repository = repository
@@ -135,6 +146,8 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
         self.entitlementKeys = entitlementKeys
         self.errors = errors
         self.bundledCatalog = bundledCatalog
+        self.progressCarry = progressCarry
+        self.strandedNotices = strandedNotices
     }
 
     /// The catalogue this build ships, in the language this device reads and
@@ -433,6 +446,11 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             staging = try await applyNextPage(of: manifest, staging: staging, locale: locale)
         }
 
+        // Before the commit, while both releases are still in the store and
+        // the outgoing one is still what every read answers from. After it,
+        // the counts would be empty for as long as this took — and a crash in
+        // between would leave them empty for good, which is the whole of #404.
+        await carryProgress(from: current, to: manifest)
         try await repository.commitRelease(manifest: manifest)
         logger.log(
             .info,
@@ -440,6 +458,74 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
             "Applied a content release",
             ["contentVersion": .safe(manifest.contentVersion)]
         )
+    }
+
+    /// Moves the work done on the seeded catalogue onto the release that is
+    /// about to supersede it.
+    ///
+    /// Only the seed. A backend allocates a content identifier once and keeps
+    /// it, so an ordinary release renumbers nothing and there is nothing to
+    /// carry; the seed is the one release whose identifiers no server ever
+    /// issued, and ADR-021 made that the common case by putting it on every
+    /// first launch. Widening this to every release change would be inventing
+    /// a renumbering the backend does not do.
+    ///
+    /// Best-effort on purpose: a store that will not take the rewrite is not a
+    /// reason to refuse the release. The catalogue arriving is worth more than
+    /// the counts, and the next launch tries again — the seeded release is
+    /// still current until the commit below.
+    private func carryProgress(
+        from superseded: ContentManifestRecord?,
+        to arriving: ContentManifestRecord
+    ) async {
+        guard let progressCarry,
+            let superseded,
+            BundledContentSeed.isSeeded(version: superseded.contentVersion),
+            superseded.contentVersion != arriving.contentVersion
+        else { return }
+        do {
+            let mapping = ContentIdentityMapping.between(
+                superseded: try await repository.releaseContents(
+                    version: superseded.contentVersion
+                ),
+                arriving: try await repository.releaseContents(version: arriving.contentVersion)
+            )
+            let carried = try await progressCarry.carry(mapping)
+            guard !carried.isEmpty else { return }
+            logger.log(
+                .info,
+                .content,
+                "Carried the work done on the seeded catalogue onto the release that replaced it",
+                [
+                    "from": .safe(superseded.contentVersion),
+                    "to": .safe(arriving.contentVersion),
+                    "cardStates": .count(carried.cardStates),
+                    "reviews": .count(carried.reviews),
+                    "sessions": .count(carried.sessions),
+                    "queued": .count(carried.queuedOperations),
+                    "stranded": .count(carried.strandedCards),
+                ]
+            )
+            guard carried.strandedCards > 0 else { return }
+            // Work on a card the arriving release does not carry has nowhere
+            // to go. The rows stay; what must not happen is the learner
+            // finding out by noticing a number went down.
+            strandedNotices.store(
+                StrandedProgressNotice(
+                    cardCount: carried.strandedCards,
+                    supersededVersion: superseded.contentVersion,
+                    arrivingVersion: arriving.contentVersion,
+                    noticedAt: dates.now()
+                )
+            )
+        } catch {
+            logger.log(
+                .error,
+                .content,
+                "Could not carry the work done on the seeded catalogue",
+                ["to": .safe(arriving.contentVersion)]
+            )
+        }
     }
 
     /// Applies exactly one page and returns where the next one starts.

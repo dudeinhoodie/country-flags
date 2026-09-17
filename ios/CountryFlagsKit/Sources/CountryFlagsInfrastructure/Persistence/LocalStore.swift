@@ -134,6 +134,13 @@ public struct LocalStore: Sendable {
         SwiftDataOutboxRepository(modelContainer: container)
     }
 
+    /// Moves what the learner owns onto the identifiers of an arriving
+    /// release. Its own actor because it crosses every account on the device,
+    /// which no repository call is allowed to do.
+    public func makeProgressCarry() -> some ProgressCarrying {
+        SwiftDataProgressCarry(modelContainer: container)
+    }
+
     public func makeTelemetryRepository() -> some TelemetryRepository {
         SwiftDataTelemetryRepository(modelContainer: container)
     }

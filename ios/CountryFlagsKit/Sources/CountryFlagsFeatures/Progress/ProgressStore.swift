@@ -3,6 +3,13 @@ import Observation
 
 import CountryFlagsDomain
 
+/// The deck that holds every card the release publishes.
+///
+/// A release may carry several curated decks, so being curated no longer
+/// picks this one out. The code is what the publisher gives the all-countries
+/// membership, and it is stable across releases.
+let ALL_COUNTRIES_DECK_CODE = "ALL"
+
 /// One deck as the progress screen shows it.
 public struct DeckProgressRow: Identifiable, Hashable, Sendable {
     public let id: UUID
@@ -117,10 +124,20 @@ public final class ProgressStore: CanonicalDataObserving {
     /// apart, because naming an account to a guest describes work that is not
     /// happening (#270).
     public private(set) var isGuest: Bool?
+    /// Work a catalogue change left with nowhere to go, when there is any.
+    ///
+    /// The seeded catalogue is superseded whole by the first release a server
+    /// hands over, and the work done on it is carried across card by card
+    /// (ADR-021, #404). A card the arriving release stopped publishing cannot
+    /// be carried anywhere — and that is the one thing the learner has to be
+    /// told, because the alternative is what #404 is about: work that vanished
+    /// without a word.
+    public private(set) var strandedNotice: StrandedProgressNotice?
 
     private let content: any ContentRepository
     private let learning: any LearningRepository
     private let scopes: any AccountScopeResolving
+    private let strandedNotices: any StrandedProgressNoticing
     private let dates: any DateProviding
     /// The one reload in flight. A newer request cancels the older, so a slow
     /// early read can no longer land after — and overwrite — a fast late one.
@@ -134,12 +151,20 @@ public final class ProgressStore: CanonicalDataObserving {
         content: any ContentRepository,
         learning: any LearningRepository,
         scopes: any AccountScopeResolving,
+        strandedNotices: any StrandedProgressNoticing = NoStrandedProgressNotices(),
         dates: any DateProviding = SystemDateProvider()
     ) {
         self.content = content
         self.learning = learning
         self.scopes = scopes
+        self.strandedNotices = strandedNotices
         self.dates = dates
+    }
+
+    /// The learner has read the notice. It is said once, not on every launch.
+    public func dismissStrandedNotice() {
+        strandedNotices.clearNotice()
+        strandedNotice = nil
     }
 
     /// A sync run landed. The store re-reads, and remembers whether the
@@ -180,6 +205,10 @@ public final class ProgressStore: CanonicalDataObserving {
         // name an account until it is known there is one, and this is the
         // first moment anything knows.
         isGuest = scope.isGuest
+        // Read on every pass rather than once: the release that strands work
+        // arrives while the app is running, and the screen this is drawn on
+        // may already be open.
+        strandedNotice = strandedNotices.pendingNotice()
         let now = dates.now()
         let loadedContinuable = await continuableSession(for: scope)
         // A summary that has aged out is dropped rather than shown: yesterday's
@@ -316,15 +345,29 @@ public final class ProgressStore: CanonicalDataObserving {
         origin = .backend
     }
 
+    /// The deck that spans the whole catalogue, when the release has one.
+    ///
+    /// Identified by the membership it is published under rather than by
+    /// being curated, because being curated no longer distinguishes it: a
+    /// release also carries special areas as a curated deck, and whatever the
+    /// editors add next. Its numbers are the ones that count each card
+    /// exactly once, which is what makes them the hero's on the progress
+    /// screen and the "countries learned" on the home screen; another curated
+    /// deck is a slice like any other. Decided here, once, so no screen
+    /// picks a different deck than the next.
+    public var whole: DeckProgressRow? {
+        decks.first { $0.code == ALL_COUNTRIES_DECK_CODE }
+    }
+
     /// How much work the day owes, counted once for every screen.
     ///
-    /// The backend's own breakdown when it sent one; otherwise the curated
+    /// The backend's own breakdown when it sent one; otherwise the whole-world
     /// deck's queue, which spans every card. Summing the rows would
     /// double-count, because a country belongs to the whole-world deck and to
     /// its region at the same time.
     public var totalDue: Int {
         if let dueSummary { return dueSummary.totalDue }
-        if let whole = decks.first(where: \.isCurated) { return whole.dueCards }
+        if let whole = whole ?? decks.first(where: \.isCurated) { return whole.dueCards }
         return decks.map(\.dueCards).max() ?? 0
     }
 

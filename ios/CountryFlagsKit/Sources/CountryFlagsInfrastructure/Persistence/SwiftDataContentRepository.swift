@@ -52,6 +52,54 @@ actor SwiftDataContentRepository: ContentRepository {
         }
     }
 
+    /// One release's decks and cards, reduced to what identifies them in
+    /// another release.
+    ///
+    /// Filtered by the version asked for rather than by the current one: it is
+    /// called with the release on its way out and with the release on its way
+    /// in, and neither of them is what reads are answering from at that
+    /// moment.
+    func releaseContents(version: String) async throws -> ReleaseContents {
+        let decks = try modelContext.fetch(
+            FetchDescriptor<StoredDeck>(predicate: #Predicate { $0.contentVersion == version })
+        )
+        let assets = try modelContext.fetch(
+            FetchDescriptor<StoredAsset>(predicate: #Predicate { $0.contentVersion == version })
+        )
+        let assetsByID = Dictionary(assets.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        // Retired cards included: an unfinished session is holding some of
+        // them, and a card the release retired is still a card the arriving
+        // release knows the identifier of.
+        let cards = try modelContext.fetch(
+            FetchDescriptor<StoredLearningCard>(
+                predicate: #Predicate { $0.contentVersion == version }
+            )
+        )
+        return ReleaseContents(
+            contentVersion: version,
+            deckIDsByCode: Dictionary(
+                decks.map { ($0.code, $0.id) },
+                uniquingKeysWith: { first, _ in first }
+            ),
+            cards: cards.compactMap { card in
+                // A card whose drawing is not in the store cannot be
+                // recognised in another release: the file the release
+                // publishes it at is the whole of the identity.
+                guard let asset = assetsByID[card.promptAssetID] else { return nil }
+                return ReleaseContents.Card(
+                    id: card.id,
+                    templateCode: card.templateCode,
+                    semanticVersion: card.semanticVersion,
+                    revision: card.revision,
+                    promptAssetID: asset.id,
+                    promptAssetType: asset.type,
+                    promptAssetVariant: asset.variant,
+                    promptAssetURL: asset.url
+                )
+            }
+        )
+    }
+
     func decks() async throws -> [DeckRecord] {
         guard let version = try currentStoredManifest()?.contentVersion else { return [] }
         let descriptor = FetchDescriptor<StoredDeck>(

@@ -3948,6 +3948,57 @@
         }
       }
     },
+    "progress.stranded.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The catalogue was updated, and %lld of the cards you had studied are no longer in it. That work is still on this device, but it is not counted here any more."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каталог обновился, и части карточек, которые вы прошли, в нём больше нет: %lld. Эта работа осталась на устройстве, но в счёт она больше не идёт."
+          }
+        }
+      }
+    },
+    "progress.stranded.dismiss": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Понятно"
+          }
+        }
+      }
+    },
+    "progress.stranded.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some work could not be moved"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Часть работы перенести не удалось"
+          }
+        }
+      }
+    },
     "progress.title": {
       "extractionState": "manual",
       "localizations": {

@@ -176,6 +176,17 @@ public enum L10n {
     public static var progressEmptyTitle: String { localized("progress.empty.title") }
     public static var progressEmptyBody: String { localized("progress.empty.body") }
 
+    /// Work a catalogue change could not carry across (#404). Said once, on
+    /// the screen the numbers live on, because the alternative is a number
+    /// that quietly went down.
+    public static var progressStrandedTitle: String { localized("progress.stranded.title") }
+    public static func progressStrandedBody(_ count: Int) -> String {
+        String(format: localized("progress.stranded.body"), count)
+    }
+    public static var progressStrandedDismiss: String {
+        localized("progress.stranded.dismiss")
+    }
+
     public static func progressDeckCounts(_ started: Int, _ total: Int) -> String {
         String(format: localized("progress.deck_counts"), started, total)
     }
