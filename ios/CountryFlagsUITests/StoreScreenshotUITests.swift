@@ -65,13 +65,41 @@ final class StoreScreenshotUITests: XCTestCase {
         )
         capture(app, named: "04-answer")
 
+        // The cards are answered, not just turned over. Progress counts what
+        // was answered, so a sitting that was only read leaves it on "Nothing
+        // here yet" — which is a true screen, an honest empty state, and the
+        // last thing a store listing should show. A handful rather than one:
+        // a single row of ones photographs like a bug.
+        answer(app)
+        var answered = 1
+        while answered < 5 {
+            guard app.buttons["study.reveal"].waitForExistence(timeout: 20) else { break }
+            app.buttons["study.reveal"].tap()
+            guard app.staticTexts["study.answer"].waitForExistence(timeout: 10) else { break }
+            answer(app)
+            answered += 1
+        }
+        XCTAssertGreaterThan(
+            answered,
+            0,
+            "Progress has nothing to photograph unless a card was answered\n"
+                + app.debugDescription
+        )
+
         // 5. Progress: the world, lit by how much of it is known.
         //
         // Out of the sitting first. `RootView` hides the tab bar while a
         // session is open, so there is no Progress tab to tap until this
         // screen is closed — which is why this run had been failing here
         // every night: the tap found no tab bar at all, not a slow one.
-        app.buttons["study.close"].tap()
+        //
+        // The sitting may have ended on its own if the queue was short, and
+        // then it is the result screen that is open rather than a card.
+        if app.buttons["study.close"].waitForExistence(timeout: 10) {
+            app.buttons["study.close"].tap()
+        } else {
+            app.buttons["study.result.done"].tap()
+        }
         app.navigationBars.buttons.element(boundBy: 0).tap()
         let tab = app.tabBars.buttons["Progress"]
         XCTAssertTrue(tab.waitForExistence(timeout: 30), app.debugDescription)
@@ -82,6 +110,14 @@ final class StoreScreenshotUITests: XCTestCase {
             app.debugDescription
         )
         capture(app, named: "05-progress")
+    }
+
+    /// Answers the card that is on screen, the way a finger does it: right is
+    /// remembered. The hints beside the card say so, and the gesture is the
+    /// answer — there is no button to press.
+    private func answer(_ app: XCUIApplication) {
+        app.descendants(matching: .any).matching(identifier: "study.card")
+            .firstMatch.swipeRight()
     }
 
     /// One picture, named so the export script can file it by device and
