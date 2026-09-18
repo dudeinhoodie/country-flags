@@ -50,7 +50,7 @@ Study reminders are optional local notifications scheduled on your device. Turni
 
 ## Where the data is kept
 
-Account data is stored in Google Cloud in Frankfurt, Germany (europe-west3). Google acts as our hosting provider and processes the data on our instructions.
+Account data is stored in Frankfurt, Germany: the application runs in Google Cloud (europe-west3) and the database is hosted by Neon in Amazon Web Services (eu-central-1). Both act as our hosting providers and process the data on our instructions.
 
 ## How long it is kept
 
