@@ -80,7 +80,7 @@ public struct ReviewUploader: ReviewUploading {
                 )
                 continue
             }
-            if let event = Self.event(from: stored, deviceID: deviceID) {
+            if let event = Self.event(from: stored, deviceID: deviceID, logger: logger) {
                 events.append(event)
                 operationIDByReviewID[stored.reviewID] = operation.id
             }
@@ -129,11 +129,26 @@ public struct ReviewUploader: ReviewUploading {
 
     private static func event(
         from stored: StoredReview,
-        deviceID: UUID
+        deviceID: UUID,
+        logger: any AppLogging
     ) -> Components.Schemas.ReviewEvent? {
         switch stored.answerMode {
         case StudyAnswerMode.selfRated.rawValue:
-            guard let rating = Components.Schemas.Rating(rawValue: stored.rating) else { return nil }
+            // `SubmittedRating`, not `Rating`: the backend accepts the two
+            // answers a swipe produces (ADR-024). A row queued by a build with
+            // the four-grade screen can still hold HARD or EASY, and there is
+            // nothing honest to send for it — mapping it onto GOOD would
+            // record an answer the learner did not give. It is reported and
+            // left rather than dropped in silence.
+            guard let rating = Components.Schemas.SubmittedRating(rawValue: stored.rating) else {
+                logger.log(
+                    .error,
+                    .sync,
+                    "A queued review holds a rating this release cannot send",
+                    ["reviewId": .safe(stored.reviewID.uuidString)]
+                )
+                return nil
+            }
             return .SELF_RATED(
                 .init(
                     id: stored.reviewID.uuidString,
