@@ -30,6 +30,43 @@ final class DueSummaryTests: XCTestCase {
         XCTAssertEqual(summary.newCards, 25)
         XCTAssertEqual(summary.totalDue, 23)
         XCTAssertEqual(summary.serverTime, now)
+        XCTAssertNil(summary.nextPortionAt)
+    }
+
+    /// ADR-022 made three hours the rhythm; the backend reports the instant it
+    /// comes round, and the app has to carry it home to say so.
+    func testTheNextPortionInstantIsRead() async throws {
+        let transport = MockClientTransport()
+        await transport.always(
+            .json(
+                """
+                {"overdue":0,"learning":0,"relearning":0,"newCards":4,\
+                "totalDue":0,"serverTime":"2027-01-15T08:00:00Z",\
+                "nextPortionAt":"2027-01-15T11:00:00Z"}
+                """
+            ),
+            for: "getDueSummary"
+        )
+        await Self.registerEmptyProgress(on: transport)
+
+        let snapshot = try await Self.makeService(transport: transport).download()
+
+        XCTAssertEqual(
+            snapshot.dueSummary?.nextPortionAt,
+            Date(timeIntervalSince1970: 1_800_000_000 + 3 * 3600)
+        )
+    }
+
+    /// Absent is the answer when a portion is open now, so it stays absent
+    /// rather than becoming a date in the past.
+    func testASummaryWithoutTheNextPortionReadsAsNothingToWaitFor() async throws {
+        let transport = MockClientTransport()
+        await transport.always(Self.dueSummaryResponse, for: "getDueSummary")
+        await Self.registerEmptyProgress(on: transport)
+
+        let snapshot = try await Self.makeService(transport: transport).download()
+
+        XCTAssertNil(snapshot.dueSummary?.nextPortionAt)
     }
 
     /// `review` is optional in the contract. A release that stops sending it
@@ -129,6 +166,60 @@ final class DueSummaryTests: XCTestCase {
         let stored = try await learning.dueSummary(for: account)
         XCTAssertEqual(stored?.totalDue, 0)
         XCTAssertEqual(stored?.serverTime, now.addingTimeInterval(60))
+    }
+
+    /// The instant has to survive a relaunch, because Home reads the store
+    /// rather than the last response: a cold launch would otherwise know
+    /// nothing about the rhythm until the network answered again. Version 7 of
+    /// the schema is what gives it somewhere to live.
+    func testTheNextPortionInstantSurvivesTheStore() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        let opensAt = now.addingTimeInterval(3 * 3600)
+
+        try await learning.saveDueSummary(
+            DueSummaryRecord(
+                overdue: 0,
+                learning: 0,
+                relearning: 0,
+                review: 0,
+                newCards: 0,
+                totalDue: 0,
+                serverTime: now,
+                nextPortionAt: opensAt
+            ),
+            for: account
+        )
+
+        XCTAssertEqual(
+            try await learning.dueSummary(for: account)?.nextPortionAt,
+            opensAt
+        )
+    }
+
+    /// A portion open now is stored as nothing to wait for, and replacing a
+    /// summary that named an instant clears it rather than leaving yesterday's
+    /// promise behind.
+    func testAnOpenPortionClearsTheStoredInstant() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+
+        try await learning.saveDueSummary(
+            DueSummaryRecord(
+                overdue: 0,
+                learning: 0,
+                relearning: 0,
+                review: 0,
+                newCards: 0,
+                totalDue: 0,
+                serverTime: now,
+                nextPortionAt: now.addingTimeInterval(3 * 3600)
+            ),
+            for: account
+        )
+        try await learning.saveDueSummary(Self.summary(at: now), for: account)
+
+        XCTAssertNil(try await learning.dueSummary(for: account)?.nextPortionAt)
     }
 
     /// Two accounts on one device count different queues.

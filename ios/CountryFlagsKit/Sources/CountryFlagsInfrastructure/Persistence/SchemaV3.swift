@@ -28,7 +28,7 @@ enum LocalSchemaV3: VersionedSchema {
             LocalSchemaV1.StoredDeckProgress.self,
             StoredAchievement.self,
             // The one type this version adds; everything else is version 2's.
-            StoredDueSummary.self,
+            LocalSchemaV6.StoredDueSummary.self,
             StoredStudySession.self,
             StoredStudySessionCard.self,
             StoredReviewEvent.self,
@@ -57,6 +57,11 @@ final class StoredDueSummary {
     var newCards: Int = 0
     var totalDue: Int = 0
     var serverTime: Date = Date.distantPast
+    /// When the next portion opens, as the backend last answered it, or nil
+    /// when a portion was open at that moment. Optional because that absence
+    /// is the answer rather than a missing value, and because a summary stored
+    /// before version 7 has nothing to say about it.
+    var nextPortionAt: Date?
 
     init(
         scopeKey: String,
@@ -66,7 +71,8 @@ final class StoredDueSummary {
         review: Int,
         newCards: Int,
         totalDue: Int,
-        serverTime: Date
+        serverTime: Date,
+        nextPortionAt: Date? = nil
     ) {
         self.scopeKey = scopeKey
         self.overdue = overdue
@@ -76,5 +82,6 @@ final class StoredDueSummary {
         self.newCards = newCards
         self.totalDue = totalDue
         self.serverTime = serverTime
+        self.nextPortionAt = nextPortionAt
     }
 }

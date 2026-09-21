@@ -396,6 +396,7 @@ public struct HomeView: View {
             DayClearedCard(
                 learned: learnedCountries,
                 inProgress: countriesInProgress,
+                nextPortionAt: progress?.dueSummary?.nextPortionAt,
                 onOpenCatalog: onOpenCatalog
             )
         }
