@@ -6,6 +6,25 @@ import { AnswerMode, ReviewRating } from "@prisma/client";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+/**
+ * The grades a client may submit.
+ *
+ * The study screen answers a card with a swipe in one of two directions, so
+ * HARD and EASY describe an answer the product cannot produce. Accepting them
+ * would let a request write a card state no learner could have asked for —
+ * and, because ts-fsrs repeats the current learning step for HARD, strand a
+ * card in LEARNING: under `fsrs-6-default-21-v3` thirty consecutive HARD
+ * answers leave it three hours out, every time.
+ *
+ * `ReviewRating` stays wider on purpose: it is what a stored review may hold,
+ * and history is immutable. A review recorded under the four-grade screen still
+ * replays, and is still echoed back as `canonicalRating`.
+ */
+export const SUBMITTABLE_RATINGS: readonly ReviewRating[] = [
+  ReviewRating.AGAIN,
+  ReviewRating.GOOD,
+];
+
 const COMMON_FIELDS = [
   "id",
   "sessionId",
@@ -182,7 +201,7 @@ function parseEvent(value: unknown, index: number): ReviewEventRequest {
     );
     if (
       typeof value.rating !== "string" ||
-      !Object.values(ReviewRating).includes(value.rating as ReviewRating)
+      !SUBMITTABLE_RATINGS.includes(value.rating as ReviewRating)
     ) {
       validationError(`events[${index}].rating is invalid`);
     }

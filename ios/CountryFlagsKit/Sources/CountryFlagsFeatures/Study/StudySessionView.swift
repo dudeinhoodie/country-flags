@@ -178,9 +178,12 @@ public struct StudySessionView: View {
             )
             // The rating bar that used to sit under a revealed card is gone —
             // the swipe is the answer, and the hints below say where each one
-            // leads. VoiceOver cannot swipe a throw, so the four ratings ride
-            // on the card as actions instead of as buttons everyone else must
-            // scroll past.
+            // leads. VoiceOver cannot swipe a throw, so both answers ride on
+            // the card as actions instead of as buttons everyone else must
+            // scroll past. Both, and only both: an action offering a grade the
+            // swipe cannot reach is a second scheduler behind an accessibility
+            // affordance, which is how HARD used to strand a card on a
+            // three-hour step no sighted learner could land on.
             .accessibilityActions {
                 if state.isAnswerRevealed {
                     ForEach(StudyRating.allCases, id: \.self) { rating in
@@ -580,7 +583,7 @@ struct StudySessionResultView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 CenteredFlow(spacing: DesignTokens.Spacing.small) {
                     ForEach(Array(summary.answered.enumerated()), id: \.offset) { _, card in
-                        let missed = card.rating == .again || card.rating == .hard
+                        let missed = card.rating == .again
                         FlagImageView(
                             assetID: card.promptAssetID,
                             accessibilityLabel: "",

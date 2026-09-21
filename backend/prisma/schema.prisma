@@ -223,6 +223,10 @@ enum SelectionReason {
   MAINTENANCE
 }
 
+/// Every grade a stored review can hold. A client may submit only AGAIN and
+/// GOOD — the study screen has two answers — but review history is immutable,
+/// so the values recorded under the four-grade screen stay in the enum and
+/// keep replaying. Removing one would orphan the rows that hold it.
 enum ReviewRating {
   AGAIN
   HARD

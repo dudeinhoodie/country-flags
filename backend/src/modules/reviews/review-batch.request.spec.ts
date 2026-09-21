@@ -57,4 +57,30 @@ describe("review batch request", () => {
       }),
     ).toThrow("unknown field rating");
   });
+
+  it("accepts the two answers a swipe can produce", () => {
+    for (const rating of [ReviewRating.AGAIN, ReviewRating.GOOD]) {
+      const parsed = parseReviewBatchRequest({
+        payloadVersion: 1,
+        events: [{ ...event, rating }],
+      });
+
+      expect(parsed.events[0]).toMatchObject({ rating });
+    }
+  });
+
+  // The study screen answers a card with a swipe in one of two directions, so
+  // a request carrying HARD or EASY describes an answer no learner could have
+  // given. Stored reviews keep all four — history is immutable — but nothing
+  // may write a new one.
+  it("rejects the grades the study screen cannot produce", () => {
+    for (const rating of [ReviewRating.HARD, ReviewRating.EASY]) {
+      expect(() =>
+        parseReviewBatchRequest({
+          payloadVersion: 1,
+          events: [{ ...event, rating }],
+        }),
+      ).toThrow("events[0].rating is invalid");
+    }
+  });
 });

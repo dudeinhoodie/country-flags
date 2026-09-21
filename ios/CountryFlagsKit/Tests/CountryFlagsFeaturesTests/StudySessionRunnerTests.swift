@@ -98,7 +98,7 @@ final class StudySessionRunnerTests: XCTestCase {
         // so it has already passed the reducer and won. Yielding instead
         // asserted the order two child tasks happened to start in.
         await learning.waitUntilGateIsHolding()
-        async let second: Void = runner.rate(.easy)
+        async let second: Void = runner.rate(.again)
         await Task.yield()
         await learning.openGate()
         _ = await (first, second)
@@ -184,7 +184,7 @@ final class StudySessionRunnerTests: XCTestCase {
         let runner = makeRunner(cards: 1, learning: learning, identifiers: identifiers)
         await runner.startOrResume(deckID: deckID, size: .five)
         runner.revealAnswer()
-        await runner.rate(.easy)
+        await runner.rate(.good)
 
         let reopened = makeRunner(cards: 1, learning: learning, identifiers: identifiers)
         await reopened.startOrResume(deckID: deckID, size: .five)

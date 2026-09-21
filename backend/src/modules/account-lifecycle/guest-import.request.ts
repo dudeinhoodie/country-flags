@@ -190,6 +190,10 @@ function review(value: unknown, index: number): GuestReviewRequest {
           ),
   };
   if (mode === AnswerMode.SELF_RATED) {
+    // Every grade, not only the two a client may submit today: this endpoint
+    // imports reviews a guest already recorded, and a guest who answered HARD
+    // through VoiceOver before the study screen narrowed still owns that
+    // history. Narrowing here would lose their progress rather than tidy it.
     const rating = requiredField(record, "rating", context);
     if (
       typeof rating !== "string" ||

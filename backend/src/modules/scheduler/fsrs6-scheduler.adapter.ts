@@ -193,6 +193,12 @@ function domainState(state: FsrsState): CardLearningState {
   return states[state];
 }
 
+/// All four grades, although a client may now submit only AGAIN and GOOD.
+///
+/// History is immutable and replays under the definition it was accepted with,
+/// so a card answered HARD before the study screen narrowed to two answers must
+/// still resolve to an FSRS rating. Dropping the arms here would not simplify
+/// the scheduler, it would make part of the history unreplayable.
 function fsrsRating(rating: ReviewRating): FsrsRating {
   const ratings: Record<ReviewRating, FsrsRating> = {
     AGAIN: 1,

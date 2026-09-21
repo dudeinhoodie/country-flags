@@ -4866,23 +4866,6 @@
         }
       }
     },
-    "study.rating.easy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Easy"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Легко"
-          }
-        }
-      }
-    },
     "study.rating.good": {
       "extractionState": "manual",
       "localizations": {
@@ -4896,23 +4879,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Хорошо"
-          }
-        }
-      }
-    },
-    "study.rating.hard": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hard"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Трудно"
           }
         }
       }

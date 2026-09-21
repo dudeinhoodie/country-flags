@@ -86,13 +86,12 @@ struct StudyCardStackView: View {
         }
     }
 
-    /// The button's version of the swipe: the card flies to the side its
-    /// rating lives on — the two the swipe cannot reach leave with their
-    /// neighbours, hard to the left with again, easy to the right with good.
+    /// The accessibility action's version of the swipe: the card flies to the
+    /// side its rating lives on, the same two sides a finger reaches.
     private func throwCard(_ rating: StudyRating) {
         guard !state.isCommitting else { return }
         if !state.isAnswerRevealed { onReveal() }
-        let leavesRight = rating == .good || rating == .easy
+        let leavesRight = rating == .good
         withAnimation(reduceMotion ? nil : .snappy(duration: 0.35)) {
             drag.width =
                 leavesRight
