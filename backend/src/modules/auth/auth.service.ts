@@ -542,6 +542,9 @@ export class AuthService {
           locale: device.locale,
           timezone: device.timezone,
           lastSeenAt: new Date(),
+          // A fresh provider sign-in from a removed device brings it back:
+          // the same row keeps its review history under one identifier.
+          deletedAt: null,
         },
       });
       const settings = await transaction.userSettings.upsert({

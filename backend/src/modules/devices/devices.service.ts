@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from "@nestjs/common";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
 
 @Injectable()
 export class DevicesService {
@@ -13,7 +14,7 @@ export class DevicesService {
   ): Promise<Record<string, unknown>> {
     const [devices, currentSession] = await Promise.all([
       this.database.device.findMany({
-        where: { userId },
+        where: { userId, deletedAt: null },
         orderBy: [{ lastSeenAt: "desc" }, { id: "asc" }],
       }),
       currentSessionId === null
@@ -36,29 +37,42 @@ export class DevicesService {
     };
   }
 
+  /**
+   * Removes a device by marking it, never by deleting the row: review events
+   * are immutable and reference the device, so a real DELETE would have to
+   * rewrite them and PostgreSQL refuses (issue #439).
+   *
+   * Serializable so a refresh racing the removal cannot leave a live session
+   * behind. A rotation revokes one of this device's sessions and creates its
+   * successor in one transaction; the revocation below writes that same
+   * session row, so whichever side commits second either sees the successor
+   * or is aborted and retried from a snapshot that contains it.
+   */
   async delete(
     userId: string,
     deviceId: string,
     requestId: string,
   ): Promise<void> {
-    await this.database.$transaction(async (transaction) => {
-      const device = await transaction.device.findFirst({
-        where: { id: deviceId, userId },
-        select: { id: true },
+    await inSerializableTransaction(this.database, async (transaction) => {
+      const now = new Date();
+      // A device already removed answers like a missing one: from the
+      // user's side it is gone, and the second request changed nothing.
+      const removed = await transaction.device.updateMany({
+        where: { id: deviceId, userId, deletedAt: null },
+        // A removed device must not be reached by a notification either.
+        data: { deletedAt: now, pushTokenEncrypted: null },
       });
-      if (device === null) {
+      if (removed.count === 0) {
         throw new ApiException(
           HttpStatus.NOT_FOUND,
           "DEVICE_NOT_FOUND",
           "The device was not found",
         );
       }
-      const now = new Date();
       const revoked = await transaction.refreshSession.updateMany({
         where: { userId, deviceId, revokedAt: null },
         data: { revokedAt: now },
       });
-      await transaction.device.delete({ where: { id: deviceId } });
       await transaction.auditEvent.create({
         data: {
           actorUserId: userId,
