@@ -62,7 +62,7 @@ interface ResolvedIds {
   templateIdByKey: Map<string, string>;
   learningCardIdByKey: Map<string, string>;
   activeCardIdByVariant: Map<string, string>;
-  deckIdByKey: Map<string, string>;
+  deckIdByCode: Map<string, string>;
 }
 
 async function upsertSources(
@@ -531,7 +531,7 @@ async function upsertDecks(
   version: string,
   activeCardIdByVariant: Map<string, string>,
 ): Promise<Map<string, string>> {
-  const deckIdByKey = new Map<string, string>();
+  const deckIdByCode = new Map<string, string>();
   for (const deck of domain.catalog.decks) {
     // The catalogue names a deck once, in its own alphabet; the contract serves
     // it in another. Validation has already refused a key this cannot express.
@@ -559,7 +559,7 @@ async function upsertDecks(
         ...access,
       },
     });
-    deckIdByKey.set(deck.key, row.id);
+    deckIdByCode.set(code, row.id);
 
     for (const [locale, localized] of Object.entries(deck.names)) {
       await tx.deckLocalization.upsert({
@@ -622,7 +622,7 @@ async function upsertDecks(
       where: { deckId: row.id, learningCardId: { notIn: memberCardIds } },
     });
   }
-  return deckIdByKey;
+  return deckIdByCode;
 }
 
 async function replaceFacts(
@@ -692,11 +692,11 @@ async function resolveRetiredResourceId(
     )?.id;
   }
   if (resourceType === ContentResourceType.DECK) {
-    // A change set names a deck by its content key; the row is found by the
-    // code that key derives.
+    // A change set names a deck by the code its row is stored under, never
+    // by its content key: the stored side of the diff has no key to offer.
     return (
       await tx.deck.findUnique({
-        where: { code: mapper.deckCodeFromKey(key) },
+        where: { code: key },
         select: { id: true },
       })
     )?.id;
@@ -735,7 +735,7 @@ async function recordContentChanges(
   > = {
     [ContentResourceType.ENTITY]: resolved.entityIdByKey,
     [ContentResourceType.ASSET]: resolved.assetIdByKey,
-    [ContentResourceType.DECK]: resolved.deckIdByKey,
+    [ContentResourceType.DECK]: resolved.deckIdByCode,
     [ContentResourceType.LEARNING_CARD]: resolved.learningCardIdByKey,
   };
 
@@ -799,8 +799,12 @@ async function retireDroppedResources(
         data: { status: AssetStatus.RETIRED },
       });
     } else if (change.resourceType === ContentResourceType.DECK) {
+      // Retired rather than deleted: the deck's memberships, sessions and
+      // mastery stay with it, so the progress somebody made on it survives,
+      // and a later release that brings it back — or a rollback to one that
+      // had it — publishes the same row again.
       await tx.deck.updateMany({
-        where: { code: { in: change.retiredKeys.map(mapper.deckCodeFromKey) } },
+        where: { code: { in: change.retiredKeys } },
         data: { status: DeckStatus.RETIRED },
       });
     } else if (change.resourceType === ContentResourceType.LEARNING_CARD) {
@@ -902,7 +906,7 @@ export async function applyBundleToDatabase(
       templateIdByKey,
       assetIdByKey,
     );
-  const deckIdByKey = await upsertDecks(
+  const deckIdByCode = await upsertDecks(
     tx,
     domain,
     version,
@@ -924,7 +928,7 @@ export async function applyBundleToDatabase(
     templateIdByKey,
     learningCardIdByKey,
     activeCardIdByVariant,
-    deckIdByKey,
+    deckIdByCode,
   };
   const changeCount = await recordContentChanges(tx, version, diff, resolved);
 
@@ -1066,7 +1070,7 @@ export async function publishBundle(
         counts: {
           entities: application.resolved.entityIdByKey.size,
           assets: application.resolved.assetIdByKey.size,
-          decks: application.resolved.deckIdByKey.size,
+          decks: application.resolved.deckIdByCode.size,
           cardTemplates: application.resolved.templateIdByKey.size,
           learningCards: application.resolved.learningCardIdByKey.size,
           facts: application.factCount,

@@ -101,6 +101,8 @@ export interface BundleBuildOptions {
   };
   /** Entity keys of the members the deck publishes as previews. */
   previewMemberKeys?: string[];
+  /** Free decks published beside `deck.all`, each holding the entities named. */
+  extraDecks?: Array<{ key: string; name: string; memberKeys: string[] }>;
   tamperFileAfterSigning?: { path: string; content: string };
   breakSignature?: boolean;
 }
@@ -166,6 +168,19 @@ export function buildBundle(
               })),
             }),
       },
+      ...(options.extraDecks ?? []).map((deck) => ({
+        key: deck.key,
+        kind: "curated",
+        names: { en: { name: deck.name }, ru: { name: deck.name } },
+        memberEntityKeys: deck.memberKeys,
+        memberCards: deck.memberKeys.map((entityKey) => ({
+          entityKey,
+          templateCode: "FLAG_TO_COUNTRY",
+          templateSchemaVersion: 1,
+        })),
+        contentKinds: ["FLAG"],
+        cardCount: deck.memberKeys.length,
+      })),
     ],
   };
 
