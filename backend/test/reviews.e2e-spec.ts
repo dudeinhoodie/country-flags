@@ -295,7 +295,7 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
     // Reusing the id with a different payload parks that one event; it must
     // not fail the batch, or a single poisoned event deadlocks the outbox.
     const reused = await sendEvent(
-      selfRatedEvent({ rating: ReviewRating.EASY }),
+      selfRatedEvent({ rating: ReviewRating.AGAIN }),
     );
     expect(reused.results[0]).toMatchObject({
       eventId,
@@ -339,7 +339,7 @@ describe("immutable review ingestion and FSRS projection (integration)", () => {
     const sequenceThree = await sendEvent(
       selfRatedEvent({
         id: "92000000-0000-4000-8000-000000000003",
-        rating: ReviewRating.EASY,
+        rating: ReviewRating.GOOD,
         clientSequence: 3,
         clientOccurredAt: "2026-07-29T10:03:00.000Z",
         estimatedServerOccurredAt: "2026-07-29T10:03:00.000Z",
