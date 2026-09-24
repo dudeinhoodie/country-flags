@@ -11,6 +11,12 @@ import {
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 
 const SNAPSHOT_TTL_MS = 5 * 60 * 1_000;
+/**
+ * Upper bound on cached snapshots per process. The key space is platform x
+ * version x locale x content version; real traffic uses a few dozen
+ * combinations, and the least recently used entry goes first beyond this.
+ */
+export const SNAPSHOT_CACHE_MAX_ENTRIES = 500;
 
 export type AppConfigRequest = FeatureFlagContext;
 
@@ -52,8 +58,14 @@ export class AppConfigService {
       contentVersion,
     ].join(":");
     const cached = this.snapshots.get(cacheKey);
-    if (cached !== undefined && new Date(cached.expiresAt) > new Date()) {
-      return cached;
+    if (cached !== undefined) {
+      // Re-inserting moves the entry to the end of the Map's insertion
+      // order, which is what makes the first key the least recently used.
+      this.snapshots.delete(cacheKey);
+      if (new Date(cached.expiresAt) > new Date()) {
+        this.snapshots.set(cacheKey, cached);
+        return cached;
+      }
     }
     const featureFlags = await this.flags.clientSnapshot(request);
     const generatedAt = new Date();
@@ -89,6 +101,13 @@ export class AppConfigService {
       advertising,
     };
     this.snapshots.set(cacheKey, snapshot);
+    while (this.snapshots.size > SNAPSHOT_CACHE_MAX_ENTRIES) {
+      const oldest = this.snapshots.keys().next();
+      if (oldest.done === true) {
+        break;
+      }
+      this.snapshots.delete(oldest.value);
+    }
     return snapshot;
   }
 }
