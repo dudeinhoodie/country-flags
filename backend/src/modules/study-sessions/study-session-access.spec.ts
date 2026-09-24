@@ -81,7 +81,11 @@ describe("StudySessionsService deck access", () => {
   const userSettings = { findUnique: jest.fn() };
   const userEntitlementGrant = { findFirst: jest.fn() };
   const commerceOfferGrant = { findMany: jest.fn() };
+  // The day's allowance is read for every server session, whatever its
+  // composition.
+  const queryRaw = jest.fn();
   const transaction = {
+    $queryRaw: queryRaw,
     studySession,
     user,
     deck,
@@ -129,6 +133,7 @@ describe("StudySessionsService deck access", () => {
     });
     deckCard.findMany.mockResolvedValue([]);
     userSettings.findUnique.mockResolvedValue(null);
+    queryRaw.mockResolvedValue([{ count: 0n }]);
     userEntitlementGrant.findFirst.mockResolvedValue(null);
     commerceOfferGrant.findMany.mockResolvedValue([
       {

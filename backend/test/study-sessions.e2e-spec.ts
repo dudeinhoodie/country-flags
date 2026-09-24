@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import type { INestApplication } from "@nestjs/common";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { Test } from "@nestjs/testing";
-import { PrismaClient } from "@prisma/client";
+import { CardLearningState, PrismaClient } from "@prisma/client";
 import request from "supertest";
 
 import { AppModule } from "../src/app/app.module";
@@ -13,6 +13,7 @@ import { PrismaService } from "../src/infrastructure/database/prisma.service";
 import { TestJwtSigner } from "../src/modules/auth/testing/test-jwt-signer";
 import { importTestContent } from "../src/modules/content/import/test-content-importer";
 import {
+  TEST_SCHEDULER_VERSION,
   TEST_STUDY_DEVICE_ID,
   TEST_STUDY_USER_ID,
 } from "../src/modules/study-sessions/fixtures/test-study.fixture";
@@ -609,5 +610,227 @@ describe("study session creation and retrieval (integration)", () => {
         data: { status: "ACTIVE" },
       });
     }
+  });
+
+  // #438: the ceiling used to trim only DUE_ONLY, and STANDARD — the default,
+  // and the app's fallback when a due-only launch finds nothing — dealt the
+  // rest of the backlog past fifty.
+  describe("at the daily review limit", () => {
+    const limitUserId = "80000000-0000-4000-8000-000000000438";
+    const limitDeviceId = "81000000-0000-4000-8000-000000000438";
+    const allDeckId = "70000000-0000-4000-8000-000000000001";
+    let limitToken: string;
+    let owedOldestFirst: string[];
+    let spentCardIds: string[];
+
+    function standardSession(id: string): Record<string, unknown> {
+      return {
+        id,
+        deckId: allDeckId,
+        requestedUniqueCount: 20,
+        mode: "SELF_RATED",
+        locale: "en",
+        selectionOrigin: "SERVER",
+      };
+    }
+
+    beforeAll(async () => {
+      await database.user.create({
+        data: {
+          id: limitUserId,
+          preferredLocale: "en",
+          settings: { create: { timezone: "UTC" } },
+          devices: {
+            create: {
+              id: limitDeviceId,
+              clientGeneratedId: "TEST_ONLY_DAILY_LIMIT_DEVICE",
+              platform: "IOS",
+              appVersion: "0.1.0",
+              locale: "en",
+              timezone: "UTC",
+            },
+          },
+        },
+      });
+      const memberships = await database.deckCard.findMany({
+        where: { deckId: allDeckId, learningCard: { status: "ACTIVE" } },
+        orderBy: { learningCardId: "asc" },
+        select: { learningCardId: true },
+      });
+      const deckCardIds = memberships.map(
+        ({ learningCardId }) => learningCardId,
+      );
+      if (deckCardIds.length < 6) {
+        throw new Error("The daily-limit fixture needs six active cards");
+      }
+      // Three owed, each a day older than the next; two reviews not due for
+      // decades; the rest never studied.
+      owedOldestFirst = deckCardIds.slice(0, 3);
+      await database.userCardState.createMany({
+        data: [
+          ...owedOldestFirst.map((learningCardId, index) => ({
+            userId: limitUserId,
+            learningCardId,
+            state: CardLearningState.REVIEW,
+            difficulty: 5,
+            stability: 10,
+            dueAt: new Date(Date.UTC(2026, 0, 1 + index)),
+            lastReviewedAt: new Date(Date.UTC(2025, 11, 1)),
+            repetitions: 3,
+            lapses: 0,
+            schedulerVersion: TEST_SCHEDULER_VERSION,
+            schedulerParametersVersion: "TEST_ONLY",
+            stateVersion: 3,
+          })),
+          ...deckCardIds.slice(3, 5).map((learningCardId) => ({
+            userId: limitUserId,
+            learningCardId,
+            state: CardLearningState.REVIEW,
+            difficulty: 4,
+            stability: 30,
+            dueAt: new Date("2099-01-01T00:00:00.000Z"),
+            lastReviewedAt: new Date(Date.UTC(2026, 0, 1)),
+            repetitions: 5,
+            lapses: 0,
+            schedulerVersion: TEST_SCHEDULER_VERSION,
+            schedulerParametersVersion: "TEST_ONLY",
+            stateVersion: 5,
+          })),
+        ],
+      });
+
+      // Fifty different cards answered today spends the day. The fixture holds
+      // only a handful of cards, so the fifty are retired siblings of one of
+      // them: the count is of distinct cards whatever their status, and a
+      // retired card is never dealt, so the deck's own cards stay as set up.
+      const template = await database.learningCard.findUniqueOrThrow({
+        where: { id: deckCardIds[0]! },
+        select: {
+          subjectEntityId: true,
+          templateId: true,
+          contentVersion: true,
+        },
+      });
+      spentCardIds = Array.from(
+        { length: 50 },
+        (_, index) =>
+          `9a000000-0000-4000-8000-${(index + 1).toString().padStart(12, "0")}`,
+      );
+      await database.learningCard.createMany({
+        data: spentCardIds.map((id, index) => ({
+          id,
+          ...template,
+          semanticVersion: 1_000 + index,
+          status: "RETIRED" as const,
+        })),
+      });
+      const answeredAt = new Date();
+      await database.reviewEvent.createMany({
+        data: spentCardIds.map((learningCardId, index) => ({
+          id: `9b000000-0000-4000-8000-${(index + 1)
+            .toString()
+            .padStart(12, "0")}`,
+          userId: limitUserId,
+          learningCardId,
+          rating: "GOOD" as const,
+          isCorrect: true,
+          answerMode: "SELF_RATED" as const,
+          clientOccurredAt: answeredAt,
+          effectiveOccurredAt: answeredAt,
+          clientSequence: BigInt(index + 1),
+          timeConfidence: "CALIBRATED" as const,
+          schedulerVersion: TEST_SCHEDULER_VERSION,
+          schedulerParametersVersion: "TEST_ONLY",
+          payloadVersion: 1,
+          payloadHash: "0".repeat(64),
+          metadata: {},
+        })),
+      });
+      limitToken = app.get(TestJwtSigner).sign(limitUserId);
+    });
+
+    it("deals no scheduled review through STANDARD once the day is spent", async () => {
+      const response = await request(httpServer)
+        .post("/v1/study-sessions")
+        .set("Authorization", `Bearer ${limitToken}`)
+        .send(standardSession("90000000-0000-4000-8000-000000000438"))
+        .expect(201);
+      const body = response.body as unknown as StudySessionBody;
+      const dealt = body.cards.map(({ learningCard }) => learningCard.id);
+
+      expect(dealt.filter((id) => owedOldestFirst.includes(id))).toEqual([]);
+      expect(
+        body.cards.map(({ selectionReason }) => selectionReason),
+      ).not.toContain("OVERDUE");
+      // Past the day is still a sitting: what is not owed can be studied.
+      expect(body.selectedUniqueCount).toBeGreaterThan(0);
+      expect(body.selectedUniqueCount).toBe(body.cards.length);
+
+      const dueOnly = await request(httpServer)
+        .post("/v1/study-sessions")
+        .set("Authorization", `Bearer ${limitToken}`)
+        .send({
+          ...standardSession("90000000-0000-4000-8000-000000000439"),
+          composition: "DUE_ONLY",
+        })
+        .expect(201);
+      expect(
+        (dueOnly.body as unknown as StudySessionBody).selectedUniqueCount,
+      ).toBe(0);
+    });
+
+    it("deals through STANDARD only the oldest debt the day still allows", async () => {
+      // One card of the fifty un-answered leaves the day one card of room.
+      await database.reviewEvent.deleteMany({
+        where: { userId: limitUserId, learningCardId: spentCardIds[0]! },
+      });
+
+      const response = await request(httpServer)
+        .post("/v1/study-sessions")
+        .set("Authorization", `Bearer ${limitToken}`)
+        .send(standardSession("90000000-0000-4000-8000-000000000440"))
+        .expect(201);
+      const body = response.body as unknown as StudySessionBody;
+      const owed = body.cards.filter(({ learningCard }) =>
+        owedOldestFirst.includes(learningCard.id),
+      );
+
+      expect(owed.map(({ learningCard }) => learningCard.id)).toEqual([
+        owedOldestFirst[0],
+      ]);
+      expect(owed[0]?.selectionReason).toBe("OVERDUE");
+
+      // The ceiling decides what a session deals, not what a review may
+      // record: answers past it are history and are accepted like any other.
+      const answeredAt = new Date().toISOString();
+      const answered = await request(httpServer)
+        .post("/v1/reviews/batch")
+        .set("Authorization", `Bearer ${limitToken}`)
+        .send({
+          payloadVersion: 1,
+          events: body.cards.map(({ learningCard }, index) => ({
+            id: `9c000000-0000-4000-8000-${(index + 1)
+              .toString()
+              .padStart(12, "0")}`,
+            sessionId: body.id,
+            learningCardId: learningCard.id,
+            deviceId: limitDeviceId,
+            answerMode: "SELF_RATED",
+            rating: "GOOD",
+            responseTimeMs: 1_000,
+            clientOccurredAt: answeredAt,
+            estimatedServerOccurredAt: answeredAt,
+            clientSequence: 1_000 + index,
+            baseStateVersion: null,
+          })),
+        })
+        .expect(200);
+      const results = (
+        answered.body as unknown as { results: Array<{ status: string }> }
+      ).results;
+      expect(results.map(({ status }) => status)).toEqual(
+        body.cards.map(() => "ACCEPTED"),
+      );
+    });
   });
 });
