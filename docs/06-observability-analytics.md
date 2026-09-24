@@ -1,7 +1,7 @@
 # Техническое задание: логирование, ошибки и аналитика
 
 Статус: `Draft 0.1`  
-Конкретные providers: не выбраны
+Конкретные providers: продуктовая аналитика — PostHog Cloud EU ([ADR-025](./adr/ADR-025-product-analytics-posthog.md), план разметки — [22-analytics-tracking-plan.md](./22-analytics-tracking-plan.md)); error/crash reporting и logs/metrics/traces не выбраны
 
 ## 1. Цель
 
