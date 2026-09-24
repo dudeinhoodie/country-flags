@@ -173,7 +173,7 @@ the project has no alert policies and no notification channels at all.
 | Readiness is failing | `/v1/health/ready` returned 503 in the last 5 min | critical | from the API's own log |
 | Readiness is unreachable | the external probe failed for 10 min | critical | needs the uptime check; catches "no instance running" |
 | Sustained 5xx | 5xx share above 5% for 10 min | critical | a ratio, so a quiet night with two errors does not page |
-| Restart loop | more than 6 process starts in 10 min | error | **not enabled on dev** — scale-to-zero makes starts normal |
+| Restart loop | more than 6 process starts in 10 min | error | dev keeps an instance too (#437), so a start outside a deploy or a scale-out is worth a look there as well |
 | Database under pressure | readiness p95 over 500 ms, or Prisma errors over 6/min | warning | half the signal; see below |
 | Worker backlog not draining | oldest pending item older than 15 min, or over 10 dead letters | error | per `queue` |
 | Worker stopped reporting | no backlog heartbeat for 15 min | error | the failure the lag alert cannot see |
@@ -307,8 +307,12 @@ URL="$(gcloud run services describe "$SERVICE" --region "$REGION" --project "$PR
       `gcloud run revisions list --service "$SERVICE" --region "$REGION" --filter="metadata.labels.release=$SHA" --format='value(metadata.name)'`
       returns exactly one revision, and it is the latest ready one.
 - [ ] **Liveness answers.** `curl -sS -o /dev/null -w '%{http_code}\n' "$URL/v1/health/live"`
-      prints `200`. On dev the first call after an idle period takes several
-      seconds; that is scale-to-zero, not a fault.
+      prints `200`.
+- [ ] **The service keeps an instance, with CPU always allocated.**
+      `gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" --format=json | jq -c '{minScale: .metadata.annotations["run.googleapis.com/minScale"], cpuThrottling: .spec.template.metadata.annotations["run.googleapis.com/cpu-throttling"], maxScale: .spec.template.metadata.annotations["autoscaling.knative.dev/maxScale"], concurrency: .spec.template.spec.containerConcurrency, probe: .spec.template.spec.containers[0].startupProbe.httpGet.path}'`
+      prints `{"minScale":"1","cpuThrottling":"false","maxScale":"4","concurrency":20,"probe":"/v1/health/ready"}`.
+      A `null` in the first two means the workers stop between requests
+      ([13-deployment-environments.md](13-deployment-environments.md) §5).
 - [ ] **Readiness answers, and the database is quick.**
       `curl -sS "$URL/v1/health/ready"` prints
       `{"status":"ok","checks":{"database":{"status":"up","latencyMs":9.7...}}}`.
@@ -328,8 +332,8 @@ URL="$(gcloud run services describe "$SERVICE" --region "$REGION" --project "$PR
       is empty.
 - [ ] **Every queue reported.**
       `gcloud logging read 'resource.labels.service_name="'"$SERVICE"'" AND jsonPayload.event="worker_backlog_snapshot"' --project "$PROJECT" --freshness 15m --format='value(jsonPayload.queue,jsonPayload.pending,jsonPayload.deadLetter,jsonPayload.oldestPendingAgeSeconds)'`
-      lists all four queues. On dev, a service that has scaled to zero reports
-      none of them, and that is expected — wake it with a request first.
+      lists all four queues. None at all means no instance is running, which
+      the service's minimum of one rules out on dev and prod alike.
 
 ## 9. Escalation
 
