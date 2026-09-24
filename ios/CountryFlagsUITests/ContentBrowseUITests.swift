@@ -144,7 +144,14 @@ final class ContentBrowseUITests: XCTestCase {
         )
         XCTAssertGreaterThan(rows.count, 1, app.debugDescription)
 
+        // The deck's title is inline, and under an inline title iOS keeps the
+        // search field folded above the list until the list is pulled down —
+        // the catalogue's large title is why its field is simply there.
         let field = app.searchFields.firstMatch
+        for _ in 0..<3 {
+            if field.waitForExistence(timeout: 5) { break }
+            app.staticTexts["deck.cardCount"].swipeDown()
+        }
         XCTAssertTrue(field.waitForExistence(timeout: 15), app.debugDescription)
         field.tap()
         field.typeText("Belg")
