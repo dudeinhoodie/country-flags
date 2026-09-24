@@ -227,13 +227,13 @@ definition, so a lost dashboard can be rebuilt from it.
 
 Tracked in the First release milestone:
 
-- **Backend: PostHog exporter.** Configuration, mapping, operational
+- **#454 Backend: PostHog exporter.** Configuration, mapping, operational
   events excluded, deployment wiring.
-- **Identity.** Analytics subject id, one merge per pair, rotation, and
+- **#455 Identity.** Analytics subject id, one merge per pair, rotation, and
   provider deletion on account deletion.
-- **Consent.** The prompt, loading at launch, backend enforcement, and the
+- **#456 Consent.** The prompt, loading at launch, backend enforcement, and the
   privacy policy, privacy manifest and App Store privacy answers.
-- **Instrumentation.** The registry changes in section 4, the `pattern`
+- **#457 Instrumentation.** The registry changes in section 4, the `pattern`
   support, and every emission site.
-- **Setup and dashboards.** The PostHog organisation and projects, keys and
+- **#458 Setup and dashboards.** The PostHog organisation and projects, keys and
   settings (owner), then the dashboard in section 7.
