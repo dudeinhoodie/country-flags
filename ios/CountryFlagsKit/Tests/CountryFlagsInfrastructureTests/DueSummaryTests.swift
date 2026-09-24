@@ -191,10 +191,8 @@ final class DueSummaryTests: XCTestCase {
             for: account
         )
 
-        XCTAssertEqual(
-            try await learning.dueSummary(for: account)?.nextPortionAt,
-            opensAt
-        )
+        let stored = try await learning.dueSummary(for: account)
+        XCTAssertEqual(stored?.nextPortionAt, opensAt)
     }
 
     /// A portion open now is stored as nothing to wait for, and replacing a
@@ -219,7 +217,8 @@ final class DueSummaryTests: XCTestCase {
         )
         try await learning.saveDueSummary(Self.summary(at: now), for: account)
 
-        XCTAssertNil(try await learning.dueSummary(for: account)?.nextPortionAt)
+        let stored = try await learning.dueSummary(for: account)
+        XCTAssertNil(stored?.nextPortionAt)
     }
 
     /// Two accounts on one device count different queues.
