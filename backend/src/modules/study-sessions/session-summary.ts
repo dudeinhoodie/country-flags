@@ -64,6 +64,10 @@ export function buildSessionSummary(input: {
   startedAt: Date;
   completedAt: Date;
 }): StudySessionSummary {
+  // Four buckets although a client may now submit only two. This counts
+  // stored reviews, and a session imported from the four-grade screen still
+  // holds the grades it was answered with; a summary that dropped them would
+  // report fewer reviews than the session has.
   const ratings = { again: 0, hard: 0, good: 0, easy: 0 };
   const cardIds = new Set<string>();
   let correctCount = 0;

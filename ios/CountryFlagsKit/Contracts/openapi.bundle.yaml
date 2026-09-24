@@ -3690,13 +3690,12 @@ components:
       properties:
         completedAt:
           $ref: '#/components/schemas/DateTime'
-    Rating:
+    SubmittedRating:
+      description: The grades a client may submit. The study screen offers a swipe in two directions and nothing else, so a request carrying HARD or EASY describes an answer the product cannot produce and is rejected at the boundary.
       type: string
       enum:
         - AGAIN
-        - HARD
         - GOOD
-        - EASY
     SelfRatedReviewEvent:
       type: object
       additionalProperties: false
@@ -3722,7 +3721,7 @@ components:
           type: string
           const: SELF_RATED
         rating:
-          $ref: '#/components/schemas/Rating'
+          $ref: '#/components/schemas/SubmittedRating'
         responseTimeMs:
           type:
             - integer
@@ -3816,6 +3815,14 @@ components:
           maxItems: 500
           items:
             $ref: '#/components/schemas/ReviewEvent'
+    Rating:
+      description: Every grade a stored review can hold. FSRS-6 has four, and review history is immutable, so a card answered HARD before the study screen narrowed to two answers still replays under this vocabulary and is still echoed back. What a client may send today is SubmittedRating.
+      type: string
+      enum:
+        - AGAIN
+        - HARD
+        - GOOD
+        - EASY
     CardState:
       type: object
       required:

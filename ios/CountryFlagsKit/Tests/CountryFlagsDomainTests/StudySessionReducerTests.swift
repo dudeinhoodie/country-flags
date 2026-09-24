@@ -53,7 +53,7 @@ final class StudySessionReducerTests: XCTestCase {
         StudySessionReducer.reduce(&state, .revealAnswer)
         StudySessionReducer.reduce(&state, .rate(.good, reviewID: reviewID))
 
-        let second = StudySessionReducer.reduce(&state, .rate(.easy, reviewID: UUID()))
+        let second = StudySessionReducer.reduce(&state, .rate(.again, reviewID: UUID()))
 
         XCTAssertNil(second)
         XCTAssertEqual(state.phase, .committing(index: 0, rating: .good, reviewID: reviewID))
@@ -67,20 +67,20 @@ final class StudySessionReducerTests: XCTestCase {
     func testACommittedRatingAdvancesToTheNextCard() {
         var state = Self.state(cardCount: 2)
         StudySessionReducer.reduce(&state, .revealAnswer)
-        StudySessionReducer.reduce(&state, .rate(.hard, reviewID: reviewID))
+        StudySessionReducer.reduce(&state, .rate(.again, reviewID: reviewID))
 
         let effect = StudySessionReducer.reduce(&state, .commitSucceeded)
 
         XCTAssertNil(effect)
         XCTAssertEqual(state.phase, .front(index: 1))
-        XCTAssertEqual(state.committed[state.cards[0].id], .hard)
+        XCTAssertEqual(state.committed[state.cards[0].id], .again)
         XCTAssertEqual(state.position, 2)
     }
 
     func testTheLastCardFinishesTheSession() {
         var state = Self.state(cardCount: 1)
         StudySessionReducer.reduce(&state, .revealAnswer)
-        StudySessionReducer.reduce(&state, .rate(.easy, reviewID: reviewID))
+        StudySessionReducer.reduce(&state, .rate(.good, reviewID: reviewID))
 
         let effect = StudySessionReducer.reduce(&state, .commitSucceeded)
 
@@ -126,7 +126,7 @@ final class StudySessionReducerTests: XCTestCase {
         StudySessionReducer.reduce(&state, .commitSucceeded)
 
         XCTAssertNil(StudySessionReducer.reduce(&state, .revealAnswer))
-        XCTAssertNil(StudySessionReducer.reduce(&state, .rate(.easy, reviewID: UUID())))
+        XCTAssertNil(StudySessionReducer.reduce(&state, .rate(.again, reviewID: UUID())))
         XCTAssertEqual(state.phase, .finished)
     }
 

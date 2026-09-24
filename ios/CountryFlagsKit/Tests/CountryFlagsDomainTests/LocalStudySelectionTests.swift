@@ -273,20 +273,17 @@ final class LocalSchedulerProjectionTests: XCTestCase {
         XCTAssertEqual(projected.state, "REVIEW")
     }
 
-    /// Intervals grow with confidence but stay short. Showing a card sooner
-    /// than the backend would costs a little repetition; showing it later would
-    /// drop it out of the queue until the next sync.
+    /// The remembered answer waits longer than the forgotten one, and neither
+    /// waits long. Showing a card sooner than the backend would costs a little
+    /// repetition; showing it later would drop it out of the queue until the
+    /// next sync.
     func testIntervalsGrowWithTheRatingAndStayConservative() {
         let base = Self.base(repetitions: 3, lapses: 0)
         let again = LocalSchedulerProjection.interval(base: base, rating: .again)
-        let hard = LocalSchedulerProjection.interval(base: base, rating: .hard)
         let good = LocalSchedulerProjection.interval(base: base, rating: .good)
-        let easy = LocalSchedulerProjection.interval(base: base, rating: .easy)
 
-        XCTAssertLessThan(again, hard)
-        XCTAssertLessThan(hard, good)
-        XCTAssertLessThan(good, easy)
-        XCTAssertLessThanOrEqual(easy, 3 * 24 * 60 * 60)
+        XCTAssertLessThan(again, good)
+        XCTAssertLessThanOrEqual(good, 24 * 60 * 60)
         // The floor the backend's ladder sets: nothing offline may promise a
         // card sooner than the server would ask for it, and the server's
         // first rung is three hours (ADR-022).
@@ -323,7 +320,7 @@ final class LocalSchedulerProjectionTests: XCTestCase {
         let projected = LocalSchedulerProjection.project(
             base: base,
             cardID: base.learningCardID,
-            rating: .easy,
+            rating: .good,
             now: now
         )
 

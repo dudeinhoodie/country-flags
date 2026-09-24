@@ -1,14 +1,19 @@
 import Foundation
 
-/// How well the learner said they knew the card.
+/// What the learner said about the card: they knew it, or they did not.
 ///
 /// The raw values are the contract's, so a review reaches the backend without a
 /// translation table that could drift.
+///
+/// Two cases because the screen has two answers. A card leaves to the right or
+/// to the left and there is no third gesture, so FSRS-6's middle grades were a
+/// vocabulary nothing here could speak — reachable only as VoiceOver actions,
+/// and one of them, HARD, parked a card on a two-hour loop it never graduated
+/// from. The backend still stores all four, because reviews recorded under the
+/// old screen are history and history is not rewritten.
 public enum StudyRating: String, Hashable, Sendable, CaseIterable {
     case again = "AGAIN"
-    case hard = "HARD"
     case good = "GOOD"
-    case easy = "EASY"
 
     /// Whether the answer counts as recalled. `again` is the only lapse, which
     /// is what both the local projection and the backend baseline agree on.

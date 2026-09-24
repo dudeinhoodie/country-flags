@@ -54,9 +54,11 @@ public enum LocalSchedulerProjection {
     /// hour, `fsrs-6-default-21-v3` makes it three (ADR-022) — three hours,
     /// three hours and a day — so a projection that still answered "one hour"
     /// would put a card back on the screen offline that the server has no
-    /// intention of asking for until the afternoon is out. A swipe reaches
-    /// only "again" and "good"; the other two rungs are here for the
-    /// accessibility actions and keep their order.
+    /// intention of asking for until the afternoon is out.
+    ///
+    /// Two rungs, because a swipe reaches two answers. ADR-022 kept the middle
+    /// grades for the accessibility actions; those actions are gone with them
+    /// (ADR-024), and a rung nothing can land on is a rung that drifts.
     static func interval(base: CardStateRecord?, rating: StudyRating) -> TimeInterval {
         let hour: TimeInterval = 60 * 60
         let day: TimeInterval = 24 * hour
@@ -64,17 +66,14 @@ public enum LocalSchedulerProjection {
         // statement rather than the whole body.
         return switch rating {
         case .again: 3 * hour
-        case .hard: 6 * hour
         case .good: base.map { _ in day } ?? 3 * hour
-        case .easy: base.map { _ in 3 * day } ?? day
         }
     }
 
     private static func state(for rating: StudyRating, repetitions: Int) -> String {
         switch rating {
         case .again: "RELEARNING"
-        case .hard, .good: repetitions >= 2 ? "REVIEW" : "LEARNING"
-        case .easy: "REVIEW"
+        case .good: repetitions >= 2 ? "REVIEW" : "LEARNING"
         }
     }
 }

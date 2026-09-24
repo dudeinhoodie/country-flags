@@ -632,9 +632,7 @@ public final class StudySessionRunner {
                     .filter { deckIDs.contains($0.learningCardID) }
                     .compactMap { card in
                         ratingByCard[card.learningCardID].flatMap { rating in
-                            rating == .good || rating == .easy
-                                ? card.learningCardID
-                                : nil
+                            rating == .good ? card.learningCardID : nil
                         }
                     }
             )
@@ -755,9 +753,9 @@ public struct StudySessionSummary: Hashable, Sendable {
     /// rather than from the plan, because a session can be left unfinished.
     public var answeredCards: Int { ratings.values.reduce(0, +) }
 
-    /// The binary reading the finish screen speaks: good and easy answers
-    /// count as remembered.
-    public var rememberedCards: Int { (ratings[.good] ?? 0) + (ratings[.easy] ?? 0) }
+    /// The binary reading the finish screen speaks: a card swiped "good" is
+    /// remembered, and there is no third answer to fold in.
+    public var rememberedCards: Int { ratings[.good] ?? 0 }
     public var recalledCards: Int {
         ratings.filter(\.key.isRecall).values.reduce(0, +)
     }
