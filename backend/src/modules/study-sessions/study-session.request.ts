@@ -42,7 +42,8 @@ export interface CreateServerStudySessionRequest {
    * STANDARD fills the session to `requestedUniqueCount` — due, then new,
    * then maintenance. DUE_ONLY selects only cards whose schedule has come
    * round, capped at `requestedUniqueCount`: the session may hold fewer
-   * cards than requested, and holds none when nothing is due.
+   * cards than requested, and holds none when nothing is due. Both deal no
+   * more due cards than the day's ceiling still allows (`sessionPool`).
    */
   composition: SessionComposition;
 }
