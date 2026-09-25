@@ -51,6 +51,9 @@ public final class ContentStore {
     private let repository: any ContentRepository
     private let coordinator: any ContentSynchronizing
     private let dates: any DateProviding
+    /// The interface's languages rather than the device's, so content falls
+    /// back to the language the screens are in rather than to the release's
+    /// default. See `InterfaceLanguage`.
     private let preferredLanguages: [String]
     /// Fetches one entity from the API when the store has no row for it. The
     /// pages a bootstrap imports carry cards without their entities — only
@@ -81,7 +84,7 @@ public final class ContentStore {
         coordinator: any ContentSynchronizing,
         analytics: (any AnalyticsTracking)? = nil,
         dates: any DateProviding = SystemDateProvider(),
-        preferredLanguages: [String] = Locale.preferredLanguages,
+        preferredLanguages: [String] = InterfaceLanguage.preferredLanguages,
         fetchEntity: (@Sendable (UUID, String) async -> GeoEntityRecord?)? = nil,
         dropCachedAssets: (@Sendable ([AssetRecord]) async -> Void)? = nil,
         showsDecksForSale: @escaping @MainActor () -> Bool = { true }
@@ -332,7 +335,7 @@ public final class ContentStore {
     /// The locale to ask the backend for.
     ///
     /// Before any release is stored there is nothing to match against, so the
-    /// device's own preference is sent and the manifest decides what comes
+    /// interface's own language is sent and the manifest decides what comes
     /// back.
     private func requestLocale() async -> String {
         guard let manifest = try? await repository.currentManifest() else {

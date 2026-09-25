@@ -56,6 +56,17 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   AUTH_REFRESH_TOKEN_TTL_SECONDS: number;
   AUTH_REAUTH_TOKEN_TTL_SECONDS: number;
   AUTH_RATE_LIMIT_SECRET: string;
+  /**
+   * How many proxies in front of this process append to X-Forwarded-For.
+   * Hosted Cloud Run has exactly one, its front end; zero means the socket
+   * peer is the client, which is what local runs and tests see.
+   */
+  TRUST_PROXY_HOPS: number;
+  /**
+   * The same count for requests the admin console proxies: its nginx sits
+   * behind a front end of its own, so the console user is one hop further.
+   */
+  ADMIN_TRUST_PROXY_HOPS: number;
   ACCOUNT_DATA_HASH_SECRET: string;
   DATA_EXPORT_DOWNLOAD_TTL_SECONDS: number;
   PUBLIC_BASE_URL: string;
@@ -645,6 +656,28 @@ export function validateEnvironment(
     );
   }
 
+  // A hop count, never `true`: trusting every entry would let a caller name
+  // its own address by sending the header itself.
+  const trustProxyHops = parseInteger(
+    config.TRUST_PROXY_HOPS,
+    hosted ? 1 : 0,
+    "TRUST_PROXY_HOPS",
+    0,
+    5,
+  );
+  const adminTrustProxyHops = parseInteger(
+    config.ADMIN_TRUST_PROXY_HOPS,
+    hosted ? trustProxyHops + 1 : trustProxyHops,
+    "ADMIN_TRUST_PROXY_HOPS",
+    0,
+    5,
+  );
+  if (adminTrustProxyHops < trustProxyHops) {
+    throw new Error(
+      "Environment variable ADMIN_TRUST_PROXY_HOPS must not be lower than TRUST_PROXY_HOPS",
+    );
+  }
+
   const appleStoreEnvironment = resolveAppleStoreEnvironment(
     config,
     deploymentEnvironment,
@@ -743,6 +776,8 @@ export function validateEnvironment(
       TEST_RATE_LIMIT_SECRET,
       nodeEnvironment,
     ),
+    TRUST_PROXY_HOPS: trustProxyHops,
+    ADMIN_TRUST_PROXY_HOPS: adminTrustProxyHops,
     ACCOUNT_DATA_HASH_SECRET: authSecret(
       config,
       "ACCOUNT_DATA_HASH_SECRET",

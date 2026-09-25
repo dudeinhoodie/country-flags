@@ -36,7 +36,7 @@ expected results находятся в [ios/e2e/README.md](./ios/e2e/README.md).
   аватар, настройки — через шестерёнку;
 - гость может смотреть бесплатный каталог, учиться и видеть локальный прогресс;
 - аккаунт нужен для межустройственной синхронизации и покупки платных колод;
-- текущие пользовательские настройки: размер сессии `5/10/20`, звук, haptics,
+- текущие пользовательские настройки: размер сессии `5/10/20`, haptics,
   напоминания, продуктовая аналитика и диагностика;
 - self-rated и multiple-choice являются отдельными режимами ответа;
 - платные колоды используют Apple Non-Consumable IAP и backend entitlement;
@@ -138,7 +138,7 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-GU-01` | P0 | Guest открывает Home, Catalog, Progress, Settings | Все базовые разделы доступны без входа | Mock CI |
 | `IOS-E2E-GU-02` | P0 | Guest проходит несколько бесплатных сессий | Progress суммируется в одном guest scope и переживает relaunch | Mock CI |
 | `IOS-E2E-GU-03` | P1 | Одна learning card входит в две колоды | Ответ в первой колоде отражается в progress второй без дублирования | Dev E2E |
-| `IOS-E2E-GU-04` | P1 | Guest меняет session size/sound/haptics | Настройки применяются сразу и сохраняются локально | Mock CI |
+| `IOS-E2E-GU-04` | P1 | Guest меняет session size/haptics | Настройки применяются сразу и сохраняются локально | Mock CI |
 | `IOS-E2E-GU-05` | P1 | Guest включает reminders | Запрашивается только локальное permission; backend account не требуется | Device |
 | `IOS-E2E-GU-06` | P0 | Guest открывает paid deck | Видны discovery metadata/preview; полный список и Start закрыты | Mock CI |
 | `IOS-E2E-GU-07` | P0 | Guest нажимает Buy | Открывается account flow; StoreKit purchase не стартует до auth | StoreKit Test |
@@ -290,7 +290,6 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-SE-02` | P0 | Account меняет session size online | Сначала сохранено локально, затем server version; следующая session использует значение | Dev E2E |
 | `IOS-E2E-SE-03` | P1 | Settings version conflict | UI перечитывает backend settings и сообщает о convergence | Dev E2E |
 | `IOS-E2E-SE-04` | P1 | Изменение settings offline → online | Выбор не откатывается молча; pending update синхронизируется | Dev E2E |
-| `IOS-E2E-SE-05` | P1 | Sound off/on | Preference сохраняется; UI и session используют новое значение | Device |
 | `IOS-E2E-SE-06` | P1 | Haptics off/on | Haptics немедленно прекращаются/возвращаются и переживают relaunch | Device |
 | `IOS-E2E-SE-07` | P0 | Reminders on, permission not determined → Allow | Системный prompt появляется только после явного действия; reminder scheduled после grant | Device |
 | `IOS-E2E-SE-08` | P1 | Notification permission denied | Preference не притворяется рабочей; показана ссылка в System Settings | Device |
@@ -382,7 +381,7 @@ Fixtures не должны делить keychain/session между паралл
    convergence после очистки ещё не покрыты.
 3. StoreKit UI проверяет locked/free/owned presentation, но не purchase,
    pending, cancellation, restore, unverified transaction и refund.
-4. Из настроек проверяются session size, sound/haptics и product analytics
+4. Из настроек проверяются session size, haptics и product analytics
    consent — все через relaunch, потому что теряется такая настройка именно
    там. Остаются reminders с системным permission и сходимость конфликтов
    настроек между устройствами.
@@ -429,7 +428,7 @@ Fixtures не должны делить keychain/session между паралл
 - `QZ-07`: перезапуск посреди quiz возвращает тот же вопрос с теми же
   вариантами в том же порядке, а не свежесобранный;
 - `ST-07`: карточка, брошенная `Again`, спрашивается снова до конца сессии;
-- `SE`: звук, haptics и product analytics consent переживают перезапуск;
+- `SE`: haptics и product analytics consent переживают перезапуск;
 - `ST-10`: сессия, закрытая до первого ответа, не создаёт прогресс и не
   сообщает о несуществующей синхронизации;
 - `ST-11`: экран колоды предлагает именно незавершённую сессию, а не новую;
@@ -519,6 +518,9 @@ accessibility matrix и advertising no-fill.
   доказывает кеш контента, но не то, что право пережило недоступный стор.
   Для этого нужен launch-аргумент, делающий недоступным и commerce;
   такого нет, и `PD-17` честно ограничен половиной сценария;
+- переключатель звука: приложение не воспроизводит звуков, и строка
+  настроек убрана в #418. Предпочтение осталось в схеме и контракте, но
+  `SE-05` снят с матрицы, пока в приложении не появится звук;
 - default answer mode;
 - настройка набора дополнительных facts;
 - reminder time и дни недели;

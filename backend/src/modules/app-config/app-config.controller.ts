@@ -9,6 +9,9 @@ import { AppConfigService, type AppConfigSnapshot } from "./app-config.service";
 
 const PLATFORM_VALUES = ["android", "ios", "web"] as const;
 const APP_VERSION_PATTERN = /^[0-9]+\.[0-9]+\.[0-9]+$/u;
+/** Matches the contract's `AppVersion` parameter and device registration. */
+const APP_VERSION_MIN_LENGTH = 5;
+const APP_VERSION_MAX_LENGTH = 32;
 
 @Controller("app-config")
 export class AppConfigController {
@@ -28,8 +31,16 @@ export class AppConfigController {
     ) {
       validationError("platform", "must be ios, android, or web");
     }
-    if (appVersion === undefined || !APP_VERSION_PATTERN.test(appVersion)) {
-      validationError("appVersion", "must be a semantic version");
+    if (
+      typeof appVersion !== "string" ||
+      appVersion.length < APP_VERSION_MIN_LENGTH ||
+      appVersion.length > APP_VERSION_MAX_LENGTH ||
+      !APP_VERSION_PATTERN.test(appVersion)
+    ) {
+      validationError(
+        "appVersion",
+        `must be a semantic version of at most ${APP_VERSION_MAX_LENGTH} characters`,
+      );
     }
     const snapshot = await this.config.snapshot({
       platform: platform as (typeof PLATFORM_VALUES)[number],

@@ -74,4 +74,33 @@ describe("application configuration (integration)", () => {
       .query({ platform: "watch", appVersion: "1.0", locale: "not a locale" })
       .expect(422);
   });
+
+  it("rejects an app version longer than the contract allows", async () => {
+    const response = await request(httpServer)
+      .get("/v1/app-config")
+      .query({
+        platform: "ios",
+        appVersion: `1.0.${"9".repeat(29)}`,
+        locale: "en",
+      })
+      .expect(422);
+    expect(
+      (response.body as { error: { details: { fields: unknown[] } } }).error
+        .details.fields,
+    ).toEqual([
+      {
+        field: "appVersion",
+        message: "must be a semantic version of at most 32 characters",
+      },
+    ]);
+
+    await request(httpServer)
+      .get("/v1/app-config")
+      .query({
+        platform: "ios",
+        appVersion: `1.0.${"9".repeat(28)}`,
+        locale: "en",
+      })
+      .expect(200);
+  });
 });

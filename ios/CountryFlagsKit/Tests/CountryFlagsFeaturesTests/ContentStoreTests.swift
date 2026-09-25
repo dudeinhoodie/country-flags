@@ -141,6 +141,63 @@ final class ContentStoreTests: XCTestCase {
         XCTAssertFalse(store.localeResolution?.isFallback ?? true)
     }
 
+    /// A phone in a language the app has no words in reads the interface in
+    /// English, and the content has to follow it rather than the release's
+    /// default: a German phone showed "All countries" beside "Все страны" and
+    /// a caption saying the catalogue was only in Russian (#448).
+    func testADeviceInAnotherLanguageReadsContentInTheInterfaceLanguage() async {
+        let interface = InterfaceLanguage.preferredLanguages(forDevice: ["de-DE"])
+        XCTAssertEqual(interface.first, "en", "the interface falls back to English")
+        let synchronizer = FakeSynchronizer(status: ContentSyncStatus(lastSuccessAt: now))
+        let store = makeStore(
+            repository: FakeContentRepository(
+                decks: [Self.deck(code: "ALL", kind: "CURATED")],
+                manifest: Self.manifest(supported: ["ru", "en"], default: "ru")
+            ),
+            synchronizer: synchronizer,
+            preferredLanguages: interface
+        )
+
+        await store.start()
+
+        XCTAssertEqual(store.localeResolution?.locale, "en")
+        XCTAssertFalse(
+            store.localeResolution?.isFallback ?? true,
+            "no caption apologises for a language the interface is already in"
+        )
+        let requested = await synchronizer.requestedLocales
+        XCTAssertEqual(requested, ["en"], "the release is asked for in English too")
+    }
+
+    /// Russian and English phones read what they read before, and a phone
+    /// whose second language is one the app speaks reads that one — in the
+    /// interface and in the content alike.
+    func testADeviceTheInterfaceSpeaksKeepsItsLanguage() async {
+        let cases: [(device: [String], expected: String)] = [
+            (["ru-RU"], "ru"),
+            (["en-US"], "en"),
+            (["en-GB"], "en"),
+            (["de-DE", "ru-RU"], "ru"),
+        ]
+        for (device, expected) in cases {
+            let interface = InterfaceLanguage.preferredLanguages(forDevice: device)
+            XCTAssertEqual(interface.first, expected, "interface for \(device)")
+            let store = makeStore(
+                repository: FakeContentRepository(
+                    decks: [Self.deck(code: "ALL", kind: "CURATED")],
+                    manifest: Self.manifest(supported: ["ru", "en"], default: "ru")
+                ),
+                synchronizer: FakeSynchronizer(status: ContentSyncStatus(lastSuccessAt: now)),
+                preferredLanguages: interface
+            )
+
+            await store.start()
+
+            XCTAssertEqual(store.localeResolution?.locale, expected, "content for \(device)")
+            XCTAssertFalse(store.localeResolution?.isFallback ?? true, "content for \(device)")
+        }
+    }
+
     /// Pull-to-refresh goes through the same boundary as the launch sync, so
     /// there is one place that can be in flight and one status to show.
     func testRefreshDrivesTheSharedSyncBoundary() async {

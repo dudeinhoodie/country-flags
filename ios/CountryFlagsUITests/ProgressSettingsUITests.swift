@@ -100,25 +100,22 @@ final class ProgressSettingsUITests: XCTestCase {
         XCTAssertTrue(restored.isSelected, relaunched.debugDescription)
     }
 
-    /// IOS-E2E-SE: the feedback switches are the learner's, and they stay off.
+    /// IOS-E2E-SE: the feedback switch is the learner's, and it stays off.
     ///
-    /// Sound and haptics are the two settings somebody changes because the app
-    /// is bothering them — on a bus, in a lecture, next to a sleeping child.
-    /// A preference that quietly comes back on after a relaunch is not a
-    /// setting, it is a suggestion, and it is the kind of thing a person only
-    /// notices when it is already too late.
-    func testSoundAndHapticsStayOffAcrossARelaunch() {
+    /// Haptics is the setting somebody changes because the app is bothering
+    /// them — on a bus, in a lecture, next to a sleeping child. A preference
+    /// that quietly comes back on after a relaunch is not a setting, it is a
+    /// suggestion, and it is the kind of thing a person only notices when it is
+    /// already too late. There is no sound switch beside it: the app plays no
+    /// sound, and the row went with #418.
+    func testHapticsStayOffAcrossARelaunch() {
         let identity = ["-installation-id", "9a4f0e73-25bd-4c18-8e56-3f01b7d29c48"]
         let app = launch(arguments: ["-reset-store"] + identity)
 
         openSettings(in: app)
-        let sound = app.switches["settings.sound"]
         let haptics = app.switches["settings.haptics"]
-        XCTAssertTrue(sound.waitForExistence(timeout: 30), app.debugDescription)
-        XCTAssertTrue(haptics.waitForExistence(timeout: 15), app.debugDescription)
-        sound.tap()
+        XCTAssertTrue(haptics.waitForExistence(timeout: 30), app.debugDescription)
         haptics.tap()
-        let soundOff = sound.value as? String
         let hapticsOff = haptics.value as? String
 
         // Left the way a person leaves it: the write is started by the tap and
@@ -132,15 +129,8 @@ final class ProgressSettingsUITests: XCTestCase {
 
         let relaunched = launch(arguments: identity)
         openSettings(in: relaunched)
-        let restoredSound = relaunched.switches["settings.sound"]
         let restoredHaptics = relaunched.switches["settings.haptics"]
-        XCTAssertTrue(restoredSound.waitForExistence(timeout: 30), relaunched.debugDescription)
-        XCTAssertEqual(
-            restoredSound.value as? String,
-            soundOff,
-            "A silenced app must still be silent after a relaunch\n"
-                + relaunched.debugDescription
-        )
+        XCTAssertTrue(restoredHaptics.waitForExistence(timeout: 30), relaunched.debugDescription)
         XCTAssertEqual(
             restoredHaptics.value as? String,
             hapticsOff,

@@ -110,6 +110,14 @@ public struct DueSummaryRecord: Hashable, Sendable {
     /// When the server counted. A reader compares it with the device's own
     /// clock and says nothing rather than showing yesterday's queue as today's.
     public let serverTime: Date
+    /// When the next portion opens, or nil when one is open now.
+    ///
+    /// ADR-022 made three hours the rhythm of the scheduler; this is the app's
+    /// way of saying so out loud. Nil covers both honest cases — a portion is
+    /// ripe, or the learner has never finished a sitting — so a reader renders
+    /// a time or says nothing and never has to compare it with the clock to
+    /// find out which.
+    public let nextPortionAt: Date?
 
     public init(
         overdue: Int,
@@ -118,7 +126,8 @@ public struct DueSummaryRecord: Hashable, Sendable {
         review: Int,
         newCards: Int,
         totalDue: Int,
-        serverTime: Date
+        serverTime: Date,
+        nextPortionAt: Date? = nil
     ) {
         self.overdue = overdue
         self.learning = learning
@@ -127,6 +136,7 @@ public struct DueSummaryRecord: Hashable, Sendable {
         self.newCards = newCards
         self.totalDue = totalDue
         self.serverTime = serverTime
+        self.nextPortionAt = nextPortionAt
     }
 
     /// Whether the count is recent enough to put in front of someone.

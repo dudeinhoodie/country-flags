@@ -15,6 +15,7 @@ import {
 } from "@prisma/client";
 
 import { validationError } from "../../common/http/request-validation";
+import { lastCompletedPortionAt, nextPortionAt } from "./portion-cadence";
 import {
   remainingDailyAllowance,
   reviewedTodayCount,
@@ -403,7 +404,8 @@ export class ProgressService {
   }
 
   async getDueSummary(userId: string): Promise<Record<string, unknown>> {
-    const rebuilt = await this.rebuildUser(userId);
+    const now = new Date();
+    const rebuilt = await this.rebuildUser(userId, now);
     const account = rebuilt.account as {
       dueCards: number;
       overdueCards: number;
@@ -415,6 +417,15 @@ export class ProgressService {
       reviewCards: number;
       updatedAt: string;
     };
+    // When the next portion opens, so the app can say so instead of dealing
+    // cards that are not owed and letting them read as a queue. Omitted rather
+    // than sent as null when a portion is open now: the field's absence is the
+    // answer, and a client that has not learned about it is unaffected.
+    const opensAt = nextPortionAt(
+      await lastCompletedPortionAt(this.prisma, userId),
+      now,
+    );
+
     return {
       overdue: account.overdueCards,
       learning: account.dueLearningCards,
@@ -423,6 +434,7 @@ export class ProgressService {
       review: account.reviewCards,
       totalDue: account.dueCards,
       serverTime: account.updatedAt,
+      ...(opensAt === null ? {} : { nextPortionAt: opensAt.toISOString() }),
     };
   }
 

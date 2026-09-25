@@ -33,7 +33,7 @@ enum LocalSchemaV4: VersionedSchema {
             // The one type this version changes; everything else is version 3's.
             StoredDeckProgress.self,
             StoredAchievement.self,
-            StoredDueSummary.self,
+            LocalSchemaV6.StoredDueSummary.self,
             StoredStudySession.self,
             StoredStudySessionCard.self,
             StoredReviewEvent.self,

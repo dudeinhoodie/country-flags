@@ -261,7 +261,9 @@ export class GuestImportsService {
         locale: settings?.contentLocale ?? "ru",
         timezone: settings?.timezone ?? "UTC",
       },
-      update: { lastSeenAt: new Date() },
+      // The reviews below are accepted only from a device that is not
+      // removed, so a new import from the same installation restores it.
+      update: { lastSeenAt: new Date(), deletedAt: null },
       select: { id: true },
     });
     return device.id;
