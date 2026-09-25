@@ -275,7 +275,8 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, ProgressCle
             review: payload.review ?? 0,
             newCards: payload.newCards,
             totalDue: payload.totalDue,
-            serverTime: payload.serverTime
+            serverTime: payload.serverTime,
+            nextPortionAt: payload.nextPortionAt
         )
     }
 

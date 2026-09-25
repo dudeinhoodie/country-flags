@@ -175,7 +175,7 @@ enum LocalSchemaV5: VersionedSchema {
             StoredCardState.self,
             StoredDeckProgress.self,
             StoredAchievement.self,
-            StoredDueSummary.self,
+            LocalSchemaV6.StoredDueSummary.self,
             StoredStudySession.self,
             StoredStudySessionCard.self,
             StoredReviewEvent.self,
