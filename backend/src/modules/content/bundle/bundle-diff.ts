@@ -1,13 +1,27 @@
 import {
   ContentResourceType,
+  DeckKind,
+  DeckStatus,
   type Prisma,
   type PrismaClient,
 } from "@prisma/client";
 
 import type { BundleDomain } from "./bundle-domain";
+import { deckCodeFromKey } from "./bundle-mapper";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
+/**
+ * What changes for one kind of resource, named by the natural key its row is
+ * found by: an entity's content key, an asset's object key, a deck's code and
+ * a learning card's `entity:template:semanticVersion`.
+ *
+ * Both sides of a diff have to be in that one alphabet. A deck is named
+ * `deck.europe` in the catalogue and `EUROPE` in the database, and comparing
+ * the one with the other retired nothing: every stored code looked dropped,
+ * none could be found again by the key it was mistaken for, and a deck
+ * removed from the catalogue stayed published for good (#440).
+ */
 export interface ResourceChangeSet {
   resourceType: ContentResourceType;
   upsertedKeys: string[];
@@ -73,12 +87,21 @@ export async function diffBundleAgainstActive(
           })
         ).map((row) => row.objectKey);
 
-  const previousDeckKeys =
+  // Every catalogue deck still being served rather than only the active
+  // version's: a deck dropped while retirement was broken is still PUBLISHED
+  // under the release that last carried it, and only the next publish is
+  // going to retire it. A person's own deck is not the catalogue's to
+  // retire, whatever a release leaves out; `decks_owner_check` ties an owner
+  // to exactly the kinds left out here.
+  const previousDeckCodes =
     previousActiveVersion === null
       ? []
       : (
           await prisma.deck.findMany({
-            where: { contentVersion: previousActiveVersion },
+            where: {
+              status: DeckStatus.PUBLISHED,
+              kind: { in: [DeckKind.CURATED, DeckKind.TAXONOMY] },
+            },
             select: { code: true },
           })
         ).map((row) => row.code);
@@ -102,7 +125,7 @@ export async function diffBundleAgainstActive(
 
   const nextEntityKeys = domain.catalog.entities.map((e) => e.key);
   const nextAssetKeys = domain.assets.map((a) => a.key);
-  const nextDeckKeys = domain.catalog.decks.map((d) => d.key);
+  const nextDeckCodes = domain.catalog.decks.map((d) => deckCodeFromKey(d.key));
   const nextLearningCardKeys = domain.learningCards.map(
     (c) => `${c.entityKey}:${c.templateCode}:${String(c.semanticVersion)}`,
   );
@@ -118,7 +141,7 @@ export async function diffBundleAgainstActive(
     },
     {
       resourceType: ContentResourceType.DECK,
-      ...diffKeys(previousDeckKeys, nextDeckKeys),
+      ...diffKeys(previousDeckCodes, nextDeckCodes),
     },
     {
       resourceType: ContentResourceType.LEARNING_CARD,
