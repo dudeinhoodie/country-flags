@@ -279,9 +279,22 @@ describe("a deck dropped from the catalogue (integration)", () => {
 
     await publish("decks-v3", [specialAreas]);
 
-    const served = await servedDeckCodes();
-    expect(served).toEqual(expect.arrayContaining(["ALL", "SPECIAL_AREAS"]));
-    expect(served).not.toContain("GHOST");
+    // The ghost is gone from what is served, and the change feed names it as
+    // the one deck retired. The catalogue is not listed here on purpose: a
+    // person's own deck is a row the schema allows but nothing publishes
+    // yet, so it carries no name for `GET /v1/decks` to render.
+    await request(httpServer)
+      .get(`/v1/decks/${ghost.id}`)
+      .query({ locale: "en" })
+      .expect(404);
+    const retirements = await database.contentChange.findMany({
+      where: {
+        contentVersion: "decks-v3",
+        resourceType: ContentResourceType.DECK,
+        operation: ContentChangeOperation.RETIRE,
+      },
+    });
+    expect(retirements.map((change) => change.resourceId)).toEqual([ghost.id]);
     const [ghostAfter, customAfter] = await Promise.all([
       database.deck.findUniqueOrThrow({ where: { id: ghost.id } }),
       database.deck.findUniqueOrThrow({ where: { id: custom.id } }),
