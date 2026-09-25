@@ -70,6 +70,60 @@ describe("validateEnvironment", () => {
     ).toMatchObject({ CORS_ALLOWED_ORIGINS: [] });
   });
 
+  describe("trusted proxy hops", () => {
+    it("trusts no forwarded address outside a hosted deployment", () => {
+      expect(validateEnvironment(validConfig)).toMatchObject({
+        TRUST_PROXY_HOPS: 0,
+        ADMIN_TRUST_PROXY_HOPS: 0,
+      });
+    });
+
+    it.each(["dev", "prod"])(
+      "trusts the front end, and the console one hop further, in %s",
+      (deploymentEnvironment) => {
+        expect(
+          validateEnvironment({
+            ...validConfig,
+            ...productionAuthConfig,
+            NODE_ENV: "production",
+            DEPLOYMENT_ENV: deploymentEnvironment,
+          }),
+        ).toMatchObject({ TRUST_PROXY_HOPS: 1, ADMIN_TRUST_PROXY_HOPS: 2 });
+      },
+    );
+
+    it("accepts explicit hop counts", () => {
+      expect(
+        validateEnvironment({
+          ...validConfig,
+          TRUST_PROXY_HOPS: "2",
+          ADMIN_TRUST_PROXY_HOPS: "3",
+        }),
+      ).toMatchObject({ TRUST_PROXY_HOPS: 2, ADMIN_TRUST_PROXY_HOPS: 3 });
+    });
+
+    it("rejects a hop count that is not a small integer", () => {
+      expect(() =>
+        validateEnvironment({ ...validConfig, TRUST_PROXY_HOPS: "true" }),
+      ).toThrow("TRUST_PROXY_HOPS must be an integer from 0 to 5");
+      expect(() =>
+        validateEnvironment({ ...validConfig, TRUST_PROXY_HOPS: "9" }),
+      ).toThrow("TRUST_PROXY_HOPS must be an integer from 0 to 5");
+    });
+
+    it("rejects a console hop count below the application one", () => {
+      expect(() =>
+        validateEnvironment({
+          ...validConfig,
+          TRUST_PROXY_HOPS: "2",
+          ADMIN_TRUST_PROXY_HOPS: "1",
+        }),
+      ).toThrow(
+        "ADMIN_TRUST_PROXY_HOPS must not be lower than TRUST_PROXY_HOPS",
+      );
+    });
+  });
+
   it("rejects a wildcard CORS origin", () => {
     expect(() =>
       validateEnvironment({

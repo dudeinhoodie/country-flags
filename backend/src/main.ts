@@ -11,6 +11,7 @@ import { json } from "express";
 import helmet from "helmet";
 
 import { AppModule } from "./app/app.module";
+import { configureTrustedProxies } from "./common/http/client-address";
 import { JsonLoggerService } from "./common/logging/json-logger.service";
 import type { EnvironmentVariables } from "./config/environment.validation";
 
@@ -38,6 +39,9 @@ async function bootstrap(): Promise<void> {
 
   app.useLogger(logger);
   app.disable("x-powered-by");
+  // Rate limits and session metadata key on the client address; without this
+  // every request would carry the address of the hosting front end.
+  configureTrustedProxies(app, config.getOrThrow<number>("TRUST_PROXY_HOPS"));
   app.setGlobalPrefix("v1");
   // API-only backend that serves no HTML — CSP has nothing to protect and would only
   // add noise; the remaining helmet defaults (HSTS, X-Content-Type-Options, etc.) still apply.

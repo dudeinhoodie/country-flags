@@ -12,6 +12,10 @@ import {
 import { ConfigService } from "@nestjs/config";
 import type { Response } from "express";
 
+import {
+  clientAddress,
+  forwardedClientAddress,
+} from "../../common/http/client-address";
 import type { RequestWithId } from "../../common/http/request-id.middleware";
 import { RateLimiter } from "../../common/security/rate-limiter.service";
 import type { EnvironmentVariables } from "../../config/environment.validation";
@@ -24,12 +28,15 @@ import { AdminSessionService } from "./admin-session.service";
 import type { AdminSessionContext } from "./admin-session.service";
 import { toAdminUserResponse } from "./admin-user.response";
 
-function sessionContext(request: RequestWithId): AdminSessionContext {
-  return {
-    ipAddress: request.ip ?? request.socket.remoteAddress ?? "unknown-client",
-    userAgent: request.header("user-agent"),
-  };
-}
+/** Console sign-ins per minute from one console user's address. */
+const LOGIN_LIMIT_PER_CONSOLE_CLIENT = 10;
+/**
+ * Console sign-ins per minute from one address the front end saw. Behind the
+ * console's nginx that is the console's own egress, shared by every console
+ * user, so it is wider; a request that reaches the API directly is bounded by
+ * it whatever X-Forwarded-For it carries.
+ */
+const LOGIN_LIMIT_PER_EDGE_ADDRESS = 60;
 
 @Controller("admin")
 export class AdminAuthController {
@@ -50,15 +57,28 @@ export class AdminAuthController {
     // Origin first: rejecting a foreign origin costs nothing, while the
     // rate limit budget should protect token verification and the database.
     this.assertTrustedOrigin(request);
+    const consoleClient = forwardedClientAddress(
+      request,
+      this.config.getOrThrow<number>("ADMIN_TRUST_PROXY_HOPS"),
+    );
+    await this.rateLimiter.consume(
+      "admin-auth:google:edge",
+      clientAddress(request),
+      LOGIN_LIMIT_PER_EDGE_ADDRESS,
+    );
     await this.rateLimiter.consume(
       "admin-auth:google",
-      request.ip ?? "unknown",
-      10,
+      consoleClient,
+      LOGIN_LIMIT_PER_CONSOLE_CLIENT,
     );
     const parsed = parseAdminGoogleLoginRequest(body);
+    const context: AdminSessionContext = {
+      ipAddress: consoleClient,
+      userAgent: request.header("user-agent"),
+    };
     const result = await this.auth.loginWithGoogle(
       parsed.idToken,
-      sessionContext(request),
+      context,
       request.requestId,
     );
     this.sessions.attachCookie(

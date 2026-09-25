@@ -435,6 +435,14 @@ OTEL_EXPORTER_OTLP_ENDPOINT
   `*_ACCESS_KEY_ID`/`*_SECRET_ACCESS_KEY` роняет ревизию на старте — env и
   secrets задаются вместе; `SITE_PUBLIC_URL` необязателен и нужен только для
   ссылки из консоли на страницу.
+- `TRUST_PROXY_HOPS` задаёт, сколько прокси перед процессом дописывают
+  `X-Forwarded-For`; rate limits и метаданные сессий считаются по адресу,
+  который назвал самый внешний из них. В dev/prod по умолчанию 1 (front end
+  Cloud Run), в local/ci — 0. `ADMIN_TRUST_PROXY_HOPS` — то же для запросов
+  консоли: её nginx передаёт заголовок своего front end без изменений, поэтому
+  по умолчанию на один hop больше. Задавать явно нужно только при смене
+  топологии (например, load balancer перед Cloud Run добавляет hop); значение
+  выше реального числа прокси недопустимо.
 
 ## 8. Pull request CI
 
