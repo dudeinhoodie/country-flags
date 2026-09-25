@@ -12,6 +12,7 @@ import {
 } from "@nestjs/common";
 
 import { ApiException } from "../../common/http/api.exception";
+import { clientAddress } from "../../common/http/client-address";
 import type { RequestWithId } from "../../common/http/request-id.middleware";
 import { RateLimiter } from "../../common/security/rate-limiter.service";
 import { ProviderIdentityVerifier } from "./provider-identity-verifier";
@@ -31,6 +32,11 @@ import { AuthGuard, type AuthenticatedRequest } from "./auth.guard";
 type PublicAuthRequest = RequestWithId;
 type PrivateAuthRequest = RequestWithId & AuthenticatedRequest;
 
+/** Refreshes per minute from one client address. */
+const REFRESH_LIMIT_PER_ADDRESS = 60;
+/** Refreshes per minute of one sign-in; a client needs one per access token. */
+const REFRESH_LIMIT_PER_TOKEN_FAMILY = 10;
+
 function requestContext(request: PublicAuthRequest): {
   requestId: string;
   ipAddress: string;
@@ -38,7 +44,7 @@ function requestContext(request: PublicAuthRequest): {
 } {
   return {
     requestId: request.requestId,
-    ipAddress: request.ip ?? request.socket.remoteAddress ?? "unknown-client",
+    ipAddress: clientAddress(request),
     userAgent: request.header("user-agent"),
   };
 }
@@ -69,7 +75,7 @@ export class AuthController {
     @Req() request: PublicAuthRequest,
     @Body() body: unknown,
   ): Promise<Record<string, unknown>> {
-    await this.rateLimiter.consume("auth:apple", request.ip ?? "unknown", 10);
+    await this.rateLimiter.consume("auth:apple", clientAddress(request), 10);
     const parsed = parseAppleAuthRequest(body);
     let identity;
     try {
@@ -90,7 +96,7 @@ export class AuthController {
     @Req() request: PublicAuthRequest,
     @Body() body: unknown,
   ): Promise<Record<string, unknown>> {
-    await this.rateLimiter.consume("auth:google", request.ip ?? "unknown", 10);
+    await this.rateLimiter.consume("auth:google", clientAddress(request), 10);
     const parsed = parseGoogleAuthRequest(body);
     let identity;
     try {
@@ -108,11 +114,26 @@ export class AuthController {
     @Req() request: PublicAuthRequest,
     @Body() body: unknown,
   ): Promise<unknown> {
-    await this.rateLimiter.consume("auth:refresh", request.ip ?? "unknown", 30);
-    return this.auth.rotateRefreshToken(
-      parseRefreshRequest(body),
-      requestContext(request),
+    // The address is the outer layer: it bounds lookups of tokens that do
+    // not exist, and it is shared by everyone behind the same carrier NAT,
+    // so its budget is wider than the per-family one below.
+    await this.rateLimiter.consume(
+      "auth:refresh",
+      clientAddress(request),
+      REFRESH_LIMIT_PER_ADDRESS,
     );
+    const refreshToken = parseRefreshRequest(body);
+    // A family is one sign-in on one device, so this budget follows the
+    // session wherever it refreshes from.
+    const tokenFamilyId = await this.auth.refreshTokenFamily(refreshToken);
+    if (tokenFamilyId !== null) {
+      await this.rateLimiter.consume(
+        "auth:refresh-family",
+        tokenFamilyId,
+        REFRESH_LIMIT_PER_TOKEN_FAMILY,
+      );
+    }
+    return this.auth.rotateRefreshToken(refreshToken, requestContext(request));
   }
 
   @Post("logout")

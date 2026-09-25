@@ -30,6 +30,7 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             LocalSchemaV4.self,
             LocalSchemaV5.self,
             LocalSchemaV6.self,
+            LocalSchemaV7.self,
         ]
     }
 
@@ -60,6 +61,12 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             // session still open cross the update untouched. A deck stored
             // before this reads as `FREE`, which is what it is.
             .lightweight(fromVersion: LocalSchemaV5.self, toVersion: LocalSchemaV6.self),
+            // Adding when the next portion opens: a property with a default on
+            // a model versions 3 to 6 froze, so SwiftData widens the table and
+            // a device keeps what it has not uploaded yet. A summary stored
+            // before this reads as nil, which is what the backend says when a
+            // portion is open now.
+            .lightweight(fromVersion: LocalSchemaV6.self, toVersion: LocalSchemaV7.self),
         ]
     }
 }
@@ -78,7 +85,7 @@ public struct LocalStore: Sendable {
     public let container: ModelContainer
 
     public init(location: Location = .onDisk(name: "CountryFlags")) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV6.self)
+        let schema = Schema(versionedSchema: LocalSchemaV7.self)
         let configuration: ModelConfiguration
         switch location {
         case .inMemory:
@@ -110,7 +117,7 @@ public struct LocalStore: Sendable {
     /// Builds a store at an explicit file URL, which is what a migration or a
     /// relaunch test needs.
     public init(fileURL: URL) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV6.self)
+        let schema = Schema(versionedSchema: LocalSchemaV7.self)
         do {
             container = try ModelContainer(
                 for: schema,
@@ -168,7 +175,7 @@ public struct LocalStore: Sendable {
     /// which only needs to know which files to remove before the store is
     /// opened.
     public static func fileURLs(forName name: String) -> [URL] {
-        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV6.self))
+        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV7.self))
             .url
         // SQLite keeps its write-ahead log and shared memory next to the store.
         return [base]

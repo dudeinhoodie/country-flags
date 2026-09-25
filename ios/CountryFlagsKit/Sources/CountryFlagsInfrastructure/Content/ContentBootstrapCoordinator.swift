@@ -157,6 +157,11 @@ public actor ContentBootstrapCoordinator: ContentSynchronizing {
     /// than a default argument because the answer depends on the device, and
     /// the decoding happens inside the closure so a device that already holds
     /// a release never reads the document at all.
+    ///
+    /// The composition passes the languages the interface resolved rather
+    /// than the device's: this module cannot see the string catalog, and a
+    /// device language the app has no words in must fall back the way the
+    /// screens do, not to the release's default (#448).
     public static func shippedCatalog(
         preferredLanguages: [String] = Locale.preferredLanguages,
         displayScale: Double,

@@ -37,6 +37,44 @@ import SwiftData
 enum LocalSchemaV6: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(6, 0, 0) }
 
+    /// The due summary as versions 3 to 6 stored it: the counts and the instant
+    /// the server counted at, with nothing about when the next portion opens.
+    ///
+    /// Frozen here because version 7 adds that instant, and a version describes
+    /// the store as it was. Versions 3 to 5 list this copy too — the summary did
+    /// not change between them, so one copy stands for all four.
+    @Model
+    final class StoredDueSummary {
+        var scopeKey: String = ""
+        var overdue: Int = 0
+        var learning: Int = 0
+        var relearning: Int = 0
+        var review: Int = 0
+        var newCards: Int = 0
+        var totalDue: Int = 0
+        var serverTime: Date = Date.distantPast
+
+        init(
+            scopeKey: String,
+            overdue: Int,
+            learning: Int,
+            relearning: Int,
+            review: Int,
+            newCards: Int,
+            totalDue: Int,
+            serverTime: Date
+        ) {
+            self.scopeKey = scopeKey
+            self.overdue = overdue
+            self.learning = learning
+            self.relearning = relearning
+            self.review = review
+            self.newCards = newCards
+            self.totalDue = totalDue
+            self.serverTime = serverTime
+        }
+    }
+
     static var models: [any PersistentModel.Type] {
         [
             StoredContentManifest.self,
@@ -54,7 +92,7 @@ enum LocalSchemaV6: VersionedSchema {
             StoredCardState.self,
             StoredDeckProgress.self,
             StoredAchievement.self,
-            StoredDueSummary.self,
+            LocalSchemaV6.StoredDueSummary.self,
             StoredStudySession.self,
             StoredStudySessionCard.self,
             StoredReviewEvent.self,

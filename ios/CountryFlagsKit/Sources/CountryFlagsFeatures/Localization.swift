@@ -75,6 +75,12 @@ public enum L10n {
     /// The cleared-day card: a learner who finished everything is told so,
     /// shown what it added up to, and offered somewhere to go next.
     public static var homeClearedSubtitle: String { localized("home.cleared.subtitle") }
+    /// The moment the rhythm comes round, in place of "when they are due".
+    /// ADR-022 made that three hours; this is the app saying so rather than
+    /// leaving the learner to guess.
+    public static func homeClearedNextPortion(_ time: String) -> String {
+        String(format: localized("home.cleared.next_portion"), time)
+    }
     public static var homeClearedLearned: String { localized("home.cleared.learned") }
     public static var homeClearedInProgress: String { localized("home.cleared.in_progress") }
     /// Declined by the count, which is why it goes through the catalogue's own

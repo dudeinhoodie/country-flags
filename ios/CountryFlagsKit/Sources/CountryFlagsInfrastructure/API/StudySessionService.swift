@@ -12,6 +12,8 @@ import CountryFlagsDomain
 public struct StudySessionService: StudySessionSelecting, StudySessionImporting {
     private let clientFactory: APIClientFactory
     private let content: any ContentRepository
+    /// The languages the interface resolved, handed in by the composition so
+    /// a session's names are in the language of the screen around them.
     private let preferredLanguages: [String]
     private let dates: any DateProviding
 
@@ -255,7 +257,7 @@ public struct StudySessionService: StudySessionSelecting, StudySessionImporting 
     }
 
     /// The locale sessions are asked for: what the stored release resolves
-    /// for this device, the device's own preference before any release.
+    /// for the interface's languages, the first of them before any release.
     private func requestLocale() async -> String {
         guard let manifest = try? await content.currentManifest() else {
             return preferredLanguages.first ?? "en"

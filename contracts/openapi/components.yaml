@@ -15,6 +15,8 @@ parameters:
     description: Semantic application version.
     schema:
       type: string
+      minLength: 5
+      maxLength: 32
       pattern: ^[0-9]+\.[0-9]+\.[0-9]+$
     example: 1.0.0
   Locale:
@@ -1928,6 +1930,14 @@ schemas:
         type: integer
         minimum: 0
       serverTime:
+        $ref: "#/schemas/DateTime"
+      nextPortionAt:
+        description: >-
+          When the next portion of cards opens, three hours after the last
+          sitting this learner finished. Absent when a portion is open now,
+          which is also the answer for a learner who has never finished one —
+          the field's absence is the whole signal, so a client never compares
+          it with the clock to find out whether it applies.
         $ref: "#/schemas/DateTime"
   MasteryTier:
     description: >-

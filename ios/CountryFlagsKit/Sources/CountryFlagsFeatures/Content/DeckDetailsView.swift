@@ -165,7 +165,14 @@ public struct DeckDetailsView: View {
     private var standard: some View {
         content
             .navigationTitle(title)
-            .searchable(text: searchBinding, prompt: L10n.deckSearchPrompt)
+            // Placed explicitly. With the automatic placement iOS 26 drew no
+            // field and no button on this pushed screen, so the deck's own
+            // search could not be reached at all.
+            .searchable(
+                text: searchBinding,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: L10n.deckSearchPrompt
+            )
             .refreshable {
                 await RefreshGesture.perform {
                     await store.refresh()
@@ -229,7 +236,11 @@ public struct DeckDetailsView: View {
                     }
                 }
             )
-            .searchable(text: searchBinding, prompt: L10n.deckCardSearchPrompt)
+            .searchable(
+                text: searchBinding,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: L10n.deckCardSearchPrompt
+            )
             .refreshable {
                 await RefreshGesture.perform {
                     await store.refresh()

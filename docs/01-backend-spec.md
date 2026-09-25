@@ -168,8 +168,11 @@ Email не является первичным или уникальным ид�
 - `push_token_encrypted nullable`
 - `last_seen_at`
 - `created_at`
+- `deleted_at nullable`
 
 Unique `(user_id, client_generated_id)`.
+
+Удаление устройства (`DELETE /v1/me/devices/:id`) не удаляет строку: immutable `review_events` ссылаются на устройство, и `ON DELETE SET NULL` означал бы `UPDATE` истории. Вместо этого одна транзакция проставляет `deleted_at`, очищает `push_token_encrypted` и отзывает все refresh sessions устройства. Удалённое устройство не показывается в списке, не принимает новые review events и повторно удаляется как отсутствующее (`404 DEVICE_NOT_FOUND`). Новый вход с тем же `client_generated_id` снимает отметку, и история остаётся под тем же идентификатором. Строки удаляются вместе с аккаунтом.
 
 #### `user_settings`
 

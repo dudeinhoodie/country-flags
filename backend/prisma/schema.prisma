@@ -374,6 +374,9 @@ model Device {
   pushTokenEncrypted     String?          @map("push_token_encrypted")
   lastSeenAt             DateTime         @default(now()) @map("last_seen_at") @db.Timestamptz(3)
   createdAt              DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  /// Set when the user removes the device. The row stays because immutable
+  /// review events reference it; signing in again from it clears the mark.
+  deletedAt              DateTime?        @map("deleted_at") @db.Timestamptz(3)
   user                   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   refreshSessions        RefreshSession[]
   reviewEvents           ReviewEvent[]

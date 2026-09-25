@@ -3026,6 +3026,23 @@
         }
       }
     },
+    "home.cleared.next_portion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The next portion opens at %@. You could take a new deck — nobody said you cannot learn ahead."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следующая порция откроется в %@. Можно взять новую колоду — учить наперёд никто не запрещал."
+          }
+        }
+      }
+    },
     "home.cleared.subtitle": {
       "extractionState": "manual",
       "localizations": {

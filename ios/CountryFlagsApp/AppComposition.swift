@@ -256,6 +256,9 @@ struct AppComposition: AppDependencies {
             // only when the store is empty, and superseded by the first
             // release the server hands over.
             bundledCatalog: ContentBootstrapCoordinator.shippedCatalog(
+                // The interface's language, not the device's: content falls
+                // back with the screens, not to the release's default (#448).
+                preferredLanguages: InterfaceLanguage.preferredLanguages,
                 displayScale: displayScale,
                 dates: dates
             ),
@@ -327,6 +330,7 @@ struct AppComposition: AppDependencies {
         let studySessions = StudySessionService(
             clientFactory: apiClientFactory,
             content: contentRepository,
+            preferredLanguages: InterfaceLanguage.preferredLanguages,
             dates: dates
         )
         // The queue is durable from the first launch. A guest's answers wait

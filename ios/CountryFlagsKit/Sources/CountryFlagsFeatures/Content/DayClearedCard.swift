@@ -28,6 +28,10 @@ import CountryFlagsDomain
 struct DayClearedCard: View {
     let learned: Int
     let inProgress: Int
+    /// When the next portion opens, as the backend last answered it. Nil when
+    /// one is open now, and the card says the vaguer thing instead — which is
+    /// the truth in that case, because there is nothing to wait for.
+    let nextPortionAt: Date?
     let onOpenCatalog: (() -> Void)?
 
     var body: some View {
@@ -70,6 +74,17 @@ struct DayClearedCard: View {
     /// The one spot of colour in the app, spent on the one moment that earns
     /// it. Palette rendering keeps the tick readable against the seal rather
     /// than flattening the whole glyph to green.
+    /// What the card says under the tally: the exact time when there is one
+    /// still ahead, the standing reassurance otherwise.
+    private var subtitle: String {
+        guard let nextPortionAt, nextPortionAt > .now else {
+            return L10n.homeClearedSubtitle
+        }
+        return L10n.homeClearedNextPortion(
+            nextPortionAt.formatted(date: .omitted, time: .shortened)
+        )
+    }
+
     private var seal: some View {
         Image(systemName: "checkmark.seal.fill")
             .font(.system(size: 34))
@@ -83,7 +98,12 @@ struct DayClearedCard: View {
             // The reassurance and the offer in one breath. They used to be a
             // section label, a sentence and a button — three weights for one
             // quiet thought at the bottom of a card about being finished.
-            Text(L10n.homeClearedSubtitle)
+            //
+            // With an hour to name, it names it. A moment already passed is
+            // not named: a stored summary outlives the portion it described,
+            // and a time in the past reads as a broken promise rather than a
+            // stale one.
+            Text(subtitle)
                 .font(DesignTokens.Typography.caption)
                 .foregroundStyle(.white.opacity(0.55))
                 .fixedSize(horizontal: false, vertical: true)

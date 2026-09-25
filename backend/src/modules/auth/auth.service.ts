@@ -114,6 +114,19 @@ export class AuthService {
     });
   }
 
+  /**
+   * The token family a presented refresh token belongs to, or null when the
+   * token is unknown. Used to key the per-sign-in refresh budget before any
+   * rotation happens.
+   */
+  async refreshTokenFamily(rawToken: string): Promise<string | null> {
+    const session = await this.database.refreshSession.findUnique({
+      where: { tokenHash: this.hashToken(rawToken) },
+      select: { tokenFamilyId: true },
+    });
+    return session?.tokenFamilyId ?? null;
+  }
+
   async rotateRefreshToken(
     rawToken: string,
     context: RequestContext,
@@ -542,6 +555,9 @@ export class AuthService {
           locale: device.locale,
           timezone: device.timezone,
           lastSeenAt: new Date(),
+          // A fresh provider sign-in from a removed device brings it back:
+          // the same row keeps its review history under one identifier.
+          deletedAt: null,
         },
       });
       const settings = await transaction.userSettings.upsert({
