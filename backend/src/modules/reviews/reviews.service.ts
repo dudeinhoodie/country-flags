@@ -443,8 +443,10 @@ export class ReviewsService {
     if (session.mode !== event.answerMode) {
       throw new RejectedReviewError("ANSWER_MODE_MISMATCH");
     }
+    // A removed device answers as it did when removal deleted the row; its
+    // sessions are revoked, so only another device could still name it.
     const device = await transaction.device.findFirst({
-      where: { id: event.deviceId, userId },
+      where: { id: event.deviceId, userId, deletedAt: null },
       select: { id: true },
     });
     if (device === null) {
