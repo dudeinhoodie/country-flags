@@ -32,6 +32,7 @@
 - [20-admin-parity-checklist.md](./20-admin-parity-checklist.md) — чем закрыты entity/asset/deck workflows редизайна, что осталось за feature flag и чего проверка не покрывает.
 - [20-deployment-observability.md](./20-deployment-observability.md) — что оператор видит о деплое, деградации воркера и восстановлении: сигналы, запросы, alerts, dashboard и release verification checklist.
 - [21-ios-e2e-test-plan.md](./21-ios-e2e-test-plan.md) — сквозная iOS E2E-матрица: guest/auth migration, обучение, sync, настройки, StoreKit, paid multi-content decks и release gaps.
+- [22-analytics-tracking-plan.md](./22-analytics-tracking-plan.md) — план продуктовой аналитики первого релиза: вопросы и метрики, каждое событие с моментом отправки и свойствами, жизненный цикл identity, запрос согласия и dashboards.
 - [ios/e2e/README.md](./ios/e2e/README.md) — подробные пошаговые iOS E2E test cases с предусловиями и expected result после каждого значимого действия.
 - [ops/deployment-runbooks.md](./ops/deployment-runbooks.md) — deploy, rollback, отказ миграции, отказ backup и ротация секретов: команды, ожидаемый вывод и условия остановки.
 - [ops/commerce-reconciliation-runbook.md](./ops/commerce-reconciliation-runbook.md) — сверка со Store: что делает джоб, его alerts и ручные действия.
@@ -56,6 +57,7 @@
 - [ADR-021](./adr/ADR-021-bundled-catalogue-snapshot.md) — приложение везёт с собой каталог того же релиза и засевает им пустое хранилище до сети; первая же успешная синхронизация заменяет его целиком.
 - [ADR-022](./adr/ADR-022-first-repetition-after-three-hours.md) — первая ступень повтора поднята до трёх часов: при ответе свайпом ни «снова», ни первое «хорошо» не возвращают карточку раньше.
 - [ADR-023](./adr/ADR-023-public-site-and-legal-documents.md) — публичный сайт как свой Cloud Run service в стиле приложения; политики редактируются в консоли и публикуются статическим снимком, который сайт отдаёт без API; язык приходит из приложения параметром `?lang=`.
+- [ADR-025](./adr/ADR-025-product-analytics-posthog.md) — продуктовая аналитика уходит в PostHog Cloud EU из backend outbox, без SDK в приложении; согласие спрашивается один раз после первой завершённой сессии.
 
 ## Подтверждённые продуктовые решения
 
