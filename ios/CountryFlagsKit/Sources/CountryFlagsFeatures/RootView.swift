@@ -36,6 +36,13 @@ public struct RootView: View {
     /// which was one door too many between "your work lives only here" and
     /// the button that changes that.
     @State private var isPresentingSignIn = false
+    /// The first launch's welcome: shown once, to a guest with nothing
+    /// answered, where the composition asks for it.
+    private let showsWelcomeOnFirstLaunch: Bool
+    @State private var isPresentingWelcome = false
+    @AppStorage(WelcomeKeys.seen) private var hasSeenWelcome = false
+    /// The developer switch's request to show it again.
+    @AppStorage(WelcomeKeys.devRequest) private var isWelcomeRequested = false
 
     /// Whether a run is in flight that is about to change the numbers on
     /// screen.
@@ -95,8 +102,10 @@ public struct RootView: View {
         makePrivacyStore: (() -> PrivacyStore)? = nil,
         featureFlags: FeatureFlagCenter,
         sync: SyncCenter,
-        commerce: CommerceCenter? = nil
+        commerce: CommerceCenter? = nil,
+        showsWelcomeOnFirstLaunch: Bool = false
     ) {
+        self.showsWelcomeOnFirstLaunch = showsWelcomeOnFirstLaunch
         _router = State(wrappedValue: router)
         self.configuration = configuration
         self.content = content
@@ -363,6 +372,31 @@ public struct RootView: View {
         .task {
             if accountToolbar == nil { accountToolbar = makeAccountStore?() }
             await accountToolbar?.start()
+            // Once the account has said who this is: a device that is
+            // already signed in, or already studied, is not a first launch
+            // whatever the flag says.
+            if showsWelcomeOnFirstLaunch, !hasSeenWelcome,
+                case .guest? = accountToolbar?.state, progress.hasNoProgress
+            {
+                isPresentingWelcome = true
+            }
+        }
+        .onChange(of: isWelcomeRequested) { _, requested in
+            guard requested else { return }
+            isWelcomeRequested = false
+            isPresentingWelcome = true
+        }
+        .sheet(isPresented: $isPresentingWelcome, onDismiss: { hasSeenWelcome = true }) {
+            if let accountToolbar {
+                SignInSheet(
+                    store: accountToolbar,
+                    purpose: .welcome,
+                    learnedCountries: learnedCountries,
+                    fan: SignInFan(content: content, assets: assets, progress: progress),
+                    privacyPolicyURL: configuration.privacyPolicyURL,
+                    termsURL: configuration.termsURL
+                )
+            }
         }
         // A run the backend refused is the moment a sign-in can have expired
         // under an open screen: the coordinator has already ruled, and the
@@ -610,6 +644,9 @@ public enum AccessibilityIdentifier {
     public static let homeFlagOfTheDay = "home.flagOfTheDay"
     public static func homeRegion(_ code: String) -> String { "home.region.\(code)" }
     public static let settingsDevBlockIDs = "settings.dev.blockIDs"
+    public static let settingsDevShowWelcome = "settings.dev.showWelcome"
+    public static let welcomeSheet = "welcome.sheet"
+    public static let welcomeContinueAsGuest = "welcome.continueAsGuest"
     /// The day's queue, which is a different button from the way back into an
     /// unfinished sitting — they can now stand on the screen together.
     public static let homeReview = "home.review"

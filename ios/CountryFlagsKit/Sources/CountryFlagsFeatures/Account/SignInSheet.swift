@@ -36,16 +36,26 @@ public struct SignInFan {
             among: Set(cards.map(\.id)),
             states: Array(states.values)
         )
-        // Names break the ties on both sides, so the fan holds still between
-        // openings instead of reshuffling under the learner.
+        // Identifiers break the ties on both sides, so the fan holds still
+        // between openings instead of reshuffling under the learner — and a
+        // learner with nothing learned yet is not shown the alphabet's first
+        // three, the same Afghanistan everybody else gets.
         let sorted = cards.sorted { left, right in
             let leftLearned = learned.contains(left.id)
             let rightLearned = learned.contains(right.id)
             if leftLearned != rightLearned { return leftLearned }
-            return left.displayName < right.displayName
+            return left.id.uuidString < right.id.uuidString
         }
         return Array(sorted.prefix(3))
     }
+}
+
+/// Where the first launch's welcome remembers itself.
+enum WelcomeKeys {
+    /// Set once the welcome has been answered either way.
+    static let seen = "welcome.seen"
+    /// Set by the developer switch to show it again on the next occasion.
+    static let devRequest = "dev.showWelcome"
 }
 
 /// The way in, as a screen of its own.
@@ -68,7 +78,16 @@ public struct SignInFan {
 /// that is a plain button, not a gesture — a guest must be able to decline
 /// without hunting for the edge of a sheet.
 struct SignInSheet: View {
+    /// Why the screen is up. The same page serves the first launch, where it
+    /// says what the app is and lets a guest walk in without an account
+    /// (`docs/02-ios-spec.md` §9.1), and a later offer to keep the progress.
+    enum Purpose {
+        case signIn
+        case welcome
+    }
+
     let store: AccountStore
+    var purpose: Purpose = .signIn
     /// The learner's own count, for the promise. Nil or zero says the same
     /// thing without a number.
     let learnedCountries: Int?
@@ -140,7 +159,19 @@ struct SignInSheet: View {
 
     // MARK: - Above the tray
 
+    @ViewBuilder
     private var header: some View {
+        if purpose == .welcome {
+            // No close circle on the first launch: the way past the offer is
+            // the named button on the tray, so nobody closes the welcome
+            // without knowing they chose to go on as a guest.
+            Color.clear.frame(height: DesignTokens.Spacing.large)
+        } else {
+            closeHeader
+        }
+    }
+
+    private var closeHeader: some View {
         HStack {
             Spacer(minLength: 0)
 
@@ -169,12 +200,16 @@ struct SignInSheet: View {
 
     private var promise: some View {
         VStack(spacing: DesignTokens.Spacing.small) {
-            Text(L10n.accountSignInSheetTitle)
+            Text(purpose == .welcome ? L10n.welcomeTitle : L10n.accountSignInSheetTitle)
                 .font(.title.weight(.bold))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .accessibilityAddTraits(.isHeader)
-                .accessibilityIdentifier(AccessibilityIdentifier.accountSignInSheet)
+                .accessibilityIdentifier(
+                    purpose == .welcome
+                        ? AccessibilityIdentifier.welcomeSheet
+                        : AccessibilityIdentifier.accountSignInSheet
+                )
 
             Text(promiseBody)
                 .font(DesignTokens.Typography.body)
@@ -187,6 +222,7 @@ struct SignInSheet: View {
     /// put there: "96 countries" is this person's work, "your progress" is
     /// a category.
     private var promiseBody: String {
+        if purpose == .welcome { return L10n.welcomeBody }
         if let learnedCountries, learnedCountries > 0 {
             return L10n.accountSignInSheetBodyCount(learnedCountries)
         }
@@ -195,9 +231,16 @@ struct SignInSheet: View {
 
     private var benefits: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-            benefit("arrow.triangle.2.circlepath", L10n.accountSignInBenefitSync)
-            benefit("iphone", L10n.accountSignInBenefitDevices)
-            benefit("key", L10n.accountSignInBenefitPassword)
+            switch purpose {
+            case .welcome:
+                benefit("calendar.badge.clock", L10n.welcomeBenefitReviews)
+                benefit("wifi.slash", L10n.welcomeBenefitOffline)
+                benefit("person.crop.circle.badge.checkmark", L10n.welcomeBenefitAccount)
+            case .signIn:
+                benefit("arrow.triangle.2.circlepath", L10n.accountSignInBenefitSync)
+                benefit("iphone", L10n.accountSignInBenefitDevices)
+                benefit("key", L10n.accountSignInBenefitPassword)
+            }
         }
         .padding(.horizontal, DesignTokens.Spacing.small)
     }
@@ -260,18 +303,38 @@ struct SignInSheet: View {
                     .accessibilityIdentifier(AccessibilityIdentifier.accountFailure)
             }
 
+            if purpose == .welcome {
+                // The guest's way in, as the specification asks: a button of
+                // the pair's size, not a line of small print (§9.1).
+                Button { dismiss() } label: {
+                    Text(L10n.welcomeContinueAsGuest)
+                        .font(
+                            .system(size: DesignTokens.Layout.providerLabelSize, weight: .medium)
+                        )
+                        .foregroundStyle(.primary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: DesignTokens.Layout.providerButtonHeight)
+                        .background(.black.opacity(0.07), in: Capsule(style: .continuous))
+                        .contentShape(Capsule(style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier(AccessibilityIdentifier.welcomeContinueAsGuest)
+            }
+
             smallPrint
 
-            // The way out is a word, as guideline 9.1 asks: a guest declines
-            // an account out loud, not by finding the edge of a sheet. Quiet
-            // and set apart below the small print: it is the answer to the
-            // offer, not a third button in the pair.
-            Button(L10n.accountSignInNotNow) { dismiss() }
-                .font(DesignTokens.Typography.body.weight(.medium))
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, minHeight: DesignTokens.Layout.minimumTouchTarget)
-                .padding(.top, DesignTokens.Spacing.medium)
-                .accessibilityIdentifier(AccessibilityIdentifier.accountSignInNotNow)
+            if purpose == .signIn {
+                // The way out is a word, as guideline 9.1 asks: a guest
+                // declines an account out loud, not by finding the edge of a
+                // sheet. Quiet and set apart below the small print: it is the
+                // answer to the offer, not a third button in the pair.
+                Button(L10n.accountSignInNotNow) { dismiss() }
+                    .font(DesignTokens.Typography.body.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: DesignTokens.Layout.minimumTouchTarget)
+                    .padding(.top, DesignTokens.Spacing.medium)
+                    .accessibilityIdentifier(AccessibilityIdentifier.accountSignInNotNow)
+            }
         }
         .padding(.top, DesignTokens.Spacing.large)
         .padding(.horizontal, DesignTokens.Spacing.large)

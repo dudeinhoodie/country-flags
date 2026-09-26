@@ -334,6 +334,13 @@ public enum L10n {
     }
     public static var accountSignInLegal: String { localized("account.sign_in_sheet.legal") }
     public static var accountSignInNotNow: String { localized("account.sign_in_sheet.not_now") }
+    /// The first launch.
+    public static var welcomeTitle: String { localized("welcome.title") }
+    public static var welcomeBody: String { localized("welcome.body") }
+    public static var welcomeBenefitReviews: String { localized("welcome.benefit_reviews") }
+    public static var welcomeBenefitOffline: String { localized("welcome.benefit_offline") }
+    public static var welcomeBenefitAccount: String { localized("welcome.benefit_account") }
+    public static var welcomeContinueAsGuest: String { localized("welcome.continue_as_guest") }
     public static var accountFallbackName: String { localized("account.fallback_name") }
 
     // MARK: - The account screen

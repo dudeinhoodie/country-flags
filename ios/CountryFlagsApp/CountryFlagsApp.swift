@@ -31,7 +31,14 @@ struct CountryFlagsApp: App {
                 makePrivacyStore: { composition.makePrivacyStore() },
                 featureFlags: composition.featureFlags,
                 sync: composition.sync,
-                commerce: composition.commerce
+                commerce: composition.commerce,
+                // The welcome is the production build's first launch. Every
+                // other environment is where the UI suites run, and a sheet
+                // over Home would stand in front of each of them; there it is
+                // asked for with `-show-welcome` or from Settings → Developer.
+                showsWelcomeOnFirstLaunch:
+                    !composition.configuration.environment.allowsDebugAffordances
+                    || ProcessInfo.processInfo.arguments.contains("-show-welcome")
             )
             .onOpenURL { url in
                 // Google's browser round trip comes home through here too;

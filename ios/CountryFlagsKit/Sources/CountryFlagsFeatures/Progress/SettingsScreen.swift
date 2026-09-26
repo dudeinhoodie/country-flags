@@ -28,6 +28,8 @@ public struct SettingsScreen: View {
     /// Draws the names of the screens' blocks. Offered only where the
     /// environment badge is, which is every build but production.
     @AppStorage(DevBlockIDs.storageKey) private var showsBlockIDs = false
+    /// Asks the shell to present the first launch's welcome again.
+    @AppStorage(WelcomeKeys.devRequest) private var isWelcomeRequested = false
 
     public init(
         store: SettingsStore,
@@ -155,6 +157,8 @@ public struct SettingsScreen: View {
                 Section {
                     Toggle(String("Show block IDs"), isOn: $showsBlockIDs)
                         .accessibilityIdentifier(AccessibilityIdentifier.settingsDevBlockIDs)
+                    Button(String("Show the welcome")) { isWelcomeRequested = true }
+                        .accessibilityIdentifier(AccessibilityIdentifier.settingsDevShowWelcome)
                 } header: {
                     SectionLabel(String("Developer"))
                 }

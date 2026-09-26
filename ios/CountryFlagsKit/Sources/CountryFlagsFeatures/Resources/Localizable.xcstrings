@@ -5708,6 +5708,108 @@
           }
         }
       }
+    },
+    "welcome.benefit_account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An account is optional: it only keeps your progress"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Аккаунт по желанию: он только сохраняет прогресс"
+          }
+        }
+      }
+    },
+    "welcome.benefit_offline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Works without the internet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Работает без интернета"
+          }
+        }
+      }
+    },
+    "welcome.benefit_reviews": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reviews come back when they are due"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторения приходят, когда пора"
+          }
+        }
+      }
+    },
+    "welcome.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every country, its region and the special areas. You answer, and the app brings each flag back just as it starts to slip."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все страны, регионы и особые территории. Ты отвечаешь, а приложение возвращает каждый флаг как раз тогда, когда он начинает забываться."
+          }
+        }
+      }
+    },
+    "welcome.continue_as_guest": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue without an account"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжить без аккаунта"
+          }
+        }
+      }
+    },
+    "welcome.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The flags of the whole world"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Флаги всего мира"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
