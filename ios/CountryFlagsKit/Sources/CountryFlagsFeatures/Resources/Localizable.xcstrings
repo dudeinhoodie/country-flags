@@ -211,13 +211,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Everything will be gone by %@. Until then you can keep studying as a guest."
+            "value": "Everything was erased on %@. You can keep studying as a guest."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Всё сотрём до %@. До тех пор можно тренироваться как гость."
+            "value": "Всё стёрто %@. Можно продолжать как гость."
           }
         }
       }
@@ -228,13 +228,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This account is being deleted"
+            "value": "This account was deleted"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Аккаунт удаляется"
+            "value": "Аккаунт удалён"
           }
         }
       }
@@ -2491,15 +2491,104 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld cards"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld card"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld cards"
+                }
+              }
+            }
           }
         },
         "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Карточек: %lld"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld карточка"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld карточки"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld карточек"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld карточки"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "deck.coat_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld coat of arms"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld coats of arms"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld герб"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld герба"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld гербов"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld герба"
+                }
+              }
+            }
           }
         }
       }
@@ -2517,6 +2606,59 @@
           "stringUnit": {
             "state": "translated",
             "value": "Страны"
+          }
+        }
+      }
+    },
+    "deck.flag_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld flag"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld flags"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld флаг"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld флага"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld флагов"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld флага"
+                }
+              }
+            }
           }
         }
       }

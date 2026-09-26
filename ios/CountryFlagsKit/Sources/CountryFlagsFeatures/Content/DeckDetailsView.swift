@@ -356,7 +356,7 @@ public struct DeckDetailsView: View {
                     .foregroundStyle(.white.opacity(0.7))
             }
 
-            Text(L10n.deckCardCount(details.deck.cardCount))
+            Text(L10n.deckItemCount(details.deck.cardCount, contentKinds: details.deck.contentKinds))
                 .font(DesignTokens.Typography.caption)
                 .foregroundStyle(.white.opacity(0.55))
                 .accessibilityIdentifier(AccessibilityIdentifier.deckCardCount)

@@ -654,7 +654,7 @@ public struct HomeView: View {
                                             .foregroundStyle(.white)
                                             .lineLimit(1)
                                             .minimumScaleFactor(0.8)
-                                        Text(L10n.deckCardCount(deck.cardCount))
+                                        Text(L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds))
                                             .font(DesignTokens.Typography.caption)
                                             .foregroundStyle(.white.opacity(0.55))
                                     }

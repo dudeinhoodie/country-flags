@@ -275,7 +275,7 @@ public struct CatalogView: View {
 
     /// "250 cards · Learned: 34", and just the count until something is.
     private func trail(for deck: DeckRecord) -> String {
-        let count = L10n.deckCardCount(deck.cardCount)
+        let count = L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds)
         guard let row = progressRow(for: deck), row.learnedCards > 0 else { return count }
         return "\(count) · \(L10n.progressDeckLearned(row.learnedCards))"
     }

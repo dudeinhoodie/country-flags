@@ -148,8 +148,25 @@ public enum L10n {
     public static var deckSearchPrompt: String { localized("deck.search_prompt") }
     public static var deckNoMatches: String { localized("deck.no_matches") }
 
-    public static func deckCardCount(_ count: Int) -> String {
-        String(format: localized("deck.card_count"), count)
+    /// A deck's size in what it holds: "195 flags", "52 coats of arms". A deck
+    /// was "195 cards" in the catalogue and "195 countries" on Home; flags is
+    /// the word that is true of every flag deck, the special areas included,
+    /// and a deck that mixes kinds keeps "cards". Declined by the count, as
+    /// `accountGuestNoteCount` is.
+    public static func deckItemCount(_ count: Int, contentKinds: [String]) -> String {
+        let kinds = Set(contentKinds)
+        let key: String
+        if kinds == ["COAT_OF_ARMS"] {
+            key = "deck.coat_count"
+        } else if kinds.isEmpty || kinds == ["FLAG"] {
+            key = "deck.flag_count"
+        } else {
+            key = "deck.card_count"
+        }
+        return String.localizedStringWithFormat(
+            NSLocalizedString(key, bundle: bundle, comment: ""),
+            count
+        )
     }
 
     public static var homeOpenProgress: String { localized("home.open_progress") }
