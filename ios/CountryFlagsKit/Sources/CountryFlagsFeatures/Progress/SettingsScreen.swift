@@ -25,6 +25,9 @@ public struct SettingsScreen: View {
     /// now, and a tester still has to be able to tell dev from the real thing —
     /// so it says so here, where somebody looking for it will look.
     private let environmentBadge: String?
+    /// Draws the names of the screens' blocks. Offered only where the
+    /// environment badge is, which is every build but production.
+    @AppStorage(DevBlockIDs.storageKey) private var showsBlockIDs = false
 
     public init(
         store: SettingsStore,
@@ -74,6 +77,7 @@ public struct SettingsScreen: View {
                 .padding(.vertical, DesignTokens.Spacing.extraSmall)
             } header: {
                 SectionLabel(L10n.settingsSessionSection)
+                    .devBlockID("settings.session")
             }
             .listRowBackground(rowBackground)
 
@@ -87,6 +91,7 @@ public struct SettingsScreen: View {
                     .accessibilityIdentifier(AccessibilityIdentifier.settingsHaptics)
             } header: {
                 SectionLabel(L10n.settingsFeedbackSection)
+                    .devBlockID("settings.feedback")
             }
             .listRowBackground(rowBackground)
 
@@ -118,6 +123,7 @@ public struct SettingsScreen: View {
                 }
             } header: {
                 SectionLabel(L10n.settingsRemindersSection)
+                    .devBlockID("settings.reminders")
             } footer: {
                 // A footer only when there is something the switch cannot say
                 // on its own: the system has the last word here, and that is
@@ -144,6 +150,16 @@ public struct SettingsScreen: View {
             .listRowBackground(rowBackground)
 
             if let environmentBadge {
+                // Not localized: a switch for whoever is reviewing a debug
+                // build, never seen by a learner.
+                Section {
+                    Toggle(String("Show block IDs"), isOn: $showsBlockIDs)
+                        .accessibilityIdentifier(AccessibilityIdentifier.settingsDevBlockIDs)
+                } header: {
+                    SectionLabel(String("Developer"))
+                }
+                .listRowBackground(rowBackground)
+
                 Section {
                     Text(environmentBadge)
                         .font(DesignTokens.Typography.caption)
@@ -192,6 +208,7 @@ public struct SettingsScreen: View {
                 }
             } header: {
                 SectionLabel(L10n.privacySection)
+                    .devBlockID("settings.privacy")
             } footer: {
                 Text(L10n.privacyFooter)
                     .foregroundStyle(.white.opacity(0.5))

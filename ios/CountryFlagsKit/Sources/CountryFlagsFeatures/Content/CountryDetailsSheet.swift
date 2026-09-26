@@ -71,6 +71,7 @@ struct CountryDetailsSheet: View {
         ScrollView {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 header
+                    .devBlockID("details.header")
 
                 // The flag and its shelf, one row: the flag keeps a fixed
                 // plate — an aspect-ratio view offered the whole width takes
@@ -88,12 +89,14 @@ struct CountryDetailsSheet: View {
                     }
                 }
                 .frame(height: DesignTokens.Layout.detailPairHeight)
+                .devBlockID("details.flag")
 
                 // What the symbol means, when the release says. Above the
                 // facts because it is what the card just asked about: the
                 // reader opened this sheet from a drawing, not from a place.
                 if symbolStory != nil || symbolName != nil {
                     symbolPane
+                        .devBlockID("details.symbol")
                 }
 
                 // The heading names what kind of place this is. `Country
@@ -106,6 +109,7 @@ struct CountryDetailsSheet: View {
                 .font(DesignTokens.Typography.sectionTitle)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier(AccessibilityIdentifier.detailsFacts)
+                .devBlockID("details.facts")
 
                 // Every entry is a tile, dealt in pairs. Each pair is fixed
                 // vertically so it takes the taller tile's height: left to
@@ -127,6 +131,7 @@ struct CountryDetailsSheet: View {
                 // the lookup answers, so nothing below the fold jumps.
                 if let outline {
                     mapTile(outline)
+                        .devBlockID("details.map")
                         .frame(height: DesignTokens.Layout.detailMapHeight)
                 } else if !didResolveOutline {
                     SkeletonBlock(

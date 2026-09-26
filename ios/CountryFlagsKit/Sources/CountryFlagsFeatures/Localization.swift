@@ -100,6 +100,18 @@ public enum L10n {
         String(format: localized("home.due_count"), count)
     }
     public static var homeDeckSize: String { localized("home.deck_size") }
+    /// A first visit: the flag to guess and the regions to start from.
+    public static var homeFlagOfTheDay: String { localized("home.flag_of_the_day.label") }
+    public static var homeFlagOfTheDayQuestion: String {
+        localized("home.flag_of_the_day.question")
+    }
+    public static var homeFlagOfTheDayReveal: String {
+        localized("home.flag_of_the_day.reveal")
+    }
+    public static var homeFlagOfTheDayDetails: String {
+        localized("home.flag_of_the_day.details")
+    }
+    public static var homeRegionsLabel: String { localized("home.regions.label") }
     public static var homeContinue: String { localized("home.continue") }
     public static var homeSessionInProgress: String { localized("home.session_in_progress") }
     public static func homeSessionLeft(_ count: Int) -> String {
@@ -268,14 +280,9 @@ public enum L10n {
     // MARK: - Account
 
     public static var accountSection: String { localized("account.section") }
-    /// The same section, headed by what it offers rather than by what it is
-    /// about, for somebody who has no account yet. "Account" over a pair of
-    /// sign-in buttons, on a screen already titled Account, says nothing.
-    public static var accountSignInSection: String { localized("account.sign_in_section") }
     public static var accountSignedIn: String { localized("account.signed_in") }
     public static var accountExpired: String { localized("account.expired") }
     public static var accountSignOut: String { localized("account.sign_out") }
-    public static var accountSignOutEverywhere: String { localized("account.sign_out_everywhere") }
     public static var accountSignOutClean: String { localized("account.sign_out_clean") }
     public static var accountCancel: String { localized("account.cancel") }
     public static var accountSigningIn: String { localized("account.signing_in") }
@@ -285,6 +292,31 @@ public enum L10n {
     public static var accountSignInOffline: String { localized("account.sign_in_offline") }
     public static var accountGuestNote: String { localized("account.guest_note") }
     public static var accountSignInGoogle: String { localized("account.sign_in_google") }
+    /// The guest's row on the account screen, and the screen it opens.
+    public static var accountSignInRow: String { localized("account.sign_in_row") }
+    public static var accountSignInBlockTitle: String { localized("account.sign_in_block.title") }
+    public static var accountSignInAgain: String { localized("account.sign_in_again") }
+    public static var accountSignInRowExpired: String { localized("account.sign_in_row_expired") }
+    public static var accountSignInSheetTitle: String { localized("account.sign_in_sheet.title") }
+    public static var accountSignInSheetBody: String { localized("account.sign_in_sheet.body") }
+    /// Declined by the count, as `accountGuestNoteCount` is.
+    public static func accountSignInSheetBodyCount(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("account.sign_in_sheet.body_count", bundle: bundle, comment: ""),
+            count
+        )
+    }
+    public static var accountSignInBenefitSync: String {
+        localized("account.sign_in_sheet.benefit_sync")
+    }
+    public static var accountSignInBenefitDevices: String {
+        localized("account.sign_in_sheet.benefit_devices")
+    }
+    public static var accountSignInBenefitPassword: String {
+        localized("account.sign_in_sheet.benefit_password")
+    }
+    public static var accountSignInLegal: String { localized("account.sign_in_sheet.legal") }
+    public static var accountSignInNotNow: String { localized("account.sign_in_sheet.not_now") }
     public static var accountFallbackName: String { localized("account.fallback_name") }
 
     // MARK: - The account screen

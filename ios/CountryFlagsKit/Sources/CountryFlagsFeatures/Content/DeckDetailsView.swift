@@ -299,9 +299,11 @@ public struct DeckDetailsView: View {
         SceneScrollView {
             if isStale || failure != nil {
                 ContentStatusBanner(isStale: isStale, failure: failure)
+                    .devBlockID("deck.status")
             }
 
             header(details)
+                .devBlockID("deck.header")
 
             // Only when it has something to say: with the action at the
             // bottom and the size in the settings, the card is the unfinished
@@ -309,9 +311,11 @@ public struct DeckDetailsView: View {
             // a shape the eye has to decode for nothing.
             if onStartStudy != nil, continuable != nil || isObjectiveModeEnabled {
                 startCard()
+                    .devBlockID("deck.start")
             }
 
             countries(details)
+                .devBlockID("deck.countries")
         }
         // The same bar as the region's progress screen, in the same place with
         // the same gaps: both screens are a long list of countries with one
@@ -329,6 +333,7 @@ public struct DeckDetailsView: View {
                 .buttonStyle(GlassProminentActionStyle())
                 .disabled(cardCount(of: details) == 0)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
+                .devBlockID("deck.action")
                 .padding(.horizontal, DesignTokens.Spacing.medium)
                 .padding(.bottom, DesignTokens.Spacing.medium)
             }

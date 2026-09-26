@@ -31,6 +31,11 @@ public struct RootView: View {
     /// toolbar: a store made during a render would be thrown away by the next
     /// one, and the picture would never arrive.
     @State private var accountToolbar: AccountStore?
+    /// Whether the sign-in screen is up over the shell. The rows on Home and
+    /// Progress that ask for it used to lead to the account screen first,
+    /// which was one door too many between "your work lives only here" and
+    /// the button that changes that.
+    @State private var isPresentingSignIn = false
 
     /// Whether a run is in flight that is about to change the numbers on
     /// screen.
@@ -280,7 +285,7 @@ public struct RootView: View {
                         )
                     },
                     account: accountToolbar,
-                    onOpenAccount: { router.push(.account) }
+                    onSignIn: { isPresentingSignIn = true }
                 )
                 .toolbar {
                     // Between the avatar and the gear, which is where a
@@ -321,7 +326,8 @@ public struct RootView: View {
                     store: progress,
                     onOpenDeck: { router.push(.deckProgress(deckID: $0)) },
                     account: accountToolbar,
-                    onOpenAccount: { router.push(.account) }
+                    onSignIn: { isPresentingSignIn = true },
+                    onOpenCatalog: { router.tab = .catalog }
                 )
                 .toolbar { accountAndSettings }
                 .navigationDestination(for: AppRoute.self) { route in
@@ -341,6 +347,17 @@ public struct RootView: View {
         // bars all take their colours from here rather than each screen
         // fighting the light appearance on its own.
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $isPresentingSignIn) {
+            if let accountToolbar {
+                SignInSheet(
+                    store: accountToolbar,
+                    learnedCountries: learnedCountries,
+                    fan: SignInFan(content: content, assets: assets, progress: progress),
+                    privacyPolicyURL: configuration.privacyPolicyURL,
+                    termsURL: configuration.termsURL
+                )
+            }
+        }
         // Recovery and the first sync happen once, after the first frame:
         // everything on screen already answers from the store.
         .task {
@@ -477,7 +494,8 @@ public struct RootView: View {
                 store: progress,
                 onOpenDeck: { router.push(.deckProgress(deckID: $0)) },
                 account: accountToolbar,
-                onOpenAccount: { router.push(.account) }
+                onSignIn: { isPresentingSignIn = true },
+                onOpenCatalog: { router.tab = .catalog }
             )
         case .deckProgress(let deckID):
             DeckProgressDetailsView(
@@ -527,7 +545,8 @@ public struct RootView: View {
                     makeClearProgress: makeClearProgressStore,
                     privacyPolicyURL: configuration.privacyPolicyURL,
                     termsURL: configuration.termsURL,
-                    learnedCountries: learnedCountries
+                    learnedCountries: learnedCountries,
+                    fan: SignInFan(content: content, assets: assets, progress: progress)
                 )
             }
         }
@@ -588,6 +607,9 @@ public enum AccessibilityIdentifier {
     }
 
     public static let homeDueEmpty = "home.due.empty"
+    public static let homeFlagOfTheDay = "home.flagOfTheDay"
+    public static func homeRegion(_ code: String) -> String { "home.region.\(code)" }
+    public static let settingsDevBlockIDs = "settings.dev.blockIDs"
     /// The day's queue, which is a different button from the way back into an
     /// unfinished sitting — they can now stand on the screen together.
     public static let homeReview = "home.review"
@@ -600,6 +622,7 @@ public enum AccessibilityIdentifier {
 
     public static let homeOpenProgress = "home.openProgress"
     public static let progressEmpty = "progress.empty"
+    public static let progressEmptyOpenCatalog = "progress.empty.openCatalog"
     /// Work a catalogue change could not carry across, and the control that
     /// says it has been read.
     public static let progressStrandedNotice = "progress.stranded"
@@ -618,12 +641,15 @@ public enum AccessibilityIdentifier {
 
     public static let accountSignInApple = "settings.account.signInApple"
     public static let accountFakeSignIn = "settings.account.fakeSignIn"
+    /// The guest's row on the account screen: the way to the sign-in screen.
+    public static let accountSignInRow = "settings.account.signInRow"
+    public static let accountSignInSheet = "settings.account.signInSheet"
+    public static let accountSignInNotNow = "settings.account.signInNotNow"
     public static let accountSignInGoogle = "settings.account.signInGoogle"
     public static let accountSignedIn = "settings.account.signedIn"
     public static let accountSigningIn = "settings.account.signingIn"
     public static let accountSignOut = "settings.account.signOut"
     public static let accountSignOutConfirm = "settings.account.signOut.confirm"
-    public static let accountSignOutEverywhereConfirm = "settings.account.signOutEverywhere.confirm"
     public static let accountSignOutCancel = "settings.account.signOut.cancel"
     public static let accountExpired = "settings.account.expired"
     public static let accountFailure = "settings.account.failure"

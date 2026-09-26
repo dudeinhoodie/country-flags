@@ -5,34 +5,25 @@ import CountryFlagsDomain
 
 /// The two ways in, as one block.
 ///
-/// Signing in and proving who you are again are different operations with the
-/// same first step: a provider credential. The buttons are shared so the two
-/// places cannot drift into looking like a first choice and an afterthought —
-/// what differs is what the caller does with the credential, which is the
-/// closure it passes.
-///
 /// They are a pair, so they are drawn as one: the same height, the same
-/// label, the same capsule. What differs is whose surface each wears.
+/// label, the same capsule. What differs is whose surface each wears, and
+/// both surfaces are the brands' own.
 ///
-/// Apple's button is the system's own, and at this height that is the
-/// better choice rather than merely the safe one. Apple fixes the title of a
-/// Sign in with Apple button at 43% of its height — for the system control
-/// and for any custom one alike — and App Review looks at every custom one,
-/// so redrawing it would buy nothing but risk. What the proportion leaves
-/// open is the height, and the height was chosen from the label: the body
-/// size, 17 points, which is 40 tall. Apple permits a corner radius up to
-/// half the height, so the capsule this app is built from is available.
+/// Apple's button is the system's own. Apple fixes the title of a Sign in
+/// with Apple button at 43% of its height — for the system control and for
+/// any custom one alike — and App Review looks at every custom one, so
+/// redrawing it would buy nothing but risk. Black, because the pair stands on
+/// a light tray: Apple keeps its black button for light grounds and its white
+/// one for dark, and while the pair stood on the dark scene it was white.
 ///
-/// Google's button is drawn here, to Google's own light theme as its asset
-/// pack draws it: white, a grey hairline inside the edge, near-black text,
-/// the mark on the white with nothing under it, and the pill Google offers
-/// beside the rectangle. Only the height — Google's is 44 — and the label
-/// size are ours, matched to the button above; Google permits scaling as
-/// long as the mark keeps its proportions. Two white capsules of one height
-/// is what both brands ask for: Google wants its button at least as
-/// prominent as the others, Apple wants the same of its own, and the
-/// hairline is what tells them apart — as it does everywhere this pair
-/// appears. A dark theme was tried and looked like a hole in the scene.
+/// Google's button is drawn here, to Google's neutral theme as its asset pack
+/// draws it: a light grey fill, near-black text, the mark on the fill with
+/// nothing under it and no hairline — the one theme Google offers without an
+/// outline. Only the height and the label size are ours, matched to the
+/// button above; Google permits scaling as long as the mark keeps its
+/// proportions. Two solid capsules of one height is what both brands ask for:
+/// Google wants its button at least as prominent as the others, Apple wants
+/// the same of its own.
 ///
 /// Both are titled "Continue with …" rather than "Sign in with …": one flow
 /// serves the person with an account and the person without, which is the
@@ -82,7 +73,7 @@ struct ProviderSignInButtons: View {
                 onFailure(failure)
             }
         }
-        .signInWithAppleButtonStyle(.white)
+        .signInWithAppleButtonStyle(.black)
         .frame(height: DesignTokens.Layout.providerButtonHeight)
         // The one shape the app draws. Apple permits a radius up to half the
         // height, and half the height is a capsule.
@@ -105,10 +96,11 @@ struct ProviderSignInButtons: View {
                 // Twelve points between the mark and the title is Google's
                 // own spacing for iOS.
                 HStack(spacing: DesignTokens.Spacing.small + 4) {
-                    // Twenty points in Google's 44-point button, scaled with
-                    // the button as the guidelines ask.
                     GoogleLogoMark()
-                        .frame(width: 18, height: 18)
+                        .frame(
+                            width: DesignTokens.Layout.providerMarkSize,
+                            height: DesignTokens.Layout.providerMarkSize
+                        )
                     Text(L10n.accountSignInGoogle)
                         // The same size Apple draws its own label at, above:
                         // a fixed point size rather than the type ramp, so
@@ -116,7 +108,7 @@ struct ProviderSignInButtons: View {
                         .font(
                             .system(size: DesignTokens.Layout.providerLabelSize, weight: .medium)
                         )
-                        .foregroundStyle(GoogleLightTheme.title)
+                        .foregroundStyle(GoogleNeutralTheme.title)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: DesignTokens.Layout.providerButtonHeight)
@@ -136,30 +128,25 @@ struct ProviderSignInButtons: View {
     }
 }
 
-/// Google's light button theme, in Google's numbers. A brand keeps its
-/// colours the way a flag does: the fill, the hairline inside it and the
-/// title are the values Google publishes, not ours to tune.
-private enum GoogleLightTheme {
-    /// #FFFFFF
-    static let fill = Color.white
-    /// #747775, one point, inside the edge.
-    static let stroke = Color(red: 116 / 255, green: 119 / 255, blue: 117 / 255)
+/// Google's neutral button theme, in Google's numbers. A brand keeps its
+/// colours the way a flag does: the fill and the title are the values Google
+/// publishes, not ours to tune. Neutral has no stroke, which is why it is the
+/// theme here: a hairline beside a button that has none reads as a mistake.
+private enum GoogleNeutralTheme {
+    /// #F2F2F2
+    static let fill = Color(red: 242 / 255, green: 242 / 255, blue: 242 / 255)
     /// #1F1F1F
     static let title = Color(red: 31 / 255, green: 31 / 255, blue: 31 / 255)
 }
 
-/// Google's light theme on the app's capsule, pressed the way every other
+/// Google's neutral theme on the app's capsule, pressed the way every other
 /// button in the app is pressed.
 private struct GoogleSignInStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .background(GoogleLightTheme.fill, in: Capsule(style: .continuous))
-            .overlay {
-                Capsule(style: .continuous)
-                    .strokeBorder(GoogleLightTheme.stroke, lineWidth: 1)
-            }
+            .background(GoogleNeutralTheme.fill, in: Capsule(style: .continuous))
             // A frame makes room; it does not make a target.
             .contentShape(Capsule(style: .continuous))
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)

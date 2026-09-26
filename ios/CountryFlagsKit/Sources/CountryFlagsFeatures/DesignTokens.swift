@@ -108,6 +108,14 @@ public enum DesignTokens {
         public static let groundLightRadius: CGFloat = 380
     }
 
+    /// The sign-in screen's tray: the one light surface in the app.
+    public enum SignIn {
+        /// Light enough for Apple's black button, which is drawn for light
+        /// grounds, and for Google's neutral one to read against; grey rather
+        /// than white, because pure white under a dark scene glared.
+        public static let trayWhite: Double = 0.86
+    }
+
     public enum Layout {
         /// The smallest side of an interactive element the platform
         /// guidelines allow.
@@ -115,18 +123,27 @@ public enum DesignTokens {
         /// Both provider sign-in buttons, identical on purpose: two offers
         /// of the same thing must read as equals.
         ///
-        /// Shorter than every other action in the app, and not by taste.
         /// Apple fixes the proportions of a Sign in with Apple button — the
         /// title is 43% of the height — for the system button and for any
         /// custom one alike, reviews every custom one, and offers no API for
-        /// the label. So the height follows from the label rather than the
-        /// other way round: a title at the body size, 17 points, is a button
-        /// 40 points tall. At 44 the label was 19, the largest type on the
-        /// screen; at the app's 56 it was 24. The guidelines allow down to 30.
-        public static let providerButtonHeight: CGFloat = 40
-        /// The label on both provider buttons: 43% of the height, which is
-        /// what Apple draws on its own button and what ours matches beside it.
-        public static let providerLabelSize: CGFloat = providerButtonHeight * 0.43
+        /// the label. So the height sets the label. The pair used to sit in
+        /// the settings form at 40, where a 17-point label kept it in step
+        /// with the rows around it; now it closes a screen of its own, on a
+        /// light tray under the promise it keeps, and 48 is the height of a
+        /// primary action there: a 21-point label, one step above the body.
+        /// Google's own iOS button is 44; both permit scaling.
+        public static let providerButtonHeight: CGFloat = 48
+        /// The label on both provider buttons: what Apple's own button draws
+        /// at this height, measured rather than quoted. The HIG's 43% is the
+        /// proportion it asks of a custom button; the system button sets its
+        /// title smaller — 19 points at 48 (its "C" matches a 19-point medium
+        /// label to the pixel), 17.2 at 44, 15.4 at 40 — about 40% of the
+        /// height. Google's label beside it takes the same size, so the pair
+        /// reads as one.
+        public static let providerLabelSize: CGFloat = providerButtonHeight * 19 / 48
+        /// Google's mark inside its button: 20 points in Google's 44-point
+        /// button, scaled with the button as the guidelines ask.
+        public static let providerMarkSize: CGFloat = providerButtonHeight * 20 / 44
         /// The height of a primary action. Larger than the minimum on purpose:
         /// the rating row is pressed hundreds of times in a session, and a miss
         /// there costs a wrong interval rather than a wrong screen.

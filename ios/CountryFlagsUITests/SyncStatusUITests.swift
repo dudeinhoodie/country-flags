@@ -15,7 +15,11 @@ final class SyncStatusUITests: XCTestCase {
     private let identity = ["-installation-id", "5e7b21c4-90aa-4d33-8b61-0c4f7d2e9a18"]
     private let account = ["-fixture-account-id", "9f000000-0000-4000-8000-00000000000e"]
 
-    func testTheSyncLineReportsWorkQueuedOnAnotherScreen() {
+    /// A guest's answers are not queued for anybody: they stay on the phone
+    /// until a sign-in carries them over. So the header says nothing about
+    /// them, and the account row on Home is what tells the guest where their
+    /// work lives.
+    func testAGuestIsToldWhereTheirAnswersLiveAndShownNoUpload() {
         let app = XCUIApplication()
         app.launchArguments += ["-reset-store"]
         app.launch()
@@ -48,16 +52,19 @@ final class SyncStatusUITests: XCTestCase {
             app.debugDescription
         )
 
-        // The count is re-read once, when Home appears, and that read goes to
-        // the same store the first content import is still filling. Thirty
-        // seconds is what the rest of this suite gives a cold launch; the line
-        // is late here rather than absent, and what makes it late is the size
-        // of the release rather than anything about the queue.
-        let chip = syncStatus(in: app)
-        XCTAssertTrue(chip.waitForExistence(timeout: 30), app.debugDescription)
-        XCTAssertFalse(chip.label.isEmpty)
-        // A guest is told their work is saved, not that something failed.
-        XCTAssertFalse(chip.label.contains("sync."))
+        // The counts are re-read once, when Home appears, and that read goes
+        // to the same store the first content import is still filling. Thirty
+        // seconds is what the rest of this suite gives a cold launch.
+        XCTAssertTrue(
+            app.descendants(matching: .any)["home.guestPrompt"]
+                .waitForExistence(timeout: 30),
+            app.debugDescription
+        )
+        XCTAssertFalse(
+            syncStatus(in: app).exists,
+            "A guest's answers are not sent, so nothing may claim an upload\n"
+                + app.debugDescription
+        )
     }
 
     /// IOS-E2E-SY-02 and SY-12: the network comes back.
@@ -166,7 +173,7 @@ final class SyncStatusUITests: XCTestCase {
                 format: "identifier IN %@",
                 [
                     "settings.account.signedIn",
-                    "settings.account.signInApple",
+                    "settings.account.signInRow",
                     "settings.account.signingIn",
                     "settings.account.expired",
                 ]
