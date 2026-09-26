@@ -99,7 +99,7 @@ public enum L10n {
     public static func homeDueCount(_ count: Int) -> String {
         String(format: localized("home.due_count"), count)
     }
-    public static var homeDeckSize: String { localized("home.deck_size") }
+    public static var homeDeckLearned: String { localized("home.deck_learned") }
     /// A first visit: the flag to guess and the regions to start from.
     public static var homeFlagOfTheDay: String { localized("home.flag_of_the_day.label") }
     public static var homeFlagOfTheDayQuestion: String {

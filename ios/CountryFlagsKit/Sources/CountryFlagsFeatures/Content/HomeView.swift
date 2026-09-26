@@ -157,8 +157,8 @@ public struct HomeView: View {
                     .devBlockID("home.status")
             }
 
-            accountPrompt
-                .devBlockID("home.account")
+            expiredSignInPrompt
+                .devBlockID("home.sign-in-expired")
 
             // The screen fills in the order its data arrives, which is two
             // waves and not one: the catalogue is already on the device — the
@@ -211,6 +211,13 @@ public struct HomeView: View {
                 .easeInOut(duration: 0.2),
                 value: isAwaitingProgress || isSettling
             )
+
+            // Under the day rather than over it: the offer is about the
+            // person, and the first thing on the screen should be what to do
+            // next. Seven answers in, it stood above the unfinished session
+            // and pushed it down the screen.
+            guestPrompt
+                .devBlockID("home.account")
         }
         .sheet(item: $detailsSubject) { subject in
             if let assets {
@@ -392,14 +399,12 @@ public struct HomeView: View {
         // different thing from a queue — one is a place to go back to, the
         // other is work to start. As a second full pane it competed with the
         // day; as a line with a bar it is a door, which is all it ever was.
+        // The unfinished sitting leads. It used to be a thin row above a
+        // full pane offering a new start, and the two white buttons below it
+        // asked a learner seven cards in whether to begin again.
         if let continuable {
-            ResumeTrainingRow(
-                deckName: deckName(continuable.deckID, in: sections) ?? "",
-                answered: continuable.answeredCards,
-                total: continuable.totalCards,
-                action: { onContinueSession?(continuable) }
-            )
-            .devBlockID("home.resume")
+            resumePane(continuable, sections)
+                .devBlockID("home.resume")
         }
 
         // The review block, always. An unfinished sitting used to stand in
@@ -415,7 +420,8 @@ public struct HomeView: View {
                 caption: dueBreakdown,
                 action: L10n.homeReview,
                 identifier: AccessibilityIdentifier.homeReview,
-                run: { startDueSession(deckID: deckID) }
+                run: { startDueSession(deckID: deckID) },
+                isProminent: continuable == nil
             )
             .devBlockID("home.today")
         } else if isDayDone {
@@ -436,17 +442,74 @@ public struct HomeView: View {
         // tap, so the deck yields whenever something is due. It leads with
         // its own name — "All countries" is what the block is, and the count
         // is the detail under it, not the headline.
-        if due == 0, let deck = recommended(sections) {
+        //
+        // Not while a sitting is open, either: finishing it is the way on,
+        // and "start studying" beside "continue" is the same question twice.
+        //
+        // The figure is the learner's own, out of the deck: "0 / 195" says
+        // where they stand, where "195" only said how big the deck is.
+        if due == 0, continuable == nil, let deck = recommended(sections) {
             pane(
                 label: deck.name,
-                count: deck.cardCount,
-                total: nil,
-                caption: L10n.homeDeckSize,
+                count: learned(in: deck),
+                total: deck.cardCount,
+                caption: L10n.homeDeckLearned,
                 action: L10n.studyStart,
                 identifier: AccessibilityIdentifier.homeDeckRow(deck.code),
                 run: { onOpenDeck(deck.id) }
             )
             .devBlockID("home.deck")
+        }
+    }
+
+    /// Countries of this deck carried to learned.
+    private func learned(in deck: DeckRecord) -> Int {
+        progress?.decks.first { $0.id == deck.id }?.learnedCards ?? 0
+    }
+
+    /// The sitting left half-finished, as the screen's hero: how far in, in
+    /// the hero's figure and a bar, and the one white button.
+    private func resumePane(
+        _ continuable: ContinuableSession,
+        _ sections: [CatalogSection]
+    ) -> some View {
+        let answered = continuable.answeredCards
+        let total = continuable.totalCards
+        let fraction = total > 0 ? min(1, Double(answered) / Double(total)) : 0
+        let name = deckName(continuable.deckID, in: sections) ?? ""
+
+        return GlassCard(padding: DesignTokens.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                    SectionLabel(L10n.homeSessionInProgress)
+
+                    HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
+                        Text("\(answered)")
+                            .font(DesignTokens.Typography.heroNumber)
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                        Text("/ \(total)")
+                            .font(DesignTokens.Typography.sectionTitle)
+                            .foregroundStyle(.white.opacity(0.55))
+                    }
+                    .foregroundStyle(.white)
+
+                    ProgressTrackView(started: fraction, learned: fraction)
+
+                    Text(
+                        name.isEmpty
+                            ? L10n.homeSessionLeft(max(0, total - answered))
+                            : "\(name) · \(L10n.homeSessionLeft(max(0, total - answered)))"
+                    )
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.6))
+                }
+                .accessibilityElement(children: .combine)
+
+                Button(L10n.homeContinue) { onContinueSession?(continuable) }
+                    .buttonStyle(PrimaryActionStyle())
+                    .accessibilityIdentifier(AccessibilityIdentifier.homeContinue)
+            }
         }
     }
 
@@ -608,43 +671,41 @@ public struct HomeView: View {
         }
     }
 
-    /// The account, when it needs a word — above the day rather than in it,
-    /// because the row is about the person and not the queue.
-    ///
-    /// A sign-in the backend has stopped honouring comes first, and is not
-    /// conditional on anything else: from that moment every answer stays on
-    /// the phone, and the caption says how many already do. A guest is told
-    /// from the first answer on — the moment there is anything on the phone
-    /// that a lost phone would take — and the caption carries the number of
-    /// countries once there is one. A fresh install with nothing answered is
-    /// not nagged. Neither row can be dismissed: the first goes away when the
-    /// person signs in again, the second when they sign in at all. Both open
-    /// the sign-in screen straight away: the buttons are one tap from here,
-    /// not a trip through the account screen.
+    /// A sign-in the backend has stopped honouring, above everything: from
+    /// that moment every answer stays on the phone, and the caption says how
+    /// many already do. It goes away when the person signs in again.
     @ViewBuilder
-    private var accountPrompt: some View {
-        if let onSignIn {
-            if isSignInExpired {
-                AccountPromptRow(
-                    symbol: "person.crop.circle.badge.exclamationmark",
-                    title: L10n.homeSignInExpiredTitle,
-                    caption: sync.status.pendingCount > 0
-                        ? L10n.homeSignInExpiredPending(sync.status.pendingCount)
-                        : L10n.syncSignInRequired,
-                    identifier: AccessibilityIdentifier.homeSignInExpired,
-                    action: onSignIn
-                )
-            } else if isGuestWithSomethingToLose {
-                AccountPromptRow(
-                    symbol: "person.crop.circle",
-                    title: L10n.homeGuestPromptTitle,
-                    caption: learnedCountries > 0
-                        ? L10n.homeGuestPromptCount(learnedCountries)
-                        : L10n.accountGuestNote,
-                    identifier: AccessibilityIdentifier.homeGuestPrompt,
-                    action: onSignIn
-                )
-            }
+    private var expiredSignInPrompt: some View {
+        if let onSignIn, isSignInExpired {
+            AccountPromptRow(
+                symbol: "person.crop.circle.badge.exclamationmark",
+                title: L10n.homeSignInExpiredTitle,
+                caption: sync.status.pendingCount > 0
+                    ? L10n.homeSignInExpiredPending(sync.status.pendingCount)
+                    : L10n.syncSignInRequired,
+                identifier: AccessibilityIdentifier.homeSignInExpired,
+                action: onSignIn
+            )
+        }
+    }
+
+    /// A guest with something to lose: countries learned on this phone and
+    /// nowhere else. Told from the first answer on, with the number of
+    /// countries once there is one; a fresh install with nothing answered is
+    /// not nagged. It cannot be dismissed, goes away when they sign in, and
+    /// opens the sign-in screen straight away.
+    @ViewBuilder
+    private var guestPrompt: some View {
+        if let onSignIn, !isSignInExpired, isGuestWithSomethingToLose {
+            AccountPromptRow(
+                symbol: "person.crop.circle",
+                title: L10n.homeGuestPromptTitle,
+                caption: learnedCountries > 0
+                    ? L10n.homeGuestPromptCount(learnedCountries)
+                    : L10n.accountGuestNote,
+                identifier: AccessibilityIdentifier.homeGuestPrompt,
+                action: onSignIn
+            )
         }
     }
 
@@ -725,7 +786,8 @@ public struct HomeView: View {
         action: String,
         identifier: String,
         run: @escaping () -> Void,
-        showsFan: Bool = true
+        showsFan: Bool = true,
+        isProminent: Bool = true
     ) -> some View {
         GlassCard(padding: DesignTokens.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
@@ -770,9 +832,17 @@ public struct HomeView: View {
                 }
                 .accessibilityElement(children: .combine)
 
-                Button(action, action: run)
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(identifier)
+                // White is spent once per screen: under an open sitting this
+                // pane's action is glass, and the sitting's is the white one.
+                if isProminent {
+                    Button(action, action: run)
+                        .buttonStyle(PrimaryActionStyle())
+                        .accessibilityIdentifier(identifier)
+                } else {
+                    Button(action, action: run)
+                        .buttonStyle(GlassActionStyle())
+                        .accessibilityIdentifier(identifier)
+                }
 
             }
         }
@@ -919,8 +989,11 @@ public struct HomeView: View {
             ? await progress?.cardStatesByID() ?? [:]
             : [:]
         let now = Date()
+        // A card has a state only once it has been answered, so a state
+        // written today is a card answered today. Counting repetitions or
+        // lapses instead missed a new card answered AGAIN, which has neither.
         answeredToday = states.values.count {
-            $0.repetitions + $0.lapses > 0 && Calendar.current.isDate($0.updatedAt, inSameDayAs: now)
+            Calendar.current.isDate($0.updatedAt, inSameDayAs: now)
         }
 
         var fresh: [UUID: [LearningCardRecord]] = [:]

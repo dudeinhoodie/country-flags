@@ -3283,19 +3283,19 @@
         }
       }
     },
-    "home.deck_size": {
+    "home.deck_learned": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "countries in the deck"
+            "value": "countries learned"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "стран в колоде"
+            "value": "стран выучено"
           }
         }
       }
