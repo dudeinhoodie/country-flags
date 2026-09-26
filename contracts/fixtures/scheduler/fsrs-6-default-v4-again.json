@@ -1,0 +1,118 @@
+{
+  "schedulerVersion": "fsrs-6-test-v4",
+  "parametersVersion": "fsrs-6-default-21-v4",
+  "reviews": [
+    {
+      "occurredAt": "2026-01-01T00:00:00.000Z",
+      "rating": "AGAIN",
+      "expected": {
+        "state": "LEARNING",
+        "difficulty": 6.4133,
+        "stability": 0.212,
+        "retrievabilityAtReview": null,
+        "dueAt": "2026-01-01T03:00:00.000Z",
+        "repetitions": 1,
+        "lapses": 0,
+        "learningStep": 0
+      }
+    },
+    {
+      "occurredAt": "2026-01-01T03:00:00.000Z",
+      "rating": "GOOD",
+      "expected": {
+        "state": "LEARNING",
+        "difficulty": 6.402115,
+        "stability": 0.246689,
+        "retrievabilityAtReview": 1,
+        "dueAt": "2026-01-01T06:00:00.000Z",
+        "repetitions": 2,
+        "lapses": 0,
+        "learningStep": 1
+      }
+    },
+    {
+      "occurredAt": "2026-01-01T06:00:00.000Z",
+      "rating": "GOOD",
+      "expected": {
+        "state": "REVIEW",
+        "difficulty": 6.390941,
+        "stability": 0.284206,
+        "retrievabilityAtReview": 1,
+        "dueAt": "2026-01-02T06:00:00.000Z",
+        "repetitions": 3,
+        "lapses": 0,
+        "learningStep": 2
+      }
+    },
+    {
+      "occurredAt": "2026-01-02T06:00:00.000Z",
+      "rating": "AGAIN",
+      "expected": {
+        "state": "REVIEW",
+        "difficulty": 8.798955,
+        "stability": 0.126284,
+        "retrievabilityAtReview": 0.794386,
+        "dueAt": "2026-01-03T06:00:00.000Z",
+        "repetitions": 4,
+        "lapses": 1,
+        "learningStep": 0
+      }
+    },
+    {
+      "occurredAt": "2026-01-03T06:00:00.000Z",
+      "rating": "GOOD",
+      "expected": {
+        "state": "REVIEW",
+        "difficulty": 8.785384,
+        "stability": 0.774596,
+        "retrievabilityAtReview": 0.715554,
+        "dueAt": "2026-01-05T06:00:00.000Z",
+        "repetitions": 5,
+        "lapses": 1,
+        "learningStep": 0
+      }
+    },
+    {
+      "occurredAt": "2026-01-05T06:00:00.000Z",
+      "rating": "GOOD",
+      "expected": {
+        "state": "REVIEW",
+        "difficulty": 8.771827,
+        "stability": 2.533461,
+        "retrievabilityAtReview": 0.823208,
+        "dueAt": "2026-01-08T06:00:00.000Z",
+        "repetitions": 6,
+        "lapses": 1,
+        "learningStep": 0
+      }
+    },
+    {
+      "occurredAt": "2026-01-08T06:00:00.000Z",
+      "rating": "AGAIN",
+      "expected": {
+        "state": "RELEARNING",
+        "difficulty": 9.581536,
+        "stability": 0.614573,
+        "retrievabilityAtReview": 0.887974,
+        "dueAt": "2026-01-08T09:00:00.000Z",
+        "repetitions": 7,
+        "lapses": 2,
+        "learningStep": 0
+      }
+    },
+    {
+      "occurredAt": "2026-01-08T09:00:00.000Z",
+      "rating": "GOOD",
+      "expected": {
+        "state": "REVIEW",
+        "difficulty": 9.567183,
+        "stability": 0.666765,
+        "retrievabilityAtReview": 1,
+        "dueAt": "2026-01-09T09:00:00.000Z",
+        "repetitions": 8,
+        "lapses": 2,
+        "learningStep": 0
+      }
+    }
+  ]
+}

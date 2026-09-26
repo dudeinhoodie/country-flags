@@ -17,9 +17,26 @@ export const FSRS_ALGORITHM_MAJOR = 6;
 export const FSRS_PARAMETERS_VERSION = "fsrs-6-default-21-v1";
 export const FSRS_PARAMETERS_VERSION_V2 = "fsrs-6-default-21-v2";
 export const FSRS_PARAMETERS_VERSION_V3 = "fsrs-6-default-21-v3";
+export const FSRS_PARAMETERS_VERSION_V4 = "fsrs-6-default-21-v4";
 /// The definition row the migration installs. Named by the day it became
 /// active, because that is the question anybody debugging a due date asks.
-export const FSRS_ACTIVE_DEFINITION_VERSION = "fsrs-6-2026-09-11";
+export const FSRS_ACTIVE_DEFINITION_VERSION = "fsrs-6-2026-09-26";
+
+/// The parameter versions accepted while the adapter dropped the learning step.
+///
+/// Until v4 every answer reached ts-fsrs as if the card stood on the first rung
+/// of its ladder, so a `GOOD` in `LEARNING` always asked for the next rung and
+/// never for graduation. That is wrong, but it is what those reviews were
+/// scheduled with, and history replays under the definition it was accepted
+/// with (ADR-004): a card answered under v3 must come out of a replay with the
+/// due dates it was shown. So these versions still start every answer at step
+/// zero, and every later version carries the step. The set is closed on
+/// purpose — a new version that forgot to opt in would bring the bug back.
+const STEP_RESETTING_PARAMETERS_VERSIONS: ReadonlySet<string> = new Set([
+  FSRS_PARAMETERS_VERSION,
+  FSRS_PARAMETERS_VERSION_V2,
+  FSRS_PARAMETERS_VERSION_V3,
+]);
 
 type FsrsState = 0 | 1 | 2 | 3;
 type FsrsRating = 1 | 2 | 3 | 4;
@@ -102,6 +119,20 @@ export const FSRS6_PARAMETERS_V3 = {
   ...FSRS6_DEFAULT_PARAMETERS,
   learning_steps: ["3h", "3h", "1d"],
   relearning_steps: ["3h"],
+} as const;
+
+/// The v3 ladder, unchanged, under which the learning step is part of the
+/// card's state.
+///
+/// Nothing ts-fsrs reads differs from v3. What differs is the adapter's
+/// contract with it: a v4 answer starts from the rung the previous answer left
+/// the card on, so two `GOOD` answers graduate a new card — three hours, then a
+/// day in `REVIEW` — instead of asking for another three hours forever. It is a
+/// new parameters version rather than a quiet fix because the same review
+/// replays to a different due date under the two contracts, and a stored review
+/// has to say which one it was scheduled with (ADR-026).
+export const FSRS6_PARAMETERS_V4 = {
+  ...FSRS6_PARAMETERS_V3,
 } as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -214,9 +245,22 @@ function round(value: number, scale: number): number {
   return Math.round(value * factor) / factor;
 }
 
-function toFsrsCard(previous: SchedulerCardState | null, now: Date): FsrsCard {
+function carriesLearningStep(definition: SchedulerDefinitionData): boolean {
+  return !STEP_RESETTING_PARAMETERS_VERSIONS.has(definition.parametersVersion);
+}
+
+function toFsrsCard(
+  previous: SchedulerCardState | null,
+  now: Date,
+  definition: SchedulerDefinitionData,
+): FsrsCard {
   if (previous === null) {
     return createEmptyCard(now);
+  }
+  if (!Number.isInteger(previous.learningStep) || previous.learningStep < 0) {
+    throw new Error(
+      `Scheduler state learning step ${previous.learningStep} is invalid`,
+    );
   }
   const scheduledDays =
     previous.lastReviewedAt === null
@@ -235,7 +279,7 @@ function toFsrsCard(previous: SchedulerCardState | null, now: Date): FsrsCard {
     difficulty: previous.difficulty,
     elapsed_days: 0,
     scheduled_days: scheduledDays,
-    learning_steps: 0,
+    learning_steps: carriesLearningStep(definition) ? previous.learningStep : 0,
     reps: previous.repetitions,
     lapses: previous.lapses,
     state: fsrsState(previous.state),
@@ -253,7 +297,7 @@ export class Fsrs6SchedulerAdapter implements Scheduler {
     definition: SchedulerDefinitionData,
   ): SchedulerCardState {
     const scheduler = schedulerFor(definition);
-    const card = toFsrsCard(previous, review.occurredAt);
+    const card = toFsrsCard(previous, review.occurredAt, definition);
     const retrievability =
       previous === null || previous.state === CardLearningState.NEW
         ? null
@@ -274,6 +318,11 @@ export class Fsrs6SchedulerAdapter implements Scheduler {
       lastReviewedAt: next.last_review ?? review.occurredAt,
       repetitions: next.reps,
       lapses: next.lapses,
+      // Recorded under every definition, including the ones that ignore it on
+      // the way in: it is what ts-fsrs says the answer left the card on, and it
+      // is the rung a card carries across a migration to a definition that
+      // reads it.
+      learningStep: next.learning_steps,
       schedulerVersion: definition.version,
       schedulerParametersVersion: definition.parametersVersion,
     };
