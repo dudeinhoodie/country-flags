@@ -1,6 +1,6 @@
 # Terms of Use
 
-These terms cover the Vexi app for iOS. By using the app you accept them. If you do not, do not use the app.
+These terms cover the Vexi app for iOS, developed by Vyacheslav Myskov. Your licence to use the app is governed by Apple's [Standard Licensed Application End User License Agreement](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/); these terms add the rules that are specific to Vexi. By using the app you accept them. If you do not agree with them, please do not use the app.
 
 ## What the app is
 
@@ -8,13 +8,13 @@ Vexi teaches the flags of the world by spaced repetition: you are shown a flag, 
 
 ## Accounts
 
-An account is optional — everything works without one. If you create an account with Apple or Google, keep control of that provider account: anyone who can sign in with it can reach your progress. You may delete your account at any time from the account screen, which erases your data immediately.
+An account is optional, and everything works without one. If you create an account with Apple or Google, keep control of that provider account: anyone who can sign in with it can reach your progress. You may delete your account at any time from the account screen, which erases your data immediately.
 
-We may suspend or remove an account that is used to attack the service — for example to overwhelm it with automated requests.
+We may suspend or remove an account that is used to attack the service, for example to overwhelm it with automated requests.
 
 ## Using the app fairly
 
-Please do not attempt to break into the service, disrupt it for others, scrape its content in bulk, or take apart the app in order to redistribute its content as your own. Ordinary personal use is exactly what it is for.
+Please do not attempt to break into the service, disrupt it for others, download its content in bulk, or reverse-engineer the app in order to redistribute its content as your own. Ordinary personal use is exactly what it is for.
 
 ## Content
 
@@ -24,7 +24,7 @@ A flag or a border shown in the app is a teaching illustration, not a political 
 
 ## No warranty
 
-The app is provided as it is. We do not promise that it will always be available, that a synchronisation will always succeed, or that every fact is free of error — geographic reference data changes and disagrees with itself. Keep your own copy of anything you cannot afford to lose.
+The app is provided as it is. We do not promise that it will always be available, that a synchronisation will always succeed, or that every fact is free of error: geographic reference data changes, and sources disagree with one another. Without an account your progress lives only on your phone, and an account is what keeps it safe when the phone is lost or replaced.
 
 ## Liability
 
