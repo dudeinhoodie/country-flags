@@ -57,10 +57,6 @@ public struct HomeView: View {
     @State private var detailsSubject: CountryDetailsSubject?
     @Environment(\.displayScale) private var displayScale
 
-    /// The server's cap on distinct cards reviewed in a day (backend spec
-    /// §7.4, #438). The home screen only reads it to know when the day is
-    /// done: before it, the way forward is to keep studying, not a tally.
-    private static let dailyReviewLimit = 50
 
     /// The placeholder's bars stand in for text, so they grow with it. Drawn
     /// at fixed points they matched the hero at one type size and at no other,
@@ -525,7 +521,7 @@ public struct HomeView: View {
     private var isDayDone: Bool {
         hasAnyProgress
             && progress?.continuable == nil
-            && answeredToday >= Self.dailyReviewLimit
+            && answeredToday >= DailyReviewAllowance.limit
     }
 
     /// A first visit: nothing answered yet, nothing waiting. The screen would
@@ -989,12 +985,10 @@ public struct HomeView: View {
             ? await progress?.cardStatesByID() ?? [:]
             : [:]
         let now = Date()
-        // A card has a state only once it has been answered, so a state
-        // written today is a card answered today. Counting repetitions or
-        // lapses instead missed a new card answered AGAIN, which has neither.
-        answeredToday = states.values.count {
-            Calendar.current.isDate($0.updatedAt, inSameDayAs: now)
-        }
+        // The same count the sessions cut owed cards by, so the card that
+        // says the day is done and the session that stops dealing owed cards
+        // agree on when that is.
+        answeredToday = DailyReviewAllowance.answeredToday(Array(states.values), now: now)
 
         var fresh: [UUID: [LearningCardRecord]] = [:]
         for deck in decks where deck.dueCards > 0 {
