@@ -456,6 +456,72 @@ describe("baseline database migration (integration)", () => {
     ).resolves.toBe(1);
   });
 
+  it("installs the definition that carries the learning step and stores the step", async () => {
+    const active = await database!.$queryRaw<
+      Array<{
+        version: string;
+        parameters_version: string;
+        learning_steps: unknown;
+        relearning_steps: unknown;
+      }>
+    >`
+      SELECT
+        "version",
+        "parameters_version",
+        "parameters" -> 'learning_steps' AS "learning_steps",
+        "parameters" -> 'relearning_steps' AS "relearning_steps"
+      FROM "scheduler_definitions"
+      WHERE "status" = 'ACTIVE'
+    `;
+    // The ladder is ADR-022's; what the new parameters version changes is
+    // that the adapter reads the step it left the card on (ADR-026).
+    expect(active).toEqual([
+      {
+        version: "fsrs-6-2026-09-26",
+        parameters_version: "fsrs-6-default-21-v4",
+        learning_steps: ["3h", "3h", "1d"],
+        relearning_steps: ["3h"],
+      },
+    ]);
+    const retired = await database!.$queryRaw<Array<{ version: string }>>`
+      SELECT "version" FROM "scheduler_definitions"
+      WHERE "status" = 'RETIRED'
+      ORDER BY "version"
+    `;
+    expect(retired.map(({ version }) => version)).toEqual([
+      "fsrs-6-2026-08-21",
+      "fsrs-6-2026-09-11",
+    ]);
+
+    const userId = "10000000-0000-4000-8000-000000000001";
+    const cardId = "40000000-0000-4000-8000-000000000001";
+    const insertState = (learningStep: string): Promise<number> =>
+      database!.$executeRawUnsafe(`
+        INSERT INTO user_card_states (
+          user_id, learning_card_id, state, difficulty, stability, due_at,
+          scheduler_version, scheduler_parameters_version, updated_at
+          ${learningStep === "" ? "" : ", learning_step"}
+        ) VALUES (
+          '${userId}', '${cardId}', 'LEARNING', 2.118104, 2.3065, now(),
+          'fsrs-6-2026-09-26', 'fsrs-6-default-21-v4', now()
+          ${learningStep === "" ? "" : `, ${learningStep}`}
+        )
+      `);
+    await expect(insertState("-1")).rejects.toThrow();
+    // A row written without the column reads as the first rung, which is
+    // what every answer started from before the step was stored.
+    await expect(insertState("")).resolves.toBe(1);
+    const stored = await database!.$queryRaw<Array<{ learning_step: number }>>`
+      SELECT "learning_step" FROM "user_card_states"
+      WHERE "user_id" = ${userId}::uuid AND "learning_card_id" = ${cardId}::uuid
+    `;
+    expect(stored).toEqual([{ learning_step: 0 }]);
+    await database!.$executeRawUnsafe(`
+      DELETE FROM user_card_states
+      WHERE user_id = '${userId}' AND learning_card_id = '${cardId}'
+    `);
+  });
+
   it("makes a purchase land once and a right survive one of its sources", async () => {
     const userId = "60000000-0000-4000-8000-000000000001";
     const contentRelease = "commerce-content-v1";
