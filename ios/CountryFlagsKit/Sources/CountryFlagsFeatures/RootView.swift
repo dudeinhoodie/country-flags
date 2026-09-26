@@ -31,6 +31,18 @@ public struct RootView: View {
     /// toolbar: a store made during a render would be thrown away by the next
     /// one, and the picture would never arrive.
     @State private var accountToolbar: AccountStore?
+    /// Whether the sign-in screen is up over the shell. The rows on Home and
+    /// Progress that ask for it used to lead to the account screen first,
+    /// which was one door too many between "your work lives only here" and
+    /// the button that changes that.
+    @State private var isPresentingSignIn = false
+    /// The first launch's welcome: shown once, to a guest with nothing
+    /// answered, where the composition asks for it.
+    private let showsWelcomeOnFirstLaunch: Bool
+    @State private var isPresentingWelcome = false
+    @AppStorage(WelcomeKeys.seen) private var hasSeenWelcome = false
+    /// The developer switch's request to show it again.
+    @AppStorage(WelcomeKeys.devRequest) private var isWelcomeRequested = false
 
     /// Whether a run is in flight that is about to change the numbers on
     /// screen.
@@ -90,8 +102,10 @@ public struct RootView: View {
         makePrivacyStore: (() -> PrivacyStore)? = nil,
         featureFlags: FeatureFlagCenter,
         sync: SyncCenter,
-        commerce: CommerceCenter? = nil
+        commerce: CommerceCenter? = nil,
+        showsWelcomeOnFirstLaunch: Bool = false
     ) {
+        self.showsWelcomeOnFirstLaunch = showsWelcomeOnFirstLaunch
         _router = State(wrappedValue: router)
         self.configuration = configuration
         self.content = content
@@ -280,7 +294,7 @@ public struct RootView: View {
                         )
                     },
                     account: accountToolbar,
-                    onOpenAccount: { router.push(.account) }
+                    onSignIn: { isPresentingSignIn = true }
                 )
                 .toolbar {
                     // Between the avatar and the gear, which is where a
@@ -321,7 +335,8 @@ public struct RootView: View {
                     store: progress,
                     onOpenDeck: { router.push(.deckProgress(deckID: $0)) },
                     account: accountToolbar,
-                    onOpenAccount: { router.push(.account) }
+                    onSignIn: { isPresentingSignIn = true },
+                    onOpenCatalog: { router.tab = .catalog }
                 )
                 .toolbar { accountAndSettings }
                 .navigationDestination(for: AppRoute.self) { route in
@@ -341,11 +356,47 @@ public struct RootView: View {
         // bars all take their colours from here rather than each screen
         // fighting the light appearance on its own.
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $isPresentingSignIn) {
+            if let accountToolbar {
+                SignInSheet(
+                    store: accountToolbar,
+                    learnedCountries: learnedCountries,
+                    fan: SignInFan(content: content, assets: assets, progress: progress),
+                    privacyPolicyURL: configuration.privacyPolicyURL,
+                    termsURL: configuration.termsURL
+                )
+            }
+        }
         // Recovery and the first sync happen once, after the first frame:
         // everything on screen already answers from the store.
         .task {
             if accountToolbar == nil { accountToolbar = makeAccountStore?() }
             await accountToolbar?.start()
+            // Once the account has said who this is: a device that is
+            // already signed in, or already studied, is not a first launch
+            // whatever the flag says.
+            if showsWelcomeOnFirstLaunch, !hasSeenWelcome,
+                case .guest? = accountToolbar?.state, progress.hasNoProgress
+            {
+                isPresentingWelcome = true
+            }
+        }
+        .onChange(of: isWelcomeRequested) { _, requested in
+            guard requested else { return }
+            isWelcomeRequested = false
+            isPresentingWelcome = true
+        }
+        .sheet(isPresented: $isPresentingWelcome, onDismiss: { hasSeenWelcome = true }) {
+            if let accountToolbar {
+                SignInSheet(
+                    store: accountToolbar,
+                    purpose: .welcome,
+                    learnedCountries: learnedCountries,
+                    fan: SignInFan(content: content, assets: assets, progress: progress),
+                    privacyPolicyURL: configuration.privacyPolicyURL,
+                    termsURL: configuration.termsURL
+                )
+            }
         }
         // A run the backend refused is the moment a sign-in can have expired
         // under an open screen: the coordinator has already ruled, and the
@@ -477,7 +528,8 @@ public struct RootView: View {
                 store: progress,
                 onOpenDeck: { router.push(.deckProgress(deckID: $0)) },
                 account: accountToolbar,
-                onOpenAccount: { router.push(.account) }
+                onSignIn: { isPresentingSignIn = true },
+                onOpenCatalog: { router.tab = .catalog }
             )
         case .deckProgress(let deckID):
             DeckProgressDetailsView(
@@ -527,7 +579,8 @@ public struct RootView: View {
                     makeClearProgress: makeClearProgressStore,
                     privacyPolicyURL: configuration.privacyPolicyURL,
                     termsURL: configuration.termsURL,
-                    learnedCountries: learnedCountries
+                    learnedCountries: learnedCountries,
+                    fan: SignInFan(content: content, assets: assets, progress: progress)
                 )
             }
         }
@@ -588,6 +641,12 @@ public enum AccessibilityIdentifier {
     }
 
     public static let homeDueEmpty = "home.due.empty"
+    public static let homeFlagOfTheDay = "home.flagOfTheDay"
+    public static func homeRegion(_ code: String) -> String { "home.region.\(code)" }
+    public static let settingsDevBlockIDs = "settings.dev.blockIDs"
+    public static let settingsDevShowWelcome = "settings.dev.showWelcome"
+    public static let welcomeSheet = "welcome.sheet"
+    public static let welcomeContinueAsGuest = "welcome.continueAsGuest"
     /// The day's queue, which is a different button from the way back into an
     /// unfinished sitting — they can now stand on the screen together.
     public static let homeReview = "home.review"
@@ -600,6 +659,7 @@ public enum AccessibilityIdentifier {
 
     public static let homeOpenProgress = "home.openProgress"
     public static let progressEmpty = "progress.empty"
+    public static let progressEmptyOpenCatalog = "progress.empty.openCatalog"
     /// Work a catalogue change could not carry across, and the control that
     /// says it has been read.
     public static let progressStrandedNotice = "progress.stranded"
@@ -618,12 +678,15 @@ public enum AccessibilityIdentifier {
 
     public static let accountSignInApple = "settings.account.signInApple"
     public static let accountFakeSignIn = "settings.account.fakeSignIn"
+    /// The guest's row on the account screen: the way to the sign-in screen.
+    public static let accountSignInRow = "settings.account.signInRow"
+    public static let accountSignInSheet = "settings.account.signInSheet"
+    public static let accountSignInNotNow = "settings.account.signInNotNow"
     public static let accountSignInGoogle = "settings.account.signInGoogle"
     public static let accountSignedIn = "settings.account.signedIn"
     public static let accountSigningIn = "settings.account.signingIn"
     public static let accountSignOut = "settings.account.signOut"
     public static let accountSignOutConfirm = "settings.account.signOut.confirm"
-    public static let accountSignOutEverywhereConfirm = "settings.account.signOutEverywhere.confirm"
     public static let accountSignOutCancel = "settings.account.signOut.cancel"
     public static let accountExpired = "settings.account.expired"
     public static let accountFailure = "settings.account.failure"

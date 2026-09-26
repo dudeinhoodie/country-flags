@@ -6,9 +6,9 @@ import SwiftUI
 /// answers are piling up on the phone, and until now nothing said so anywhere
 /// the learner looks. And a guest with something to lose: countries learned
 /// on this phone and nowhere else. Neither is a hero and neither is a gate.
-/// The row is a door to the account screen, where the buttons already are,
-/// drawn like the door back into an unfinished sitting so the two read as the
-/// same kind of thing: a line, a reason, a chevron.
+/// The row is a door straight to the sign-in screen, drawn like the door
+/// back into an unfinished sitting so the two read as the same kind of
+/// thing: a line, a reason, a chevron.
 struct AccountPromptRow: View {
     let symbol: String
     let title: String

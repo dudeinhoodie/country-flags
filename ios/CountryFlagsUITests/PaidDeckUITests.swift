@@ -310,7 +310,7 @@ final class PaidDeckUITests: XCTestCase {
         confirm.tap()
 
         XCTAssertTrue(
-            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 30),
+            app.buttons["settings.account.signInRow"].waitForExistence(timeout: 30),
             "Signing out must leave this device a guest\n" + app.debugDescription
         )
         app.tabBars.buttons["Home"].tap()
@@ -337,6 +337,10 @@ final class PaidDeckUITests: XCTestCase {
         // The screen is assembled while the launch is still importing content
         // and rebuilds once its own state has been read, so a tap that lands
         // in that moment is dropped. It is offered twice before this fails.
+        // The buttons live on the sign-in screen now; the guest's row opens it.
+        let row = app.buttons["settings.account.signInRow"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
+        row.tap()
         let fixture = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()

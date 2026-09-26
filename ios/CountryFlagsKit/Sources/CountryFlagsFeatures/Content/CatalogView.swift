@@ -92,6 +92,7 @@ public struct CatalogView: View {
         SceneScrollView {
             if isStale || failure != nil {
                 ContentStatusBanner(isStale: isStale, failure: failure)
+                    .devBlockID("catalog.status")
             }
 
             if let resolution = store.localeResolution, resolution.isFallback {
@@ -99,6 +100,7 @@ public struct CatalogView: View {
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(.white.opacity(0.6))
                     .accessibilityIdentifier(AccessibilityIdentifier.catalogLocaleFallback)
+                    .devBlockID("catalog.locale")
             }
 
             let matches = filtered(sections)
@@ -109,6 +111,7 @@ public struct CatalogView: View {
                 // always had, and unchanged content stays visually quiet.
                 if let heading = heading(for: section, at: index, in: matches) {
                     SectionLabel(heading)
+                        .devBlockID("catalog.section")
                 }
 
                 ForEach(section.decks, id: \.id) { deck in
@@ -124,6 +127,7 @@ public struct CatalogView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier(AccessibilityIdentifier.catalogDeckRow(deck.code))
+                    .devBlockID("catalog.deck.\(deck.code.lowercased())")
                 }
             }
 
@@ -194,6 +198,11 @@ public struct CatalogView: View {
                             .padding(.top, DesignTokens.Spacing.small)
                     }
                 }
+                // The column takes the row's width itself. It used to get it
+                // from the progress bar, which fills whatever it is offered;
+                // with nothing studied there was no bar, the column shrank to
+                // its words, and the fan slid in beside the name.
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 if isCurated || isLocked {
                     FlagFanView(
@@ -266,7 +275,7 @@ public struct CatalogView: View {
 
     /// "250 cards · Learned: 34", and just the count until something is.
     private func trail(for deck: DeckRecord) -> String {
-        let count = L10n.deckCardCount(deck.cardCount)
+        let count = L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds)
         guard let row = progressRow(for: deck), row.learnedCards > 0 else { return count }
         return "\(count) · \(L10n.progressDeckLearned(row.learnedCards))"
     }

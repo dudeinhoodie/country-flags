@@ -247,7 +247,7 @@ final class AccountProgressUITests: XCTestCase {
 
         openAccount(in: app)
         XCTAssertTrue(
-            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
+            app.buttons["settings.account.signInRow"].waitForExistence(timeout: 20),
             "A deletion leaves a guest who can sign in again\n\(app.debugDescription)"
         )
         XCTAssertTrue(
@@ -472,7 +472,7 @@ final class AccountProgressUITests: XCTestCase {
                 format: "identifier IN %@",
                 [
                     "settings.account.signedIn",
-                    "settings.account.signInApple",
+                    "settings.account.signInRow",
                     "settings.account.signingIn",
                     "settings.account.expired",
                 ]
@@ -514,7 +514,7 @@ final class AccountProgressUITests: XCTestCase {
         requestSignOut(in: app)
         tap("settings.account.signOut.confirm", in: app)
         XCTAssertTrue(
-            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
+            app.buttons["settings.account.signInRow"].waitForExistence(timeout: 20),
             app.debugDescription
         )
     }

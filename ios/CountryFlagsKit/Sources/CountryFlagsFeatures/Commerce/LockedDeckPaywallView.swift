@@ -234,9 +234,11 @@ struct LockedDeckPaywallView: View {
     /// "52 cards · coats of arms", from what the release published rather than
     /// from the deck's name.
     private var summary: String {
-        let count = L10n.deckCardCount(deck.cardCount)
+        let count = L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds)
+        // One kind is already in the count's own noun; only a mix is spelled
+        // out after it.
         let kinds = deck.contentKinds.compactMap(L10n.contentKind)
-        guard !kinds.isEmpty else { return count }
+        guard kinds.count > 1 else { return count }
         return "\(count) · \(kinds.joined(separator: ", "))"
     }
 
