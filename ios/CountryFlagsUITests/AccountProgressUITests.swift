@@ -490,6 +490,10 @@ final class AccountProgressUITests: XCTestCase {
         let signedIn = element("settings.account.signedIn", in: app)
         if signedIn.waitForExistence(timeout: 3) { return }
 
+        // The buttons live on the sign-in screen now; the guest's row opens it.
+        let row = app.buttons["settings.account.signInRow"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
+        row.tap()
         let signIn = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(signIn.waitForExistence(timeout: 20), app.debugDescription)
         signIn.tap()
