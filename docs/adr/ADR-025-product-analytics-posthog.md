@@ -133,6 +133,9 @@ Product analytics stays opt-in. The product owner chose to ask once:
   For a guest, whose consent the server cannot see, the batch declares the
   choice, and product events without a granted declaration are rejected with
   `CONSENT_DENIED`.
+  - Update 2026-09-28 (#452): the account rule is enforced; `UNKNOWN` no
+    longer passes. The batch cannot declare a guest's choice yet, so until
+    #456 adds the declaration every anonymous product event is rejected.
 
 A region-based model (asking in the EU and UK, on by default elsewhere) was
 considered and set aside for the first release. It would need legal advice
