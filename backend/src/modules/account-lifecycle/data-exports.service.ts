@@ -8,7 +8,10 @@ import { ApiException } from "../../common/http/api.exception";
 import { JsonLoggerService } from "../../common/logging/json-logger.service";
 import type { EnvironmentVariables } from "../../config/environment.validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
-import { serializeSettings } from "../settings/settings.service";
+import {
+  buildDataExportPayload,
+  DATA_EXPORT_USER_INCLUDE,
+} from "./data-export.payload";
 
 interface DownloadedExport {
   id: string;
@@ -290,40 +293,7 @@ export class DataExportsService implements OnModuleInit {
   ): Promise<Record<string, unknown>> {
     const user = await transaction.user.findFirst({
       where: { id: userId, status: "ACTIVE" },
-      include: {
-        settings: true,
-        authIdentities: {
-          select: { provider: true, createdAt: true },
-          orderBy: { provider: "asc" },
-        },
-        devices: {
-          select: {
-            platform: true,
-            appVersion: true,
-            locale: true,
-            timezone: true,
-            createdAt: true,
-            lastSeenAt: true,
-          },
-          orderBy: { createdAt: "asc" },
-        },
-        reviewEvents: {
-          orderBy: [
-            { effectiveOccurredAt: "asc" },
-            { receivedAt: "asc" },
-            { id: "asc" },
-          ],
-        },
-        cardStates: {
-          orderBy: { learningCardId: "asc" },
-        },
-        achievements: {
-          include: {
-            definition: { select: { code: true } },
-          },
-          orderBy: { earnedAt: "asc" },
-        },
-      },
+      include: DATA_EXPORT_USER_INCLUDE,
     });
     if (user === null) {
       throw new ApiException(
@@ -332,67 +302,7 @@ export class DataExportsService implements OnModuleInit {
         "The account is not available",
       );
     }
-    return {
-      schemaVersion: 1,
-      generatedAt: generatedAt.toISOString(),
-      profile: {
-        id: user.id,
-        displayName: user.displayName,
-        preferredLocale: user.preferredLocale,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-      },
-      settings:
-        user.settings === null ? null : serializeSettings(user.settings),
-      authenticationProviders: user.authIdentities.map((identity) => ({
-        provider: identity.provider,
-        linkedAt: identity.createdAt.toISOString(),
-      })),
-      devices: user.devices.map((device) => ({
-        platform: device.platform,
-        appVersion: device.appVersion,
-        locale: device.locale,
-        timezone: device.timezone,
-        createdAt: device.createdAt.toISOString(),
-        lastSeenAt: device.lastSeenAt.toISOString(),
-      })),
-      reviews: user.reviewEvents.map((review) => ({
-        id: review.id,
-        learningCardId: review.learningCardId,
-        sessionId: review.sessionId,
-        rating: review.rating,
-        isCorrect: review.isCorrect,
-        answerMode: review.answerMode,
-        responseTimeMs: review.responseTimeMs,
-        clientOccurredAt: review.clientOccurredAt.toISOString(),
-        effectiveOccurredAt: review.effectiveOccurredAt.toISOString(),
-        receivedAt: review.receivedAt.toISOString(),
-        clientSequence: review.clientSequence.toString(),
-        schedulerVersion: review.schedulerVersion,
-        schedulerParametersVersion: review.schedulerParametersVersion,
-      })),
-      progress: user.cardStates.map((state) => ({
-        learningCardId: state.learningCardId,
-        state: state.state,
-        difficulty: Number(state.difficulty),
-        stability: Number(state.stability),
-        dueAt: state.dueAt.toISOString(),
-        lastReviewedAt: state.lastReviewedAt?.toISOString() ?? null,
-        repetitions: state.repetitions,
-        lapses: state.lapses,
-        stateVersion: state.stateVersion,
-        schedulerVersion: state.schedulerVersion,
-        schedulerParametersVersion: state.schedulerParametersVersion,
-      })),
-      achievements: user.achievements.map((achievement) => ({
-        code: achievement.definition.code,
-        scopeType: achievement.scopeType,
-        scopeId: achievement.scopeId,
-        earnedAt: achievement.earnedAt.toISOString(),
-        ruleVersion: achievement.ruleVersion,
-        evidence: achievement.evidence,
-      })),
-    };
+    return buildDataExportPayload(user, generatedAt);
   }
 
   private serialize(
