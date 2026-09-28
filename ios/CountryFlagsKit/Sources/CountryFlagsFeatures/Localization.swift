@@ -65,6 +65,18 @@ public enum L10n {
     public static var launchFailedTitle: String { localized("launch.failed.title") }
     public static var launchRetry: String { localized("launch.retry") }
 
+    /// The backend's version policy (#447): a build it no longer supports,
+    /// and a newer build it suggests.
+    public static var updateRequiredTitle: String { localized("update.required.title") }
+    public static var updateRequiredMessage: String { localized("update.required.message") }
+    public static var updateOpenAppStore: String { localized("update.open_app_store") }
+    public static var updateRecommendedTitle: String { localized("update.recommended.title") }
+    public static var updateRecommendedMessage: String {
+        localized("update.recommended.message")
+    }
+    public static var updateRecommendedUpdate: String { localized("update.recommended.update") }
+    public static var updateRecommendedLater: String { localized("update.recommended.later") }
+
     public static var homeTitle: String { localized("home.title") }
     public static var homeLoading: String { localized("home.loading") }
     public static var homeRecommended: String { localized("home.recommended") }

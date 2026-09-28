@@ -16,7 +16,9 @@ import CountryFlagsDomain
 /// client come from an SDK written for Swift 5. Both serialize their own state
 /// internally — the API on a private dispatch queue, the client behind a lock —
 /// and everything this type adds is immutable or held in the lock below.
-public final class OpenFeatureFlagClient: FeatureFlagProviding, @unchecked Sendable {
+public final class OpenFeatureFlagClient: FeatureFlagProviding, ClientVersionPolicyProviding,
+    @unchecked Sendable
+{
     private let provider: SnapshotOpenFeatureProvider
     /// An instance rather than `OpenFeatureAPI.shared`: the composition root
     /// owns it, a test owns its own, and no global state ties the two together.
@@ -82,6 +84,16 @@ public final class OpenFeatureFlagClient: FeatureFlagProviding, @unchecked Senda
     /// The snapshot currently answering, for a diagnostics screen.
     public var currentSnapshot: AppConfigSnapshot? {
         provider.currentSnapshot
+    }
+
+    /// The version policy of the snapshot now answering, fresh or cached.
+    ///
+    /// Unlike a flag it does not expire with the snapshot: the backend's last
+    /// word on which builds it supports stands until it says something else,
+    /// and a launch with no network is exactly when an expired copy is all
+    /// there is.
+    public var clientVersionPolicy: ClientVersionPolicy? {
+        provider.currentSnapshot?.clientVersionPolicy
     }
 
     /// The advertising policy of the current snapshot, or the off policy when

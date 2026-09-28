@@ -185,6 +185,18 @@ if [[ "${encryption}" != "false" ]]; then
   status=1
 fi
 
+# The update screen a build the backend refuses stops at (#447) opens the
+# app's App Store page, built from this identifier. It can be missing while
+# the App Store record is being set up, so it warns rather than fails: a build
+# without it still stops where it must, it just has no button to leave by.
+app_store_id="$(/usr/libexec/PlistBuddy -c "Print :CFAppStoreID" "${app}/Info.plist" 2>/dev/null || echo "")"
+if [[ -z "${app_store_id}" ]]; then
+  echo "::warning::CFAppStoreID is empty; the forced-update screen will have no App Store button." >&2
+elif [[ ! "${app_store_id}" =~ ^[0-9]+$ ]]; then
+  echo "::error::CFAppStoreID is '${app_store_id}', which is not a numeric App Store identifier." >&2
+  status=1
+fi
+
 if /usr/libexec/PlistBuddy -c "Print :NSUserTrackingUsageDescription" "${app}/Info.plist" >/dev/null 2>&1; then
   echo "::error::NSUserTrackingUsageDescription is declared. There is no tracking in this app." >&2
   status=1

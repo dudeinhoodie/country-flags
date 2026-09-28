@@ -76,6 +76,54 @@ final class FeatureFlagClientTests: XCTestCase {
         XCTAssertEqual(logger.recorded.first?.category, .featureFlags)
     }
 
+    // MARK: - Version policy (#447)
+
+    /// The Mock build's update scenarios travel the whole path a real policy
+    /// does: request, decode, snapshot, and the policy the root reads.
+    func testTheMockUpdateScenariosReachThePolicy() async throws {
+        for (scenario, mode) in [
+            (MockAppConfig.ClientUpdate.none, ClientVersionPolicy.UpdateMode.none),
+            (.recommended, .soft),
+            (.required, .forced),
+        ] {
+            let transport = MockClientTransport()
+            await transport.always(
+                MockAppConfig.response(now: Self.now, update: scenario),
+                for: "getAppConfig"
+            )
+            let client = makeClient(transport: transport)
+
+            await start(client, scope: guestScope)
+
+            let policy = try XCTUnwrap(client.clientVersionPolicy, "\(scenario)")
+            XCTAssertEqual(policy.updateMode, mode, "\(scenario)")
+        }
+        let required = MockAppConfig.ClientUpdate.fromLaunchArguments(
+            ["-reset-store", "-client-update", "required"]
+        )
+        XCTAssertEqual(required, .required)
+        XCTAssertEqual(MockAppConfig.ClientUpdate.fromLaunchArguments([]), .none)
+    }
+
+    /// An expired snapshot no longer answers for flags, but its version
+    /// policy still stands: the backend's last word on a build does not lapse
+    /// because the phone went offline.
+    func testAnExpiredCacheStillCarriesTheVersionPolicy() async {
+        let cache = InMemoryAppConfigCache()
+        cache.store(
+            snapshot(
+                multipleChoiceEnabled: true,
+                for: guestScope,
+                expiresAt: Self.now.addingTimeInterval(-3600)
+            )
+        )
+        let client = makeClient(transport: MockClientTransport(), cache: cache)
+
+        await client.activate(context: context(for: guestScope))
+
+        XCTAssertEqual(client.clientVersionPolicy?.minimumSupported, "1.0.0")
+    }
+
     // MARK: - Remote snapshot
 
     func testRemoteSnapshotIsAppliedAndCached() async throws {

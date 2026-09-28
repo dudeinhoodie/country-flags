@@ -381,7 +381,14 @@ struct AppComposition: AppDependencies {
         // `immediate`, and a refresh that switches the storefront off has to
         // reach a screen that is already open.
         let featureFlags = MainActor.assumeIsolated {
-            FeatureFlagCenter(flags: activatedFlags)
+            // The backend's version policy rides in the same snapshot as the
+            // flags; the centre is where the root reads whether this build
+            // may go on (#447).
+            FeatureFlagCenter(
+                flags: activatedFlags,
+                versionPolicy: flagClient,
+                appVersion: Self.appVersion(from: bundle)
+            )
         }
         let content = MainActor.assumeIsolated {
             ContentStore(
@@ -545,6 +552,9 @@ struct AppComposition: AppDependencies {
         // The cached snapshot first, without the network: from here on every
         // read answers with what the previous run knew.
         await flagClient.activate(context: context)
+        // A build the backend refused last time stays refused before the
+        // network has a say, and stays refused on a launch without one.
+        featureFlags.evaluateVersionPolicy()
         // The launch-scoped values are frozen against that, so a `nextLaunch`
         // flag reflects the run it belongs to rather than a value that lands a
         // moment later.
@@ -733,7 +743,14 @@ struct AppComposition: AppDependencies {
             guard configuration.environment == .mock else { return nil }
             let fixtureUserID = MockAuth.fixtureUserID()
             var fallbacks: [String: MockClientTransport.Response] = [
-                "getAppConfig": MockAppConfig.response(now: dates.now()),
+                // `-client-update recommended|required` moves the version
+                // policy, so the update screens can be walked offline.
+                "getAppConfig": MockAppConfig.response(
+                    now: dates.now(),
+                    update: MockAppConfig.ClientUpdate.fromLaunchArguments(
+                        ProcessInfo.processInfo.arguments
+                    )
+                ),
                 // The account surface, offline: exchange, rotation, sign-out and
                 // the guest import all answer deterministically.
                 "authenticateWithApple": MockAuth.session(
