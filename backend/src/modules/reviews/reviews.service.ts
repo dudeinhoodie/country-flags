@@ -115,6 +115,7 @@ function projectionFromDatabase(
     lastReviewedAt: Date | null;
     repetitions: number;
     lapses: number;
+    learningStep: number;
     schedulerVersion: string;
     schedulerParametersVersion: string;
     stateVersion: number;
@@ -136,6 +137,7 @@ function projectionFromDatabase(
     lastReviewedAt: state.lastReviewedAt,
     repetitions: state.repetitions,
     lapses: state.lapses,
+    learningStep: state.learningStep,
     schedulerVersion: state.schedulerVersion,
     schedulerParametersVersion: state.schedulerParametersVersion,
     stateVersion: state.stateVersion,
@@ -155,6 +157,7 @@ function projectionSnapshot(
     lastReviewedAt: state.lastReviewedAt?.toISOString() ?? null,
     repetitions: state.repetitions,
     lapses: state.lapses,
+    learningStep: state.learningStep,
     schedulerVersion: state.schedulerVersion,
     schedulerParametersVersion: state.schedulerParametersVersion,
     stateVersion: state.stateVersion,
@@ -193,7 +196,13 @@ function projectionFromSnapshot(
     typeof value.schedulerVersion !== "string" ||
     typeof value.schedulerParametersVersion !== "string" ||
     typeof value.stateVersion !== "number" ||
-    typeof value.updatedAt !== "string"
+    typeof value.updatedAt !== "string" ||
+    !(
+      value.learningStep === undefined ||
+      (typeof value.learningStep === "number" &&
+        Number.isInteger(value.learningStep) &&
+        value.learningStep >= 0)
+    )
   ) {
     throw new Error("Stored review base projection is invalid");
   }
@@ -207,6 +216,10 @@ function projectionFromSnapshot(
       value.lastReviewedAt === null ? null : new Date(value.lastReviewedAt),
     repetitions: value.repetitions,
     lapses: value.lapses,
+    // A snapshot taken before the step was stored sits in immutable review
+    // metadata and cannot gain the field. Step zero is what every answer
+    // started from until then, so it is the value the snapshot always meant.
+    learningStep: value.learningStep ?? 0,
     schedulerVersion: value.schedulerVersion,
     schedulerParametersVersion: value.schedulerParametersVersion,
     stateVersion: value.stateVersion,
@@ -836,6 +849,7 @@ export class ReviewsService {
       lastReviewedAt: state.lastReviewedAt,
       repetitions: state.repetitions,
       lapses: state.lapses,
+      learningStep: state.learningStep,
       schedulerVersion: state.schedulerVersion,
       schedulerParametersVersion: state.schedulerParametersVersion,
       stateVersion: state.stateVersion,
@@ -927,6 +941,9 @@ export class ReviewsService {
     if (cutoff === undefined) {
       throw new Error("Scheduler migration requires a cutoff review event");
     }
+    // The learning step crosses with the rest of the memory state. A card that
+    // v3 left on the second rung — every `GOOD` there did — graduates on its
+    // next `GOOD` under v4 rather than starting the ladder again (ADR-026).
     const migrated: ProjectionWithVersion = {
       ...state,
       schedulerVersion: target.version,

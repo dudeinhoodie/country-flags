@@ -168,9 +168,11 @@ final class ObjectiveSessionRunnerTests: XCTestCase {
         await runner.choose(optionID: wrong.id)
 
         let projections = await learning.recordedProjections()
-        // A wrong objective answer is a lapse for the scheduler, exactly as
-        // rating a card "again" would be.
-        XCTAssertEqual(projections.first?.state, "RELEARNING")
+        // A wrong objective answer is AGAIN for the scheduler, exactly as
+        // rating the card "again" would be. On a card never answered before
+        // that keeps it on the first rung of LEARNING, as on the server: there
+        // is nothing to lapse from yet (ADR-026).
+        XCTAssertEqual(projections.first?.state, "LEARNING")
         XCTAssertEqual(runner.state?.presentation?.outcome(for: wrong), .incorrect)
     }
 

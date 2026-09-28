@@ -1023,6 +1023,9 @@ model UserCardState {
   lastReviewedAt             DateTime?           @map("last_reviewed_at") @db.Timestamptz(3)
   repetitions                Int                 @default(0)
   lapses                     Int                 @default(0)
+  /// The rung of the learning or relearning ladder the card stands on
+  /// (ts-fsrs `learning_steps`). Part of the replayed state, like stability.
+  learningStep               Int                 @default(0) @map("learning_step")
   schedulerVersion           String              @map("scheduler_version")
   schedulerParametersVersion String              @map("scheduler_parameters_version")
   stateVersion               Int                 @default(1) @map("state_version")
