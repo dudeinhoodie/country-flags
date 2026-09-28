@@ -226,9 +226,12 @@ PATCH должен поддерживать optimistic concurrency через `v
 - `duplicate_event_count`;
 - `rejected_event_count`;
 - `created_at`;
-- `completed_at nullable`.
+- `completed_at nullable`;
+- `lease_token nullable`, `lease_expires_at nullable` — аренда попытки, которая сейчас выполняет импорт.
 
 Unique `(user_id, id)` и `(user_id, source_install_id_hash, id)`. Повтор одного migration request безопасно возвращает сохранённый результат. Импорт объединяет immutable review events по UUID и никогда не заменяет server history целиком.
+
+Импорт выполняет одна попытка за раз, и это гарантирует строка операции, а не память процесса. Попытка берёт аренду при создании операции и продлевает её перед каждой сессией и каждым review; итог операции записывает только держатель аренды. Повтор с тем же payload, пока аренда жива, ничего не импортирует и отвечает текущим состоянием (`PENDING`), клиент опрашивает `GET`. Истёкшая аренда означает, что попытка умерла, и следующий повтор продолжает импорт. Повтор с другим payload для незавершённой операции (гость продолжал заниматься, пока первая попытка висела) забирает аренду сразу: прежняя попытка останавливается на следующем review, уже принятые события возвращаются как duplicate. Удаление аккаунта удаляет операцию, и идущая попытка останавливается так же.
 
 #### `data_export_requests`
 
@@ -548,7 +551,7 @@ Unique `(study_session_card_id, position)` и `(study_session_card_id, answer_en
 - `effective_occurred_at`
 - `received_at`
 - `client_sequence`
-- `time_confidence CALIBRATED | BOUNDED | RECEIVED_AT_FALLBACK`
+- `time_confidence CALIBRATED | BOUNDED | RECEIVED_AT_FALLBACK | CLIENT_CLOCK`
 - `base_state_version nullable`
 - `scheduler_version`
 - `scheduler_parameters_version`
@@ -875,6 +878,10 @@ Backend находит option в snapshot сессии и сам выводит 
 `DELETE /v1/me/progress` требует подтверждения, удаляет study sessions, review, card states, deck mastery и учебные achievements, но сохраняет аккаунт, identities и пользовательские настройки. Операция должна иметь отдельный audit/result и не смешиваться с удалением аккаунта.
 
 `POST /v1/me/guest-imports` принимает `migrationId`, непрозрачный install ID и batch гостевых session/review events. Операция идемпотентна; review с уже существующим UUID возвращается как duplicate, а server history никогда не заменяется клиентским snapshot.
+
+Гость не видел серверных часов, поэтому у его review нет `estimatedServerOccurredAt`, и время ответа берётся из `clientOccurredAt` (`timeConfidence = CLIENT_CLOCK`) в границах, которые задаёт сервер: не раньше публикации content release, на который ссылается сессия (иначе `BOUNDED` на момент публикации), и не в будущем (§8.3, иначе `BOUNDED` на `receivedAt`). Порядок внутри устройства импорта сохраняется как для любого review. Для release без `publishedAt` граница неизвестна, и время берётся из `receivedAt`. Так две недели гостевых занятий остаются в своих днях, а не расходуют дневной лимит в момент входа.
+
+Гостевая сессия на платной колоде проходит тот же `DeckAccessService`, что и новая сессия: покупка требует аккаунта, и гость не мог её сделать. Сессия на колоде, которой у аккаунта нет, не создаётся, её review считаются rejected, остальной импорт продолжается (`PARTIAL`).
 
 Экспорт данных формируется асинхронно. Готовый архив содержит профиль, настройки, auth provider names без provider tokens, review history, progress и achievements в машинно-читаемом JSON. Signed download URL имеет короткий TTL.
 
