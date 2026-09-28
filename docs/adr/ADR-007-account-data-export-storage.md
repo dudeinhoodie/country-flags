@@ -82,8 +82,10 @@ identities и provider subject из исходного решения отмен
   хранится, потому что на него ссылаются reviews); `signInSessions` (время
   создания, использования, истечения, отзыва и User-Agent); `guestImports`;
   `privacySettings` и `consentHistory`; `studySessions` с составом карточек;
-  `deckMastery` (сохранённая проекция progress read model, а не отдельный
-  пересчёт); `purchases` и `entitlementGrants`.
+  `deckMastery` (цифры, которые в момент экспорта отдаёт `GET /v1/me/progress`
+  через `ProgressService`, то есть то, что показывает приложение; кэш
+  `user_deck_mastery` обновляют только записи, и он может отставать от истории
+  ответов, поэтому напрямую не читается); `purchases` и `entitlementGrants`.
 - По-прежнему не включаются provider/auth tokens, token hashes и keyed hashes
   (IP-адрес сессии, install ID гостя, подписанный payload покупки), а также
   `storeAccountToken` и служебные идентификаторы sync/replay: они ничего не

@@ -467,7 +467,7 @@
       }
     },
     "DataExportDeckMastery": {
-      "description": "The per-deck mastery projection as it was last rebuilt from the review history.",
+      "description": "Per-deck mastery as the progress endpoints compute it at export time, so it matches what the app shows. It is not read from the stored per-deck cache, which can lag the review history.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -476,8 +476,8 @@
         "tier",
         "masteredCardCount",
         "totalCardCount",
-        "projectionVersion",
-        "updatedAt"
+        "ruleVersion",
+        "computedAt"
       ],
       "properties": {
         "deckId": { "type": "string", "format": "uuid" },
@@ -488,8 +488,16 @@
         },
         "masteredCardCount": { "type": "integer", "minimum": 0 },
         "totalCardCount": { "type": "integer", "minimum": 0 },
-        "projectionVersion": { "type": "integer", "minimum": 1 },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "ruleVersion": {
+          "description": "The version of the mastery rule the figures were computed with.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "computedAt": {
+          "description": "When the figures were computed.",
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "DataExportAchievement": {

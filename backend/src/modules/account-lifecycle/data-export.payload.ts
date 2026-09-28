@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { MasteryTier, type Prisma } from "@prisma/client";
 
 import { serializeSettings } from "../settings/settings.service";
 import { serializePrivacySettings } from "./privacy-settings.service";
@@ -119,10 +119,6 @@ export const DATA_EXPORT_USER_INCLUDE = {
   cardStates: {
     orderBy: { learningCardId: "asc" },
   },
-  deckMastery: {
-    include: { deck: { select: { code: true } } },
-    orderBy: { deckId: "asc" },
-  },
   achievements: {
     include: {
       definition: { select: { code: true } },
@@ -163,6 +159,73 @@ export type DataExportUserRecord = Prisma.UserGetPayload<{
   include: typeof DATA_EXPORT_USER_INCLUDE;
 }>;
 
+/**
+ * One deck's mastery exactly as the progress endpoints answer it, and so as
+ * the app shows it.
+ *
+ * Not the `user_deck_mastery` rows: that table is a cache the write paths
+ * refresh, and a read of it can lag what the review history now says. The
+ * figures come from `ProgressService`, the one definition of mastery.
+ */
+export interface DeckMasteryFigures {
+  deckId: string;
+  deckCode: string;
+  tier: MasteryTier;
+  masteredCardCount: number;
+  totalCardCount: number;
+  ruleVersion: number;
+  computedAt: Date;
+}
+
+function field<T>(
+  deck: Record<string, unknown>,
+  name: string,
+  accepts: (value: unknown) => value is T,
+): T {
+  const value = deck[name];
+  if (!accepts(value)) {
+    throw new Error(`Deck progress has no usable "${name}"`);
+  }
+  return value;
+}
+
+const isString = (value: unknown): value is string => typeof value === "string";
+const isCount = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value >= 0;
+const isTier = (value: unknown): value is MasteryTier =>
+  typeof value === "string" &&
+  (Object.values(MasteryTier) as string[]).includes(value);
+
+/**
+ * Reads the deck entries of a progress answer (`ProgressService.getProgress`
+ * → `decks`). The answer is typed loosely because it goes straight to JSON;
+ * a field that changed shape fails the export loudly instead of writing a
+ * wrong figure into somebody's copy of their data.
+ */
+export function deckMasteryFromProgress(
+  decks: readonly Record<string, unknown>[],
+  deckCodes: ReadonlyMap<string, string>,
+): DeckMasteryFigures[] {
+  return decks
+    .map((deck) => {
+      const deckId = field(deck, "deckId", isString);
+      const deckCode = deckCodes.get(deckId);
+      if (deckCode === undefined) {
+        throw new Error(`Deck ${deckId} in the progress answer has no code`);
+      }
+      return {
+        deckId,
+        deckCode,
+        tier: field(deck, "currentMasteryTier", isTier),
+        masteredCardCount: field(deck, "learnedCards", isCount),
+        totalCardCount: field(deck, "totalCards", isCount),
+        ruleVersion: field(deck, "ruleVersion", isCount),
+        computedAt: new Date(field(deck, "updatedAt", isString)),
+      };
+    })
+    .sort((left, right) => left.deckId.localeCompare(right.deckId));
+}
+
 function iso(value: Date): string {
   return value.toISOString();
 }
@@ -173,6 +236,7 @@ function isoOrNull(value: Date | null): string | null {
 
 export function buildDataExportPayload(
   user: DataExportUserRecord,
+  deckMastery: readonly DeckMasteryFigures[],
   generatedAt: Date,
 ): Record<string, unknown> {
   return {
@@ -286,17 +350,16 @@ export function buildDataExportPayload(
       schedulerVersion: state.schedulerVersion,
       schedulerParametersVersion: state.schedulerParametersVersion,
     })),
-    // The stored projection, as the progress read model last rebuilt it from
-    // the review history; recomputing it here would be a second definition
-    // of mastery that could drift from the one the app shows.
-    deckMastery: user.deckMastery.map((mastery) => ({
+    // What the progress endpoints answer, not the cached rows: see
+    // `DeckMasteryFigures`.
+    deckMastery: deckMastery.map((mastery) => ({
       deckId: mastery.deckId,
-      deckCode: mastery.deck.code,
+      deckCode: mastery.deckCode,
       tier: mastery.tier,
       masteredCardCount: mastery.masteredCardCount,
       totalCardCount: mastery.totalCardCount,
-      projectionVersion: mastery.projectionVersion,
-      updatedAt: iso(mastery.updatedAt),
+      ruleVersion: mastery.ruleVersion,
+      computedAt: iso(mastery.computedAt),
     })),
     achievements: user.achievements.map((achievement) => ({
       code: achievement.definition.code,

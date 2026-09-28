@@ -8,9 +8,11 @@ import { ApiException } from "../../common/http/api.exception";
 import { JsonLoggerService } from "../../common/logging/json-logger.service";
 import type { EnvironmentVariables } from "../../config/environment.validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { ProgressService } from "../progress/progress.service";
 import {
   buildDataExportPayload,
   DATA_EXPORT_USER_INCLUDE,
+  deckMasteryFromProgress,
 } from "./data-export.payload";
 
 interface DownloadedExport {
@@ -38,6 +40,7 @@ export class DataExportsService implements OnModuleInit {
     private readonly database: PrismaService,
     private readonly config: ConfigService<EnvironmentVariables>,
     private readonly logger: JsonLoggerService,
+    private readonly progress: ProgressService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -108,6 +111,12 @@ export class DataExportsService implements OnModuleInit {
     requestId: string,
   ): Promise<void> {
     try {
+      // Mastery through the path the progress endpoints take, so the copy
+      // says what the app shows. It runs before the export's own transaction
+      // and on its own connection: whether that path writes (it refreshes
+      // the mastery cache on some versions) is its business, not this
+      // snapshot's.
+      const progress = await this.progress.getProgress(userId);
       await this.database.$transaction(
         async (transaction) => {
           const claimed = await transaction.dataExportRequest.updateMany({
@@ -118,7 +127,12 @@ export class DataExportsService implements OnModuleInit {
             return;
           }
           const now = new Date();
-          const payload = await this.buildPayload(transaction, userId, now);
+          const payload = await this.buildPayload(
+            transaction,
+            userId,
+            progress.decks as Record<string, unknown>[],
+            now,
+          );
           const payloadText = JSON.stringify(payload);
           const sha256 = createHash("sha256").update(payloadText).digest("hex");
           const expiresAt = new Date(
@@ -289,6 +303,7 @@ export class DataExportsService implements OnModuleInit {
   private async buildPayload(
     transaction: Prisma.TransactionClient,
     userId: string,
+    progressDecks: Record<string, unknown>[],
     generatedAt: Date,
   ): Promise<Record<string, unknown>> {
     const user = await transaction.user.findFirst({
@@ -302,7 +317,21 @@ export class DataExportsService implements OnModuleInit {
         "The account is not available",
       );
     }
-    return buildDataExportPayload(user, generatedAt);
+    const deckIds = progressDecks.flatMap(({ deckId }) =>
+      typeof deckId === "string" ? [deckId] : [],
+    );
+    const decks = await transaction.deck.findMany({
+      where: { id: { in: deckIds } },
+      select: { id: true, code: true },
+    });
+    return buildDataExportPayload(
+      user,
+      deckMasteryFromProgress(
+        progressDecks,
+        new Map(decks.map(({ id, code }) => [id, code])),
+      ),
+      generatedAt,
+    );
   }
 
   private serialize(

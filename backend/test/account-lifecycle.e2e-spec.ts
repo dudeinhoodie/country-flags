@@ -52,7 +52,23 @@ interface ExportArchive {
   signInSessions: Array<{ createdAt: string; revokedAt: string | null }>;
   guestImports: Array<{ migrationId: string; status: string }>;
   studySessions: Array<{ id: string }>;
-  deckMastery: Array<{ deckId: string; tier: string; totalCardCount: number }>;
+  deckMastery: Array<{
+    deckId: string;
+    tier: string;
+    masteredCardCount: number;
+    totalCardCount: number;
+    ruleVersion: number;
+  }>;
+}
+
+interface ProgressBody {
+  decks: Array<{
+    deckId: string;
+    currentMasteryTier: string;
+    learnedCards: number;
+    totalCards: number;
+    ruleVersion: number;
+  }>;
 }
 
 const EXPORTED_ENTITLEMENT_KEY = "entitlement.data_export_test";
@@ -582,12 +598,24 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
       },
     });
 
-    // Reading progress is what rebuilds the per-deck projection the export
-    // copies.
-    await request(httpServer)
-      .get("/v1/me/progress")
-      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
-      .expect(200);
+    // The per-deck mastery cache says something the review history does
+    // not: only the write paths refresh it, so a read of the table can lag
+    // what the app shows. The export must not copy it.
+    const [deck] = await database.userDeckMastery.findMany({
+      where: { userId: account.user.id },
+      orderBy: { deckId: "asc" },
+      take: 1,
+    });
+    if (deck !== undefined) {
+      await database.userDeckMastery.update({
+        where: { userId_deckId: { userId: deck.userId, deckId: deck.deckId } },
+        data: {
+          tier: "PLATINUM",
+          masteredCardCount: deck.totalCardCount,
+          projectionVersion: 99,
+        },
+      });
+    }
   }
 
   it("takes a fresh sign-in as its own proof", async () => {
@@ -727,19 +755,46 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
         }),
       ]),
     );
-    const mastery = await database.userDeckMastery.findMany({
-      where: { userId: account.user.id },
-      select: { deckId: true, tier: true, totalCardCount: true },
-      orderBy: { deckId: "asc" },
-    });
-    expect(mastery.length).toBeGreaterThan(0);
+    // Per-deck mastery is what the progress endpoint answers, not the
+    // cache the helper above tampered with.
+    const shown = await request(httpServer)
+      .get("/v1/me/progress")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(200);
+    const shownDecks = [...(shown.body as unknown as ProgressBody).decks].sort(
+      (left, right) => left.deckId.localeCompare(right.deckId),
+    );
+    expect(shownDecks.length).toBeGreaterThan(0);
     expect(
-      archive.deckMastery.map(({ deckId, tier, totalCardCount }) => ({
-        deckId,
-        tier,
-        totalCardCount,
-      })),
-    ).toEqual(mastery);
+      archive.deckMastery.map(
+        ({ deckId, tier, masteredCardCount, totalCardCount, ruleVersion }) => ({
+          deckId,
+          tier,
+          masteredCardCount,
+          totalCardCount,
+          ruleVersion,
+        }),
+      ),
+    ).toEqual(
+      shownDecks.map(
+        ({
+          deckId,
+          currentMasteryTier,
+          learnedCards,
+          totalCards,
+          ruleVersion,
+        }) => ({
+          deckId,
+          tier: currentMasteryTier,
+          masteredCardCount: learnedCards,
+          totalCardCount: totalCards,
+          ruleVersion,
+        }),
+      ),
+    );
+    expect(
+      archive.deckMastery.map(({ ruleVersion }) => ruleVersion),
+    ).not.toContain(99);
     // Every stored device, the one removed earlier in this file included,
     // and the removed one says so.
     const storedDevices = await database.device.findMany({

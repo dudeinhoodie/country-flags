@@ -876,7 +876,7 @@ Backend находит option в snapshot сессии и сам выводит 
 
 `POST /v1/me/guest-imports` принимает `migrationId`, непрозрачный install ID и batch гостевых session/review events. Операция идемпотентна; review с уже существующим UUID возвращается как duplicate, а server history никогда не заменяется клиентским snapshot.
 
-Экспорт данных формируется асинхронно. Готовый архив (`schemaVersion: 2`) содержит всё, что Privacy Policy называет хранимым для аккаунта: профиль, настройки, consent settings и их историю, sign-in providers с идентификатором провайдера и email, устройства (включая удалённые), записи sign-in sessions с User-Agent, guest imports, study sessions, review history, progress, per-deck mastery, achievements, покупки и entitlement grants, в машинно-читаемом JSON. Архив не содержит auth/provider tokens, token hashes и keyed hashes (IP, install ID, подписанных payload). Signed download URL имеет короткий TTL.
+Экспорт данных формируется асинхронно. Готовый архив (`schemaVersion: 2`) содержит всё, что Privacy Policy называет хранимым для аккаунта: профиль, настройки, consent settings и их историю, sign-in providers с идентификатором провайдера и email, устройства (включая удалённые), записи sign-in sessions с User-Agent, guest imports, study sessions, review history, progress, per-deck mastery (как её в момент экспорта считает `ProgressService` для `GET /v1/me/progress`, а не кэш `user_deck_mastery`), achievements, покупки и entitlement grants, в машинно-читаемом JSON. Архив не содержит auth/provider tokens, token hashes и keyed hashes (IP, install ID, подписанных payload). Signed download URL имеет короткий TTL.
 
 ### 6.6 Аналитика и privacy preferences
 

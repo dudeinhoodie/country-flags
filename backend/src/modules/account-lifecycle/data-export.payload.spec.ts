@@ -10,6 +10,8 @@ import {
   buildDataExportPayload,
   DATA_EXPORT_SCHEMA_VERSION,
   type DataExportUserRecord,
+  type DeckMasteryFigures,
+  deckMasteryFromProgress,
 } from "./data-export.payload";
 
 const USER_ID = "0f6f2c1e-3a51-4c7e-9a86-3f0a5b8c1d01";
@@ -265,18 +267,6 @@ function populatedRecord(): DataExportUserRecord {
         updatedAt: at("2026-09-20T07:55:01.000Z"),
       },
     ],
-    deckMastery: [
-      {
-        userId: USER_ID,
-        deckId: DECK_ID,
-        deck: { code: "EUROPE_FLAGS" },
-        tier: "BRONZE",
-        masteredCardCount: 12,
-        totalCardCount: 44,
-        projectionVersion: 1,
-        updatedAt: at("2026-09-20T07:55:01.000Z"),
-      },
-    ],
     achievements: [
       {
         id: "a4000000-0000-4000-8000-000000000001",
@@ -341,12 +331,91 @@ function sparseRecord(): DataExportUserRecord {
     studySessions: [],
     reviewEvents: [],
     cardStates: [],
-    deckMastery: [],
     achievements: [],
     storeTransactions: [],
     entitlementGrants: [],
   };
 }
+
+/** One deck as `deckMasteryFromProgress` hands it over. */
+const MASTERY: DeckMasteryFigures[] = [
+  {
+    deckId: DECK_ID,
+    deckCode: "EUROPE_FLAGS",
+    tier: "BRONZE",
+    masteredCardCount: 12,
+    totalCardCount: 44,
+    ruleVersion: 1,
+    computedAt: at("2026-09-24T09:59:59.000Z"),
+  },
+];
+
+/** A deck entry of `ProgressService.getProgress(...).decks`. */
+function progressDeck(
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    deckId: DECK_ID,
+    totalCards: 44,
+    learnedCards: 12,
+    dueCards: 3,
+    currentMasteryTier: "BRONZE",
+    highestAchievementTier: "BRONZE",
+    ruleVersion: 1,
+    updatedAt: "2026-09-24T09:59:59.000Z",
+    ...overrides,
+  };
+}
+
+describe("deckMasteryFromProgress", () => {
+  const codes = new Map([
+    [DECK_ID, "EUROPE_FLAGS"],
+    ["70000000-0000-4000-8000-000000000000", "WORLD_FLAGS"],
+  ]);
+
+  it("takes the figures the progress endpoints answer, deck by deck", () => {
+    expect(
+      deckMasteryFromProgress(
+        [
+          progressDeck(),
+          progressDeck({
+            deckId: "70000000-0000-4000-8000-000000000000",
+            currentMasteryTier: "NONE",
+            learnedCards: 0,
+            totalCards: 195,
+          }),
+        ],
+        codes,
+      ),
+    ).toEqual([
+      {
+        deckId: "70000000-0000-4000-8000-000000000000",
+        deckCode: "WORLD_FLAGS",
+        tier: "NONE",
+        masteredCardCount: 0,
+        totalCardCount: 195,
+        ruleVersion: 1,
+        computedAt: at("2026-09-24T09:59:59.000Z"),
+      },
+      MASTERY[0],
+    ]);
+  });
+
+  it("fails rather than write a figure it cannot read", () => {
+    expect(() =>
+      deckMasteryFromProgress(
+        [progressDeck({ currentMasteryTier: "DIAMOND" })],
+        codes,
+      ),
+    ).toThrow('Deck progress has no usable "currentMasteryTier"');
+    expect(() =>
+      deckMasteryFromProgress([progressDeck({ learnedCards: -1 })], codes),
+    ).toThrow('Deck progress has no usable "learnedCards"');
+    expect(() => deckMasteryFromProgress([progressDeck()], new Map())).toThrow(
+      "has no code",
+    );
+  });
+});
 
 describe("buildDataExportPayload", () => {
   const { validate, schemaVersion } = contractValidator();
@@ -357,21 +426,29 @@ describe("buildDataExportPayload", () => {
   });
 
   it("matches the published contract for a fully populated account", () => {
-    const payload = buildDataExportPayload(populatedRecord(), generatedAt);
+    const payload = buildDataExportPayload(
+      populatedRecord(),
+      MASTERY,
+      generatedAt,
+    );
 
     expect(validate(payload)).toBe(true);
     expect(validate.errors ?? []).toEqual([]);
   });
 
   it("matches the published contract for an account with nothing stored yet", () => {
-    const payload = buildDataExportPayload(sparseRecord(), generatedAt);
+    const payload = buildDataExportPayload(sparseRecord(), [], generatedAt);
 
     expect(validate(payload)).toBe(true);
     expect(validate.errors ?? []).toEqual([]);
   });
 
   it("is checked against a contract that rejects what it does not describe", () => {
-    const payload = buildDataExportPayload(populatedRecord(), generatedAt);
+    const payload = buildDataExportPayload(
+      populatedRecord(),
+      MASTERY,
+      generatedAt,
+    );
     const [identity] = payload.authenticationProviders as Array<
       Record<string, unknown>
     >;
@@ -386,7 +463,11 @@ describe("buildDataExportPayload", () => {
   });
 
   it("carries every section the privacy policy says an account keeps", () => {
-    const payload = buildDataExportPayload(populatedRecord(), generatedAt);
+    const payload = buildDataExportPayload(
+      populatedRecord(),
+      MASTERY,
+      generatedAt,
+    );
 
     expect(payload).toMatchObject({
       schemaVersion: 2,
@@ -445,6 +526,8 @@ describe("buildDataExportPayload", () => {
           tier: "BRONZE",
           masteredCardCount: 12,
           totalCardCount: 44,
+          ruleVersion: 1,
+          computedAt: "2026-09-24T09:59:59.000Z",
         },
       ],
       purchases: [
@@ -469,7 +552,7 @@ describe("buildDataExportPayload", () => {
 
   it("leaves out internal replay, sync and purchase-binding material", () => {
     const serialized = JSON.stringify(
-      buildDataExportPayload(populatedRecord(), generatedAt),
+      buildDataExportPayload(populatedRecord(), MASTERY, generatedAt),
     );
 
     expect(serialized).not.toContain(PAYLOAD_HASH);
