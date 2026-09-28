@@ -128,10 +128,15 @@ Email не является первичным или уникальным ид�
 - `is_private_email nullable`
 - `created_at`
 - `last_login_at`
+- `provider_token_ciphertext nullable` — только Apple: refresh token Sign in with Apple, зашифрованный AES-256-GCM (`v1.<iv>.<ciphertext>.<tag>`, associated data привязывает его к identity);
+- `provider_token_client_id nullable` — client id (bundle id), которому Apple выдала token; отзыв обязан назвать тот же;
+- `provider_token_state STORED | CREDENTIALS_NOT_CONFIGURED | EXCHANGE_FAILED nullable` — чем закончился последний обмен authorization code;
+- `provider_token_updated_at nullable`
 
 Ограничения:
 
 - unique `(provider, provider_subject)`;
+- `provider_token_*` заполняются только у Apple identity; ciphertext и client id существуют только вместе; `STORED` требует ciphertext; ciphertext обязан иметь sealed-формат (открытый token база не примет);
 - один пользователь MAY иметь Apple и Google identity;
 - identity нельзя молча перепривязать к другому пользователю;
 - аккаунты нельзя автоматически объединять по совпавшему email.
@@ -690,6 +695,14 @@ Unique должен предотвращать повторную выдачу �
 
 Имя и email могут прийти только при первом согласии; сервер не должен требовать их при последующих входах. При удалении аккаунта необходимо отозвать Apple tokens в соответствии с Sign in with Apple REST API.
 
+После проверки identity token сервер обменивает `authorizationCode` на refresh token Apple (`POST https://appleid.apple.com/auth/token`, client secret — ES256 JWT, подписанный ключом Sign in with Apple команды: `AUTH_APPLE_TEAM_ID`, `AUTH_APPLE_KEY_ID`, `AUTH_APPLE_PRIVATE_KEY`; `sub` — bundle id из `aud` identity token). Token хранится только зашифрованным (`AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY`) на Apple identity. То же происходит при связывании Apple identity (`POST /v1/me/identities/apple`).
+
+Неудачный обмен не блокирует вход: вход через Apple не должен зависеть от доступности token endpoint. Исход записывается в `provider_token_state` и в audit `AUTH_LOGIN_SUCCEEDED` (`appleTokenExchange`), логируется предупреждением, а ранее сохранённый token остаётся — он всё ещё действителен. Без ключа Sign in with Apple (dev и CI до #302) обмен не выполняется и записывается явный `CREDENTIALS_NOT_CONFIGURED`. Prod без ключа не стартует.
+
+Если вход не удался уже после обмена, новый token не отзывается: отзыв любого token снимает всё разрешение Apple ID для приложения, включая то, на которое опирается уже существующий аккаунт этого человека.
+
+Apple вызывается через provider interface `AppleTokenClient`; в CI он подменяется fake, сетевых обращений к Apple в тестах нет.
+
 ### 5.2 Google
 
 `POST /v1/auth/google` принимает ID token и сведения устройства.
@@ -741,6 +754,14 @@ Email, совпадающий display name или Apple private relay address н
 4. удаляет/анонимизирует профиль, identities, settings, devices, progress, review и achievements в установленный срок;
 5. отзывает Sign in with Apple tokens;
 6. не оставляет восстановимого email в обычных логах/аналитике.
+
+Отзыв Apple token (`POST https://appleid.apple.com/auth/revoke`) выполняется до транзакции удаления: сетевой вызов не должен держать serializable-транзакцию, а повтор транзакции не должен вызывать Apple снова. Token хранится на identity, которую транзакция удаляет, поэтому это последний момент, когда его можно прочитать. Удаление не блокируется ответом Apple. Audit `ACCOUNT_DELETED` записывает фактический исход в `providerCredentialRevocation`:
+
+- `revoked` — Apple подтвердила отзыв;
+- `revocation_failed` — Apple отказала или недоступна; причина в `providerCredentialRevocationFailure`, событие логируется как error. Повторной попытки нет: token удаляется вместе с identity;
+- `credentials_not_configured` — у deployment нет ключа Sign in with Apple;
+- `no_token_stored` — обмен при входе не дал token; почему — в `appleTokenExchange`;
+- `not_applicable_no_apple_identity` — у аккаунта нет Apple identity.
 
 Если нужен audit для безопасности, его поля и срок хранения должны быть перечислены в Privacy Policy.
 

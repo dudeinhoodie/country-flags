@@ -15,6 +15,7 @@ import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
 import { serializeUser } from "../users/user.serializer";
 import { AccessTokenService } from "./access-token.service";
+import type { AppleTokenGrant } from "./apple/apple-token-lifecycle.service";
 import type { DeviceRegistration } from "./auth.request";
 import type { VerifiedProviderIdentity } from "./provider-identity-verifier";
 
@@ -48,6 +49,33 @@ type RefreshRotationResult =
   | { kind: "invalid" }
   | { kind: "reused" };
 
+/**
+ * The columns a sign-in's Apple code exchange writes onto the identity. A
+ * failed or skipped exchange records its state and keeps an earlier token:
+ * that one is still valid and still what a deletion has to revoke.
+ */
+function appleTokenColumns(
+  grant: AppleTokenGrant | undefined,
+  now: Date,
+): {
+  providerTokenCiphertext?: string;
+  providerTokenClientId?: string | null;
+  providerTokenState?: AppleTokenGrant["state"];
+  providerTokenUpdatedAt?: Date;
+} {
+  if (grant === undefined) {
+    return {};
+  }
+  return grant.sealedRefreshToken === null
+    ? { providerTokenState: grant.state, providerTokenUpdatedAt: now }
+    : {
+        providerTokenCiphertext: grant.sealedRefreshToken,
+        providerTokenClientId: grant.clientId,
+        providerTokenState: grant.state,
+        providerTokenUpdatedAt: now,
+      };
+}
+
 function typedError(
   status: HttpStatus,
   code: string,
@@ -69,11 +97,17 @@ export class AuthService {
     identity: VerifiedProviderIdentity,
     device: DeviceRegistration,
     context: RequestContext,
+    appleToken?: AppleTokenGrant,
   ): Promise<Record<string, unknown>> {
     let lastError: unknown;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const session = await this.persistLogin(identity, device, context);
+        const session = await this.persistLogin(
+          identity,
+          device,
+          context,
+          appleToken,
+        );
         return {
           tokens: await this.issueTokenPair(session),
           user: serializeUser(session.user),
@@ -339,6 +373,7 @@ export class AuthService {
     userId: string,
     identity: VerifiedProviderIdentity,
     requestId: string,
+    appleToken?: AppleTokenGrant,
   ): Promise<Record<string, unknown>> {
     try {
       const linked = await this.database.$transaction(async (transaction) => {
@@ -359,7 +394,13 @@ export class AuthService {
               { provider: identity.provider },
             );
           }
-          return owner;
+          if (appleToken === undefined) {
+            return owner;
+          }
+          return transaction.authIdentity.update({
+            where: { id: owner.id },
+            data: appleTokenColumns(appleToken, new Date()),
+          });
         }
         const providerIdentity = await transaction.authIdentity.findUnique({
           where: {
@@ -385,6 +426,7 @@ export class AuthService {
             email: identity.email,
             emailVerified: identity.emailVerified,
             isPrivateEmail: identity.isPrivateEmail,
+            ...appleTokenColumns(appleToken, new Date()),
           },
         });
         await this.audit(transaction, {
@@ -475,6 +517,7 @@ export class AuthService {
     identity: VerifiedProviderIdentity,
     device: DeviceRegistration,
     context: RequestContext,
+    appleToken: AppleTokenGrant | undefined,
   ): Promise<SessionRecord> {
     return inSerializableTransaction(this.database, async (transaction) => {
       // Read once. The branch below used to re-read the identity it had
@@ -510,6 +553,7 @@ export class AuthService {
                 email: identity.email,
                 emailVerified: identity.emailVerified,
                 isPrivateEmail: identity.isPrivateEmail,
+                ...appleTokenColumns(appleToken, new Date()),
               },
             },
           },
@@ -530,6 +574,7 @@ export class AuthService {
             email: identity.email,
             emailVerified: identity.emailVerified,
             isPrivateEmail: identity.isPrivateEmail,
+            ...appleTokenColumns(appleToken, new Date()),
           },
         });
       }
@@ -591,6 +636,9 @@ export class AuthService {
         metadata: {
           provider: identity.provider,
           accountCreated,
+          ...(appleToken === undefined
+            ? {}
+            : { appleTokenExchange: appleToken.state }),
         },
       });
       return { id: session.id, user, settings, refresh };

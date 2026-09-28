@@ -1,3 +1,6 @@
+import { generateKeyPairSync } from "node:crypto";
+
+import { testSignInWithAppleConfig } from "../modules/auth/testing/sign-in-with-apple-config";
 import { validateEnvironment } from "./environment.validation";
 
 describe("validateEnvironment", () => {
@@ -25,6 +28,7 @@ describe("validateEnvironment", () => {
     PUBLIC_BASE_URL: "https://api.country-flags.example",
     APPLE_CLIENT_IDS: "com.countryflags.ios",
     GOOGLE_CLIENT_IDS: "web.apps.googleusercontent.com",
+    ...testSignInWithAppleConfig(),
   };
 
   it("normalizes valid environment variables", () => {
@@ -600,6 +604,128 @@ describe("validateEnvironment", () => {
       ).toBe("");
     });
   });
+  describe("Sign in with Apple key", () => {
+    const siwa = testSignInWithAppleConfig();
+    const { AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY: encryptionKey, ...key } = siwa;
+    const devConfig = {
+      ...validConfig,
+      ...productionAuthConfig,
+      NODE_ENV: "production",
+      DEPLOYMENT_ENV: "dev",
+      AUTH_APPLE_TEAM_ID: undefined,
+      AUTH_APPLE_KEY_ID: undefined,
+      AUTH_APPLE_PRIVATE_KEY: undefined,
+      AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY: undefined,
+    };
+
+    it("refuses to start prod without it", () => {
+      expect(() =>
+        validateEnvironment({ ...devConfig, DEPLOYMENT_ENV: "prod" }),
+      ).toThrow(
+        "AUTH_APPLE_TEAM_ID, AUTH_APPLE_KEY_ID, AUTH_APPLE_PRIVATE_KEY are required in prod",
+      );
+    });
+
+    it("lets dev run without it, keeping no provider tokens", () => {
+      expect(validateEnvironment(devConfig)).toMatchObject({
+        AUTH_APPLE_TEAM_ID: "",
+        AUTH_APPLE_KEY_ID: "",
+        AUTH_APPLE_PRIVATE_KEY: "",
+        AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY: "",
+      });
+    });
+
+    it("gives local and CI a test encryption key and nothing else", () => {
+      const validated = validateEnvironment(validConfig);
+      expect(validated.AUTH_APPLE_PRIVATE_KEY).toBe("");
+      expect(
+        Buffer.from(validated.AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY, "base64"),
+      ).toHaveLength(32);
+    });
+
+    it("rejects a partial key instead of degrading silently", () => {
+      expect(() =>
+        validateEnvironment({
+          ...devConfig,
+          AUTH_APPLE_KEY_ID: key.AUTH_APPLE_KEY_ID,
+        }),
+      ).toThrow(
+        "AUTH_APPLE_TEAM_ID, AUTH_APPLE_KEY_ID, AUTH_APPLE_PRIVATE_KEY must be set together",
+      );
+    });
+
+    it("never keeps Apple tokens without an encryption key", () => {
+      expect(() => validateEnvironment({ ...devConfig, ...key })).toThrow(
+        "AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY is required with the Sign in with Apple key",
+      );
+    });
+
+    it("accepts the key with its encryption key, also with escaped newlines", () => {
+      const escaped = key.AUTH_APPLE_PRIVATE_KEY?.replace(/\n/g, "\\n");
+      expect(
+        validateEnvironment({
+          ...devConfig,
+          ...siwa,
+          AUTH_APPLE_PRIVATE_KEY: escaped,
+        }),
+      ).toMatchObject({
+        AUTH_APPLE_TEAM_ID: "TESTTEAM01",
+        AUTH_APPLE_KEY_ID: "TESTKEY001",
+        AUTH_APPLE_PRIVATE_KEY: key.AUTH_APPLE_PRIVATE_KEY,
+        AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY: encryptionKey,
+      });
+    });
+
+    it("rejects a key that is not an EC P-256 .p8", () => {
+      const { privateKey } = generateKeyPairSync("rsa", {
+        modulusLength: 2048,
+      });
+      expect(() =>
+        validateEnvironment({
+          ...devConfig,
+          ...siwa,
+          AUTH_APPLE_PRIVATE_KEY: privateKey
+            .export({ type: "pkcs8", format: "pem" })
+            .toString(),
+        }),
+      ).toThrow("must be the PEM contents of the Sign in with Apple .p8 key");
+      expect(() =>
+        validateEnvironment({
+          ...devConfig,
+          ...siwa,
+          AUTH_APPLE_PRIVATE_KEY: "not a key",
+        }),
+      ).toThrow("must be the PEM contents of the Sign in with Apple .p8 key");
+    });
+
+    it("rejects malformed identifiers and encryption keys", () => {
+      expect(() =>
+        validateEnvironment({ ...devConfig, ...siwa, AUTH_APPLE_KEY_ID: "k" }),
+      ).toThrow("AUTH_APPLE_KEY_ID must be a 10-character Apple identifier");
+      expect(() =>
+        validateEnvironment({
+          ...devConfig,
+          ...siwa,
+          AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY:
+            Buffer.alloc(16).toString("base64"),
+        }),
+      ).toThrow(
+        "AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY must be 32 bytes, base64-encoded",
+      );
+    });
+
+    it("never accepts the test encryption key in a hosted deployment", () => {
+      const testKey =
+        validateEnvironment(validConfig).AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY;
+      expect(() =>
+        validateEnvironment({
+          ...devConfig,
+          AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY: testKey,
+        }),
+      ).toThrow("cannot use the test key here");
+    });
+  });
+
   describe("the minimum client version paid decks are shown to", () => {
     const key = "PAID_CONTENT_MINIMUM_CLIENT_VERSIONS";
 
