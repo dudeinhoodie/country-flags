@@ -15,7 +15,10 @@ import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
 import { serializeUser } from "../users/user.serializer";
 import { AccessTokenService } from "./access-token.service";
-import type { AppleTokenGrant } from "./apple/apple-token-lifecycle.service";
+import {
+  type AppleTokenGrant,
+  appleTokenColumns,
+} from "./apple/apple-token-lifecycle.service";
 import type { DeviceRegistration } from "./auth.request";
 import type { VerifiedProviderIdentity } from "./provider-identity-verifier";
 
@@ -48,33 +51,6 @@ type RefreshRotationResult =
   | { kind: "ok"; session: SessionRecord }
   | { kind: "invalid" }
   | { kind: "reused" };
-
-/**
- * The columns a sign-in's Apple code exchange writes onto the identity. A
- * failed or skipped exchange records its state and keeps an earlier token:
- * that one is still valid and still what a deletion has to revoke.
- */
-function appleTokenColumns(
-  grant: AppleTokenGrant | undefined,
-  now: Date,
-): {
-  providerTokenCiphertext?: string;
-  providerTokenClientId?: string | null;
-  providerTokenState?: AppleTokenGrant["state"];
-  providerTokenUpdatedAt?: Date;
-} {
-  if (grant === undefined) {
-    return {};
-  }
-  return grant.sealedRefreshToken === null
-    ? { providerTokenState: grant.state, providerTokenUpdatedAt: now }
-    : {
-        providerTokenCiphertext: grant.sealedRefreshToken,
-        providerTokenClientId: grant.clientId,
-        providerTokenState: grant.state,
-        providerTokenUpdatedAt: now,
-      };
-}
 
 function typedError(
   status: HttpStatus,

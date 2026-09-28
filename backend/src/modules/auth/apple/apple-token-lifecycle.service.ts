@@ -40,6 +40,33 @@ export interface AppleRevocationResult {
   failure: AppleTokenFailure | "undecryptable" | null;
 }
 
+/**
+ * The columns a sign-in's Apple code exchange writes onto the identity. A
+ * failed or skipped exchange records its state and keeps an earlier token:
+ * that one is still valid and still what a deletion has to revoke.
+ */
+export function appleTokenColumns(
+  grant: AppleTokenGrant | undefined,
+  now: Date,
+): {
+  providerTokenCiphertext?: string;
+  providerTokenClientId?: string | null;
+  providerTokenState?: ProviderTokenState;
+  providerTokenUpdatedAt?: Date;
+} {
+  if (grant === undefined) {
+    return {};
+  }
+  return grant.sealedRefreshToken === null
+    ? { providerTokenState: grant.state, providerTokenUpdatedAt: now }
+    : {
+        providerTokenCiphertext: grant.sealedRefreshToken,
+        providerTokenClientId: grant.clientId,
+        providerTokenState: grant.state,
+        providerTokenUpdatedAt: now,
+      };
+}
+
 function sealContext(providerSubject: string): string {
   return `auth_identities:APPLE:${providerSubject}`;
 }
