@@ -740,8 +740,16 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
         totalCardCount,
       })),
     ).toEqual(mastery);
-    // The device removed earlier in this file is still stored, and says so.
-    expect(archive.devices).toHaveLength(2);
+    // Every stored device, the one removed earlier in this file included,
+    // and the removed one says so.
+    const storedDevices = await database.device.findMany({
+      where: { userId: account.user.id },
+      select: { deletedAt: true },
+      orderBy: { createdAt: "asc" },
+    });
+    expect(archive.devices.map(({ removedAt }) => removedAt)).toEqual(
+      storedDevices.map(({ deletedAt }) => deletedAt?.toISOString() ?? null),
+    );
     expect(
       archive.devices.filter(({ removedAt }) => removedAt !== null),
     ).toHaveLength(1);
