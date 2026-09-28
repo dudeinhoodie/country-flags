@@ -349,6 +349,23 @@ public actor SyncCoordinator: SyncCoordinating {
                 ["count": .count(revived.count)]
             )
         }
+        // Reviews parked because the backend did not know the device they
+        // named. Builds before #443 parked them for good, but the device is
+        // attached when a batch is sent, not stored with the answer, so the
+        // same bytes go again under whatever device the uploader resolves.
+        let unattributed = try await outbox.operations(failedWith: Self.deviceNotFound, for: scope)
+            .filter { $0.kind == .reviewBatch }
+        for operation in unattributed {
+            try await outbox.requeue(operation.id, withPayload: operation.payload, for: scope)
+        }
+        if !unattributed.isEmpty {
+            logger.log(
+                .notice,
+                .sync,
+                "Revived reviews parked for a device the backend did not know",
+                ["count": .count(unattributed.count)]
+            )
+        }
 
         while true {
             let pending = try await outbox.pendingOperations(for: scope)
@@ -580,6 +597,10 @@ public actor SyncCoordinator: SyncCoordinating {
 
     /// The backend's code for "this clientSequence is already taken".
     private static let sequenceConflict = "SEQUENCE_CONFLICT"
+    /// The backend's code for a review naming a device it does not hold. The
+    /// uploader cures it by resolving the device again; this is for what
+    /// earlier builds parked under it.
+    private static let deviceNotFound = "DEVICE_NOT_FOUND"
 
     /// The fields renumbering reads from a queued payload. Nothing else is
     /// decoded: the bytes an earlier build promised to send are edited in
