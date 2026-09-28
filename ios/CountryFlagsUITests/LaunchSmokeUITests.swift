@@ -54,7 +54,11 @@ final class LaunchSmokeUITests: XCTestCase {
         app.launchArguments += ["-reset-store", "-client-update", "recommended"]
         app.launch()
 
-        let later = app.buttons["root.updateRecommended.later"]
+        // The alert puts its button in the hierarchy twice -- the row and the
+        // element inside it -- so the query names which one to press.
+        let later = app.alerts.buttons
+            .matching(identifier: "root.updateRecommended.later")
+            .firstMatch
         XCTAssertTrue(later.waitForExistence(timeout: 30), app.debugDescription)
         later.tap()
 
