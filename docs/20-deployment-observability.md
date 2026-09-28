@@ -51,7 +51,17 @@ Every line carries, from `backend/src/common/logging/json-logger.service.ts`:
 | `deploymentId` | `DEPLOYMENT_ID`, else Cloud Run's `K_REVISION` | `api-dev-00127-nmd` |
 | `migrationVersion` | `MIGRATION_VERSION`, set by the deploy | `20260901120000_add_entitlements` |
 | `level`, `timestamp`, `message` | the call site | |
+| `severity` | the level, in Cloud Logging's terms | `WARNING` |
 | `traceId`, `spanId` | the active span, when one exists | |
+
+`severity` is what Cloud Logging files the entry under: it lifts the field out
+of `jsonPayload` into the entry's own severity, and it knows nothing of `level`.
+The levels map `debug` → `DEBUG`, `info` → `INFO`, `warn` → `WARNING`, `error` →
+`ERROR`, `fatal` → `CRITICAL`. Before #452 only `level` was written, every entry
+was stored as `DEFAULT`, and the `severity>=WARNING` dashboard panel and the
+`severity>=ERROR` checks in §8 and the runbooks read an empty result as "nothing
+is failing". Filter on `severity`; `jsonPayload.level` still works but is no
+longer the only way in.
 
 `deploymentId` and `migrationVersion` are omitted rather than defaulted when
 nothing supplies them, so a local line keeps its old shape and a hosted line is
