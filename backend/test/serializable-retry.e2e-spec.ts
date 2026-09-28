@@ -31,6 +31,9 @@ type RunTransaction = (
 ) => Promise<unknown>;
 
 const DECK_ID = "70000000-0000-4000-8000-000000000001";
+// Request ids are stored on the audit event, as UUIDs.
+const OTHER_DEVICE_REQUEST_ID = "9b000000-0000-4000-8000-000000000001";
+const THIS_DEVICE_REQUEST_ID = "9b000000-0000-4000-8000-000000000002";
 
 function databaseUrlFor(baseUrl: string, databaseName: string): string {
   const url = new URL(baseUrl);
@@ -261,13 +264,18 @@ describe("serializable writes retried after a conflict (integration)", () => {
         TEST_STUDY_USER_ID,
         version,
         { sessionSize: 10 },
-        "other-device",
+        OTHER_DEVICE_REQUEST_ID,
       );
       return run(attempt);
     });
 
     const thrown = await settings
-      .update(TEST_STUDY_USER_ID, version, { sessionSize: 20 }, "this-device")
+      .update(
+        TEST_STUDY_USER_ID,
+        version,
+        { sessionSize: 20 },
+        THIS_DEVICE_REQUEST_ID,
+      )
       .catch((error: unknown) => error);
 
     expectWriteConflict(trace.firstFailure());
