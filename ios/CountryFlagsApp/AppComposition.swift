@@ -288,7 +288,7 @@ struct AppComposition: AppDependencies {
         // seam is wired now so signing in does not need a composition change.
         // Telemetry is assembled before the services that report through it.
         // Consent starts at "nobody has been asked", which collects nothing
-        // optional; the privacy screen loads the stored answer and applies it.
+        // optional; `start()` loads the stored answer and applies it.
         let telemetryService = TelemetryService(clientFactory: apiClientFactory, logger: logger)
         let telemetryContexts = TelemetryContextProvider(
             identityStore: UserDefaultsTelemetryIdentityStore(),
@@ -535,6 +535,16 @@ struct AppComposition: AppDependencies {
         // Who this launch belongs to is decided first: everything after --
         // the flag context, the sync scope -- reads the answer.
         await sessions.restore()
+        // The stored consent reaches the collectors now, not when somebody
+        // opens the privacy settings, and diagnostics start under it (#452).
+        // Beside the flags rather than before them: the flush waits on the
+        // network, and nothing on screen waits on this.
+        let telemetry = TelemetryLaunch(
+            privacy: makePrivacyStore(),
+            startDiagnostics: { [metricKitSubscriber] in metricKitSubscriber.start() },
+            flushDiagnostics: { [diagnosticsCoordinator] in await diagnosticsCoordinator.flush() }
+        )
+        Task { await telemetry.run() }
         let scope = await scopes.currentScope()
         let context = FeatureFlagContext(
             scope: scope,

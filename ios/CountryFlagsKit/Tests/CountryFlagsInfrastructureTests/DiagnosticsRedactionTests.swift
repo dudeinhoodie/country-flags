@@ -142,6 +142,41 @@ final class DiagnosticsRedactionTests: XCTestCase {
         XCTAssertEqual(report.sha256.count, 64)
     }
 
+    /// A payload MetricKit delivers leaves right away under consent, rather
+    /// than waiting for a launch flush that has already run (#452).
+    func testADeliveredPayloadIsSentAtOnce() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let uploader = RecordingDiagnosticsUploader()
+        let subscriber = MetricKitSubscriber(
+            coordinator: makeCoordinator(store: store, consent: granted, uploader: uploader),
+            dates: FixedDateProvider(instant: now)
+        )
+
+        await subscriber.receive(payloadJSON: "{\"hangDiagnostics\":[]}", generatedAt: now)
+
+        let uploaded = await uploader.uploads()
+        XCTAssertEqual(uploaded.count, 1)
+        let pending = try await store.makeTelemetryRepository()
+            .pendingDiagnosticReports(for: account)
+        XCTAssertTrue(pending.isEmpty)
+    }
+
+    /// Without diagnostics consent a delivery stores nothing and sends
+    /// nothing.
+    func testADeliveredPayloadWithoutConsentGoesNowhere() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let uploader = RecordingDiagnosticsUploader()
+        let subscriber = MetricKitSubscriber(
+            coordinator: makeCoordinator(store: store, consent: analyticsOnly, uploader: uploader),
+            dates: FixedDateProvider(instant: now)
+        )
+
+        await subscriber.receive(payloadJSON: "{\"hangDiagnostics\":[]}", generatedAt: now)
+
+        let uploaded = await uploader.uploads()
+        XCTAssertTrue(uploaded.isEmpty)
+    }
+
     /// An offline device keeps its report for the next attempt.
     func testAnUndeliverableReportStaysQueued() async throws {
         let store = try LocalStore(location: .inMemory)
