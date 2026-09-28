@@ -97,6 +97,10 @@ struct AppComposition: AppDependencies {
     let errorReporter: any ErrorReporting
     let diagnostics: any DiagnosticsReporting
     let logger: any AppLogging
+    /// What the launch had to do because the store would not open, for the
+    /// root to say before anything else. Nil on an ordinary launch.
+    let storeRecovery: StoreRecoveryNotice?
+    let storeRecoveryNotices: any StoreRecoveryNoticing
 
     /// The layers below `FeatureFlagCenter`, kept so the launch sequence can
     /// drive them. Nothing else reaches for them.
@@ -123,17 +127,31 @@ struct AppComposition: AppDependencies {
             // empty state. Only Mock and Dev define DEBUG; a release binary
             // does not contain this call at all.
             resetStoreIfRequested(name: name)
+            corruptStoreIfRequested(name: name)
         #endif
 
-        let store: LocalStore
+        // A store that will not open used to stop the app on every launch,
+        // and a reinstall -- the only way out -- erased the very file the
+        // crash was protecting. The recovery keeps that file aside and opens a
+        // fresh one, and the root says so before anything else (#445).
+        let storeRecoveryNotices = UserDefaultsStoreRecoveryNoticeStore()
+        let opening: LocalStoreOpening
         do {
-            store = try LocalStore(location: .onDisk(name: name))
+            opening = try LocalStoreRecovery.open(name: name, now: dates.now(), logger: logger)
         } catch {
-            // The store holds reviews that have not reached the backend.
-            // Continuing with a fresh one would discard them without telling
-            // anyone; failing loudly keeps the file intact for a later build.
-            fatalError("The local store is unavailable: \(error)")
+            // Not even a store in memory could be made: there is nothing left
+            // to run on.
+            fatalError("No local store could be created: \(error)")
         }
+        let store = opening.store
+        // A fresh start is remembered until it has been read: a person who
+        // closes the app on the screen would otherwise open it tomorrow on an
+        // empty Home and no word about why. A run that saves nothing is not:
+        // the next launch tries the disk again and says so itself if it fails.
+        if let recovery = opening.recovery, recovery.outcome == .startedFresh {
+            storeRecoveryNotices.store(recovery)
+        }
+        let storeRecovery = opening.recovery ?? storeRecoveryNotices.pendingNotice()
 
         let apiConfiguration = APIClientConfiguration(
             baseURL: Self.baseURL(for: configuration),
@@ -521,6 +539,8 @@ struct AppComposition: AppDependencies {
             errorReporter: errorReporter,
             diagnostics: NoOpDiagnosticsReporter(),
             logger: logger,
+            storeRecovery: storeRecovery,
+            storeRecoveryNotices: storeRecoveryNotices,
             flagClient: flagClient,
             activatedFlags: activatedFlags
         )
@@ -875,8 +895,17 @@ struct AppComposition: AppDependencies {
             fileManager: FileManager = .default
         ) {
             guard arguments.contains(resetStoreArgument) else { return }
-            for url in LocalStore.fileURLs(forName: name) {
+            let files = LocalStore.fileURLs(forName: name)
+            for url in files {
                 try? fileManager.removeItem(at: url)
+            }
+            // And whatever an earlier run set aside, so copies from a suite
+            // that corrupts the store on purpose do not pile up.
+            if let store = files.first {
+                try? fileManager.removeItem(
+                    at: store.deletingLastPathComponent()
+                        .appendingPathComponent(LocalStoreRecovery.folderName)
+                )
             }
             // The store is not the only thing a launch remembers. Reset the
             // session as well, otherwise a UI test can inherit the previous
@@ -895,6 +924,30 @@ struct AppComposition: AppDependencies {
             if let bundleIdentifier = Bundle.main.bundleIdentifier {
                 UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
             }
+        }
+    #endif
+
+    #if DEBUG
+        /// Writes bytes that are not a database where the store should be, so a
+        /// UI test can walk the recovery a damaged store leads to (#445).
+        static let corruptStoreArgument = "-corrupt-store"
+
+        static func corruptStoreIfRequested(
+            name: String,
+            arguments: [String] = ProcessInfo.processInfo.arguments,
+            fileManager: FileManager = .default
+        ) {
+            guard arguments.contains(corruptStoreArgument) else { return }
+            let files = LocalStore.fileURLs(forName: name)
+            for url in files {
+                try? fileManager.removeItem(at: url)
+            }
+            guard let store = files.first else { return }
+            try? fileManager.createDirectory(
+                at: store.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            try? Data(String(repeating: "not a database. ", count: 512).utf8).write(to: store)
         }
     #endif
 
