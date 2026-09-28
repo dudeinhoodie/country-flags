@@ -7,6 +7,10 @@ import {
   validationError,
   timeZone,
 } from "../../common/http/request-validation";
+import {
+  type Queryable,
+  timeZoneCatalog,
+} from "../../infrastructure/database/time-zones";
 
 const FACT_TYPES = [
   FactType.POPULATION,
@@ -195,4 +199,24 @@ export function parseUpdateSettingsRequest(
     update.timezone = timeZone(body.timezone, "timezone");
   }
   return update;
+}
+
+/**
+ * The second half of checking `timezone`: the zone must be one PostgreSQL
+ * knows, because PostgreSQL is what counts the learner's day in it. `Intl`
+ * above is the cheap first filter and is not enough on its own — it takes
+ * offsets such as `+05:30`, which PostgreSQL reads with the sign inverted,
+ * and zone names PostgreSQL's copy of the zone database may not have. The
+ * zone is stored as PostgreSQL spells it (#452).
+ */
+export async function withDatabaseTimeZone(
+  database: Queryable,
+  update: UpdateSettingsRequest,
+): Promise<UpdateSettingsRequest> {
+  if (update.timezone === undefined) return update;
+  const known = await timeZoneCatalog.lookUp(database, update.timezone);
+  if (known === null) {
+    validationError("timezone", "must be an IANA time zone");
+  }
+  return { ...update, timezone: known };
 }

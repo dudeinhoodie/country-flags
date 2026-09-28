@@ -11,10 +11,12 @@ import {
 import type { Response } from "express";
 
 import type { RequestWithId } from "../../common/http/request-id.middleware";
+import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AuthGuard, type AuthenticatedRequest } from "../auth/auth.guard";
 import {
   parseSettingsVersion,
   parseUpdateSettingsRequest,
+  withDatabaseTimeZone,
 } from "./settings.request";
 import {
   serializeSettings,
@@ -27,7 +29,10 @@ type PrivateRequest = RequestWithId & AuthenticatedRequest;
 @Controller("me/settings")
 @UseGuards(AuthGuard)
 export class SettingsController {
-  constructor(private readonly settings: SettingsService) {}
+  constructor(
+    private readonly settings: SettingsService,
+    private readonly database: PrismaService,
+  ) {}
 
   @Get()
   async get(
@@ -46,10 +51,15 @@ export class SettingsController {
     @Headers("if-match") ifMatch: string | undefined,
     @Body() body: unknown,
   ): Promise<Record<string, unknown>> {
+    const version = parseSettingsVersion(ifMatch);
+    const update = await withDatabaseTimeZone(
+      this.database,
+      parseUpdateSettingsRequest(body),
+    );
     const settings = await this.settings.update(
       request.authenticatedUserId,
-      parseSettingsVersion(ifMatch),
-      parseUpdateSettingsRequest(body),
+      version,
+      update,
       request.requestId,
     );
     response.setHeader("ETag", settingsEtag(settings.version));
