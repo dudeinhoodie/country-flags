@@ -1036,6 +1036,9 @@ model UserCardState {
 
   @@id([userId, learningCardId])
   @@index([userId, dueAt])
+  /// The scheduler migration worker asks whether any state is on a version
+  /// other than the active one; without this it scanned the whole table.
+  @@index([schedulerVersion])
   @@map("user_card_states")
 }
 

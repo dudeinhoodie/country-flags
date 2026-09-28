@@ -253,6 +253,12 @@ The last is deliberately different. A migration run over millions of card states
 is legitimately old; only a run that stopped moving is worth an alert, and
 `updatedAt` is written on every poll that claims a run.
 
+It also polls at its own pace. A scheduler version changes with a deploy, so the
+worker is idle almost always: it polls every two seconds only while polls queue
+work, and otherwise doubles its wait up to five minutes (#452). Its heartbeat and
+a waiting run's `updatedAt` therefore arrive at least every five minutes, well
+inside the fifteen minutes the absence and lag alerts allow.
+
 What was missing before this document's change, and why each mattered:
 
 - **Three of the four queues emitted nothing at all.** Only `analytics` reached a
