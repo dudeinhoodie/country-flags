@@ -4,6 +4,7 @@ import {
   isDue,
   type SessionCandidate,
   selectSessionCandidates,
+  sessionPool,
 } from "./session-selection";
 
 describe("selectSessionCandidates", () => {
@@ -165,5 +166,101 @@ describe("isDue", () => {
       false,
     );
     expect(isDue(candidate(null, now), now)).toBe(false);
+  });
+});
+
+describe("sessionPool", () => {
+  const now = new Date("2026-09-24T12:00:00.000Z");
+
+  function card(
+    suffix: number,
+    state: CardLearningState | null,
+    dueAt = "2026-09-01T00:00:00.000Z",
+  ): SessionCandidate {
+    return {
+      learningCardId: `00000000-0000-4000-8000-${suffix
+        .toString()
+        .padStart(12, "0")}`,
+      state:
+        state === null
+          ? null
+          : {
+              state,
+              dueAt: new Date(dueAt),
+              lastReviewedAt: new Date("2026-08-01T00:00:00.000Z"),
+              lapses: 0,
+              stateVersion: 2,
+            },
+    };
+  }
+
+  // Three owed, listed newest debt first so the pool has to reorder them; a
+  // review not yet due; a learning step still ahead; two never studied.
+  const owedLatest = card(1, CardLearningState.REVIEW, "2026-09-20T00:00:00Z");
+  const owedOldest = card(2, CardLearningState.REVIEW, "2026-09-01T00:00:00Z");
+  const owedLearning = card(
+    3,
+    CardLearningState.LEARNING,
+    "2026-09-10T00:00:00Z",
+  );
+  const maintenance = card(4, CardLearningState.REVIEW, "2099-01-01T00:00:00Z");
+  const stepAhead = card(5, CardLearningState.LEARNING, "2026-09-24T15:00:00Z");
+  const unseen = card(6, null);
+  const fresh = card(7, CardLearningState.NEW);
+  const candidates = [
+    owedLatest,
+    owedOldest,
+    owedLearning,
+    maintenance,
+    stepAhead,
+    unseen,
+    fresh,
+  ];
+
+  it("deals STANDARD no scheduled review once the day is spent", () => {
+    const pool = sessionPool(candidates, "STANDARD", 0, now);
+
+    expect(pool.filter((candidate) => isDue(candidate, now))).toEqual([]);
+    // What is not a scheduled review is still there to study.
+    expect(pool).toEqual([maintenance, stepAhead, unseen, fresh]);
+    const reasons = selectSessionCandidates(
+      pool,
+      20,
+      "10000000-0000-4000-8000-000000000001",
+      now,
+    ).map(({ reason }) => reason);
+    expect(reasons).not.toContain(SelectionReason.OVERDUE);
+    expect(reasons.slice(0, 2)).toEqual([
+      SelectionReason.NEW,
+      SelectionReason.NEW,
+    ]);
+    expect(new Set(reasons.slice(2))).toEqual(
+      new Set([SelectionReason.MAINTENANCE, SelectionReason.LEARNING]),
+    );
+  });
+
+  it("lets STANDARD deal only the oldest debt the day still allows", () => {
+    const pool = sessionPool(candidates, "STANDARD", 2, now);
+
+    expect(pool.filter((candidate) => isDue(candidate, now))).toEqual([
+      owedOldest,
+      owedLearning,
+    ]);
+    expect(pool).not.toContain(owedLatest);
+    expect(pool).toHaveLength(candidates.length - 1);
+  });
+
+  it("leaves STANDARD whole while the day has room", () => {
+    expect(sessionPool(candidates, "STANDARD", 50, now)).toEqual(candidates);
+  });
+
+  it("keeps DUE_ONLY to the owed cards, oldest first, within the day", () => {
+    expect(sessionPool(candidates, "DUE_ONLY", 50, now)).toEqual([
+      owedOldest,
+      owedLearning,
+      owedLatest,
+    ]);
+    expect(sessionPool(candidates, "DUE_ONLY", 1, now)).toEqual([owedOldest]);
+    expect(sessionPool(candidates, "DUE_ONLY", 0, now)).toEqual([]);
   });
 });

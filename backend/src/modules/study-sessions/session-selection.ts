@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 
 import { CardLearningState, SelectionReason } from "@prisma/client";
 
+import type { SessionComposition } from "./study-session.request";
+
 export interface SessionCandidate {
   learningCardId: string;
   state: {
@@ -62,6 +64,48 @@ export function isDue(candidate: SessionCandidate, now: Date): boolean {
     candidate.state !== null &&
     candidate.state.state !== CardLearningState.NEW &&
     candidate.state.dueAt.getTime() <= now.getTime()
+  );
+}
+
+/**
+ * The cards a server session may be dealt from, once the day's ceiling has
+ * had its say.
+ *
+ * The ceiling binds every composition that deals scheduled reviews, not only
+ * DUE_ONLY. It used to trim the due-only pool alone, and STANDARD — the
+ * default, and the one the app falls back to when a due-only launch finds
+ * nothing — dealt the rest of the backlog first, so the cap stopped holding at
+ * exactly the moment it existed for (#438).
+ *
+ * What the day still allows is taken oldest debt first, the order the
+ * progress aggregate cuts today's queue in. The due cards past it are not
+ * forgiven and not dealt either: they stay owed and come back tomorrow.
+ *
+ * STANDARD keeps what is not a scheduled review — new cards and cards whose
+ * next step has not come round. Studying past the day is allowed; it is just
+ * not dressed as the scheduled queue (#431). DUE_ONLY is the owed cards and
+ * nothing else, however few the day leaves.
+ */
+export function sessionPool<T extends SessionCandidate>(
+  candidates: readonly T[],
+  composition: SessionComposition,
+  allowance: number,
+  now: Date,
+): T[] {
+  const owedToday = candidates
+    .filter((candidate) => isDue(candidate, now))
+    .sort(
+      (left, right) =>
+        (left.state?.dueAt.getTime() ?? 0) -
+        (right.state?.dueAt.getTime() ?? 0),
+    )
+    .slice(0, Math.max(0, allowance));
+  if (composition === "DUE_ONLY") {
+    return owedToday;
+  }
+  const dealt = new Set<T>(owedToday);
+  return candidates.filter(
+    (candidate) => !isDue(candidate, now) || dealt.has(candidate),
   );
 }
 

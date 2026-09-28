@@ -1468,7 +1468,11 @@ schemas:
           first, then new, then maintenance. DUE_ONLY selects only cards
           whose schedule has come round, capped at requestedUniqueCount:
           the session may hold fewer cards than requested, and holds none
-          when nothing is due.
+          when nothing is due. Both compositions deal no more due cards than
+          the learner's daily review limit still allows, oldest debt first;
+          the due cards past it are left out, not dealt as filler. STANDARD
+          still fills with new and not-yet-due cards, so a session past the
+          limit may hold fewer cards than requested, or none.
   CreateOfflineStudySessionRequest:
     type: object
     description: >-

@@ -28,9 +28,9 @@ import { generateMultipleChoiceOptions } from "./multiple-choice-options";
 import {
   type SessionCandidate,
   type SelectedCandidate,
-  isDue,
   selectSessionCandidates,
   selectionReasonFor,
+  sessionPool,
 } from "./session-selection";
 import {
   remainingDailyAllowance,
@@ -243,31 +243,23 @@ export class StudySessionsService {
           where: { userId },
           select: { timezone: true },
         });
-        // DUE_ONLY narrows the pool before ranking: the session holds what
-        // the schedule owes and nothing else, however few that is — and no
-        // more than the day still allows. Without the ceiling here the cap
-        // would be a label on a screen, and three sittings of twenty would
-        // walk straight past fifty.
-        const pool =
-          request.composition === "DUE_ONLY"
-            ? candidates
-                .filter((candidate) => isDue(candidate, now))
-                .sort(
-                  (left, right) =>
-                    (left.state?.dueAt.getTime() ?? 0) -
-                    (right.state?.dueAt.getTime() ?? 0),
-                )
-                .slice(
-                  0,
-                  remainingDailyAllowance(
-                    await reviewedTodayCount(
-                      transaction,
-                      userId,
-                      settings?.timezone ?? "UTC",
-                    ),
-                  ),
-                )
-            : candidates;
+        // The pool is narrowed before ranking, for every composition: no
+        // session deals more due cards than the day still allows. Without
+        // the ceiling here the cap would be a label on a screen, and three
+        // sittings of twenty would walk straight past fifty — through
+        // STANDARD as easily as through DUE_ONLY.
+        const pool = sessionPool(
+          candidates,
+          request.composition,
+          remainingDailyAllowance(
+            await reviewedTodayCount(
+              transaction,
+              userId,
+              settings?.timezone ?? "UTC",
+            ),
+          ),
+          now,
+        );
         const ranked = selectSessionCandidates(
           pool,
           request.mode === AnswerMode.MULTIPLE_CHOICE
