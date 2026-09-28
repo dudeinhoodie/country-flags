@@ -419,6 +419,17 @@ export function ReleasesPage() {
 }
 
 /**
+ * Whether the run can be given up: a queued run nothing has picked up, or a
+ * running one whose job stopped reporting (#452). A running run whose job is
+ * still reporting cannot be, because the job is alive.
+ */
+function canGiveUp(run: ReleaseRun): boolean {
+  return (
+    run.status === "QUEUED" || (run.status === "RUNNING" && run.executorLost)
+  );
+}
+
+/**
  * The run in flight, or the last one there was.
  *
  * A release outlives the tab that asked for it, so this is written for
@@ -485,6 +496,15 @@ function RunCard({
               </Typography>
             </Alert>
           )}
+          {shown.executorLost && (
+            <Alert severity="warning">
+              The publisher job stopped reporting{" "}
+              {relativeTime(shown.heartbeatAt ?? shown.startedAt)}. It was
+              killed or it crashed, and this run will not finish on its own. A
+              release applies whole or not at all, so the live version above is
+              what clients read. Give up on the run to free the slot.
+            </Alert>
+          )}
           {shown.executionName !== null &&
             shown.executionName !== undefined &&
             shown.executionName !== "" && (
@@ -492,7 +512,7 @@ function RunCard({
                 Execution {shown.executionName}
               </Typography>
             )}
-          {canCancel && shown.status === "QUEUED" && (
+          {canCancel && canGiveUp(shown) && (
             <Box>
               <Button
                 size="small"

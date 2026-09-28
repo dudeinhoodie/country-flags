@@ -1515,6 +1515,11 @@ model PublishRun {
   requestedByAdminUserId String           @map("requested_by_admin_user_id") @db.Uuid
   createdAt              DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
   startedAt              DateTime?        @map("started_at") @db.Timestamptz(3)
+  /// When the executor last said it was still carrying the run out. A
+  /// `RUNNING` run always has one (`publish_runs_running_heartbeat_check`),
+  /// and one unheard for longer than the lease has lost its job and may be
+  /// given up from the console (#452).
+  heartbeatAt            DateTime?        @map("heartbeat_at") @db.Timestamptz(3)
   finishedAt             DateTime?        @map("finished_at") @db.Timestamptz(3)
   requestedBy            AdminUser        @relation("PublishRunRequestedBy", fields: [requestedByAdminUserId], references: [id], onDelete: Restrict)
 

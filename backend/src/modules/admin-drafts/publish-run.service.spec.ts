@@ -23,7 +23,13 @@ interface Fakes {
     id: string;
     status: PublishRunStatus;
     kind: PublishRunKind;
+    contentVersion?: string;
+    startedAt?: Date | null;
+    heartbeatAt?: Date | null;
+    executionName?: string | null;
   } | null;
+  /** How many rows a conditional write finds, when not every one. */
+  updateManyCount?: number;
   /** What the executor does when it is asked for an execution. */
   executor?: PublisherJobClient;
 }
@@ -126,7 +132,7 @@ function serviceWith(fakes: Fakes = {}): {
       },
       updateMany: (patch: Patch): Promise<{ count: number }> => {
         patches.push(patch);
-        return Promise.resolve({ count: 1 });
+        return Promise.resolve({ count: fakes.updateManyCount ?? 1 });
       },
     },
   };
@@ -408,10 +414,11 @@ describe("parseReleaseRollbackRequest", () => {
 });
 
 /**
- * Giving up on a queued run.
+ * Giving up on a run nobody is carrying out.
  *
- * A run holds the only live slot, so one nothing picks up would block every
- * release after it. This is the way out, and it is deliberately narrow.
+ * A run holds the only live slot, so one nothing picks up, or one whose job
+ * died, would block every release after it. This is the way out, and it is
+ * deliberately narrow.
  */
 describe("PublishRunService.cancel", () => {
   it("cancels a queued run and stamps when it ended", async () => {
@@ -430,21 +437,88 @@ describe("PublishRunService.cancel", () => {
     expect(audited()).toBe("admin.release.run_cancelled");
   });
 
-  /// A running job has already started, and cancelling the record under it
-  /// would leave the two disagreeing about what happened.
-  it("refuses a run that has already started", async () => {
-    const { service, updated } = serviceWith({
+  /// A running job that is still reporting is alive, and giving up the
+  /// record under it would leave the two disagreeing about what happened.
+  it("refuses a running run whose job is still reporting", async () => {
+    const { service, updated, patches, audited } = serviceWith({
       storedRun: {
         id: "run-1",
         status: PublishRunStatus.RUNNING,
         kind: PublishRunKind.PUBLISH,
+        startedAt: new Date(Date.now() - 30 * 60_000),
+        heartbeatAt: new Date(Date.now() - 20_000),
       },
     });
 
-    await expect(service.cancel(actor, "run-1", "request-1")).rejects.toThrow(
-      ApiException,
-    );
+    await expect(
+      service.cancel(actor, "run-1", "request-1"),
+    ).rejects.toMatchObject({
+      response: { error: { code: "PUBLISH_RUN_EXECUTOR_ALIVE" } },
+    });
     expect(updated()).toBeNull();
+    expect(patches()).toEqual([]);
+    expect(audited()).toBeNull();
+  });
+
+  /// A killed job writes nothing on its way out, so its run stayed RUNNING
+  /// and held the only live slot for good (#452).
+  it("fails a running run whose job stopped reporting, and says what is live", async () => {
+    const { service, patches, audited } = serviceWith({
+      activeVersion: "fixture-v1",
+      storedRun: {
+        id: "run-1",
+        status: PublishRunStatus.RUNNING,
+        kind: PublishRunKind.PUBLISH,
+        contentVersion: "fixture-v2",
+        startedAt: new Date(Date.now() - 40 * 60_000),
+        heartbeatAt: new Date(Date.now() - 6 * 60_000),
+        executionName: "content-publisher-dev-abcde",
+      },
+    });
+
+    await service.cancel(actor, "run-1", "request-1");
+
+    expect(patches()).toHaveLength(1);
+    const [patch] = patches();
+    if (patch === undefined) {
+      throw new Error("The run was not written");
+    }
+    // Guarded by the lease as well as the status: a job that reported since
+    // the read keeps its run.
+    expect(patch.where).toMatchObject({
+      id: "run-1",
+      status: PublishRunStatus.RUNNING,
+      heartbeatAt: { lt: expect.any(Date) as Date },
+    });
+    expect(patch.data).toMatchObject({
+      status: PublishRunStatus.FAILED,
+      failureCode: "PUBLISH_RUN_EXECUTOR_LOST",
+    });
+    expect(patch.data.failureMessage).toEqual(
+      expect.stringContaining("the active version is fixture-v1"),
+    );
+    expect(patch.data.finishedAt).toBeInstanceOf(Date);
+    expect(audited()).toBe("admin.release.run_abandoned");
+  });
+
+  it("keeps the run when its job reports between the read and the write", async () => {
+    const { service, audited } = serviceWith({
+      updateManyCount: 0,
+      storedRun: {
+        id: "run-1",
+        status: PublishRunStatus.RUNNING,
+        kind: PublishRunKind.ROLLBACK,
+        startedAt: new Date(Date.now() - 40 * 60_000),
+        heartbeatAt: new Date(Date.now() - 6 * 60_000),
+      },
+    });
+
+    await expect(
+      service.cancel(actor, "run-1", "request-1"),
+    ).rejects.toMatchObject({
+      response: { error: { code: "PUBLISH_RUN_EXECUTOR_ALIVE" } },
+    });
+    expect(audited()).toBeNull();
   });
 
   it("refuses a run that is already finished", async () => {

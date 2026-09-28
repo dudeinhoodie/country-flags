@@ -4,11 +4,16 @@ import {
   PublishRunKind,
   PublishRunStatus,
 } from "@prisma/client";
-import type { AdminUser, PublishRun } from "@prisma/client";
+import type { AdminUser, Prisma, PublishRun } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { AdminAuditService } from "../admin-auth/admin-audit.service";
+import {
+  isExecutorLost,
+  lastHeardFrom,
+  PUBLISH_RUN_LEASE_MS,
+} from "../content/publisher/publish-run-lease";
 import { PublisherJobClient } from "./publisher-job.client";
 
 /** What the console asks for when it wants a release published. */
@@ -206,17 +211,26 @@ export class PublishRunService {
   }
 
   /**
-   * Gives up on a run that is still queued.
+   * Gives up on a run nobody is carrying out.
    *
-   * The way out of a stuck queue. A run holds the only live slot — the
-   * partial unique index sees to that — so one that no executor ever picks
-   * up would block every release after it, with the database as the only
-   * remedy. That is not a state an operator should have to escalate out of.
+   * The way out of a stuck slot. A run holds the only live slot (the partial
+   * unique index sees to that), so a run nobody finishes would block every
+   * release after it, with the database as the only remedy. That is not a
+   * state an operator should have to escalate out of. There are two ways to
+   * get into it:
    *
-   * Only a queued run: a running one is a job that has already started, and
-   * cancelling the record under it would leave the two disagreeing about
-   * what happened. Stopping work in flight is the executor's to offer, and
-   * it does not yet.
+   * - A queued run no executor ever picks up. It is cancelled: nothing
+   *   happened.
+   * - A running run whose job died. A killed job writes nothing on its way
+   *   out, so the run would stay `RUNNING` for good (#452). Once its
+   *   heartbeat is older than the lease, it is failed with
+   *   `PUBLISH_RUN_EXECUTOR_LOST`. Not cancelled, because the job did start,
+   *   and the record says what is live now. The release transaction applies
+   *   whole or not at all, so the active version is the whole answer.
+   *
+   * A running run that is still reporting is refused. Its job is alive, and
+   * giving up the record under it would leave the two disagreeing about what
+   * happened.
    */
   async cancel(
     actor: AdminUser,
@@ -234,11 +248,14 @@ export class PublishRunService {
           "The requested resource was not found",
         );
       }
+      if (run.status === PublishRunStatus.RUNNING) {
+        return this.abandon(transaction, actor, run, requestId);
+      }
       if (run.status !== PublishRunStatus.QUEUED) {
         throw new ApiException(
           HttpStatus.CONFLICT,
           "PUBLISH_RUN_NOT_QUEUED",
-          `This run is ${run.status.toLowerCase()}, and only a queued run can be cancelled`,
+          `This run is ${run.status.toLowerCase()}, and only a queued run, or a running one whose job stopped reporting, can be given up`,
         );
       }
 
@@ -262,6 +279,77 @@ export class PublishRunService {
       });
       return cancelled;
     });
+  }
+
+  /** Fails a running run whose executor has stopped reporting. */
+  private async abandon(
+    transaction: Prisma.TransactionClient,
+    actor: AdminUser,
+    run: PublishRun,
+    requestId: string,
+  ): Promise<PublishRun> {
+    const now = new Date();
+    if (!isExecutorLost(run, now)) {
+      throw new ApiException(
+        HttpStatus.CONFLICT,
+        "PUBLISH_RUN_EXECUTOR_ALIVE",
+        "The publisher job is still reporting on this run. Wait for it to finish",
+        { heartbeatAt: lastHeardFrom(run)?.toISOString() ?? null },
+      );
+    }
+
+    const pointer = await transaction.contentPointer.findUnique({
+      where: { key: "active" },
+      select: { contentVersion: true },
+    });
+    const activeVersion = pointer?.contentVersion ?? null;
+    const heard = lastHeardFrom(run);
+    // Conditional on the beat just read, not only on the status: a job that
+    // reported between that read and this write is alive after all, and the
+    // run stays its.
+    const abandoned = await transaction.publishRun.updateMany({
+      where: {
+        id: run.id,
+        status: PublishRunStatus.RUNNING,
+        heartbeatAt: { lt: new Date(now.getTime() - PUBLISH_RUN_LEASE_MS) },
+      },
+      data: {
+        status: PublishRunStatus.FAILED,
+        failureCode: "PUBLISH_RUN_EXECUTOR_LOST",
+        failureMessage: `The publisher job stopped reporting${
+          heard === null ? "" : ` at ${heard.toISOString()}`
+        } without recording an outcome: it was killed or it crashed. The release applies whole or not at all, and the active version is ${
+          activeVersion ?? "none"
+        }.`,
+        finishedAt: now,
+      },
+    });
+    if (abandoned.count === 0) {
+      throw new ApiException(
+        HttpStatus.CONFLICT,
+        "PUBLISH_RUN_EXECUTOR_ALIVE",
+        "The publisher job reported on this run just now. Wait for it to finish",
+      );
+    }
+
+    await this.audit.record(transaction, {
+      actorAdminUserId: actor.id,
+      action: "admin.release.run_abandoned",
+      targetType: "publish_run",
+      targetId: run.id,
+      requestId,
+      metadata: {
+        kind: run.kind,
+        contentVersion: run.contentVersion,
+        lastHeardAt: heard?.toISOString() ?? null,
+        activeVersion,
+        executionName: run.executionName,
+      },
+    });
+    return (
+      (await transaction.publishRun.findUnique({ where: { id: run.id } })) ??
+      run
+    );
   }
 
   private async queue(
