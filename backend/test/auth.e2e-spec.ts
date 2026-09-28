@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
 
@@ -10,6 +11,7 @@ import request from "supertest";
 
 import { AppModule } from "../src/app/app.module";
 import { PrismaService } from "../src/infrastructure/database/prisma.service";
+import { REFRESH_REPLAY_GRACE_MS } from "../src/modules/auth/auth.service";
 import { TestProviderTokenSigner } from "../src/modules/auth/testing/test-provider-token-signer";
 import { bodyOf } from "./response-body";
 
@@ -45,6 +47,10 @@ function databaseUrlFor(baseUrl: string, databaseName: string): string {
   url.pathname = `/${databaseName}`;
   url.searchParams.set("schema", "public");
   return url.toString();
+}
+
+function tokenHash(refreshToken: string): string {
+  return createHash("sha256").update(refreshToken).digest("hex");
 }
 
 function device(clientGeneratedId: string): Record<string, unknown> {
@@ -260,23 +266,101 @@ describe("Apple/Google authentication and backend sessions (integration)", () =>
     );
   });
 
-  it("rotates refresh tokens and revokes the family on replay", async () => {
+  async function refresh(refreshToken: string): Promise<request.Response> {
+    return request(httpServer).post("/v1/auth/refresh").send({ refreshToken });
+  }
+
+  /** Moves a rotation back in time, as if its response had been lost long ago. */
+  async function ageRotation(
+    successorRefreshToken: string,
+    ageMs: number,
+  ): Promise<void> {
+    await database.refreshSession.update({
+      where: { tokenHash: tokenHash(successorRefreshToken) },
+      data: { createdAt: new Date(Date.now() - ageMs) },
+    });
+  }
+
+  it("answers a replay inside the grace window with the same pair", async () => {
+    const account = await googleLogin(
+      "google-refresh-grace-subject",
+      "refresh-grace@example.test",
+      "auth-device-refresh-grace1",
+    );
+    const rotated = await refresh(account.tokens.refreshToken);
+    expect(rotated.status).toBe(200);
+    const next = rotated.body as unknown as TokenPairBody;
+    expect(next.refreshToken).not.toBe(account.tokens.refreshToken);
+
+    // The first response never reached the client, which presents the token
+    // it still holds.
+    const replay = await refresh(account.tokens.refreshToken);
+    expect(replay.status).toBe(200);
+    expect(replay.body).toEqual(next);
+
+    // Nothing was revoked and nothing new was minted.
+    await request(httpServer)
+      .get("/v1/me/identities")
+      .set("Authorization", `Bearer ${next.accessToken}`)
+      .expect(200);
+    await expect(
+      database.refreshSession.count({ where: { userId: account.user.id } }),
+    ).resolves.toBe(2);
+    await expect(
+      database.auditEvent.count({
+        where: {
+          actorUserId: account.user.id,
+          action: "AUTH_REFRESH_REUSE_DETECTED",
+        },
+      }),
+    ).resolves.toBe(0);
+
+    // The returned token carries the session on as usual.
+    const onwards = await refresh(next.refreshToken);
+    expect(onwards.status).toBe(200);
+    expect((onwards.body as unknown as TokenPairBody).refreshToken).not.toBe(
+      next.refreshToken,
+    );
+  });
+
+  it("gives racing presentations of one token a single successor", async () => {
+    const account = await googleLogin(
+      "google-refresh-race-subject",
+      "refresh-race@example.test",
+      "auth-device-refresh-race01",
+    );
+    const answers = await Promise.all(
+      Array.from({ length: 3 }, () => refresh(account.tokens.refreshToken)),
+    );
+    expect(answers.map(({ status }) => status)).toEqual([200, 200, 200]);
+    const pairs = answers.map(({ body }) => body as unknown as TokenPairBody);
+    const first = pairs[0];
+    if (first === undefined) {
+      throw new Error("No refresh answer was received");
+    }
+    for (const pair of pairs) {
+      expect(pair).toEqual(first);
+    }
+    const live = await database.refreshSession.findMany({
+      where: { userId: account.user.id, revokedAt: null },
+      select: { tokenHash: true },
+    });
+    expect(live).toEqual([{ tokenHash: tokenHash(first.refreshToken) }]);
+  });
+
+  it("revokes the family on a replay after the grace window", async () => {
     const account = await googleLogin(
       "google-refresh-subject",
       "refresh@example.test",
       "auth-device-refresh-00001",
     );
-    const rotated = await request(httpServer)
-      .post("/v1/auth/refresh")
-      .send({ refreshToken: account.tokens.refreshToken })
-      .expect(200);
+    const rotated = await refresh(account.tokens.refreshToken);
+    expect(rotated.status).toBe(200);
     const next = rotated.body as unknown as TokenPairBody;
-    expect(next.refreshToken).not.toBe(account.tokens.refreshToken);
+    await ageRotation(next.refreshToken, REFRESH_REPLAY_GRACE_MS + 1_000);
 
-    const replay = await request(httpServer)
-      .post("/v1/auth/refresh")
-      .send({ refreshToken: account.tokens.refreshToken })
-      .expect(401);
+    const replay = await refresh(account.tokens.refreshToken);
+    expect(replay.status).toBe(401);
     expect((replay.body as unknown as ErrorBody).error.code).toBe(
       "REFRESH_TOKEN_REUSED",
     );
@@ -284,9 +368,32 @@ describe("Apple/Google authentication and backend sessions (integration)", () =>
       .get("/v1/me/identities")
       .set("Authorization", `Bearer ${next.accessToken}`)
       .expect(401);
+    const successor = await refresh(next.refreshToken);
+    expect(successor.status).toBe(401);
+  });
+
+  it("revokes the family on a replay once the successor has been used", async () => {
+    const account = await googleLogin(
+      "google-refresh-used-subject",
+      "refresh-used@example.test",
+      "auth-device-refresh-used01",
+    );
+    const rotated = await refresh(account.tokens.refreshToken);
+    const next = rotated.body as unknown as TokenPairBody;
+    const onwards = await refresh(next.refreshToken);
+    expect(onwards.status).toBe(200);
+    const latest = onwards.body as unknown as TokenPairBody;
+
+    // Well inside the window, but somebody already went on with the new
+    // token: the old one is no lost response any more.
+    const replay = await refresh(account.tokens.refreshToken);
+    expect(replay.status).toBe(401);
+    expect((replay.body as unknown as ErrorBody).error.code).toBe(
+      "REFRESH_TOKEN_REUSED",
+    );
     await request(httpServer)
-      .post("/v1/auth/refresh")
-      .send({ refreshToken: next.refreshToken })
+      .get("/v1/me/identities")
+      .set("Authorization", `Bearer ${latest.accessToken}`)
       .expect(401);
   });
 
