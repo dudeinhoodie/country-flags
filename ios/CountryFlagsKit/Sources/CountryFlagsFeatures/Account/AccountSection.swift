@@ -65,7 +65,7 @@ struct AccountSection: View {
             titleVisibility: .visible
         ) {
             Button(L10n.accountSignOut, role: .destructive) {
-                Task { await store.confirmSignOut(everywhere: false) }
+                Task { await store.confirmSignOut() }
             }
             .accessibilityIdentifier(AccessibilityIdentifier.accountSignOutConfirm)
             // A cancel-role button is omitted by the iPad/popover adaptation
