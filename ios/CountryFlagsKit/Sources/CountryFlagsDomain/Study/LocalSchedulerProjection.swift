@@ -22,19 +22,23 @@ public enum LocalSchedulerProjection {
         rating: StudyRating,
         now: Date
     ) -> CardStateRecord {
+        let step = step(base: base, rating: rating)
+        // `repetitions` here counts recalls in a row, which is what the ladder
+        // reads: two `GOOD` in a row graduate a learning card. A lapse is only
+        // a lapse from `REVIEW`, as on the server; a new card answered
+        // `AGAIN` has nothing to lapse from.
         let repetitions = rating.isRecall ? (base?.repetitions ?? 0) + 1 : 0
-        let lapses = (base?.lapses ?? 0) + (rating.isRecall ? 0 : 1)
-        let interval = interval(base: base, rating: rating)
+        let lapses = (base?.lapses ?? 0) + (rating == .again && base?.state == "REVIEW" ? 1 : 0)
 
         return CardStateRecord(
             learningCardID: cardID,
-            state: state(for: rating, repetitions: repetitions),
+            state: step.state,
             // Difficulty and stability are the backend's model. Carrying the
             // last canonical values forward, rather than inventing new ones,
             // keeps this projection from looking like a second scheduler.
             difficulty: base?.difficulty ?? 0,
             stability: base?.stability ?? 0,
-            dueAt: now.addingTimeInterval(interval),
+            dueAt: now.addingTimeInterval(step.interval),
             repetitions: repetitions,
             lapses: lapses,
             schedulerVersion: version,
@@ -44,36 +48,55 @@ public enum LocalSchedulerProjection {
         )
     }
 
-    /// Short, growing intervals that never promise more than a day or so, and
-    /// never bring a card back inside three hours.
-    ///
-    /// Being conservative is the point: showing a card sooner than the backend
-    /// would costs the learner a little repetition, while showing it later
-    /// would silently drop it out of their queue until the next sync. The
-    /// floor follows the backend's ladder: `fsrs-6-default-21-v2` made it an
-    /// hour, `fsrs-6-default-21-v3` makes it three (ADR-022) — three hours,
-    /// three hours and a day — so a projection that still answered "one hour"
-    /// would put a card back on the screen offline that the server has no
-    /// intention of asking for until the afternoon is out.
-    ///
-    /// Two rungs, because a swipe reaches two answers. ADR-022 kept the middle
-    /// grades for the accessibility actions; those actions are gone with them
-    /// (ADR-024), and a rung nothing can land on is a rung that drifts.
+    /// How long until the card comes back.
     static func interval(base: CardStateRecord?, rating: StudyRating) -> TimeInterval {
-        let hour: TimeInterval = 60 * 60
-        let day: TimeInterval = 24 * hour
-        // Spelled with `return` because the constants above make the switch a
-        // statement rather than the whole body.
-        return switch rating {
-        case .again: 3 * hour
-        case .good: base.map { _ in day } ?? 3 * hour
-        }
+        step(base: base, rating: rating).interval
     }
 
-    private static func state(for rating: StudyRating, repetitions: Int) -> String {
+    /// The server's ladder, without its arithmetic (ADR-026).
+    ///
+    /// `fsrs-6-default-21-v4` walks a new card through `3h`, `3h`, `1d`: the
+    /// first `GOOD` asks for three hours in `LEARNING`, the second graduates it
+    /// to `REVIEW` a day out. `AGAIN` on a card that never graduated keeps it in
+    /// `LEARNING` three hours out; `AGAIN` on a graduated card sends it to
+    /// `RELEARNING` three hours out, and the next `GOOD` returns it to `REVIEW`
+    /// a day out. Played from a new card on this device, that agrees with the
+    /// server on every state and every date up to a day
+    /// (`contracts/fixtures/scheduler/fsrs-6-default-v4*.json`).
+    ///
+    /// Past graduation it stays conservative and never promises more than a
+    /// day: showing a card sooner than the backend would costs the learner a
+    /// little repetition, while showing it later would silently drop it out of
+    /// their queue until the next sync, and the server's state replaces this
+    /// one wholesale anyway. Two cases cannot be known here and take the
+    /// sooner answer: a canonical `LEARNING` state, whose rung the server did
+    /// not send, asks for three hours; and an `AGAIN` on a graduated card
+    /// whose stability keeps it in `REVIEW` on the server is `RELEARNING`
+    /// three hours out here.
+    private static func step(
+        base: CardStateRecord?,
+        rating: StudyRating
+    ) -> (state: String, interval: TimeInterval) {
+        let hour: TimeInterval = 60 * 60
+        let day: TimeInterval = 24 * hour
+        let graduated = base?.state == "REVIEW" || base?.state == "RELEARNING"
+
         switch rating {
-        case .again: "RELEARNING"
-        case .good: repetitions >= 2 ? "REVIEW" : "LEARNING"
+        case .again:
+            return (graduated ? "RELEARNING" : "LEARNING", 3 * hour)
+        case .good:
+            if graduated { return ("REVIEW", day) }
+            guard let base, base.state == "LEARNING" else {
+                // Never answered, or a state this build does not recognise:
+                // the first rung.
+                return ("LEARNING", 3 * hour)
+            }
+            // The rung is only known for a chain this device projected
+            // itself: one recall in a row means the first rung is behind.
+            if base.isLocalProjection, base.repetitions >= 1 {
+                return ("REVIEW", day)
+            }
+            return ("LEARNING", 3 * hour)
         }
     }
 }

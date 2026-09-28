@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { SiteRoutes } from "../src/App";
@@ -79,6 +79,20 @@ function stubApi(
 
 const config: RuntimeConfig = { environment: "dev", appVersion: "abc1234" };
 
+/**
+ * What the tab and assistive technology are told. The page writes it from
+ * an effect, which React flushes a tick after the commit that showed the
+ * document, so reading it right after the heading appeared is a race: on a
+ * slow runner the assertion won by a millisecond and saw the language the
+ * page had been asked for rather than the one it was shown in.
+ */
+async function expectPageMeta(lang: string, title: string): Promise<void> {
+  await waitFor(() => {
+    expect(document.documentElement.lang).toBe(lang);
+    expect(document.title).toBe(title);
+  });
+}
+
 function mount(path: string, runtime: RuntimeConfig = config) {
   return render(
     <RuntimeConfigProvider config={runtime}>
@@ -105,8 +119,7 @@ describe("home", () => {
       "/terms?lang=ru",
     );
     expect(screen.getByRole("heading", { name: "Документы" })).toBeVisible();
-    expect(document.documentElement.lang).toBe("ru");
-    expect(document.title).toBe("Vexi");
+    await expectPageMeta("ru", "Vexi");
   });
 
   it("says which stand this is unless it is production", async () => {
@@ -114,7 +127,7 @@ describe("home", () => {
     mount("/");
     await screen.findByRole("link", { name: "Privacy Policy" });
     expect(screen.getByText("dev stand")).toBeVisible();
-    expect(document.documentElement.lang).toBe("en");
+    await expectPageMeta("en", "Vexi");
   });
 
   it("keeps quiet about the stand in production", async () => {
@@ -159,8 +172,7 @@ describe("document", () => {
       screen.getByRole("heading", { level: 2, name: "Учётные записи" }),
     ).toBeVisible();
     expect(screen.getByText("Обновлено 15 сентября 2026 г.")).toBeVisible();
-    expect(document.documentElement.lang).toBe("ru");
-    expect(document.title).toBe("Vexi — Политика конфиденциальности");
+    await expectPageMeta("ru", "Vexi — Политика конфиденциальности");
     // The way back keeps the reader's language.
     expect(screen.getByRole("link", { name: /Vexi/ })).toHaveAttribute(
       "href",
@@ -178,7 +190,7 @@ describe("document", () => {
     mount("/terms?lang=ru");
     await screen.findByRole("heading", { level: 1, name: "Terms of Use" });
     expect(screen.getByText("Last updated September 15, 2026")).toBeVisible();
-    expect(document.documentElement.lang).toBe("en");
+    await expectPageMeta("en", "Vexi — Terms of Use");
   });
 
   it("says when there is no such document", async () => {

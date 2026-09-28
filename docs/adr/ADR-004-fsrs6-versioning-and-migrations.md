@@ -20,7 +20,9 @@ Canonical adapter использует:
 - Node.js requirement: `>=20`;
 - parameters version: `fsrs-6-default-21-v1` — с 2026-08-21 активной была
   `fsrs-6-default-21-v2` (ADR-013), с 2026-09-11 — `fsrs-6-default-21-v3`
-  (ADR-022); v1 и v2 остаются ради replay истории;
+  (ADR-022), с 2026-09-26 — `fsrs-6-default-21-v4`, в которой шаг обучения
+  входит в состояние карточки (ADR-026); v1–v3 остаются ради replay истории и
+  по-прежнему начинают каждый ответ с нулевого шага;
 - desired retention: `0.90`;
 - 21 default FSRS-6 weights из pinned package;
 - fuzz: disabled для deterministic server projection.
