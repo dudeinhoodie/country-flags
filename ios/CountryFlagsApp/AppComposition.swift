@@ -159,7 +159,12 @@ struct AppComposition: AppDependencies {
         #else
             let tokens: any SecureTokenStoring = KeychainTokenStore()
         #endif
-        let accountScopes = accountScopes(tokens: tokens, identifiers: identifiers, logger: logger)
+        let accountScopes = accountScopes(
+            tokens: tokens,
+            identifiers: identifiers,
+            logger: logger,
+            guestScopes: store.makeGuestScopeDiscovery()
+        )
         // The auth endpoints authenticate by what is in their bodies -- an
         // identity token, a refresh token -- not by a bearer, so their client
         // carries none. That is also what breaks the cycle: the session needs
@@ -801,10 +806,15 @@ struct AppComposition: AppDependencies {
     /// no keychain entitlement — so a debug build accepts a pinned identifier
     /// and exercises the real resume path with a stable identity. A release
     /// binary does not contain this branch at all.
+    ///
+    /// With nothing in the keychain, the store is asked whose it is: a phone
+    /// restored from a backup brings the guest's work without the identifier
+    /// that names it (#446).
     private static func accountScopes(
         tokens: any SecureTokenStoring,
         identifiers: any IdentifierProviding,
-        logger: any AppLogging
+        logger: any AppLogging,
+        guestScopes: any GuestScopeDiscovering
     ) -> any AccountScopeResolving {
         #if DEBUG
             if let pinned = pinnedInstallationID() {
@@ -813,7 +823,12 @@ struct AppComposition: AppDependencies {
                 )
             }
         #endif
-        return GuestScopeProvider(tokens: tokens, identifiers: identifiers, logger: logger)
+        return GuestScopeProvider(
+            tokens: tokens,
+            identifiers: identifiers,
+            logger: logger,
+            guestScopes: guestScopes
+        )
     }
 
     #if DEBUG

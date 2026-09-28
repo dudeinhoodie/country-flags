@@ -167,6 +167,12 @@ public struct LocalStore: Sendable {
         SwiftDataAccountScopeCleaner(modelContainer: container)
     }
 
+    /// Which guests own work in this store, for a device whose keychain lost
+    /// the installation identifier.
+    public func makeGuestScopeDiscovery() -> some GuestScopeDiscovering {
+        SwiftDataGuestScopeDiscovery(modelContainer: container)
+    }
+
     /// The files backing a named store.
     ///
     /// Xcode builds a local package in release for every configuration that is
