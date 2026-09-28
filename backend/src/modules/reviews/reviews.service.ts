@@ -13,6 +13,7 @@ import {
 
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { ProgressService } from "../progress/progress.service";
+import { requireWritableAccount } from "../users/account-write-guard";
 import { Fsrs6SchedulerAdapter } from "../scheduler/fsrs6-scheduler.adapter";
 import type {
   SchedulerCardState,
@@ -371,6 +372,7 @@ export class ReviewsService {
         hashtextextended(${`${userId}:${event.learningCardId}`}, 0)
       )::text AS lock_result
     `;
+    await requireWritableAccount(transaction, userId);
     const payloadHash = reviewPayloadHash(payloadVersion, event);
     const existing = await transaction.reviewEvent.findUnique({
       where: { userId_id: { userId, id: event.id } },

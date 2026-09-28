@@ -21,6 +21,7 @@ import {
   reviewedTodayCount,
 } from "./daily-review-limit";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { lockAccountForWrite } from "../users/account-write-guard";
 import {
   aggregateProgress,
   dailyQueue,
@@ -238,6 +239,7 @@ export class ProgressService {
     now = new Date(),
   ): Promise<ProgressRebuildResult> {
     return this.prisma.$transaction(async (transaction) => {
+      await lockAccountForWrite(transaction, userId);
       const activeDefinitions =
         await transaction.achievementDefinition.findMany({
           where: {

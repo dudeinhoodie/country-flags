@@ -744,6 +744,10 @@ Email, совпадающий display name или Apple private relay address н
 
 Если нужен audit для безопасности, его поля и срок хранения должны быть перечислены в Privacy Policy.
 
+Удаление выполняется в два шага, чтобы запись, уже прошедшая auth guard, не пережила его. Первая короткая транзакция берёт строку `users` `FOR UPDATE` и переводит аккаунт в `DELETION_PENDING` с `deletion_requested_at`; `FOR UPDATE` ждёт все транзакции, которые держат аккаунт. Вторая, serializable, удаляет данные и переводит аккаунт в `DELETED`; её snapshot берётся после первой и видит всё, что успели записать эти транзакции. Каждая запись данных аккаунта сначала проверяет, что он `ACTIVE`: read-committed транзакции под `FOR KEY SHARE` (`lockAccountForWrite`: guest import, пересчёт progress, analytics outbox, создание настроек по умолчанию), serializable транзакции обычным чтением строки (`requireWritableAccount`: приём review), конфликт с удалением там разрешает PostgreSQL. Отказ — `401 ACCOUNT_UNAVAILABLE`; долгий guest import останавливается на следующей записи. Если вторая транзакция падает, аккаунт возвращается в `ACTIVE`, и повторный запрос удаления возможен. Процесс, убитый между двумя транзакциями, оставляет аккаунт в `DELETION_PENDING`, который auth guard не пускает; завершить такое удаление сейчас можно только вызовом `AccountDeletionService.delete` из кода, отдельной CLI нет (follow-up: фоновое завершение зависших удалений).
+
+Удаление также удаляет строки `analytics_outbox` с `analytics_subject_id` аккаунта в любом статусе: PENDING-события не должны уходить provider-у после удаления.
+
 После завершённого удаления старые access/refresh tokens и account-scoped outbox requests отклоняются. Повторный вход через того же provider MAY создать новый пустой аккаунт согласно retention/legal policy, но не восстанавливает старый progress.
 
 ## 6. API v1

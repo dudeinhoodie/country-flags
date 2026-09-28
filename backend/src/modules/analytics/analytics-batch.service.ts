@@ -9,6 +9,7 @@ import type { ErrorObject, ValidateFunction } from "ajv";
 
 import { redact } from "../../common/logging/redaction";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { lockAccountForWrite } from "../users/account-write-guard";
 import {
   findEventDefinition,
   type EventDefinition,
@@ -204,22 +205,30 @@ export class AnalyticsBatchService {
 
     const now = new Date();
     try {
-      await this.database.analyticsOutboxEvent.create({
-        data: {
-          eventId: event.eventId,
-          eventName: event.eventName,
-          schemaVersion: event.schemaVersion,
-          occurredAt: new Date(event.occurredAt),
-          analyticsSubjectId: authenticatedUserId ?? null,
-          anonymousId: event.anonymousId,
-          properties: redact(event.properties),
-          context: redact(event.context) as Prisma.InputJsonValue,
-          consentCategory:
-            definition.consentCategory === "essential_operations"
-              ? ConsentCategory.DIAGNOSTICS
-              : ConsentCategory.PRODUCT_ANALYTICS,
-          expiresAt: new Date(now.getTime() + OUTBOX_TTL_MS),
-        },
+      await this.database.$transaction(async (transaction) => {
+        // An event that names an account is written only while the account
+        // exists, so the deletion's purge of the outbox cannot be outrun by
+        // a batch that was already in flight.
+        if (authenticatedUserId !== undefined) {
+          await lockAccountForWrite(transaction, authenticatedUserId);
+        }
+        await transaction.analyticsOutboxEvent.create({
+          data: {
+            eventId: event.eventId,
+            eventName: event.eventName,
+            schemaVersion: event.schemaVersion,
+            occurredAt: new Date(event.occurredAt),
+            analyticsSubjectId: authenticatedUserId ?? null,
+            anonymousId: event.anonymousId,
+            properties: redact(event.properties),
+            context: redact(event.context) as Prisma.InputJsonValue,
+            consentCategory:
+              definition.consentCategory === "essential_operations"
+                ? ConsentCategory.DIAGNOSTICS
+                : ConsentCategory.PRODUCT_ANALYTICS,
+            expiresAt: new Date(now.getTime() + OUTBOX_TTL_MS),
+          },
+        });
       });
     } catch (error) {
       if (isUniqueConstraintViolation(error)) {
