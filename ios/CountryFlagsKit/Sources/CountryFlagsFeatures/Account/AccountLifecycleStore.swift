@@ -55,14 +55,19 @@ public final class AccountLifecycleStore {
     private let scopes: any AccountScopeResolving
     private let cleaner: any AccountScopeCleaner
     private let deletionState: any AccountDeletionStateStoring
+    private let guestIdentity: (any GuestIdentityRotating)?
     private let logger: any AppLogging
 
+    /// - Parameter guestIdentity: starts the device over as a new guest once
+    ///   the deletion has landed. Nil keeps the guest it had, which is what
+    ///   tests that are not about the next sign-in want.
     public init(
         deleting: any AccountDeleting,
         session: any SessionControlling,
         scopes: any AccountScopeResolving,
         cleaner: any AccountScopeCleaner,
         deletionState: any AccountDeletionStateStoring,
+        guestIdentity: (any GuestIdentityRotating)? = nil,
         logger: any AppLogging = NoOpLogger()
     ) {
         self.deleting = deleting
@@ -70,6 +75,7 @@ public final class AccountLifecycleStore {
         self.scopes = scopes
         self.cleaner = cleaner
         self.deletionState = deletionState
+        self.guestIdentity = guestIdentity
         self.logger = logger
     }
 
@@ -101,33 +107,62 @@ public final class AccountLifecycleStore {
         isArmedForDeletion = false
         isConfirmingDeletion = false
         deletionPhase = .working
+        // Whose data this is, read before the request rather than after it.
+        // A request that meets a 401 on its way refreshes the session, and a
+        // refused refresh moves the session out of "authenticated", so a scope
+        // read afterwards named the guest and the account's data stayed.
+        let scope = await scopes.currentScope()
         let deletion: AccountDeletionRecord
         do {
+            // A repeat of a deletion whose response was lost is answered by
+            // the server with the same result, not with a 401 (#452): what
+            // lands here is the server's word either way.
             deletion = try await deleting.deleteAccount()
         } catch {
             logger.log(.error, .auth, "The backend refused an account deletion")
             deletionPhase = .failed
             return
         }
-        await adoptAcceptedDeletion(deletion)
+        await adoptAcceptedDeletion(deletion, scope: scope)
         deletionPhase = .idle
     }
 
     /// The backend has accepted the deletion. What follows is local and must
     /// happen even if nothing else does: the notice is stored so a relaunch
     /// still knows, the account's data on this device goes, and the tokens go
-    /// with it.
-    private func adoptAcceptedDeletion(_ deletion: AccountDeletionRecord) async {
+    /// with it. Then the device starts over as a new guest.
+    private func adoptAcceptedDeletion(
+        _ deletion: AccountDeletionRecord,
+        scope: AccountScope
+    ) async {
         deletionState.store(pendingDeletion: deletion)
         pendingDeletion = deletion
 
-        let scope = await scopes.currentScope()
         do {
             try await cleaner.erase(scope: scope)
         } catch {
             logger.log(.error, .persistence, "The account's local data outlived its deletion")
         }
         await session.signOut(everywhere: false)
+        await startNewGuest()
         await onSignedOut?()
+    }
+
+    /// Replaces the guest the deleted account was made from (#452).
+    ///
+    /// That guest's work went into the account, and the migration records
+    /// say so for good: a later sign-in would find the guest owned by an
+    /// account that no longer exists, refuse to import, and say nothing. A new
+    /// guest is nobody's yet. Whatever the old guest still held is erased
+    /// with it: the deletion promised a start from nothing, and records under
+    /// a scope nothing will ever read again only take up the store.
+    private func startNewGuest() async {
+        guard let guestIdentity else { return }
+        let previous = await guestIdentity.startNewGuest()
+        do {
+            try await cleaner.erase(scope: previous)
+        } catch {
+            logger.log(.error, .persistence, "The previous guest's data outlived the deletion")
+        }
     }
 }

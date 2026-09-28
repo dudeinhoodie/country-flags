@@ -8,7 +8,7 @@ import CountryFlagsDomain
 /// `UserDefaults`: it is the only thing tying a guest to the progress they made,
 /// and the keychain is what survives an app reinstall. Sign-in replaces the
 /// scope with an authenticated one; that work package owns the migration.
-public actor GuestScopeProvider: AccountScopeResolving {
+public actor GuestScopeProvider: AccountScopeResolving, GuestIdentityRotating {
     private let tokens: any SecureTokenStoring
     private let identifiers: any IdentifierProviding
     private let logger: any AppLogging
@@ -62,5 +62,27 @@ public actor GuestScopeProvider: AccountScopeResolving {
         let scope = AccountScope.guest(installationID: identifier)
         resolved = scope
         return scope
+    }
+
+    /// A new installation identifier, written where the old one was.
+    ///
+    /// The new guest is this process's answer even if the keychain refuses
+    /// it, for the reason `resolved` exists; the refusal is logged, because
+    /// the next launch would then come back as the guest the deletion left.
+    public func startNewGuest() async -> AccountScope {
+        let previous = await currentScope()
+        let identifier = identifiers.next()
+        do {
+            try await tokens.setValue(identifier.uuidString, for: .installationID)
+        } catch {
+            logger.log(
+                .error,
+                .persistence,
+                "The new installation identifier could not be stored",
+                ["code": .safe(String(describing: error))]
+            )
+        }
+        resolved = .guest(installationID: identifier)
+        return previous
     }
 }
