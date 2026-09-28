@@ -44,7 +44,7 @@ public struct AccountService: AccountDirectory, DataExporting, AccountDeleting {
         let client = clientFactory.makeClient()
         do {
             switch credential {
-            case .apple(let identityToken, let authorizationCode, let rawNonce):
+            case .apple(let identityToken, let authorizationCode, let rawNonce, _):
                 let output = try await client.linkAppleIdentity(
                     body: .json(
                         .init(

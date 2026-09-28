@@ -260,6 +260,26 @@ public final class AccountStore {
     public func confirmSignOut(everywhere: Bool) async {
         signOutAssessment = nil
         await session.signOut(everywhere: everywhere)
+        await settleSignedOut()
+    }
+
+    /// Signs the device out when the provider has withdrawn the sign-in
+    /// behind the session: Sign in with Apple switched off for the app in
+    /// Settings, where Apple tells no server and the app has to ask (#444).
+    ///
+    /// The shell calls this once the account has been read at launch and on
+    /// every return to the foreground. Nothing is asked of the person: the
+    /// sign-in they took back is gone, and the app says so by being a guest.
+    public func checkProviderCredential() async {
+        guard await session.signOutIfProviderRevoked() else { return }
+        // A sign-out that was waiting on the person's answer has nothing left
+        // to confirm.
+        signOutAssessment = nil
+        await settleSignedOut()
+    }
+
+    /// What follows the session ending, whoever ended it.
+    private func settleSignedOut() async {
         // The trail that was being attributed to whoever just left ends here.
         await analytics?.setIdentity(nil)
         state = await session.currentState()

@@ -22,7 +22,7 @@ public struct AuthService: AuthenticationService {
         let device = Self.registration(await devices.registration())
         do {
             switch credential {
-            case .apple(let identityToken, let authorizationCode, let rawNonce):
+            case .apple(let identityToken, let authorizationCode, let rawNonce, _):
                 let output = try await client.authenticateWithApple(
                     body: .json(
                         .init(
@@ -59,7 +59,7 @@ public struct AuthService: AuthenticationService {
         let client = clientFactory.makeClient()
         do {
             switch credential {
-            case .apple(let identityToken, let authorizationCode, let rawNonce):
+            case .apple(let identityToken, let authorizationCode, let rawNonce, _):
                 let output = try await client.reauthenticateApple(
                     body: .json(
                         .init(

@@ -20,6 +20,9 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
     private let tokens: any SecureTokenStoring
     private let guestScopes: any AccountScopeResolving
     private let logger: any AppLogging
+    /// Asks Apple about the sign-in behind an Apple session. Nil where there
+    /// is nobody to ask, which leaves every session standing.
+    private let appleCredentials: (any AppleCredentialStateChecking)?
 
     private var accessToken: String?
     private var state: AuthenticationState = .guest
@@ -28,12 +31,14 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         service: any AuthenticationService,
         tokens: any SecureTokenStoring,
         guestScopes: any AccountScopeResolving,
-        logger: any AppLogging = OSLogAppLogger()
+        logger: any AppLogging = OSLogAppLogger(),
+        appleCredentials: (any AppleCredentialStateChecking)? = nil
     ) {
         self.service = service
         self.tokens = tokens
         self.guestScopes = guestScopes
         self.logger = logger
+        self.appleCredentials = appleCredentials
     }
 
     // MARK: - State
@@ -140,6 +145,12 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         do {
             let session = try await service.exchange(credential)
             await adopt(session)
+            // Who Apple says this is, for asking Apple later whether the
+            // sign-in still stands. Any other way in clears it: a Google
+            // session is not Apple's to end.
+            let appleUserID: String? =
+                if case .apple(_, _, _, let user) = credential { user } else { nil }
+            await persist(appleUserID, as: .appleUserID, during: "a sign-in")
             return .succeeded(userID: session.userID)
         } catch {
             state = .guest
@@ -169,6 +180,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
             .accountDisplayName,
             .accountAvatarURL,
             .accountDeviceID,
+            .appleUserID,
         ] where await persist(nil, as: kind, during: "a sign-out") == false {
             refused.append(kind.rawValue)
         }
@@ -182,6 +194,43 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         }
         accessToken = nil
         state = .guest
+    }
+
+    /// Ends an Apple session that Apple no longer vouches for.
+    ///
+    /// A person who switches Sign in with Apple off for the app, in Settings
+    /// or on the web, is signed out of it as far as Apple is concerned, and
+    /// the app hears about it only by asking. Asked on launch and on every
+    /// return to the foreground; a session that began any other way, or a
+    /// check that could not be made, is left alone.
+    public func signOutIfProviderRevoked() async -> Bool {
+        // The launch's check can come before anything else asked who this is.
+        await ensureIdentityRestored()
+        guard let appleCredentials,
+            case .authenticated = state,
+            let appleUserID = try? await tokens.value(for: .appleUserID),
+            !appleUserID.isEmpty
+        else {
+            return false
+        }
+        let answer = await appleCredentials.credentialState(forUserID: appleUserID)
+        guard answer.endsTheSession else { return false }
+        // Apple answers across a suspension. A sign-out or another sign-in
+        // that landed meanwhile has already decided, and this answer is about
+        // a session that is no longer the one on the device.
+        guard case .authenticated = state,
+            (try? await tokens.value(for: .appleUserID)) == appleUserID
+        else {
+            return false
+        }
+        logger.log(
+            .notice,
+            .auth,
+            "Apple no longer vouches for this sign-in, so the device signs out",
+            ["state": .safe(answer == .revoked ? "revoked" : "notFound")]
+        )
+        await signOut(everywhere: false)
+        return true
     }
 
     // MARK: - AuthorizationTokenProviding
