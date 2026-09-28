@@ -724,5 +724,42 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
       .get("/v1/me")
       .set("Authorization", `Bearer ${account.tokens.accessToken}`)
       .expect(401);
+
+    // The response to the first request can be lost. Its repeat carries the
+    // same token, whose session the deletion removed, and has to hear that
+    // the account is gone rather than a 401 that reads as "nothing deleted".
+    const repeated = await request(httpServer)
+      .delete("/v1/me")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(202);
+    expect(repeated.body).toEqual(deletion.body);
+  });
+
+  it("does not let a signed-out session delete the account", async () => {
+    // An account of its own: the repeat above is allowed only because the
+    // account is gone, and a session that merely ended must not be.
+    const idToken = await signer.signGoogle({
+      subject: "account-lifecycle-signed-out-subject",
+      email: "signed-out@example.test",
+    });
+    const signedOut = bodyOf<AuthBody>(
+      await request(httpServer)
+        .post("/v1/auth/google")
+        .send({ idToken, device: device("account-device-signed-out-1") })
+        .expect(200),
+    );
+    await request(httpServer)
+      .post("/v1/auth/logout")
+      .set("Authorization", `Bearer ${signedOut.tokens.accessToken}`)
+      .expect(204);
+
+    await request(httpServer)
+      .delete("/v1/me")
+      .set("Authorization", `Bearer ${signedOut.tokens.accessToken}`)
+      .expect(401);
+    const user = await database.user.findUniqueOrThrow({
+      where: { id: signedOut.user.id },
+    });
+    expect(user.status).toBe("ACTIVE");
   });
 });
