@@ -10,12 +10,15 @@ public enum LocalCardSelection {
     ///   with fewer usable cards yields fewer; it never repeats one to reach
     ///   the number, because the chosen number means unique cards and not
     ///   showings.
+    /// - Parameter dueAllowance: how many owed cards the day still has room
+    ///   for (`DailyReviewAllowance`). Nil deals every owed card.
     public static func select(
         from cards: [LearningCardRecord],
         states: [CardStateRecord],
         size: StudySessionSize,
         supportedTemplateSchemaVersions: [Int],
-        now: Date
+        now: Date,
+        dueAllowance: Int? = nil
     ) -> [SelectedStudyCard] {
         var generator = SystemRandomNumberGenerator()
         return select(
@@ -24,6 +27,7 @@ public enum LocalCardSelection {
             size: size,
             supportedTemplateSchemaVersions: supportedTemplateSchemaVersions,
             now: now,
+            dueAllowance: dueAllowance,
             using: &generator
         )
     }
@@ -42,6 +46,7 @@ public enum LocalCardSelection {
         size: StudySessionSize,
         supportedTemplateSchemaVersions: [Int],
         now: Date,
+        dueAllowance: Int? = nil,
         using generator: inout some RandomNumberGenerator
     ) -> [SelectedStudyCard] {
         let supported = Set(supportedTemplateSchemaVersions)
@@ -76,6 +81,21 @@ public enum LocalCardSelection {
         var bands: [Int: [LearningCardRecord]] = [:]
         for card in usable.sorted(by: { $0.id.uuidString < $1.id.uuidString }) {
             bands[rank(of: card, state: stateByCard[card.id], now: now), default: []].append(card)
+        }
+        // The day's allowance, cut the way the server cuts it (#438): the
+        // oldest debt first, and what does not fit is left out altogether —
+        // not dealt as filler at the end, because it is still owed tomorrow.
+        // New cards are not owed and are not cut.
+        if let dueAllowance, let due = bands[0] {
+            bands[0] = Array(
+                due.sorted { left, right in
+                    let leftDue = stateByCard[left.id]?.dueAt ?? .distantPast
+                    let rightDue = stateByCard[right.id]?.dueAt ?? .distantPast
+                    if leftDue != rightDue { return leftDue < rightDue }
+                    return left.id.uuidString < right.id.uuidString
+                }
+                .prefix(max(0, dueAllowance))
+            )
         }
         let ranked = bands.keys.sorted().flatMap { bands[$0]!.shuffled(using: &generator) }
 

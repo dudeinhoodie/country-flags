@@ -5,11 +5,12 @@ import CountryFlagsDomain
 
 /// The account, as a section of the settings form.
 ///
-/// A guest sees an offer, never a gate: the note under the buttons says what
-/// is at stake — the countries they have learned, counted, living on one
-/// phone — and everything else in the app works without it. Signing out with unsent answers is put to the
-/// user with the number, because stranding work silently is the one thing
-/// this section must never do.
+/// A guest sees an offer, never a gate: their row says what is at stake — the
+/// countries they have learned, counted, living on one phone — and the screen
+/// it opens says the rest, while everything else in the app works without it.
+/// Signing out with unsent answers is put to the user with the number,
+/// because stranding work silently is the one thing this section must never
+/// do.
 struct AccountSection: View {
     /// Owned for the same reason every screen owns its store.
     @State private var store: AccountStore
@@ -21,29 +22,43 @@ struct AccountSection: View {
     /// Opens the account screen. Only a signed-in account has one worth
     /// opening, so the row appears with the person rather than with the offer.
     private let onOpenAccount: (() -> Void)?
+    /// Asks for the sign-in screen. The section only asks: a sheet presented
+    /// from inside a list is torn down whenever the list reloads under it,
+    /// and this list reloads on every word from the store. The screen that
+    /// owns the list presents it, above the list, where it stays.
+    private let onSignIn: (() -> Void)?
+    /// The learner's own flags, for the small pile beside the offer. The same
+    /// three the sign-in screen throws, so the block and the screen it opens
+    /// are about the same countries.
+    private let fan: SignInFan?
+    @State private var fanCards: [LearningCardRecord] = []
 
     init(
         store: AccountStore,
         learnedCountries: Int? = nil,
-        onOpenAccount: (() -> Void)? = nil
+        onOpenAccount: (() -> Void)? = nil,
+        onSignIn: (() -> Void)? = nil,
+        fan: SignInFan? = nil
     ) {
         _store = State(wrappedValue: store)
         self.learnedCountries = learnedCountries
         self.onOpenAccount = onOpenAccount
+        self.onSignIn = onSignIn
+        self.fan = fan
     }
 
     var body: some View {
         Section {
             content
         } header: {
-            // Headed by what it offers, not by what it is about: "Account"
-            // over two sign-in buttons, on a screen already titled Account,
-            // says nothing.
-            SectionLabel(isSignedOut ? L10n.accountSignInSection : L10n.accountSection)
+            SectionLabel(L10n.accountSection)
         } footer: {
             footer
         }
         .task { await store.start() }
+        .task {
+            if let fan { fanCards = await fan.cards() }
+        }
         .confirmationDialog(
             signOutTitle,
             isPresented: signOutDialogBinding,
@@ -53,10 +68,6 @@ struct AccountSection: View {
                 Task { await store.confirmSignOut(everywhere: false) }
             }
             .accessibilityIdentifier(AccessibilityIdentifier.accountSignOutConfirm)
-            Button(L10n.accountSignOutEverywhere, role: .destructive) {
-                Task { await store.confirmSignOut(everywhere: true) }
-            }
-            .accessibilityIdentifier(AccessibilityIdentifier.accountSignOutEverywhereConfirm)
             // A cancel-role button is omitted by the iPad/popover adaptation
             // of `confirmationDialog`, leaving only tap-outside dismissal.
             // This choice protects unsent work, so it stays an explicit action
@@ -130,71 +141,62 @@ struct AccountSection: View {
         }
     }
 
-    /// Whether this is somebody with no account rather than somebody with
-    /// one — the sign-in block is headed and laid out differently.
-    private var isSignedOut: Bool {
-        switch store.state {
-        case .guest, .authenticationExpired: true
-        default: false
-        }
-    }
-
-    /// One row rather than one per button, on the scene rather than on a
-    /// material slab.
+    /// The offer: what an account keeps, the learner's own flags beside it,
+    /// and one button in the app's own style that opens the screen where the
+    /// brands' buttons are.
     ///
-    /// Left to the form, each button became its own row: two capsules on two
-    /// grey rectangles, separated by the list's own spacing — which is not
-    /// what a pair of capsules is. They are one offer, so they are one row,
-    /// and the ground under them is the app's scene, which is what makes a
-    /// capsule read as a capsule.
+    /// The brand buttons used to stand here, two capsules on the scene. Two
+    /// white pills in a settings form read as somebody else's controls set
+    /// down among this app's rows; the app's primary action is this app's,
+    /// and the buttons keep their brands on a screen that is about them.
     @ViewBuilder
     private var signInControls: some View {
-        VStack(spacing: DesignTokens.Spacing.small + 4) {
-            providerButtons
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+            HStack(spacing: DesignTokens.Spacing.medium) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall / 2) {
+                    Text(isExpired ? L10n.accountSignInAgain : L10n.accountSignInBlockTitle)
+                        .font(DesignTokens.Typography.body.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(signInCaption)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+
+                Spacer(minLength: 0)
+
+                if let fan, !fanCards.isEmpty {
+                    FlagFanView(cards: fanCards, store: fan.content, assets: fan.assets)
+                }
+            }
+
+            // Lit glass rather than the white slab: the account screen is a
+            // form, and the offer is one row of it, not the screen's hero.
+            Button(L10n.accountSignInRow) { onSignIn?() }
+                .buttonStyle(GlassProminentActionStyle())
+                .accessibilityIdentifier(AccessibilityIdentifier.accountSignInRow)
         }
-        .listRowBackground(Color.clear)
-        .listRowInsets(
-            EdgeInsets(
-                top: DesignTokens.Spacing.small,
-                leading: 0,
-                bottom: DesignTokens.Spacing.small,
-                trailing: 0
-            )
-        )
+        .padding(.vertical, DesignTokens.Spacing.small)
+        .devBlockID("account.offer")
     }
 
-    @ViewBuilder
-    private var providerButtons: some View {
-        ProviderSignInButtons(
-            prepareNonce: { store.prepareNonce() },
-            rawNonce: { store.preparedNonce?.raw ?? "" },
-            google: store.google,
-            // Debug environments only, and only when the launch asked for it.
-            fixtureCredential: store.allowsFakeSignIn
-                ? ProviderSignInButtons.fixtureCredential : nil,
-            appleIdentifier: AccessibilityIdentifier.accountSignInApple,
-            googleIdentifier: AccessibilityIdentifier.accountSignInGoogle,
-            fixtureIdentifier: AccessibilityIdentifier.accountFakeSignIn,
-            onCredential: { credential, profile in
-                Task { await store.signIn(with: credential, providerProfile: profile) }
-            },
-            onCancelled: { store.noteCancelledSignIn() },
-            onFailure: { store.noteProviderFailure($0) }
-        )
+    private var isExpired: Bool {
+        if case .authenticationExpired = store.state { return true }
+        return false
+    }
+
+    /// What is at stake, under the name of the row: the countries this guest
+    /// has learned, counted, or — for a sign-in the backend stopped
+    /// honouring — the sync that waits on it.
+    private var signInCaption: String {
+        if isExpired { return L10n.accountSignInRowExpired }
+        return (learnedCountries ?? 0) > 0
+            ? L10n.accountGuestNoteCount(learnedCountries ?? 0)
+            : L10n.accountGuestNote
     }
 
     @ViewBuilder
     private var footer: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-            if case .guest = store.state {
-                // Somebody who has learned nothing yet is told what a guest
-                // account is, not that nothing is at stake.
-                Text(
-                    (learnedCountries ?? 0) > 0
-                        ? L10n.accountGuestNoteCount(learnedCountries ?? 0)
-                        : L10n.accountGuestNote
-                )
-            }
             if let failure = store.lastFailure {
                 Text(failure == .offline ? L10n.accountSignInOffline : L10n.accountSignInFailed)
                     .accessibilityIdentifier(AccessibilityIdentifier.accountFailure)
@@ -312,7 +314,7 @@ private struct AccountAvatarView: View {
 /// shape and its colours the way a flag does; nothing here is ours to adjust.
 struct GoogleLogoMark: View {
     var body: some View {
-        Image("google-g", bundle: .module)
+        Image("google-g-neutral", bundle: .module)
             .resizable()
             .interpolation(.high)
             .scaledToFit()

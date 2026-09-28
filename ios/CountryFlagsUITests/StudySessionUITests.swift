@@ -471,6 +471,10 @@ final class StudySessionUITests: XCTestCase {
             return
         }
 
+        // The buttons live on the sign-in screen now; the guest's row opens it.
+        let row = app.buttons["settings.account.signInRow"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
+        row.tap()
         let fixture = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()

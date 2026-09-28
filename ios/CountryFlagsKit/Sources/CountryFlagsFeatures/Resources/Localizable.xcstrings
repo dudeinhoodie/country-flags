@@ -211,13 +211,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Everything will be gone by %@. Until then you can keep studying as a guest."
+            "value": "Everything was erased on %@. You can keep studying as a guest."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Всё сотрём до %@. До тех пор можно тренироваться как гость."
+            "value": "Всё стёрто %@. Можно продолжать как гость."
           }
         }
       }
@@ -228,13 +228,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This account is being deleted"
+            "value": "This account was deleted"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Аккаунт удаляется"
+            "value": "Аккаунт удалён"
           }
         }
       }
@@ -887,6 +887,40 @@
         }
       }
     },
+    "account.sign_in_again": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in again"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Войти заново"
+          }
+        }
+      }
+    },
+    "account.sign_in_block.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep your progress"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохрани прогресс"
+          }
+        }
+      }
+    },
     "account.sign_in_failed": {
       "extractionState": "manual",
       "localizations": {
@@ -938,7 +972,7 @@
         }
       }
     },
-    "account.sign_in_section": {
+    "account.sign_in_row": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -950,7 +984,196 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вход"
+            "value": "Войти"
+          }
+        }
+      }
+    },
+    "account.sign_in_row_expired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing waits for it."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронизация ждёт входа."
+          }
+        }
+      }
+    },
+    "account.sign_in_sheet.benefit_devices": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One account for all your devices"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Один аккаунт для всех устройств"
+          }
+        }
+      }
+    },
+    "account.sign_in_sheet.benefit_password": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No password: Apple or Google"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Без пароля: Apple или Google"
+          }
+        }
+      }
+    },
+    "account.sign_in_sheet.benefit_sync": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress and reviews stay in sync"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогресс и повторения синхронизируются"
+          }
+        }
+      }
+    },
+    "account.sign_in_sheet.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With an account your progress is saved and carries on on any iPhone."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С аккаунтом прогресс сохранится и продолжится на любом iPhone."
+          }
+        }
+      }
+    },
+    "account.sign_in_sheet.body_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld country learned on this phone. With an account it is saved and carries on on any iPhone."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld countries learned on this phone. With an account they are saved and carry on on any iPhone."
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld страна выучена на этом телефоне. С аккаунтом она сохранится и продолжится на любом iPhone."
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld страны выучены на этом телефоне. С аккаунтом они сохранятся и продолжатся на любом iPhone."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld стран выучено на этом телефоне. С аккаунтом они сохранятся и продолжатся на любом iPhone."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld стран выучено на этом телефоне. С аккаунтом они сохранятся и продолжатся на любом iPhone."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "account.sign_in_sheet.legal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By continuing, you accept the Terms of Use. How we handle your data is described in the Privacy Policy."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжая, ты принимаешь Условия использования. Как мы обращаемся с данными, описано в Политике конфиденциальности."
+          }
+        }
+      }
+    },
+    "account.sign_in_sheet.not_now": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не сейчас"
+          }
+        }
+      }
+    },
+    "account.sign_in_sheet.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your progress stays with you"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогресс останется с тобой"
           }
         }
       }
@@ -985,23 +1208,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Всё синхронизировано, можно спокойно выходить."
-          }
-        }
-      }
-    },
-    "account.sign_out_everywhere": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sign out everywhere"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выйти на всех устройствах"
           }
         }
       }
@@ -2285,15 +2491,104 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld cards"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld card"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld cards"
+                }
+              }
+            }
           }
         },
         "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Карточек: %lld"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld карточка"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld карточки"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld карточек"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld карточки"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "deck.coat_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld coat of arms"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld coats of arms"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld герб"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld герба"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld гербов"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld герба"
+                }
+              }
+            }
           }
         }
       }
@@ -2311,6 +2606,59 @@
           "stringUnit": {
             "state": "translated",
             "value": "Страны"
+          }
+        }
+      }
+    },
+    "deck.flag_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld flag"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld flags"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld флаг"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld флага"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld флагов"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld флага"
+                }
+              }
+            }
           }
         }
       }
@@ -3077,19 +3425,19 @@
         }
       }
     },
-    "home.deck_size": {
+    "home.deck_learned": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "countries in the deck"
+            "value": "countries learned"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "стран в колоде"
+            "value": "стран выучено"
           }
         }
       }
@@ -3192,6 +3540,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сегодня к повторению"
+          }
+        }
+      }
+    },
+    "home.flag_of_the_day.details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More about the country"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подробнее о стране"
+          }
+        }
+      }
+    },
+    "home.flag_of_the_day.label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flag of the day"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Флаг дня"
+          }
+        }
+      }
+    },
+    "home.flag_of_the_day.question": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whose flag is this?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чей это флаг?"
+          }
+        }
+      }
+    },
+    "home.flag_of_the_day.reveal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the answer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать ответ"
           }
         }
       }
@@ -3330,6 +3746,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Рекомендуем"
+          }
+        }
+      }
+    },
+    "home.regions.label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or start with a region"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Или начни с региона"
           }
         }
       }
@@ -5272,6 +5705,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "Синхронизировано"
+          }
+        }
+      }
+    },
+    "welcome.benefit_account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An account is optional: it only keeps your progress"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Аккаунт по желанию: он только сохраняет прогресс"
+          }
+        }
+      }
+    },
+    "welcome.benefit_offline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Works without the internet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Работает без интернета"
+          }
+        }
+      }
+    },
+    "welcome.benefit_reviews": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reviews come back when they are due"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторения приходят, когда пора"
+          }
+        }
+      }
+    },
+    "welcome.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every country, its region and the special areas. You answer, and the app brings each flag back just as it starts to slip."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все страны, регионы и особые территории. Ты отвечаешь, а приложение возвращает каждый флаг как раз тогда, когда он начинает забываться."
+          }
+        }
+      }
+    },
+    "welcome.continue_as_guest": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue without an account"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжить без аккаунта"
+          }
+        }
+      }
+    },
+    "welcome.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The flags of the whole world"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Флаги всего мира"
           }
         }
       }

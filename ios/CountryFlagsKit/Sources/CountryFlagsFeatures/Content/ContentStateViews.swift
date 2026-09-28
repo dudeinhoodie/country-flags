@@ -49,9 +49,9 @@ struct ContentStatusBanner: View {
 /// a number the learner recognises as their own work — and no signal is
 /// merely one of the reasons they are still here.
 ///
-/// The chip is small, so the sentence moves to its label rather than
-/// disappearing: a guest is still told that signing in is what carries the
-/// answers over, and VoiceOver reads that instead of a bare number.
+/// A guest gets no chip at all. Nothing of theirs is sent until they sign in,
+/// so an arrow and a count read as an upload that never happens; the home
+/// screen's account row is what tells them their answers live on this phone.
 struct SyncStatusChip: View {
     let status: SyncStatus
     /// The queue just drained: the chip says so before it says nothing.
@@ -115,6 +115,7 @@ struct SyncStatusChip: View {
     /// holds the spot they just left; a missing signal comes after; a
     /// healthy, empty queue says nothing at all.
     private var state: Presentation? {
+        if status.isHeldForGuest { return nil }
         if status.lastFailure == .unauthorized {
             return Presentation(
                 symbol: "person.crop.circle.badge.exclamationmark",
@@ -126,9 +127,7 @@ struct SyncStatusChip: View {
             return Presentation(
                 symbol: "arrow.up.circle",
                 title: L10n.syncPendingChip(status.pendingCount),
-                spoken: status.isHeldForGuest
-                    ? L10n.syncSavedOnDevice(status.pendingCount)
-                    : L10n.syncPending(status.pendingCount)
+                spoken: L10n.syncPending(status.pendingCount)
             )
         }
         if showsSynced {

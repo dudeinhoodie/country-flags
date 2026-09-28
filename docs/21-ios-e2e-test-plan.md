@@ -170,7 +170,7 @@ Fixtures не должны делить keychain/session между паралл
 | `IOS-E2E-AC-01` | P0 | Sign out без pending work | Возврат в новый/закреплённый guest scope; account-only данные скрыты | Mock CI + Dev E2E |
 | `IOS-E2E-AC-02` | P0 | Sign out с pending review → Cancel | Session/account/outbox остаются без изменений | Mock CI |
 | `IOS-E2E-AC-03` | P0 | Sign out current device с pending review → Confirm | Pending review остаются в account scope до повторного входа того же account; guest scope их не видит и UI не заявляет их синхронизированными | Mock CI + Dev E2E |
-| `IOS-E2E-AC-04` | P1 | Sign out everywhere | Текущая session завершается; другое устройство теряет session при следующем запросе | Dev E2E |
+| `IOS-E2E-AC-04` | — | Sign out everywhere | Снят: кнопки "Выйти на всех устройствах" в приложении больше нет, endpoint остаётся на backend | — |
 | `IOS-E2E-AC-05` | P0 | Account A → sign out → Account B | Progress/settings/entitlements A не видны B; общедоступный content cache переиспользуется безопасно | Dev E2E |
 | `IOS-E2E-AC-06` | P0 | Clear progress: открыть dialog → Cancel | Ни local, ни server progress не меняются; outbox, session и settings нетронуты | Mock CI |
 | `IOS-E2E-AC-07` | P0 | Clear progress → Confirm | Progress/outbox/курсоры очищены после server success; account/purchases/settings сохранены, и история не возвращается после relaunch и повторного входа | Mock CI + Dev E2E + Device |
@@ -441,8 +441,6 @@ Fixtures не должны делить keychain/session между паралл
 - `ST-14`: сессия, где всё отвечено `Again`, не поздравляет и сообщает ноль
   запомненных;
 - `ST-03`: колода короче размера сессии не добивается повторами;
-- `AC-04`: выход везде оставляет гостем и это устройство, в том числе после
-  перезапуска;
 - `ST-01`: размер сессии, выбранный в настройках, доходит до самой сессии;
 - `ST-07`: `Again` берётся один раз, не удлиняет присест и попадает в
   «вернутся в колоду» на экране результата;

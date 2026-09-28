@@ -33,7 +33,9 @@ final class ContentBrowseUITests: XCTestCase {
         XCTAssertTrue(cardCount.waitForExistence(timeout: 10), app.debugDescription)
         XCTAssertFalse(cardCount.label.isEmpty)
         // A string catalog key must never reach the interface.
-        XCTAssertFalse(cardCount.label.contains("deck.card_count"))
+        // Resolved from the catalogue, not left as its key: a deck of flags
+        // counts in `deck.flag_count`, a mixed one in `deck.card_count`.
+        XCTAssertFalse(cardCount.label.contains("deck."))
     }
 
     /// The offline requirement: everything downloaded stays browsable when the

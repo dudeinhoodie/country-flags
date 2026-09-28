@@ -123,6 +123,7 @@ public struct StudySessionView: View {
     private func cardView(state: StudySessionState, card: StudySessionCardRecord) -> some View {
         VStack(spacing: DesignTokens.Spacing.large) {
             hud(state: state)
+                .devBlockID("study.hud")
 
             Spacer(minLength: 0)
 
@@ -195,6 +196,7 @@ public struct StudySessionView: View {
             // Where each throw leads, said before the first one is made. The
             // side the throw is heading for lights up as it goes.
             swipeHints
+                .devBlockID("study.hints")
 
             Spacer(minLength: 0)
 
@@ -392,16 +394,19 @@ struct StudySessionResultView: View {
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.large) {
             header
+                .devBlockID("result.header")
                 .settled(hasArrived, step: 0, reduceMotion: reduceMotion)
                 .padding(.top, DesignTokens.Spacing.large)
 
             gauge
+                .devBlockID("result.gauge")
                 // Dropped from the header by the owner's eye on the device.
                 .padding(.top, 30)
                 .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
 
             if !summary.answered.isEmpty {
                 answers
+                    .devBlockID("result.answers")
                     // Sunk below the gauge by the owner's eye, like the
                     // gauge below the header.
                     .padding(.top, DesignTokens.Spacing.large)

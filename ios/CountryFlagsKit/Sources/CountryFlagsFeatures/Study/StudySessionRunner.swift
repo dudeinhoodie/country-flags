@@ -324,7 +324,10 @@ public final class StudySessionRunner {
             states: states,
             size: size,
             supportedTemplateSchemaVersions: manifest?.supportedTemplateSchemaVersions ?? [],
-            now: dates.now()
+            now: dates.now(),
+            // The day's limit holds on the device too: a guest's sessions are
+            // composed here and nothing else would stop them at fifty.
+            dueAllowance: DailyReviewAllowance.remaining(states, now: dates.now())
         )
         // Offline, the due-only promise still holds: the local bands mark
         // every card with its reason, and the queue is the due band alone.

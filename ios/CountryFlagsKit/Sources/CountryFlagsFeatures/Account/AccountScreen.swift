@@ -23,6 +23,15 @@ public struct AccountScreen: View {
     /// read here: the numbers belong to the progress store, and this screen
     /// is about identity.
     private let learnedCountries: Int?
+    /// What the sign-in screen throws over its promise. Passed in like the
+    /// count, and for the same reason: the catalogue and the progress belong
+    /// to the shell, and this screen is about identity.
+    private let fan: SignInFan?
+    /// Whether the sign-in screen is up. Presented from here rather than
+    /// from the account section: a sheet hung on a row or a section inside
+    /// the list was torn down the moment the list reloaded, which it does on
+    /// the store's first word after opening. Above the list it stays.
+    @State private var isPresentingSignIn = false
     /// Who is signed in, and the way in or out. It used to live in the
     /// settings; it belongs with the account it is about.
     @State private var account: AccountStore?
@@ -39,7 +48,8 @@ public struct AccountScreen: View {
         makeClearProgress: (() -> ClearProgressStore)? = nil,
         privacyPolicyURL: URL? = nil,
         termsURL: URL? = nil,
-        learnedCountries: Int? = nil
+        learnedCountries: Int? = nil,
+        fan: SignInFan? = nil
     ) {
         _store = State(wrappedValue: store)
         self.makeAccount = makeAccount
@@ -47,6 +57,7 @@ public struct AccountScreen: View {
         self.privacyPolicyURL = privacyPolicyURL
         self.termsURL = termsURL
         self.learnedCountries = learnedCountries
+        self.fan = fan
     }
 
     public var body: some View {
@@ -55,8 +66,13 @@ public struct AccountScreen: View {
                 deletionNotice(deletion)
             }
             if let account {
-                AccountSection(store: account, learnedCountries: learnedCountries)
-                    .listRowBackground(rowBackground)
+                AccountSection(
+                    store: account,
+                    learnedCountries: learnedCountries,
+                    onSignIn: { isPresentingSignIn = true },
+                    fan: fan
+                )
+                .listRowBackground(rowBackground)
             }
             if let clearProgress {
                 ClearProgressSection(store: clearProgress)
@@ -67,6 +83,17 @@ public struct AccountScreen: View {
         .scrollContentBackground(.hidden)
         .navigationTitle(L10n.accountTitle)
         .sceneChrome()
+        .sheet(isPresented: $isPresentingSignIn) {
+            if let account {
+                SignInSheet(
+                    store: account,
+                    learnedCountries: learnedCountries,
+                    fan: fan,
+                    privacyPolicyURL: privacyPolicyURL,
+                    termsURL: termsURL
+                )
+            }
+        }
         .onAppear {
             if account == nil { account = makeAccount?() }
             if clearProgress == nil { clearProgress = makeClearProgress?() }

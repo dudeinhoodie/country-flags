@@ -34,8 +34,8 @@ public struct HomeView: View {
     /// than the queue. The shell's own store, observed for the same reason
     /// the counts are.
     private let account: AccountStore?
-    /// Opens the account screen, where the sign-in buttons live.
-    private let onOpenAccount: (() -> Void)?
+    /// Opens the sign-in screen.
+    private let onSignIn: (() -> Void)?
     /// Whether the numbers on screen are known to be the previous word —
     /// after a sitting, or before the launch's own run has come back.
     ///
@@ -48,6 +48,15 @@ public struct HomeView: View {
     /// rows should show the cards they are talking about.
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
+    /// Distinct cards answered today, counted off the card states on the
+    /// device. It decides one thing: whether the day's allowance is spent.
+    @State private var answeredToday = 0
+    /// The flag a first visit is asked about, and whether its name is shown.
+    @State private var flagOfTheDay: LearningCardRecord?
+    @State private var isFlagRevealed = false
+    @State private var detailsSubject: CountryDetailsSubject?
+    @Environment(\.displayScale) private var displayScale
+
 
     /// The placeholder's bars stand in for text, so they grow with it. Drawn
     /// at fixed points they matched the hero at one type size and at no other,
@@ -70,14 +79,14 @@ public struct HomeView: View {
             (UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void
         )? = nil,
         account: AccountStore? = nil,
-        onOpenAccount: (() -> Void)? = nil
+        onSignIn: (() -> Void)? = nil
     ) {
         self.store = store
         self.sync = sync
         self.assets = assets
         self.progress = progress
         self.account = account
-        self.onOpenAccount = onOpenAccount
+        self.onSignIn = onSignIn
         self.isSettling = isSettling
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
@@ -141,9 +150,11 @@ public struct HomeView: View {
             // something to say.
             if isStale || failure != nil {
                 ContentStatusBanner(isStale: isStale, failure: failure)
+                    .devBlockID("home.status")
             }
 
-            accountPrompt
+            expiredSignInPrompt
+                .devBlockID("home.sign-in-expired")
 
             // The screen fills in the order its data arrives, which is two
             // waves and not one: the catalogue is already on the device — the
@@ -176,6 +187,13 @@ public struct HomeView: View {
                     VStack(spacing: DesignTokens.Spacing.large) {
                         todayPane(sections)
                         queuePane(sections)
+                            .devBlockID("home.queue")
+                        if isFirstVisit {
+                            flagOfTheDayCard(sections)
+                                .devBlockID("home.flag-of-the-day")
+                            regionsShelf(sections)
+                                .devBlockID("home.regions")
+                        }
                     }
                     .opacity(isVerifying ? 0.55 : 1)
                     .disabled(isVerifying)
@@ -189,6 +207,18 @@ public struct HomeView: View {
                 .easeInOut(duration: 0.2),
                 value: isAwaitingProgress || isSettling
             )
+
+            // Under the day rather than over it: the offer is about the
+            // person, and the first thing on the screen should be what to do
+            // next. Seven answers in, it stood above the unfinished session
+            // and pushed it down the screen.
+            guestPrompt
+                .devBlockID("home.account")
+        }
+        .sheet(item: $detailsSubject) { subject in
+            if let assets {
+                CountryDetailsSheet(subject: subject, store: store, assets: assets)
+            }
         }
     }
 
@@ -365,13 +395,12 @@ public struct HomeView: View {
         // different thing from a queue — one is a place to go back to, the
         // other is work to start. As a second full pane it competed with the
         // day; as a line with a bar it is a door, which is all it ever was.
+        // The unfinished sitting leads. It used to be a thin row above a
+        // full pane offering a new start, and the two white buttons below it
+        // asked a learner seven cards in whether to begin again.
         if let continuable {
-            ResumeTrainingRow(
-                deckName: deckName(continuable.deckID, in: sections) ?? "",
-                answered: continuable.answeredCards,
-                total: continuable.totalCards,
-                action: { onContinueSession?(continuable) }
-            )
+            resumePane(continuable, sections)
+                .devBlockID("home.resume")
         }
 
         // The review block, always. An unfinished sitting used to stand in
@@ -387,18 +416,21 @@ public struct HomeView: View {
                 caption: dueBreakdown,
                 action: L10n.homeReview,
                 identifier: AccessibilityIdentifier.homeReview,
-                run: { startDueSession(deckID: deckID) }
+                run: { startDueSession(deckID: deckID) },
+                isProminent: continuable == nil
             )
-        } else if hasAnyProgress {
-            // A day already finished says so — a learner with real progress
-            // who cleared the queue must not see the fresh-install pane and
-            // wonder where their day went.
+            .devBlockID("home.today")
+        } else if isDayDone {
+            // A day already finished says so — a learner who spent the day's
+            // allowance must not see the fresh-install pane and wonder where
+            // their day went.
             DayClearedCard(
                 learned: learnedCountries,
                 inProgress: countriesInProgress,
                 nextPortionAt: progress?.dueSummary?.nextPortionAt,
                 onOpenCatalog: onOpenCatalog
             )
+            .devBlockID("home.day-done")
         }
 
         // The all-countries deck, when the day asks nothing: a queue pane
@@ -406,56 +438,270 @@ public struct HomeView: View {
         // tap, so the deck yields whenever something is due. It leads with
         // its own name — "All countries" is what the block is, and the count
         // is the detail under it, not the headline.
-        if due == 0, let deck = recommended(sections) {
+        //
+        // Not while a sitting is open, either: finishing it is the way on,
+        // and "start studying" beside "continue" is the same question twice.
+        //
+        // The figure is the learner's own, out of the deck: "0 / 195" says
+        // where they stand, where "195" only said how big the deck is.
+        if due == 0, continuable == nil, let deck = recommended(sections) {
             pane(
                 label: deck.name,
-                count: deck.cardCount,
-                total: nil,
-                caption: L10n.homeDeckSize,
+                count: learned(in: deck),
+                total: deck.cardCount,
+                caption: L10n.homeDeckLearned,
                 action: L10n.studyStart,
                 identifier: AccessibilityIdentifier.homeDeckRow(deck.code),
                 run: { onOpenDeck(deck.id) }
             )
+            .devBlockID("home.deck")
         }
     }
 
-    /// The account, when it needs a word — above the day rather than in it,
-    /// because the row is about the person and not the queue.
-    ///
-    /// A sign-in the backend has stopped honouring comes first, and is not
-    /// conditional on anything else: from that moment every answer stays on
-    /// the phone, and the caption says how many already do. A guest is told
-    /// from the first answer on — the moment there is anything on the phone
-    /// that a lost phone would take — and the caption carries the number of
-    /// countries once there is one. A fresh install with nothing answered is
-    /// not nagged. Neither row can be dismissed: the first goes away when the
-    /// person signs in again, the second when they sign in at all. Both lead
-    /// to the account screen, where the buttons already are, rather than
-    /// repeating them here.
-    @ViewBuilder
-    private var accountPrompt: some View {
-        if let onOpenAccount {
-            if isSignInExpired {
-                AccountPromptRow(
-                    symbol: "person.crop.circle.badge.exclamationmark",
-                    title: L10n.homeSignInExpiredTitle,
-                    caption: sync.status.pendingCount > 0
-                        ? L10n.homeSignInExpiredPending(sync.status.pendingCount)
-                        : L10n.syncSignInRequired,
-                    identifier: AccessibilityIdentifier.homeSignInExpired,
-                    action: onOpenAccount
-                )
-            } else if isGuestWithSomethingToLose {
-                AccountPromptRow(
-                    symbol: "person.crop.circle",
-                    title: L10n.homeGuestPromptTitle,
-                    caption: learnedCountries > 0
-                        ? L10n.homeGuestPromptCount(learnedCountries)
-                        : L10n.accountGuestNote,
-                    identifier: AccessibilityIdentifier.homeGuestPrompt,
-                    action: onOpenAccount
-                )
+    /// Countries of this deck carried to learned.
+    private func learned(in deck: DeckRecord) -> Int {
+        progress?.decks.first { $0.id == deck.id }?.learnedCards ?? 0
+    }
+
+    /// The sitting left half-finished, as the screen's hero: how far in, in
+    /// the hero's figure and a bar, and the one white button.
+    private func resumePane(
+        _ continuable: ContinuableSession,
+        _ sections: [CatalogSection]
+    ) -> some View {
+        let answered = continuable.answeredCards
+        let total = continuable.totalCards
+        let fraction = total > 0 ? min(1, Double(answered) / Double(total)) : 0
+        let name = deckName(continuable.deckID, in: sections) ?? ""
+
+        return GlassCard(padding: DesignTokens.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                    SectionLabel(L10n.homeSessionInProgress)
+
+                    HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
+                        Text("\(answered)")
+                            .font(DesignTokens.Typography.heroNumber)
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                        Text("/ \(total)")
+                            .font(DesignTokens.Typography.sectionTitle)
+                            .foregroundStyle(.white.opacity(0.55))
+                    }
+                    .foregroundStyle(.white)
+
+                    ProgressTrackView(started: fraction, learned: fraction)
+
+                    Text(
+                        name.isEmpty
+                            ? L10n.homeSessionLeft(max(0, total - answered))
+                            : "\(name) · \(L10n.homeSessionLeft(max(0, total - answered)))"
+                    )
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.6))
+                }
+                .accessibilityElement(children: .combine)
+
+                Button(L10n.homeContinue) { onContinueSession?(continuable) }
+                    .buttonStyle(PrimaryActionStyle())
+                    .accessibilityIdentifier(AccessibilityIdentifier.homeContinue)
             }
+        }
+    }
+
+    /// Whether today is over, as far as this screen can tell.
+    ///
+    /// It used to be "nothing is due and something was ever answered", so
+    /// seven answers into a first sitting the screen announced a finished
+    /// day — zero countries learned, come back later — over a session that
+    /// was still waiting and a hundred and eighty cards nobody had seen. The
+    /// day is done when the allowance is spent and nothing is left open; until
+    /// then the way forward is the deck below, for a guest and an account
+    /// alike.
+    private var isDayDone: Bool {
+        hasAnyProgress
+            && progress?.continuable == nil
+            && answeredToday >= DailyReviewAllowance.limit
+    }
+
+    /// A first visit: nothing answered yet, nothing waiting. The screen would
+    /// otherwise be one pane on an empty scene, so it offers two more ways in
+    /// made from blocks the app already has — a flag to guess and the regions
+    /// with their outlines.
+    private var isFirstVisit: Bool {
+        progress?.isLoaded == true
+            && !hasAnyProgress
+            && progress?.continuable == nil
+            && totalDue == 0
+    }
+
+    // MARK: - A first visit
+
+    /// One flag, the same all day, to guess before anything else: the app's
+    /// whole idea in a single card, with the answer a tap away and the
+    /// country's own sheet a tap after that.
+    @ViewBuilder
+    private func flagOfTheDayCard(_ sections: [CatalogSection]) -> some View {
+        Group {
+            if let card = flagOfTheDay, let assets {
+                GlassCard(padding: DesignTokens.Spacing.large) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                        SectionLabel(L10n.homeFlagOfTheDay)
+
+                        FlagImageView(
+                            assetID: card.promptAssetID,
+                            accessibilityLabel: isFlagRevealed
+                                ? card.displayName : L10n.homeFlagOfTheDayQuestion,
+                            store: store,
+                            assets: assets
+                        )
+                        .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
+                        .clipShape(
+                            RoundedRectangle(
+                                cornerRadius: DesignTokens.Radius.medium, style: .continuous
+                            )
+                        )
+                        .overlay {
+                            RoundedRectangle(
+                                cornerRadius: DesignTokens.Radius.medium, style: .continuous
+                            )
+                            .strokeBorder(
+                                .white.opacity(DesignTokens.Card.borderOpacity),
+                                lineWidth: 1 / displayScale
+                            )
+                        }
+                        .frame(maxHeight: 180)
+                        .frame(maxWidth: .infinity)
+
+                        Text(isFlagRevealed ? card.displayName : L10n.homeFlagOfTheDayQuestion)
+                            .font(DesignTokens.Typography.cardAnswer)
+                            .foregroundStyle(.white)
+                            .contentTransition(.opacity)
+
+                        Button(
+                            isFlagRevealed
+                                ? L10n.homeFlagOfTheDayDetails : L10n.homeFlagOfTheDayReveal
+                        ) {
+                            if isFlagRevealed {
+                                detailsSubject = CountryDetailsSubject(card: card)
+                            } else {
+                                withAnimation(.snappy) { isFlagRevealed = true }
+                            }
+                        }
+                        .buttonStyle(GlassActionStyle())
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeFlagOfTheDay)
+                    }
+                }
+            }
+        }
+        .task(id: recommended(sections)?.id) { await loadFlagOfTheDay(sections) }
+    }
+
+    /// The day's flag: the same one all day and a different one tomorrow,
+    /// picked from the deck the hero offers. The order is by identifier, not
+    /// by name, so the days do not walk the alphabet.
+    private func loadFlagOfTheDay(_ sections: [CatalogSection]) async {
+        guard let deck = recommended(sections) else { return }
+        let cards = await store.cards(inDeck: deck.id)
+            .filter { !$0.isRetired }
+            .sorted { $0.id.uuidString < $1.id.uuidString }
+        guard !cards.isEmpty else { return }
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: Date()) ?? 0
+        let card = cards[day % cards.count]
+        if card.id != flagOfTheDay?.id {
+            flagOfTheDay = card
+            isFlagRevealed = false
+        }
+    }
+
+    /// The regions, each with its outline: the catalogue's own rows, folded
+    /// into a grid, as a second way in for somebody who would rather start
+    /// with one continent than with the whole world.
+    @ViewBuilder
+    private func regionsShelf(_ sections: [CatalogSection]) -> some View {
+        let regions = sections
+            .filter { !$0.isFeatured && $0.kind != .curated }
+            .flatMap(\.decks)
+            .filter { ContinentSilhouettes.shipped.silhouette(forDeckCode: $0.code) != nil }
+        if !regions.isEmpty {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                SectionLabel(L10n.homeRegionsLabel)
+
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), spacing: DesignTokens.Spacing.small + 4),
+                        GridItem(.flexible()),
+                    ],
+                    spacing: DesignTokens.Spacing.small + 4
+                ) {
+                    ForEach(regions, id: \.id) { deck in
+                        Button {
+                            onOpenDeck(deck.id)
+                        } label: {
+                            GlassCard(padding: DesignTokens.Spacing.medium) {
+                                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
+                                    ContinentSilhouetteView(code: deck.code, opacity: 0.55)
+                                        .frame(height: 56)
+                                        .frame(maxWidth: .infinity)
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(deck.name)
+                                            .font(DesignTokens.Typography.sectionTitle)
+                                            .foregroundStyle(.white)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.8)
+                                        Text(L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds))
+                                            .font(DesignTokens.Typography.caption)
+                                            .foregroundStyle(.white.opacity(0.55))
+                                    }
+                                }
+                            }
+                            .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeRegion(deck.code))
+                    }
+                }
+            }
+        }
+    }
+
+    /// A sign-in the backend has stopped honouring, above everything: from
+    /// that moment every answer stays on the phone, and the caption says how
+    /// many already do. It goes away when the person signs in again.
+    @ViewBuilder
+    private var expiredSignInPrompt: some View {
+        if let onSignIn, isSignInExpired {
+            AccountPromptRow(
+                symbol: "person.crop.circle.badge.exclamationmark",
+                title: L10n.homeSignInExpiredTitle,
+                caption: sync.status.pendingCount > 0
+                    ? L10n.homeSignInExpiredPending(sync.status.pendingCount)
+                    : L10n.syncSignInRequired,
+                identifier: AccessibilityIdentifier.homeSignInExpired,
+                action: onSignIn
+            )
+        }
+    }
+
+    /// A guest with something to lose: countries learned on this phone and
+    /// nowhere else. Told from the first answer on, with the number of
+    /// countries once there is one; a fresh install with nothing answered is
+    /// not nagged. It cannot be dismissed, goes away when they sign in, and
+    /// opens the sign-in screen straight away.
+    @ViewBuilder
+    private var guestPrompt: some View {
+        if let onSignIn, !isSignInExpired, isGuestWithSomethingToLose {
+            AccountPromptRow(
+                symbol: "person.crop.circle",
+                title: L10n.homeGuestPromptTitle,
+                caption: learnedCountries > 0
+                    ? L10n.homeGuestPromptCount(learnedCountries)
+                    : L10n.accountGuestNote,
+                identifier: AccessibilityIdentifier.homeGuestPrompt,
+                action: onSignIn
+            )
         }
     }
 
@@ -536,7 +782,8 @@ public struct HomeView: View {
         action: String,
         identifier: String,
         run: @escaping () -> Void,
-        showsFan: Bool = true
+        showsFan: Bool = true,
+        isProminent: Bool = true
     ) -> some View {
         GlassCard(padding: DesignTokens.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
@@ -581,9 +828,17 @@ public struct HomeView: View {
                 }
                 .accessibilityElement(children: .combine)
 
-                Button(action, action: run)
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(identifier)
+                // White is spent once per screen: under an open sitting this
+                // pane's action is glass, and the sitting's is the white one.
+                if isProminent {
+                    Button(action, action: run)
+                        .buttonStyle(PrimaryActionStyle())
+                        .accessibilityIdentifier(identifier)
+                } else {
+                    Button(action, action: run)
+                        .buttonStyle(GlassActionStyle())
+                        .accessibilityIdentifier(identifier)
+                }
 
             }
         }
@@ -730,6 +985,10 @@ public struct HomeView: View {
             ? await progress?.cardStatesByID() ?? [:]
             : [:]
         let now = Date()
+        // The same count the sessions cut owed cards by, so the card that
+        // says the day is done and the session that stops dealing owed cards
+        // agree on when that is.
+        answeredToday = DailyReviewAllowance.answeredToday(Array(states.values), now: now)
 
         var fresh: [UUID: [LearningCardRecord]] = [:]
         for deck in decks where deck.dueCards > 0 {
@@ -803,6 +1062,10 @@ struct FlagFanView: View {
     let cards: [LearningCardRecord]
     let store: ContentStore
     let assets: (any AssetLoading)?
+    /// How much larger than the home fan. The sign-in screen throws the same
+    /// pile as its hero, twice the size; the lie of the cards is the same so
+    /// it reads as the same pile, not a different drawing of one.
+    var scale: CGFloat = 1
 
     @Environment(\.displayScale) private var displayScale
 
@@ -818,23 +1081,27 @@ struct FlagFanView: View {
                         store: store,
                         assets: assets
                     )
-                    .frame(width: Self.size.width, height: Self.size.height)
+                    .frame(width: Self.size.width * scale, height: Self.size.height * scale)
                     .clipShape(
-                        RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
+                        RoundedRectangle(
+                            cornerRadius: DesignTokens.Radius.small * scale, style: .continuous
+                        )
                     )
                     .overlay {
-                        RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous)
-                            .strokeBorder(
-                                .white.opacity(DesignTokens.Card.borderOpacity),
-                                lineWidth: 1 / displayScale
-                            )
+                        RoundedRectangle(
+                            cornerRadius: DesignTokens.Radius.small * scale, style: .continuous
+                        )
+                        .strokeBorder(
+                            .white.opacity(DesignTokens.Card.borderOpacity),
+                            lineWidth: 1 / displayScale
+                        )
                     }
-                    .shadow(color: .black.opacity(0.35), radius: 5, y: 2)
+                    .shadow(color: .black.opacity(0.35), radius: 5 * scale, y: 2 * scale)
                     .rotationEffect(.degrees(Self.poses[index].rotation))
-                    .offset(x: Self.poses[index].x, y: Self.poses[index].y)
+                    .offset(x: Self.poses[index].x * scale, y: Self.poses[index].y * scale)
                 }
             }
-            .frame(width: Self.frame.width, height: Self.frame.height)
+            .frame(width: Self.frame.width * scale, height: Self.frame.height * scale)
             .accessibilityHidden(true)
         }
     }

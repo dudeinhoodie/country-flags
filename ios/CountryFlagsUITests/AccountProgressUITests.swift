@@ -247,7 +247,7 @@ final class AccountProgressUITests: XCTestCase {
 
         openAccount(in: app)
         XCTAssertTrue(
-            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
+            app.buttons["settings.account.signInRow"].waitForExistence(timeout: 20),
             "A deletion leaves a guest who can sign in again\n\(app.debugDescription)"
         )
         XCTAssertTrue(
@@ -472,7 +472,7 @@ final class AccountProgressUITests: XCTestCase {
                 format: "identifier IN %@",
                 [
                     "settings.account.signedIn",
-                    "settings.account.signInApple",
+                    "settings.account.signInRow",
                     "settings.account.signingIn",
                     "settings.account.expired",
                 ]
@@ -490,6 +490,10 @@ final class AccountProgressUITests: XCTestCase {
         let signedIn = element("settings.account.signedIn", in: app)
         if signedIn.waitForExistence(timeout: 3) { return }
 
+        // The buttons live on the sign-in screen now; the guest's row opens it.
+        let row = app.buttons["settings.account.signInRow"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
+        row.tap()
         let signIn = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(signIn.waitForExistence(timeout: 20), app.debugDescription)
         signIn.tap()
@@ -514,7 +518,7 @@ final class AccountProgressUITests: XCTestCase {
         requestSignOut(in: app)
         tap("settings.account.signOut.confirm", in: app)
         XCTAssertTrue(
-            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 20),
+            app.buttons["settings.account.signInRow"].waitForExistence(timeout: 20),
             app.debugDescription
         )
     }

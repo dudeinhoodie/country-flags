@@ -24,19 +24,23 @@ public struct ProgressScreen: View {
     /// than the numbers. The shell's own store, observed, so a sign-in made
     /// on the account screen takes the row away without a relaunch.
     private let account: AccountStore?
-    /// Opens the account screen, where the sign-in buttons live.
-    private let onOpenAccount: (() -> Void)?
+    /// Opens the sign-in screen.
+    private let onSignIn: (() -> Void)?
+    /// Opens the catalogue: the way out of an empty screen.
+    private let onOpenCatalog: (() -> Void)?
 
     public init(
         store: ProgressStore,
         onOpenDeck: ((UUID) -> Void)? = nil,
         account: AccountStore? = nil,
-        onOpenAccount: (() -> Void)? = nil
+        onSignIn: (() -> Void)? = nil,
+        onOpenCatalog: (() -> Void)? = nil
     ) {
         self.store = store
         self.onOpenDeck = onOpenDeck
         self.account = account
-        self.onOpenAccount = onOpenAccount
+        self.onSignIn = onSignIn
+        self.onOpenCatalog = onOpenCatalog
     }
 
     public var body: some View {
@@ -55,36 +59,46 @@ public struct ProgressScreen: View {
         }
     }
 
-    /// Nothing studied yet says so, rather than showing a column of zeroes that
-    /// looks like a screen that failed to load.
+    /// Nothing studied yet: the world the learner is about to fill, drawn
+    /// dark, and the way to start filling it.
+    ///
+    /// It used to be a chart symbol over two lines of text — a symbol that at
+    /// this size read as "o00" — with the sign-in row above it, offering to
+    /// keep a progress that did not exist yet. The map is the loaded screen's
+    /// own hero, so the first answer lights the picture that was already here
+    /// rather than replacing one screen with another.
     private var empty: some View {
-        VStack(spacing: DesignTokens.Spacing.medium) {
+        SceneScrollView {
             strandedNotice
-            accountPrompt
+                .devBlockID("progress.stranded")
 
-            Spacer(minLength: 0)
+            GlassCard(padding: DesignTokens.Spacing.large) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                    WorldMapView(brightness: [:])
+                        .frame(maxWidth: .infinity)
 
-            Image(systemName: "chart.bar")
-                .font(DesignTokens.Typography.screenTitle)
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(.white.opacity(0.8))
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                        Text(L10n.progressEmptyTitle)
+                            .font(DesignTokens.Typography.sectionTitle)
+                            .foregroundStyle(.white)
+                            .accessibilityIdentifier(AccessibilityIdentifier.progressEmpty)
 
-            Text(L10n.progressEmptyTitle)
-                .font(DesignTokens.Typography.sectionTitle)
-                .foregroundStyle(.white)
-                .accessibilityIdentifier(AccessibilityIdentifier.progressEmpty)
+                        Text(L10n.progressEmptyBody)
+                            .font(DesignTokens.Typography.body)
+                            .foregroundStyle(.white.opacity(0.65))
+                    }
 
-            Text(L10n.progressEmptyBody)
-                .font(DesignTokens.Typography.body)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.white.opacity(0.65))
-
-            Spacer(minLength: 0)
+                    if let onOpenCatalog {
+                        Button(L10n.homeOpenCatalog, action: onOpenCatalog)
+                            .buttonStyle(GlassActionStyle())
+                            .accessibilityIdentifier(
+                                AccessibilityIdentifier.progressEmptyOpenCatalog
+                            )
+                    }
+                }
+            }
+            .devBlockID("progress.empty")
         }
-        .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
-        .frame(maxWidth: .infinity)
-        .padding(DesignTokens.Spacing.large)
-        .sceneChrome()
     }
 
     /// A guest, told on the screen about their progress that it lives on this
@@ -94,14 +108,15 @@ public struct ProgressScreen: View {
     /// the offer waits until the work is worth a word, because the screen is
     /// about today; here the person has opened the tab that is about what
     /// they have kept, and that it is kept nowhere else is the first thing to
-    /// know about it — before there is anything to count, and on the empty
-    /// screen as much as on the full one. The caption carries the number once
-    /// there is one. It cannot be dismissed and goes away when they sign in.
+    /// know about it — once there is something to count. On the empty screen
+    /// it offered to keep a progress that did not exist, so it waits for the
+    /// first answer. The caption carries the number once there is one. It
+    /// cannot be dismissed and goes away when they sign in.
     /// A sign-in that expired is the home screen's to announce: its caption
     /// counts answers waiting to upload, which this screen does not read.
     @ViewBuilder
     private var accountPrompt: some View {
-        if let onOpenAccount, case .guest? = account?.state {
+        if let onSignIn, case .guest? = account?.state {
             AccountPromptRow(
                 symbol: "person.crop.circle",
                 title: L10n.homeGuestPromptTitle,
@@ -109,7 +124,7 @@ public struct ProgressScreen: View {
                     ? L10n.homeGuestPromptCount(learnedCards)
                     : L10n.accountGuestNote,
                 identifier: AccessibilityIdentifier.progressGuestPrompt,
-                action: onOpenAccount
+                action: onSignIn
             )
         }
     }
@@ -171,7 +186,9 @@ public struct ProgressScreen: View {
     private var loaded: some View {
         SceneScrollView {
             strandedNotice
+                .devBlockID("progress.stranded")
             accountPrompt
+                .devBlockID("progress.account")
 
             // The hero is the world itself: every continent drawn from the
             // app's own geodata, its brightness the share of it learned. The
@@ -220,6 +237,7 @@ public struct ProgressScreen: View {
                     )
                 }
             }
+            .devBlockID("progress.map")
 
             GlassCard(padding: DesignTokens.Spacing.small) {
                 VStack(spacing: 0) {
@@ -245,6 +263,7 @@ public struct ProgressScreen: View {
                     }
                 }
             }
+            .devBlockID("progress.regions")
         }
     }
 

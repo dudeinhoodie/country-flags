@@ -45,7 +45,7 @@ final class AccountLifecycleUITests: XCTestCase {
         )
         openAccount(in: app)
         XCTAssertTrue(
-            app.buttons["settings.account.signInApple"].waitForExistence(timeout: 15),
+            app.buttons["settings.account.signInRow"].waitForExistence(timeout: 15),
             app.debugDescription
         )
 
@@ -172,6 +172,10 @@ final class AccountLifecycleUITests: XCTestCase {
         // and the account section rebuilds itself once its own state has been
         // read. A tap that lands in that moment is dropped, so the tap is
         // offered twice before the test calls it a failure.
+        // The buttons live on the sign-in screen now; the guest's row opens it.
+        let row = app.buttons["settings.account.signInRow"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
+        row.tap()
         let fixture = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()
@@ -220,7 +224,7 @@ final class AccountLifecycleUITests: XCTestCase {
                 format: "identifier IN %@",
                 [
                     "settings.account.signedIn",
-                    "settings.account.signInApple",
+                    "settings.account.signInRow",
                     "settings.account.signingIn",
                     "settings.account.expired",
                 ]
