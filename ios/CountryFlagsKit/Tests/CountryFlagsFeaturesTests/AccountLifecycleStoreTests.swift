@@ -243,7 +243,7 @@ private actor RecordingSession: SessionControlling {
     func currentProfile() async -> AccountProfile? { nil }
     func adoptProviderProfile(name: String?, avatarURL: URL?) async {}
     func signIn(with credential: ProviderCredential) async -> SignInOutcome { .cancelled }
-    func signOut(everywhere: Bool) async { signOuts += 1 }
+    func signOut() async { signOuts += 1 }
     func signOutIfProviderRevoked() async -> Bool { false }
 }
 

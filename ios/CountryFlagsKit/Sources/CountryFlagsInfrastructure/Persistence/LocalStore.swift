@@ -109,7 +109,8 @@ public struct LocalStore: Sendable {
             )
         } catch {
             // Falling back to a fresh store here would silently drop reviews
-            // the user already made and never uploaded.
+            // the user already made and never uploaded. `LocalStoreRecovery`
+            // is where that decision is made, out loud and keeping the file.
             throw PersistenceError.storeUnavailable(String(describing: error))
         }
     }
@@ -167,6 +168,12 @@ public struct LocalStore: Sendable {
         SwiftDataAccountScopeCleaner(modelContainer: container)
     }
 
+    /// Which guests own work in this store, for a device whose keychain lost
+    /// the installation identifier.
+    public func makeGuestScopeDiscovery() -> some GuestScopeDiscovering {
+        SwiftDataGuestScopeDiscovery(modelContainer: container)
+    }
+
     /// The files backing a named store.
     ///
     /// Xcode builds a local package in release for every configuration that is
@@ -175,10 +182,15 @@ public struct LocalStore: Sendable {
     /// which only needs to know which files to remove before the store is
     /// opened.
     public static func fileURLs(forName name: String) -> [URL] {
-        let base = ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV7.self))
-            .url
+        fileURLs(
+            for: ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV7.self)).url
+        )
+    }
+
+    /// The files backing the store at an explicit URL, the store first.
+    public static func fileURLs(for base: URL) -> [URL] {
         // SQLite keeps its write-ahead log and shared memory next to the store.
-        return [base]
+        [base]
             + ["-wal", "-shm"].map {
                 base.deletingLastPathComponent()
                     .appendingPathComponent(base.lastPathComponent + $0)

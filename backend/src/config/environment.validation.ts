@@ -1,3 +1,5 @@
+import { createPrivateKey } from "node:crypto";
+
 import {
   formatClientVersion,
   parseClientVersion,
@@ -57,6 +59,21 @@ export interface EnvironmentVariables extends Record<string, unknown> {
   AUTH_REAUTH_TOKEN_TTL_SECONDS: number;
   AUTH_RATE_LIMIT_SECRET: string;
   /**
+   * The Sign in with Apple key of the developer team (docs/01 §5.1, §5.5):
+   * it signs the client secret that exchanges a sign-in's authorization code
+   * and revokes the resulting token when the account is deleted. Not the App
+   * Store Server API key. Empty strings mean "not issued yet", which dev and
+   * CI run with; prod refuses to start without it.
+   */
+  AUTH_APPLE_TEAM_ID: string;
+  AUTH_APPLE_KEY_ID: string;
+  AUTH_APPLE_PRIVATE_KEY: string;
+  /**
+   * 32 bytes, base64: the AES-256-GCM key provider tokens are kept under.
+   * Empty when the deployment keeps none.
+   */
+  AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY: string;
+  /**
    * How many proxies in front of this process append to X-Forwarded-For.
    * Hosted Cloud Run has exactly one, its front end; zero means the socket
    * peer is the client, which is what local runs and tests see.
@@ -107,6 +124,10 @@ const TEST_RATE_LIMIT_SECRET =
   "TEST_ONLY_country_flags_rate_limit_key_v1_never_for_production";
 const TEST_ACCOUNT_DATA_HASH_SECRET =
   "TEST_ONLY_country_flags_account_data_hash_key_v1_never_for_production";
+const TEST_PROVIDER_TOKEN_ENCRYPTION_KEY = Buffer.from(
+  "TEST_ONLY_provider_token_key_v1!",
+  "utf8",
+).toString("base64");
 
 function isOneOf<const T extends readonly string[]>(
   value: string,
@@ -435,6 +456,113 @@ function appStoreServerApiCredential(config: Record<string, unknown>): {
 }
 
 /**
+ * The Sign in with Apple key and the key its tokens are kept under.
+ *
+ * The three key variables are set together or not at all, like the App Store
+ * Server API credential. Unlike that one, prod cannot run without them: Apple
+ * sign-in is always on in production, and without the key a deleted account
+ * would stay listed under the person's Apple ID (App Store guideline
+ * 5.1.1(v)). Dev and CI run without it until the paid team's key exists
+ * (#302); every sign-in and deletion there records that it is missing.
+ */
+function signInWithAppleCredential(
+  config: Record<string, unknown>,
+  deploymentEnvironment: DeploymentEnvironment,
+  testShortcutsAllowed: boolean,
+): {
+  teamId: string;
+  keyId: string;
+  privateKey: string;
+  encryptionKey: string;
+} {
+  const names = [
+    "AUTH_APPLE_TEAM_ID",
+    "AUTH_APPLE_KEY_ID",
+    "AUTH_APPLE_PRIVATE_KEY",
+  ] as const;
+  const missing = names.filter((name) => {
+    const value = config[name];
+    return typeof value !== "string" || value.trim().length === 0;
+  });
+  if (missing.length > 0 && missing.length < names.length) {
+    throw new Error(
+      `Environment variables ${names.join(", ")} must be set together; missing: ${missing.join(", ")}`,
+    );
+  }
+  const present = missing.length === 0;
+  if (!present && deploymentEnvironment === "prod") {
+    throw new Error(
+      `Environment variables ${names.join(", ")} are required in prod: without the Sign in with Apple key, account deletion cannot revoke Apple tokens`,
+    );
+  }
+
+  const encryptionKeyName = "AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY";
+  const rawEncryptionKey = config[encryptionKeyName];
+  let encryptionKey =
+    typeof rawEncryptionKey === "string" ? rawEncryptionKey.trim() : "";
+  if (encryptionKey.length === 0 && testShortcutsAllowed) {
+    encryptionKey = TEST_PROVIDER_TOKEN_ENCRYPTION_KEY;
+  }
+  if (encryptionKey.length > 0) {
+    if (
+      !/^[A-Za-z0-9+/]+={0,2}$/.test(encryptionKey) ||
+      Buffer.from(encryptionKey, "base64").length !== 32
+    ) {
+      throw new Error(
+        `Environment variable ${encryptionKeyName} must be 32 bytes, base64-encoded`,
+      );
+    }
+    if (
+      !testShortcutsAllowed &&
+      encryptionKey === TEST_PROVIDER_TOKEN_ENCRYPTION_KEY
+    ) {
+      throw new Error(
+        `Environment variable ${encryptionKeyName} cannot use the test key here`,
+      );
+    }
+  }
+  if (!present) {
+    return { teamId: "", keyId: "", privateKey: "", encryptionKey };
+  }
+  if (encryptionKey.length === 0) {
+    throw new Error(
+      `Environment variable ${encryptionKeyName} is required with the Sign in with Apple key: Apple tokens are never stored in plaintext`,
+    );
+  }
+
+  const teamId = requiredString(config, names[0]);
+  const keyId = requiredString(config, names[1]);
+  for (const [name, value] of [
+    [names[0], teamId],
+    [names[1], keyId],
+  ] as const) {
+    if (!/^[A-Z0-9]{10}$/.test(value)) {
+      throw new Error(
+        `Environment variable ${name} must be a 10-character Apple identifier`,
+      );
+    }
+  }
+  // Secret Manager keeps the .p8 file as is; a one-line env file may carry
+  // it with escaped newlines.
+  const privateKey = requiredString(config, names[2]).replace(/\\n/g, "\n");
+  let keyType: string | undefined;
+  let curve: string | undefined;
+  try {
+    const key = createPrivateKey({ key: privateKey, format: "pem" });
+    keyType = key.asymmetricKeyType;
+    curve = key.asymmetricKeyDetails?.namedCurve;
+  } catch {
+    keyType = undefined;
+  }
+  if (keyType !== "ec" || curve !== "prime256v1") {
+    throw new Error(
+      `Environment variable ${names[2]} must be the PEM contents of the Sign in with Apple .p8 key (EC P-256)`,
+    );
+  }
+  return { teamId, keyId, privateKey, encryptionKey };
+}
+
+/**
  * The first build of each platform that understands `Deck.access`, written as
  * `ios=1.4.0,android=2.0.0`.
  *
@@ -684,6 +812,11 @@ export function validateEnvironment(
     hosted,
   );
   const appleIapCredential = appStoreServerApiCredential(config);
+  const signInWithApple = signInWithAppleCredential(
+    config,
+    deploymentEnvironment,
+    testShortcutsAllowed,
+  );
 
   const databaseUrl = validateDatabaseUrl(
     requiredString(config, "DATABASE_URL"),
@@ -776,6 +909,10 @@ export function validateEnvironment(
       TEST_RATE_LIMIT_SECRET,
       nodeEnvironment,
     ),
+    AUTH_APPLE_TEAM_ID: signInWithApple.teamId,
+    AUTH_APPLE_KEY_ID: signInWithApple.keyId,
+    AUTH_APPLE_PRIVATE_KEY: signInWithApple.privateKey,
+    AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY: signInWithApple.encryptionKey,
     TRUST_PROXY_HOPS: trustProxyHops,
     ADMIN_TRUST_PROXY_HOPS: adminTrustProxyHops,
     ACCOUNT_DATA_HASH_SECRET: authSecret(

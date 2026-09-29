@@ -5,7 +5,9 @@ public enum SecureTokenKind: String, Hashable, Sendable, CaseIterable {
     case accessToken
     case refreshToken
     /// Identifies the installation for a guest scope. It is not a credential,
-    /// but it outlives an app reinstall only if it is kept next to them.
+    /// but it outlives an app reinstall only if it is kept next to them. It
+    /// travels with a backup, as the store does, so a restored phone finds the
+    /// guest the store belongs to.
     case installationID
     /// The account the stored refresh token belongs to. Also not a credential:
     /// it is kept so a relaunch knows whose data to read before it has spoken

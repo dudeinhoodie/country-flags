@@ -21,6 +21,24 @@ const LEVEL_RANK: Record<LogLevel, number> = {
 };
 
 /**
+ * Each level under the name Cloud Logging gives it.
+ *
+ * Cloud Logging reads a JSON line's `severity` field into the entry's own
+ * severity and knows nothing of `level`, so without this every line was stored
+ * as DEFAULT: the `severity>=WARNING` dashboard panel and every
+ * `severity>=ERROR` check in the runbooks matched nothing and read as a quiet
+ * service (#452). `level` stays beside it for the queries already written
+ * against `jsonPayload.level`.
+ */
+export const CLOUD_LOGGING_SEVERITY: Record<LogLevel, string> = {
+  debug: "DEBUG",
+  info: "INFO",
+  warn: "WARNING",
+  error: "ERROR",
+  fatal: "CRITICAL",
+};
+
+/**
  * The quietest line this process will write.
  *
  * Read from the environment rather than from `ConfigService` because this
@@ -44,6 +62,7 @@ function configuredRank(): number {
 interface LogEntry {
   timestamp: string;
   level: LogLevel;
+  severity: string;
   service: string;
   environment: string;
   release: string;
@@ -164,6 +183,9 @@ export class JsonLoggerService implements LoggerService {
       ...(spanContext !== undefined
         ? { traceId: spanContext.traceId, spanId: spanContext.spanId }
         : {}),
+      // After the caller's fields, so a payload that happens to carry its own
+      // `severity` cannot file an error as INFO.
+      severity: CLOUD_LOGGING_SEVERITY[level],
     });
     // The stack trace is exempt from redaction (it belongs to a protected
     // error/log backend and carries no user-supplied field values), attached

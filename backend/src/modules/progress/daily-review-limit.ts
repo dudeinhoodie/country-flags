@@ -1,5 +1,7 @@
 import type { Prisma } from "@prisma/client";
 
+import { timeZoneCatalog } from "../../infrastructure/database/time-zones";
+
 /**
  * How many cards a day the app asks for.
  *
@@ -28,18 +30,23 @@ export function remainingDailyAllowance(reviewedToday: number): number {
  * database rather than in JavaScript — `date_trunc` over a zoned timestamp
  * is right across a daylight-saving change, and hand-rolled midnight
  * arithmetic is not.
+ *
+ * A stored zone PostgreSQL does not know is counted as UTC. It used to reach
+ * `AT TIME ZONE` as it was, fail the statement, and take with it every
+ * progress rebuild and every new session of that learner (#452).
  */
 export async function reviewedTodayCount(
   transaction: Prisma.TransactionClient,
   userId: string,
   timezone: string,
 ): Promise<number> {
+  const zone = await timeZoneCatalog.effective(transaction, timezone);
   const rows = await transaction.$queryRaw<{ count: bigint }[]>`
     SELECT COUNT(DISTINCT learning_card_id) AS count
       FROM review_events
      WHERE user_id = ${userId}::uuid
        AND effective_occurred_at >=
-           date_trunc('day', now() AT TIME ZONE ${timezone}) AT TIME ZONE ${timezone}
+           date_trunc('day', now() AT TIME ZONE ${zone}) AT TIME ZONE ${zone}
   `;
   return Number(rows[0]?.count ?? 0n);
 }

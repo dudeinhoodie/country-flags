@@ -24,6 +24,17 @@ function baseEvent(
   };
 }
 
+/** An operational event: never a consent question. */
+function operationalEvent(
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return baseEvent({
+    eventName: "sync.completed",
+    properties: { result: "success", durationBucket: "under_1s" },
+    ...overrides,
+  });
+}
+
 function service(overrides: {
   findUnique?: jest.Mock;
   create?: jest.Mock;
@@ -45,7 +56,7 @@ describe("AnalyticsBatchService", () => {
     const batches = service({ create });
 
     const result = await batches.ingest(
-      { payloadVersion: 1, events: [baseEvent()] },
+      { payloadVersion: 1, events: [operationalEvent()] },
       undefined,
     );
 
@@ -55,8 +66,79 @@ describe("AnalyticsBatchService", () => {
     expect(create).toHaveBeenCalledTimes(1);
     const call = create.mock.calls[0] as [{ data: Record<string, unknown> }];
     const data = call[0].data;
-    expect(data.eventName).toBe("deck.opened");
+    expect(data.eventName).toBe("sync.completed");
     expect(data.analyticsSubjectId).toBeNull();
+    expect(data.consentCategory).toBe("DIAGNOSTICS");
+  });
+
+  it("accepts a product event from an account that switched product analytics on", async () => {
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ productAnalyticsStatus: ConsentStatus.GRANTED });
+    const create = jest.fn().mockResolvedValue(undefined);
+    const batches = service({ findUnique, create });
+
+    const result = await batches.ingest(
+      { payloadVersion: 1, events: [baseEvent()] },
+      "user-1",
+    );
+
+    expect(result.results[0]?.status).toBe("ACCEPTED");
+    const call = create.mock.calls[0] as [{ data: Record<string, unknown> }];
+    expect(call[0].data).toMatchObject({
+      eventName: "deck.opened",
+      analyticsSubjectId: "user-1",
+      consentCategory: "PRODUCT_ANALYTICS",
+    });
+  });
+
+  it.each([
+    ["nobody was asked yet", { productAnalyticsStatus: ConsentStatus.UNKNOWN }],
+    [
+      "it was marked not required",
+      { productAnalyticsStatus: ConsentStatus.NOT_REQUIRED },
+    ],
+    ["the account has no stored choice at all", null],
+  ])(
+    "refuses a product event from an account when %s",
+    async (_case, settings) => {
+      const findUnique = jest.fn().mockResolvedValue(settings);
+      const create = jest.fn().mockResolvedValue(undefined);
+      const batches = service({ findUnique, create });
+
+      const result = await batches.ingest(
+        { payloadVersion: 1, events: [baseEvent()] },
+        "user-1",
+      );
+
+      expect(result.results).toEqual([
+        {
+          eventId: baseEvent().eventId,
+          status: "REJECTED",
+          rejectionCode: "CONSENT_DENIED",
+        },
+      ]);
+      expect(create).not.toHaveBeenCalled();
+    },
+  );
+
+  it("refuses an anonymous product event, whose choice the server cannot see", async () => {
+    const create = jest.fn().mockResolvedValue(undefined);
+    const batches = service({ create });
+
+    const result = await batches.ingest(
+      { payloadVersion: 1, events: [baseEvent()] },
+      undefined,
+    );
+
+    expect(result.results).toEqual([
+      {
+        eventId: baseEvent().eventId,
+        status: "REJECTED",
+        rejectionCode: "CONSENT_DENIED",
+      },
+    ]);
+    expect(create).not.toHaveBeenCalled();
   });
 
   it("rejects an event that is not in the registry", async () => {
@@ -185,7 +267,7 @@ describe("AnalyticsBatchService", () => {
     const batches = service({ create });
 
     const result = await batches.ingest(
-      { payloadVersion: 1, events: [baseEvent(), baseEvent()] },
+      { payloadVersion: 1, events: [operationalEvent(), operationalEvent()] },
       undefined,
     );
 
@@ -206,7 +288,7 @@ describe("AnalyticsBatchService", () => {
     const batches = service({ create });
 
     const result = await batches.ingest(
-      { payloadVersion: 1, events: [baseEvent()] },
+      { payloadVersion: 1, events: [operationalEvent()] },
       undefined,
     );
 

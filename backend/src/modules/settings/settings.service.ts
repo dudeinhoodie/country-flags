@@ -3,6 +3,7 @@ import type { Prisma, UserSettings } from "@prisma/client";
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
 import type { UpdateSettingsRequest } from "./settings.request";
 
 export function settingsEtag(version: number): string {
@@ -50,52 +51,53 @@ export class SettingsService {
     update: UpdateSettingsRequest,
     requestId: string,
   ): Promise<UserSettings> {
-    return this.database.$transaction(
-      async (transaction) => {
-        await transaction.userSettings.upsert({
+    // Two devices saving at once is the case the version exists for, and
+    // under Serializable the loser of that race is aborted by Postgres rather
+    // than told about the version: it answered 500. Tried again, it reads the
+    // winner's version and answers the typed 409 the client knows (#452).
+    return inSerializableTransaction(this.database, async (transaction) => {
+      await transaction.userSettings.upsert({
+        where: { userId },
+        create: { userId },
+        update: {},
+      });
+      const changed = await transaction.userSettings.updateMany({
+        where: { userId, version },
+        data: {
+          ...(update as Prisma.UserSettingsUpdateManyMutationInput),
+          version: { increment: 1 },
+        },
+      });
+      if (changed.count !== 1) {
+        const current = await transaction.userSettings.findUniqueOrThrow({
           where: { userId },
-          create: { userId },
-          update: {},
+          select: { version: true },
         });
-        const changed = await transaction.userSettings.updateMany({
-          where: { userId, version },
-          data: {
-            ...(update as Prisma.UserSettingsUpdateManyMutationInput),
-            version: { increment: 1 },
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          "SETTINGS_VERSION_CONFLICT",
+          "Settings were updated on another device",
+          { currentVersion: current.version },
+        );
+      }
+      const settings = await transaction.userSettings.findUniqueOrThrow({
+        where: { userId },
+      });
+      await transaction.auditEvent.create({
+        data: {
+          actorUserId: userId,
+          action: "ACCOUNT_SETTINGS_UPDATED",
+          targetType: "USER_SETTINGS",
+          targetId: userId,
+          requestId,
+          metadata: {
+            previousVersion: version,
+            version: settings.version,
+            changedFields: Object.keys(update),
           },
-        });
-        if (changed.count !== 1) {
-          const current = await transaction.userSettings.findUniqueOrThrow({
-            where: { userId },
-            select: { version: true },
-          });
-          throw new ApiException(
-            HttpStatus.CONFLICT,
-            "SETTINGS_VERSION_CONFLICT",
-            "Settings were updated on another device",
-            { currentVersion: current.version },
-          );
-        }
-        const settings = await transaction.userSettings.findUniqueOrThrow({
-          where: { userId },
-        });
-        await transaction.auditEvent.create({
-          data: {
-            actorUserId: userId,
-            action: "ACCOUNT_SETTINGS_UPDATED",
-            targetType: "USER_SETTINGS",
-            targetId: userId,
-            requestId,
-            metadata: {
-              previousVersion: version,
-              version: settings.version,
-              changedFields: Object.keys(update),
-            },
-          },
-        });
-        return settings;
-      },
-      { isolationLevel: "Serializable" },
-    );
+        },
+      });
+      return settings;
+    });
   }
 }

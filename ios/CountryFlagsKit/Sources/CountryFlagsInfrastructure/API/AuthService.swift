@@ -101,19 +101,16 @@ public struct AuthService: AuthenticationService {
         }
     }
 
-    public func logout(refreshToken: String) async throws {
-        let client = clientFactory.makeClient()
+    /// The bearer names the session, so the body carries no refresh token.
+    /// The contract makes it optional, and sending it only added a way to be
+    /// refused: a rotation between reading the two tokens pairs a bearer with
+    /// the refresh token it replaced, and the backend answers that they do
+    /// not belong together.
+    public func logout(accessToken: String) async throws {
+        let client = clientFactory.makeClient(bearer: accessToken)
         do {
-            _ = try await client.logout(body: .json(.init(refreshToken: refreshToken)))
-        } catch {
-            throw APIError.from(error)
-        }
-    }
-
-    public func logoutEverywhere() async throws {
-        let client = clientFactory.makeClient()
-        do {
-            _ = try await client.logoutAll()
+            let output = try await client.logout(body: .json(.init()))
+            guard case .noContent = output else { throw Self.unexpected }
         } catch {
             throw APIError.from(error)
         }

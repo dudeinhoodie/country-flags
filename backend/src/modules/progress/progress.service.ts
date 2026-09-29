@@ -229,202 +229,263 @@ function masteryThresholds(
   };
 }
 
+type EarnedAchievement = Prisma.UserAchievementGetPayload<{
+  include: { definition: true };
+}>;
+
+/** What a progress answer is built from; reading it writes nothing. */
+interface Projection {
+  rule: { ruleVersion: number; thresholds: MasteryThreshold[] };
+  snapshot: ProgressSnapshot;
+  /** The achievements already stored. */
+  earned: EarnedAchievement[];
+  /** Achievements the snapshot has reached that are not stored yet. */
+  pending: Prisma.UserAchievementCreateManyInput[];
+  tierOfDefinition: ReadonlyMap<string, MasteryTier | null>;
+}
+
+/**
+ * The account, deck and region figures of a projection. The tiers count the
+ * pending achievements as well as the stored ones, so a read that stores
+ * nothing answers exactly what a rebuild that stored them would have.
+ */
+function respond(
+  projection: Projection,
+  now: Date,
+): Omit<ProgressRebuildResult, "newAchievements"> {
+  const { rule, snapshot } = projection;
+  const awarded = [
+    ...projection.earned.map((achievement) => ({
+      scopeType: achievement.scopeType,
+      scopeId: achievement.scopeId,
+      tier: achievement.definition.tier,
+    })),
+    ...projection.pending.map((grant) => ({
+      scopeType: grant.scopeType,
+      scopeId: grant.scopeId ?? null,
+      tier: projection.tierOfDefinition.get(grant.definitionId) ?? null,
+    })),
+  ];
+  const tiersByScope = new Map<string, Array<MasteryTier | null>>();
+  for (const { scopeType, scopeId, tier } of awarded) {
+    const key = `${scopeType}:${scopeId ?? "GLOBAL"}`;
+    const tiers = tiersByScope.get(key) ?? [];
+    tiers.push(tier);
+    tiersByScope.set(key, tiers);
+  }
+  const deckResponses = snapshot.decks.map((deck) =>
+    scopeResponse(
+      deck,
+      highestTier(tiersByScope.get(`DECK:${deck.scopeId}`) ?? []),
+      now,
+    ),
+  );
+  const regionResponses = snapshot.regions.map((region) =>
+    scopeResponse(
+      region,
+      highestTier(tiersByScope.get(`REGION:${region.scopeId}`) ?? []),
+      now,
+    ),
+  );
+  // The same queue the decks and regions were counted against: the
+  // ceiling belongs to the learner's day, and every figure the app draws
+  // from this rebuild is a share of one day rather than of one backlog.
+  const accountAggregate = aggregateProgress(
+    snapshot.cards,
+    now,
+    rule.thresholds,
+    rule.ruleVersion,
+    snapshot.dueToday,
+  );
+  return {
+    account: {
+      ...progressResponse(
+        accountAggregate,
+        highestTier(awarded.map(({ tier }) => tier)),
+      ),
+      decks: deckResponses,
+      regions: regionResponses,
+      updatedAt: now.toISOString(),
+    },
+    decks: deckResponses,
+    regions: regionResponses,
+  };
+}
+
+export interface DeckMasteryRow {
+  deckId: string;
+  tier: MasteryTier;
+  masteredCardCount: number;
+  totalCardCount: number;
+  projectionVersion: number;
+}
+
+/**
+ * What the per-deck mastery cache needs to become the projection: the rows
+ * of decks no longer published, to delete, and the rows that are missing or
+ * say something else, to write. A cache already right needs no write at all;
+ * it used to be rewritten deck by deck on every rebuild.
+ */
+export function deckMasteryChanges(
+  stored: readonly DeckMasteryRow[],
+  decks: readonly ScopeProgress[],
+): { stale: string[]; changed: DeckMasteryRow[] } {
+  const published = new Set(decks.map(({ scopeId }) => scopeId));
+  const storedByDeck = new Map(stored.map((row) => [row.deckId, row]));
+  const changed: DeckMasteryRow[] = [];
+  for (const deck of decks) {
+    const wanted: DeckMasteryRow = {
+      deckId: deck.scopeId,
+      tier: deck.currentMasteryTier,
+      masteredCardCount: deck.learnedCards,
+      totalCardCount: deck.totalCards,
+      projectionVersion: deck.ruleVersion,
+    };
+    const current = storedByDeck.get(deck.scopeId);
+    if (
+      current === undefined ||
+      current.tier !== wanted.tier ||
+      current.masteredCardCount !== wanted.masteredCardCount ||
+      current.totalCardCount !== wanted.totalCardCount ||
+      current.projectionVersion !== wanted.projectionVersion
+    ) {
+      changed.push(wanted);
+    }
+  }
+  return {
+    stale: stored
+      .map(({ deckId }) => deckId)
+      .filter((deckId) => !published.has(deckId)),
+    changed,
+  };
+}
+
+async function storeDeckMastery(
+  transaction: Transaction,
+  userId: string,
+  decks: readonly ScopeProgress[],
+): Promise<void> {
+  const stored = await transaction.userDeckMastery.findMany({
+    where: { userId },
+    select: {
+      deckId: true,
+      tier: true,
+      masteredCardCount: true,
+      totalCardCount: true,
+      projectionVersion: true,
+    },
+  });
+  const { stale, changed } = deckMasteryChanges(stored, decks);
+  if (stale.length > 0) {
+    await transaction.userDeckMastery.deleteMany({
+      where: { userId, deckId: { in: stale } },
+    });
+  }
+  for (const { deckId, ...figures } of changed) {
+    await transaction.userDeckMastery.upsert({
+      where: { userId_deckId: { userId, deckId } },
+      create: { userId, deckId, ...figures },
+      update: figures,
+    });
+  }
+}
+
 @Injectable()
 export class ProgressService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Recomputes the learner's progress and stores what it earned: the per-deck
+   * mastery cache and any achievement newly reached. The write path, for the
+   * callers that change progress — a review upload, a reconciled card.
+   *
+   * `newAchievements` holds exactly the rows this call inserted. The insert
+   * is `ON CONFLICT DO NOTHING RETURNING` against the one-per-scope unique
+   * constraint, so when two rebuilds race for the same achievement the
+   * database hands the row to one of them and the other one waits for that
+   * commit and skips it: an achievement is announced as new at most once,
+   * where comparing against a list read earlier announced it to both.
+   */
   async rebuildUser(
     userId: string,
     now = new Date(),
   ): Promise<ProgressRebuildResult> {
     return this.prisma.$transaction(async (transaction) => {
-      const activeDefinitions =
-        await transaction.achievementDefinition.findMany({
-          where: {
-            tier: { not: null },
-            activeFrom: { lte: now },
-            OR: [{ activeTo: null }, { activeTo: { gt: now } }],
-          },
-          orderBy: [{ ruleVersion: "desc" }, { code: "asc" }],
-        });
-      const rule = masteryThresholds(activeDefinitions);
-      const definitions = activeDefinitions.filter(
-        ({ ruleVersion }) => ruleVersion === rule.ruleVersion,
-      );
-      // The day's ceiling is read before the snapshot, because the snapshot
-      // is built against it: the account chooses today's cards once and every
-      // deck and region counts its share of that one queue.
-      const settings = await transaction.userSettings.findUnique({
-        where: { userId },
-        select: { timezone: true },
-      });
-      const allowance = remainingDailyAllowance(
-        await reviewedTodayCount(
-          transaction,
-          userId,
-          settings?.timezone ?? "UTC",
-        ),
-      );
-      const snapshot = await this.loadSnapshot(
-        transaction,
-        userId,
-        now,
-        rule.thresholds,
-        rule.ruleVersion,
-        allowance,
-      );
-      const publishedDeckIds = snapshot.decks.map(({ scopeId }) => scopeId);
-      await transaction.userDeckMastery.deleteMany({
-        where: {
-          userId,
-          ...(publishedDeckIds.length === 0
-            ? {}
-            : { deckId: { notIn: publishedDeckIds } }),
-        },
-      });
-      for (const deck of snapshot.decks) {
-        await transaction.userDeckMastery.upsert({
-          where: { userId_deckId: { userId, deckId: deck.scopeId } },
-          create: {
-            userId,
-            deckId: deck.scopeId,
-            tier: deck.currentMasteryTier,
-            masteredCardCount: deck.learnedCards,
-            totalCardCount: deck.totalCards,
-            projectionVersion: deck.ruleVersion,
-          },
-          update: {
-            tier: deck.currentMasteryTier,
-            masteredCardCount: deck.learnedCards,
-            totalCardCount: deck.totalCards,
-            projectionVersion: deck.ruleVersion,
-          },
-        });
-      }
-
-      const existing = await transaction.userAchievement.findMany({
-        where: { userId },
-        select: { definitionId: true, scopeType: true, scopeId: true },
-      });
-      const existingKeys = new Set(existing.map(grantKey));
-      const scopes = [...snapshot.decks, ...snapshot.regions];
-      const grants: Prisma.UserAchievementCreateManyInput[] = [];
-      for (const scope of scopes) {
-        for (const definition of definitions) {
-          if (
-            definition.tier === null ||
-            masteryTierRank(scope.currentMasteryTier) <
-              masteryTierRank(definition.tier)
-          ) {
-            continue;
-          }
-          grants.push({
-            userId,
-            definitionId: definition.id,
-            scopeType:
-              scope.scopeType === "DECK"
-                ? AchievementScopeType.DECK
-                : AchievementScopeType.REGION,
-            scopeId: scope.scopeId,
-            earnedAt: now,
-            ruleVersion: definition.ruleVersion,
-            evidence: {
-              tier: definition.tier,
-              totalCards: scope.totalCards,
-              learnedCards: scope.learnedCards,
-              successfulReviews: scope.successfulReviews,
-              reviewCount: scope.reviewCount,
-              accuracy30Days: scope.accuracy30Days,
-              dueCards: scope.dueCards,
-              masteryRuleVersion: scope.ruleVersion,
-            },
-          });
-        }
-      }
-      if (grants.length > 0) {
-        await transaction.userAchievement.createMany({
-          data: grants,
-          skipDuplicates: true,
-        });
-      }
-      const achievements = await transaction.userAchievement.findMany({
-        where: { userId },
-        include: { definition: true },
-        orderBy: [{ earnedAt: "asc" }, { id: "asc" }],
-      });
-      const tiersByScope = new Map<string, MasteryTier[]>();
-      for (const achievement of achievements) {
-        const key = `${achievement.scopeType}:${achievement.scopeId ?? "GLOBAL"}`;
-        const tiers = tiersByScope.get(key) ?? [];
-        tiers.push(achievement.definition.tier ?? MasteryTier.NONE);
-        tiersByScope.set(key, tiers);
-      }
-      const deckResponses = snapshot.decks.map((deck) =>
-        scopeResponse(
-          deck,
-          highestTier(tiersByScope.get(`DECK:${deck.scopeId}`) ?? []),
-          now,
-        ),
-      );
-      const regionResponses = snapshot.regions.map((region) =>
-        scopeResponse(
-          region,
-          highestTier(tiersByScope.get(`REGION:${region.scopeId}`) ?? []),
-          now,
-        ),
-      );
-      // The same queue the decks and regions were counted against: the
-      // ceiling belongs to the learner's day, and every figure the app draws
-      // from this rebuild is a share of one day rather than of one backlog.
-      const accountAggregate = aggregateProgress(
-        snapshot.cards,
-        now,
-        rule.thresholds,
-        rule.ruleVersion,
-        snapshot.dueToday,
-      );
-
+      const projection = await this.project(transaction, userId, now);
+      await storeDeckMastery(transaction, userId, projection.snapshot.decks);
+      const granted =
+        projection.pending.length === 0
+          ? []
+          : await transaction.userAchievement.createManyAndReturn({
+              data: projection.pending,
+              skipDuplicates: true,
+              include: { definition: true },
+            });
       return {
-        account: {
-          ...progressResponse(
-            accountAggregate,
-            highestTier(achievements.map(({ definition }) => definition.tier)),
-          ),
-          decks: deckResponses,
-          regions: regionResponses,
-          updatedAt: now.toISOString(),
-        },
-        decks: deckResponses,
-        regions: regionResponses,
-        newAchievements: achievements
-          .filter((achievement) => !existingKeys.has(grantKey(achievement)))
+        ...respond(projection, now),
+        newAchievements: granted
+          .sort((left, right) => left.id.localeCompare(right.id))
           .map(achievementResponse),
       };
     });
   }
 
+  /**
+   * The same figures without storing anything, for the reads: the app asks
+   * for progress, due summary and achievements in parallel every time it
+   * syncs, and each of those used to rewrite the mastery cache and try the
+   * achievement inserts — three writing transactions per sync, holding
+   * connections and rows for nothing, since the answer was already stored.
+   *
+   * Read-only by declaration, so a write that creeps in later fails in the
+   * tests rather than in the morning peak, and Repeatable Read so the counts,
+   * the states and the achievements come from one snapshot; a read-only
+   * transaction at that level is never aborted for serialization. An
+   * achievement earned but not stored yet still counts toward
+   * `highestAchievementTier`, so the answer is the one a rebuild would give.
+   */
+  private read<T>(
+    userId: string,
+    now: Date,
+    finish: (projection: Projection, transaction: Transaction) => Promise<T>,
+  ): Promise<T> {
+    return this.prisma.$transaction(
+      async (transaction) => {
+        await transaction.$executeRaw`SET TRANSACTION READ ONLY`;
+        return finish(
+          await this.project(transaction, userId, now),
+          transaction,
+        );
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
+
   async getDueSummary(userId: string): Promise<Record<string, unknown>> {
     const now = new Date();
-    const rebuilt = await this.rebuildUser(userId, now);
-    const account = rebuilt.account as {
-      dueCards: number;
-      overdueCards: number;
-      dueLearningCards: number;
-      dueRelearningCards: number;
-      newCards: number;
-      learningCards: number;
-      relearningCards: number;
-      reviewCards: number;
-      updatedAt: string;
-    };
+    const { account, lastPortion } = await this.read(
+      userId,
+      now,
+      async (projection, transaction) => ({
+        account: respond(projection, now).account as {
+          dueCards: number;
+          overdueCards: number;
+          dueLearningCards: number;
+          dueRelearningCards: number;
+          newCards: number;
+          learningCards: number;
+          relearningCards: number;
+          reviewCards: number;
+          updatedAt: string;
+        },
+        lastPortion: await lastCompletedPortionAt(transaction, userId),
+      }),
+    );
     // When the next portion opens, so the app can say so instead of dealing
     // cards that are not owed and letting them read as a queue. Omitted rather
     // than sent as null when a portion is open now: the field's absence is the
     // answer, and a client that has not learned about it is unaffected.
-    const opensAt = nextPortionAt(
-      await lastCompletedPortionAt(this.prisma, userId),
-      now,
-    );
+    const opensAt = nextPortionAt(lastPortion, now);
 
     return {
       overdue: account.overdueCards,
@@ -439,15 +500,21 @@ export class ProgressService {
   }
 
   async getProgress(userId: string): Promise<Record<string, unknown>> {
-    return (await this.rebuildUser(userId)).account;
+    const now = new Date();
+    return this.read(userId, now, (projection) =>
+      Promise.resolve(respond(projection, now).account),
+    );
   }
 
   async getDeckProgress(
     userId: string,
     deckId: string,
   ): Promise<Record<string, unknown>> {
-    const deck = (await this.rebuildUser(userId)).decks.find(
-      (item) => item.deckId === deckId,
+    const now = new Date();
+    const deck = await this.read(userId, now, (projection) =>
+      Promise.resolve(
+        respond(projection, now).decks.find((item) => item.deckId === deckId),
+      ),
     );
     if (deck === undefined) {
       throw new NotFoundException("Deck was not found");
@@ -460,8 +527,17 @@ export class ProgressService {
     cursor: string | undefined,
     limit: number,
   ): Promise<Record<string, unknown>> {
-    await this.rebuildUser(userId);
     const afterId = cursor === undefined ? null : this.decodeCursor(cursor);
+    // The list is of stored rows, so an achievement earned since the last
+    // upload — by time passing over the 30-day accuracy window, or by content
+    // retiring cards — is stored first. That is the rare case; the usual one
+    // finds nothing pending and writes nothing.
+    const pending = await this.read(userId, new Date(), (projection) =>
+      Promise.resolve(projection.pending.length),
+    );
+    if (pending > 0) {
+      await this.rebuildUser(userId);
+    }
     const rows = await this.prisma.userAchievement.findMany({
       where: {
         userId,
@@ -485,6 +561,103 @@ export class ProgressService {
             : null,
         hasMore,
       },
+    };
+  }
+
+  /**
+   * Everything a response is made of, read and nothing written: the
+   * snapshot, the stored achievements, and the achievements the snapshot has
+   * earned that are not stored yet.
+   */
+  private async project(
+    transaction: Transaction,
+    userId: string,
+    now: Date,
+  ): Promise<Projection> {
+    const activeDefinitions = await transaction.achievementDefinition.findMany({
+      where: {
+        tier: { not: null },
+        activeFrom: { lte: now },
+        OR: [{ activeTo: null }, { activeTo: { gt: now } }],
+      },
+      orderBy: [{ ruleVersion: "desc" }, { code: "asc" }],
+    });
+    const rule = masteryThresholds(activeDefinitions);
+    const definitions = activeDefinitions.filter(
+      ({ ruleVersion }) => ruleVersion === rule.ruleVersion,
+    );
+    // The day's ceiling is read before the snapshot, because the snapshot
+    // is built against it: the account chooses today's cards once and every
+    // deck and region counts its share of that one queue.
+    const settings = await transaction.userSettings.findUnique({
+      where: { userId },
+      select: { timezone: true },
+    });
+    const allowance = remainingDailyAllowance(
+      await reviewedTodayCount(
+        transaction,
+        userId,
+        settings?.timezone ?? "UTC",
+      ),
+    );
+    const snapshot = await this.loadSnapshot(
+      transaction,
+      userId,
+      now,
+      rule.thresholds,
+      rule.ruleVersion,
+      allowance,
+    );
+    const earned = await transaction.userAchievement.findMany({
+      where: { userId },
+      include: { definition: true },
+      orderBy: [{ earnedAt: "asc" }, { id: "asc" }],
+    });
+    const earnedKeys = new Set(earned.map(grantKey));
+    const pending: Prisma.UserAchievementCreateManyInput[] = [];
+    for (const scope of [...snapshot.decks, ...snapshot.regions]) {
+      for (const definition of definitions) {
+        if (
+          definition.tier === null ||
+          masteryTierRank(scope.currentMasteryTier) <
+            masteryTierRank(definition.tier)
+        ) {
+          continue;
+        }
+        const grant = {
+          userId,
+          definitionId: definition.id,
+          scopeType:
+            scope.scopeType === "DECK"
+              ? AchievementScopeType.DECK
+              : AchievementScopeType.REGION,
+          scopeId: scope.scopeId,
+          earnedAt: now,
+          ruleVersion: definition.ruleVersion,
+          evidence: {
+            tier: definition.tier,
+            totalCards: scope.totalCards,
+            learnedCards: scope.learnedCards,
+            successfulReviews: scope.successfulReviews,
+            reviewCount: scope.reviewCount,
+            accuracy30Days: scope.accuracy30Days,
+            dueCards: scope.dueCards,
+            masteryRuleVersion: scope.ruleVersion,
+          },
+        };
+        if (!earnedKeys.has(grantKey(grant))) {
+          pending.push(grant);
+        }
+      }
+    }
+    return {
+      rule,
+      snapshot,
+      earned,
+      pending,
+      tierOfDefinition: new Map(
+        definitions.map(({ id, tier }) => [id, tier] as const),
+      ),
     };
   }
 

@@ -1,4 +1,10 @@
-import { createHash, createHmac, randomBytes, randomUUID } from "node:crypto";
+import {
+  createHash,
+  createHmac,
+  hkdfSync,
+  randomBytes,
+  randomUUID,
+} from "node:crypto";
 
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -13,8 +19,13 @@ import { ApiException } from "../../common/http/api.exception";
 import type { EnvironmentVariables } from "../../config/environment.validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
+import { timeZoneCatalog } from "../../infrastructure/database/time-zones";
 import { serializeUser } from "../users/user.serializer";
 import { AccessTokenService } from "./access-token.service";
+import {
+  type AppleTokenGrant,
+  appleTokenColumns,
+} from "./apple/apple-token-lifecycle.service";
 import type { DeviceRegistration } from "./auth.request";
 import type { VerifiedProviderIdentity } from "./provider-identity-verifier";
 
@@ -35,6 +46,22 @@ interface SessionRecord {
   user: User;
   settings: UserSettings;
   refresh: RefreshMaterial;
+  /**
+   * When the session's access token is dated. A rotation dates it at the
+   * rotation, so a replay inside the grace window re-signs the very same
+   * token instead of a new one.
+   */
+  issuedAt?: Date;
+}
+
+/** What a replay needs to know about the rotation it asks for again. */
+interface RotationSuccessor {
+  id: string;
+  tokenHash: string;
+  createdAt: Date;
+  expiresAt: Date;
+  revokedAt: Date | null;
+  rotatedTo: { id: string } | null;
 }
 
 interface TokenPair {
@@ -48,6 +75,26 @@ type RefreshRotationResult =
   | { kind: "invalid" }
   | { kind: "reused" };
 
+/**
+ * How long a refresh token that has just been rotated still answers with the
+ * result of that rotation instead of revoking its family (issue #442).
+ *
+ * The client keeps its old token when a refresh response never arrives — a
+ * lift, a suspended app — and presents it again. Inside this window that is a
+ * lost response, not a stolen token. Outside it, or once the successor has been
+ * used, a replay still revokes the whole family.
+ */
+export const REFRESH_REPLAY_GRACE_MS = 60_000;
+
+const ROTATION_SUCCESSOR_SELECT = {
+  id: true,
+  tokenHash: true,
+  createdAt: true,
+  expiresAt: true,
+  revokedAt: true,
+  rotatedTo: { select: { id: true } },
+} as const;
+
 function typedError(
   status: HttpStatus,
   code: string,
@@ -59,6 +106,8 @@ function typedError(
 
 @Injectable()
 export class AuthService {
+  private successorKeyCache: Buffer | undefined;
+
   constructor(
     private readonly database: PrismaService,
     private readonly config: ConfigService<EnvironmentVariables>,
@@ -69,11 +118,17 @@ export class AuthService {
     identity: VerifiedProviderIdentity,
     device: DeviceRegistration,
     context: RequestContext,
+    appleToken?: AppleTokenGrant,
   ): Promise<Record<string, unknown>> {
     let lastError: unknown;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const session = await this.persistLogin(identity, device, context);
+        const session = await this.persistLogin(
+          identity,
+          device,
+          context,
+          appleToken,
+        );
         return {
           tokens: await this.issueTokenPair(session),
           user: serializeUser(session.user),
@@ -137,7 +192,7 @@ export class AuthService {
         const current = await transaction.refreshSession.findUnique({
           where: { tokenHash },
           include: {
-            rotatedTo: { select: { id: true } },
+            rotatedTo: { select: ROTATION_SUCCESSOR_SELECT },
             user: { include: { settings: true } },
           },
         });
@@ -147,6 +202,17 @@ export class AuthService {
 
         const now = new Date();
         if (current.rotatedTo !== null) {
+          const replayed = await this.replayRotation(
+            transaction,
+            rawToken,
+            current,
+            current.rotatedTo,
+            now,
+            context,
+          );
+          if (replayed !== null) {
+            return replayed;
+          }
           await this.revokeFamily(
             transaction,
             current.userId,
@@ -186,11 +252,24 @@ export class AuthService {
           data: { revokedAt: now, lastUsedAt: now },
         });
         if (claimed.count !== 1) {
+          // Another request rotated this token between the read above and
+          // the claim. Read committed lets this statement see its successor.
           const raced = await transaction.refreshSession.findUnique({
             where: { id: current.id },
-            select: { rotatedTo: { select: { id: true } } },
+            select: { rotatedTo: { select: ROTATION_SUCCESSOR_SELECT } },
           });
           if (raced?.rotatedTo !== null && raced?.rotatedTo !== undefined) {
+            const replayed = await this.replayRotation(
+              transaction,
+              rawToken,
+              current,
+              raced.rotatedTo,
+              now,
+              context,
+            );
+            if (replayed !== null) {
+              return replayed;
+            }
             await this.revokeFamily(
               transaction,
               current.userId,
@@ -210,9 +289,15 @@ export class AuthService {
           return { kind: "invalid" };
         }
 
-        const refresh = this.createRefreshMaterial(now);
+        // The successor is derived from the token it replaces rather than
+        // drawn at random, so a replay of that token inside the grace window
+        // can be answered with the same successor without storing it.
+        const nextId = randomUUID();
+        const refresh = this.successorRefreshMaterial(rawToken, nextId, now);
         const next = await transaction.refreshSession.create({
           data: {
+            id: nextId,
+            createdAt: now,
             userId: current.userId,
             deviceId: current.deviceId,
             tokenHash: refresh.tokenHash,
@@ -244,6 +329,7 @@ export class AuthService {
             user: current.user,
             settings,
             refresh,
+            issuedAt: now,
           },
         };
       },
@@ -339,6 +425,7 @@ export class AuthService {
     userId: string,
     identity: VerifiedProviderIdentity,
     requestId: string,
+    appleToken?: AppleTokenGrant,
   ): Promise<Record<string, unknown>> {
     try {
       const linked = await this.database.$transaction(async (transaction) => {
@@ -359,7 +446,13 @@ export class AuthService {
               { provider: identity.provider },
             );
           }
-          return owner;
+          if (appleToken === undefined) {
+            return owner;
+          }
+          return transaction.authIdentity.update({
+            where: { id: owner.id },
+            data: appleTokenColumns(appleToken, new Date()),
+          });
         }
         const providerIdentity = await transaction.authIdentity.findUnique({
           where: {
@@ -385,6 +478,7 @@ export class AuthService {
             email: identity.email,
             emailVerified: identity.emailVerified,
             isPrivateEmail: identity.isPrivateEmail,
+            ...appleTokenColumns(appleToken, new Date()),
           },
         });
         await this.audit(transaction, {
@@ -475,6 +569,7 @@ export class AuthService {
     identity: VerifiedProviderIdentity,
     device: DeviceRegistration,
     context: RequestContext,
+    appleToken: AppleTokenGrant | undefined,
   ): Promise<SessionRecord> {
     return inSerializableTransaction(this.database, async (transaction) => {
       // Read once. The branch below used to re-read the identity it had
@@ -500,7 +595,10 @@ export class AuthService {
             settings: {
               create: {
                 contentLocale: device.locale,
-                timezone: device.timezone,
+                timezone: await timeZoneCatalog.effective(
+                  transaction,
+                  device.timezone,
+                ),
               },
             },
             authIdentities: {
@@ -510,6 +608,7 @@ export class AuthService {
                 email: identity.email,
                 emailVerified: identity.emailVerified,
                 isPrivateEmail: identity.isPrivateEmail,
+                ...appleTokenColumns(appleToken, new Date()),
               },
             },
           },
@@ -530,6 +629,7 @@ export class AuthService {
             email: identity.email,
             emailVerified: identity.emailVerified,
             isPrivateEmail: identity.isPrivateEmail,
+            ...appleTokenColumns(appleToken, new Date()),
           },
         });
       }
@@ -565,7 +665,10 @@ export class AuthService {
         create: {
           userId: user.id,
           contentLocale: device.locale,
-          timezone: device.timezone,
+          timezone: await timeZoneCatalog.effective(
+            transaction,
+            device.timezone,
+          ),
         },
         update: {},
       });
@@ -591,10 +694,124 @@ export class AuthService {
         metadata: {
           provider: identity.provider,
           accountCreated,
+          ...(appleToken === undefined
+            ? {}
+            : { appleTokenExchange: appleToken.state }),
         },
       });
       return { id: session.id, user, settings, refresh };
     });
+  }
+
+  /**
+   * The rotation a replayed token already had, when the replay falls inside
+   * the grace window and nobody has used that rotation's token yet; null when
+   * the replay has to be treated as reuse.
+   *
+   * Nothing is minted here: the successor row already exists, and its token is
+   * derived again from the one presented, so any number of racing replays all
+   * receive the same pair and the family never has two live heads.
+   */
+  private async replayRotation(
+    transaction: Prisma.TransactionClient,
+    presentedToken: string,
+    current: { userId: string; user: User & { settings: UserSettings | null } },
+    successor: RotationSuccessor,
+    now: Date,
+    context: RequestContext,
+  ): Promise<RefreshRotationResult | null> {
+    if (
+      now.getTime() - successor.createdAt.getTime() > REFRESH_REPLAY_GRACE_MS ||
+      successor.rotatedTo !== null ||
+      successor.revokedAt !== null ||
+      successor.expiresAt.getTime() <= now.getTime()
+    ) {
+      return null;
+    }
+    const rawToken = this.successorToken(presentedToken, successor.id);
+    // A successor minted before derivation existed, or under another secret,
+    // cannot be reproduced; the replay is then judged as it always was.
+    if (this.hashToken(rawToken) !== successor.tokenHash) {
+      return null;
+    }
+    if (current.user.status !== "ACTIVE") {
+      return { kind: "invalid" };
+    }
+    await this.audit(transaction, {
+      actorUserId: current.userId,
+      action: "AUTH_REFRESH_REPLAYED",
+      targetType: "REFRESH_SESSION",
+      targetId: successor.id,
+      requestId: context.requestId,
+      metadata: { outcome: "rotation_returned" },
+    });
+    const settings =
+      current.user.settings ??
+      (await transaction.userSettings.findUniqueOrThrow({
+        where: { userId: current.userId },
+      }));
+    return {
+      kind: "ok",
+      session: {
+        id: successor.id,
+        user: current.user,
+        settings,
+        refresh: {
+          rawToken,
+          tokenHash: successor.tokenHash,
+          expiresAt: successor.expiresAt,
+        },
+        issuedAt: successor.createdAt,
+      },
+    };
+  }
+
+  private successorRefreshMaterial(
+    presentedToken: string,
+    successorId: string,
+    now: Date,
+  ): RefreshMaterial {
+    const rawToken = this.successorToken(presentedToken, successorId);
+    const ttl = this.config.getOrThrow<number>(
+      "AUTH_REFRESH_TOKEN_TTL_SECONDS",
+    );
+    return {
+      rawToken,
+      tokenHash: this.hashToken(rawToken),
+      expiresAt: new Date(now.getTime() + ttl * 1_000),
+    };
+  }
+
+  /**
+   * A rotation's new refresh token: a keyed hash of the token it replaces and
+   * of the new row's identifier, as long as a random token (384 bits).
+   *
+   * Only its hash is stored. Reproducing it takes the old token, which only
+   * the client holds, the row identifier and the server secret; the database
+   * alone yields nothing usable.
+   */
+  private successorToken(presentedToken: string, successorId: string): string {
+    return createHmac("sha384", this.successorKey())
+      .update(`${successorId}.${presentedToken}`)
+      .digest("base64url");
+  }
+
+  /**
+   * Derived from the access-token secret with its own label. Whoever holds
+   * that secret can already sign access tokens for any session, so the
+   * derivation opens nothing that secret did not.
+   */
+  private successorKey(): Buffer {
+    this.successorKeyCache ??= Buffer.from(
+      hkdfSync(
+        "sha256",
+        this.config.getOrThrow<string>("AUTH_ACCESS_TOKEN_SECRET"),
+        new Uint8Array(0),
+        "country-flags/refresh-token-successor/v1",
+        32,
+      ),
+    );
+    return this.successorKeyCache;
   }
 
   private createRefreshMaterial(now = new Date()): RefreshMaterial {
@@ -610,7 +827,18 @@ export class AuthService {
   }
 
   private async issueTokenPair(session: SessionRecord): Promise<TokenPair> {
-    const access = await this.accessTokens.sign(session.user.id, session.id);
+    // A rotated session's access token is dated at the rotation and named
+    // after the session, so a replay re-signs exactly the token the first
+    // answer carried. A sign-in's token keeps a random identifier.
+    const access =
+      session.issuedAt === undefined
+        ? await this.accessTokens.sign(session.user.id, session.id)
+        : await this.accessTokens.sign(
+            session.user.id,
+            session.id,
+            session.issuedAt,
+            session.id,
+          );
     return {
       accessToken: access.token,
       refreshToken: session.refresh.rawToken,

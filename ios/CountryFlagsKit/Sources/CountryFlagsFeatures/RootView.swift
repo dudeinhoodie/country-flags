@@ -43,6 +43,10 @@ public struct RootView: View {
     @AppStorage(WelcomeKeys.seen) private var hasSeenWelcome = false
     /// The developer switch's request to show it again.
     @AppStorage(WelcomeKeys.devRequest) private var isWelcomeRequested = false
+    /// What the launch had to do because the store would not open, until the
+    /// person has read it. Nil on every ordinary launch.
+    @State private var storeRecovery: StoreRecoveryNotice?
+    private let onStoreRecoveryRead: () -> Void
 
     /// Whether a run is in flight that is about to change the numbers on
     /// screen.
@@ -103,9 +107,13 @@ public struct RootView: View {
         featureFlags: FeatureFlagCenter,
         sync: SyncCenter,
         commerce: CommerceCenter? = nil,
-        showsWelcomeOnFirstLaunch: Bool = false
+        showsWelcomeOnFirstLaunch: Bool = false,
+        storeRecovery: StoreRecoveryNotice? = nil,
+        onStoreRecoveryRead: @escaping () -> Void = {}
     ) {
         self.showsWelcomeOnFirstLaunch = showsWelcomeOnFirstLaunch
+        _storeRecovery = State(initialValue: storeRecovery)
+        self.onStoreRecoveryRead = onStoreRecoveryRead
         _router = State(wrappedValue: router)
         self.configuration = configuration
         self.content = content
@@ -146,7 +154,17 @@ public struct RootView: View {
         //
         // A screen rather than an overlay with a gesture: there is nothing
         // behind it worth reaching, so it cannot be dismissed.
-        if let waitingFor = launchWait {
+        //
+        // A store that would not open comes before all of it (#445): the app
+        // is running on a fresh one, and the person hears why their progress
+        // is missing before they see it missing.
+        if let notice = storeRecovery {
+            StoreRecoveryScreen(notice: notice) {
+                onStoreRecoveryRead()
+                withAnimation(.snappy) { storeRecovery = nil }
+            }
+            .preferredColorScheme(.dark)
+        } else if let waitingFor = launchWait {
             LaunchWaitScreen(
                 reason: waitingFor,
                 failure: sync.status.lastFailure,
@@ -609,6 +627,9 @@ public enum AccessibilityIdentifier {
     /// the way out of it when the backend cannot be reached.
     public static let launchWait = "root.launchWait"
     public static let launchWaitRetry = "root.launchWait.retry"
+    /// The screen a launch shows when its store would not open.
+    public static let storeRecoveryTitle = "root.storeRecovery.title"
+    public static let storeRecoveryContinue = "root.storeRecovery.continue"
 
     public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"

@@ -6,7 +6,9 @@ import CountryFlagsDomain
 /// Reads `/v1/me/progress`, `/v1/me/achievements`, `/v1/me/due-summary` and
 /// `/v1/me/settings`, writes settings back under optimistic concurrency, and
 /// asks for an account's progress to be deleted.
-public struct ProgressService: ProgressDownloading, SettingsSyncing, ProgressClearing {
+public struct ProgressService: ProgressDownloading, SettingsSyncing, AccountTimeZoneSyncing,
+    ProgressClearing
+{
     /// Enough pages to carry every achievement the rules can award, and a stop
     /// so a server that always reports `hasMore` cannot spin here forever.
     private static let achievementPageLimit = 20
@@ -95,6 +97,56 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, ProgressCle
             return .updated(try Self.settings(from: response.body.json))
         case .conflict:
             return .conflict(try? await self.settings(using: client))
+        case .default:
+            throw APIError.status(
+                APIErrorDetails(
+                    statusCode: 0,
+                    code: "UNKNOWN",
+                    message: "Unmapped settings response",
+                    requestID: nil
+                )
+            )
+        }
+    }
+
+    public func accountTimeZone() async throws -> AccountTimeZone? {
+        let client = clientFactory.makeClient()
+        let output: Operations.getSettings.Output
+        do {
+            output = try await client.getSettings()
+        } catch {
+            throw APIError.from(error)
+        }
+        guard case .ok(let response) = output else { return nil }
+        let payload = try response.body.json
+        return AccountTimeZone(identifier: payload.timezone, settingsVersion: payload.version)
+    }
+
+    /// Sends the zone alone, so nothing else a learner set can be overwritten
+    /// by it.
+    public func updateTimeZone(
+        _ identifier: String,
+        basedOn version: Int
+    ) async throws -> AccountTimeZoneUpdateOutcome {
+        let client = clientFactory.makeClient()
+        let output: Operations.updateSettings.Output
+        do {
+            output = try await client.updateSettings(
+                headers: .init(If_hyphen_Match: Self.entityTag(forVersion: version)),
+                body: .json(.init(timezone: identifier))
+            )
+        } catch {
+            let mapped = APIError.from(error)
+            if Self.isVersionConflict(mapped) { return .conflict }
+            if case .validationFailed = mapped { return .refused }
+            throw mapped
+        }
+
+        switch output {
+        case .ok(let response):
+            return .updated(try Self.settings(from: response.body.json))
+        case .conflict:
+            return .conflict
         case .default:
             throw APIError.status(
                 APIErrorDetails(

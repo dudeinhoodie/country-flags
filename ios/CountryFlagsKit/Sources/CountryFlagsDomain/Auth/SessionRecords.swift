@@ -120,8 +120,13 @@ public protocol AuthenticationService: Sendable {
     /// - Returns: the rotated tokens. A refusal means the refresh token is
     ///   spent or revoked, and the caller must not retry with it.
     func refresh(refreshToken: String) async throws -> RefreshedSessionRecord
-    func logout(refreshToken: String) async throws
-    func logoutEverywhere() async throws
+    /// Ends the session the access token belongs to.
+    ///
+    /// A private route: the backend reads which session to end from the
+    /// bearer, and a request without one is refused before it reaches
+    /// anything. The token is passed rather than looked up because the caller
+    /// is the session, and the session is what has one.
+    func logout(accessToken: String) async throws
 }
 
 /// What the screen shows for the signed-in person.
@@ -151,10 +156,9 @@ public protocol SessionControlling: Sendable {
     /// wins where both know one; the picture only a provider has.
     func adoptProviderProfile(name: String?, avatarURL: URL?) async
     func signIn(with credential: ProviderCredential) async -> SignInOutcome
-    /// - Parameter everywhere: also ends the sessions of the account's other
-    ///   devices, which is the answer to a lost phone rather than to a normal
-    ///   sign-out.
-    func signOut(everywhere: Bool) async
+    /// Ends this device's session: the backend is told first, with the
+    /// session's own bearer, and the device is signed out whatever it answers.
+    func signOut() async
     /// Asks the provider whether the sign-in behind this session still stands,
     /// and signs the device out when it does not.
     ///
