@@ -79,6 +79,12 @@ describe("redact", () => {
       // what a leak looks like by the time it reaches a log field.
       privateKey: "TEST_ONLY_not_a_key",
       COMMERCE_APPLE_IAP_PRIVATE_KEY: "TEST_ONLY_base64_pkcs8_placeholder",
+      // Sign in with Apple: the key, the key Apple tokens are sealed under,
+      // the code a sign-in exchanges and the token it yields.
+      AUTH_APPLE_PRIVATE_KEY: "TEST_ONLY_not_a_key",
+      AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY: "TEST_ONLY_not_a_key",
+      authorizationCode: "TEST_ONLY_apple_authorization_code",
+      refresh_token: "TEST_ONLY_apple_refresh",
     });
 
     expect(Object.values(result)).toEqual(

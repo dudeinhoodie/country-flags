@@ -510,6 +510,18 @@ OTEL_ENABLED
 OTEL_EXPORTER_OTLP_ENDPOINT
 ~~~
 
+`prod` дополнительно требует ключ Sign in with Apple и ключ шифрования Apple
+tokens; без них удаление аккаунта не может отозвать Apple tokens (docs/01 §5.5),
+и процесс не стартует. В `dev` они необязательны: пока ключа нет (#302), каждый
+вход через Apple и каждое удаление записывают `credentials_not_configured`.
+
+~~~text
+AUTH_APPLE_TEAM_ID
+AUTH_APPLE_KEY_ID
+AUTH_APPLE_PRIVATE_KEY
+AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY
+~~~
+
 Требования:
 
 - hosted startup не принимает test defaults;
