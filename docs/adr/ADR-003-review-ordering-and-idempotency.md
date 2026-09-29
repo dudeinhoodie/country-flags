@@ -27,6 +27,14 @@ Review может быть создан без сети и доставлен п
 - predecessor/successor одного устройства задают миллисекундные границы;
 - сохраняются raw time, estimate, effective time и `timeConfidence`.
 
+Дополнение (2026-09-28, #452): у guest import нет оценки в шкале сервера,
+потому что гость не видел серверных часов. Для него effective time — raw
+`clientOccurredAt` с `timeConfidence = CLIENT_CLOCK`, ограниченный снизу
+публикацией content release сессии и сверху тем же правилом будущего;
+выход за границу даёт `BOUNDED`. Прежний fallback на `receivedAt` сжимал
+недели гостевых занятий в один момент. Client time по-прежнему не участвует
+в security-решениях.
+
 Отсутствие или stale `baseStateVersion` не отклоняет валидный review. Canonical
 replay строит причинные edges по `clientSequence` внутри устройства. Среди
 доступных событий выбирается минимальное по

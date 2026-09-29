@@ -5,6 +5,7 @@ import {
   type EnvironmentVariables,
   validateEnvironment,
 } from "../../../config/environment.validation";
+import { testSignInWithAppleConfig } from "../../auth/testing/sign-in-with-apple-config";
 import { AppleStoreConfig } from "./apple-store.config";
 
 const CERTIFICATE = Buffer.from([0x30, 0x82, 0x01, 0x02]).toString("base64");
@@ -84,6 +85,7 @@ describe("AppleStoreConfig", () => {
   it("needs the app's Apple id before it will believe a Production purchase", () => {
     const production = {
       ...HOSTED,
+      ...testSignInWithAppleConfig(),
       DEPLOYMENT_ENV: "prod",
       COMMERCE_APPLE_BUNDLE_ID: "app.countryflags.mobile",
       COMMERCE_APPLE_ROOT_CERTIFICATES: CERTIFICATE,
