@@ -393,6 +393,17 @@ public protocol GuestIdentityRotating: Sendable {
     func startNewGuest() async -> AccountScope
 }
 
+/// Names the guests whose work is in the store.
+///
+/// Asked only when the keychain holds no installation identifier. A phone
+/// restored from a backup receives the store, but on builds that kept the
+/// identifier `ThisDeviceOnly` it did not receive the identifier, so the
+/// guest's work arrived under a scope that nobody could name (#446).
+public protocol GuestScopeDiscovering: Sendable {
+    /// Every guest scope that owns a learner's records, each once.
+    func guestScopesWithWork() async throws -> Set<AccountScope>
+}
+
 /// Removes one account's data and nothing else.
 public protocol AccountScopeCleaner: Sendable {
     /// Deletes every record owned by the scope, leaving shared content and any

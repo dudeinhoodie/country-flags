@@ -46,6 +46,8 @@ describe("ProviderIdentityVerifier", () => {
       email: "relay@privaterelay.appleid.com",
       emailVerified: true,
       isPrivateEmail: true,
+      // The bundle id the sign-in's authorization code is exchanged for.
+      audience: "com.countryflags.local",
     });
   });
 

@@ -40,6 +40,14 @@ function analyticsEvent(
   };
 }
 
+/** Not a consent question: how a broken sync becomes visible. */
+function operationalEvent(): Record<string, unknown> {
+  return analyticsEvent({
+    eventName: "sync.completed",
+    properties: { result: "success", durationBucket: "under_1s" },
+  });
+}
+
 describe("analytics ingestion, MetricKit, and privacy settings (integration)", () => {
   let app: INestApplication;
   let httpServer: Server;
@@ -68,8 +76,8 @@ describe("analytics ingestion, MetricKit, and privacy settings (integration)", (
     await app.close();
   });
 
-  it("accepts a registered event without authentication", async () => {
-    const event = analyticsEvent();
+  it("accepts a registered operational event without authentication", async () => {
+    const event = operationalEvent();
     const response = await request(httpServer)
       .post("/v1/analytics/events/batch")
       .send({ payloadVersion: 1, events: [event] })
@@ -80,8 +88,28 @@ describe("analytics ingestion, MetricKit, and privacy settings (integration)", (
     ]);
   });
 
-  it("treats a resubmitted eventId as a duplicate, not a second delivery", async () => {
+  it("refuses an anonymous product event: a guest's choice never reaches the server", async () => {
     const event = analyticsEvent();
+    const response = await request(httpServer)
+      .post("/v1/analytics/events/batch")
+      .send({ payloadVersion: 1, events: [event] })
+      .expect(200);
+    expect((response.body as BatchResultBody).results).toEqual([
+      {
+        eventId: event.eventId,
+        status: "REJECTED",
+        rejectionCode: "CONSENT_DENIED",
+      },
+    ]);
+    await expect(
+      database.analyticsOutboxEvent.count({
+        where: { eventId: event.eventId as string },
+      }),
+    ).resolves.toBe(0);
+  });
+
+  it("treats a resubmitted eventId as a duplicate, not a second delivery", async () => {
+    const event = operationalEvent();
     const first = await request(httpServer)
       .post("/v1/analytics/events/batch")
       .send({ payloadVersion: 1, events: [event] })
@@ -155,7 +183,7 @@ describe("analytics ingestion, MetricKit, and privacy settings (integration)", (
   });
 
   describe("privacy settings and consent enforcement", () => {
-    it("defaults to UNKNOWN, supports optimistic concurrency, and denying analytics drops pending events", async () => {
+    it("defaults to UNKNOWN, takes product events only once granted, and denying drops pending events", async () => {
       const initial = await request(httpServer)
         .get("/v1/me/privacy-settings")
         .set("Authorization", `Bearer ${token}`)
@@ -166,6 +194,32 @@ describe("analytics ingestion, MetricKit, and privacy settings (integration)", (
         version: 1,
       });
       expect(initial.headers.etag).toBe('W/"1"');
+
+      // Nobody said yes: the event is refused, not queued.
+      const unasked = analyticsEvent();
+      const refused = await request(httpServer)
+        .post("/v1/analytics/events/batch")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ payloadVersion: 1, events: [unasked] })
+        .expect(200);
+      expect((refused.body as BatchResultBody).results[0]).toEqual({
+        eventId: unasked.eventId,
+        status: "REJECTED",
+        rejectionCode: "CONSENT_DENIED",
+      });
+
+      await request(httpServer)
+        .patch("/v1/me/privacy-settings")
+        .set("Authorization", `Bearer ${token}`)
+        .set("If-Match", 'W/"99"')
+        .send({ productAnalyticsStatus: "GRANTED" })
+        .expect(409);
+      await request(httpServer)
+        .patch("/v1/me/privacy-settings")
+        .set("Authorization", `Bearer ${token}`)
+        .set("If-Match", 'W/"1"')
+        .send({ productAnalyticsStatus: "GRANTED" })
+        .expect(200);
 
       const event = analyticsEvent();
       await request(httpServer)
@@ -179,22 +233,15 @@ describe("analytics ingestion, MetricKit, and privacy settings (integration)", (
         }),
       ).resolves.toMatchObject({ deliveryStatus: "PENDING" });
 
-      await request(httpServer)
-        .patch("/v1/me/privacy-settings")
-        .set("Authorization", `Bearer ${token}`)
-        .set("If-Match", 'W/"99"')
-        .send({ productAnalyticsStatus: "DENIED" })
-        .expect(409);
-
       const updated = await request(httpServer)
         .patch("/v1/me/privacy-settings")
         .set("Authorization", `Bearer ${token}`)
-        .set("If-Match", 'W/"1"')
+        .set("If-Match", 'W/"2"')
         .send({ productAnalyticsStatus: "DENIED" })
         .expect(200);
       expect(updated.body).toMatchObject({
         productAnalyticsStatus: "DENIED",
-        version: 2,
+        version: 3,
       });
 
       await expect(
@@ -205,11 +252,12 @@ describe("analytics ingestion, MetricKit, and privacy settings (integration)", (
 
       const consentEvents = await database.privacyConsentEvent.findMany({
         where: { userId },
+        orderBy: { occurredAt: "asc" },
       });
-      expect(consentEvents).toHaveLength(1);
-      expect(consentEvents[0]).toMatchObject({
+      expect(consentEvents).toHaveLength(2);
+      expect(consentEvents[1]).toMatchObject({
         category: "PRODUCT_ANALYTICS",
-        previousStatus: "UNKNOWN",
+        previousStatus: "GRANTED",
         newStatus: "DENIED",
       });
 

@@ -191,9 +191,16 @@ export class AnalyticsBatchService {
       };
     }
 
+    // Product analytics is off until somebody switches it on, and the
+    // server holds the line too rather than trusting every build to: only
+    // an account whose stored choice is GRANTED gets its product events
+    // accepted. UNKNOWN is a question nobody answered, not a yes. A guest's
+    // choice lives on the phone and a batch cannot declare it yet (#456),
+    // so an anonymous product event is refused the same way. Operational
+    // events are not a consent question and pass (docs/06 §20).
     if (
       definition.consentCategory === "product_analytics" &&
-      privacySettings?.productAnalyticsStatus === ConsentStatus.DENIED
+      privacySettings?.productAnalyticsStatus !== ConsentStatus.GRANTED
     ) {
       return {
         eventId: event.eventId,

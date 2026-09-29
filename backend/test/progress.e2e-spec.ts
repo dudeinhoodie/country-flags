@@ -18,6 +18,7 @@ import {
   TEST_STUDY_USER_ID,
 } from "../src/modules/study-sessions/fixtures/test-study.fixture";
 import { importTestStudySeed } from "../src/modules/study-sessions/import/test-study-seed-importer";
+import { bodyOf } from "./response-body";
 
 interface SessionBody {
   cards: Array<{ learningCard: { id: string } }>;
@@ -365,13 +366,33 @@ describe("progress, mastery and achievements (integration)", () => {
       where: { userId: TEST_STUDY_USER_ID },
     });
 
-    const rebuilt = await app
+    // A read answers from history and leaves the cache alone (#452).
+    const read = await app
       .get(ProgressService)
       .getDeckProgress(
         TEST_STUDY_USER_ID,
         "70000000-0000-4000-8000-000000000001",
       );
-    expect(rebuilt).toMatchObject({
+    expect(read).toMatchObject({
+      learnedCards: before.learnedCards,
+      reviewCount: before.reviewCount,
+      currentMasteryTier: before.currentMasteryTier,
+      highestAchievementTier: before.highestAchievementTier,
+    });
+    await expect(
+      database.userDeckMastery.count({
+        where: { userId: TEST_STUDY_USER_ID },
+      }),
+    ).resolves.toBe(0);
+
+    const rebuilt = await app
+      .get(ProgressService)
+      .rebuildUser(TEST_STUDY_USER_ID);
+    expect(
+      rebuilt.decks.find(
+        (deck) => deck.deckId === "70000000-0000-4000-8000-000000000001",
+      ),
+    ).toMatchObject({
       learnedCards: before.learnedCards,
       reviewCount: before.reviewCount,
       currentMasteryTier: before.currentMasteryTier,
@@ -382,5 +403,122 @@ describe("progress, mastery and achievements (integration)", () => {
         where: { userId: TEST_STUDY_USER_ID },
       }),
     ).resolves.toBe(2);
+  });
+
+  // The app asks for these in parallel on every sync, and each used to be a
+  // writing transaction: the mastery cache rewritten, the achievements tried
+  // again (#452).
+  it("answers the progress reads without storing anything", async () => {
+    const progress = app.get(ProgressService);
+    await progress.rebuildUser(TEST_STUDY_USER_ID);
+    const answer = async (): Promise<AccountProgressBody> =>
+      bodyOf<AccountProgressBody>(
+        await request(httpServer)
+          .get("/v1/me/progress")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(200),
+      );
+    const tiers = (body: AccountProgressBody): unknown => ({
+      account: body.highestAchievementTier,
+      decks: body.decks.map(({ deckId, highestAchievementTier }) => ({
+        deckId,
+        highestAchievementTier,
+      })),
+      regions: body.regions.map(({ regionId, highestAchievementTier }) => ({
+        regionId,
+        highestAchievementTier,
+      })),
+    });
+    const answeredBefore = await answer();
+    const masteryBefore = await database.userDeckMastery.findMany({
+      where: { userId: TEST_STUDY_USER_ID },
+      orderBy: { deckId: "asc" },
+    });
+    const earned = await database.userAchievement.findMany({
+      where: { userId: TEST_STUDY_USER_ID },
+      orderBy: { id: "asc" },
+    });
+    // Earned but not stored: what a read would once have written.
+    const withheld = earned[0];
+    if (withheld === undefined) {
+      throw new Error("Progress fixture has no achievement to withhold");
+    }
+    await database.userAchievement.delete({ where: { id: withheld.id } });
+
+    const answeredAfter = await answer();
+    for (const path of [
+      "/v1/me/due-summary",
+      "/v1/me/decks/70000000-0000-4000-8000-000000000001/progress",
+    ]) {
+      await request(httpServer)
+        .get(path)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(200);
+    }
+
+    // The earned tier is counted all the same...
+    expect(tiers(answeredAfter)).toEqual(tiers(answeredBefore));
+    // ...and nothing was written: not the achievement, not the cache.
+    await expect(
+      database.userAchievement.count({
+        where: { userId: TEST_STUDY_USER_ID },
+      }),
+    ).resolves.toBe(earned.length - 1);
+    await expect(
+      database.userDeckMastery.findMany({
+        where: { userId: TEST_STUDY_USER_ID },
+        orderBy: { deckId: "asc" },
+      }),
+    ).resolves.toEqual(masteryBefore);
+
+    // The list is of stored rows, so it stores what was earned first.
+    const listed = bodyOf<AchievementPageBody>(
+      await request(httpServer)
+        .get("/v1/me/achievements?limit=100")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(200),
+    );
+    expect(listed.items).toHaveLength(earned.length);
+    expect(listed.items).toContainEqual(
+      expect.objectContaining({
+        scopeType: withheld.scopeType,
+        scopeId: withheld.scopeId,
+      }),
+    );
+  });
+
+  it("announces a newly earned achievement to only one of two concurrent rebuilds", async () => {
+    const progress = app.get(ProgressService);
+    const earned = await database.userAchievement.findMany({
+      where: { userId: TEST_STUDY_USER_ID },
+      orderBy: { id: "asc" },
+    });
+    const withheld = earned.at(-1);
+    if (withheld === undefined) {
+      throw new Error("Progress fixture has no achievement to withhold");
+    }
+    await database.userAchievement.delete({ where: { id: withheld.id } });
+
+    const [first, second] = await Promise.all([
+      progress.rebuildUser(TEST_STUDY_USER_ID),
+      progress.rebuildUser(TEST_STUDY_USER_ID),
+    ]);
+
+    // Both saw it missing; the unique constraint gave the row to one.
+    const announced = [
+      ...first.newAchievements,
+      ...second.newAchievements,
+    ] as Array<{ scopeType: string; scopeId: string | null }>;
+    expect(announced).toEqual([
+      expect.objectContaining({
+        scopeType: withheld.scopeType,
+        scopeId: withheld.scopeId,
+      }),
+    ]);
+    await expect(
+      database.userAchievement.count({
+        where: { userId: TEST_STUDY_USER_ID },
+      }),
+    ).resolves.toBe(earned.length);
   });
 });

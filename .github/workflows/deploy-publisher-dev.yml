@@ -101,9 +101,41 @@ jobs:
       #
       # `^;^` makes the separator a semicolon for symmetry with the service
       # deploy, where a client-id list makes a comma unusable.
+      #
+      # Secrets are pinned to the version that is newest now, as the API
+      # deploy pins them: `:latest` would be resolved again by every
+      # execution, so a new version would reach the job without a deploy and
+      # a redeploy of an older image would not bring the old value back.
+      # Resolving a version reads its metadata, never its value
+      # (`roles/secretmanager.viewer` on each secret, docs/13 §6.1).
       - name: Deploy the publisher job
         run: |
           set -euo pipefail
+          # One mount per line, VARIABLE=secret; the version is added below.
+          mounts=(
+            DATABASE_URL=dev-direct-database-url
+            DIRECT_DATABASE_URL=dev-direct-database-url
+            OBJECT_STORAGE_ACCESS_KEY_ID=dev-object-storage-access-key-id
+            OBJECT_STORAGE_SECRET_ACCESS_KEY=dev-object-storage-secret-access-key
+            CONTENT_SIGNING_PRIVATE_KEY=dev-content-signing-private-key
+            CONTENT_SIGNING_PUBLIC_KEYS=dev-content-signing-public-keys
+          )
+          pinned=()
+          for mount in "${mounts[@]}"; do
+            secret="${mount#*=}"
+            if ! resolved="$(gcloud secrets versions describe latest --secret "${secret}" --format='value(name.basename(),state)')"; then
+              echo "::error::Cannot read the version of ${secret}. The deployer needs roles/secretmanager.viewer on it (docs/13 §6.1)."
+              exit 1
+            fi
+            read -r version state <<< "${resolved}"
+            if [ "${state,,}" != "enabled" ]; then
+              echo "::error::The newest version of ${secret} is ${state}, not enabled"
+              exit 1
+            fi
+            pinned+=("${mount}:${version}")
+          done
+          secrets="$(IFS=,; printf '%s' "${pinned[*]}")"
+          echo "Secrets pinned: ${secrets}"
           gcloud run jobs deploy "${JOB}" \
             --region "${REGION}" \
             --image "${{ steps.image.outputs.reference }}" \
@@ -118,7 +150,7 @@ jobs:
             --tasks 1 \
             --labels "release=${{ steps.image.outputs.sha }},deployment-env=dev,managed-by=github-actions" \
             --set-env-vars "^;^NODE_ENV=production;DEPLOYMENT_ENV=dev;LOG_LEVEL=info;SERVICE_NAME=country-flags-publisher;SERVICE_RELEASE=${{ steps.image.outputs.sha }};CONTENT_SIGNING_KEY_ID=${SIGNING_KEY_ID};CONTENT_BUILD_OUTPUT_ROOT=/tmp/content-build;OBJECT_STORAGE_PROVIDER=s3;OBJECT_STORAGE_BUCKET=${BUCKET};OBJECT_STORAGE_REGION=${REGION};OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com;OBJECT_STORAGE_FORCE_PATH_STYLE=true;OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/${BUCKET}" \
-            --set-secrets "DATABASE_URL=dev-direct-database-url:latest,DIRECT_DATABASE_URL=dev-direct-database-url:latest,OBJECT_STORAGE_ACCESS_KEY_ID=dev-object-storage-access-key-id:latest,OBJECT_STORAGE_SECRET_ACCESS_KEY=dev-object-storage-secret-access-key:latest,CONTENT_SIGNING_PRIVATE_KEY=dev-content-signing-private-key:latest,CONTENT_SIGNING_PUBLIC_KEYS=dev-content-signing-public-keys:latest" \
+            --set-secrets "${secrets}" \
             --quiet
 
       # Both halves of the twenty-minute transaction: it runs on the direct

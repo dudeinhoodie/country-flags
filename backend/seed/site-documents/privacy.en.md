@@ -27,6 +27,8 @@ When you sign in, the work you did as a guest on this phone is imported into the
 
 Every request from the app carries the app version, the platform and the language the app is shown in, so the server can answer in a form that build understands. Our own request log records a random request identifier, the path, the result and how long it took, and not who sent the request.
 
+Whenever a sync of your progress or a download of new content finishes, the app also sends our servers a short report, guests included and whatever the switches below are set to. It says whether it worked and, for a sync, roughly how long it took, and it carries a random identifier generated on your phone, the app version and build, the platform and the language, and your account if you are signed in. It contains nothing about your answers and exists so that a broken sync or update gets noticed.
+
 The hosting platform, Google Cloud, keeps its own log of every request, which includes the IP address and the User-Agent string: the name and version of the app and of iOS. That log is kept for 30 days and is used only to investigate failures and attacks.
 
 Each sign-in session is stored with a hash of your IP address, computed with a secret key, and with the User-Agent string as the app sent it. They exist to notice a stolen session and for nothing else. Sign-in attempts and a few other requests are limited per address; the counter keeps a hash of the address for at most a day.
@@ -38,7 +40,7 @@ Two things are off until you switch them on in Settings, separately from one ano
 - **Product analytics**: which screens are opened and how training sessions go. The events are tied to a pseudonymous identifier and to the app version, build, platform and language. They do not include your answers, your email address or anything you sign in with.
 - **Diagnostics**: crash reports and launch or hang measurements collected by iOS, scrubbed before they leave the device.
 
-Turn either off and anything still waiting to be sent is deleted on the device.
+Turn either off and anything still waiting to be sent is deleted on the device. The sync and update reports described above are not part of either switch.
 
 ## What the app does not do
 
@@ -64,13 +66,14 @@ Account data is stored in Frankfurt, Germany: the application runs in Google Clo
 
 - Your account and your progress: to provide the service you asked for when you signed in.
 - Product analytics and diagnostics: your consent, which you can withdraw in Settings at any time.
-- The request logs, the session records and the sign-in limits: our legitimate interest in keeping the service and your account safe.
+- The request logs, the sync and update reports, the session records and the sign-in limits: our legitimate interest in keeping the service working and your account safe.
 
 ## How long it is kept
 
 - Account data: until you delete the account.
 - Sign-in sessions: a session stops working when you sign out or after 30 days without use. Its record, with the hashed address and the User-Agent string, is kept until the account is deleted.
 - The hosting platform's request log: 30 days.
+- Sync and update reports: deleted once processed, normally within a day.
 - Product analytics: no longer than 13 months.
 - Diagnostics and error reports: no longer than 90 days.
 

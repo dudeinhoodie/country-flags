@@ -289,9 +289,10 @@ export function ReleasesPage() {
                   Roll back
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  A rollback rebuilds nothing: the release it returns to is
-                  already published and signed, so only the pointer moves. It is
-                  the fast way out of a bad release.
+                  A rollback rebuilds and re-signs nothing: the release it
+                  returns to is already published and signed. It still
+                  re-applies that release whole, so expect it to take as long as
+                  applying a publish.
                 </Typography>
                 {rollbackTargets.length === 0 ? (
                   <Alert severity="info">
