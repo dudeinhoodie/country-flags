@@ -4908,6 +4908,108 @@
         }
       }
     },
+    "store_recovery.continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжить"
+          }
+        }
+      }
+    },
+    "store_recovery.fresh.consequence": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you're signed in, your progress comes back from your account once the app syncs. Answers that hadn't been sent yet, and progress made without an account, are in the kept copy, and the app can't show them for now."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Если вы вошли в аккаунт, прогресс вернётся из него после синхронизации. Ответы, которые ещё не успели отправиться, и прогресс без аккаунта остались в сохранённой копии, и пока приложение не может их показать."
+          }
+        }
+      }
+    },
+    "store_recovery.fresh.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The data on this iPhone was damaged, so the app started again with a clean copy. The damaged copy wasn't deleted: it's kept on this iPhone."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Данные на этом iPhone повреждены, поэтому приложение начало заново с чистой копией. Повреждённая копия не удалена — она хранится на этом iPhone."
+          }
+        }
+      }
+    },
+    "store_recovery.fresh.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your saved progress couldn't be opened"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось открыть сохранённый прогресс"
+          }
+        }
+      }
+    },
+    "store_recovery.not_saving.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app couldn't open its storage on this iPhone, so what you do now will be lost when you close it. Nothing saved earlier was deleted. Free up some space and open the app again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приложению не удалось открыть хранилище на этом iPhone, поэтому всё, что вы сделаете сейчас, пропадёт после закрытия. Ничего из сохранённого раньше не удалено. Освободите место и откройте приложение заново."
+          }
+        }
+      }
+    },
+    "store_recovery.not_saving.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress isn't being saved"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогресс сейчас не сохраняется"
+          }
+        }
+      }
+    },
     "study.card.hint": {
       "extractionState": "manual",
       "localizations": {

@@ -194,4 +194,46 @@ describe("JsonLoggerService", () => {
       expect(lines.map((line) => line.level)).toEqual(["info"]);
     });
   });
+
+  // Cloud Logging files a JSON line by its `severity` field and ignores
+  // `level`; without it every severity filter in the runbooks, the dashboard
+  // and the release checklist matched nothing (#452).
+  describe("the severity Cloud Logging files it under", () => {
+    it("names every level in Cloud Logging's terms, beside the level", () => {
+      const lines = loggerUnder({ LOG_LEVEL: "debug" }, (logger) => {
+        logger.debug("a value nobody asked about");
+        logger.verbose("the same, at length");
+        logger.log("a request was served");
+        logger.warn("a queue is deeper than it was");
+        logger.error("a sweep failed");
+        logger.fatal("the process cannot continue");
+      });
+
+      expect(lines.map(({ level, severity }) => ({ level, severity }))).toEqual(
+        [
+          { level: "debug", severity: "DEBUG" },
+          { level: "debug", severity: "DEBUG" },
+          { level: "info", severity: "INFO" },
+          { level: "warn", severity: "WARNING" },
+          { level: "error", severity: "ERROR" },
+          { level: "fatal", severity: "CRITICAL" },
+        ],
+      );
+    });
+
+    it("keeps the severity of the call when the payload carries its own", () => {
+      const [entry] = loggerUnder({}, (logger) => {
+        logger.error({
+          message: "a sweep failed",
+          event: "store_reconciliation_failed",
+          severity: "INFO",
+        });
+      });
+
+      expect(entry).toMatchObject({
+        event: "store_reconciliation_failed",
+        severity: "ERROR",
+      });
+    });
+  });
 });

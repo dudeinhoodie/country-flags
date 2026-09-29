@@ -124,6 +124,22 @@ public struct APIClientFactory: Sendable {
         )
     }
 
+    /// A client that carries one session's bearer, handed over by the session
+    /// itself.
+    ///
+    /// For the auth client, whose factory has no token provider: logout is
+    /// guarded like any private route, and a request sent without the bearer
+    /// was refused every time (#436). A refused token is the caller's to
+    /// cure, since it owns the rotation this factory cannot see.
+    func makeClient(bearer token: String) -> Client {
+        Client(
+            serverURL: configuration.baseURL,
+            configuration: Configuration(dateTranscoder: FractionalSecondsDateTranscoder()),
+            transport: transport,
+            middlewares: middlewares + [SessionBearerMiddleware(token: token)]
+        )
+    }
+
     /// Outermost first.
     ///
     /// The context middleware runs first so one logical request carries one

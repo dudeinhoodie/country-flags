@@ -75,6 +75,9 @@ struct AppComposition: AppDependencies {
     let guestMigrations: GuestMigrationCoordinator
     let studySessions: StudySessionService
     let settingsSync: any SettingsSyncing
+    /// Tells the server when a signed-in device is in a new time zone, so the
+    /// learner's day is counted where they are (#452).
+    let timeZones: AccountTimeZoneReporter
     /// The preferences of this run, held once. See `makeSettingsStore()`.
     let settings: SettingsStore
     let progressClearing: any ProgressClearing
@@ -97,6 +100,10 @@ struct AppComposition: AppDependencies {
     let errorReporter: any ErrorReporting
     let diagnostics: any DiagnosticsReporting
     let logger: any AppLogging
+    /// What the launch had to do because the store would not open, for the
+    /// root to say before anything else. Nil on an ordinary launch.
+    let storeRecovery: StoreRecoveryNotice?
+    let storeRecoveryNotices: any StoreRecoveryNoticing
 
     /// The layers below `FeatureFlagCenter`, kept so the launch sequence can
     /// drive them. Nothing else reaches for them.
@@ -123,17 +130,31 @@ struct AppComposition: AppDependencies {
             // empty state. Only Mock and Dev define DEBUG; a release binary
             // does not contain this call at all.
             resetStoreIfRequested(name: name)
+            corruptStoreIfRequested(name: name)
         #endif
 
-        let store: LocalStore
+        // A store that will not open used to stop the app on every launch,
+        // and a reinstall -- the only way out -- erased the very file the
+        // crash was protecting. The recovery keeps that file aside and opens a
+        // fresh one, and the root says so before anything else (#445).
+        let storeRecoveryNotices = UserDefaultsStoreRecoveryNoticeStore()
+        let opening: LocalStoreOpening
         do {
-            store = try LocalStore(location: .onDisk(name: name))
+            opening = try LocalStoreRecovery.open(name: name, now: dates.now(), logger: logger)
         } catch {
-            // The store holds reviews that have not reached the backend.
-            // Continuing with a fresh one would discard them without telling
-            // anyone; failing loudly keeps the file intact for a later build.
-            fatalError("The local store is unavailable: \(error)")
+            // Not even a store in memory could be made: there is nothing left
+            // to run on.
+            fatalError("No local store could be created: \(error)")
         }
+        let store = opening.store
+        // A fresh start is remembered until it has been read: a person who
+        // closes the app on the screen would otherwise open it tomorrow on an
+        // empty Home and no word about why. A run that saves nothing is not:
+        // the next launch tries the disk again and says so itself if it fails.
+        if let recovery = opening.recovery, recovery.outcome == .startedFresh {
+            storeRecoveryNotices.store(recovery)
+        }
+        let storeRecovery = opening.recovery ?? storeRecoveryNotices.pendingNotice()
 
         let apiConfiguration = APIClientConfiguration(
             baseURL: Self.baseURL(for: configuration),
@@ -159,11 +180,18 @@ struct AppComposition: AppDependencies {
         #else
             let tokens: any SecureTokenStoring = KeychainTokenStore()
         #endif
-        let accountScopes = accountScopes(tokens: tokens, identifiers: identifiers, logger: logger)
+        let accountScopes = accountScopes(
+            tokens: tokens,
+            identifiers: identifiers,
+            logger: logger,
+            guestScopes: store.makeGuestScopeDiscovery()
+        )
         // The auth endpoints authenticate by what is in their bodies -- an
         // identity token, a refresh token -- not by a bearer, so their client
-        // carries none. That is also what breaks the cycle: the session needs
-        // a client, and every other client needs the session.
+        // has no token provider. That is also what breaks the cycle: the
+        // session needs a client, and every other client needs the session.
+        // The sign-out is the exception: it is a private route, and the
+        // session hands it its own bearer per call.
         let authClientFactory = APIClientFactory(
             configuration: apiConfiguration,
             transport: transport,
@@ -494,6 +522,13 @@ struct AppComposition: AppDependencies {
             guestMigrations: guestMigrations,
             studySessions: studySessions,
             settingsSync: progressService,
+            timeZones: AccountTimeZoneReporter(
+                syncing: progressService,
+                scopes: sessions,
+                learning: store.makeLearningRepository(),
+                records: UserDefaultsTimeZoneReportStore(),
+                logger: logger
+            ),
             settings: SettingsStore(
                 learning: store.makeLearningRepository(),
                 scopes: sessions,
@@ -528,6 +563,8 @@ struct AppComposition: AppDependencies {
             errorReporter: errorReporter,
             diagnostics: NoOpDiagnosticsReporter(),
             logger: logger,
+            storeRecovery: storeRecovery,
+            storeRecoveryNotices: storeRecoveryNotices,
             flagClient: flagClient,
             activatedFlags: activatedFlags
         )
@@ -542,6 +579,17 @@ struct AppComposition: AppDependencies {
         // Who this launch belongs to is decided first: everything after --
         // the flag context, the sync scope -- reads the answer.
         await sessions.restore()
+        // A learner who moved has their day counted where they are now, on
+        // launch and on every return to the app (#452). Nothing is asked of
+        // the server unless the device's zone changed since the last report.
+        Task { [timeZones] in
+            await timeZones.reportIfMoved()
+            for await _ in NotificationCenter.default.notifications(
+                named: UIApplication.didBecomeActiveNotification
+            ) {
+                await timeZones.reportIfMoved()
+            }
+        }
         let scope = await scopes.currentScope()
         let context = FeatureFlagContext(
             scope: scope,
@@ -602,8 +650,11 @@ struct AppComposition: AppDependencies {
             dates: dates,
             logger: logger
         )
-        store.onSignedIn = { [sync, commerce] in
+        store.onSignedIn = { [sync, commerce, timeZones] in
             await sync.synchronize(trigger: .signedIn)
+            // An account made in another zone, signing in here, has its day
+            // counted where this device is.
+            await timeZones.reportIfMoved()
             // A tag issued for one account says nothing about another, and a
             // purchase this device was holding for nobody now has somebody to
             // be granted to. Asking again is what turns signing in on a second
@@ -762,8 +813,6 @@ struct AppComposition: AppDependencies {
                     userID: fixtureUserID
                 ),
                 "refreshSession": MockAuth.refreshedTokens(now: dates.now()),
-                "logout": MockAuth.loggedOut,
-                "logoutAll": MockAuth.loggedOut,
                 // The account surface: its ways in, its devices, an export that is
                 // ready by the time it is asked about, and a deletion that is
                 // accepted. All of it offline.
@@ -777,7 +826,9 @@ struct AppComposition: AppDependencies {
                 "reauthenticateApple": MockAuth.reauthenticationProof(now: dates.now()),
                 "reauthenticateGoogle": MockAuth.reauthenticationProof(now: dates.now()),
             ]
-            var handlers: [String: MockClientTransport.Handler] = [:]
+            // The sign-out refuses a request without a bearer, as the real
+            // route does.
+            var handlers: [String: MockClientTransport.Handler] = MockAuth.logoutHandlers()
             let learning = MockLearningBackend(now: dates.now)
             handlers.merge(learning.handlers()) { current, _ in current }
             // One deck for sale, and an account that comes to own it. The
@@ -818,10 +869,15 @@ struct AppComposition: AppDependencies {
     /// no keychain entitlement — so a debug build accepts a pinned identifier
     /// and exercises the real resume path with a stable identity. A release
     /// binary does not contain this branch at all.
+    ///
+    /// With nothing in the keychain, the store is asked whose it is: a phone
+    /// restored from a backup brings the guest's work without the identifier
+    /// that names it (#446).
     private static func accountScopes(
         tokens: any SecureTokenStoring,
         identifiers: any IdentifierProviding,
-        logger: any AppLogging
+        logger: any AppLogging,
+        guestScopes: any GuestScopeDiscovering
     ) -> any AccountScopeResolving {
         #if DEBUG
             if let pinned = pinnedInstallationID() {
@@ -830,7 +886,12 @@ struct AppComposition: AppDependencies {
                 )
             }
         #endif
-        return GuestScopeProvider(tokens: tokens, identifiers: identifiers, logger: logger)
+        return GuestScopeProvider(
+            tokens: tokens,
+            identifiers: identifiers,
+            logger: logger,
+            guestScopes: guestScopes
+        )
     }
 
     #if DEBUG
@@ -892,8 +953,17 @@ struct AppComposition: AppDependencies {
             fileManager: FileManager = .default
         ) {
             guard arguments.contains(resetStoreArgument) else { return }
-            for url in LocalStore.fileURLs(forName: name) {
+            let files = LocalStore.fileURLs(forName: name)
+            for url in files {
                 try? fileManager.removeItem(at: url)
+            }
+            // And whatever an earlier run set aside, so copies from a suite
+            // that corrupts the store on purpose do not pile up.
+            if let store = files.first {
+                try? fileManager.removeItem(
+                    at: store.deletingLastPathComponent()
+                        .appendingPathComponent(LocalStoreRecovery.folderName)
+                )
             }
             // The store is not the only thing a launch remembers. Reset the
             // session as well, otherwise a UI test can inherit the previous
@@ -912,6 +982,30 @@ struct AppComposition: AppDependencies {
             if let bundleIdentifier = Bundle.main.bundleIdentifier {
                 UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
             }
+        }
+    #endif
+
+    #if DEBUG
+        /// Writes bytes that are not a database where the store should be, so a
+        /// UI test can walk the recovery a damaged store leads to (#445).
+        static let corruptStoreArgument = "-corrupt-store"
+
+        static func corruptStoreIfRequested(
+            name: String,
+            arguments: [String] = ProcessInfo.processInfo.arguments,
+            fileManager: FileManager = .default
+        ) {
+            guard arguments.contains(corruptStoreArgument) else { return }
+            let files = LocalStore.fileURLs(forName: name)
+            for url in files {
+                try? fileManager.removeItem(at: url)
+            }
+            guard let store = files.first else { return }
+            try? fileManager.createDirectory(
+                at: store.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            try? Data(String(repeating: "not a database. ", count: 512).utf8).write(to: store)
         }
     #endif
 

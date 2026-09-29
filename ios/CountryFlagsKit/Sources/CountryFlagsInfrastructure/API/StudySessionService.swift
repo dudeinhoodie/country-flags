@@ -320,4 +320,8 @@ public struct RegisteredDeviceProvider: DeviceIdentityProviding {
         try? await tokens.setValue(id.uuidString.lowercased(), for: .accountDeviceID)
         return id
     }
+
+    public func forgetRegisteredDevice() async {
+        try? await tokens.setValue(nil, for: .accountDeviceID)
+    }
 }

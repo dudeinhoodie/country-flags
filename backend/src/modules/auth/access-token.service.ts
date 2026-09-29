@@ -21,6 +21,7 @@ export class AccessTokenService {
     subject: string,
     sessionId: string,
     now = new Date(),
+    tokenId: string = randomUUID(),
   ): Promise<{ token: string; expiresAt: Date }> {
     const { SignJWT } = await import("jose");
     const ttl = this.config.getOrThrow<number>("AUTH_ACCESS_TOKEN_TTL_SECONDS");
@@ -30,7 +31,7 @@ export class AccessTokenService {
       .setSubject(subject)
       .setIssuer(this.config.getOrThrow<string>("AUTH_ACCESS_TOKEN_ISSUER"))
       .setAudience(this.config.getOrThrow<string>("AUTH_ACCESS_TOKEN_AUDIENCE"))
-      .setJti(randomUUID())
+      .setJti(tokenId)
       .setIssuedAt(Math.floor(now.getTime() / 1_000))
       .setExpirationTime(Math.floor(expiresAt.getTime() / 1_000))
       .sign(this.key());

@@ -77,6 +77,23 @@ public enum L10n {
     public static var updateRecommendedUpdate: String { localized("update.recommended.update") }
     public static var updateRecommendedLater: String { localized("update.recommended.later") }
 
+    /// A launch whose store would not open (#445): it started on a fresh one
+    /// and kept the old file, or it could not write anything at all.
+    public static var storeRecoveryFreshTitle: String { localized("store_recovery.fresh.title") }
+    public static var storeRecoveryFreshMessage: String {
+        localized("store_recovery.fresh.message")
+    }
+    public static var storeRecoveryFreshConsequence: String {
+        localized("store_recovery.fresh.consequence")
+    }
+    public static var storeRecoveryNotSavingTitle: String {
+        localized("store_recovery.not_saving.title")
+    }
+    public static var storeRecoveryNotSavingMessage: String {
+        localized("store_recovery.not_saving.message")
+    }
+    public static var storeRecoveryContinue: String { localized("store_recovery.continue") }
+
     public static var homeTitle: String { localized("home.title") }
     public static var homeLoading: String { localized("home.loading") }
     public static var homeRecommended: String { localized("home.recommended") }

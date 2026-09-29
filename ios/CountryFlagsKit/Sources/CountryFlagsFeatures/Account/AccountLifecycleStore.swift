@@ -127,7 +127,7 @@ public final class AccountLifecycleStore {
         } catch {
             logger.log(.error, .persistence, "The account's local data outlived its deletion")
         }
-        await session.signOut(everywhere: false)
+        await session.signOut()
         await onSignedOut?()
     }
 }

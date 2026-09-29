@@ -48,6 +48,10 @@ public struct RootView: View {
     /// launch until the person gives in.
     @AppStorage("client_update.dismissed_latest") private var dismissedRecommendation = ""
     @Environment(\.openURL) private var openURL
+    /// What the launch had to do because the store would not open, until the
+    /// person has read it. Nil on every ordinary launch.
+    @State private var storeRecovery: StoreRecoveryNotice?
+    private let onStoreRecoveryRead: () -> Void
 
     /// Whether a run is in flight that is about to change the numbers on
     /// screen.
@@ -108,9 +112,13 @@ public struct RootView: View {
         featureFlags: FeatureFlagCenter,
         sync: SyncCenter,
         commerce: CommerceCenter? = nil,
-        showsWelcomeOnFirstLaunch: Bool = false
+        showsWelcomeOnFirstLaunch: Bool = false,
+        storeRecovery: StoreRecoveryNotice? = nil,
+        onStoreRecoveryRead: @escaping () -> Void = {}
     ) {
         self.showsWelcomeOnFirstLaunch = showsWelcomeOnFirstLaunch
+        _storeRecovery = State(initialValue: storeRecovery)
+        self.onStoreRecoveryRead = onStoreRecoveryRead
         _router = State(wrappedValue: router)
         self.configuration = configuration
         self.content = content
@@ -156,9 +164,20 @@ public struct RootView: View {
         // (#447). The launch tasks below do not run, so an unsupported build
         // neither syncs nor studies; the store is left exactly as it is for
         // the update to pick up.
+        //
+        // A store that would not open comes next (#445): the app is running
+        // on a fresh one, and the person hears why their progress is missing
+        // before they see it missing. Behind the update screen it waits: the
+        // notice is kept until it is read, so the updated build shows it.
         if case .required = featureFlags.updateRequirement {
             UpdateRequiredScreen(appStoreURL: configuration.appStoreURL)
                 .preferredColorScheme(.dark)
+        } else if let notice = storeRecovery {
+            StoreRecoveryScreen(notice: notice) {
+                onStoreRecoveryRead()
+                withAnimation(.snappy) { storeRecovery = nil }
+            }
+            .preferredColorScheme(.dark)
         } else if let waitingFor = launchWait {
             LaunchWaitScreen(
                 reason: waitingFor,
@@ -666,6 +685,9 @@ public enum AccessibilityIdentifier {
     public static let updateRequiredOpenStore = "root.updateRequired.openStore"
     public static let updateRecommendedUpdate = "root.updateRecommended.update"
     public static let updateRecommendedLater = "root.updateRecommended.later"
+    /// The screen a launch shows when its store would not open.
+    public static let storeRecoveryTitle = "root.storeRecovery.title"
+    public static let storeRecoveryContinue = "root.storeRecovery.continue"
 
     public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"

@@ -111,7 +111,15 @@ function parseDevice(value: unknown): DeviceRegistration {
       32,
       /^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/,
     ),
-    timezone: string(device.timezone, "device.timezone", 1, 64),
+    // The shape of an IANA name; whether PostgreSQL knows it is settled when
+    // the account's settings are created (#452).
+    timezone: string(
+      device.timezone,
+      "device.timezone",
+      1,
+      64,
+      /^[A-Za-z][A-Za-z0-9_+-]*(?:\/[A-Za-z0-9_+-]+)*$/,
+    ),
   };
 }
 

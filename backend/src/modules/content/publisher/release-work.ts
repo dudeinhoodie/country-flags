@@ -28,8 +28,10 @@ import {
  *
  * The signing key is read here and nowhere else in this process, and the
  * process it is read in is the job — never the service that answers HTTP.
- * A rollback does not touch it at all: the release it returns to was signed
- * when it was published, and only the pointer moves.
+ * A rollback does not touch it at all. The release it returns to was signed
+ * when it was published, and its stored bundle is re-applied as it was:
+ * nothing is rebuilt or re-signed. It is still a full application of a
+ * bundle, and as slow as a publish's transaction (#441).
  */
 export class BundleReleaseWork implements ReleaseWork {
   constructor(
