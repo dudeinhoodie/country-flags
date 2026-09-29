@@ -88,6 +88,9 @@ export function bootstrapTelemetry(env: NodeJS.ProcessEnv = process.env): void {
       `${JSON.stringify({
         timestamp: new Date().toISOString(),
         level: "error",
+        // Written before the logger exists, so it names Cloud Logging's
+        // severity itself (see CLOUD_LOGGING_SEVERITY).
+        severity: "ERROR",
         ...telemetryResourceAttributes(env),
         message: "OpenTelemetry export could not start; continuing without it",
         event: "telemetry_bootstrap_failed",

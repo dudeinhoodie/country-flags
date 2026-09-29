@@ -522,6 +522,19 @@ describe("baseline database migration (integration)", () => {
     `);
   });
 
+  it("indexes the scheduler version the migration worker polls", async () => {
+    // Without it, "is any state on another scheduler version" read the whole
+    // of user_card_states on every poll of every instance (#452).
+    const indexes = await database!.$queryRaw<Array<{ indexdef: string }>>`
+      SELECT "indexdef" FROM pg_catalog.pg_indexes
+      WHERE "schemaname" = 'public'
+        AND "tablename" = 'user_card_states'
+        AND "indexname" = 'user_card_states_scheduler_version_idx'
+    `;
+    expect(indexes).toHaveLength(1);
+    expect(indexes[0]?.indexdef).toContain("(scheduler_version)");
+  });
+
   it("makes a purchase land once and a right survive one of its sources", async () => {
     const userId = "60000000-0000-4000-8000-000000000001";
     const contentRelease = "commerce-content-v1";

@@ -104,4 +104,21 @@ public enum MockAuth {
     }
 
     public static let loggedOut = MockClientTransport.Response(statusCode: 204)
+
+    /// `POST /v1/auth/logout`, guarded the way the backend guards it.
+    /// Answering 204 to anything is how the Mock build hid that the request
+    /// went out without a bearer and was refused by every real server (#436).
+    public static func logoutHandlers() -> [String: MockClientTransport.Handler] {
+        let guarded: MockClientTransport.Handler = { request in
+            guard request.header("authorization")?.hasPrefix("Bearer ") == true else {
+                return .errorEnvelope(
+                    statusCode: 401,
+                    code: "UNAUTHORIZED",
+                    message: "Authentication is required"
+                )
+            }
+            return loggedOut
+        }
+        return ["logout": guarded]
+    }
 }

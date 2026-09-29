@@ -20,6 +20,7 @@ import type { ObjectStorage } from "../../../infrastructure/object-storage/objec
 import { assetBaseUrl, uploadBundleAssets } from "./bundle-assets";
 import { lockActiveContentPointer } from "./content-pointer-lock";
 import type { LoadedBundle } from "./bundle-reader";
+import { RELEASE_TRANSACTION_OPTIONS } from "./release-transaction";
 import { validateBundle } from "./bundle-validator";
 import { diffBundleAgainstActive, type BundleDiff } from "./bundle-diff";
 import type { BundleDomain, DomainAsset } from "./bundle-domain";
@@ -1078,13 +1079,7 @@ export async function publishBundle(
         },
       } satisfies PublishSummary;
     },
-    // Twenty minutes because a real bundle needs them. The five this used to
-    // allow were set when the only bundle anyone had published was the
-    // two-entity fixture; the first publish of the 250-entity catalogue from a
-    // CI runner spent them on the learning cards alone and was closed
-    // mid-transaction. The release applies as one transaction or not at all,
-    // so the answer is to let it finish rather than to split it — the way to
-    // make it quick is fewer round trips, which is a change of its own.
-    { isolationLevel: "Serializable", maxWait: 30_000, timeout: 1_200_000 },
+    // Shared with rollback, which re-applies a whole bundle the same way.
+    RELEASE_TRANSACTION_OPTIONS,
   );
 }

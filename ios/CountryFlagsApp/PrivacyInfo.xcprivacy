@@ -9,7 +9,10 @@
   The two consent-gated categories — product analytics and diagnostics — are
   declared because the app is capable of sending them, not because it does by
   default: both start off and nothing is sent until somebody turns them on
-  (PrivacyStore, and the consent filter in the analytics queue).
+  (PrivacyStore, the consent filter in the analytics queue, and the backend,
+  which refuses product events without a stored GRANTED). What is sent
+  without asking is declared too: the review history of a signed-in learner,
+  and the operational reports on syncs and content updates.
 
   Nothing here is used for tracking. There is no advertising identifier, no ad
   SDK and no tracking prompt in the app, which Scripts/check-advertising-policy.sh
@@ -63,10 +66,19 @@
 		</dict>
 
 		<!--
-		  Which screens were opened and how sessions went. Sent only while
-		  product analytics is switched on, and it never carries an answer, an
-		  address or a token: the registry types every event and the redaction
-		  denylist drops anything else.
+		  How the learner uses the app, for two purposes.
+
+		  App functionality: the review history. Every answer of a signed-in
+		  learner (which card, the rating, when, how long it took) is uploaded
+		  so the schedule and the progress live on the account and survive a
+		  new phone, and a guest's history is uploaded once, when it is carried
+		  into the account at sign-in. No switch turns this off: it is the
+		  service the account exists for.
+
+		  Analytics: which screens were opened and how sessions went. Sent only
+		  while product analytics is switched on, and it never carries an
+		  answer, an address or a token: the registry types every event and
+		  the redaction denylist drops anything else.
 		-->
 		<dict>
 			<key>NSPrivacyCollectedDataType</key>
@@ -77,7 +89,31 @@
 			<false/>
 			<key>NSPrivacyCollectedDataTypePurposes</key>
 			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
 				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+			</array>
+		</dict>
+
+		<!--
+		  Operational reports, sent without asking, guests included: whether a
+		  sync or a content update succeeded, and a duration bucket for a
+		  sync (`sync.completed`, `content.update_completed` in the analytics
+		  registry, category essential_operations). They travel with the
+		  pseudonymous analytics identifier, the app version, build, platform
+		  and language, and with the account when one is signed in. They are
+		  how a broken sync becomes visible, and nothing about a person is in
+		  them.
+		-->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeOtherDiagnosticData</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
 			</array>
 		</dict>
 

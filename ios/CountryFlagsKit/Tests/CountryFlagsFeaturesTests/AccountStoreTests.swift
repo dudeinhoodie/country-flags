@@ -209,7 +209,7 @@ private actor ScriptedSession: SessionControlling {
         return outcome
     }
 
-    func signOut(everywhere: Bool) async {
+    func signOut() async {
         state = .guest
     }
 }
@@ -376,7 +376,7 @@ final class AccountAvatarTests: XCTestCase {
         await store.start()
         XCTAssertEqual(store.avatar, Data([1, 2, 3]))
 
-        await store.confirmSignOut(everywhere: false)
+        await store.confirmSignOut()
 
         XCTAssertNil(store.avatar)
         XCTAssertNil(store.profile)
@@ -402,7 +402,7 @@ final class AccountAvatarTests: XCTestCase {
         XCTAssertEqual(store.avatar, Data([1, 2, 3]))
 
         // Somebody else ended it.
-        await session.signOut(everywhere: false)
+        await session.signOut()
         await store.refreshState()
 
         XCTAssertNil(store.avatar)

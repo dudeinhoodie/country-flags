@@ -269,9 +269,9 @@ public final class AccountStore {
         signOutAssessment = nil
     }
 
-    public func confirmSignOut(everywhere: Bool) async {
+    public func confirmSignOut() async {
         signOutAssessment = nil
-        await session.signOut(everywhere: everywhere)
+        await session.signOut()
         // The trail that was being attributed to whoever just left ends here.
         await analytics?.setIdentity(nil)
         state = await session.currentState()
