@@ -19,6 +19,7 @@ import { ApiException } from "../../common/http/api.exception";
 import type { EnvironmentVariables } from "../../config/environment.validation";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
+import { timeZoneCatalog } from "../../infrastructure/database/time-zones";
 import { serializeUser } from "../users/user.serializer";
 import { AccessTokenService } from "./access-token.service";
 import {
@@ -594,7 +595,10 @@ export class AuthService {
             settings: {
               create: {
                 contentLocale: device.locale,
-                timezone: device.timezone,
+                timezone: await timeZoneCatalog.effective(
+                  transaction,
+                  device.timezone,
+                ),
               },
             },
             authIdentities: {
@@ -661,7 +665,10 @@ export class AuthService {
         create: {
           userId: user.id,
           contentLocale: device.locale,
-          timezone: device.timezone,
+          timezone: await timeZoneCatalog.effective(
+            transaction,
+            device.timezone,
+          ),
         },
         update: {},
       });
