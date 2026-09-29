@@ -75,6 +75,9 @@ struct AppComposition: AppDependencies {
     let guestMigrations: GuestMigrationCoordinator
     let studySessions: StudySessionService
     let settingsSync: any SettingsSyncing
+    /// Tells the server when a signed-in device is in a new time zone, so the
+    /// learner's day is counted where they are (#452).
+    let timeZones: AccountTimeZoneReporter
     /// The preferences of this run, held once. See `makeSettingsStore()`.
     let settings: SettingsStore
     let progressClearing: any ProgressClearing
@@ -492,6 +495,13 @@ struct AppComposition: AppDependencies {
             guestMigrations: guestMigrations,
             studySessions: studySessions,
             settingsSync: progressService,
+            timeZones: AccountTimeZoneReporter(
+                syncing: progressService,
+                scopes: sessions,
+                learning: store.makeLearningRepository(),
+                records: UserDefaultsTimeZoneReportStore(),
+                logger: logger
+            ),
             settings: SettingsStore(
                 learning: store.makeLearningRepository(),
                 scopes: sessions,
@@ -540,6 +550,17 @@ struct AppComposition: AppDependencies {
         // Who this launch belongs to is decided first: everything after --
         // the flag context, the sync scope -- reads the answer.
         await sessions.restore()
+        // A learner who moved has their day counted where they are now, on
+        // launch and on every return to the app (#452). Nothing is asked of
+        // the server unless the device's zone changed since the last report.
+        Task { [timeZones] in
+            await timeZones.reportIfMoved()
+            for await _ in NotificationCenter.default.notifications(
+                named: UIApplication.didBecomeActiveNotification
+            ) {
+                await timeZones.reportIfMoved()
+            }
+        }
         let scope = await scopes.currentScope()
         let context = FeatureFlagContext(
             scope: scope,
@@ -597,8 +618,11 @@ struct AppComposition: AppDependencies {
             dates: dates,
             logger: logger
         )
-        store.onSignedIn = { [sync, commerce] in
+        store.onSignedIn = { [sync, commerce, timeZones] in
             await sync.synchronize(trigger: .signedIn)
+            // An account made in another zone, signing in here, has its day
+            // counted where this device is.
+            await timeZones.reportIfMoved()
             // A tag issued for one account says nothing about another, and a
             // purchase this device was holding for nobody now has somebody to
             // be granted to. Asking again is what turns signing in on a second
