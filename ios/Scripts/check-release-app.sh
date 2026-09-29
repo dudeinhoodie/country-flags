@@ -46,14 +46,15 @@ status=0
 # What this check can and cannot see, so it is not mistaken for more than it
 # is: Swift stores a literal of fifteen bytes or fewer inside the instruction
 # stream rather than in __cstring, and `strings` does not find those. Of the
-# three below only "-installation-id" is long enough to be found reliably.
+# four below only "-installation-id" is long enough to be found reliably.
 # The short ones stay because a build that grows a longer spelling still
-# trips this, and because the real guarantee is elsewhere: `-reset-store` and
-# `-installation-id` are compiled out by `#if DEBUG`, and `-fake-signin` is
-# gated on an environment that answers false in Prod. This is the belt;
-# those are the braces.
+# trips this, and because the real guarantee is elsewhere: `-reset-store`,
+# `-corrupt-store` and `-installation-id` are compiled out by `#if DEBUG`,
+# and `-fake-signin` is gated on an environment that answers false in Prod.
+# This is the belt; those are the braces.
 FORBIDDEN_STRINGS=(
   "-reset-store"
+  "-corrupt-store"
   "-fake-signin"
   "-installation-id"
 )

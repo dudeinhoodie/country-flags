@@ -582,7 +582,7 @@ export interface paths {
         put?: never;
         /**
          * Queue a rollback run
-         * @description The same mechanism the other way round. A rollback does not rebuild anything: the release it returns to is already published and signed, so only the pointer moves — which is why it is fast and needs no signing key.
+         * @description The same mechanism the other way round. A rollback does not rebuild or re-sign anything, and it needs no signing key: the release it returns to is already published and signed. It is not just a pointer move, though. Publishing overwrites shared rows in place, so the stored bundle of that release is re-applied whole. That takes as long as applying a publish, and the rollback gets the same transaction budget.
          */
         post: operations["adminQueueReleaseRollback"];
         delete?: never;

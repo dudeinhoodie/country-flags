@@ -15,6 +15,7 @@ import { ApiException } from "../../common/http/api.exception";
 import { clientAddress } from "../../common/http/client-address";
 import type { RequestWithId } from "../../common/http/request-id.middleware";
 import { RateLimiter } from "../../common/security/rate-limiter.service";
+import { AppleTokenLifecycle } from "./apple/apple-token-lifecycle.service";
 import { ProviderIdentityVerifier } from "./provider-identity-verifier";
 import { AuthService } from "./auth.service";
 import { ReauthenticationTokenService } from "./reauthentication-token.service";
@@ -67,6 +68,7 @@ export class AuthController {
     private readonly verifier: ProviderIdentityVerifier,
     private readonly rateLimiter: RateLimiter,
     private readonly reauthentication: ReauthenticationTokenService,
+    private readonly appleTokens: AppleTokenLifecycle,
   ) {}
 
   @Post("apple")
@@ -87,7 +89,23 @@ export class AuthController {
       await this.auth.recordAuthenticationFailure("APPLE", request.requestId);
       throw error;
     }
-    return this.auth.login(identity, parsed.device, requestContext(request));
+    // Only a verified sign-in spends the code. The exchange never blocks the
+    // sign-in: its outcome is stored on the identity for deletion to report.
+    //
+    // Should the sign-in fail after this, the new token is not revoked.
+    // Revoking any token ends the whole Apple authorization of this person
+    // for the app, including the one an account they already have relies on.
+    const appleToken = await this.appleTokens.exchange(
+      identity,
+      parsed.authorizationCode,
+      request.requestId,
+    );
+    return this.auth.login(
+      identity,
+      parsed.device,
+      requestContext(request),
+      appleToken,
+    );
   }
 
   @Post("google")
@@ -226,6 +244,7 @@ export class AuthIdentitiesController {
     private readonly auth: AuthService,
     private readonly verifier: ProviderIdentityVerifier,
     private readonly rateLimiter: RateLimiter,
+    private readonly appleTokens: AppleTokenLifecycle,
   ) {}
 
   @Get()
@@ -250,10 +269,16 @@ export class AuthIdentitiesController {
       parsed.identityToken,
       parsed.rawNonce,
     );
+    const appleToken = await this.appleTokens.exchange(
+      identity,
+      parsed.authorizationCode,
+      request.requestId,
+    );
     return this.auth.linkIdentity(
       request.authenticatedUserId,
       identity,
       request.requestId,
+      appleToken,
     );
   }
 

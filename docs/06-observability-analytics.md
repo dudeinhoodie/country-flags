@@ -479,6 +479,8 @@ Assignment должен быть стабильным для пользоват�
 
 При `DENIED` optional события не ставятся в очередь, ранее ожидающие удаляются, provider identity сбрасывается. Серверные security/audit logs живут по отдельной обязательной policy.
 
+Backend (`analytics-batch.service.ts`) принимает события категории `product_analytics` только от аккаунта с сохранённым `GRANTED`; `UNKNOWN`, `NOT_REQUIRED`, `DENIED` и отсутствие записи дают `REJECTED CONSENT_DENIED`. Согласие гостя хранится на телефоне, и batch пока не умеет его заявить (#456), поэтому анонимные продуктовые события тоже отклоняются. Уход аккаунта из `GRANTED` в любой другой статус удаляет его ещё не доставленные продуктовые события. События `essential_operations` (`sync.completed`, `content.update_completed`) принимаются без согласия, в том числе от гостя; они раскрыты в Privacy Policy и в `PrivacyInfo.xcprivacy` как Other Diagnostic Data для App Functionality.
+
 Privacy Policy и App Store privacy labels описывают crash data, performance data, product interaction, advertising data и identifiers, если они реально собираются приложением или third-party SDK. Выключенный feature flag не освобождает от раскрытия поведения SDK, включённого в binary.
 
 ## 21. Data minimization и redaction

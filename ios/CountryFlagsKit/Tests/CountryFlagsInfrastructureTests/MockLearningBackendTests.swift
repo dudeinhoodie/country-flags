@@ -322,4 +322,6 @@ private struct FixedDevice: DeviceIdentityProviding {
     func registeredDeviceID() async -> UUID? {
         UUID(uuidString: "d0000000-0000-4000-8000-000000000001")
     }
+
+    func forgetRegisteredDevice() async {}
 }

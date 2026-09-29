@@ -31,6 +31,29 @@ final class LaunchSmokeUITests: XCTestCase {
         XCTAssertFalse(hero.label.contains("study."), app.debugDescription)
     }
 
+    /// A store that will not open leads to a screen, not a crash (#445).
+    ///
+    /// The launch finds bytes that are not a database where the store should
+    /// be. It sets them aside, opens a fresh store and says so; the person
+    /// reads it and goes on into an app that works.
+    func testAStoreThatWillNotOpenLeadsToTheRecoveryScreen() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-reset-store", "-corrupt-store"]
+        app.launch()
+
+        let title = app.staticTexts["root.storeRecovery.title"]
+        XCTAssertTrue(title.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertFalse(title.label.isEmpty)
+        XCTAssertFalse(title.label.contains("store_recovery."), app.debugDescription)
+
+        app.buttons["root.storeRecovery.continue"].tap()
+        XCTAssertTrue(
+            app.buttons["home.deck.ALL"].waitForExistence(timeout: 30),
+            app.debugDescription
+        )
+        XCTAssertFalse(title.exists)
+    }
+
     /// The claim of #301, demonstrated rather than argued: an install that has
     /// never reached a backend opens on a catalogue it can study.
     ///

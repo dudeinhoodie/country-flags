@@ -25,8 +25,12 @@ private actor StubAuthService: AuthenticationService {
     /// refused, because the tests that assert the refusal path set their own
     /// behaviour and should keep deciding it.
     private(set) var presentedRefreshTokens: [String] = []
-    private(set) var loggedOutRefreshTokens: [String] = []
-    private(set) var didLogOutEverywhere = false
+    /// The bearer each sign-out presented, in order. The backend reads the
+    /// session to end from it, so a sign-out without one ends nothing.
+    private(set) var loggedOutAccessTokens: [String] = []
+    /// What the sign-outs answer, consumed in order; once it is empty they
+    /// succeed.
+    private var signOutAnswers: [Behaviour] = []
     let userID = UUID()
 
     init(exchange: Behaviour = .succeeds, refresh: Behaviour = .succeeds) {
@@ -35,6 +39,8 @@ private actor StubAuthService: AuthenticationService {
     }
 
     func setRefresh(_ behaviour: Behaviour) { refreshBehaviour = behaviour }
+
+    func answerSignOuts(_ answers: Behaviour...) { signOutAnswers = answers }
 
     func exchange(_ credential: ProviderCredential) async throws -> AuthSessionRecord {
         switch exchange {
@@ -73,11 +79,13 @@ private actor StubAuthService: AuthenticationService {
         }
     }
 
-    func logout(refreshToken: String) async throws {
-        loggedOutRefreshTokens.append(refreshToken)
+    func logout(accessToken: String) async throws {
+        loggedOutAccessTokens.append(accessToken)
+        guard !signOutAnswers.isEmpty else { return }
+        if case .refuses(let error) = signOutAnswers.removeFirst() {
+            throw error
+        }
     }
-
-    func logoutEverywhere() async throws { didLogOutEverywhere = true }
 }
 
 private let refused = APIError.unauthorized(
@@ -314,34 +322,24 @@ final class SessionCoordinatorTests: XCTestCase {
 
     // MARK: - Signing out
 
+    /// The backend reads which session to end from the bearer. Sent without
+    /// one, as it was, the request was refused and nothing ended (#436).
     func testSigningOutEndsTheSessionAndTellsTheBackendWhichOne() async throws {
         let service = StubAuthService()
         let tokens = InMemoryTokenStore()
         let session = makeCoordinator(service: service, tokens: tokens)
         _ = await session.signIn(with: .google(idToken: "t"))
 
-        await session.signOut(everywhere: false)
+        await session.signOut()
 
-        let loggedOut = await service.loggedOutRefreshTokens
-        XCTAssertEqual(loggedOut, ["refresh-1"])
+        let loggedOut = await service.loggedOutAccessTokens
+        XCTAssertEqual(loggedOut, ["access-1"], "the session's own bearer names it")
         let state = await session.currentState()
         XCTAssertEqual(state, .guest)
         let stored = try await tokens.value(for: .refreshToken)
         XCTAssertNil(stored)
         let accessToken = await session.currentAccessToken()
         XCTAssertNil(accessToken)
-    }
-
-    /// The answer to a lost phone: the other devices lose their sessions too.
-    func testSigningOutEverywhereEndsTheOtherDevicesToo() async {
-        let service = StubAuthService()
-        let session = makeCoordinator(service: service)
-        _ = await session.signIn(with: .google(idToken: "t"))
-
-        await session.signOut(everywhere: true)
-
-        let everywhere = await service.didLogOutEverywhere
-        XCTAssertTrue(everywhere)
     }
 
     /// A device that cannot reach the backend must still end up signed out
@@ -351,14 +349,77 @@ final class SessionCoordinatorTests: XCTestCase {
         let tokens = InMemoryTokenStore()
         let session = makeCoordinator(service: service, tokens: tokens)
         _ = await session.signIn(with: .google(idToken: "t"))
-        await service.setRefresh(.refuses(.transport("no")))
+        await service.answerSignOuts(.refuses(.transport("-1009")))
+        await service.setRefresh(.refuses(.transport("-1009")))
 
-        await session.signOut(everywhere: false)
+        await session.signOut()
 
+        let loggedOut = await service.loggedOutAccessTokens
+        XCTAssertEqual(loggedOut, ["access-1"], "it was tried before the tokens went")
         let state = await session.currentState()
         XCTAssertEqual(state, .guest)
         let stored = try await tokens.value(for: .refreshToken)
         XCTAssertNil(stored)
+    }
+
+    /// An access token that expired while the app sat in the background is
+    /// the ordinary case. The auth client has no middleware to rotate it, so
+    /// the session does: one rotation, one retry, with the new bearer.
+    func testAStaleBearerIsRotatedOnceBeforeTheSignOutIsRetried() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        let session = makeCoordinator(service: service, tokens: tokens)
+        _ = await session.signIn(with: .google(idToken: "t"))
+        await service.answerSignOuts(.refuses(refused))
+
+        await session.signOut()
+
+        let presented = await service.loggedOutAccessTokens
+        XCTAssertEqual(presented, ["access-1", "access-2"])
+        let rotations = await service.refreshCount
+        XCTAssertEqual(rotations, 1)
+        // The rotation wrote a new refresh token; the sign-out still takes it.
+        let stored = try await tokens.value(for: .refreshToken)
+        XCTAssertNil(stored)
+    }
+
+    /// A launch that could not reach the backend leaves a session with no
+    /// access token in memory. The sign-out gets one first rather than going
+    /// out bare and being refused.
+    func testASignOutWithNoAccessTokenInHandRotatesFirst() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        try await tokens.setValue("refresh-stored", for: .refreshToken)
+        try await tokens.setValue(service.userID.uuidString, for: .accountUserID)
+        let session = makeCoordinator(service: service, tokens: tokens)
+
+        await session.signOut()
+
+        let presented = await service.loggedOutAccessTokens
+        XCTAssertEqual(presented, ["access-2"])
+        let rotated = await service.presentedRefreshTokens
+        XCTAssertEqual(rotated, ["refresh-stored"])
+        let state = await session.currentState()
+        XCTAssertEqual(state, .guest)
+    }
+
+    /// An expired session has already lost its refresh token, so there is
+    /// nothing on the backend to end and nothing to rotate with: the device
+    /// signs out without asking.
+    func testAnExpiredSessionSignsOutWithoutCallingTheBackend() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        try await tokens.setValue(service.userID.uuidString, for: .accountUserID)
+        let session = makeCoordinator(service: service, tokens: tokens)
+
+        await session.signOut()
+
+        let presented = await service.loggedOutAccessTokens
+        XCTAssertEqual(presented, [])
+        let rotations = await service.refreshCount
+        XCTAssertEqual(rotations, 0)
+        let account = try await tokens.value(for: .accountUserID)
+        XCTAssertNil(account)
     }
 
     /// The launch has two doors to a rotation and neither may present a
@@ -451,7 +512,7 @@ final class SessionCoordinatorTests: XCTestCase {
         )
         _ = await session.signIn(with: .google(idToken: "t"))
 
-        await session.signOut(everywhere: false)
+        await session.signOut()
 
         let state = await session.currentState()
         XCTAssertEqual(state, .guest, "this process must not go on holding it")

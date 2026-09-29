@@ -51,4 +51,6 @@ public struct UnregisteredDeviceIdentity: DeviceIdentityProviding {
     public init() {}
 
     public func registeredDeviceID() async -> UUID? { nil }
+
+    public func forgetRegisteredDevice() async {}
 }
