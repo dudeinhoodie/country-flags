@@ -23,6 +23,7 @@ Read §0 once, then jump to the section named by the alert or the task.
 - [10. Rotating a secret](#10-rotating-a-secret)
 - [11. Production](#11-production)
 - [12. The public site and its documents](#12-the-public-site-and-its-documents)
+- [13. Rolling the catalogue back](#13-rolling-the-catalogue-back)
 
 ## 0. Before anything
 
@@ -773,3 +774,156 @@ Until `admin-prod` exists, `Promote site documents to prod` copies the dev
 snapshot into the prod bucket, deletions included, and refuses an empty
 snapshot. It needs `github-deployer` to hold `roles/storage.objectAdmin` on
 the prod bucket and the `production` environment to exist.
+
+## 13. Rolling the catalogue back
+
+This section is about the content catalogue, not the application: it moves
+the active content pointer back to a release published earlier. For an
+application release, see §2.
+
+A catalogue rollback is not just a pointer flip. Publishing overwrites the
+shared rows (entities, assets, card revisions) in place, so a rollback reads
+the target release's stored bundle from the content bucket, checks it against
+the checksums recorded when it was published, and re-applies it whole. It runs
+the same `applyBundleToDatabase` a publish runs, in one Serializable
+transaction under the same pointer lock. Nothing is rebuilt or re-signed, and
+no signing key is needed. It takes about as long as a publish's transaction.
+
+### 13.1 How long it takes
+
+**Budget:** 20 minutes for the transaction
+(`RELEASE_TRANSACTION_TIMEOUT_MS` in
+`backend/src/modules/content/bundle/release-transaction.ts`). Publish and
+rollback share this value. Until
+[#441](https://github.com/dudeinhoodie/country-flags/issues/441) a rollback
+had 5 minutes and would have timed out on any real release.
+
+**What the time is made of.** Applying the current catalogue (278 entities,
+547 relations, 250 assets, 250 learning cards, 7 decks, 958 facts) is about
+5,970 Prisma calls, made one after another inside the one transaction. A
+rollback makes the same calls as a publish, and the number does not depend on
+how much changed, because every key the bundle carries is upserted. The rows
+are small, so each call costs about one round trip to the database, and the
+transaction lasts about as long as 6,000 round trips from wherever the process
+runs. The 20-minute budget holds while a call averages under 200 ms.
+
+The count comes from running `applyBundleToDatabase` for
+`content/generated/fixture-v1` against a fake transaction client that counts
+calls. The biggest items are `fact.create` (958), `contentChange.create`
+(785), entity names (1,112), relations (1,094) and deck members (456).
+
+**Measured on dev, from CI.** No rollback has been timed yet. The nearest
+measurements are the dev publishes by `Publish content to dev`, which runs on
+a GitHub-hosted runner against the direct database URL. The durations below
+are the whole `Publish the release` step, as the Actions API reports it. The
+step is the transaction plus the work before it: validation, and one
+existence check per bundle file and asset, with an upload for each one
+missing. So each figure is an upper bound on its transaction.
+
+| Date (2026) | Run | What it applied | Step | Outcome |
+| --- | --- | --- | --- | --- |
+| 13 Aug | [31687913628](https://github.com/dudeinhoodie/country-flags/actions/runs/31687913628) | new `fixture-v1`, 5-minute budget | 518 s | transaction closed at 300 s, on the learning cards |
+| 13 Aug | [31688798265](https://github.com/dudeinhoodie/country-flags/actions/runs/31688798265) | new `fixture-v1` | 740 s | published |
+| 13 Aug | [31699791581](https://github.com/dudeinhoodie/country-flags/actions/runs/31699791581) | new `fixture-v2` | 788 s | published |
+| 26 Aug | [32954900804](https://github.com/dudeinhoodie/country-flags/actions/runs/32954900804) | new `fixture-v2.1` | 777 s | published |
+| 26 Aug | [32981648546](https://github.com/dudeinhoodie/country-flags/actions/runs/32981648546) | new `fixture-v2.2` | 1148 s | published |
+| 26 Aug | [32986621369](https://github.com/dudeinhoodie/country-flags/actions/runs/32986621369) | `fixture-v1` again | 667 s | applied whole, then refused by the lifecycle check |
+| 28 Aug | [33166957215](https://github.com/dudeinhoodie/country-flags/actions/runs/33166957215) | new `fixture-v2.3` | 1209 s | published |
+| 29 Aug | [33258547545](https://github.com/dudeinhoodie/country-flags/actions/runs/33258547545) | `fixture-v1` again | 889 s | applied whole, then refused by the lifecycle check |
+| 29 Aug | [33260492748](https://github.com/dudeinhoodie/country-flags/actions/runs/33260492748) | `fixture-v2` again | 972 s | applied whole, then refused by the lifecycle check |
+| 29 Aug | [33262485157](https://github.com/dudeinhoodie/country-flags/actions/runs/33262485157) | new `fixture-v2.4` | 1263 s | published |
+
+The three runs that applied an older release again are the nearest thing to a
+rollback that has run on dev. Each applied an already-published release whole,
+with its files already in the bucket, and failed only at the last status
+update, on a lifecycle check that has since been fixed. Beyond a rollback's
+work they made 267 existence checks, one per bundle file and asset. A rollback
+makes 17 downloads instead, one per bundle file.
+
+What this says:
+
+- **From CI, a rollback of the current catalogue takes about 11 to 16
+  minutes.** That is the range of the three re-applies, and it fits the
+  budget.
+- **The margin from far away is thin.** The same work, published fresh from
+  the same runners, took steps of 1,148 to 1,263 s. Those transactions
+  committed, so each ran under 1,200 s, but nothing records how far under.
+  The data was the same size every time, so the spread is most likely the
+  network. From a machine as far from the database as a CI runner, a
+  rollback fits on a good day only.
+- **Per call.** The 5-minute run had got past the entities, relations and
+  assets, over 3,000 calls, when it was closed at 300 s. That is under 100 ms
+  a call that morning, and under 10 minutes for the whole application.
+
+**Not measured yet: the console path.** The console runs rollbacks on the
+Cloud Run job `content-publisher-dev` in `europe-west3`. On 28 September 2026
+that job did not exist: `gcloud run jobs list --region europe-west3` listed
+nothing, because `Deploy publisher dev` fails with `iam.serviceaccounts.actAs`
+denied on `content-publisher@`. So no rollback from the console has been run
+or timed. Expect it to be much quicker than CI if the job's round trip to the
+database is short. That is an expectation, not a measurement. Record the
+first real rollback here. The duration is `finishedAt − startedAt` on the run
+record, which the console's run card reads from
+`GET /v1/admin/content/releases/runs/{runId}`. The execution's own times
+should agree with it:
+
+```bash
+gcloud run jobs executions list --job content-publisher-dev --region "$REGION" --project "$PROJECT" --limit 5 \
+  --format='table(name,status.startTime,status.completionTime,status.succeededCount,status.failedCount)'
+```
+
+| Date | Path | From → to | Duration | Recorded by |
+| --- | --- | --- | --- | --- |
+| — | console (`content-publisher-dev`) | — | not yet measured | — |
+
+**If a rollback does not fit.** Make the application use fewer round trips.
+Do not raise the budget again. Inserting the facts and the change-feed rows
+in batches would remove about 1,740 of the 5,970 calls. A longer transaction
+holds the pointer lock, and the locks on every row it has written, for
+longer.
+
+### 13.2 From the console
+
+1. **Releases → Roll back**, pick the version, confirm. The list only offers
+   releases this deployment actually published.
+2. The run moves to stage `restoring`. Expect it to stay there for as long as
+   a publish stays on `applying`.
+3. `SUCCEEDED` means the pointer moved. Verify what clients are served:
+
+   ```bash
+   curl -fsS "$URL/v1/content/manifest?locale=en" | jq -r .contentVersion
+   ```
+
+How it can fail:
+
+- `PUBLISH_RUN_POINTER_BUSY`: another release, possibly a CI publish, holds
+  the pointer. Wait for it to finish, then roll back again.
+- `PUBLISH_RUN_ROLLBACK_FAILED` with a transaction timeout: nothing was
+  applied, because the whole rollback is one transaction, and the bad release
+  is still active. Use §13.3 from a machine close to the database. Then record
+  the duration in §13.1, because the budget no longer fits.
+
+### 13.3 From the CLI, when the console is down
+
+This is the emergency path (ADR-017 §5). It needs read access to the three
+secrets below and runs against the **direct** connection, because the pooler
+cannot hold a 20-minute transaction. Read the secrets into the environment and
+never print them.
+
+```bash
+export DATABASE_URL="$(gcloud secrets versions access latest --secret=dev-direct-database-url --project "$PROJECT")"
+export DIRECT_DATABASE_URL="$DATABASE_URL"
+export OBJECT_STORAGE_ACCESS_KEY_ID="$(gcloud secrets versions access latest --secret=dev-object-storage-access-key-id --project "$PROJECT")"
+export OBJECT_STORAGE_SECRET_ACCESS_KEY="$(gcloud secrets versions access latest --secret=dev-object-storage-secret-access-key --project "$PROJECT")"
+export OBJECT_STORAGE_PROVIDER=s3 OBJECT_STORAGE_BUCKET=country-flags-dev \
+  OBJECT_STORAGE_REGION=europe-west3 OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com \
+  OBJECT_STORAGE_FORCE_PATH_STYLE=true \
+  OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/country-flags-dev
+corepack yarn prisma:generate
+time corepack yarn content:bundle:rollback --to-version fixture-v2.3
+# {"targetVersion":"fixture-v2.3","previousActiveVersion":"fixture-v2.4","alreadyActive":false,"changes":<n>}
+```
+
+Expect it to take as long as the CI figures in §13.1 when it runs from far
+away. Verify with the manifest as in §13.2, and add the `time` output to the
+table in §13.1.
