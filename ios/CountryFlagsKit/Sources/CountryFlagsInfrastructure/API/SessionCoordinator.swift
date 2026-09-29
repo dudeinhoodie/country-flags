@@ -147,14 +147,24 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         }
     }
 
-    public func signOut(everywhere: Bool) async {
-        if everywhere {
-            try? await service.logoutEverywhere()
-        } else if let refreshToken = await storedRefreshToken() {
-            try? await service.logout(refreshToken: refreshToken)
+    public func signOut() async {
+        // The backend hears first, while there is still a session to prove
+        // who is asking. The route is private: sent without the bearer, which
+        // is how this used to go out, every request was refused, `try?`
+        // swallowed the refusal, and the server session outlived the
+        // sign-out (#436).
+        do {
+            try await revokeOnBackend()
+        } catch {
+            logger.log(
+                .notice,
+                .auth,
+                "A sign-out did not reach the backend",
+                ["code": .safe(APIError.from(error).details?.code ?? "TRANSPORT")]
+            )
         }
-        // The secrets go first: a failed network call must not leave a device
-        // holding a session it believes it no longer has.
+        // The device signs out whatever the network said: a failed call must
+        // not leave a device holding a session it believes it no longer has.
         //
         // A clearing that fails is the graver direction. The interface says
         // signed out and the refresh token is still on disk, so the next
@@ -182,6 +192,32 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         }
         accessToken = nil
         state = .guest
+    }
+
+    /// Ends the session on the backend, with the session itself as the proof.
+    ///
+    /// The auth client carries no token provider, so the refusal a stale
+    /// token earns is cured here the way the middleware cures it for every
+    /// other request: one rotation, one retry. An access token that expired
+    /// while the app sat in the background is the ordinary case, and a launch
+    /// that could not reach the backend leaves none in memory at all.
+    private func revokeOnBackend() async throws {
+        let token: String
+        if let accessToken {
+            token = accessToken
+        } else if await storedRefreshToken() != nil {
+            token = try await refreshAccessToken()
+        } else {
+            // An expired session already lost its refresh token: there is
+            // nothing left on the backend for this device to end.
+            return
+        }
+        do {
+            try await service.logout(accessToken: token)
+        } catch {
+            guard case .unauthorized = APIError.from(error) else { throw error }
+            try await service.logout(accessToken: try await refreshAccessToken())
+        }
     }
 
     // MARK: - AuthorizationTokenProviding

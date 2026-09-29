@@ -188,8 +188,10 @@ struct AppComposition: AppDependencies {
         )
         // The auth endpoints authenticate by what is in their bodies -- an
         // identity token, a refresh token -- not by a bearer, so their client
-        // carries none. That is also what breaks the cycle: the session needs
-        // a client, and every other client needs the session.
+        // has no token provider. That is also what breaks the cycle: the
+        // session needs a client, and every other client needs the session.
+        // The sign-out is the exception: it is a private route, and the
+        // session hands it its own bearer per call.
         let authClientFactory = APIClientFactory(
             configuration: apiConfiguration,
             transport: transport,
@@ -794,8 +796,6 @@ struct AppComposition: AppDependencies {
                     userID: fixtureUserID
                 ),
                 "refreshSession": MockAuth.refreshedTokens(now: dates.now()),
-                "logout": MockAuth.loggedOut,
-                "logoutAll": MockAuth.loggedOut,
                 // The account surface: its ways in, its devices, an export that is
                 // ready by the time it is asked about, and a deletion that is
                 // accepted. All of it offline.
@@ -809,7 +809,9 @@ struct AppComposition: AppDependencies {
                 "reauthenticateApple": MockAuth.reauthenticationProof(now: dates.now()),
                 "reauthenticateGoogle": MockAuth.reauthenticationProof(now: dates.now()),
             ]
-            var handlers: [String: MockClientTransport.Handler] = [:]
+            // The sign-out refuses a request without a bearer, as the real
+            // route does.
+            var handlers: [String: MockClientTransport.Handler] = MockAuth.logoutHandlers()
             let learning = MockLearningBackend(now: dates.now)
             handlers.merge(learning.handlers()) { current, _ in current }
             // One deck for sale, and an account that comes to own it. The
