@@ -90,15 +90,21 @@ dev использует отдельные реальные Apple/Google dev cl
 
 ### Runtime
 
-- Dev: один Cloud Run service в europe-west3, минимум ноль instances.
+- Dev: один Cloud Run service в europe-west3; как и production, минимум один
+  instance и постоянно выделенный CPU (#437).
 - Production: Cloud Run service в europe-west3, минимум 512 MB RAM и минимум один always-on instance.
 - Runtime и PostgreSQL выбираются в ближайших доступных регионах.
-- Dev может засыпать; cold start допустим и документируется.
 - Production MUST быть always-on до подключения внешних пользователей.
 
-Dev масштабируется до нуля и потому засыпает: первый запрос после простоя
-платит за холодный старт. Для production это недопустимо, поэтому там минимум
-один instance держится всегда.
+Dev не засыпает по той же причине, что и production: outbox-воркеры, сверка
+покупок, миграция планировщика и экспорт данных работают внутри API-процесса
+(§14), и без постоянного CPU они стоят между запросами — экспорт после `202`
+висит в `PENDING`, lease истекают, события обрабатываются дважды. Поэтому deploy
+задаёт `--no-cpu-throttling` и `--min 1`. Минимум задан на уровне service, а не
+ревизии: минимум ревизии держал бы запущенной и ревизию-кандидата под тегом,
+не прошедшую проверку (§10). Цена — один vCPU и 512 MiB круглосуточно: около
+2,6 млн vCPU-секунд в месяц против 240 тыс. в free tier Cloud Run (§19), и
+compute Neon, который больше не засыпает (ниже, "Instances и пул соединений").
 
 Изначально этим target был Koyeb. Он заменён после того, как платформу
 приобрёл Mistral: консоль перестала выдавать API-ключи, а продукт развернулся в
@@ -118,6 +124,71 @@ Dev масштабируется до нуля и потому засыпает:
 
 Free plan допустим для dev и закрытой альфы. До значимого пользовательского
 трафика prod получает достаточный PITR/SLA либо отдельно доказанную защиту.
+
+### Instances и пул соединений
+
+Число instances, concurrency и пул Prisma выбираются вместе. Каждый instance
+держит до `connection_limit` соединений через pooler, а во время deploy рядом с
+обслуживающей ревизией работает проверяемая (§10), так что соединений может
+быть вдвое больше.
+
+| Параметр | Dev | Где задаётся |
+| --- | --- | --- |
+| instances, максимум (N) | 4 | `MAX_INSTANCES` в `deploy-dev.yml` |
+| concurrency (C) | 20 | `CONCURRENCY` в `deploy-dev.yml` |
+| `connection_limit` | 10 | query string pooled URL, секрет `dev-database-url` |
+| `pool_timeout` | 10 с | там же |
+| соединений на ревизию | N × 10 = 40 | |
+| во время deploy | 2 × 40 = 80 | |
+| бюджет pooler | 90 | `DATABASE_POOL_BUDGET` в `deploy-dev.yml` |
+| CPU и память instance | 1 vCPU, 512 MiB | `gcloud run deploy` в `deploy-dev.yml` |
+
+До #437 api-dev работал без минимума instances, с CPU только на время запроса,
+`maxScale` 20, concurrency 80 (значение Cloud Run по умолчанию), TCP startup
+probe и без параметров пула в URL (состояние сервиса на 28.09.2026). Ограничение
+`run.googleapis.com/maxScale: 20` на уровне service, оставшееся с provisioning,
+deploy не трогает: оно шире N и ни на что не влияет, пока N меньше 20.
+
+Почему так:
+
+- N = 4, C = 20: 80 одновременных запросов — с запасом для dev, где клиенты —
+  несколько тестовых сборок, и при этом N × C не упирается в пул (ниже).
+- `connection_limit = C / 2`: запрос держит соединение только часть своей
+  жизни, поэтому на одно соединение приходится два одновременных запроса;
+  остальные ждут в очереди Prisma. Из того же пула берут соединения воркеры
+  процесса (outbox, сверка, миграция планировщика), каждый раз в секунду-две.
+  Без параметра Prisma берёт размер пула из числа CPU, а это не решение под
+  нагрузку.
+- `pool_timeout = 10` с — значение Prisma по умолчанию, записанное явно, чтобы
+  deploy мог его проверить: ожидание соединения дольше — уже перегрузка, и она
+  должна стать ошибкой P2024 в логах API раньше, чем iOS-клиент бросит запрос
+  по своему таймауту (30 с, `APIClientConfiguration.requestTimeout`).
+  Интерактивные транзакции ждут соединение по своему `maxWait` (2 с, P2028), а
+  не по `pool_timeout`.
+- Бюджет — пул PgBouncer Neon для пары user/database, `0.9 × max_connections`:
+  при 0.25 CU это 0.9 × 104 ≈ 93. Бюджет 90 оставляет в `max_connections`
+  место для миграций, publisher-job и CLI, которые ходят по direct URL мимо
+  pooler. 0.25 CU — наименьший compute ветки, поэтому бюджет верен при любом
+  размере, до которого она масштабируется.
+
+Следствие always-on для Neon: воркеры опрашивают базу каждые 1–2 с, поэтому
+compute dev-ветки больше не засыпает. 0.25 CU круглосуточно — около 183
+CU-часов в месяц, и лимит compute-часов плана Neon должен их покрывать.
+
+Хвост pooled URL (адрес и учётные данные — из Neon, параметры — из таблицы):
+
+~~~text
+…-pooler.<region>.aws.neon.tech/<db>?sslmode=require&connection_limit=10&pool_timeout=10
+~~~
+
+Deploy проверяет query string до миграции: без `connection_limit` и
+`pool_timeout`, с `connection_limit` больше C или с `2 × N × connection_limit`
+больше бюджета ревизия не создаётся. N, C, бюджет и секрет меняются вместе:
+при росте compute — новый бюджет, при росте N — новая версия секрета с меньшим
+`connection_limit` или больший compute.
+
+Production использует ту же схему; его N, C и бюджет выбираются под compute
+prod-проекта Neon вместе с production deploy (#39).
 
 ### Object storage
 
@@ -161,7 +232,7 @@ gcloud iam service-accounts create github-deployer   # identity workflow
 Secrets (имена фиксированы, workflows ссылаются именно на них):
 
 ~~~text
-dev-database-url                       pooled Neon URL, runtime
+dev-database-url                       pooled Neon URL, runtime; с connection_limit и pool_timeout (§5)
 dev-direct-database-url                direct Neon URL, migrations и publish
 dev-auth-access-token-secret           ≥32 символов, только для dev
 dev-auth-rate-limit-secret             ≥32 символов, только для dev
@@ -187,6 +258,30 @@ gcloud secrets add-iam-policy-binding dev-auth-access-token-secret \
 
 Значение auth secret нигде не хранится вне Secret Manager: ротация — это новая
 версия секрета и следующий deploy.
+
+Deploy монтирует секрет не как `:latest`, а номером версии, самой новой на
+момент deploy (`dev-database-url:7`): `:latest` Cloud Run разрешает при старте
+каждого instance, и новая версия доходила бы до уже работающей ревизии, а откат
+ревизии не возвращал бы старое значение. Чтобы узнать номер, `github-deployer`
+читает метаданные версий — `roles/secretmanager.viewer` на каждом секрете,
+который монтируют `deploy-dev.yml` и `deploy-publisher-dev.yml`. Значений эта
+роль не открывает.
+
+~~~bash
+for secret in dev-database-url dev-direct-database-url \
+  dev-auth-access-token-secret dev-auth-rate-limit-secret dev-account-data-hash-secret \
+  dev-admin-email-allowlist dev-admin-draft-storage-access-key-id \
+  dev-admin-draft-storage-secret-access-key dev-admin-github-token \
+  dev-site-storage-access-key-id dev-site-storage-secret-access-key \
+  dev-object-storage-access-key-id dev-object-storage-secret-access-key \
+  dev-content-signing-private-key dev-content-signing-public-keys; do
+  gcloud secrets add-iam-policy-binding "${secret}" \
+    --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com \
+    --role=roles/secretmanager.viewer
+done
+~~~
+
+Новый секрет в deploy получает ту же привязку.
 
 Bucket для контента (нужен не ревизии, а publish — см. раздел 7). Dev использует
 Cloud Storage в том же GCP-проекте: аккаунт, IAM и Secret Manager там уже
@@ -415,6 +510,18 @@ OTEL_ENABLED
 OTEL_EXPORTER_OTLP_ENDPOINT
 ~~~
 
+`prod` дополнительно требует ключ Sign in with Apple и ключ шифрования Apple
+tokens; без них удаление аккаунта не может отозвать Apple tokens (docs/01 §5.5),
+и процесс не стартует. В `dev` они необязательны: пока ключа нет (#302), каждый
+вход через Apple и каждое удаление записывают `credentials_not_configured`.
+
+~~~text
+AUTH_APPLE_TEAM_ID
+AUTH_APPLE_KEY_ID
+AUTH_APPLE_PRIVATE_KEY
+AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY
+~~~
+
 Требования:
 
 - hosted startup не принимает test defaults;
@@ -478,12 +585,22 @@ PR workflow MUST:
 
 Release image из master автоматически запускает:
 
-1. Проверку dev configuration.
+1. Проверку dev configuration: каждое значение принадлежит dev, каждый секрет
+   закреплён номером версии, пул pooled URL укладывается в бюджет (§5).
 2. Migration job через DIRECT_DATABASE_URL.
-3. Явное обновление Cloud Run api-dev на immutable image по дайджесту.
-4. Ожидание provider deployment status.
-5. Smoke tests.
-6. GitHub deployment record с URL и SHA.
+3. Создание ревизии api-dev на immutable image по дайджесту — без трафика
+   (`--no-traffic`), под тегом `candidate`.
+4. Ожидание provider deployment status: startup probe `/v1/health/ready`.
+5. Smoke tests по адресу тега. Тег разрешается обратно в ревизию, а её
+   `SERVICE_RELEASE` сверяется с коммитом, так что прогон называет ту ревизию,
+   которую проверил.
+6. Перевод трафика: `update-traffic --to-latest`.
+7. GitHub deployment record с URL и SHA.
+
+Ревизия, не прошедшая шаги 4–5, трафика не получает: он остаётся на прежней
+ревизии. `--no-traffic` при этом закрепляет трафик за ней явно, и закрепление
+снимает следующий успешный deploy — шагом 6. Тот же шаг снимает и закрепление,
+оставленное ручным `update-traffic --to-revisions` (runbook, §2.3).
 
 Используется concurrency deploy-dev. Новый commit может отменить ожидающий
 старый deploy, но не выполняющуюся migration.
@@ -532,6 +649,8 @@ secret manager с защищёнными environments.
 - Provider readiness: GET /v1/health/ready.
 - Readiness проверяет PostgreSQL.
 - Grace period учитывает cold start и Prisma initialization.
+- Startup probe ревизии — HTTP GET /v1/health/ready каждые 5 с, до двух минут:
+  instance, который слушает порт, но не достаёт до базы, трафик не получает.
 
 Минимальный post-deploy smoke:
 
@@ -548,7 +667,8 @@ Smoke повторяется с bounded retry и завершается ошиб
 
 Polling workers пока запускаются внутри API process.
 
-- На sleeping dev задержка ожидаема.
+- Dev и production держат минимум один instance с постоянно выделенным CPU
+  (§5), поэтому воркеры не стоят между запросами.
 - Production API остаётся always-on.
 - DB leases/idempotency сохраняют корректность при нескольких replicas.
 - Метрики показывают outbox lag, retries и dead-letter state.
@@ -657,9 +777,9 @@ log-based метрик и dashboard лежат в `infrastructure/monitoring/` �
 
 ## 19. Стоимость и этапы
 
-До production: Cloud Run dev в пределах free tier, Neon и object storage в пределах free tier, prod service выключен.
+До production: Cloud Run dev — один instance с постоянным CPU (§5), что выходит за free tier; Neon — в пределах compute-часов плана, если их хватает на круглосуточный 0.25 CU (§5); object storage в пределах free tier, prod service выключен.
 
-Закрытая альфа: Cloud Run dev в пределах free tier, prod always-on несколько USD/month, Neon Free
+Закрытая альфа: Cloud Run dev и prod always-on, по одному vCPU круглосуточно (§5), Neon Free
 только вместе с собственной backup policy, object storage в пределах free tier.
 
 Public launch: always-on compute, PostgreSQL plan с подходящим PITR/monitoring,

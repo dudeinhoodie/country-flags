@@ -17,6 +17,10 @@ import CountryFlagsDomain
 /// identifier would attach a learner's work to a device that does not exist.
 public protocol DeviceIdentityProviding: Sendable {
     func registeredDeviceID() async -> UUID?
+    /// Drops the remembered device, so the next `registeredDeviceID()` asks
+    /// the backend again. Called when the backend says it does not know the
+    /// device a review named.
+    func forgetRegisteredDevice() async
 }
 
 public enum ReviewUploadFailure: Error, Equatable, Sendable {
@@ -62,6 +66,8 @@ public struct ReviewUploader: ReviewUploading {
         decoder.dateDecodingStrategy = .iso8601
 
         var events: [Components.Schemas.ReviewEvent] = []
+        // What was sent, kept to send again under another device.
+        var sent: [StoredReview] = []
         // The server answers in review IDs; the queue is keyed by operation
         // IDs. This map is the only bridge between the two, so an answer that
         // cannot be traced back to its operation is dropped rather than acted
@@ -82,6 +88,7 @@ public struct ReviewUploader: ReviewUploading {
             }
             if let event = Self.event(from: stored, deviceID: deviceID, logger: logger) {
                 events.append(event)
+                sent.append(stored)
                 operationIDByReviewID[stored.reviewID] = operation.id
             }
         }
@@ -90,6 +97,86 @@ public struct ReviewUploader: ReviewUploading {
             return ReviewBatchOutcome(acknowledgements: [], cursor: nil, serverTime: Date())
         }
 
+        let first = try await send(events, operationIDByReviewID: operationIDByReviewID)
+        let unknownDevice = Set(
+            first.acknowledgements
+                .filter { $0.status == .rejected && $0.rejectionCode == Self.deviceNotFound }
+                .map(\.eventID)
+        )
+        guard !unknownDevice.isEmpty else { return first }
+
+        // The backend does not know the device these answers named: it was
+        // removed, or it belongs to the account this device was signed into
+        // before. Parking them was permanent (#443) for something that is no
+        // verdict on the answers at all. The device is resolved again and the
+        // same answers go once more under it.
+        let kept = first.acknowledgements.filter { !unknownDevice.contains($0.eventID) }
+        await devices.forgetRegisteredDevice()
+        guard let resolved = await devices.registeredDeviceID(), resolved != deviceID else {
+            // Nothing better to send them as. Left out of the outcome, they
+            // stay queued for the next run rather than being parked.
+            logger.log(
+                .error,
+                .sync,
+                "The backend does not know this device and no other could be resolved",
+                ["count": .count(unknownDevice.count)]
+            )
+            return ReviewBatchOutcome(
+                acknowledgements: kept,
+                cursor: first.cursor,
+                serverTime: first.serverTime
+            )
+        }
+        logger.log(
+            .notice,
+            .sync,
+            "Resending answers under the device the backend resolved",
+            ["count": .count(unknownDevice.count)]
+        )
+        let resent = sent
+            .filter { unknownDevice.contains($0.reviewID) }
+            .compactMap { Self.event(from: $0, deviceID: resolved, logger: logger) }
+        let second: ReviewBatchOutcome
+        do {
+            second = try await send(resent, operationIDByReviewID: operationIDByReviewID)
+        } catch {
+            // The first answer still stands: what it accepted is stored, and
+            // the resent answers stay queued for the next run.
+            logger.log(
+                .notice,
+                .sync,
+                "Answers resent under the resolved device did not reach the backend",
+                ["count": .count(unknownDevice.count)]
+            )
+            return ReviewBatchOutcome(
+                acknowledgements: kept,
+                cursor: first.cursor,
+                serverTime: first.serverTime
+            )
+        }
+        // A second refusal of a device just resolved is not something another
+        // attempt in this run can fix; those answers stay queued too.
+        let settled = second.acknowledgements.filter {
+            !($0.status == .rejected && $0.rejectionCode == Self.deviceNotFound)
+        }
+        if settled.count < second.acknowledgements.count {
+            await devices.forgetRegisteredDevice()
+        }
+        return ReviewBatchOutcome(
+            acknowledgements: kept + settled,
+            cursor: second.cursor ?? first.cursor,
+            serverTime: second.serverTime
+        )
+    }
+
+    /// The backend's code for a review naming a device it does not hold for
+    /// this account.
+    static let deviceNotFound = "DEVICE_NOT_FOUND"
+
+    private func send(
+        _ events: [Components.Schemas.ReviewEvent],
+        operationIDByReviewID: [UUID: UUID]
+    ) async throws -> ReviewBatchOutcome {
         let client = clientFactory.makeClient()
         let output: Operations.createReviewBatch.Output
         do {

@@ -4,6 +4,7 @@ import {
   type OnModuleInit,
 } from "@nestjs/common";
 import {
+  type Prisma,
   ReconciliationJobStatus,
   SchedulerDefinitionStatus,
 } from "@prisma/client";
@@ -15,7 +16,15 @@ import {
 } from "../../common/telemetry/worker-backlog.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 
-const POLL_INTERVAL_MS = 2_000;
+/** How soon the worker polls again after a poll that found work. */
+export const POLL_INTERVAL_MS = 2_000;
+/**
+ * The longest an idle worker waits between polls. A scheduler version changes
+ * with a deploy, and a new revision polls as it starts, so an idle worker has
+ * nothing to be quick about; but the backlog heartbeat rides on the poll, and
+ * the "worker stopped reporting" alert fires after fifteen silent minutes.
+ */
+export const MAX_IDLE_POLL_INTERVAL_MS = 5 * 60_000;
 const PAGE_SIZE = 100;
 /** The `queue` label every scheduler-migration gauge, log line and alert is written against. */
 const SCHEDULER_MIGRATION_QUEUE = "scheduler-migration";
@@ -24,10 +33,27 @@ const UNFINISHED_RUN_STATUSES = [
   ReconciliationJobStatus.PROCESSING,
 ];
 
+/**
+ * The wait before the next poll. A poll that queued a page keeps the pace; a
+ * poll that found nothing doubles the wait, up to the idle ceiling. There is
+ * rarely anything to migrate: a new scheduler version is a deploy-time event,
+ * and polling an idle queue every two seconds on every instance only kept the
+ * database from ever going quiet (#452).
+ */
+export function nextPollDelay(previousDelayMs: number, queued: number): number {
+  if (queued > 0) return POLL_INTERVAL_MS;
+  return Math.min(
+    Math.max(previousDelayMs, POLL_INTERVAL_MS) * 2,
+    MAX_IDLE_POLL_INTERVAL_MS,
+  );
+}
+
 @Injectable()
 export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
   private timer: NodeJS.Timeout | undefined;
   private activeDrain: Promise<number> | undefined;
+  private pollDelayMs = POLL_INTERVAL_MS;
+  private stopped = false;
 
   constructor(
     private readonly database: PrismaService,
@@ -36,25 +62,43 @@ export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit(): void {
-    this.timer = setInterval(() => this.runScheduled(), POLL_INTERVAL_MS);
-    this.timer.unref();
     this.runScheduled();
   }
 
   async onModuleDestroy(): Promise<void> {
-    if (this.timer !== undefined) clearInterval(this.timer);
+    this.stopped = true;
+    if (this.timer !== undefined) clearTimeout(this.timer);
     await this.activeDrain?.catch(() => undefined);
   }
 
+  /**
+   * One poll, then the next one scheduled by what this one found. A timeout
+   * chain rather than an interval, because the interval is not fixed; and
+   * polls never overlap, so a slow drain delays the next poll instead of
+   * queueing behind it.
+   */
   private runScheduled(): void {
-    void this.drain().catch((error: unknown) => {
-      this.logger.warn({
-        message: "Scheduler migration worker poll failed",
-        event: "scheduler_migration_worker_poll_failed",
-        errorClass: error instanceof Error ? error.name : "UnknownError",
-      });
-    });
     void this.backlog.report(SCHEDULER_MIGRATION_QUEUE, () => this.metrics());
+    void this.drain()
+      .then(
+        (queued) => queued,
+        (error: unknown) => {
+          this.logger.warn({
+            message: "Scheduler migration worker poll failed",
+            event: "scheduler_migration_worker_poll_failed",
+            errorClass: error instanceof Error ? error.name : "UnknownError",
+          });
+          // A failing database is not hammered either: a failed poll backs
+          // off like an idle one.
+          return 0;
+        },
+      )
+      .then((queued) => {
+        this.pollDelayMs = nextPollDelay(this.pollDelayMs, queued);
+        if (this.stopped) return;
+        this.timer = setTimeout(() => this.runScheduled(), this.pollDelayMs);
+        this.timer.unref();
+      });
   }
 
   /**
@@ -115,11 +159,7 @@ export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
       select: { version: true },
     });
     if (active === null) return;
-    const mismatchedState = await this.database.userCardState.findFirst({
-      where: { schedulerVersion: { not: active.version } },
-      select: { userId: true },
-    });
-    if (mismatchedState === null) return;
+    if (!(await this.hasStateOnAnotherVersion(active.version))) return;
     const existing = await this.database.schedulerMigrationRun.findUnique({
       where: { targetSchedulerVersion: active.version },
     });
@@ -138,6 +178,27 @@ export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
         },
       });
     }
+  }
+
+  /**
+   * Whether any card state is on a version other than `version`, answered from
+   * the two ends of the `scheduler_version` index: every state is on `version`
+   * exactly when the lowest and the highest version both are. The obvious
+   * query, the first state whose version is not `version`, cannot use a btree
+   * index for `<>`, and on the common answer — none — it read the whole table.
+   */
+  private async hasStateOnAnotherVersion(version: string): Promise<boolean> {
+    const [range] = await this.database.$queryRaw<
+      Array<{ lowest: string | null; highest: string | null }>
+    >`
+      SELECT
+        (SELECT "scheduler_version" FROM "user_card_states"
+          ORDER BY "scheduler_version" ASC LIMIT 1) AS "lowest",
+        (SELECT "scheduler_version" FROM "user_card_states"
+          ORDER BY "scheduler_version" DESC LIMIT 1) AS "highest"
+    `;
+    if (range === undefined || range.lowest === null) return false;
+    return range.lowest !== version || range.highest !== version;
   }
 
   private async processNextPage(): Promise<number> {
@@ -167,22 +228,34 @@ export class SchedulerMigrationWorker implements OnModuleInit, OnModuleDestroy {
         where: { id: run.id },
         data: { status: ReconciliationJobStatus.PROCESSING },
       });
-      const after =
+      const after: Prisma.UserCardStateWhereInput[] =
         run.afterUserId === null || run.afterLearningCardId === null
-          ? undefined
-          : {
-              OR: [
-                { userId: { gt: run.afterUserId } },
-                {
-                  userId: run.afterUserId,
-                  learningCardId: { gt: run.afterLearningCardId },
-                },
-              ],
-            };
+          ? []
+          : [
+              {
+                OR: [
+                  { userId: { gt: run.afterUserId } },
+                  {
+                    userId: run.afterUserId,
+                    learningCardId: { gt: run.afterLearningCardId },
+                  },
+                ],
+              },
+            ];
       const states = await transaction.userCardState.findMany({
         where: {
-          schedulerVersion: { not: run.targetSchedulerVersion },
-          ...after,
+          AND: [
+            // Below or above rather than `not`: two ranges the
+            // `scheduler_version` index can serve, where `<>` is a filter
+            // over every row the scan passes.
+            {
+              OR: [
+                { schedulerVersion: { lt: run.targetSchedulerVersion } },
+                { schedulerVersion: { gt: run.targetSchedulerVersion } },
+              ],
+            },
+            ...after,
+          ],
         },
         orderBy: [{ userId: "asc" }, { learningCardId: "asc" }],
         take: PAGE_SIZE,

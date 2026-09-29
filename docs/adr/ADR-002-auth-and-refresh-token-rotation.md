@@ -1,7 +1,10 @@
 # ADR-002: Provider identities and refresh-token rotation
 
 Status: Accepted  
-Date: 2026-07-29
+Date: 2026-07-29  
+Amended: 2026-09-28 — a replay of the just-rotated refresh token inside a
+60-second grace window returns that rotation's pair instead of revoking the
+family ([#442](https://github.com/dudeinhoodie/country-flags/issues/442))
 
 ## Context
 
@@ -32,7 +35,8 @@ Apple or Google network availability.
   `tokenFamilyId`.
 - Treat reuse of a rotated refresh token as evidence of replay. Atomically revoke
   every active session in that token family and return
-  `REFRESH_TOKEN_REUSED`.
+  `REFRESH_TOKEN_REUSED`. The one exception is a lost response; see the
+  amendment below.
 - Revoke the current session on logout and all active user sessions on
   logout-all. Access tokens become unusable immediately because the auth guard
   checks server-side session state.
@@ -50,8 +54,8 @@ Apple or Google network availability.
 
 ## Consequences
 
-- Refresh replay detection can invalidate a legitimate client if the same old
-  token is submitted concurrently; the client must sign in again. This is the
+- Refresh replay detection can invalidate a legitimate client that presents an
+  old token after the grace window; the client must sign in again. This is the
   intended fail-closed behaviour.
 - Access-token validation performs a small indexed database lookup so logout and
   family revocation are immediate instead of waiting for JWT expiry.
@@ -71,3 +75,71 @@ Apple or Google network availability.
   and logout become harder to enforce reliably.
 - Accept test login endpoints in production code: rejected because configuration
   mistakes could create an authentication bypass.
+
+## Amendment 2026-09-28: grace window for a lost refresh response
+
+### Context
+
+The iOS client keeps its refresh token when a refresh response never arrives
+and presents it again later. The access token lives only in memory, so every
+cold start refreshes. A lift, a dropped connection or an app suspended while
+the request was in flight left the server with a completed rotation the client
+never saw, and the next presentation of the old token revoked the family: the
+person was signed out for riding a lift (#442).
+
+### Decision
+
+- A refresh token that was rotated at most 60 seconds ago
+  (`REFRESH_REPLAY_GRACE_MS`), whose successor has not been used, revoked or
+  expired, is answered with the same pair that rotation returned. It is
+  audited as `AUTH_REFRESH_REPLAYED`. Nothing is written to the session rows
+  and no new successor is created.
+- Every other replay keeps the original behaviour: outside the window, or once
+  the successor has been rotated or revoked, the whole family is revoked and
+  the answer is `REFRESH_TOKEN_REUSED`.
+- The successor refresh token is no longer drawn at random. It is
+  `HMAC-SHA-384(K, successorId || "." || presentedToken)`, 384 bits like a
+  random token, where `K` is derived from `AUTH_ACCESS_TOKEN_SECRET` with HKDF
+  under its own label. Only its SHA-256 hash is stored, as before. A replay
+  derives it again from the token presented and checks it against the stored
+  hash, so the server returns the same token without storing it in any
+  recoverable form.
+- The access token of a rotation is dated at the rotation (the successor's
+  `created_at`) and its `jti` is the successor session id. HS256 is
+  deterministic, so the replay re-signs the identical access token, and the
+  pair is the same byte for byte.
+- Racing presentations of one token are serialised by the row claim and by the
+  unique `rotated_from_id`: one request creates the successor, the others see
+  it once the first commits and derive the same pair. A family never has two
+  live heads.
+
+### Consequences
+
+- A lost response within a minute no longer signs the person out. A client
+  that presents the old token later than that, for example on the next launch
+  an hour after the app was killed mid-request, is still signed out; widening
+  that case would widen the window a stolen token is honoured in.
+- Anyone who steals the previous token and presents it inside the window
+  receives the live successor instead of triggering revocation. The window is
+  bounded, and the moment either holder rotates, the other's next presentation
+  revokes the family.
+- Reproducing a successor needs the previous token, which only the client
+  holds, the successor's row id and the server secret. A database copy alone
+  yields nothing usable. Whoever also holds the secret can already sign access
+  tokens for any session, so the derivation opens nothing new.
+- Rotating `AUTH_ACCESS_TOKEN_SECRET`, or a successor minted before this
+  change, only makes the grace path unavailable for rotations of the last
+  minute: such a replay is judged as reuse, as it was before.
+
+### Alternatives considered
+
+- Store the successor encrypted with a short TTL: rejected. It adds a
+  recoverable copy of a live credential and a cleanup obligation for rows whose
+  window has passed, where derivation needs neither.
+- Re-issue a fresh successor within the family and invalidate the unseen one:
+  rejected. Two racing requests from the same client would each receive a
+  different token and the client would keep whichever answer arrived last,
+  possibly the invalidated one, which is the sign-out this change removes.
+- A longer window that covers the next cold start: rejected for now. It turns
+  replay detection into replay acceptance for hours; a client-side retry of the
+  refresh before the app is suspended is the better lever.

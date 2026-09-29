@@ -23,6 +23,7 @@ import {
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
 import { DeckAccessService } from "../commerce/deck-access.service";
 import { generateMultipleChoiceOptions } from "./multiple-choice-options";
 import {
@@ -150,7 +151,15 @@ export class StudySessionsService {
     request: CreateServerStudySessionRequest,
   ): Promise<{ created: boolean; session: Record<string, unknown> }> {
     const hash = requestHash(request);
-    const result = await this.prisma.$transaction(
+    // Serializable, and allowed to lose. The session reads the card states
+    // and the day's answers a review upload writes, so an upload of old
+    // answers committing while a new session opens aborts one of the two —
+    // and the side Postgres picks is expected to try again. Ingest always
+    // did; create and complete answered 500 instead (#452). Each attempt
+    // re-reads everything, so a retry of a session a concurrent request
+    // already created resolves to it through the idempotency check below.
+    const result = await inSerializableTransaction(
+      this.prisma,
       async (transaction) => {
         const existing = await transaction.studySession.findUnique({
           where: { id: request.id },
@@ -339,11 +348,7 @@ export class StudySessionsService {
 
         return { created: true, session: created };
       },
-      {
-        isolationLevel: "Serializable",
-        maxWait: 10_000,
-        timeout: 30_000,
-      },
+      { maxWait: 10_000, timeout: 30_000 },
     );
 
     return {
@@ -365,7 +370,8 @@ export class StudySessionsService {
     request: CreateOfflineStudySessionRequest,
   ): Promise<{ created: boolean; session: Record<string, unknown> }> {
     const hash = requestHash(request);
-    const result = await this.prisma.$transaction(
+    const result = await inSerializableTransaction(
+      this.prisma,
       async (transaction) => {
         const existing = await transaction.studySession.findUnique({
           where: { id: request.id },
@@ -561,11 +567,7 @@ export class StudySessionsService {
 
         return { created: true, session: created };
       },
-      {
-        isolationLevel: "Serializable",
-        maxWait: 10_000,
-        timeout: 30_000,
-      },
+      { maxWait: 10_000, timeout: 30_000 },
     );
 
     return {
@@ -594,7 +596,8 @@ export class StudySessionsService {
     sessionId: string,
     request: CompleteStudySessionRequest,
   ): Promise<Record<string, unknown>> {
-    const session = await this.prisma.$transaction(
+    const session = await inSerializableTransaction(
+      this.prisma,
       async (transaction) => {
         const current = await transaction.studySession.findFirst({
           where: { id: sessionId, userId },
@@ -651,11 +654,7 @@ export class StudySessionsService {
           include: SESSION_INCLUDE,
         });
       },
-      {
-        isolationLevel: "Serializable",
-        maxWait: 10_000,
-        timeout: 30_000,
-      },
+      { maxWait: 10_000, timeout: 30_000 },
     );
 
     return this.mapSession(session);

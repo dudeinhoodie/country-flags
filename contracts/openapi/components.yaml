@@ -377,6 +377,12 @@ schemas:
         type: string
         minLength: 1
         maxLength: 64
+        pattern: ^[A-Za-z][A-Za-z0-9_+-]*(?:/[A-Za-z0-9_+-]+)*$
+        description: >-
+          The device's IANA time zone name, such as `Europe/Berlin`. A new
+          account's settings take it as `timezone` when PostgreSQL knows the
+          zone, and `UTC` otherwise; signing in to an existing account does not
+          change the settings.
   AppleAuthRequest:
     type: object
     additionalProperties: false
@@ -640,6 +646,10 @@ schemas:
         type: string
         minLength: 1
         maxLength: 64
+        description: >-
+          The IANA time zone the learner's day is counted in: the daily review
+          limit resets at midnight here. A stored zone PostgreSQL does not know
+          is counted as `UTC`.
       version:
         type: integer
         minimum: 1
@@ -687,6 +697,13 @@ schemas:
         type: string
         minLength: 1
         maxLength: 64
+        pattern: ^[A-Za-z][A-Za-z0-9_+-]*(?:/[A-Za-z0-9_+-]+)*$
+        description: >-
+          An IANA time zone name that PostgreSQL knows, matched without regard
+          to case and stored in PostgreSQL's spelling. Any other value, including
+          a UTC offset such as `+05:30`, is refused with `VALIDATION_FAILED`.
+          The client sends it when the device's time zone differs from the
+          stored one, so the learner's day follows them after a move.
   AccountDeletionResult:
     type: object
     required: [status, requestedAt, expectedCompletionAt]

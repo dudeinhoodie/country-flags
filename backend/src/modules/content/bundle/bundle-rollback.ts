@@ -7,6 +7,7 @@ import { parseBundleDomain } from "./bundle-domain";
 import { applyBundleToDatabase } from "./bundle-publisher";
 import { lockActiveContentPointer } from "./content-pointer-lock";
 import type { ContentManifest } from "./bundle-types";
+import { RELEASE_TRANSACTION_OPTIONS } from "./release-transaction";
 
 export interface RollbackSummary {
   targetVersion: string;
@@ -152,6 +153,9 @@ export async function rollbackContentVersion(
         changes: application.changeCount,
       } satisfies RollbackSummary;
     },
-    { isolationLevel: "Serializable", maxWait: 30_000, timeout: 300_000 },
+    // The publish's budget, not a smaller one: this is the same full
+    // re-application of a bundle. The five minutes it used to have would have
+    // timed out mid-incident and left the bad release active (#441).
+    RELEASE_TRANSACTION_OPTIONS,
   );
 }

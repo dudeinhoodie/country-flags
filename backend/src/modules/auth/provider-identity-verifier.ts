@@ -18,6 +18,12 @@ export interface VerifiedProviderIdentity {
   emailVerified: boolean | null;
   isPrivateEmail: boolean | null;
   issuedAt: Date;
+  /**
+   * The client the token was issued to, from the allowlist. For Apple it is
+   * the app's bundle id, which the code exchange and the revocation of the
+   * sign-in's Apple token have to name.
+   */
+  audience: string | null;
 }
 
 const APPLE_ISSUER = "https://appleid.apple.com";
@@ -157,6 +163,10 @@ export class ProviderIdentityVerifier {
       isPrivateEmail:
         provider === "APPLE" ? optionalBoolean(payload.is_private_email) : null,
       issuedAt: new Date(payload.iat! * 1_000),
+      audience:
+        typeof payload.aud === "string"
+          ? payload.aud
+          : (payload.aud?.[0] ?? null),
     };
   }
 
