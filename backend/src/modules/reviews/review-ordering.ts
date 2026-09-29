@@ -13,12 +13,29 @@ export interface NormalizedReviewTime {
   timeConfidence: TimeConfidence;
 }
 
+/**
+ * A review recorded by a client that never saw the server clock — a guest
+ * studying before the account existed. Its own clock is the only witness of
+ * when the answer happened, so it is taken, but only inside bounds the server
+ * owns: not before `notBefore`, and not in the future (the same ceiling every
+ * review gets).
+ */
+export interface UncalibratedClientClock {
+  /**
+   * The earliest instant the answer could have been given — for a guest,
+   * the publication of the content release it answered. Nothing a client
+   * sends can move it.
+   */
+  notBefore: Date;
+}
+
 export function normalizeReviewTime(input: {
   clientOccurredAt: Date;
   estimatedServerOccurredAt: Date | null;
   receivedAt: Date;
   predecessor: DeviceSequenceNeighbor | null;
   successor: DeviceSequenceNeighbor | null;
+  uncalibratedClientClock?: UncalibratedClientClock;
 }): NormalizedReviewTime {
   const {
     clientOccurredAt,
@@ -26,20 +43,38 @@ export function normalizeReviewTime(input: {
     receivedAt,
     predecessor,
     successor,
+    uncalibratedClientClock,
   } = input;
   let confidence: TimeConfidence;
   let effective: Date;
 
   if (
-    estimatedServerOccurredAt === null ||
-    Math.abs(estimatedServerOccurredAt.getTime() - clientOccurredAt.getTime()) >
-      MAX_CLIENT_ESTIMATE_OFFSET_MS
+    estimatedServerOccurredAt !== null &&
+    Math.abs(
+      estimatedServerOccurredAt.getTime() - clientOccurredAt.getTime(),
+    ) <= MAX_CLIENT_ESTIMATE_OFFSET_MS
   ) {
-    effective = receivedAt;
-    confidence = TimeConfidence.RECEIVED_AT_FALLBACK;
-  } else {
     effective = estimatedServerOccurredAt;
     confidence = TimeConfidence.CALIBRATED;
+  } else if (
+    estimatedServerOccurredAt === null &&
+    uncalibratedClientClock !== undefined
+  ) {
+    // Falling back to receivedAt here would stack weeks of guest study into
+    // the second of the import: one review day, one FSRS interval, and the
+    // whole daily limit spent on work done long ago.
+    if (
+      clientOccurredAt.getTime() < uncalibratedClientClock.notBefore.getTime()
+    ) {
+      effective = uncalibratedClientClock.notBefore;
+      confidence = TimeConfidence.BOUNDED;
+    } else {
+      effective = clientOccurredAt;
+      confidence = TimeConfidence.CLIENT_CLOCK;
+    }
+  } else {
+    effective = receivedAt;
+    confidence = TimeConfidence.RECEIVED_AT_FALLBACK;
   }
 
   if (effective.getTime() > receivedAt.getTime() + MAX_FUTURE_SKEW_MS) {

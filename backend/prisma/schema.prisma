@@ -238,6 +238,7 @@ enum TimeConfidence {
   CALIBRATED
   BOUNDED
   RECEIVED_AT_FALLBACK
+  CLIENT_CLOCK
 }
 
 enum CardLearningState {
@@ -467,6 +468,8 @@ model GuestImportOperation {
   rejectedEventCount  Int               @default(0) @map("rejected_event_count")
   createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
   completedAt         DateTime?         @map("completed_at") @db.Timestamptz(3)
+  leaseToken          String?           @map("lease_token") @db.Uuid
+  leaseExpiresAt      DateTime?         @map("lease_expires_at") @db.Timestamptz(3)
   user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, sourceInstallIdHash, id])
