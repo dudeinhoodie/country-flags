@@ -51,9 +51,11 @@ below applies. See [13-deployment-environments.md](../13-deployment-environments
 
 Two facts that will otherwise mislead you:
 
-- **Dev scales to zero.** The first request after an idle period takes several
-  seconds and starts a new process. A slow first call and an `application_started`
-  line right after it are normal on dev and would be an incident on prod.
+- **Dev keeps one instance, with CPU always allocated.** The workers and data
+  exports run inside the API process, so dev is not allowed to sleep any more
+  than prod is ([13-deployment-environments.md](../13-deployment-environments.md)
+  §5). An `application_started` line belongs to a deploy or a scale-out; one
+  that belongs to neither is worth a look on dev too.
 - **No alerts exist yet.** Nothing pages anybody. Everything in
   `infrastructure/monitoring/` is defined but unapplied, so today every one of
   these runbooks starts with a human noticing.
@@ -110,18 +112,27 @@ The steps run in this order, and each is the gate on the next:
 | Step | What it proves |
 | --- | --- |
 | Copy the release image into Artifact Registry | the exact bytes CI tested exist where Cloud Run can read them |
+| Assemble the revision configuration | every value belongs to dev, and every secret is pinned to a version number |
+| Read the database credentials | the pooled URL carries a pool that fits under the instance ceiling |
 | Migrate the dev database | the schema is ready **before** any new revision starts |
 | Open the deployment record | GitHub knows a deploy is in flight |
-| Deploy the revision | the new revision exists and carries the release label |
-| Wait for readiness | it answers, and its database answers |
-| Smoke test the public surface | content is actually served |
+| Deploy the revision | the new revision exists, passed its readiness startup probe and carries the release label — and has no traffic yet |
+| Wait for readiness | at the `candidate` tag's own address: the tag names this revision, its `SERVICE_RELEASE` is this commit, and it answers |
+| Smoke test the public surface | at the same address: content is actually served |
+| Move traffic to the checked revision | only now does anybody reach it |
 | Record the deployment result | GitHub knows how it ended |
-| Summarise the deployment | the four coordinates and the log query land in the run summary |
+| Summarise the deployment | the coordinates, where traffic ended up, and the log query land in the run summary |
 
-**Stop condition:** a failure in "Migrate the dev database" leaves the running
-revision untouched — the service is still healthy and you have not lost anything.
-Go to [§3](#3-a-migration-failed). A failure after that means a revision was
-created; go to [§5](#5-a-revision-will-not-stay-up).
+**Stop condition:** a failure up to and including "Migrate the dev database"
+leaves the running revision untouched — the service is still healthy and you
+have not lost anything. A migration failure is [§3](#3-a-migration-failed). A
+failure in "Deploy the revision", "Wait for readiness" or "Smoke test" means a
+revision was created and received **no traffic**: the previous revision is still
+serving, and the service's traffic is now pinned to it until the next successful
+deploy ([§2.3](#23-roll-back)). Go to [§5](#5-a-revision-will-not-stay-up) to find
+out why. A failure in "Move traffic to the checked revision" means the checked
+revision is fine but somebody created a newer one meanwhile, or traffic did not
+land on it; read `status.traffic` (§2.3) before deploying again.
 
 ### 1.4 Read the summary
 
@@ -232,8 +243,33 @@ gcloud run services update-traffic "$SERVICE" --region "$REGION" --project "$PRO
 ```
 
 Use the second only when the first is failing too, and know what you gave up: no
-migration step, no readiness gate, no smoke, and the next deploy will move
-traffic back to the latest revision.
+migration step, no readiness gate, no smoke.
+
+It also **pins** the split. From then on the service no longer follows its
+latest revision: Cloud Run gives every new revision 0%, including one created by
+`gcloud run services update` ([§7](#7-a-worker-backlog-is-not-draining)), and
+checks run against the service URL would be answered by the pinned revision.
+The deploy workflow does not rely on that: it creates each revision with no
+traffic, checks it at its `candidate` tag's own address, and only then runs
+`update-traffic --to-latest`. So **the next successful deploy releases the pin**
+and moves traffic off the revision you rolled back to. Every push to master that
+passes Backend CI deploys, so to keep the rollback, hold merges to master until
+the fix is ready. To release the pin by hand:
+
+```bash
+gcloud run services update-traffic "$SERVICE" --region "$REGION" --project "$PROJECT" \
+  --to-latest
+
+gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" \
+  --format='yaml(status.traffic)'
+# - latestRevision: true
+#   percent: 100
+#   revisionName: api-dev-00161-abc
+```
+
+A deploy whose checks failed leaves the same pin behind, on the revision that was
+serving before it. That is the intended outcome, and the next successful deploy
+releases it the same way.
 
 ### 2.4 Verify and record
 
@@ -341,7 +377,7 @@ curl -sS -w '\n%{http_code}\n' "$URL/v1/health/ready"
 | live `200`, ready `200` | recovered, or a cold start expired the probe | check the alert window; on dev one slow probe is not an incident |
 | live `200`, ready `503` | the process is up, the database is not | [§6](#6-the-database-is-slow-or-refusing-connections) |
 | both time out | no instance is serving | [§5](#5-a-revision-will-not-stay-up) |
-| live `200` slowly, then fine | dev woke from zero | not an incident |
+| live `200` slowly, then fine | a new instance started, for a deploy or a scale-out | not an incident |
 
 ```bash
 gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" \
@@ -388,7 +424,8 @@ console — a console edit is overwritten by the next deploy.
   [§2](#2-rolling-a-release-back).
 - The release changes between starts: two deploys are racing. Stop deploying and
   find out why the concurrency group let both through.
-- On dev, starts spread across idle periods are scale-to-zero and not a loop.
+- Starts that line up with a deploy (the candidate revision, then its first
+  serving instances) or with a scale-out are not a loop.
 
 ## 6. The database is slow or refusing connections
 
@@ -409,6 +446,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 | `PrismaClientInitializationError` | the connection string or the pooler is wrong | check `dev-database-url`; waiting will not fix it |
 | `PrismaClientKnownRequestError`, a few, around a deploy or a shutdown | the pool closing | not an incident |
 | `PrismaClientKnownRequestError`, sustained | queries are failing | read the messages; this is application-level |
+| `P2024` (timed out fetching a connection from the pool) or `P2028` (could not start a transaction in time) | one instance's pool is exhausted: more concurrent work than `connection_limit` serves within `pool_timeout` | check the instance count against `MAX_INSTANCES` and the pool against [13-deployment-environments.md](../13-deployment-environments.md) §5; N, C and the pool change together, never one of them alone |
 | a timeout, with `readiness_check_slow` climbing | the branch is waking, saturated, or the provider is degraded | Neon's console and [neonstatus.com](https://neonstatus.com/) |
 
 Confirm from outside the API:
@@ -448,7 +486,7 @@ Read two consecutive snapshots for the queue named in the alert.
 | `pending` flat, `processing` zero | the worker is not claiming | look for `*_poll_failed`; then restart |
 | `deadLetter` rising | items exhausting their retries | look for `*_dead_lettered` |
 | no snapshots at all for one queue | that worker is wedged | restart the revision |
-| no snapshots for any queue | no instance is running | on dev, scale-to-zero; on prod, [§5](#5-a-revision-will-not-stay-up) |
+| no snapshots for any queue | no instance is running | the service keeps one, so this is [§5](#5-a-revision-will-not-stay-up) on dev and prod alike |
 
 ```bash
 gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=\"$SERVICE\" AND jsonPayload.event=~\"_poll_failed$\"" \
@@ -467,9 +505,11 @@ gcloud run services update "$SERVICE" --region "$REGION" --project "$PROJECT" \
   --update-env-vars "WORKER_RESTART_AT=$(date -u +%Y%m%dT%H%M%SZ)"
 ```
 
-That creates a new revision with the same image. Note that the next deploy
-rewrites the environment wholesale and drops the marker, which is fine — it is a
-nonce, not configuration.
+That creates a new revision with the same image and the same pinned secret
+versions. Note that the next deploy rewrites the environment wholesale and drops
+the marker, which is fine — it is a nonce, not configuration. If traffic is
+pinned ([§2.3](#23-roll-back)) the new revision gets none of it: check
+`status.traffic` afterwards, and release the pin if that is what you meant.
 
 **Stop conditions:**
 
@@ -479,7 +519,8 @@ nonce, not configuration.
   are first.
 - **Do not restart to clear a backlog.** A restart releases leases; it does not
   fix whatever was failing, and it will look like recovery for one poll cycle.
-- On dev, a queue that aged while the service was scaled to zero is expected.
+- Revisions deployed before always-on CPU froze their workers between requests.
+  An item that aged then is history; one aging now is not.
 
 ## 8. A scheduled job stopped running
 
@@ -560,9 +601,11 @@ exist.
 
 ## 10. Rotating a secret
 
-Every runtime secret lives in Secret Manager and is mounted by version alias
-`:latest`. A rotation is therefore two acts: a new version, then a deploy. The
-value never passes through this repository, a laptop, or a GitHub secret.
+Every runtime secret lives in Secret Manager, and every deploy pins each mounted
+secret to the version that is newest at that moment (`dev-database-url:7`, never
+`:latest`). A rotation is therefore two acts: a new version, then a deploy — and
+**nothing reaches a running revision until that deploy**. The value never passes
+through this repository, a laptop, or a GitHub secret.
 
 ```bash
 gcloud secrets list --project "$PROJECT" --format='value(name)'
@@ -601,14 +644,23 @@ gcloud secrets versions list dev-auth-access-token-secret --project "$PROJECT" \
 
 ### 10.2 Make the revision pick it up
 
-`:latest` is resolved when a revision starts, not continuously. A new secret
-version changes nothing until a new revision exists:
+A new version changes nothing on its own. The running revision names the version
+it was deployed with, and so does every instance autoscaling starts for it, so
+the fleet never mixes two values. The next deploy pins the new one:
 
 ```bash
 gh workflow run "Deploy dev" --field sha="$SHA"
 ```
 
-Then §1.5.
+The run's "Assemble the revision configuration" step prints the version each
+variable got (`Secrets pinned: DATABASE_URL=dev-database-url:8,...`); the
+publisher job is pinned the same way by "Deploy publisher dev", which runs after
+it. Then §1.5.
+
+Mounting `:latest` would be worse on both counts: Cloud Run resolves it each time
+an instance starts, so a new version — or a typo in one — would reach the
+instances autoscaling adds to the revision already running, and rolling that
+revision back would not bring the old value back.
 
 ### 10.3 Retire the old version
 
@@ -628,18 +680,21 @@ gcloud secrets versions destroy <old-version> --secret=dev-auth-access-token-sec
 | `dev-auth-access-token-secret` | every issued access token stops validating; all clients must sign in again |
 | `dev-auth-rate-limit-secret` | rate-limit buckets are re-keyed; counters reset once |
 | `dev-account-data-hash-secret` | **do not rotate casually** — hashes already stored were derived from the old value and will not match |
-| `dev-database-url`, `dev-direct-database-url` | the old credential must stay valid until the new revision is serving, or the running one loses its database |
+| `dev-database-url`, `dev-direct-database-url` | the old credential must stay valid until the new revision is serving, or the running one loses its database. The pooled URL keeps its `connection_limit` and `pool_timeout` ([13-deployment-environments.md](../13-deployment-environments.md) §5), or the deploy refuses it before migrating |
 | `dev-admin-draft-storage-*`, `dev-object-storage-*` | uploads and publishes fail until the deploy lands |
 | `dev-content-signing-private-key` | a new key needs a new `keyId` in `dev-content-signing-public-keys` **and** the old public key kept, or already-published bundles stop verifying |
 | `dev-admin-github-token` | console proposals and publish dispatches fail |
 
 - **Rotate one secret at a time**, and verify between. Two at once makes a
   failure ambiguous.
-- **Never destroy the previous version in the same session as the rotation.** If
-  the deploy has to be rolled back, the old revision needs the old value.
+- **Never destroy the previous version in the same session as the rotation.** A
+  rollback ([§2.3](#23-roll-back)) returns to a revision that names the old
+  version, and that revision can start an instance only while the version is
+  enabled. Disabling it has the same effect, so it too waits until no revision
+  you might roll back to still names it.
 - If a secret leaked, disabling the old version is the urgent act, and it is
   urgent *after* the new revision is serving — not before, or you cause the
-  outage yourself.
+  outage yourself. Accept that rollbacks to revisions pinned to it are gone.
 
 **Unverified on production.** No production secrets exist. The procedure is the
 same; the blast radius is not.
