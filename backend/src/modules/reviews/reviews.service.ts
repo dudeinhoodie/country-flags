@@ -25,7 +25,11 @@ import {
   type ReviewEventRequest,
   reviewPayloadHash,
 } from "./review-batch.request";
-import { normalizeReviewTime, orderReviewEvents } from "./review-ordering";
+import {
+  normalizeReviewTime,
+  orderReviewEvents,
+  type UncalibratedClientClock,
+} from "./review-ordering";
 
 type Transaction = Prisma.TransactionClient;
 
@@ -288,15 +292,27 @@ export class ReviewsService {
     private readonly userChanges: UserChangesService,
   ) {}
 
+  /**
+   * @param options.uncalibratedClientClock set only by callers whose client
+   *   never saw the server clock (the guest import); see
+   *   `normalizeReviewTime`. It changes how the effective time is chosen,
+   *   never the event's payload or its hash.
+   */
   async ingestBatch(
     userId: string,
     request: ReviewBatchRequest,
+    options: { uncalibratedClientClock?: UncalibratedClientClock } = {},
   ): Promise<ReviewBatchResult> {
     const results: ReviewResult[] = [];
     for (const event of request.events) {
       try {
         results.push(
-          await this.ingestWithRetry(userId, request.payloadVersion, event),
+          await this.ingestWithRetry(
+            userId,
+            request.payloadVersion,
+            event,
+            options.uncalibratedClientClock,
+          ),
         );
       } catch (error) {
         if (error instanceof RejectedReviewError) {
@@ -330,12 +346,19 @@ export class ReviewsService {
     userId: string,
     payloadVersion: number,
     event: ReviewEventRequest,
+    uncalibratedClientClock: UncalibratedClientClock | undefined,
   ): Promise<ReviewResult> {
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
         return await this.prisma.$transaction(
           (transaction) =>
-            this.ingestOne(transaction, userId, payloadVersion, event),
+            this.ingestOne(
+              transaction,
+              userId,
+              payloadVersion,
+              event,
+              uncalibratedClientClock,
+            ),
           {
             isolationLevel: "Serializable",
             maxWait: 10_000,
@@ -366,6 +389,7 @@ export class ReviewsService {
     userId: string,
     payloadVersion: number,
     event: ReviewEventRequest,
+    uncalibratedClientClock: UncalibratedClientClock | undefined,
   ): Promise<ReviewResult> {
     await transaction.$queryRaw`
       SELECT pg_advisory_xact_lock(
@@ -520,6 +544,9 @@ export class ReviewsService {
       receivedAt,
       predecessor,
       successor,
+      ...(uncalibratedClientClock === undefined
+        ? {}
+        : { uncalibratedClientClock }),
     });
     const metadata: Prisma.InputJsonObject =
       previousEvents.length === 0 && currentState !== null

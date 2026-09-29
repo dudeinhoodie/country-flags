@@ -170,13 +170,15 @@ echo
 # ---------------------------------------------------------------------------
 # 2. Uptime check
 #
-# Nothing else polls readiness between deploys: the Cloud Run startup probe is a
-# TCP connect, and no HTTP check runs after the deploy workflow finishes. Without
-# this, a database that becomes unreachable an hour after a deploy is discovered
-# by the first user to open a deck.
+# Nothing else polls readiness between deploys: the Cloud Run startup probe asks
+# /v1/health/ready only while an instance starts, and no HTTP check runs after
+# the deploy workflow finishes. Without this, a database that becomes
+# unreachable an hour after a deploy is discovered by the first user to open a
+# deck.
 #
-# Five minutes rather than one because dev scales to zero and every probe would
-# otherwise pay a cold start. Three regions is the provider's minimum. The probe
+# Five minutes rather than one: the alert waits for ten minutes of failures, so
+# two rounds from every region are enough to tell an outage from a lost probe.
+# Three regions is the provider's minimum. The probe
 # sends no credentials and reads a body containing a status and a latency,
 # nothing else.
 # ---------------------------------------------------------------------------
@@ -216,12 +218,6 @@ echo "== Alert policies =="
 for policy in "${HERE}"/alert-policies/*.json; do
   name="$(basename "${policy}")"
 
-  if [ "${DEPLOYMENT_ENV}" = "dev" ] && [ "${name}" = "restart-loop.json" ]; then
-    # Dev scales to zero, so a process start after every idle period is normal
-    # and this policy would be pure noise there.
-    echo "- ${name}: skipped on dev (scale-to-zero makes restarts normal)"
-    continue
-  fi
   if [ "${name}" = "readiness-unreachable.json" ] && [ -z "${UPTIME_CHECK_ID}" ]; then
     # Its filter names a check id, and a policy filtering on an empty id would
     # match everything or nothing depending on the provider's mood. Refused.

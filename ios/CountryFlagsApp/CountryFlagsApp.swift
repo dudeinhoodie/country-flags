@@ -38,7 +38,9 @@ struct CountryFlagsApp: App {
                 // asked for with `-show-welcome` or from Settings → Developer.
                 showsWelcomeOnFirstLaunch:
                     !composition.configuration.environment.allowsDebugAffordances
-                    || ProcessInfo.processInfo.arguments.contains("-show-welcome")
+                    || ProcessInfo.processInfo.arguments.contains("-show-welcome"),
+                storeRecovery: composition.storeRecovery,
+                onStoreRecoveryRead: { composition.storeRecoveryNotices.clearNotice() }
             )
             .onOpenURL { url in
                 // Google's browser round trip comes home through here too;

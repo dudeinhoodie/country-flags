@@ -128,10 +128,15 @@ Email не является первичным или уникальным ид�
 - `is_private_email nullable`
 - `created_at`
 - `last_login_at`
+- `provider_token_ciphertext nullable` — только Apple: refresh token Sign in with Apple, зашифрованный AES-256-GCM (`v1.<iv>.<ciphertext>.<tag>`, associated data привязывает его к identity);
+- `provider_token_client_id nullable` — client id (bundle id), которому Apple выдала token; отзыв обязан назвать тот же;
+- `provider_token_state STORED | CREDENTIALS_NOT_CONFIGURED | EXCHANGE_FAILED nullable` — чем закончился последний обмен authorization code;
+- `provider_token_updated_at nullable`
 
 Ограничения:
 
 - unique `(provider, provider_subject)`;
+- `provider_token_*` заполняются только у Apple identity; ciphertext и client id существуют только вместе; `STORED` требует ciphertext; ciphertext обязан иметь sealed-формат (открытый token база не примет);
 - один пользователь MAY иметь Apple и Google identity;
 - identity нельзя молча перепривязать к другому пользователю;
 - аккаунты нельзя автоматически объединять по совпавшему email.
@@ -152,6 +157,8 @@ Email не является первичным или уникальным ид�
 - `user_agent nullable`
 
 Хранить только hash refresh token. Реализовать rotation и обнаружение повторного использования старого токена с отзывом всей token family.
+
+Исключение — потерянный ответ: повторное предъявление только что заменённого токена не позже 60 секунд после rotation, пока его преемник не использован и не отозван, возвращает ту же пару, что и сама rotation, и ничего не отзывает. Преемник выводится из предъявленного токена (HMAC с серверным ключом), поэтому хранить его в восстановимом виде не нужно. Повтор после окна или после использования преемника отзывает family, как и раньше. Решение описано в поправке к [ADR-002](./adr/ADR-002-auth-and-refresh-token-rotation.md).
 
 #### `devices`
 
@@ -226,9 +233,12 @@ PATCH должен поддерживать optimistic concurrency через `v
 - `duplicate_event_count`;
 - `rejected_event_count`;
 - `created_at`;
-- `completed_at nullable`.
+- `completed_at nullable`;
+- `lease_token nullable`, `lease_expires_at nullable` — аренда попытки, которая сейчас выполняет импорт.
 
 Unique `(user_id, id)` и `(user_id, source_install_id_hash, id)`. Повтор одного migration request безопасно возвращает сохранённый результат. Импорт объединяет immutable review events по UUID и никогда не заменяет server history целиком.
+
+Импорт выполняет одна попытка за раз, и это гарантирует строка операции, а не память процесса. Попытка берёт аренду при создании операции и продлевает её перед каждой сессией и каждым review; итог операции записывает только держатель аренды. Повтор с тем же payload, пока аренда жива, ничего не импортирует и отвечает текущим состоянием (`PENDING`), клиент опрашивает `GET`. Истёкшая аренда означает, что попытка умерла, и следующий повтор продолжает импорт. Повтор с другим payload для незавершённой операции (гость продолжал заниматься, пока первая попытка висела) забирает аренду сразу: прежняя попытка останавливается на следующем review, уже принятые события возвращаются как duplicate. Удаление аккаунта удаляет операцию, и идущая попытка останавливается так же.
 
 #### `data_export_requests`
 
@@ -548,7 +558,7 @@ Unique `(study_session_card_id, position)` и `(study_session_card_id, answer_en
 - `effective_occurred_at`
 - `received_at`
 - `client_sequence`
-- `time_confidence CALIBRATED | BOUNDED | RECEIVED_AT_FALLBACK`
+- `time_confidence CALIBRATED | BOUNDED | RECEIVED_AT_FALLBACK | CLIENT_CLOCK`
 - `base_state_version nullable`
 - `scheduler_version`
 - `scheduler_parameters_version`
@@ -668,6 +678,10 @@ Unique должен предотвращать повторную выдачу �
 
 Текущий mastery можно вычислять по состоянию карточек и кэшировать в `user_deck_mastery`. Кэш перестраивается из первичных review/state и не считается источником истины.
 
+Чтения прогресса (`GET /v1/me/progress`, `/v1/me/due-summary`, `/v1/me/decks/:deckId/progress`) ничего не пишут: они считают ответ в read-only транзакции Repeatable Read, а заработанное, но ещё не сохранённое достижение учитывают в `highestAchievementTier`, поэтому ответ совпадает с тем, что дала бы пересборка. Кэш и новые достижения сохраняет пересборка после загрузки ответов и сверки карточек, а `GET /v1/me/achievements` сохраняет их сам, только если такие есть: список отдаёт сохранённые строки. Достижение вставляется через `ON CONFLICT DO NOTHING RETURNING` по уникальному ключу, и в `achievements` ответа загрузки оно попадает только в тот запрос, чья вставка его создала, то есть не больше одного раза.
+
+Интерактивные транзакции ждут соединение из пула столько же, сколько отдельный запрос: `maxWait` по умолчанию равен `pool_timeout` из pooled URL (10 с, если параметра нет), а не двум секундам Prisma. Размер пула и `pool_timeout` задаёт deploy в самом URL (#437).
+
 ## 5. Аутентификация и жизненный цикл аккаунта
 
 ### 5.1 Apple
@@ -689,6 +703,14 @@ Unique должен предотвращать повторную выдачу �
 - `sub`.
 
 Имя и email могут прийти только при первом согласии; сервер не должен требовать их при последующих входах. При удалении аккаунта необходимо отозвать Apple tokens в соответствии с Sign in with Apple REST API.
+
+После проверки identity token сервер обменивает `authorizationCode` на refresh token Apple (`POST https://appleid.apple.com/auth/token`, client secret — ES256 JWT, подписанный ключом Sign in with Apple команды: `AUTH_APPLE_TEAM_ID`, `AUTH_APPLE_KEY_ID`, `AUTH_APPLE_PRIVATE_KEY`; `sub` — bundle id из `aud` identity token). Token хранится только зашифрованным (`AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY`) на Apple identity. То же происходит при связывании Apple identity (`POST /v1/me/identities/apple`).
+
+Неудачный обмен не блокирует вход: вход через Apple не должен зависеть от доступности token endpoint. Исход записывается в `provider_token_state` и в audit `AUTH_LOGIN_SUCCEEDED` (`appleTokenExchange`), логируется предупреждением, а ранее сохранённый token остаётся — он всё ещё действителен. Без ключа Sign in with Apple (dev и CI до #302) обмен не выполняется и записывается явный `CREDENTIALS_NOT_CONFIGURED`. Prod без ключа не стартует.
+
+Если вход не удался уже после обмена, новый token не отзывается: отзыв любого token снимает всё разрешение Apple ID для приложения, включая то, на которое опирается уже существующий аккаунт этого человека.
+
+Apple вызывается через provider interface `AppleTokenClient`; в CI он подменяется fake, сетевых обращений к Apple в тестах нет.
 
 ### 5.2 Google
 
@@ -741,6 +763,14 @@ Email, совпадающий display name или Apple private relay address н
 4. удаляет/анонимизирует профиль, identities, settings, devices, progress, review и achievements в установленный срок;
 5. отзывает Sign in with Apple tokens;
 6. не оставляет восстановимого email в обычных логах/аналитике.
+
+Отзыв Apple token (`POST https://appleid.apple.com/auth/revoke`) выполняется до транзакции удаления: сетевой вызов не должен держать serializable-транзакцию, а повтор транзакции не должен вызывать Apple снова. Token хранится на identity, которую транзакция удаляет, поэтому это последний момент, когда его можно прочитать. Удаление не блокируется ответом Apple. Audit `ACCOUNT_DELETED` записывает фактический исход в `providerCredentialRevocation`:
+
+- `revoked` — Apple подтвердила отзыв;
+- `revocation_failed` — Apple отказала или недоступна; причина в `providerCredentialRevocationFailure`, событие логируется как error. Повторной попытки нет: token удаляется вместе с identity;
+- `credentials_not_configured` — у deployment нет ключа Sign in with Apple;
+- `no_token_stored` — обмен при входе не дал token; почему — в `appleTokenExchange`;
+- `not_applicable_no_apple_identity` — у аккаунта нет Apple identity.
 
 Если нужен audit для безопасности, его поля и срок хранения должны быть перечислены в Privacy Policy.
 
@@ -880,6 +910,10 @@ Backend находит option в snapshot сессии и сам выводит 
 
 `POST /v1/me/guest-imports` принимает `migrationId`, непрозрачный install ID и batch гостевых session/review events. Операция идемпотентна; review с уже существующим UUID возвращается как duplicate, а server history никогда не заменяется клиентским snapshot.
 
+Гость не видел серверных часов, поэтому у его review нет `estimatedServerOccurredAt`, и время ответа берётся из `clientOccurredAt` (`timeConfidence = CLIENT_CLOCK`) в границах, которые задаёт сервер: не раньше публикации content release, на который ссылается сессия (иначе `BOUNDED` на момент публикации), и не в будущем (§8.3, иначе `BOUNDED` на `receivedAt`). Порядок внутри устройства импорта сохраняется как для любого review. Для release без `publishedAt` граница неизвестна, и время берётся из `receivedAt`. Так две недели гостевых занятий остаются в своих днях, а не расходуют дневной лимит в момент входа.
+
+Гостевая сессия на платной колоде проходит тот же `DeckAccessService`, что и новая сессия: покупка требует аккаунта, и гость не мог её сделать. Сессия на колоде, которой у аккаунта нет, не создаётся, её review считаются rejected, остальной импорт продолжается (`PARTIAL`).
+
 Экспорт данных формируется асинхронно. Готовый архив содержит профиль, настройки, auth provider names без provider tokens, review history, progress и achievements в машинно-читаемом JSON. Signed download URL имеет короткий TTL.
 
 ### 6.6 Аналитика и privacy preferences
@@ -951,7 +985,7 @@ Online-клиент получает option IDs и display payload без `isCor
 
 ### 7.4 Дневной потолок повторов
 
-День учащегося просит не больше 50 разных карточек (`DAILY_REVIEW_LIMIT`). День считается в `user_settings.timezone` средствами PostgreSQL. Лимит расходует любой принятый ответ — на повтор, на новую карточку, из офлайн-сессии или из guest import — по разным карточкам, а не по ответам. Потолок принадлежит аккаунту, а не колоде: колоды пересекаются, и лимит на каждую не ограничивал бы ничего.
+День учащегося просит не больше 50 разных карточек (`DAILY_REVIEW_LIMIT`). День считается в `user_settings.timezone` средствами PostgreSQL. Зону обновляет клиент через `PATCH /v1/me/settings` (`timezone`), когда зона устройства отличается от сохранённой, иначе после переезда день считался бы в старой зоне. Сервер принимает только имя IANA, которое знает PostgreSQL (`pg_timezone_names`, без учёта регистра), и хранит его в написании PostgreSQL; смещение вида `+05:30` отклоняется. Новый аккаунт получает зону устройства из регистрации, если PostgreSQL её знает, иначе `UTC`. Сохранённая зона, которую PostgreSQL не знает, считается как `UTC` и не роняет запрос. Лимит расходует любой принятый ответ — на повтор, на новую карточку, из офлайн-сессии или из guest import — по разным карточкам, а не по ответам. Потолок принадлежит аккаунту, а не колоде: колоды пересекаются, и лимит на каждую не ограничивал бы ничего.
 
 - Потолок применяется при **формировании серверной сессии** и одинаково для каждой composition, которая раздаёт запланированные повторы. И `STANDARD`, и `DUE_ONLY` берут due-карточки не больше, чем день ещё позволяет, старейший долг первым — в том же порядке, в каком progress отсекает очередь дня.
 - Due-карточки сверх остатка в сессию не попадают вовсе — ни как повтор, ни как заполнитель в конце. Они не прощены: остаются должными и приходят завтра.

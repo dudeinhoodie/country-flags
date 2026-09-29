@@ -4,6 +4,7 @@ import { Prisma, UserStatus } from "@prisma/client";
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
+import { AppleTokenLifecycle } from "../auth/apple/apple-token-lifecycle.service";
 import { EntitlementService } from "../commerce/entitlement.service";
 
 interface DeletionResult extends Record<string, unknown> {
@@ -17,6 +18,7 @@ export class AccountDeletionService {
   constructor(
     private readonly database: PrismaService,
     private readonly entitlements: EntitlementService,
+    private readonly appleTokens: AppleTokenLifecycle,
   ) {}
 
   async delete(userId: string, requestId: string): Promise<DeletionResult> {
@@ -42,6 +44,25 @@ export class AccountDeletionService {
     userId: string,
     requestId: string,
   ): Promise<DeletionResult> {
+    // Apple is asked before the transaction, never inside it: a network call
+    // would hold a serializable transaction open for as long as Apple takes,
+    // and a retried transaction would ask again. The token lives on the
+    // identity the transaction deletes, so this is also the last moment it
+    // can be read. The deletion goes ahead whatever the answer; the audit
+    // below records it (docs/01 §5.5).
+    const appleIdentity = await this.database.authIdentity.findUnique({
+      where: { userId_provider: { userId, provider: "APPLE" } },
+      select: {
+        providerSubject: true,
+        providerTokenCiphertext: true,
+        providerTokenClientId: true,
+        providerTokenState: true,
+      },
+    });
+    const appleRevocation = await this.appleTokens.revoke(
+      appleIdentity,
+      requestId,
+    );
     return inSerializableTransaction(
       this.database,
       async (transaction) => {
@@ -189,8 +210,9 @@ export class AccountDeletionService {
             metadata: {
               deletedCounts,
               identityProviders: providers.map(({ provider }) => provider),
-              providerCredentialRevocation:
-                "not_applicable_no_backend_provider_tokens",
+              providerCredentialRevocation: appleRevocation.outcome,
+              providerCredentialRevocationFailure: appleRevocation.failure,
+              appleTokenExchange: appleIdentity?.providerTokenState ?? null,
               analyticsProviderDeletion: "not_configured",
             } satisfies Prisma.InputJsonValue,
           },

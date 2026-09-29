@@ -23,6 +23,7 @@ Read §0 once, then jump to the section named by the alert or the task.
 - [10. Rotating a secret](#10-rotating-a-secret)
 - [11. Production](#11-production)
 - [12. The public site and its documents](#12-the-public-site-and-its-documents)
+- [13. Rolling the catalogue back](#13-rolling-the-catalogue-back)
 
 ## 0. Before anything
 
@@ -51,9 +52,11 @@ below applies. See [13-deployment-environments.md](../13-deployment-environments
 
 Two facts that will otherwise mislead you:
 
-- **Dev scales to zero.** The first request after an idle period takes several
-  seconds and starts a new process. A slow first call and an `application_started`
-  line right after it are normal on dev and would be an incident on prod.
+- **Dev keeps one instance, with CPU always allocated.** The workers and data
+  exports run inside the API process, so dev is not allowed to sleep any more
+  than prod is ([13-deployment-environments.md](../13-deployment-environments.md)
+  §5). An `application_started` line belongs to a deploy or a scale-out; one
+  that belongs to neither is worth a look on dev too.
 - **No alerts exist yet.** Nothing pages anybody. Everything in
   `infrastructure/monitoring/` is defined but unapplied, so today every one of
   these runbooks starts with a human noticing.
@@ -110,18 +113,27 @@ The steps run in this order, and each is the gate on the next:
 | Step | What it proves |
 | --- | --- |
 | Copy the release image into Artifact Registry | the exact bytes CI tested exist where Cloud Run can read them |
+| Assemble the revision configuration | every value belongs to dev, and every secret is pinned to a version number |
+| Read the database credentials | the pooled URL carries a pool that fits under the instance ceiling |
 | Migrate the dev database | the schema is ready **before** any new revision starts |
 | Open the deployment record | GitHub knows a deploy is in flight |
-| Deploy the revision | the new revision exists and carries the release label |
-| Wait for readiness | it answers, and its database answers |
-| Smoke test the public surface | content is actually served |
+| Deploy the revision | the new revision exists, passed its readiness startup probe and carries the release label — and has no traffic yet |
+| Wait for readiness | at the `candidate` tag's own address: the tag names this revision, its `SERVICE_RELEASE` is this commit, and it answers |
+| Smoke test the public surface | at the same address: content is actually served |
+| Move traffic to the checked revision | only now does anybody reach it |
 | Record the deployment result | GitHub knows how it ended |
-| Summarise the deployment | the four coordinates and the log query land in the run summary |
+| Summarise the deployment | the coordinates, where traffic ended up, and the log query land in the run summary |
 
-**Stop condition:** a failure in "Migrate the dev database" leaves the running
-revision untouched — the service is still healthy and you have not lost anything.
-Go to [§3](#3-a-migration-failed). A failure after that means a revision was
-created; go to [§5](#5-a-revision-will-not-stay-up).
+**Stop condition:** a failure up to and including "Migrate the dev database"
+leaves the running revision untouched — the service is still healthy and you
+have not lost anything. A migration failure is [§3](#3-a-migration-failed). A
+failure in "Deploy the revision", "Wait for readiness" or "Smoke test" means a
+revision was created and received **no traffic**: the previous revision is still
+serving, and the service's traffic is now pinned to it until the next successful
+deploy ([§2.3](#23-roll-back)). Go to [§5](#5-a-revision-will-not-stay-up) to find
+out why. A failure in "Move traffic to the checked revision" means the checked
+revision is fine but somebody created a newer one meanwhile, or traffic did not
+land on it; read `status.traffic` (§2.3) before deploying again.
 
 ### 1.4 Read the summary
 
@@ -232,8 +244,33 @@ gcloud run services update-traffic "$SERVICE" --region "$REGION" --project "$PRO
 ```
 
 Use the second only when the first is failing too, and know what you gave up: no
-migration step, no readiness gate, no smoke, and the next deploy will move
-traffic back to the latest revision.
+migration step, no readiness gate, no smoke.
+
+It also **pins** the split. From then on the service no longer follows its
+latest revision: Cloud Run gives every new revision 0%, including one created by
+`gcloud run services update` ([§7](#7-a-worker-backlog-is-not-draining)), and
+checks run against the service URL would be answered by the pinned revision.
+The deploy workflow does not rely on that: it creates each revision with no
+traffic, checks it at its `candidate` tag's own address, and only then runs
+`update-traffic --to-latest`. So **the next successful deploy releases the pin**
+and moves traffic off the revision you rolled back to. Every push to master that
+passes Backend CI deploys, so to keep the rollback, hold merges to master until
+the fix is ready. To release the pin by hand:
+
+```bash
+gcloud run services update-traffic "$SERVICE" --region "$REGION" --project "$PROJECT" \
+  --to-latest
+
+gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" \
+  --format='yaml(status.traffic)'
+# - latestRevision: true
+#   percent: 100
+#   revisionName: api-dev-00161-abc
+```
+
+A deploy whose checks failed leaves the same pin behind, on the revision that was
+serving before it. That is the intended outcome, and the next successful deploy
+releases it the same way.
 
 ### 2.4 Verify and record
 
@@ -341,7 +378,7 @@ curl -sS -w '\n%{http_code}\n' "$URL/v1/health/ready"
 | live `200`, ready `200` | recovered, or a cold start expired the probe | check the alert window; on dev one slow probe is not an incident |
 | live `200`, ready `503` | the process is up, the database is not | [§6](#6-the-database-is-slow-or-refusing-connections) |
 | both time out | no instance is serving | [§5](#5-a-revision-will-not-stay-up) |
-| live `200` slowly, then fine | dev woke from zero | not an incident |
+| live `200` slowly, then fine | a new instance started, for a deploy or a scale-out | not an incident |
 
 ```bash
 gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" \
@@ -388,7 +425,8 @@ console — a console edit is overwritten by the next deploy.
   [§2](#2-rolling-a-release-back).
 - The release changes between starts: two deploys are racing. Stop deploying and
   find out why the concurrency group let both through.
-- On dev, starts spread across idle periods are scale-to-zero and not a loop.
+- Starts that line up with a deploy (the candidate revision, then its first
+  serving instances) or with a scale-out are not a loop.
 
 ## 6. The database is slow or refusing connections
 
@@ -409,6 +447,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 | `PrismaClientInitializationError` | the connection string or the pooler is wrong | check `dev-database-url`; waiting will not fix it |
 | `PrismaClientKnownRequestError`, a few, around a deploy or a shutdown | the pool closing | not an incident |
 | `PrismaClientKnownRequestError`, sustained | queries are failing | read the messages; this is application-level |
+| `P2024` (timed out fetching a connection from the pool) or `P2028` (could not start a transaction in time) | one instance's pool is exhausted: more concurrent work than `connection_limit` serves within `pool_timeout` | check the instance count against `MAX_INSTANCES` and the pool against [13-deployment-environments.md](../13-deployment-environments.md) §5; N, C and the pool change together, never one of them alone |
 | a timeout, with `readiness_check_slow` climbing | the branch is waking, saturated, or the provider is degraded | Neon's console and [neonstatus.com](https://neonstatus.com/) |
 
 Confirm from outside the API:
@@ -448,7 +487,7 @@ Read two consecutive snapshots for the queue named in the alert.
 | `pending` flat, `processing` zero | the worker is not claiming | look for `*_poll_failed`; then restart |
 | `deadLetter` rising | items exhausting their retries | look for `*_dead_lettered` |
 | no snapshots at all for one queue | that worker is wedged | restart the revision |
-| no snapshots for any queue | no instance is running | on dev, scale-to-zero; on prod, [§5](#5-a-revision-will-not-stay-up) |
+| no snapshots for any queue | no instance is running | the service keeps one, so this is [§5](#5-a-revision-will-not-stay-up) on dev and prod alike |
 
 ```bash
 gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=\"$SERVICE\" AND jsonPayload.event=~\"_poll_failed$\"" \
@@ -467,9 +506,11 @@ gcloud run services update "$SERVICE" --region "$REGION" --project "$PROJECT" \
   --update-env-vars "WORKER_RESTART_AT=$(date -u +%Y%m%dT%H%M%SZ)"
 ```
 
-That creates a new revision with the same image. Note that the next deploy
-rewrites the environment wholesale and drops the marker, which is fine — it is a
-nonce, not configuration.
+That creates a new revision with the same image and the same pinned secret
+versions. Note that the next deploy rewrites the environment wholesale and drops
+the marker, which is fine — it is a nonce, not configuration. If traffic is
+pinned ([§2.3](#23-roll-back)) the new revision gets none of it: check
+`status.traffic` afterwards, and release the pin if that is what you meant.
 
 **Stop conditions:**
 
@@ -479,7 +520,8 @@ nonce, not configuration.
   are first.
 - **Do not restart to clear a backlog.** A restart releases leases; it does not
   fix whatever was failing, and it will look like recovery for one poll cycle.
-- On dev, a queue that aged while the service was scaled to zero is expected.
+- Revisions deployed before always-on CPU froze their workers between requests.
+  An item that aged then is history; one aging now is not.
 
 ## 8. A scheduled job stopped running
 
@@ -560,9 +602,11 @@ exist.
 
 ## 10. Rotating a secret
 
-Every runtime secret lives in Secret Manager and is mounted by version alias
-`:latest`. A rotation is therefore two acts: a new version, then a deploy. The
-value never passes through this repository, a laptop, or a GitHub secret.
+Every runtime secret lives in Secret Manager, and every deploy pins each mounted
+secret to the version that is newest at that moment (`dev-database-url:7`, never
+`:latest`). A rotation is therefore two acts: a new version, then a deploy — and
+**nothing reaches a running revision until that deploy**. The value never passes
+through this repository, a laptop, or a GitHub secret.
 
 ```bash
 gcloud secrets list --project "$PROJECT" --format='value(name)'
@@ -601,14 +645,23 @@ gcloud secrets versions list dev-auth-access-token-secret --project "$PROJECT" \
 
 ### 10.2 Make the revision pick it up
 
-`:latest` is resolved when a revision starts, not continuously. A new secret
-version changes nothing until a new revision exists:
+A new version changes nothing on its own. The running revision names the version
+it was deployed with, and so does every instance autoscaling starts for it, so
+the fleet never mixes two values. The next deploy pins the new one:
 
 ```bash
 gh workflow run "Deploy dev" --field sha="$SHA"
 ```
 
-Then §1.5.
+The run's "Assemble the revision configuration" step prints the version each
+variable got (`Secrets pinned: DATABASE_URL=dev-database-url:8,...`); the
+publisher job is pinned the same way by "Deploy publisher dev", which runs after
+it. Then §1.5.
+
+Mounting `:latest` would be worse on both counts: Cloud Run resolves it each time
+an instance starts, so a new version — or a typo in one — would reach the
+instances autoscaling adds to the revision already running, and rolling that
+revision back would not bring the old value back.
 
 ### 10.3 Retire the old version
 
@@ -628,18 +681,21 @@ gcloud secrets versions destroy <old-version> --secret=dev-auth-access-token-sec
 | `dev-auth-access-token-secret` | every issued access token stops validating; all clients must sign in again |
 | `dev-auth-rate-limit-secret` | rate-limit buckets are re-keyed; counters reset once |
 | `dev-account-data-hash-secret` | **do not rotate casually** — hashes already stored were derived from the old value and will not match |
-| `dev-database-url`, `dev-direct-database-url` | the old credential must stay valid until the new revision is serving, or the running one loses its database |
+| `dev-database-url`, `dev-direct-database-url` | the old credential must stay valid until the new revision is serving, or the running one loses its database. The pooled URL keeps its `connection_limit` and `pool_timeout` ([13-deployment-environments.md](../13-deployment-environments.md) §5), or the deploy refuses it before migrating |
 | `dev-admin-draft-storage-*`, `dev-object-storage-*` | uploads and publishes fail until the deploy lands |
 | `dev-content-signing-private-key` | a new key needs a new `keyId` in `dev-content-signing-public-keys` **and** the old public key kept, or already-published bundles stop verifying |
 | `dev-admin-github-token` | console proposals and publish dispatches fail |
 
 - **Rotate one secret at a time**, and verify between. Two at once makes a
   failure ambiguous.
-- **Never destroy the previous version in the same session as the rotation.** If
-  the deploy has to be rolled back, the old revision needs the old value.
+- **Never destroy the previous version in the same session as the rotation.** A
+  rollback ([§2.3](#23-roll-back)) returns to a revision that names the old
+  version, and that revision can start an instance only while the version is
+  enabled. Disabling it has the same effect, so it too waits until no revision
+  you might roll back to still names it.
 - If a secret leaked, disabling the old version is the urgent act, and it is
   urgent *after* the new revision is serving — not before, or you cause the
-  outage yourself.
+  outage yourself. Accept that rollbacks to revisions pinned to it are gone.
 
 **Unverified on production.** No production secrets exist. The procedure is the
 same; the blast radius is not.
@@ -718,3 +774,156 @@ Until `admin-prod` exists, `Promote site documents to prod` copies the dev
 snapshot into the prod bucket, deletions included, and refuses an empty
 snapshot. It needs `github-deployer` to hold `roles/storage.objectAdmin` on
 the prod bucket and the `production` environment to exist.
+
+## 13. Rolling the catalogue back
+
+This section is about the content catalogue, not the application: it moves
+the active content pointer back to a release published earlier. For an
+application release, see §2.
+
+A catalogue rollback is not just a pointer flip. Publishing overwrites the
+shared rows (entities, assets, card revisions) in place, so a rollback reads
+the target release's stored bundle from the content bucket, checks it against
+the checksums recorded when it was published, and re-applies it whole. It runs
+the same `applyBundleToDatabase` a publish runs, in one Serializable
+transaction under the same pointer lock. Nothing is rebuilt or re-signed, and
+no signing key is needed. It takes about as long as a publish's transaction.
+
+### 13.1 How long it takes
+
+**Budget:** 20 minutes for the transaction
+(`RELEASE_TRANSACTION_TIMEOUT_MS` in
+`backend/src/modules/content/bundle/release-transaction.ts`). Publish and
+rollback share this value. Until
+[#441](https://github.com/dudeinhoodie/country-flags/issues/441) a rollback
+had 5 minutes and would have timed out on any real release.
+
+**What the time is made of.** Applying the current catalogue (278 entities,
+547 relations, 250 assets, 250 learning cards, 7 decks, 958 facts) is about
+5,970 Prisma calls, made one after another inside the one transaction. A
+rollback makes the same calls as a publish, and the number does not depend on
+how much changed, because every key the bundle carries is upserted. The rows
+are small, so each call costs about one round trip to the database, and the
+transaction lasts about as long as 6,000 round trips from wherever the process
+runs. The 20-minute budget holds while a call averages under 200 ms.
+
+The count comes from running `applyBundleToDatabase` for
+`content/generated/fixture-v1` against a fake transaction client that counts
+calls. The biggest items are `fact.create` (958), `contentChange.create`
+(785), entity names (1,112), relations (1,094) and deck members (456).
+
+**Measured on dev, from CI.** No rollback has been timed yet. The nearest
+measurements are the dev publishes by `Publish content to dev`, which runs on
+a GitHub-hosted runner against the direct database URL. The durations below
+are the whole `Publish the release` step, as the Actions API reports it. The
+step is the transaction plus the work before it: validation, and one
+existence check per bundle file and asset, with an upload for each one
+missing. So each figure is an upper bound on its transaction.
+
+| Date (2026) | Run | What it applied | Step | Outcome |
+| --- | --- | --- | --- | --- |
+| 13 Aug | [31687913628](https://github.com/dudeinhoodie/country-flags/actions/runs/31687913628) | new `fixture-v1`, 5-minute budget | 518 s | transaction closed at 300 s, on the learning cards |
+| 13 Aug | [31688798265](https://github.com/dudeinhoodie/country-flags/actions/runs/31688798265) | new `fixture-v1` | 740 s | published |
+| 13 Aug | [31699791581](https://github.com/dudeinhoodie/country-flags/actions/runs/31699791581) | new `fixture-v2` | 788 s | published |
+| 26 Aug | [32954900804](https://github.com/dudeinhoodie/country-flags/actions/runs/32954900804) | new `fixture-v2.1` | 777 s | published |
+| 26 Aug | [32981648546](https://github.com/dudeinhoodie/country-flags/actions/runs/32981648546) | new `fixture-v2.2` | 1148 s | published |
+| 26 Aug | [32986621369](https://github.com/dudeinhoodie/country-flags/actions/runs/32986621369) | `fixture-v1` again | 667 s | applied whole, then refused by the lifecycle check |
+| 28 Aug | [33166957215](https://github.com/dudeinhoodie/country-flags/actions/runs/33166957215) | new `fixture-v2.3` | 1209 s | published |
+| 29 Aug | [33258547545](https://github.com/dudeinhoodie/country-flags/actions/runs/33258547545) | `fixture-v1` again | 889 s | applied whole, then refused by the lifecycle check |
+| 29 Aug | [33260492748](https://github.com/dudeinhoodie/country-flags/actions/runs/33260492748) | `fixture-v2` again | 972 s | applied whole, then refused by the lifecycle check |
+| 29 Aug | [33262485157](https://github.com/dudeinhoodie/country-flags/actions/runs/33262485157) | new `fixture-v2.4` | 1263 s | published |
+
+The three runs that applied an older release again are the nearest thing to a
+rollback that has run on dev. Each applied an already-published release whole,
+with its files already in the bucket, and failed only at the last status
+update, on a lifecycle check that has since been fixed. Beyond a rollback's
+work they made 267 existence checks, one per bundle file and asset. A rollback
+makes 17 downloads instead, one per bundle file.
+
+What this says:
+
+- **From CI, a rollback of the current catalogue takes about 11 to 16
+  minutes.** That is the range of the three re-applies, and it fits the
+  budget.
+- **The margin from far away is thin.** The same work, published fresh from
+  the same runners, took steps of 1,148 to 1,263 s. Those transactions
+  committed, so each ran under 1,200 s, but nothing records how far under.
+  The data was the same size every time, so the spread is most likely the
+  network. From a machine as far from the database as a CI runner, a
+  rollback fits on a good day only.
+- **Per call.** The 5-minute run had got past the entities, relations and
+  assets, over 3,000 calls, when it was closed at 300 s. That is under 100 ms
+  a call that morning, and under 10 minutes for the whole application.
+
+**Not measured yet: the console path.** The console runs rollbacks on the
+Cloud Run job `content-publisher-dev` in `europe-west3`. On 28 September 2026
+that job did not exist: `gcloud run jobs list --region europe-west3` listed
+nothing, because `Deploy publisher dev` fails with `iam.serviceaccounts.actAs`
+denied on `content-publisher@`. So no rollback from the console has been run
+or timed. Expect it to be much quicker than CI if the job's round trip to the
+database is short. That is an expectation, not a measurement. Record the
+first real rollback here. The duration is `finishedAt − startedAt` on the run
+record, which the console's run card reads from
+`GET /v1/admin/content/releases/runs/{runId}`. The execution's own times
+should agree with it:
+
+```bash
+gcloud run jobs executions list --job content-publisher-dev --region "$REGION" --project "$PROJECT" --limit 5 \
+  --format='table(name,status.startTime,status.completionTime,status.succeededCount,status.failedCount)'
+```
+
+| Date | Path | From → to | Duration | Recorded by |
+| --- | --- | --- | --- | --- |
+| — | console (`content-publisher-dev`) | — | not yet measured | — |
+
+**If a rollback does not fit.** Make the application use fewer round trips.
+Do not raise the budget again. Inserting the facts and the change-feed rows
+in batches would remove about 1,740 of the 5,970 calls. A longer transaction
+holds the pointer lock, and the locks on every row it has written, for
+longer.
+
+### 13.2 From the console
+
+1. **Releases → Roll back**, pick the version, confirm. The list only offers
+   releases this deployment actually published.
+2. The run moves to stage `restoring`. Expect it to stay there for as long as
+   a publish stays on `applying`.
+3. `SUCCEEDED` means the pointer moved. Verify what clients are served:
+
+   ```bash
+   curl -fsS "$URL/v1/content/manifest?locale=en" | jq -r .contentVersion
+   ```
+
+How it can fail:
+
+- `PUBLISH_RUN_POINTER_BUSY`: another release, possibly a CI publish, holds
+  the pointer. Wait for it to finish, then roll back again.
+- `PUBLISH_RUN_ROLLBACK_FAILED` with a transaction timeout: nothing was
+  applied, because the whole rollback is one transaction, and the bad release
+  is still active. Use §13.3 from a machine close to the database. Then record
+  the duration in §13.1, because the budget no longer fits.
+
+### 13.3 From the CLI, when the console is down
+
+This is the emergency path (ADR-017 §5). It needs read access to the three
+secrets below and runs against the **direct** connection, because the pooler
+cannot hold a 20-minute transaction. Read the secrets into the environment and
+never print them.
+
+```bash
+export DATABASE_URL="$(gcloud secrets versions access latest --secret=dev-direct-database-url --project "$PROJECT")"
+export DIRECT_DATABASE_URL="$DATABASE_URL"
+export OBJECT_STORAGE_ACCESS_KEY_ID="$(gcloud secrets versions access latest --secret=dev-object-storage-access-key-id --project "$PROJECT")"
+export OBJECT_STORAGE_SECRET_ACCESS_KEY="$(gcloud secrets versions access latest --secret=dev-object-storage-secret-access-key --project "$PROJECT")"
+export OBJECT_STORAGE_PROVIDER=s3 OBJECT_STORAGE_BUCKET=country-flags-dev \
+  OBJECT_STORAGE_REGION=europe-west3 OBJECT_STORAGE_ENDPOINT=https://storage.googleapis.com \
+  OBJECT_STORAGE_FORCE_PATH_STYLE=true \
+  OBJECT_STORAGE_PUBLIC_BASE_URL=https://storage.googleapis.com/country-flags-dev
+corepack yarn prisma:generate
+time corepack yarn content:bundle:rollback --to-version fixture-v2.3
+# {"targetVersion":"fixture-v2.3","previousActiveVersion":"fixture-v2.4","alreadyActive":false,"changes":<n>}
+```
+
+Expect it to take as long as the CI figures in §13.1 when it runs from far
+away. Verify with the manifest as in §13.2, and add the `time` output to the
+table in §13.1.

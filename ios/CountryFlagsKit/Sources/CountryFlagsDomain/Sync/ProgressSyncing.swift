@@ -82,6 +82,50 @@ public protocol SettingsSyncing: Sendable {
     func update(_ settings: UserSettingsRecord) async throws -> SettingsUpdateOutcome
 }
 
+/// The zone the server counts an account's day in, and the settings version
+/// it was read at.
+public struct AccountTimeZone: Hashable, Sendable {
+    public let identifier: String
+    public let settingsVersion: Int
+
+    public init(identifier: String, settingsVersion: Int) {
+        self.identifier = identifier
+        self.settingsVersion = settingsVersion
+    }
+}
+
+/// What the server did with a new time zone.
+public enum AccountTimeZoneUpdateOutcome: Sendable, Equatable {
+    /// Stored. The settings come back whole, under their new version.
+    case updated(UserSettingsRecord)
+    /// The version it was based on is no longer current.
+    case conflict
+    /// The server does not know the zone (422). Not an error to show: the day
+    /// goes on being counted in the zone it had.
+    case refused
+}
+
+/// Reads and writes the one setting the device, not the person, decides: the
+/// time zone the account's day is counted in (#452).
+///
+/// The server takes it once, at registration, and a learner who moves keeps
+/// the old day and the old daily limit forever unless the device says so.
+public protocol AccountTimeZoneSyncing: Sendable {
+    func accountTimeZone() async throws -> AccountTimeZone?
+    func updateTimeZone(
+        _ identifier: String,
+        basedOn version: Int
+    ) async throws -> AccountTimeZoneUpdateOutcome
+}
+
+/// Remembers, per account, the device zone the server was last brought in
+/// line with, so a launch or a return to the app in the same zone sends
+/// nothing.
+public protocol TimeZoneReportRecording: Sendable {
+    func reportedTimeZone(for userID: UUID) -> String?
+    func recordReportedTimeZone(_ identifier: String, for userID: UUID)
+}
+
 /// What the backend did with a request to delete an account's progress.
 ///
 /// The status is the contract's: the deletion may be finished by the time the

@@ -85,11 +85,12 @@ export class PrivacySettingsService {
 
         await this.recordConsentChanges(transaction, userId, before, after);
 
-        // Denying product analytics withdraws consent retroactively for
-        // anything still queued but not yet delivered.
+        // Product events are forwarded only under GRANTED, so any move away
+        // from it — a denial, or a step back to UNKNOWN or NOT_REQUIRED —
+        // withdraws everything still queued but not yet delivered.
         if (
-          update.productAnalyticsStatus === ConsentStatus.DENIED &&
-          before.productAnalyticsStatus !== ConsentStatus.DENIED
+          after.productAnalyticsStatus !== ConsentStatus.GRANTED &&
+          after.productAnalyticsStatus !== before.productAnalyticsStatus
         ) {
           await transaction.analyticsOutboxEvent.deleteMany({
             where: {
