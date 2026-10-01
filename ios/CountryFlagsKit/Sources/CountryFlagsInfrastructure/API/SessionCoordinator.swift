@@ -38,9 +38,20 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
 
     // MARK: - State
 
-    public func currentState() async -> AuthenticationState { state }
+    /// Waits for the keychain's answer the way `currentScope()` does.
+    ///
+    /// It used to return whatever the actor held, and on a warm start the
+    /// account screen's first read raced the launch: `restore()` was still
+    /// suspended on the keychain, the answer was the `.guest` every launch
+    /// starts from, and a signed-in person saw the guest prompt until they
+    /// opened the account screen and it asked again (#452).
+    public func currentState() async -> AuthenticationState {
+        await ensureIdentityRestored()
+        return state
+    }
 
     public func currentProfile() async -> AccountProfile? {
+        await ensureIdentityRestored()
         guard state.isAuthenticated else { return nil }
         let name = try? await tokens.value(for: .accountDisplayName)
         let avatar = try? await tokens.value(for: .accountAvatarURL)
@@ -122,7 +133,12 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         await identityRestoration?.value
     }
 
+    /// Bumped by every sign-in and sign-out, which are newer word on who
+    /// this device is than anything the keychain said at launch.
+    private var identityChanges = 0
+
     private func restoreIdentity() async {
+        let changesBeforeReading = identityChanges
         guard case .guest = state,
             await storedRefreshToken() != nil,
             let stored = try? await tokens.value(for: .accountUserID),
@@ -130,12 +146,29 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         else {
             return
         }
+        // The reads suspend, and a sign-in or sign-out that ran meanwhile
+        // must not be overruled by what the keychain held before it.
+        guard identityChanges == changesBeforeReading else { return }
         state = .authenticated(userID: userID)
+    }
+
+    /// Records that this process decided who it is on its own.
+    ///
+    /// Now that every state read waits for the keychain, the first read can
+    /// come after a sign-out. Were the restoration to start only then, a
+    /// refresh token the keychain refused to delete would sign back in the
+    /// person who had just left.
+    private func noteIdentityChange() {
+        identityChanges += 1
+        if identityRestoration == nil {
+            identityRestoration = Task {}
+        }
     }
 
     // MARK: - Signing in
 
     public func signIn(with credential: ProviderCredential) async -> SignInOutcome {
+        noteIdentityChange()
         state = .authenticating(credential.provider)
         do {
             let session = try await service.exchange(credential)
@@ -148,6 +181,7 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
     }
 
     public func signOut() async {
+        noteIdentityChange()
         // The backend hears first, while there is still a session to prove
         // who is asking. The route is private: sent without the bearer, which
         // is how this used to go out, every request was refused, `try?`

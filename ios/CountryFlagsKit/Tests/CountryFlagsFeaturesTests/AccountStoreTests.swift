@@ -103,6 +103,32 @@ final class AccountStoreTests: XCTestCase {
         XCTAssertEqual(store.signOutAssessment?.unsyncedCount, 2)
     }
 
+    /// The store starts on `.guest` because it has to start on something.
+    /// Until the session has answered, a guest prompt has nothing to go on,
+    /// and a signed-in person on a warm start saw one flash (#452).
+    func testTheStateIsUnresolvedUntilTheSessionAnswers() async {
+        let session = ScriptedSession(outcome: .succeeded(userID: Fixtures.userID))
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let store = makeStore(session: session, migrations: RecordingMigrations())
+
+        XCTAssertNil(store.resolvedState, "the placeholder is not an answer")
+
+        await store.start()
+
+        XCTAssertEqual(store.resolvedState, .authenticated(userID: Fixtures.userID))
+    }
+
+    func testAGuestIsResolvedAsAGuestOnceAsked() async {
+        let store = makeStore(
+            session: ScriptedSession(outcome: .cancelled),
+            migrations: RecordingMigrations()
+        )
+
+        await store.start()
+
+        XCTAssertEqual(store.resolvedState, .guest)
+    }
+
     /// The provider sheet being dismissed is a change of mind, not a failure:
     /// nothing is worded and nothing is reported.
     func testACancelledSignInLeavesNoFailureBehind() {
