@@ -185,7 +185,7 @@ Network monitor используется только для UX-подсказк
 
 - Клиент отправляет app version, platform и поддерживаемые card template schema versions.
 - При неподдерживаемом обязательном шаблоне карточка безопасно пропускается.
-- `app-config` обрабатывает forced update и soft update.
+- `app-config` обрабатывает forced update и soft update: `updateMode=FORCED` и версия ниже `minimumSupported` — блокирующий экран обновления с кнопкой App Store (идентификатор приложения задаётся `CF_APP_STORE_ID`); `SOFT` и версия ниже `latest` — неблокирующее предложение, один раз на версию; `NONE` — ничего, какие бы версии ни пришли. Нечитаемая версия ничего не блокирует.
 - Неизвестные поля JSON игнорируются.
 - Неизвестное enum-значение обрабатывается через `unknown`, а не crash.
 
