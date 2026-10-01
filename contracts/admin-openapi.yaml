@@ -1407,17 +1407,25 @@ paths:
   /v1/admin/content/releases/runs/{runId}/cancel:
     post:
       tags: [AdminReleases]
-      summary: Give up on a queued run
+      summary: Give up on a run nobody is carrying out
       operationId: adminCancelReleaseRun
       x-implementation-status: implemented
       description: >-
-        The way out of a queue nothing is draining. A run holds the only live
-        slot, so one no executor picks up would block every release after it
-        with the database as the only remedy.
+        The way out of a stuck slot. A run holds the only live slot, so one
+        nobody finishes would block every release after it with the database
+        as the only remedy.
 
-        Only a queued run: a running one is a job that has already started,
-        and cancelling the record under it would leave the two disagreeing
-        about what happened.
+        A queued run is cancelled: no executor picked it up, and nothing
+        happened. A running run can be given up only once its executor has
+        stopped reporting (`executorLost`). A killed job writes nothing on
+        its way out, so such a run would otherwise stay `RUNNING` for good.
+        It ends `FAILED` with `PUBLISH_RUN_EXECUTOR_LOST`, not cancelled,
+        because the job did start. The release transaction applies whole or
+        not at all, so the active version says whether it landed.
+
+        A running run whose executor is still reporting is refused: giving up
+        the record under a live job would leave the two disagreeing about
+        what happened.
       parameters:
         - name: runId
           in: path
@@ -1427,7 +1435,9 @@ paths:
             format: uuid
       responses:
         "200":
-          description: The run, now cancelled.
+          description: >-
+            The run, now `CANCELLED` if it was queued, or `FAILED` with
+            `PUBLISH_RUN_EXECUTOR_LOST` if it was running.
           content:
             application/json:
               schema:
@@ -1445,7 +1455,10 @@ paths:
         "404":
           $ref: ./openapi/components.yaml#/responses/NotFoundResponse
         "409":
-          description: The run has already started or already finished.
+          description: >-
+            The run has already finished (`PUBLISH_RUN_NOT_QUEUED`), or it is
+            running and its executor is still reporting
+            (`PUBLISH_RUN_EXECUTOR_ALIVE`).
           content:
             application/json:
               schema:
@@ -4619,7 +4632,15 @@ components:
         this service never sees — carries it out (ADR-017).
       type: object
       required:
-        [id, kind, status, contentVersion, requestedByAdminUserId, createdAt]
+        [
+          id,
+          kind,
+          status,
+          contentVersion,
+          requestedByAdminUserId,
+          createdAt,
+          executorLost,
+        ]
       properties:
         id:
           type: string
@@ -4670,6 +4691,20 @@ components:
         startedAt:
           type: [string, "null"]
           format: date-time
+        heartbeatAt:
+          description: >-
+            When the executor last said it was still carrying the run out.
+            Null until a run is claimed. The executor reports every thirty
+            seconds while it works.
+          type: [string, "null"]
+          format: date-time
+        executorLost:
+          description: >-
+            True for a `RUNNING` run whose executor has not reported for five
+            minutes: its job was killed or crashed, and the run can be given
+            up through the cancel endpoint. Derived when the run is read, so
+            it is false for every other status.
+          type: boolean
         finishedAt:
           type: [string, "null"]
           format: date-time

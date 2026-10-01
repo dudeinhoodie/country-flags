@@ -26,19 +26,21 @@ function queuedRun(overrides: Partial<PublishRun> = {}): PublishRun {
     requestedByAdminUserId: "d3f6d0f6-0000-4000-8000-0000000000ff",
     createdAt: new Date("2026-09-06T10:00:00.000Z"),
     startedAt: new Date("2026-09-06T10:00:01.000Z"),
+    heartbeatAt: new Date("2026-09-06T10:00:01.000Z"),
     finishedAt: null,
     ...overrides,
   };
 }
 
 /**
- * The store as four spies rather than as a typed mock of the interface: the
+ * The store as spies rather than as a typed mock of the interface: the
  * assertions below read the calls straight off the object, which a method
  * declared on an interface would make an unbound reference to.
  */
 interface FakeStore {
   claim: jest.Mock;
   recordStage: jest.Mock;
+  heartbeat: jest.Mock;
   recordSuccess: jest.Mock;
   recordFailure: jest.Mock;
 }
@@ -47,9 +49,14 @@ function storeHolding(run: PublishRun | null): FakeStore {
   return {
     claim: jest.fn().mockResolvedValue(run),
     recordStage: jest.fn().mockResolvedValue(undefined),
+    heartbeat: jest.fn().mockResolvedValue(undefined),
     recordSuccess: jest.fn().mockResolvedValue(undefined),
     recordFailure: jest.fn().mockResolvedValue(undefined),
   };
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function asStore(store: FakeStore): PublishRunStore {
@@ -203,5 +210,52 @@ describe("executing a release run", () => {
       [run.id, "building"],
       [run.id, "applying"],
     ]);
+  });
+
+  /// A killed job writes nothing on its way out. The heartbeat's silence is
+  /// the only sign it leaves, and the console gives a run up on it (#452).
+  it("reports a heartbeat while the work runs, and stops when it ends", async () => {
+    const run = queuedRun();
+    const store = storeHolding(run);
+
+    await executePublishRun(
+      asStore(store),
+      asWork(workThat({ publish: () => sleep(60) })),
+      { heartbeatIntervalMs: 10 },
+    );
+
+    expect(store.heartbeat).toHaveBeenCalled();
+    expect(store.heartbeat).toHaveBeenCalledWith(run.id);
+    const beatsWhileWorking = store.heartbeat.mock.calls.length;
+    await sleep(50);
+    // A finished run that kept beating would look alive to nobody's benefit.
+    expect(store.heartbeat).toHaveBeenCalledTimes(beatsWhileWorking);
+  });
+
+  it("does not beat for a run it did not take", async () => {
+    const store = storeHolding(null);
+
+    await executePublishRun(asStore(store), asWork(workThat()), {
+      heartbeatIntervalMs: 1,
+    });
+    await sleep(20);
+
+    expect(store.heartbeat).not.toHaveBeenCalled();
+  });
+
+  /// The lease allows ten missed beats. A write that fails once is not a
+  /// reason to fail a release that is otherwise going fine.
+  it("carries on when a heartbeat cannot be written", async () => {
+    const store = storeHolding(queuedRun());
+    store.heartbeat.mockRejectedValue(new Error("connection reset"));
+
+    await expect(
+      executePublishRun(
+        asStore(store),
+        asWork(workThat({ publish: () => sleep(40) })),
+        { heartbeatIntervalMs: 5 },
+      ),
+    ).resolves.toMatchObject({ taken: true, succeeded: true });
+    expect(store.heartbeat).toHaveBeenCalled();
   });
 });

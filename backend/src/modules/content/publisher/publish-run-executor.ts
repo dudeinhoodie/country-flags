@@ -1,5 +1,7 @@
 import { PublishRunKind, type PublishRun } from "@prisma/client";
 
+import { PUBLISH_RUN_HEARTBEAT_INTERVAL_MS } from "./publish-run-lease";
+
 /**
  * The stages a run reports as it goes.
  *
@@ -55,6 +57,11 @@ export interface PublishRunStore {
     executionName: string | null,
   ): Promise<PublishRun | null>;
   recordStage(runId: string, stage: string): Promise<void>;
+  /**
+   * Says the run is still being carried out. A run unheard for longer than
+   * the lease counts as abandoned, and the console may give it up.
+   */
+  heartbeat(runId: string): Promise<void>;
   recordSuccess(runId: string): Promise<void>;
   recordFailure(runId: string, code: string, message: string): Promise<void>;
 }
@@ -117,6 +124,7 @@ export async function executePublishRun(
   options: {
     runId?: string | undefined;
     executionName?: string | undefined;
+    heartbeatIntervalMs?: number | undefined;
   } = {},
 ): Promise<PublishRunOutcome> {
   const run = await store.claim(
@@ -130,6 +138,15 @@ export async function executePublishRun(
   const stage = async (name: string): Promise<void> => {
     await store.recordStage(run.id, name);
   };
+
+  // For as long as this process is working on the run. A job that is killed
+  // stops beating with it, and that silence is the only thing a dead job
+  // leaves behind (#452).
+  const heartbeat = setInterval(() => {
+    // A missed beat is not a failure of the run. The lease allows ten of
+    // them, and the outcome is recorded by its own write at the end.
+    store.heartbeat(run.id).catch(() => undefined);
+  }, options.heartbeatIntervalMs ?? PUBLISH_RUN_HEARTBEAT_INTERVAL_MS);
 
   try {
     if (run.kind === PublishRunKind.PUBLISH) {
@@ -146,5 +163,7 @@ export async function executePublishRun(
     // something an operator can read.
     await store.recordFailure(run.id, code, message).catch(() => undefined);
     return { taken: true, run, succeeded: false };
+  } finally {
+    clearInterval(heartbeat);
   }
 }

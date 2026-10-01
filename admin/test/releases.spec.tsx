@@ -61,6 +61,29 @@ const idle: RunState = {
   last: null,
 };
 
+function runningRun(
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    id: RUN_ID,
+    kind: "PUBLISH",
+    status: "RUNNING",
+    contentVersion: "2026.09.02",
+    minimumClientVersion: "0.1.0",
+    previousVersion: "2026.09.01",
+    stage: "applying",
+    failure: null,
+    executionName: "content-publisher-dev-abcde",
+    requestedByAdminUserId: "7f2f1f76-1f0a-4a2e-9a5e-2b8f4f1c9d21",
+    createdAt: "2026-09-06T10:00:00Z",
+    startedAt: "2026-09-06T10:00:05Z",
+    heartbeatAt: "2026-09-06T10:12:00Z",
+    executorLost: false,
+    finishedAt: null,
+    ...overrides,
+  };
+}
+
 type FetchInput = Request | string;
 
 function stubApi(state: RunState = idle): ReturnType<typeof vi.fn> {
@@ -101,6 +124,8 @@ function stubApi(state: RunState = idle): ReturnType<typeof vi.fn> {
             requestedByAdminUserId: "7f2f1f76-1f0a-4a2e-9a5e-2b8f4f1c9d21",
             createdAt: "2026-09-06T10:00:00Z",
             startedAt: null,
+            heartbeatAt: null,
+            executorLost: false,
             finishedAt: null,
           },
           { status: 202 },
@@ -210,6 +235,47 @@ describe("the releases screen", () => {
     renderAt("dev");
 
     expect(await screen.findByText(/no publisher job/i)).toBeVisible();
+  });
+
+  /// A killed job writes nothing on its way out, so its run stays RUNNING
+  /// and holds the only live slot. Without this lever every later release
+  /// from the console would be refused, and the database would be the only
+  /// way out (#452).
+  it("offers to give up a run whose job stopped reporting", async () => {
+    const fetchMock = stubApi({
+      ...idle,
+      current: runningRun({ executorLost: true }),
+    });
+    renderAt("dev");
+
+    expect(await screen.findByText(/stopped reporting/i)).toBeVisible();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Give up on this run" }),
+    );
+
+    await vi.waitFor(() => {
+      const request = requestsTo(fetchMock).find(
+        (candidate) =>
+          candidate.method === "POST" &&
+          candidate.url.endsWith(`/runs/${RUN_ID}/cancel`),
+      );
+      if (request === undefined) {
+        throw new Error("The run was not given up");
+      }
+    });
+  });
+
+  /// A job that is still reporting is alive, and giving up the record under
+  /// it would leave the two disagreeing about what happened.
+  it("does not offer to give up a run whose job is still reporting", async () => {
+    stubApi({ ...idle, current: runningRun({ executorLost: false }) });
+    renderAt("dev");
+
+    expect(await screen.findByText("Run in flight")).toBeVisible();
+    expect(screen.queryByText(/stopped reporting/i)).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Give up on this run" }),
+    ).toBeNull();
   });
 
   /// Watching a release is not the same permission as starting one.

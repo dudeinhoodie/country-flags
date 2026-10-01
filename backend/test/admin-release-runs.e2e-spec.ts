@@ -18,6 +18,7 @@ import request from "supertest";
 import { AppModule } from "../src/app/app.module";
 import { PrismaService } from "../src/infrastructure/database/prisma.service";
 import { importTestContent } from "../src/modules/content/import/test-content-importer";
+import { PrismaPublishRunStore } from "../src/modules/content/publisher/prisma-publish-run-store";
 import { TestProviderTokenSigner } from "../src/modules/auth/testing/test-provider-token-signer";
 import { bodyOf } from "./response-body";
 
@@ -30,6 +31,8 @@ interface RunBody {
   previousVersion: string | null;
   failure: { code: string; message: string } | null;
   createdAt: string;
+  heartbeatAt: string | null;
+  executorLost: boolean;
   finishedAt: string | null;
 }
 
@@ -314,9 +317,9 @@ describe("Admin release runs (integration)", () => {
     expect(next.status).toBe(202);
   });
 
-  /// A running job has already started; cancelling the record under it would
-  /// leave the two disagreeing about what happened.
-  it("refuses to cancel a run that has already started", async () => {
+  /// A job that is still reporting is alive; giving up the record under it
+  /// would leave the two disagreeing about what happened.
+  it("refuses to give up a running run whose job is still reporting", async () => {
     const queued = await request(httpServer)
       .post("/v1/admin/content/releases/publish")
       .set("Cookie", publisherCookie)
@@ -325,7 +328,20 @@ describe("Admin release runs (integration)", () => {
     const runId = bodyOf<RunBody>(queued).id;
     await database.publishRun.update({
       where: { id: runId },
-      data: { status: "RUNNING", startedAt: new Date() },
+      data: {
+        status: "RUNNING",
+        startedAt: new Date(),
+        heartbeatAt: new Date(),
+      },
+    });
+
+    const state = await request(httpServer)
+      .get("/v1/admin/content/releases/runs")
+      .set("Cookie", viewerCookie);
+    expect(bodyOf<RunStateBody>(state).current).toMatchObject({
+      id: runId,
+      status: "RUNNING",
+      executorLost: false,
     });
 
     const response = await request(httpServer)
@@ -335,8 +351,129 @@ describe("Admin release runs (integration)", () => {
 
     expect(response.status).toBe(409);
     expect(bodyOf<ErrorBody>(response).error.code).toBe(
-      "PUBLISH_RUN_NOT_QUEUED",
+      "PUBLISH_RUN_EXECUTOR_ALIVE",
     );
+  });
+
+  /// A killed job writes nothing on its way out. Its run stayed RUNNING and
+  /// held the only live slot for good, so every later publish and rollback
+  /// from the console was refused (#452).
+  it("gives up a running run whose job stopped reporting, and frees the slot", async () => {
+    const queued = await request(httpServer)
+      .post("/v1/admin/content/releases/publish")
+      .set("Cookie", publisherCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .send({ contentVersion: "fixture-v9", minimumClientVersion: "0.1.0" });
+    const runId = bodyOf<RunBody>(queued).id;
+    await database.publishRun.update({
+      where: { id: runId },
+      data: {
+        status: "RUNNING",
+        stage: "applying",
+        startedAt: new Date(Date.now() - 40 * 60_000),
+        heartbeatAt: new Date(Date.now() - 6 * 60_000),
+      },
+    });
+
+    // Refused while the dead run holds the slot, which is the bug.
+    const blocked = await request(httpServer)
+      .post("/v1/admin/content/releases/publish")
+      .set("Cookie", publisherCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .send({ contentVersion: "fixture-v10", minimumClientVersion: "0.1.0" });
+    expect(blocked.status).toBe(409);
+
+    const state = await request(httpServer)
+      .get("/v1/admin/content/releases/runs")
+      .set("Cookie", viewerCookie);
+    expect(bodyOf<RunStateBody>(state).current).toMatchObject({
+      id: runId,
+      executorLost: true,
+    });
+
+    const givenUp = await request(httpServer)
+      .post(`/v1/admin/content/releases/runs/${runId}/cancel`)
+      .set("Cookie", publisherCookie)
+      .set("Origin", TRUSTED_ORIGIN);
+    expect(givenUp.status).toBe(200);
+    const run = bodyOf<RunBody>(givenUp);
+    expect(run).toMatchObject({
+      id: runId,
+      status: "FAILED",
+      executorLost: false,
+      failure: { code: "PUBLISH_RUN_EXECUTOR_LOST" },
+    });
+    expect(run.failure?.message).toContain(activeVersion);
+    expect(run.finishedAt).not.toBeNull();
+
+    const audit = await database.adminAuditEvent.findFirst({
+      where: { action: "admin.release.run_abandoned", targetId: runId },
+    });
+    expect(audit).not.toBeNull();
+
+    // The slot is free, which is the whole point.
+    const next = await request(httpServer)
+      .post("/v1/admin/content/releases/publish")
+      .set("Cookie", publisherCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .send({ contentVersion: "fixture-v10", minimumClientVersion: "0.1.0" });
+    expect(next.status).toBe(202);
+  });
+
+  /// Giving up a run must be final even if its job was not dead after all:
+  /// a late heartbeat or outcome must not bring the run back to life, or two
+  /// records would claim the one live slot.
+  it("does not let a job revive a run that was given up", async () => {
+    const queued = await request(httpServer)
+      .post("/v1/admin/content/releases/publish")
+      .set("Cookie", publisherCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .send({ contentVersion: "fixture-v9", minimumClientVersion: "0.1.0" });
+    const runId = bodyOf<RunBody>(queued).id;
+    const store = new PrismaPublishRunStore(database);
+
+    const claimed = await store.claim(runId, "content-publisher-dev-abcde");
+    expect(claimed?.status).toBe("RUNNING");
+    // The claim writes the first heartbeat itself.
+    expect(claimed?.heartbeatAt).not.toBeNull();
+
+    await database.publishRun.update({
+      where: { id: runId },
+      data: { heartbeatAt: new Date(Date.now() - 6 * 60_000) },
+    });
+    const givenUp = await request(httpServer)
+      .post(`/v1/admin/content/releases/runs/${runId}/cancel`)
+      .set("Cookie", publisherCookie)
+      .set("Origin", TRUSTED_ORIGIN);
+    expect(givenUp.status).toBe(200);
+
+    await store.heartbeat(runId);
+    await store.recordStage(runId, "applying");
+    await store.recordSuccess(runId);
+
+    const row = await database.publishRun.findUniqueOrThrow({
+      where: { id: runId },
+    });
+    expect(row.status).toBe("FAILED");
+    expect(row.failureCode).toBe("PUBLISH_RUN_EXECUTOR_LOST");
+  });
+
+  /// A RUNNING run without a heartbeat could never be told apart from a
+  /// dead one, so the database refuses to hold one.
+  it("refuses a running run without a heartbeat", async () => {
+    const queued = await request(httpServer)
+      .post("/v1/admin/content/releases/publish")
+      .set("Cookie", publisherCookie)
+      .set("Origin", TRUSTED_ORIGIN)
+      .send({ contentVersion: "fixture-v9", minimumClientVersion: "0.1.0" });
+    const runId = bodyOf<RunBody>(queued).id;
+
+    await expect(
+      database.$executeRawUnsafe(
+        `UPDATE publish_runs SET status = 'RUNNING', started_at = now() WHERE id = $1::uuid`,
+        runId,
+      ),
+    ).rejects.toThrow(/publish_runs_running_heartbeat_check/);
   });
 
   it("refuses a release below PUBLISHER, and from an untrusted origin", async () => {
