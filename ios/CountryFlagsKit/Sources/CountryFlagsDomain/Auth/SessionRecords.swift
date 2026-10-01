@@ -3,13 +3,22 @@ import Foundation
 /// What a provider gave the app to prove who signed in.
 ///
 /// These are credentials and are held only long enough to be exchanged for a
-/// backend session: nothing here is stored, logged or reported, and the
-/// provider's own user identifier is deliberately absent — it is an identity,
-/// not proof of anything.
+/// backend session: nothing here is logged or reported, and none of it is sent
+/// anywhere but the exchange.
 public enum ProviderCredential: Sendable {
     /// Apple returns the token and the code together, and the raw nonce is what
     /// ties them to the request this device started.
-    case apple(identityToken: String, authorizationCode: String, rawNonce: String)
+    ///
+    /// `appleUserID` is Apple's identifier for the person. It proves nothing
+    /// and is never sent to the backend; the session keeps it only to ask
+    /// Apple later whether the sign-in still stands, which is the one question
+    /// Apple answers by that identifier alone.
+    case apple(
+        identityToken: String,
+        authorizationCode: String,
+        rawNonce: String,
+        appleUserID: String? = nil
+    )
     case google(idToken: String)
 
     public var provider: AuthProvider {
@@ -150,4 +159,40 @@ public protocol SessionControlling: Sendable {
     /// Ends this device's session: the backend is told first, with the
     /// session's own bearer, and the device is signed out whatever it answers.
     func signOut() async
+    /// Asks the provider whether the sign-in behind this session still stands,
+    /// and signs the device out when it does not.
+    ///
+    /// - Returns: whether the device was signed out.
+    func signOutIfProviderRevoked() async -> Bool
+}
+
+/// What Apple says about a Sign in with Apple credential it issued earlier.
+public enum AppleCredentialState: Hashable, Sendable {
+    case authorized
+    /// The person stopped using their Apple ID with the app, in Settings or
+    /// on the web.
+    case revoked
+    /// Apple does not know the identifier under the Apple ID this device is
+    /// signed into now.
+    case notFound
+    /// The app moved to another developer team. The identifier needs
+    /// migrating, which is not the same as the person leaving.
+    case transferred
+    /// Apple could not be asked. Says nothing about the credential.
+    case unknown
+
+    /// Whether the app must stop acting on the sign-in: the two states in
+    /// which Apple's own guidance returns the person to the sign-in screen.
+    public var endsTheSession: Bool {
+        switch self {
+        case .revoked, .notFound: true
+        case .authorized, .transferred, .unknown: false
+        }
+    }
+}
+
+/// The seam in front of `ASAuthorizationAppleIDProvider`, so the check can be
+/// driven without Apple.
+public protocol AppleCredentialStateChecking: Sendable {
+    func credentialState(forUserID userID: String) async -> AppleCredentialState
 }

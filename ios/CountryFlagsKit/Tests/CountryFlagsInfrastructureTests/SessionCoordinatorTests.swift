@@ -463,6 +463,113 @@ final class SessionCoordinatorTests: XCTestCase {
         XCTAssertFalse(presented.isEmpty, "the launch refreshed nothing at all")
     }
 
+    // MARK: - Sign in with Apple withdrawn
+
+    /// Apple's identifier is what the app asks Apple about later, so an Apple
+    /// sign-in keeps it beside the session, in the keychain.
+    func testAnAppleSignInKeepsApplesIdentifierForTheLaterCheck() async throws {
+        let tokens = InMemoryTokenStore()
+        let session = makeCoordinator(service: StubAuthService(), tokens: tokens)
+
+        _ = await session.signIn(with: appleCredential)
+
+        let stored = try await tokens.value(for: .appleUserID)
+        XCTAssertEqual(stored, "000123.apple.0444")
+    }
+
+    /// Any other way in clears it: a Google session is not Apple's to end.
+    func testAGoogleSignInClearsAnEarlierApplesIdentifier() async throws {
+        let tokens = InMemoryTokenStore(values: [.appleUserID: "000123.apple.0444"])
+        let session = makeCoordinator(service: StubAuthService(), tokens: tokens)
+
+        _ = await session.signIn(with: .google(idToken: "t"))
+
+        let stored = try await tokens.value(for: .appleUserID)
+        XCTAssertNil(stored)
+    }
+
+    /// Switched off in Settings: Apple says so when asked, and the device signs
+    /// out the whole way, identifier included.
+    func testAnAppleSignInAppleNoLongerStandsBehindSignsTheDeviceOut() async throws {
+        for answer in [AppleCredentialState.revoked, .notFound] {
+            let tokens = InMemoryTokenStore()
+            let apple = StubAppleCredentials(answer: answer)
+            let session = makeCoordinator(service: StubAuthService(), tokens: tokens, apple: apple)
+            _ = await session.signIn(with: appleCredential)
+
+            let signedOut = await session.signOutIfProviderRevoked()
+
+            XCTAssertTrue(signedOut, "\(answer)")
+            let asked = await apple.askedAbout
+            XCTAssertEqual(asked, ["000123.apple.0444"])
+            let state = await session.currentState()
+            XCTAssertEqual(state, .guest)
+            let refresh = try await tokens.value(for: .refreshToken)
+            XCTAssertNil(refresh)
+            let appleUserID = try await tokens.value(for: .appleUserID)
+            XCTAssertNil(appleUserID)
+        }
+    }
+
+    /// Standing, moved between teams, or not answerable right now: none of
+    /// these is the person leaving, so the session stays.
+    func testAnAppleSignInThatStillStandsIsLeftAlone() async throws {
+        for answer in [AppleCredentialState.authorized, .transferred, .unknown] {
+            let tokens = InMemoryTokenStore()
+            let service = StubAuthService()
+            let session = makeCoordinator(
+                service: service,
+                tokens: tokens,
+                apple: StubAppleCredentials(answer: answer)
+            )
+            _ = await session.signIn(with: appleCredential)
+
+            let signedOut = await session.signOutIfProviderRevoked()
+
+            XCTAssertFalse(signedOut, "\(answer)")
+            let state = await session.currentState()
+            XCTAssertEqual(state, .authenticated(userID: service.userID))
+            let refresh = try await tokens.value(for: .refreshToken)
+            XCTAssertEqual(refresh, "refresh-1")
+        }
+    }
+
+    /// A session that did not begin with Apple has nothing to ask Apple about.
+    func testAGoogleSessionIsNeverPutToApple() async {
+        let apple = StubAppleCredentials(answer: .revoked)
+        let service = StubAuthService()
+        let session = makeCoordinator(service: service, apple: apple)
+        _ = await session.signIn(with: .google(idToken: "t"))
+
+        let signedOut = await session.signOutIfProviderRevoked()
+
+        XCTAssertFalse(signedOut)
+        let asked = await apple.askedAbout
+        XCTAssertEqual(asked, [])
+        let state = await session.currentState()
+        XCTAssertEqual(state, .authenticated(userID: service.userID))
+    }
+
+    /// The launch's check can come before anything else asked who this is:
+    /// the identity is read off the keychain first, so a relaunch is checked
+    /// too rather than passing as a guest.
+    func testARelaunchedAppleSessionIsChecked() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore(values: [
+            .refreshToken: "refresh-stored",
+            .accountUserID: service.userID.uuidString,
+            .appleUserID: "000123.apple.0444",
+        ])
+        let apple = StubAppleCredentials(answer: .revoked)
+        let session = makeCoordinator(service: service, tokens: tokens, apple: apple)
+
+        let signedOut = await session.signOutIfProviderRevoked()
+
+        XCTAssertTrue(signedOut)
+        let state = await session.currentState()
+        XCTAssertEqual(state, .guest)
+    }
+
     // MARK: - A keychain that refuses
 
     /// The failure behind #392: the keychain refuses, the sign-in looks
@@ -524,16 +631,42 @@ final class SessionCoordinatorTests: XCTestCase {
         )
     }
 
+    private var appleCredential: ProviderCredential {
+        .apple(
+            identityToken: "identity",
+            authorizationCode: "code",
+            rawNonce: "nonce",
+            appleUserID: "000123.apple.0444"
+        )
+    }
+
     private func makeCoordinator(
         service: any AuthenticationService,
-        tokens: any SecureTokenStoring = InMemoryTokenStore()
+        tokens: any SecureTokenStoring = InMemoryTokenStore(),
+        apple: (any AppleCredentialStateChecking)? = nil
     ) -> SessionCoordinator {
         SessionCoordinator(
             service: service,
             tokens: tokens,
             guestScopes: FixedGuestScopes(scope: guestScope),
-            logger: NoOpLogger()
+            logger: NoOpLogger(),
+            appleCredentials: apple
         )
+    }
+}
+
+/// Apple, answering one way and noting what it was asked about.
+private actor StubAppleCredentials: AppleCredentialStateChecking {
+    private let answer: AppleCredentialState
+    private(set) var askedAbout: [String] = []
+
+    init(answer: AppleCredentialState) {
+        self.answer = answer
+    }
+
+    func credentialState(forUserID userID: String) async -> AppleCredentialState {
+        askedAbout.append(userID)
+        return answer
     }
 }
 

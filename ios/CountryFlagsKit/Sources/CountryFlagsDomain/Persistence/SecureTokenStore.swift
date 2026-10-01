@@ -24,6 +24,12 @@ public enum SecureTokenKind: String, Hashable, Sendable, CaseIterable {
     /// every review event is attributed to. Learned from the device list
     /// after sign-in and discarded with the session.
     case accountDeviceID
+    /// The identifier Apple gave this person for this app, when the session
+    /// began with Sign in with Apple. Not a credential, but a stable handle on
+    /// a person, so it lives here rather than in UserDefaults: it is kept only
+    /// to ask Apple whether the sign-in still stands, and leaves with the
+    /// session.
+    case appleUserID
 }
 
 /// Where session secrets live.

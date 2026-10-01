@@ -209,7 +209,11 @@ struct AppComposition: AppDependencies {
             service: authService,
             tokens: tokens,
             guestScopes: accountScopes,
-            logger: logger
+            logger: logger,
+            // Every build asks Apple: a session only has something to ask
+            // about when it began with the real Apple sheet, which the
+            // fixture sign-in of the Mock build never does.
+            appleCredentials: AppleIDCredentialStateChecker()
         )
         let apiClientFactory = APIClientFactory(
             configuration: apiConfiguration,

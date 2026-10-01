@@ -390,6 +390,9 @@ public struct RootView: View {
         .task {
             if accountToolbar == nil { accountToolbar = makeAccountStore?() }
             await accountToolbar?.start()
+            // Sign in with Apple switched off in Settings since the last
+            // launch ends the session here, before anything else reads it.
+            await accountToolbar?.checkProviderCredential()
             // Once the account has said who this is: a device that is
             // already signed in, or already studied, is not a first launch
             // whatever the flag says.
@@ -475,6 +478,9 @@ public struct RootView: View {
             // two overlapping passes raced each other.
             guard phase == .active else { return }
             Task {
+                // First, before the run: a person who switched Sign in with
+                // Apple off while away is signed out rather than synced as.
+                await accountToolbar?.checkProviderCredential()
                 // Coming back is the same kind of window as leaving a sitting:
                 // what is on screen is the word from before the app went away,
                 // and it is about to be replaced. It was left uncovered, so

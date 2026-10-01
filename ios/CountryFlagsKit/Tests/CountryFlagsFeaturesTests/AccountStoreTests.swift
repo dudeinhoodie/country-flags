@@ -154,6 +154,9 @@ private actor ScriptedSession: SessionControlling {
     private let outcome: SignInOutcome
     private let avatarURL: URL?
     private var state: AuthenticationState = .guest
+    /// Whether the provider has withdrawn the sign-in, as the next check
+    /// will find.
+    private var providerRevoked = false
 
     init(outcome: SignInOutcome, avatarURL: URL? = nil) {
         self.outcome = outcome
@@ -185,6 +188,14 @@ private actor ScriptedSession: SessionControlling {
 
     func signOut() async {
         state = .guest
+    }
+
+    func revokeAtProvider() { providerRevoked = true }
+
+    func signOutIfProviderRevoked() async -> Bool {
+        guard providerRevoked, state.isAuthenticated else { return false }
+        state = .guest
+        return true
     }
 }
 
@@ -354,6 +365,64 @@ final class AccountAvatarTests: XCTestCase {
 
         XCTAssertNil(store.avatar)
         XCTAssertNil(store.profile)
+    }
+
+    /// Sign in with Apple switched off in Settings (#444): the check the
+    /// shell runs on launch and on return signs the store out the way a
+    /// sign-out does, picture and all.
+    func testAWithdrawnProviderSignInSignsTheStoreOut() async {
+        let session = ScriptedSession(
+            outcome: .succeeded(userID: Fixtures.userID),
+            avatarURL: avatarURL,
+        )
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let store = AccountStore(
+            session: session,
+            migrations: RecordingMigrations(),
+            outbox: StubOutbox(pendingCount: 0),
+            scopes: StubScopes(),
+            nonces: StubNonces(),
+            avatars: CountingAvatarLoader(bytes: Data([1, 2, 3])),
+        )
+        let signedOut = OrderRecorder()
+        store.onSignedOut = { await signedOut.note("signedOut") }
+        await store.start()
+        await session.revokeAtProvider()
+
+        await store.checkProviderCredential()
+
+        XCTAssertEqual(store.state, .guest)
+        XCTAssertNil(store.profile)
+        XCTAssertNil(store.avatar)
+        let notes = await signedOut.notes
+        XCTAssertEqual(notes, ["signedOut"], "what the account bought comes off the device")
+    }
+
+    /// A sign-in the provider still stands behind is left exactly as it was.
+    func testAStandingProviderSignInChangesNothing() async {
+        let session = ScriptedSession(
+            outcome: .succeeded(userID: Fixtures.userID),
+            avatarURL: avatarURL,
+        )
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let store = AccountStore(
+            session: session,
+            migrations: RecordingMigrations(),
+            outbox: StubOutbox(pendingCount: 0),
+            scopes: StubScopes(),
+            nonces: StubNonces(),
+            avatars: CountingAvatarLoader(bytes: Data([1, 2, 3])),
+        )
+        let signedOut = OrderRecorder()
+        store.onSignedOut = { await signedOut.note("signedOut") }
+        await store.start()
+
+        await store.checkProviderCredential()
+
+        XCTAssertEqual(store.state, .authenticated(userID: Fixtures.userID))
+        XCTAssertEqual(store.avatar, Data([1, 2, 3]))
+        let notes = await signedOut.notes
+        XCTAssertEqual(notes, [])
     }
 
     /// Deleting an account ends the session from another store entirely, so

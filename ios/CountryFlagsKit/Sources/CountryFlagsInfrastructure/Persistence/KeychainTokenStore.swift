@@ -34,7 +34,7 @@ public struct KeychainTokenStore: SecureTokenStoring {
         case .installationID:
             kSecAttrAccessibleAfterFirstUnlock
         case .accessToken, .refreshToken, .accountUserID, .accountDisplayName,
-            .accountAvatarURL, .accountDeviceID:
+            .accountAvatarURL, .accountDeviceID, .appleUserID:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         }
     }
