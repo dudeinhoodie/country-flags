@@ -22,6 +22,28 @@ export class AccountDeletionService {
   ) {}
 
   async delete(userId: string, requestId: string): Promise<DeletionResult> {
+    const marked = await this.markDeletionPending(userId);
+    try {
+      return await this.erase(userId, requestId);
+    } catch (error) {
+      // Nothing was erased: the transaction rolled back whole. Handing the
+      // account back lets its owner use it again and ask again, which a
+      // DELETION_PENDING account cannot do — the auth guard admits only
+      // active ones.
+      if (marked) {
+        await this.database.user.updateMany({
+          where: { id: userId, status: UserStatus.DELETION_PENDING },
+          data: { status: UserStatus.ACTIVE, deletionRequestedAt: null },
+        });
+      }
+      throw error;
+    }
+  }
+
+  private async erase(
+    userId: string,
+    requestId: string,
+  ): Promise<DeletionResult> {
     // Apple is asked before the transaction, never inside it: a network call
     // would hold a serializable transaction open for as long as Apple takes,
     // and a retried transaction would ask again. The token lives on the
@@ -136,6 +158,15 @@ export class AccountDeletionService {
           "privacyEvents",
           transaction.privacyConsentEvent.deleteMany({ where: { userId } }),
         );
+        // Events still waiting for delivery carry the account identifier.
+        // Deleted here, not left to their TTL, so nothing that names the
+        // account is sent to an analytics provider after it is gone.
+        await remove(
+          "analyticsOutboxEvents",
+          transaction.analyticsOutboxEvent.deleteMany({
+            where: { analyticsSubjectId: userId },
+          }),
+        );
         // A non-consumable purchase belongs to the Apple Account that paid
         // for it, and that account outlives this one. The rights go; the
         // ledger row stays and is released, which is the only state a
@@ -190,6 +221,31 @@ export class AccountDeletionService {
       },
       { maxWait: 10_000, timeout: 30_000 },
     );
+  }
+
+  /**
+   * Stops new writes before the erasure starts (see `lockAccountForWrite`).
+   *
+   * Its own transaction, committed before the erasure begins: `FOR UPDATE`
+   * waits for every write that holds the account, and a write that asks
+   * afterwards sees DELETION_PENDING and is refused. The erasure's snapshot
+   * is taken after this commits, so it sees everything those writes left
+   * behind. Returns whether this call set the mark.
+   */
+  private async markDeletionPending(userId: string): Promise<boolean> {
+    return this.database.$transaction(async (transaction) => {
+      await transaction.$queryRaw`
+        SELECT 1 AS locked FROM users WHERE id = ${userId}::uuid FOR UPDATE
+      `;
+      const marked = await transaction.user.updateMany({
+        where: { id: userId, status: UserStatus.ACTIVE },
+        data: {
+          status: UserStatus.DELETION_PENDING,
+          deletionRequestedAt: new Date(),
+        },
+      });
+      return marked.count === 1;
+    });
   }
 
   private result(requestedAt: Date, completedAt: Date): DeletionResult {

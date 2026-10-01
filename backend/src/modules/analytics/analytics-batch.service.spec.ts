@@ -38,6 +38,7 @@ function operationalEvent(
 function service(overrides: {
   findUnique?: jest.Mock;
   create?: jest.Mock;
+  lockAccount?: jest.Mock;
 }): AnalyticsBatchService {
   const database = {
     userPrivacySettings: {
@@ -46,6 +47,13 @@ function service(overrides: {
     analyticsOutboxEvent: {
       create: overrides.create ?? jest.fn().mockResolvedValue(undefined),
     },
+    // The account lock: one row while the account may be written.
+    $queryRaw:
+      overrides.lockAccount ?? jest.fn().mockResolvedValue([{ id: "user-1" }]),
+    $transaction: jest.fn(
+      (run: (transaction: unknown) => Promise<unknown>): Promise<unknown> =>
+        run(database),
+    ),
   };
   return new AnalyticsBatchService(database as never);
 }
@@ -299,6 +307,36 @@ describe("AnalyticsBatchService", () => {
         rejectionCode: null,
       },
     ]);
+  });
+
+  it("writes no event that names an account being deleted", async () => {
+    const create = jest.fn().mockResolvedValue(undefined);
+    const lockAccount = jest.fn().mockResolvedValue([]);
+    const batches = service({ create, lockAccount });
+
+    await expect(
+      batches.ingest(
+        { payloadVersion: 1, events: [operationalEvent()] },
+        "user-1",
+      ),
+    ).rejects.toMatchObject({
+      response: { error: { code: "ACCOUNT_UNAVAILABLE" } },
+    });
+    expect(lockAccount).toHaveBeenCalledTimes(1);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("takes no account lock for an anonymous event", async () => {
+    const lockAccount = jest.fn().mockResolvedValue([]);
+    const batches = service({ lockAccount });
+
+    const result = await batches.ingest(
+      { payloadVersion: 1, events: [operationalEvent()] },
+      undefined,
+    );
+
+    expect(result.results[0]?.status).toBe("ACCEPTED");
+    expect(lockAccount).not.toHaveBeenCalled();
   });
 
   it("rejects a malformed batch envelope with a validation error", async () => {

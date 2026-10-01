@@ -4,6 +4,7 @@ import type { Prisma, UserSettings } from "@prisma/client";
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { inSerializableTransaction } from "../../infrastructure/database/serializable-transaction";
+import { lockAccountForWrite } from "../users/account-write-guard";
 import type { UpdateSettingsRequest } from "./settings.request";
 
 export function settingsEtag(version: number): string {
@@ -38,10 +39,15 @@ export class SettingsService {
   constructor(private readonly database: PrismaService) {}
 
   async get(userId: string): Promise<UserSettings> {
-    return this.database.userSettings.upsert({
-      where: { userId },
-      create: { userId },
-      update: {},
+    // The read creates the defaults, so it is a write like any other and
+    // must not bring an erased account's settings back.
+    return this.database.$transaction(async (transaction) => {
+      await lockAccountForWrite(transaction, userId);
+      return transaction.userSettings.upsert({
+        where: { userId },
+        create: { userId },
+        update: {},
+      });
     });
   }
 
