@@ -1,0 +1,604 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://country-flags.app/contracts/account/v2/data-export.schema.json",
+  "title": "Account data export archive v2",
+  "description": "The machine-readable copy of an account served by GET /v1/data-exports/{exportId}/download. It holds what the account stores about the person, including the identifier and address each sign-in provider reported. It never holds access, refresh or provider tokens, token hashes or keyed hashes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "profile",
+    "settings",
+    "privacySettings",
+    "consentHistory",
+    "authenticationProviders",
+    "devices",
+    "signInSessions",
+    "guestImports",
+    "studySessions",
+    "reviews",
+    "progress",
+    "deckMastery",
+    "achievements",
+    "purchases",
+    "entitlementGrants"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "profile": {
+      "$ref": "#/$defs/DataExportProfile"
+    },
+    "settings": {
+      "$ref": "#/$defs/DataExportSettings"
+    },
+    "privacySettings": {
+      "$ref": "#/$defs/DataExportPrivacySettings"
+    },
+    "consentHistory": {
+      "description": "Every recorded change of a consent choice, oldest first.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportConsentEvent" }
+    },
+    "authenticationProviders": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportAuthenticationProvider" }
+    },
+    "devices": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportDevice" }
+    },
+    "signInSessions": {
+      "description": "Every stored sign-in session record, oldest first. A refresh replaces the record with a new one, so one sign-in can appear several times.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportSignInSession" }
+    },
+    "guestImports": {
+      "description": "Every import of guest progress into the account, oldest first.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportGuestImport" }
+    },
+    "studySessions": {
+      "description": "Every study session, oldest first.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportStudySession" }
+    },
+    "reviews": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportReview" }
+    },
+    "progress": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportCardState" }
+    },
+    "deckMastery": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportDeckMastery" }
+    },
+    "achievements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportAchievement" }
+    },
+    "purchases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportPurchase" }
+    },
+    "entitlementGrants": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DataExportEntitlementGrant" }
+    }
+  },
+  "$defs": {
+    "DataExportProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "displayName",
+        "preferredLocale",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "displayName": { "type": ["string", "null"] },
+        "preferredLocale": { "type": "string", "minLength": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "DataExportSettings": {
+      "description": "The study settings, or null when the account never stored any.",
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "sessionSize",
+        "contentLocale",
+        "defaultAnswerMode",
+        "extraFactTypes",
+        "soundEnabled",
+        "hapticsEnabled",
+        "remindersEnabled",
+        "reminderLocalTime",
+        "reminderWeekdays",
+        "desiredRetention",
+        "timezone",
+        "version",
+        "updatedAt"
+      ],
+      "properties": {
+        "sessionSize": { "type": "integer", "minimum": 1 },
+        "contentLocale": { "type": "string", "minLength": 1 },
+        "defaultAnswerMode": {
+          "type": "string",
+          "enum": ["SELF_RATED", "MULTIPLE_CHOICE", "TEXT"]
+        },
+        "extraFactTypes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "soundEnabled": { "type": "boolean" },
+        "hapticsEnabled": { "type": "boolean" },
+        "remindersEnabled": { "type": "boolean" },
+        "reminderLocalTime": {
+          "type": ["string", "null"],
+          "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+        },
+        "reminderWeekdays": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1, "maximum": 7 }
+        },
+        "desiredRetention": { "type": "number" },
+        "timezone": { "type": "string", "minLength": 1 },
+        "version": { "type": "integer", "minimum": 1 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "DataExportPrivacySettings": {
+      "description": "The current consent choices, or null when none were ever stored.",
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "productAnalyticsStatus",
+        "diagnosticsStatus",
+        "policyVersion",
+        "version",
+        "updatedAt"
+      ],
+      "properties": {
+        "productAnalyticsStatus": {
+          "type": "string",
+          "enum": ["UNKNOWN", "GRANTED", "DENIED", "NOT_REQUIRED"]
+        },
+        "diagnosticsStatus": {
+          "type": "string",
+          "enum": ["UNKNOWN", "GRANTED", "DENIED", "NOT_REQUIRED"]
+        },
+        "policyVersion": { "type": "string", "minLength": 1 },
+        "version": { "type": "integer", "minimum": 1 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "DataExportConsentEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "previousStatus",
+        "newStatus",
+        "policyVersion",
+        "source",
+        "occurredAt"
+      ],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["PRODUCT_ANALYTICS", "DIAGNOSTICS"]
+        },
+        "previousStatus": {
+          "type": "string",
+          "enum": ["UNKNOWN", "GRANTED", "DENIED", "NOT_REQUIRED"]
+        },
+        "newStatus": {
+          "type": "string",
+          "enum": ["UNKNOWN", "GRANTED", "DENIED", "NOT_REQUIRED"]
+        },
+        "policyVersion": { "type": "string", "minLength": 1 },
+        "source": {
+          "type": "string",
+          "enum": ["IOS", "ANDROID", "WEB", "SUPPORT"]
+        },
+        "occurredAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "DataExportAuthenticationProvider": {
+      "description": "A linked sign-in method and the address the provider reported for it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "providerSubject",
+        "email",
+        "emailVerified",
+        "isPrivateEmail",
+        "linkedAt",
+        "lastSignedInAt"
+      ],
+      "properties": {
+        "provider": { "type": "string", "enum": ["APPLE", "GOOGLE"] },
+        "providerSubject": {
+          "description": "The identifier the provider assigns to the person and signs them in with.",
+          "type": "string",
+          "minLength": 1
+        },
+        "email": { "type": ["string", "null"] },
+        "emailVerified": { "type": ["boolean", "null"] },
+        "isPrivateEmail": { "type": ["boolean", "null"] },
+        "linkedAt": { "type": "string", "format": "date-time" },
+        "lastSignedInAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "DataExportDevice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "platform",
+        "appVersion",
+        "locale",
+        "timezone",
+        "createdAt",
+        "lastSeenAt",
+        "removedAt"
+      ],
+      "properties": {
+        "platform": { "type": "string", "enum": ["IOS", "ANDROID", "WEB"] },
+        "appVersion": { "type": "string", "minLength": 1 },
+        "locale": { "type": "string", "minLength": 1 },
+        "timezone": { "type": "string", "minLength": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastSeenAt": { "type": "string", "format": "date-time" },
+        "removedAt": {
+          "description": "When the person removed the device, or null while it is in use.",
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "DataExportSignInSession": {
+      "description": "A sign-in session record. The keyed hash of the IP address stored with it is left out: it cannot be turned back into the address.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "lastUsedAt",
+        "expiresAt",
+        "revokedAt",
+        "userAgent"
+      ],
+      "properties": {
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastUsedAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "revokedAt": { "type": ["string", "null"], "format": "date-time" },
+        "userAgent": { "type": ["string", "null"] }
+      }
+    },
+    "DataExportGuestImport": {
+      "description": "One import of progress recorded as a guest. The install identifier is stored only as a keyed hash and is left out.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "migrationId",
+        "status",
+        "acceptedEventCount",
+        "duplicateEventCount",
+        "rejectedEventCount",
+        "createdAt",
+        "completedAt"
+      ],
+      "properties": {
+        "migrationId": { "type": "string", "format": "uuid" },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "APPLIED", "PARTIAL", "FAILED"]
+        },
+        "acceptedEventCount": { "type": "integer", "minimum": 0 },
+        "duplicateEventCount": { "type": "integer", "minimum": 0 },
+        "rejectedEventCount": { "type": "integer", "minimum": 0 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "DataExportStudySession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "deckId",
+        "deckCode",
+        "mode",
+        "selectionOrigin",
+        "requestedUniqueCount",
+        "selectedUniqueCount",
+        "status",
+        "contentVersion",
+        "schedulerVersion",
+        "startedAt",
+        "completedAt",
+        "summary",
+        "cards"
+      ],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "deckId": { "type": "string", "format": "uuid" },
+        "deckCode": { "type": "string", "minLength": 1 },
+        "mode": {
+          "type": "string",
+          "enum": ["SELF_RATED", "MULTIPLE_CHOICE", "TEXT"]
+        },
+        "selectionOrigin": {
+          "type": "string",
+          "enum": ["SERVER", "CLIENT_OFFLINE"]
+        },
+        "requestedUniqueCount": { "type": "integer", "minimum": 0 },
+        "selectedUniqueCount": { "type": "integer", "minimum": 0 },
+        "status": {
+          "type": "string",
+          "enum": ["ACTIVE", "COMPLETED", "ABANDONED"]
+        },
+        "contentVersion": { "type": "string", "minLength": 1 },
+        "schedulerVersion": { "type": "string", "minLength": 1 },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": ["string", "null"], "format": "date-time" },
+        "summary": {
+          "description": "The summary stored when the session completed, exactly as stored. Null while the session is unfinished.",
+          "type": ["object", "null"]
+        },
+        "cards": {
+          "description": "The cards selected for the session, in their initial order.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/DataExportStudySessionCard" }
+        }
+      }
+    },
+    "DataExportStudySessionCard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["learningCardId", "initialOrder", "selectionReason"],
+      "properties": {
+        "learningCardId": { "type": "string", "format": "uuid" },
+        "initialOrder": { "type": "integer", "minimum": 0 },
+        "selectionReason": {
+          "type": "string",
+          "enum": ["OVERDUE", "LEARNING", "ERROR", "NEW", "MAINTENANCE"]
+        }
+      }
+    },
+    "DataExportReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "learningCardId",
+        "sessionId",
+        "rating",
+        "isCorrect",
+        "answerMode",
+        "responseTimeMs",
+        "clientOccurredAt",
+        "effectiveOccurredAt",
+        "receivedAt",
+        "clientSequence",
+        "schedulerVersion",
+        "schedulerParametersVersion"
+      ],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "learningCardId": { "type": "string", "format": "uuid" },
+        "sessionId": { "type": ["string", "null"], "format": "uuid" },
+        "rating": {
+          "type": "string",
+          "enum": ["AGAIN", "HARD", "GOOD", "EASY"]
+        },
+        "isCorrect": { "type": "boolean" },
+        "answerMode": {
+          "type": "string",
+          "enum": ["SELF_RATED", "MULTIPLE_CHOICE", "TEXT"]
+        },
+        "responseTimeMs": { "type": ["integer", "null"], "minimum": 0 },
+        "clientOccurredAt": { "type": "string", "format": "date-time" },
+        "effectiveOccurredAt": { "type": "string", "format": "date-time" },
+        "receivedAt": { "type": "string", "format": "date-time" },
+        "clientSequence": {
+          "description": "A 64-bit sequence number, as a decimal string.",
+          "type": "string",
+          "pattern": "^-?[0-9]+$"
+        },
+        "schedulerVersion": { "type": "string", "minLength": 1 },
+        "schedulerParametersVersion": { "type": "string", "minLength": 1 }
+      }
+    },
+    "DataExportCardState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "learningCardId",
+        "state",
+        "difficulty",
+        "stability",
+        "dueAt",
+        "lastReviewedAt",
+        "repetitions",
+        "lapses",
+        "learningStep",
+        "stateVersion",
+        "schedulerVersion",
+        "schedulerParametersVersion"
+      ],
+      "properties": {
+        "learningCardId": { "type": "string", "format": "uuid" },
+        "state": {
+          "type": "string",
+          "enum": ["NEW", "LEARNING", "REVIEW", "RELEARNING"]
+        },
+        "difficulty": { "type": "number" },
+        "stability": { "type": "number" },
+        "dueAt": { "type": "string", "format": "date-time" },
+        "lastReviewedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "repetitions": { "type": "integer", "minimum": 0 },
+        "lapses": { "type": "integer", "minimum": 0 },
+        "learningStep": {
+          "description": "The step of the learning or relearning ladder the card stands on.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "stateVersion": { "type": "integer", "minimum": 1 },
+        "schedulerVersion": { "type": "string", "minLength": 1 },
+        "schedulerParametersVersion": { "type": "string", "minLength": 1 }
+      }
+    },
+    "DataExportDeckMastery": {
+      "description": "Per-deck mastery as the progress endpoints compute it at export time, so it matches what the app shows. It is not read from the stored per-deck cache, which can lag the review history.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deckId",
+        "deckCode",
+        "tier",
+        "masteredCardCount",
+        "totalCardCount",
+        "ruleVersion",
+        "computedAt"
+      ],
+      "properties": {
+        "deckId": { "type": "string", "format": "uuid" },
+        "deckCode": { "type": "string", "minLength": 1 },
+        "tier": {
+          "type": "string",
+          "enum": ["NONE", "BRONZE", "SILVER", "GOLD", "PLATINUM"]
+        },
+        "masteredCardCount": { "type": "integer", "minimum": 0 },
+        "totalCardCount": { "type": "integer", "minimum": 0 },
+        "ruleVersion": {
+          "description": "The version of the mastery rule the figures were computed with.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "computedAt": {
+          "description": "When the figures were computed.",
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "DataExportAchievement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "scopeType",
+        "scopeId",
+        "earnedAt",
+        "ruleVersion",
+        "evidence"
+      ],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "scopeType": {
+          "type": "string",
+          "enum": ["GLOBAL", "DECK", "REGION"]
+        },
+        "scopeId": { "type": ["string", "null"], "format": "uuid" },
+        "earnedAt": { "type": "string", "format": "date-time" },
+        "ruleVersion": { "type": "integer", "minimum": 1 },
+        "evidence": {
+          "description": "The evidence stored when the achievement was granted, exactly as stored.",
+          "type": "object"
+        }
+      }
+    },
+    "DataExportPurchase": {
+      "description": "A store transaction held against the account. Payment details never reach the backend and are not part of it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "storeEnvironment",
+        "transactionId",
+        "originalTransactionId",
+        "productId",
+        "ownershipType",
+        "claimState",
+        "purchasedAt",
+        "verifiedAt",
+        "revokedAt",
+        "revocationReason"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["APPLE_APP_STORE", "GOOGLE_PLAY", "WEB"]
+        },
+        "storeEnvironment": {
+          "type": "string",
+          "enum": ["LOCAL_TEST", "SANDBOX", "PRODUCTION"]
+        },
+        "transactionId": { "type": "string", "minLength": 1 },
+        "originalTransactionId": { "type": ["string", "null"] },
+        "productId": { "type": "string", "minLength": 1 },
+        "ownershipType": {
+          "type": "string",
+          "enum": ["PURCHASED", "FAMILY_SHARED", "UNKNOWN"]
+        },
+        "claimState": {
+          "type": "string",
+          "enum": [
+            "CLAIMED",
+            "RELEASED_BY_ACCOUNT_DELETION",
+            "CONFLICT",
+            "QUARANTINED"
+          ]
+        },
+        "purchasedAt": { "type": "string", "format": "date-time" },
+        "verifiedAt": { "type": "string", "format": "date-time" },
+        "revokedAt": { "type": ["string", "null"], "format": "date-time" },
+        "revocationReason": { "type": ["string", "null"] }
+      }
+    },
+    "DataExportEntitlementGrant": {
+      "description": "One reason the account holds a right. `sourceTransactionId` is the store's transaction identifier, matching `purchases[].transactionId`.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entitlementKey",
+        "sourceType",
+        "sourceTransactionId",
+        "status",
+        "grantedAt",
+        "revokedAt",
+        "revocationReason"
+      ],
+      "properties": {
+        "entitlementKey": { "type": "string", "minLength": 1 },
+        "sourceType": {
+          "type": "string",
+          "enum": ["STORE_TRANSACTION", "SUPPORT_OVERRIDE", "MIGRATION"]
+        },
+        "sourceTransactionId": { "type": ["string", "null"] },
+        "status": { "type": "string", "enum": ["ACTIVE", "REVOKED"] },
+        "grantedAt": { "type": "string", "format": "date-time" },
+        "revokedAt": { "type": ["string", "null"], "format": "date-time" },
+        "revocationReason": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
