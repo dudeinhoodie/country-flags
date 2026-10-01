@@ -73,6 +73,8 @@ struct AppComposition: AppDependencies {
     /// and out of it.
     let sessions: SessionCoordinator
     let guestMigrations: GuestMigrationCoordinator
+    /// The guest behind the session, for the deletion that starts it over.
+    let guestIdentity: any GuestIdentityRotating
     let studySessions: StudySessionService
     let settingsSync: any SettingsSyncing
     /// Tells the server when a signed-in device is in a new time zone, so the
@@ -513,6 +515,7 @@ struct AppComposition: AppDependencies {
             scopes: sessions,
             sessions: sessions,
             guestMigrations: guestMigrations,
+            guestIdentity: accountScopes,
             studySessions: studySessions,
             settingsSync: progressService,
             timeZones: AccountTimeZoneReporter(
@@ -671,6 +674,9 @@ struct AppComposition: AppDependencies {
             scopes: scopes,
             cleaner: store.makeAccountScopeCleaner(),
             deletionState: UserDefaultsAccountDeletionStateStore(),
+            // After a deletion the device is a new guest, so the next sign-in
+            // carries over what is studied from here on (#452).
+            guestIdentity: guestIdentity,
             logger: logger
         )
         account.onSignedOut = { [router, commerce] in
@@ -861,7 +867,7 @@ struct AppComposition: AppDependencies {
         identifiers: any IdentifierProviding,
         logger: any AppLogging,
         guestScopes: any GuestScopeDiscovering
-    ) -> any AccountScopeResolving {
+    ) -> any AccountScopeResolving & GuestIdentityRotating {
         #if DEBUG
             if let pinned = pinnedInstallationID() {
                 return FixedGuestAccountScopeResolver(
@@ -1034,9 +1040,22 @@ struct AppComposition: AppDependencies {
 
 #if DEBUG
     /// A guest identity a UI test can keep across relaunches.
-    struct FixedGuestAccountScopeResolver: AccountScopeResolving {
-        let guestScope: AccountScope
+    ///
+    /// A deletion still starts a new guest for the rest of the run, as the
+    /// real provider does; the next launch comes back as the pinned one.
+    actor FixedGuestAccountScopeResolver: AccountScopeResolving, GuestIdentityRotating {
+        private var guestScope: AccountScope
+
+        init(guestScope: AccountScope) {
+            self.guestScope = guestScope
+        }
 
         func currentScope() async -> AccountScope { guestScope }
+
+        func startNewGuest() async -> AccountScope {
+            let previous = guestScope
+            guestScope = .guest(installationID: UUID())
+            return previous
+        }
     }
 #endif

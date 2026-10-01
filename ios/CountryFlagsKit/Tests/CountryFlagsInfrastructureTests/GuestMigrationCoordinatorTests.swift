@@ -175,6 +175,60 @@ final class GuestMigrationCoordinatorTests: XCTestCase {
         XCTAssertTrue(submitted.isEmpty)
     }
 
+    /// Signing in again after a deletion (#452).
+    ///
+    /// The guest the deleted account was made from is recorded as that
+    /// account's for good, so its work could never be carried anywhere else.
+    /// The deletion starts a new guest, and what that guest studies is what
+    /// the next account takes with it.
+    func testAGuestStartedAfterADeletionIsCarriedIntoTheNextAccount() async throws {
+        let newInstallation = UUID(uuidString: "10000000-0000-4000-8000-0000000000f2")!
+        let tokens = InMemoryTokenStore(values: [.installationID: installationID.uuidString])
+        let provider = GuestScopeProvider(
+            tokens: tokens,
+            identifiers: NextIdentifier(value: newInstallation),
+            logger: NoOpLogger()
+        )
+        let harness = Harness(installationID: installationID)
+        await harness.records.save(
+            GuestMigrationRecord(
+                migrationID: UUID(),
+                sourceScopeKey: AccountScope.guest(installationID: installationID).key,
+                targetUserID: otherUserID,
+                state: .completed,
+                startedAt: .distantPast,
+                acknowledgedAt: .distantPast
+            )
+        )
+
+        let previous = await provider.startNewGuest()
+
+        XCTAssertEqual(previous, .guest(installationID: installationID))
+        let current = await provider.currentScope()
+        XCTAssertEqual(current, .guest(installationID: newInstallation))
+        let stored = try await tokens.value(for: .installationID)
+        XCTAssertEqual(stored, newInstallation.uuidString, "the next launch is the new guest too")
+
+        await harness.learning.seed(sessions: [Fixtures.session()], reviews: [])
+        await harness.importer.answer(.success(Fixtures.result(.applied)))
+        let coordinator = GuestMigrationCoordinator(
+            guestScopes: provider,
+            learning: harness.learning,
+            importer: harness.importer,
+            records: harness.records,
+            cleaner: harness.cleaner,
+            logger: NoOpLogger()
+        )
+
+        let outcome = await coordinator.importGuestWork(into: userID)
+
+        guard case .imported = outcome else {
+            return XCTFail("Expected the new guest to be carried over, got \(outcome)")
+        }
+        let submitted = await harness.importer.submitted
+        XCTAssertEqual(submitted.first?.sourceInstallID, newInstallation.uuidString.lowercased())
+    }
+
     /// A refusal from the backend is terminal: recorded, surfaced, and the
     /// archive stays untouched for support to look at.
     func testABackendRefusalKeepsTheArchive() async {
@@ -231,6 +285,12 @@ private struct Harness {
             logger: NoOpLogger()
         )
     }
+}
+
+private struct NextIdentifier: IdentifierProviding {
+    let value: UUID
+
+    func next() -> UUID { value }
 }
 
 private struct FixedScopeResolver: AccountScopeResolving {

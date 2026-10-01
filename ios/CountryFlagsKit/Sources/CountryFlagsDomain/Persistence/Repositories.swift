@@ -380,6 +380,19 @@ public protocol AccountScopeResolving: Sendable {
     func currentScope() async -> AccountScope
 }
 
+/// Starts this device over as a new guest.
+///
+/// Only an account deletion asks for it (#452). The guest the deleted account
+/// was made from stays owned by that account in the migration records, so a
+/// later sign-in could never carry it anywhere: the import refused it and the
+/// screen said nothing. A new guest has no owner, and the next account the
+/// device signs into takes its work with it.
+public protocol GuestIdentityRotating: Sendable {
+    /// Replaces the device's guest with a new one and returns the guest it
+    /// replaced, whose records are the caller's to clear.
+    func startNewGuest() async -> AccountScope
+}
+
 /// Names the guests whose work is in the store.
 ///
 /// Asked only when the keychain holds no installation identifier. A phone

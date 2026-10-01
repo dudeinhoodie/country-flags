@@ -9,6 +9,7 @@ import {
   DataExportsController,
   GuestImportsController,
 } from "./account-lifecycle.controller";
+import { AccountDeletionGuard } from "./account-deletion.guard";
 import { AccountDeletionService } from "./account-deletion.service";
 import { DataExportsService } from "./data-exports.service";
 import { GuestImportsService } from "./guest-imports.service";
@@ -27,6 +28,7 @@ import { PrivacySettingsService } from "./privacy-settings.service";
   providers: [
     GuestImportsService,
     DataExportsService,
+    AccountDeletionGuard,
     AccountDeletionService,
     PrivacySettingsService,
   ],
