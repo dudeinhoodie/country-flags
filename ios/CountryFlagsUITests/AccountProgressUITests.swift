@@ -58,7 +58,6 @@ final class AccountProgressUITests: XCTestCase {
         openAccount(in: app)
         signInWithFixture(in: app)
         assertGuestWorkWasImported(in: app)
-        leaveScreen(in: app)
 
         selectSessionSize(20, in: app)
         answerCards(2, in: app)
@@ -115,7 +114,6 @@ final class AccountProgressUITests: XCTestCase {
         openAccount(in: app)
         signInWithFixture(in: app)
         assertGuestWorkWasImported(in: app)
-        leaveScreen(in: app)
 
         selectSessionSize(20, in: app)
         answerCards(2, in: app)
@@ -159,7 +157,6 @@ final class AccountProgressUITests: XCTestCase {
 
         openAccount(in: relaunched)
         signInWithFixture(in: relaunched)
-        leaveScreen(in: relaunched)
         assertProgressIsEmpty(in: relaunched)
     }
 
@@ -179,7 +176,6 @@ final class AccountProgressUITests: XCTestCase {
         openAccount(in: app)
         signInWithFixture(in: app)
         assertGuestWorkWasImported(in: app)
-        leaveScreen(in: app)
 
         answerCards(2, in: app)
         let counted = progressCounts(in: app)
@@ -224,7 +220,6 @@ final class AccountProgressUITests: XCTestCase {
         openAccount(in: app)
         signInWithFixture(in: app)
         assertGuestWorkWasImported(in: app)
-        leaveScreen(in: app)
 
         XCTAssertFalse(progressCounts(in: app).isEmpty)
         assertPaidDeckIsOwned(in: app)
@@ -486,9 +481,16 @@ final class AccountProgressUITests: XCTestCase {
         XCTFail("The account screen never opened\n\(app.debugDescription)")
     }
 
+    /// Signs in from the account screen and ends on Home, which is where a
+    /// sign-in lands (#498). A device that is already signed in is taken back
+    /// out of the account screen instead, so every caller goes on from a
+    /// tab's root either way.
     private func signInWithFixture(in app: XCUIApplication) {
         let signedIn = element("settings.account.signedIn", in: app)
-        if signedIn.waitForExistence(timeout: 3) { return }
+        if signedIn.waitForExistence(timeout: 3) {
+            leaveScreen(in: app)
+            return
+        }
 
         // The buttons live on the sign-in screen now; the guest's row opens it.
         let row = app.buttons["settings.account.signInRow"]
@@ -497,13 +499,24 @@ final class AccountProgressUITests: XCTestCase {
         let signIn = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(signIn.waitForExistence(timeout: 20), app.debugDescription)
         signIn.tap()
-        XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
+        // The avatar is only in the bar of a tab's root screen, so its return
+        // is the account screen gone and the sign-in over.
+        XCTAssertTrue(
+            app.buttons["account.open"].waitForExistence(timeout: 30),
+            "A sign-in must leave the account screen\n\(app.debugDescription)"
+        )
     }
 
+    /// The account starts from the guest's work.
+    ///
+    /// Read off the account's own counts. They are the backend's, and a
+    /// fresh account has none until the import has carried the guest's
+    /// answers over, so their arrival is the import landing. The line on the
+    /// account screen that used to say so is behind the person now that a
+    /// sign-in lands on Home (#498).
     private func assertGuestWorkWasImported(in app: XCUIApplication) {
-        XCTAssertTrue(
-            element("settings.account.migrationImported", in: app)
-                .waitForExistence(timeout: 20),
+        XCTAssertFalse(
+            progressCounts(in: app).isEmpty,
             "The account has to start from the guest's work\n\(app.debugDescription)"
         )
     }

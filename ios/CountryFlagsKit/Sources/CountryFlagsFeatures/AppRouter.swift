@@ -61,6 +61,47 @@ public final class AppRouter {
         setPath([])
     }
 
+    /// Where a successful sign-in leaves the person: on Home, with every
+    /// tab's stack back at its root (#498).
+    ///
+    /// It used to depend on the door. The sign-in sheet closed back onto
+    /// whatever tab had opened it, and when the account screen had opened it
+    /// the account screen was still standing underneath — so the screen a
+    /// person reached after signing in was an accident of where they had
+    /// tapped.
+    ///
+    /// One sign-in is not the end of what the person came to do. The
+    /// paywall's "sign in to buy" opens the account screen over the deck,
+    /// and the purchase can only go on from that deck, so that sign-in takes
+    /// the account screen away and nothing else.
+    ///
+    /// Read off the stack rather than remembered. The account screen stands
+    /// directly on a deck only when the paywall put it there: the avatar that
+    /// opens it everywhere else is in the bar of the tabs' root screens, so it
+    /// always pushes onto an empty stack. A flag set by the paywall would have
+    /// to be cleared by every way out of the account screen — the back
+    /// button, the swipe, a tab bar tap — and one missed way would send a
+    /// later sign-in from the avatar back to a deck left long before.
+    public func landAfterSignIn() {
+        if isAccountOpenOverDeck {
+            pop()
+            return
+        }
+        tab = .home
+        homePath = []
+        catalogPath = []
+        progressPath = []
+        achievementsPath = []
+    }
+
+    /// Whether the active tab shows the account screen pushed over a deck,
+    /// which is the paywall's way to it.
+    private var isAccountOpenOverDeck: Bool {
+        guard path.count >= 2, path.last == .account else { return false }
+        if case .deck = path[path.count - 2] { return true }
+        return false
+    }
+
     /// Opens a deep link. An unknown link leaves navigation untouched and
     /// reports that to the caller so it can show a correct error.
     ///

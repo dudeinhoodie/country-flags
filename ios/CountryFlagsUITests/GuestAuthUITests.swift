@@ -17,6 +17,9 @@ final class GuestAuthUITests: XCTestCase {
     private let accountB = [
         "-fixture-account-id", "9f000000-0000-4000-8000-00000000000b",
     ]
+    private let accountD = [
+        "-fixture-account-id", "9f000000-0000-4000-8000-00000000000d",
+    ]
     private let paidDeckDiscovery = [
         "-feature-flag", "commerce.paid_decks.discovery.enabled=true",
     ]
@@ -33,16 +36,14 @@ final class GuestAuthUITests: XCTestCase {
         openAccount(in: app)
         signInWithFixture(in: app)
 
-        XCTAssertTrue(
-            element("settings.account.migrationImported", in: app)
-                .waitForExistence(timeout: 20),
-            app.debugDescription
-        )
-
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        // The account's counts are the backend's, and a fresh account has
+        // none until the import has carried the guest's answer over — so
+        // their arrival is the import landing. The line on the account
+        // screen that used to say so is behind the person now that a sign-in
+        // lands on Home (#498).
         app.tabBars.buttons["Progress"].tap()
         let counts = element("progress.deck.ALL.counts", in: app)
-        XCTAssertTrue(counts.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertTrue(counts.waitForExistence(timeout: 30), app.debugDescription)
         XCTAssertFalse(counts.label.isEmpty)
 
         app.terminate()
@@ -63,6 +64,7 @@ final class GuestAuthUITests: XCTestCase {
         let app = launch(arguments: ["-reset-store", "-fake-signin"] + identity)
         openAccount(in: app)
         signInWithFixture(in: app)
+        openAccount(in: app)
         signOut(in: app)
         XCTAssertFalse(element("settings.account.signedIn", in: app).exists)
 
@@ -70,6 +72,79 @@ final class GuestAuthUITests: XCTestCase {
         XCTAssertTrue(
             app.buttons["home.deck.ALL"].waitForExistence(timeout: 20),
             "Signing out must leave the guest learning flow available\n\(app.debugDescription)"
+        )
+    }
+
+    /// A sign-in lands on Home with every tab's stack at its root (#498).
+    ///
+    /// The account screen is the door this used to differ on: it signs in in
+    /// place and was left standing when the sheet closed. It is opened here
+    /// from the Progress tab, so arriving proves both halves — the tab
+    /// changes, and the stack the account screen was pushed onto is emptied
+    /// rather than waiting behind the tab bar.
+    func testSigningInOnTheAccountScreenLandsOnHome() {
+        let app = launch(arguments: ["-reset-store", "-fake-signin"] + identity + accountD)
+        // Nothing is answered on this store, so the Progress tab's root is its
+        // empty state. The first tap after a cold launch can land on a
+        // hierarchy that is being replaced, so it is offered again.
+        let progressTab = app.tabBars.buttons["Progress"]
+        let progressRoot = app.staticTexts["progress.empty"]
+        XCTAssertTrue(progressTab.waitForExistence(timeout: 60), app.debugDescription)
+        for _ in 0..<3 {
+            progressTab.tap()
+            if progressRoot.waitForExistence(timeout: 15) { break }
+        }
+        XCTAssertTrue(progressRoot.exists, app.debugDescription)
+        openAccount(in: app)
+
+        // A session lives in the keychain and outlives the store the launch
+        // resets, so a device an earlier test signed in arrives signed in.
+        // This test is about the sign-in itself, so it starts from a guest.
+        if element("settings.account.signedIn", in: app).waitForExistence(timeout: 3) {
+            signOut(in: app)
+        }
+
+        let row = app.buttons["settings.account.signInRow"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
+        row.tap()
+        let fixture = app.buttons["settings.account.fakeSignIn"]
+        XCTAssertTrue(fixture.waitForExistence(timeout: 20), app.debugDescription)
+        fixture.tap()
+
+        let homeSelected = app.tabBars.buttons.matching(
+            NSPredicate(
+                format: "(identifier == %@ OR label == %@) AND selected == true",
+                "Home",
+                "Home"
+            )
+        ).firstMatch
+        XCTAssertTrue(
+            homeSelected.waitForExistence(timeout: 30),
+            "A sign-in must land on the Home tab\n\(app.debugDescription)"
+        )
+        // Home's own content, not just its tab: the account screen was pushed
+        // onto another tab, and Home's stack is at its root.
+        XCTAssertTrue(
+            app.buttons["home.deck.ALL"].waitForExistence(timeout: 30),
+            "Home must be showing after a sign-in\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(element("settings.account.signedIn", in: app).exists, app.debugDescription)
+
+        // The tab the sign-in started on is back at its root as well: the
+        // account screen is not waiting there for the next visit.
+        progressTab.tap()
+        XCTAssertTrue(
+            progressRoot.waitForExistence(timeout: 20),
+            "The Progress tab must be back at its root\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(element("settings.account.signedIn", in: app).exists, app.debugDescription)
+        XCTAssertFalse(app.buttons["settings.account.signInRow"].exists, app.debugDescription)
+
+        // And the person is signed in: the account screen, opened again, says so.
+        openAccount(in: app)
+        XCTAssertTrue(
+            element("settings.account.signedIn", in: app).waitForExistence(timeout: 20),
+            app.debugDescription
         )
     }
 
@@ -81,12 +156,14 @@ final class GuestAuthUITests: XCTestCase {
         answerOneCard(in: first)
         openAccount(in: first)
         signInWithFixture(in: first)
+        // Account A is restored from this import at the end, so it has to
+        // have landed before the sign-out; the account's own counts are what
+        // say so (see `testGuestWorkIsImportedAfterSigningIn`).
+        first.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(
-            element("settings.account.migrationImported", in: first)
-                .waitForExistence(timeout: 20),
+            element("progress.deck.ALL.counts", in: first).waitForExistence(timeout: 30),
             first.debugDescription
         )
-        first.navigationBars.buttons.element(boundBy: 0).tap()
         selectSessionSize(20, in: first)
         assertPaidDeckIsOwned(in: first)
         openAccount(in: first)
@@ -98,7 +175,6 @@ final class GuestAuthUITests: XCTestCase {
         )
         openAccount(in: second)
         signInWithFixture(in: second)
-        second.navigationBars.buttons.element(boundBy: 0).tap()
         assertSessionSize(10, in: second)
         second.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(
@@ -118,7 +194,6 @@ final class GuestAuthUITests: XCTestCase {
         )
         openAccount(in: restored)
         signInWithFixture(in: restored)
-        restored.navigationBars.buttons.element(boundBy: 0).tap()
         assertSessionSize(20, in: restored)
         restored.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(
@@ -136,7 +211,6 @@ final class GuestAuthUITests: XCTestCase {
         )
         openAccount(in: app)
         signInWithFixture(in: app)
-        app.navigationBars.buttons.element(boundBy: 0).tap()
         answerCards(2, in: app)
 
         openAccount(in: app)
@@ -166,6 +240,7 @@ final class GuestAuthUITests: XCTestCase {
 
         openAccount(in: app)
         signInWithFixture(in: app)
+        openAccount(in: app)
         requestSignOut(in: app)
         assertPendingAnswerWarning(count: 2, in: app)
         app.buttons.matching(identifier: "settings.account.signOut.cancel").firstMatch.tap()
@@ -242,9 +317,16 @@ final class GuestAuthUITests: XCTestCase {
         XCTFail("The account screen never opened\n\(app.debugDescription)")
     }
 
+    /// Signs in from the account screen and ends on Home, which is where a
+    /// sign-in lands (#498). A device that is already signed in is taken back
+    /// out of the account screen instead, so every caller goes on from a
+    /// tab's root either way.
     private func signInWithFixture(in app: XCUIApplication) {
         let signedIn = element("settings.account.signedIn", in: app)
-        if signedIn.waitForExistence(timeout: 3) { return }
+        if signedIn.waitForExistence(timeout: 3) {
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            return
+        }
 
         // The buttons live on the sign-in screen now; the guest's row opens it.
         let row = app.buttons["settings.account.signInRow"]
@@ -253,7 +335,12 @@ final class GuestAuthUITests: XCTestCase {
         let signIn = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(signIn.waitForExistence(timeout: 20), app.debugDescription)
         signIn.tap()
-        XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
+        // The avatar is only in the bar of a tab's root screen, so its return
+        // is the account screen gone and the sign-in over.
+        XCTAssertTrue(
+            app.buttons["account.open"].waitForExistence(timeout: 30),
+            "A sign-in must leave the account screen\n\(app.debugDescription)"
+        )
     }
 
     private func signOut(in app: XCUIApplication) {

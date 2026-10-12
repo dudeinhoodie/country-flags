@@ -64,6 +64,79 @@ final class AccountStoreTests: XCTestCase {
         XCTAssertEqual(store.lastFailure, .offline)
     }
 
+    // MARK: - A sign-in, told from a launch (#498)
+
+    /// The count is the shell's one word that somebody has just signed in,
+    /// so a sign-in moves it, and moves it once.
+    func testASuccessfulSignInIsCounted() async {
+        let store = makeStore(
+            session: ScriptedSession(outcome: .succeeded(userID: Fixtures.userID)),
+            migrations: RecordingMigrations()
+        )
+        XCTAssertEqual(store.completedSignIns, 0)
+
+        await store.signIn(with: Fixtures.credential)
+
+        XCTAssertEqual(store.completedSignIns, 1)
+    }
+
+    /// A launch that finds a kept session goes from the placeholder guest to
+    /// authenticated, the way a sign-in does. It is not one, and the shell
+    /// must not take the person anywhere for it.
+    func testRestoringAKeptSessionIsNotASignIn() async {
+        let session = ScriptedSession(outcome: .succeeded(userID: Fixtures.userID))
+        await session.beginAuthenticated(userID: Fixtures.userID)
+        let store = makeStore(session: session, migrations: RecordingMigrations())
+
+        await store.start()
+
+        XCTAssertEqual(store.state, .authenticated(userID: Fixtures.userID))
+        XCTAssertEqual(store.completedSignIns, 0)
+    }
+
+    /// Signing in again after the backend stopped honouring the session is a
+    /// sign-in like the first. Reading the expired state at launch is not.
+    func testSigningInAgainAfterAnExpiredSignInIsCounted() async {
+        let session = ScriptedSession(outcome: .succeeded(userID: Fixtures.userID))
+        await session.beginExpired(userID: Fixtures.userID)
+        let store = makeStore(session: session, migrations: RecordingMigrations())
+        await store.start()
+        XCTAssertEqual(store.completedSignIns, 0)
+
+        await store.signIn(with: Fixtures.credential)
+
+        XCTAssertEqual(store.completedSignIns, 1)
+    }
+
+    /// A sign-in that failed, or that the person called off, went nowhere,
+    /// and neither does the person.
+    func testASignInThatDidNotSucceedIsNotCounted() async {
+        for outcome: SignInOutcome in [.failed(.offline), .cancelled] {
+            let store = makeStore(
+                session: ScriptedSession(outcome: outcome),
+                migrations: RecordingMigrations()
+            )
+
+            await store.signIn(with: Fixtures.credential)
+
+            XCTAssertEqual(store.completedSignIns, 0, "\(outcome)")
+        }
+    }
+
+    /// Signing out has its own navigation, so it leaves the count alone.
+    func testSigningOutIsNotASignIn() async {
+        let store = makeStore(
+            session: ScriptedSession(outcome: .succeeded(userID: Fixtures.userID)),
+            migrations: RecordingMigrations()
+        )
+        await store.signIn(with: Fixtures.credential)
+
+        await store.confirmSignOut()
+
+        XCTAssertEqual(store.state, .guest)
+        XCTAssertEqual(store.completedSignIns, 1)
+    }
+
     /// Signing out with unsent answers is the user's decision: the number is
     /// counted and put to them before anything is revoked.
     func testSignOutWithUnsyncedWorkRequiresAWarning() async {
@@ -164,6 +237,11 @@ private actor ScriptedSession: SessionControlling {
     /// account already has rather than about signing in.
     func beginAuthenticated(userID: UUID) {
         state = .authenticated(userID: userID)
+    }
+
+    /// Starts with a session the backend has stopped honouring.
+    func beginExpired(userID: UUID) {
+        state = .authenticationExpired(userID: userID)
     }
 
     func currentState() async -> AuthenticationState { state }

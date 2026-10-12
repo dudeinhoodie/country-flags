@@ -36,6 +36,17 @@ public final class AccountStore {
     /// than only on the account screen because an accepted deletion signs the
     /// device out, and a signed-out person cannot reach that screen at all.
     public private(set) var pendingDeletion: AccountDeletionRecord?
+    /// How many sign-ins have succeeded through this store. The number means
+    /// nothing; a change in it is the news that somebody has just signed in.
+    ///
+    /// `state` cannot say that on its own. It starts on a `.guest`
+    /// placeholder, so a launch that restores a kept session goes from guest
+    /// to authenticated exactly the way a sign-in does — and the shell, which
+    /// takes a person to Home after a sign-in (#498), must not move somebody
+    /// who has only opened the app. The `.authenticating` step in between is
+    /// no help either: SwiftUI reports a change against the last value it
+    /// drew, and a sign-in that answers within one frame never shows it.
+    public private(set) var completedSignIns = 0
 
     /// Whether the debug fake sign-in is offered. Wired from the composition:
     /// debug environments only, and only when the launch asked for it.
@@ -178,6 +189,10 @@ public final class AccountStore {
         state = .authenticating(credential.provider)
         let outcome = await session.signIn(with: credential)
         state = await session.currentState()
+        // Counted with the state, in the same turn, so the shell moves the
+        // person while the sign-in sheet is closing rather than after the
+        // profile, the picture and the import that follow below.
+        if case .succeeded = outcome { completedSignIns += 1 }
         if let providerProfile {
             await session.adoptProviderProfile(
                 name: providerProfile.displayName,
