@@ -116,7 +116,39 @@ public enum L10n {
     public static func homeDueCount(_ count: Int) -> String {
         String(format: localized("home.due_count"), count)
     }
-    public static var homeDeckLearned: String { localized("home.deck_learned") }
+    /// The block that counts the countries (#497): the word under each of its
+    /// two figures, and the line under its bar while nothing is learned yet.
+    ///
+    /// The first word is declined by the count without printing it — the
+    /// number stands above it in the hero face — so the catalogue keeps it as
+    /// a substitution: one that declares its argument's type itself, which is
+    /// what lets every variant leave the number out.
+    public static func homeKnownCaption(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.known_learned.known", bundle: bundle, comment: ""),
+            count
+        )
+    }
+    public static var homeLearnedCaption: String { localized("home.known_learned.learned") }
+    public static var homeLearnedExplanation: String {
+        localized("home.known_learned.explanation")
+    }
+    /// The same block as VoiceOver reads it: one sentence with the numbers
+    /// inside the words, and what a tap does.
+    public static func homeKnownCount(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString(
+                "home.known_learned.accessibility.known", bundle: bundle, comment: ""
+            ),
+            count
+        )
+    }
+    public static func homeLearnedOf(_ learned: Int, _ total: Int) -> String {
+        String(format: localized("home.known_learned.accessibility.learned"), learned, total)
+    }
+    public static var homeKnownLearnedHint: String {
+        localized("home.known_learned.accessibility.hint")
+    }
     /// A first visit: the flag to guess and the regions to start from.
     public static var homeFlagOfTheDay: String { localized("home.flag_of_the_day.label") }
     public static var homeFlagOfTheDayQuestion: String {

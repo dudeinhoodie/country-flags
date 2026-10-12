@@ -29,6 +29,22 @@ final class LaunchSmokeUITests: XCTestCase {
         // label is its action title, so a broken catalog would surface the
         // raw "study." key there — never the identifier string.
         XCTAssertFalse(hero.label.contains("study."), app.debugDescription)
+
+        // The deck pane names the deck and its size and carries no score:
+        // its "0 / 195" was a figure that could not move on the first day
+        // (#497). Read off every label rather than one element's, because the
+        // pane's texts are combined into an element of SwiftUI's choosing.
+        let score = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label MATCHES %@", ".*/ [0-9]+.*"))
+            .firstMatch
+        XCTAssertFalse(score.exists, app.debugDescription)
+        // A fresh store is a first visit: nothing answered, so nothing for
+        // the known/learned block to count, and the block is not drawn.
+        XCTAssertFalse(
+            app.descendants(matching: .any)
+                .matching(identifier: "home.knownLearned").firstMatch.exists,
+            app.debugDescription
+        )
     }
 
     /// A store that will not open leads to a screen, not a crash (#445).

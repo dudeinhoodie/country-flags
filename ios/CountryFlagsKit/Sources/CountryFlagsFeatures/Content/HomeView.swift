@@ -6,8 +6,9 @@ import CountryFlagsDomain
 ///
 /// One pane holds the whole of today — the repeat queue's number, a fan of
 /// the flags waiting in it, the one action, and the unfinished session as a
-/// quiet line inside rather than a second hero. Under it, the queue deck by
-/// deck, each row carrying its own flags and its continent. Nothing on the
+/// quiet line inside rather than a second hero. Under it, how far the learner
+/// has come — countries known and countries learned — and then the queue deck
+/// by deck, each row carrying its own flags and its continent. Nothing on the
 /// screen is a caption for something absent: every section shows a number or
 /// a picture, or it does not appear.
 public struct HomeView: View {
@@ -19,6 +20,10 @@ public struct HomeView: View {
     /// The way to the catalog, for the screen that has nothing to review: the
     /// offer to pick a new set of countries has to lead somewhere.
     private let onOpenCatalog: (() -> Void)?
+    /// The way to the progress tab, from the block that counts the countries.
+    /// The two figures there are the short form of that screen, and a summary
+    /// that does not open what it summarises leaves the learner to find it.
+    private let onOpenProgress: (() -> Void)?
     private let onStartStudy:
         ((UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void)?
     /// The stored session size, read when a due session starts: the cap on
@@ -75,6 +80,7 @@ public struct HomeView: View {
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
         onOpenCatalog: (() -> Void)? = nil,
+        onOpenProgress: (() -> Void)? = nil,
         onStartStudy: (
             (UUID, StudySessionSize, StudyAnswerMode, StudySessionComposition) -> Void
         )? = nil,
@@ -92,6 +98,7 @@ public struct HomeView: View {
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
         self.onOpenCatalog = onOpenCatalog
+        self.onOpenProgress = onOpenProgress
         self.onStartStudy = onStartStudy
     }
 
@@ -186,6 +193,11 @@ public struct HomeView: View {
                     // about to change cannot be walked into.
                     VStack(spacing: DesignTokens.Spacing.large) {
                         todayPane(sections)
+                        // Under the hero, whichever hero the day has: what
+                        // to do next comes first, how far the learner has
+                        // come second, and the regions owing work after both.
+                        knownLearnedCard
+                            .devBlockID("home.known-learned")
                         queuePane(sections)
                             .devBlockID("home.queue")
                         if isFirstVisit {
@@ -442,25 +454,25 @@ public struct HomeView: View {
         // Not while a sitting is open, either: finishing it is the way on,
         // and "start studying" beside "continue" is the same question twice.
         //
-        // The figure is the learner's own, out of the deck: "0 / 195" says
-        // where they stand, where "195" only said how big the deck is.
+        // No figure. It was "0 / 195 стран выучено", the learner's standing
+        // out of the deck, and on the first day it could not move however
+        // much was studied (#497). The standing is the block under this pane
+        // now, in numbers that grow from the first answer; this pane says
+        // what the deck is and offers it. Its size is back, as the quiet line
+        // beside the fan rather than as the figure: a large "195" only said
+        // how big the deck was, which is why it gave way to "0 / 195".
         if due == 0, continuable == nil, let deck = recommended(sections) {
             pane(
                 label: deck.name,
-                count: learned(in: deck),
-                total: deck.cardCount,
-                caption: L10n.homeDeckLearned,
+                count: nil,
+                total: nil,
+                caption: L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds),
                 action: L10n.studyStart,
                 identifier: AccessibilityIdentifier.homeDeckRow(deck.code),
                 run: { onOpenDeck(deck.id) }
             )
             .devBlockID("home.deck")
         }
-    }
-
-    /// Countries of this deck carried to learned.
-    private func learned(in deck: DeckRecord) -> Int {
-        progress?.decks.first { $0.id == deck.id }?.learnedCards ?? 0
     }
 
     /// The sitting left half-finished, as the screen's hero: how far in, in
@@ -746,9 +758,22 @@ public struct HomeView: View {
             ?? curatedDecks.reduce(0) { $0 + max(0, $1.startedCards - $1.learnedCards) }
     }
 
-    // Both read the deck rows, and the rows are the backend's own counts
-    // whenever the backend has the facts — `ProgressStore` decides that once,
-    // for every screen, rather than each of them deciding again.
+    /// Countries met at all: the learned ones and the ones under way. Added
+    /// up from the two figures above rather than read off a third, so the
+    /// learned part of the bar can never outrun the known part it sits in.
+    private var knownCountries: Int {
+        learnedCountries + countriesInProgress
+    }
+
+    /// What the bar is out of: the whole-world deck's size, with the same
+    /// fallback the figures take, so the three numbers describe one deck.
+    private var totalCountries: Int {
+        progress?.whole?.totalCards ?? curatedDecks.reduce(0) { $0 + $1.totalCards }
+    }
+
+    // All of these read the deck rows, and the rows are the backend's own
+    // counts whenever the backend has the facts — `ProgressStore` decides
+    // that once, for every screen, rather than each of them deciding again.
 
     private var curatedDecks: [DeckProgressRow] {
         (progress?.decks ?? []).filter(\.isCurated)
@@ -774,9 +799,17 @@ public struct HomeView: View {
         return parts.joined(separator: " · ")
     }
 
+    /// A hero pane: the label, the figure beside the fan, a caption, the one
+    /// action.
+    ///
+    /// The figure is optional because the deck pane has none (#497). Without
+    /// it the caption takes its place beside the fan rather than under an
+    /// empty row: the fan is drawn at the figure's height, and a line of
+    /// words beside it reads as the pane's subject where a gap would read as
+    /// a number that failed to load.
     private func pane(
         label: String,
-        count: Int,
+        count: Int?,
         total: Int?,
         caption: String?,
         action: String,
@@ -791,23 +824,27 @@ public struct HomeView: View {
                     SectionLabel(label)
 
                     HStack(alignment: .center, spacing: DesignTokens.Spacing.medium) {
-                        HStack(
-                            alignment: .firstTextBaseline,
-                            spacing: DesignTokens.Spacing.extraSmall
-                        ) {
-                            Text("\(count)")
-                                .font(DesignTokens.Typography.heroNumber)
-                                .monospacedDigit()
-                                // The number moves rather than being replaced
-                                // when a session changes it.
-                                .contentTransition(.numericText())
-                            if let total {
-                                Text("/ \(total)")
-                                    .font(DesignTokens.Typography.sectionTitle)
-                                    .foregroundStyle(.white.opacity(0.55))
+                        if let count {
+                            HStack(
+                                alignment: .firstTextBaseline,
+                                spacing: DesignTokens.Spacing.extraSmall
+                            ) {
+                                Text("\(count)")
+                                    .font(DesignTokens.Typography.heroNumber)
+                                    .monospacedDigit()
+                                    // The number moves rather than being
+                                    // replaced when a session changes it.
+                                    .contentTransition(.numericText())
+                                if let total {
+                                    Text("/ \(total)")
+                                        .font(DesignTokens.Typography.sectionTitle)
+                                        .foregroundStyle(.white.opacity(0.55))
+                                }
                             }
+                            .foregroundStyle(.white)
+                        } else if let caption {
+                            paneCaption(caption)
                         }
-                        .foregroundStyle(.white)
 
                         Spacer(minLength: 0)
 
@@ -820,10 +857,8 @@ public struct HomeView: View {
                         }
                     }
 
-                    if let caption {
-                        Text(caption)
-                            .font(DesignTokens.Typography.caption)
-                            .foregroundStyle(.white.opacity(0.6))
+                    if count != nil, let caption {
+                        paneCaption(caption)
                     }
                 }
                 .accessibilityElement(children: .combine)
@@ -843,6 +878,136 @@ public struct HomeView: View {
             }
         }
     }
+
+    private func paneCaption(_ caption: String) -> some View {
+        Text(caption)
+            .font(DesignTokens.Typography.caption)
+            .foregroundStyle(.white.opacity(0.6))
+    }
+
+    // MARK: - Known and learned
+
+    /// How far the learner has come, in two numbers that only grow (#497).
+    ///
+    /// The deck pane used to say it as "0 / 195 стран выучено", and on the
+    /// first day that figure cannot move. A country counts as learned only
+    /// once it has been remembered on different days: for an account, three
+    /// correct answers on the backend's steps, the third about twenty-seven
+    /// hours after the first; for a guest, the card reaching review on the
+    /// device's own ladder. A learner who studied all evening came back to a
+    /// zero.
+    ///
+    /// So the block leads with the countries met at all, which moves with
+    /// every new card, and keeps the learned figure beside it as what those
+    /// grow into. One bar holds both: learned is a subset of known, so its
+    /// green starts at the same left edge, inside the white. While nothing is
+    /// learned, one line answers the question a zero raises — why not yet —
+    /// and goes away with the first learned country, when the answer is on
+    /// the screen.
+    ///
+    /// Nothing else on it: no label, no legend, no third figure. The captions
+    /// name the numbers, and the bar is drawn in their colours.
+    ///
+    /// Shown whenever anything has been answered, under whichever hero the
+    /// day has, and never on a first visit, where both numbers would be zero
+    /// and the block a caption for something absent. The whole block is the
+    /// one way to the progress tab from here; nothing on it navigates alone.
+    @ViewBuilder
+    private var knownLearnedCard: some View {
+        let known = knownCountries
+        let learned = learnedCountries
+        let total = totalCountries
+        if known > 0 {
+            Button {
+                onOpenProgress?()
+            } label: {
+                GlassCard(padding: DesignTokens.Spacing.large) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                        HStack(alignment: .center, spacing: DesignTokens.Spacing.large) {
+                            knownLearnedFigure(
+                                known,
+                                caption: L10n.homeKnownCaption(known),
+                                tint: .white
+                            )
+                            // Dimmed at zero rather than green: green is
+                            // what learned looks like, and a zero has not
+                            // earned it yet.
+                            knownLearnedFigure(
+                                learned,
+                                caption: L10n.homeLearnedCaption,
+                                tint: learned > 0 ? Self.learnedTint : .white.opacity(0.35)
+                            )
+
+                            Spacer(minLength: 0)
+
+                            if onOpenProgress != nil {
+                                Image(systemName: "chevron.right")
+                                    .font(DesignTokens.Typography.caption)
+                                    .foregroundStyle(.white.opacity(0.4))
+                            }
+                        }
+
+                        ProgressTrackView(
+                            started: share(known, of: total),
+                            learned: share(learned, of: total),
+                            startedTint: .white,
+                            learnedTint: Self.learnedTint
+                        )
+
+                        if learned == 0 {
+                            Text(L10n.homeLearnedExplanation)
+                                .font(DesignTokens.Typography.caption)
+                                .foregroundStyle(.white.opacity(0.55))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .disabled(onOpenProgress == nil)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(knownLearnedAccessibilityLabel(known, learned, total))
+            .accessibilityHint(onOpenProgress == nil ? "" : L10n.homeKnownLearnedHint)
+            .accessibilityIdentifier(AccessibilityIdentifier.homeKnownLearned)
+        }
+    }
+
+    /// One figure and the word for it, in the hero face every other number
+    /// on this screen wears.
+    private func knownLearnedFigure(_ value: Int, caption: String, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("\(value)")
+                .font(DesignTokens.Typography.heroNumber)
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .foregroundStyle(tint)
+            Text(caption)
+                .font(DesignTokens.Typography.caption)
+                .foregroundStyle(.white.opacity(0.6))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    /// Both figures in one sentence, with the numbers inside the words this
+    /// time, and the line under the bar when it is on screen: VoiceOver hears
+    /// what the screen shows, not a shorter version of it.
+    private func knownLearnedAccessibilityLabel(_ known: Int, _ learned: Int, _ total: Int) -> String {
+        let figures = "\(L10n.homeKnownCount(known)), \(L10n.homeLearnedOf(learned, total))"
+        return learned == 0 ? "\(figures). \(L10n.homeLearnedExplanation)" : figures
+    }
+
+    /// Clamped for the reason `DeckProgressRow.fraction` is: a deck whose
+    /// membership shrank in a republished release can report more cards than
+    /// it now holds, and a bar drawn from that ratio runs past its track.
+    private func share(_ count: Int, of total: Int) -> Double {
+        total > 0 ? min(1, Double(count) / Double(total)) : 0
+    }
+
+    /// The green of "learned": the one the result screen wears for what a
+    /// sitting added to the deck. One meaning, one green, rather than a
+    /// second shade of it here.
+    private static let learnedTint = StudySessionResultView.green
 
     // MARK: - The queue, deck by deck
 

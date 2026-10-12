@@ -301,6 +301,9 @@ public struct RootView: View {
                     // there as a stacked screen would leave a back arrow over
                     // a tab bar that already shows where they are.
                     onOpenCatalog: { router.tab = .catalog },
+                    // A tab for the same reason: the counts on Home are the
+                    // short form of the progress screen, and it is a place.
+                    onOpenProgress: { router.tab = .progress },
                     onStartStudy: { deckID, size, mode, composition in
                         router.push(
                             .study(
@@ -663,6 +666,8 @@ public enum AccessibilityIdentifier {
 
     public static let homeDueEmpty = "home.due.empty"
     public static let homeFlagOfTheDay = "home.flagOfTheDay"
+    /// The known/learned block, which is one button to the progress tab.
+    public static let homeKnownLearned = "home.knownLearned"
     public static func homeRegion(_ code: String) -> String { "home.region.\(code)" }
     public static let settingsDevBlockIDs = "settings.dev.blockIDs"
     public static let settingsDevShowWelcome = "settings.dev.showWelcome"

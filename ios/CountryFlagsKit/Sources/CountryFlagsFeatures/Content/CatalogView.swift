@@ -327,16 +327,22 @@ public struct CatalogView: View {
 struct ProgressTrackView: View {
     let started: Double
     let learned: Double
+    /// The two fills. A deck row keeps the touched share dim and the learned
+    /// share white. Home's known/learned block draws known in white and
+    /// learned in green instead: there the two shares are named figures above
+    /// the bar, and the bar wears their colours so it needs no legend.
+    var startedTint: Color = .white.opacity(0.4)
+    var learnedTint: Color = .white
 
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 Capsule().fill(.white.opacity(0.15))
                 Capsule()
-                    .fill(.white.opacity(0.4))
+                    .fill(startedTint)
                     .frame(width: fillWidth(started, in: proxy.size.width))
                 Capsule()
-                    .fill(.white)
+                    .fill(learnedTint)
                     .frame(width: fillWidth(learned, in: proxy.size.width))
             }
         }
