@@ -924,10 +924,10 @@ public struct HomeView: View {
     }
 
     /// What a repeat can finish, behind the sign of learned: three filled
-    /// dots, one per correct answer, in the green that means learned on this
-    /// screen and on the result screen alike (#503). The dots sit on the
-    /// first line's baseline, so a line that wraps at a large type size keeps
-    /// its sign at its start.
+    /// dots, one per correct answer (#503). The dots and the words wear Home's
+    /// learned green, `learnedTint`, the same green as the known/learned
+    /// block's seal. The dots sit on the first line's baseline, so a line
+    /// that wraps at a large type size keeps its sign at its start.
     private func learnableLine(_ text: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
             HStack(spacing: learnedDotSize / 2) {
