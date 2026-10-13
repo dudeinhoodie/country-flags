@@ -11,7 +11,6 @@ struct CelebrationView: View {
     @State private var isRaised = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// Shared with Home's known figure, so the two golds stay one.
     private static let gold = DesignTokens.Colors.gold
 
     var body: some View {

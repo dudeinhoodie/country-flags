@@ -197,34 +197,19 @@ public enum L10n {
     /// and a deck that mixes kinds keeps "cards". Declined by the count, as
     /// `accountGuestNoteCount` is.
     public static func deckItemCount(_ count: Int, contentKinds: [String]) -> String {
-        String.localizedStringWithFormat(
-            NSLocalizedString(
-                "deck.\(deckItemKind(contentKinds))_count", bundle: bundle, comment: ""
-            ),
-            count
-        )
-    }
-
-    /// The same word without its number — "флаг", "флага", "флагов" — for a
-    /// count that stands above it in the hero face, as on Home's deck pane.
-    /// A substitution in the catalogue, like `homeKnownCaption`, because its
-    /// variants leave the number out.
-    public static func deckItemWord(_ count: Int, contentKinds: [String]) -> String {
-        String.localizedStringWithFormat(
-            NSLocalizedString(
-                "deck.\(deckItemKind(contentKinds))_word", bundle: bundle, comment: ""
-            ),
-            count
-        )
-    }
-
-    /// Which word a deck's items take, read once for the count and the bare
-    /// word alike, so the two can never name a deck differently.
-    private static func deckItemKind(_ contentKinds: [String]) -> String {
         let kinds = Set(contentKinds)
-        if kinds == ["COAT_OF_ARMS"] { return "coat" }
-        if kinds.isEmpty || kinds == ["FLAG"] { return "flag" }
-        return "card"
+        let key: String
+        if kinds == ["COAT_OF_ARMS"] {
+            key = "deck.coat_count"
+        } else if kinds.isEmpty || kinds == ["FLAG"] {
+            key = "deck.flag_count"
+        } else {
+            key = "deck.card_count"
+        }
+        return String.localizedStringWithFormat(
+            NSLocalizedString(key, bundle: bundle, comment: ""),
+            count
+        )
     }
 
     public static var homeOpenProgress: String { localized("home.open_progress") }

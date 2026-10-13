@@ -408,8 +408,9 @@ public struct HomeView: View {
         // other is work to start. As a second full pane it competed with the
         // day; as a line with a bar it is a door, which is all it ever was.
         // The unfinished sitting leads. It used to be a thin row above a
-        // full pane offering a new start, and the two white buttons below it
-        // asked a learner seven cards in whether to begin again.
+        // full pane offering a new start, which asked a learner seven cards
+        // in whether to begin again; now it comes first, and the deck pane
+        // that may stand under it is the other door, not that question.
         if let continuable {
             resumePane(continuable, sections)
                 .devBlockID("home.resume")
@@ -450,65 +451,58 @@ public struct HomeView: View {
         // but the two are separate things — one is a place to go back to,
         // the other is the deck itself — and hiding the deck behind a sitting
         // left the learner no way to it from here until the sitting was
-        // finished (#497). The question is not asked twice as long as only
-        // one of them is white: under an open sitting the deck's action is
-        // glass, and "continue" is the one the screen recommends.
+        // finished (#497).
         if due == 0, let deck = recommended(sections) {
-            deckPane(deck, isProminent: continuable == nil)
+            deckPane(deck)
                 .devBlockID("home.deck")
         }
     }
 
-    /// The all-countries deck as a pane: its name, its size, its flags, and
-    /// the way in.
+    /// The all-countries deck as a pane: its name as the title, its size in
+    /// a quiet line under it, its flags beside both, and the way in.
     ///
-    /// The figure is the deck's size, set the way the known/learned figures
-    /// are — the number in the hero face, its word right under it — so the
-    /// cards on the screen read as one set of counters (#497). It used to be
-    /// "0 / 195 стран выучено", the learner's standing out of the deck, which
-    /// could not move on the first day however much was studied; the
-    /// standing is the card at the top now, and this pane says what the deck
-    /// is and offers it.
+    /// No figure and no section label (#497). The pane said "0 / 195 стран
+    /// выучено", the learner's standing out of the deck, which could not
+    /// move on the first day however much was studied; then, briefly, the
+    /// deck's size as a counter, "195" over "флагов", which was turned down
+    /// as well. The standing is the card at the top now. This pane is about
+    /// the deck: it names it in a card heading's face, the one the first
+    /// visit's flag is named in, and says how big it is the way the regions
+    /// shelf does.
     ///
-    /// Its own pane rather than `pane(...)`: the shared pane keeps its
-    /// caption under the row the fan sets, a fan's height below the number,
-    /// where this word belongs to the number and sits against it.
+    /// Its own pane rather than `pane(...)`, which is built around a figure.
     ///
-    /// White is spent once per screen, as in the shared pane: the action is
-    /// the white one unless a sitting is open, and then it is glass and the
-    /// sitting's "continue" is white.
-    private func deckPane(_ deck: DeckRecord, isProminent: Bool) -> some View {
+    /// The action is always the white one, the "continue" beside it
+    /// included: the one place two white actions share the screen, decided
+    /// by the owner on #497. Each pane is a door of its own, offered at full
+    /// weight.
+    private func deckPane(_ deck: DeckRecord) -> some View {
         GlassCard(padding: DesignTokens.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                    SectionLabel(deck.name)
+                HStack(alignment: .center, spacing: DesignTokens.Spacing.medium) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                        Text(deck.name)
+                            .font(DesignTokens.Typography.cardAnswer)
+                            .foregroundStyle(.white)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds))
+                            .font(DesignTokens.Typography.body)
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
 
-                    HStack(alignment: .center, spacing: DesignTokens.Spacing.medium) {
-                        countFigure(
-                            deck.cardCount,
-                            caption: L10n.deckItemWord(
-                                deck.cardCount, contentKinds: deck.contentKinds
-                            )
-                        )
+                    Spacer(minLength: 0)
 
-                        Spacer(minLength: 0)
-
-                        if !fanCards.isEmpty {
-                            FlagFanView(cards: fanCards, store: store, assets: assets)
-                        }
+                    if !fanCards.isEmpty {
+                        FlagFanView(cards: fanCards, store: store, assets: assets)
                     }
                 }
+                // Read as "All countries, 195 flags": the fan is a picture of
+                // the deck and is not read.
                 .accessibilityElement(children: .combine)
 
-                if isProminent {
-                    Button(L10n.studyStart) { onOpenDeck(deck.id) }
-                        .buttonStyle(PrimaryActionStyle())
-                        .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
-                } else {
-                    Button(L10n.studyStart) { onOpenDeck(deck.id) }
-                        .buttonStyle(GlassActionStyle())
-                        .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
-                }
+                Button(L10n.studyStart) { onOpenDeck(deck.id) }
+                    .buttonStyle(PrimaryActionStyle())
+                    .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
             }
         }
     }
@@ -947,14 +941,14 @@ public struct HomeView: View {
     /// So the block leads with the countries met at all, which moves with
     /// every new card, and keeps the learned figure beside it as what those
     /// grow into. One bar holds both: learned is a subset of known, so its
-    /// green starts at the same left edge, inside the gold. While nothing is
+    /// green starts at the same left edge, inside the white. While nothing is
     /// learned, one line answers the question a zero raises — why not yet —
     /// and goes away with the first learned country, when the answer is on
     /// the screen.
     ///
     /// On an ordinary day nothing else is on it: no label, no legend, no
     /// third figure. The captions name the numbers, and a symbol before each
-    /// says which is which at a glance, in the colour that means it: a gold
+    /// says which is which at a glance, in the colour that means it: a white
     /// flag for the countries met, a green seal for the learned. The bar
     /// wears the same two colours, so it reads as their legend without
     /// needing one.
@@ -993,24 +987,26 @@ public struct HomeView: View {
                         }
 
                         HStack(alignment: .center, spacing: DesignTokens.Spacing.large) {
-                            countFigure(
-                                known,
-                                caption: L10n.homeKnownCaption(known),
-                                symbol: "flag.fill",
-                                symbolTint: DesignTokens.Colors.gold
-                            )
+                            knownLearnedFigure(known, caption: L10n.homeKnownCaption(known)) {
+                                Image(systemName: "flag.fill")
+                                    .foregroundStyle(.white)
+                            }
                             // The figure dims at zero rather than turning
                             // green: green is what learned looks like, and a
                             // zero has not earned it yet. The seal keeps its
                             // green, because it names what is counted rather
-                            // than scoring it.
-                            countFigure(
+                            // than scoring it — drawn as the finished-day
+                            // seal was, the tick dark on the green so it
+                            // reads as a mark rather than a hole.
+                            knownLearnedFigure(
                                 learned,
                                 caption: L10n.homeLearnedCaption,
-                                tint: learned > 0 ? Self.learnedTint : Self.unearnedTint,
-                                symbol: "checkmark.seal.fill",
-                                symbolTint: Self.learnedTint
-                            )
+                                tint: learned > 0 ? Self.learnedTint : Self.unearnedTint
+                            ) {
+                                Image(systemName: "checkmark.seal.fill")
+                                    .symbolRenderingMode(.palette)
+                                    .foregroundStyle(.black.opacity(0.75), Self.learnedTint)
+                            }
 
                             Spacer(minLength: 0)
 
@@ -1024,7 +1020,7 @@ public struct HomeView: View {
                         ProgressTrackView(
                             started: share(known, of: total),
                             learned: share(learned, of: total),
-                            startedTint: DesignTokens.Colors.gold,
+                            startedTint: .white,
                             learnedTint: Self.learnedTint
                         )
 
@@ -1061,30 +1057,25 @@ public struct HomeView: View {
     }
 
     /// One figure and the word for it, in the hero face every other number
-    /// on this screen wears: the known/learned card's two, and the deck
-    /// pane's size, so the cards at the top of the screen read as one set of
-    /// counters.
+    /// on this screen wears.
     ///
     /// The symbol stands on the figure's line, set in the figure's own face
     /// a scale down, so it grows with the number under Dynamic Type instead
-    /// of shrinking beside it. It is a picture of the caption under it and
-    /// is not read.
-    private func countFigure(
+    /// of shrinking beside it. Each caller draws and colours its own symbol,
+    /// because the two are not drawn alike. It is a picture of the caption
+    /// under it and is not read.
+    private func knownLearnedFigure<Symbol: View>(
         _ value: Int,
         caption: String,
         tint: Color = .white,
-        symbol: String? = nil,
-        symbolTint: Color = .white
+        @ViewBuilder symbol: () -> Symbol
     ) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
-                if let symbol {
-                    Image(systemName: symbol)
-                        .font(DesignTokens.Typography.heroNumber)
-                        .imageScale(.small)
-                        .foregroundStyle(symbolTint)
-                        .accessibilityHidden(true)
-                }
+                symbol()
+                    .font(DesignTokens.Typography.heroNumber)
+                    .imageScale(.small)
+                    .accessibilityHidden(true)
                 Text("\(value)")
                     .font(DesignTokens.Typography.heroNumber)
                     .monospacedDigit()
@@ -1127,10 +1118,9 @@ public struct HomeView: View {
         total > 0 ? min(1, Double(count) / Double(total)) : 0
     }
 
-    /// The green of "learned": the one the result screen wears for what a
-    /// sitting added to the deck. One meaning, one green, rather than a
-    /// second shade of it here.
-    private static let learnedTint = StudySessionResultView.green
+    /// The green of "learned" on this screen: the saturated system green the
+    /// design tokens name for it, the one the finished-day seal wore.
+    private static let learnedTint = DesignTokens.Colors.learned
     /// A learned figure at zero: present, and plainly not yet.
     private static let unearnedTint = Color.white.opacity(0.35)
 

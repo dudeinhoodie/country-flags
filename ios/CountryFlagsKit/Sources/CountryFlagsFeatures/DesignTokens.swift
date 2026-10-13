@@ -101,11 +101,14 @@ public enum DesignTokens {
     /// otherwise spell one out as a literal and the next screen would spell
     /// it a shade differently.
     public enum Colors {
-        /// Warm gold. The light of the app's one celebration, and on Home
-        /// the colour of countries known: the flag before the known figure
-        /// and the known share of the bar under it. One token, so the gold of
-        /// a finished deck and the gold of a country met cannot drift apart.
+        /// Warm gold: the light of the app's one celebration, behind a
+        /// finished deck.
         public static let gold = Color(red: 0.94, green: 0.82, blue: 0.55)
+        /// Learned: the system's own green, at full saturation. On Home it is
+        /// the learned figure, the seal before it and the learned share of
+        /// the bar. It is the green the finished-day seal wore, chosen over
+        /// the result screen's softer shade for being the saturated one.
+        public static let learned = Color.green
     }
 
     /// The ground every screen sits on.
