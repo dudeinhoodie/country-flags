@@ -11,8 +11,10 @@ import CountryFlagsDomain
 /// arrived — three screens in the first two seconds, two of them grey
 /// shapes: an app assembling itself in front of the person who opened it.
 /// So the first screen is now one that is finished on the first frame: the
-/// icon that was tapped, larger, with the name under it, held until Home has
-/// something real to show and then faded into it.
+/// sheet from the icon that was tapped, on the navy the system's launch
+/// screen already showed, with the name under it, held until Home has
+/// something real to show and then faded into it. The layout is the owner's
+/// preview (13.10); `DesignTokens.Splash` holds its measurements.
 ///
 /// It holds no information and nothing on it can be pressed, so it is never
 /// allowed to hold anything back. It gives way at once to a screen with a
@@ -29,21 +31,45 @@ struct LaunchSplashScreen: View {
             as? String
     )
 
-    var body: some View {
-        ZStack {
-            AppScene()
-                .ignoresSafeArea()
+    /// The text size's step from the default, so the name follows Dynamic
+    /// Type on top of following the screen's width.
+    @ScaledMetric(relativeTo: .largeTitle) private var textScale: CGFloat = 1
 
-            VStack(spacing: DesignTokens.Spacing.medium) {
-                mark
+    var body: some View {
+        // The whole screen, status bar included: the preview's measurements
+        // are taken from its top edge.
+        GeometryReader { proxy in
+            let width = proxy.size.width
+            let markWidth = width * DesignTokens.Splash.markWidthShare
+            let markHeight = markWidth * DesignTokens.Splash.markAspect
+
+            VStack(spacing: width * DesignTokens.Splash.nameSpacingShare) {
+                // The sheet comes with the navy around it, so the box needs
+                // no shape of its own: on the same navy it has no edge.
+                Image("AppMark", bundle: .module)
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: markWidth, height: markHeight)
 
                 Text(appName)
-                    .font(DesignTokens.Typography.splashName)
-                    .foregroundStyle(.white)
+                    .font(
+                        .system(
+                            size: width * DesignTokens.Splash.nameSizeShare * textScale,
+                            weight: .bold
+                        )
+                    )
+                    .foregroundStyle(DesignTokens.Splash.name)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, DesignTokens.Spacing.large)
             }
-            .padding(.horizontal, DesignTokens.Spacing.large)
+            // Placed by the mark's centre rather than centred as a group, so
+            // a name that grows with Dynamic Type grows downwards and the
+            // mark stays where the preview put it.
+            .padding(.top, proxy.size.height * DesignTokens.Splash.markCentreShare - markHeight / 2)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        .background(DesignTokens.Splash.ground)
+        .ignoresSafeArea()
         // The whole screen takes the touch, so nothing behind it can be
         // pressed by accident while it is up.
         .contentShape(Rectangle())
@@ -52,27 +78,6 @@ struct LaunchSplashScreen: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(appName)
         .accessibilityIdentifier(AccessibilityIdentifier.splash)
-    }
-
-    /// The icon's own artwork, cut to the icon's shape.
-    ///
-    /// The artwork is a dark tile and the scene is dark, so the hairline the
-    /// flags wear is what keeps its edge: without it the tile dissolves into
-    /// the ground and only the glowing cards are left floating.
-    private var mark: some View {
-        let shape = RoundedRectangle(
-            cornerRadius: DesignTokens.Splash.markSize * DesignTokens.Splash.markCornerFraction,
-            style: .continuous
-        )
-        return Image("AppMark", bundle: .module)
-            .resizable()
-            .interpolation(.high)
-            .aspectRatio(1, contentMode: .fit)
-            .frame(width: DesignTokens.Splash.markSize, height: DesignTokens.Splash.markSize)
-            .clipShape(shape)
-            .overlay {
-                shape.strokeBorder(.white.opacity(DesignTokens.Card.borderOpacity), lineWidth: 1)
-            }
     }
 }
 

@@ -108,18 +108,35 @@ public enum DesignTokens {
         public static let groundLightRadius: CGFloat = 380
     }
 
-    /// The splash a cold launch opens on (#501).
+    /// The splash a cold launch opens on (#501), as the owner's preview draws
+    /// it (13.10): the icon's tilted sheet on a navy ground, the name in cream
+    /// under it.
+    ///
+    /// Sizes are shares of the screen's width, because the preview scales with
+    /// the phone: it was drawn for 390 and 430 point screens, and every length
+    /// in it grows by the ratio of the two. The numbers are measured off those
+    /// two drawings and agree with both to a third of a point.
     public enum Splash {
-        /// The app's mark: the icon's own artwork, drawn a little larger than
-        /// the home screen draws it, so the step from the icon that was tapped
-        /// to the screen it opens reads as the same object coming closer.
-        /// A picture rather than text, so it does not grow with Dynamic Type —
-        /// the name under it does.
-        public static let markSize: CGFloat = 112
-        /// The icon shape's corner as a share of its side. With the continuous
-        /// curve this is the outline iOS cuts every app icon to, so the mark
-        /// on the splash and the icon on the home screen are the same shape.
-        public static let markCornerFraction: CGFloat = 0.2237
+        /// The ground, and the system launch screen's `LaunchBackground`: one
+        /// navy, so the step from the system's screen to this one is not seen.
+        /// The mark is cut out of the preview with this ground around it, so
+        /// its box has no edge on it either.
+        public static let ground = Color(.sRGB, red: 4 / 255, green: 23 / 255, blue: 79 / 255)
+        /// The name's cream.
+        public static let name = Color(.sRGB, red: 248 / 255, green: 232 / 255, blue: 206 / 255)
+        /// The mark's box, the sheet with a little ground around it, as a
+        /// share of the screen's width. A picture, so it does not grow with
+        /// Dynamic Type; the name under it does.
+        public static let markWidthShare: CGFloat = 0.5705
+        /// The box's height over its width: the 736 by 686 pixels it was cut to.
+        public static let markAspect: CGFloat = 686 / 736
+        /// Where the box's centre stands, as a share of the screen's height.
+        public static let markCentreShare: CGFloat = 0.4603
+        /// From the box to the top of the name's line, as a share of the width.
+        public static let nameSpacingShare: CGFloat = 0.0983
+        /// The name's size at the default text size, as a share of the width.
+        /// Bold in the system face, which is what the preview set it in.
+        public static let nameSizeShare: CGFloat = 0.091
     }
 
     /// The sign-in screen's tray: the one light surface in the app.
@@ -197,9 +214,6 @@ public enum DesignTokens {
         /// The same face as the session result, one step down.
         public static let heroNumber: Font = .system(.largeTitle, design: .rounded, weight: .heavy)
         public static let sectionTitle: Font = .headline
-        /// The app's name under its mark on the splash: a name, not a readout,
-        /// so the default design rather than the rounded one.
-        public static let splashName: Font = .title.weight(.bold)
         public static let body: Font = .body
         public static let caption: Font = .footnote
         /// Section labels are set apart by tracking rather than by a rule or a
