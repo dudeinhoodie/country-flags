@@ -4102,6 +4102,10 @@ components:
         totalDue:
           type: integer
           minimum: 0
+        learnableCards:
+          description: 'How many of the cards in totalDue become learned with one more correct answer: the due cards whose correct answers are one short of the number that makes a card learned. Counted over the same daily queue as totalDue, so it never includes a card that is not due yet and never exceeds totalDue. Optional so that a client written before it, and a backend that does not send it, keep working; a client that does not find it says nothing about it rather than reading zero.'
+          type: integer
+          minimum: 0
         serverTime:
           $ref: '#/components/schemas/DateTime'
         nextPortionAt:

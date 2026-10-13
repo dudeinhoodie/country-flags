@@ -245,6 +245,56 @@ interface Projection {
 }
 
 /**
+ * The account's own figures, counted against the same queue the decks and
+ * regions were: the ceiling belongs to the learner's day, and every figure the
+ * app draws from a projection is a share of one day rather than of one
+ * backlog. The progress response and the due summary both read it, so the
+ * queue on Home and the account's progress cannot be two different days.
+ */
+function accountAggregate(
+  projection: Projection,
+  now: Date,
+): ProgressAggregate {
+  const { rule, snapshot } = projection;
+  return aggregateProgress(
+    snapshot.cards,
+    now,
+    rule.thresholds,
+    rule.ruleVersion,
+    snapshot.dueToday,
+  );
+}
+
+/**
+ * `GET /v1/me/due-summary` from the account's figures.
+ *
+ * `learnableCards` is the part of `totalDue` one more correct answer makes
+ * learned (#503), which the progress response does not carry: it is what a
+ * repeat started now can finish, and only the queue has a use for it.
+ *
+ * `nextPortionAt` is omitted rather than sent as null when a portion is open
+ * now: the field's absence is the answer, and a client that has not learned
+ * about it is unaffected.
+ */
+export function dueSummaryResponse(
+  aggregate: ProgressAggregate,
+  now: Date,
+  opensAt: Date | null,
+): Record<string, unknown> {
+  return {
+    overdue: aggregate.overdueCards,
+    learning: aggregate.dueLearningCards,
+    relearning: aggregate.dueRelearningCards,
+    newCards: aggregate.newCards,
+    review: aggregate.reviewCards,
+    totalDue: aggregate.dueCards,
+    learnableCards: aggregate.dueLearnableCards,
+    serverTime: now.toISOString(),
+    ...(opensAt === null ? {} : { nextPortionAt: opensAt.toISOString() }),
+  };
+}
+
+/**
  * The account, deck and region figures of a projection. The tiers count the
  * pending achievements as well as the stored ones, so a read that stores
  * nothing answers exactly what a rebuild that stored them would have.
@@ -253,7 +303,7 @@ function respond(
   projection: Projection,
   now: Date,
 ): Omit<ProgressRebuildResult, "newAchievements"> {
-  const { rule, snapshot } = projection;
+  const { snapshot } = projection;
   const awarded = [
     ...projection.earned.map((achievement) => ({
       scopeType: achievement.scopeType,
@@ -287,20 +337,10 @@ function respond(
       now,
     ),
   );
-  // The same queue the decks and regions were counted against: the
-  // ceiling belongs to the learner's day, and every figure the app draws
-  // from this rebuild is a share of one day rather than of one backlog.
-  const accountAggregate = aggregateProgress(
-    snapshot.cards,
-    now,
-    rule.thresholds,
-    rule.ruleVersion,
-    snapshot.dueToday,
-  );
   return {
     account: {
       ...progressResponse(
-        accountAggregate,
+        accountAggregate(projection, now),
         highestTier(awarded.map(({ tier }) => tier)),
       ),
       decks: deckResponses,
@@ -463,40 +503,17 @@ export class ProgressService {
 
   async getDueSummary(userId: string): Promise<Record<string, unknown>> {
     const now = new Date();
-    const { account, lastPortion } = await this.read(
+    const { aggregate, lastPortion } = await this.read(
       userId,
       now,
       async (projection, transaction) => ({
-        account: respond(projection, now).account as {
-          dueCards: number;
-          overdueCards: number;
-          dueLearningCards: number;
-          dueRelearningCards: number;
-          newCards: number;
-          learningCards: number;
-          relearningCards: number;
-          reviewCards: number;
-          updatedAt: string;
-        },
+        aggregate: accountAggregate(projection, now),
         lastPortion: await lastCompletedPortionAt(transaction, userId),
       }),
     );
     // When the next portion opens, so the app can say so instead of dealing
-    // cards that are not owed and letting them read as a queue. Omitted rather
-    // than sent as null when a portion is open now: the field's absence is the
-    // answer, and a client that has not learned about it is unaffected.
-    const opensAt = nextPortionAt(lastPortion, now);
-
-    return {
-      overdue: account.overdueCards,
-      learning: account.dueLearningCards,
-      relearning: account.dueRelearningCards,
-      newCards: account.newCards,
-      review: account.reviewCards,
-      totalDue: account.dueCards,
-      serverTime: account.updatedAt,
-      ...(opensAt === null ? {} : { nextPortionAt: opensAt.toISOString() }),
-    };
+    // cards that are not owed and letting them read as a queue.
+    return dueSummaryResponse(aggregate, now, nextPortionAt(lastPortion, now));
   }
 
   async getProgress(userId: string): Promise<Record<string, unknown>> {

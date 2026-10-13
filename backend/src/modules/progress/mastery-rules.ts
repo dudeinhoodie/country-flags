@@ -72,6 +72,8 @@ export interface ProgressAggregate {
   overdueCards: number;
   dueLearningCards: number;
   dueRelearningCards: number;
+  /** Due cards one correct answer short of learned, whatever their state. */
+  dueLearnableCards: number;
   newCards: number;
   learningCards: number;
   relearningCards: number;
@@ -184,6 +186,18 @@ export function aggregateProgress(
     (card) => card.state === CardLearningState.RELEARNING && isDue(card),
   ).length;
   const dueCards = overdueCards + dueLearningCards + dueRelearningCards;
+  // What a repeat today can finish: the cards in the day's queue that one
+  // more correct answer makes learned (#503). Read off the same queue as the
+  // due counts above, so it is a part of the figure the app shows over it —
+  // never a card that is not due yet, and never one the day's ceiling left
+  // for tomorrow. Counted by correct answers rather than by state, for the
+  // reason learned is: a card two answers in may still be on its learning
+  // steps, or back on them after a lapse, and the next answer finishes it all
+  // the same.
+  const dueLearnableCards = cards.filter(
+    (card) =>
+      isDue(card) && card.successfulReviews === LEARNED_SUCCESSFUL_REVIEWS - 1,
+  ).length;
   // New is what was never touched — a card mid-learning is neither new nor
   // learned, and both splits have to say so.
   const newCards = totalCards - touchedCards;
@@ -244,6 +258,7 @@ export function aggregateProgress(
     overdueCards,
     dueLearningCards,
     dueRelearningCards,
+    dueLearnableCards,
     newCards,
     learningCards,
     relearningCards,

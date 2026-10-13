@@ -35,6 +35,7 @@ const fixtures = [
   ["openapi/review-batch-partial.json", "ReviewBatchResult"],
   ["openapi/user-changes.json", "UserChangePage"],
   ["openapi/progress.json", "ProgressSummary"],
+  ["openapi/due-summary.json", "DueSummary"],
   ["openapi/progress-deletion.json", "ProgressDeletionResult"],
   ["openapi/achievements.json", "AchievementPage"],
   ["openapi/error-envelope.json", "ErrorEnvelope"],
