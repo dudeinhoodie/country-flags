@@ -4,7 +4,8 @@ import CountryFlagsDomain
 
 /// The first screen.
 ///
-/// At the top, how far the learner has come — countries known and countries
+/// For a guest with work on the phone, the account row comes first of all.
+/// Then how far the learner has come — countries known and countries
 /// learned — which is also where a finished day says so. Under it one pane
 /// holds the whole of today — the repeat queue's number, a fan of the flags
 /// waiting in it, the one action, and the unfinished session as a quiet line
@@ -149,6 +150,19 @@ public struct HomeView: View {
         failure: ContentSyncFailure?
     ) -> some View {
         SceneScrollView {
+            // The guest's account row leads the screen, above everything else
+            // in every state it shows in, the wait for the counts included —
+            // the owner's decision on 13.10 (#497). It used to stand last,
+            // under the day, on the grounds that the first thing on the screen
+            // should be what to do next; the owner reversed that. When it
+            // appears and how it looks are unchanged.
+            //
+            // It never shares the top with the expired sign-in below: that one
+            // is for an account the backend stopped honouring, this one for a
+            // guest, and each checks it is not the other.
+            guestPrompt
+                .devBlockID("home.account")
+
             // The sync state moved to the header, where it sits between the
             // avatar and the gear; this one explains itself only when it has
             // something to say.
@@ -189,12 +203,13 @@ public struct HomeView: View {
                     // And not tappable while it is dimmed, so a queue that is
                     // about to change cannot be walked into.
                     VStack(spacing: DesignTokens.Spacing.large) {
-                        // First on the screen, above whichever hero the day
-                        // has: the owner put how far the learner has come
-                        // ahead of what to do next (#497). It is the one block
-                        // that is never a zero after the first answer, so it
-                        // is what a returning learner reads first; the hero
-                        // and its single white button follow right under it.
+                        // First of the day's blocks, above whichever hero the
+                        // day has, with only the account, sign-in and status
+                        // rows over it: the owner put how far the learner has
+                        // come ahead of what to do next (#497). It is the one
+                        // block that is never a zero after the first answer,
+                        // so it is what a returning learner reads first; the
+                        // hero and its action follow right under it.
                         knownLearnedCard
                             .devBlockID("home.known-learned")
                         todayPane(sections)
@@ -219,13 +234,6 @@ public struct HomeView: View {
                 .easeInOut(duration: 0.2),
                 value: isAwaitingProgress || isSettling
             )
-
-            // Under the day rather than over it: the offer is about the
-            // person, and the first thing on the screen should be what to do
-            // next. Seven answers in, it stood above the unfinished session
-            // and pushed it down the screen.
-            guestPrompt
-                .devBlockID("home.account")
         }
         .sheet(item: $detailsSubject) { subject in
             if let assets {
@@ -963,8 +971,8 @@ public struct HomeView: View {
     /// back. Still one button to the progress tab with its chevron, and
     /// nothing inside it to press.
     ///
-    /// Shown whenever anything has been answered, first on the screen above
-    /// whichever hero the day has, and never on a first visit, where both
+    /// Shown whenever anything has been answered, first of the day's blocks
+    /// above whichever hero the day has, and never on a first visit, where both
     /// numbers would be zero and the block a caption for something absent.
     /// The whole block is the one way to the progress tab from here; nothing
     /// on it navigates alone.
@@ -991,17 +999,17 @@ public struct HomeView: View {
                                 Image(systemName: "flag.fill")
                                     .foregroundStyle(.white)
                             }
-                            // The figure dims at zero rather than turning
-                            // green: green is what learned looks like, and a
-                            // zero has not earned it yet. The seal keeps its
-                            // green, because it names what is counted rather
-                            // than scoring it — drawn as the finished-day
-                            // seal was, the tick dark on the green so it
-                            // reads as a mark rather than a hole.
+                            // White like the known figure: the green is the
+                            // seal's alone, so the two numbers read alike and
+                            // the colour says what is counted, not how much.
+                            // At zero the figure dims, which is how a zero
+                            // says "not yet". The seal is drawn as the
+                            // finished-day seal was, the tick dark on the
+                            // green so it reads as a mark rather than a hole.
                             knownLearnedFigure(
                                 learned,
                                 caption: L10n.homeLearnedCaption,
-                                tint: learned > 0 ? Self.learnedTint : Self.unearnedTint
+                                tint: learned > 0 ? .white : Self.unearnedTint
                             ) {
                                 Image(systemName: "checkmark.seal.fill")
                                     .symbolRenderingMode(.palette)
@@ -1118,8 +1126,10 @@ public struct HomeView: View {
         total > 0 ? min(1, Double(count) / Double(total)) : 0
     }
 
-    /// The green of "learned" on this screen: the saturated system green the
-    /// design tokens name for it, the one the finished-day seal wore.
+    /// The green of "learned" on this screen, such as the seal and the
+    /// learned share of the bar (the learned figure itself stays white): the
+    /// saturated system green the design tokens name for it, the one the
+    /// finished-day seal wore.
     private static let learnedTint = DesignTokens.Colors.learned
     /// A learned figure at zero: present, and plainly not yet.
     private static let unearnedTint = Color.white.opacity(0.35)
