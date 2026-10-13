@@ -43,6 +43,10 @@ public struct HomeView: View {
     /// and where the launch run is started; a screen that tried to infer them
     /// was looking after they had already closed.
     private let isSettling: Bool
+    /// Whether the run in flight is the check that coming back to the app
+    /// makes (#506). It goes on under the numbers: nothing is dimmed or
+    /// replaced, and a figure it changes moves in place.
+    private let isCheckingQuietly: Bool
     /// The flags shown fanned in the today pane and beside each queue row,
     /// keyed by deck. Read alongside the counts and for the same reason: the
     /// rows should show the cards they are talking about.
@@ -71,6 +75,7 @@ public struct HomeView: View {
         assets: (any AssetLoading)? = nil,
         progress: ProgressStore? = nil,
         isSettling: Bool = false,
+        isCheckingQuietly: Bool = false,
         makeSettings: (() -> SettingsStore)? = nil,
         onOpenDeck: @escaping (UUID) -> Void,
         onContinueSession: ((ContinuableSession) -> Void)? = nil,
@@ -88,6 +93,7 @@ public struct HomeView: View {
         self.account = account
         self.onSignIn = onSignIn
         self.isSettling = isSettling
+        self.isCheckingQuietly = isCheckingQuietly
         self.makeSettings = makeSettings
         self.onOpenDeck = onOpenDeck
         self.onContinueSession = onContinueSession
@@ -198,6 +204,14 @@ public struct HomeView: View {
                     .opacity(isVerifying ? 0.55 : 1)
                     .disabled(isVerifying)
                     .animation(.easeInOut(duration: 0.2), value: isVerifying)
+                    // A quiet check (#506) neither dims nor covers, so a
+                    // figure it changes has to show the change itself. These
+                    // give the figures' numeric transitions an animation to
+                    // run in; without one the digits are swapped, not rolled.
+                    // Two keys, because the store publishes the day's total
+                    // and the deck rows in separate steps.
+                    .animation(.snappy, value: totalDue)
+                    .animation(.snappy, value: progress?.decks)
                     .transition(.opacity)
                 }
             }
@@ -365,7 +379,13 @@ public struct HomeView: View {
     /// A run in flight counts: between finishing a session and the run that
     /// carries its answers home, what is on screen is the backend's previous
     /// word, and the screen should not present it as settled.
+    ///
+    /// Except the check that coming back to the app makes (#506). Most
+    /// returns change no number at all, and dimming the screen for each one
+    /// said "being checked" over figures that were already right. Its run
+    /// and the re-read after it leave the screen as it is.
     private var isVerifying: Bool {
+        guard !isCheckingQuietly else { return false }
         if sync.status.phase == .syncing { return true }
         return progress?.isRefreshing ?? false
     }
