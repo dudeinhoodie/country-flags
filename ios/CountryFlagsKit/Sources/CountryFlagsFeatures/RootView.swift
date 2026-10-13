@@ -47,6 +47,15 @@ public struct RootView: View {
     /// person has read it. Nil on every ordinary launch.
     @State private var storeRecovery: StoreRecoveryNotice?
     private let onStoreRecoveryRead: () -> Void
+    /// The cold launch's splash, and how far it has got in leaving (#501).
+    ///
+    /// State of this view rather than of a store: coming back from the
+    /// background, a pull to refresh and a sign-in all happen to a root that
+    /// has already let its splash go, so none of them can bring it back.
+    @State private var splash: LaunchSplash.Phase
+    /// Whether the splash has stood for as long as it may.
+    @State private var hasSplashTimedOut = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Whether a run is in flight that is about to change the numbers on
     /// screen.
@@ -113,6 +122,17 @@ public struct RootView: View {
     ) {
         self.showsWelcomeOnFirstLaunch = showsWelcomeOnFirstLaunch
         _storeRecovery = State(initialValue: storeRecovery)
+        // A launch that has to explain a lost store opens on the explanation.
+        // The splash in front of it would be a pause before bad news, and
+        // after it a second opening the person has already sat through.
+        //
+        // And a root made after the launch's run has already come back is no
+        // cold launch: the process outlived its window — the system let the
+        // scene go while the app was away — and this is the way back in,
+        // which keeps the behaviour every other return has.
+        _splash = State(
+            initialValue: storeRecovery == nil && !sync.hasSettledFirstRun ? .shown : .gone
+        )
         self.onStoreRecoveryRead = onStoreRecoveryRead
         _router = State(wrappedValue: router)
         self.configuration = configuration
@@ -146,6 +166,57 @@ public struct RootView: View {
     }
 
     public var body: some View {
+        // The splash covers the launch rather than replacing it (#501). What
+        // is under it is built and running as it always was — the first
+        // requests start, Home reads its counts and its flags — so when the
+        // splash fades, Home is already whole underneath rather than starting
+        // to fill in. A splash that stood in place of the launch would have
+        // handed over to a screen built that instant.
+        ZStack {
+            stage
+                // Nothing under the splash is read out until it has gone.
+                // VoiceOver would otherwise speak a home screen nobody can
+                // see, and a UI test would find controls the splash stops it
+                // pressing — or photograph Home through the fade. The switch
+                // happens in one step, as the splash leaves the hierarchy.
+                //
+                // Enabled rather than set to false afterwards: on a container
+                // that would be an instruction to its whole subtree, and could
+                // undo every decoration inside it that hides itself.
+                .accessibilityHidden(true, isEnabled: splash != .gone)
+
+            if splash != .gone {
+                LaunchSplashScreen()
+                    .preferredColorScheme(.dark)
+                    .opacity(splash == .shown ? 1 : 0)
+                    // Off the moment it starts to leave rather than when the
+                    // fade ends: what is behind is already there, and a tap
+                    // meant for it must not land on a fading mark.
+                    .allowsHitTesting(splash == .shown)
+                    .task {
+                        do {
+                            try await Task.sleep(for: LaunchSplash.cap)
+                        } catch {
+                            return
+                        }
+                        hasSplashTimedOut = true
+                    }
+            }
+        }
+        // One path out, whatever opened it — the screen behind is ready, it
+        // has something to say, or the cap ran out.
+        .onChange(of: splashGivesWay, initial: true) { _, givesWay in
+            guard givesWay else { return }
+            Task {
+                try? await Task.sleep(for: LaunchSplash.settle)
+                leaveSplash()
+            }
+        }
+    }
+
+    /// The launch itself: the store's explanation, the wait, or the shell.
+    @ViewBuilder
+    private var stage: some View {
         // The launch is held behind one screen until every first request has
         // landed — the catalogue and the account's numbers both. They arrive
         // at different times, and letting the app in after the first of them
@@ -168,8 +239,7 @@ public struct RootView: View {
             LaunchWaitScreen(
                 reason: waitingFor,
                 failure: sync.status.lastFailure,
-                isRetrying: sync.status.phase == .syncing
-                    || content.status.phase != .idle,
+                isRetrying: isRetryingLaunch,
                 environment: configuration.environment.allowsDebugAffordances
                     ? configuration.environment.rawValue.uppercased()
                     : nil,
@@ -220,6 +290,64 @@ public struct RootView: View {
             hasCatalog: content.hasSomethingToShow,
             isGuest: progress.isGuest,
             origin: progress.origin
+        )
+    }
+
+    /// Whether a first request is out again — the wait's spinner rather than
+    /// its failure.
+    private var isRetryingLaunch: Bool {
+        sync.status.phase == .syncing || content.status.phase != .idle
+    }
+
+    /// Whether the splash should go now. Read only while it is up, so a
+    /// launch that has let it go stops observing everything this asks.
+    private var splashGivesWay: Bool {
+        guard splash == .shown else { return false }
+        let behind = LaunchSplash.behind(
+            isLaunchWaiting: launchWait != nil,
+            launchWaitFails: LaunchWaitScreen.reportsFailure(
+                sync.status.lastFailure,
+                isRetrying: isRetryingLaunch
+            ),
+            catalog: content.catalog,
+            // Home's own two tests, from the values Home is handed: the
+            // splash ends where Home's placeholder would have.
+            isAwaitingProgress: progress.origin == .awaitingBackend,
+            isSettling: isSettlingRun || isSettlingAtLaunch
+        )
+        return LaunchSplash.givesWay(to: behind, hasTimedOut: hasSplashTimedOut)
+    }
+
+    /// Fades the splash into what is behind it, or — with Reduce Motion —
+    /// simply takes it away.
+    ///
+    /// Asked again after the settle, because the screen behind can change its
+    /// mind in that moment: a second run starting puts Home back on its
+    /// placeholder, and the splash should go on covering it rather than
+    /// leave on an answer that no longer holds. The cap still ends it.
+    private func leaveSplash() {
+        guard splashGivesWay else { return }
+        guard !reduceMotion else {
+            splash = .gone
+            return
+        }
+        withAnimation(LaunchSplash.fade) {
+            splash = .leaving
+        } completion: {
+            splash = .gone
+        }
+    }
+
+    /// The welcome, held until the splash has gone.
+    ///
+    /// A sheet is presented above the whole root, the splash included, so a
+    /// welcome asked for while the splash is up would slide in over the app's
+    /// mark and the fade into Home would happen behind it. It comes once Home
+    /// is on screen, which is the screen it is a welcome to.
+    private var welcomePresentation: Binding<Bool> {
+        Binding(
+            get: { isPresentingWelcome && splash == .gone },
+            set: { isPresentingWelcome = $0 }
         )
     }
 
@@ -404,7 +532,7 @@ public struct RootView: View {
             isWelcomeRequested = false
             isPresentingWelcome = true
         }
-        .sheet(isPresented: $isPresentingWelcome, onDismiss: { hasSeenWelcome = true }) {
+        .sheet(isPresented: welcomePresentation, onDismiss: { hasSeenWelcome = true }) {
             if let accountToolbar {
                 SignInSheet(
                     store: accountToolbar,
@@ -621,6 +749,10 @@ public enum AccessibilityIdentifier {
     /// the way out of it when the backend cannot be reached.
     public static let launchWait = "root.launchWait"
     public static let launchWaitRetry = "root.launchWait.retry"
+    /// The cold launch's splash: the app's mark and name, one element read as
+    /// the name. It leaves the tree when its fade ends, in the same update
+    /// that makes the screen behind it readable.
+    public static let splash = "root.splash"
     /// The screen a launch shows when its store would not open.
     public static let storeRecoveryTitle = "root.storeRecovery.title"
     public static let storeRecoveryContinue = "root.storeRecovery.continue"

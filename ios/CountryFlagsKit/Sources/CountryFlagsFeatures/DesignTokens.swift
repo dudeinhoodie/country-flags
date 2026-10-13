@@ -108,6 +108,20 @@ public enum DesignTokens {
         public static let groundLightRadius: CGFloat = 380
     }
 
+    /// The splash a cold launch opens on (#501).
+    public enum Splash {
+        /// The app's mark: the icon's own artwork, drawn a little larger than
+        /// the home screen draws it, so the step from the icon that was tapped
+        /// to the screen it opens reads as the same object coming closer.
+        /// A picture rather than text, so it does not grow with Dynamic Type —
+        /// the name under it does.
+        public static let markSize: CGFloat = 112
+        /// The icon shape's corner as a share of its side. With the continuous
+        /// curve this is the outline iOS cuts every app icon to, so the mark
+        /// on the splash and the icon on the home screen are the same shape.
+        public static let markCornerFraction: CGFloat = 0.2237
+    }
+
     /// The sign-in screen's tray: the one light surface in the app.
     public enum SignIn {
         /// Light enough for Apple's black button, which is drawn for light
@@ -183,6 +197,9 @@ public enum DesignTokens {
         /// The same face as the session result, one step down.
         public static let heroNumber: Font = .system(.largeTitle, design: .rounded, weight: .heavy)
         public static let sectionTitle: Font = .headline
+        /// The app's name under its mark on the splash: a name, not a readout,
+        /// so the default design rather than the rounded one.
+        public static let splashName: Font = .title.weight(.bold)
         public static let body: Font = .body
         public static let caption: Font = .footnote
         /// Section labels are set apart by tracking rather than by a rule or a

@@ -50,8 +50,20 @@
 	<false/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!--
+	  The system draws this before the app has run a line, so it is a colour
+	  and nothing else: the AppScene's dark base as it resolves on the first
+	  frame, held in every appearance because the app is dark whatever the
+	  system is set to. Empty, it was a blank screen that flashed into the
+	  scene. The mark and the name come on the app's own splash a frame later
+	  (#501); an image here would bake the name into pixels no locale or
+	  build could change.
+	-->
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

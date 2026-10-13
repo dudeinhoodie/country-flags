@@ -16,7 +16,10 @@ final class ProgressSettingsUITests: XCTestCase {
 
         // Opened while the launch is still importing content and running its
         // first sync, deliberately: that is when a screen that does not own
-        // its store keeps starting its reading over.
+        // its store keeps starting its reading over. The earliest a person
+        // can do that now is the moment the launch splash gives way (#501):
+        // it takes every touch while it is up, a tab's included.
+        app.waitForTheSplashToLeave()
         openProgress(in: app)
 
         XCTAssertTrue(
