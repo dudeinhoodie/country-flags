@@ -70,5 +70,21 @@
     "mode": "RGB",
     "profile": "sRGB",
     "sha256": "ccab533c4326788bd69f924aad9ec3e3bfc2cd255b960a1242e3e8fdb60d1e65"
+  },
+  {
+    "variant": "vexi-flag-map-final-v1",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha_range": null,
+    "source_sha256": "706b2483acddcf911a1094039210f9a789eae0bbd85eb6d3279c7460a52e3cdc",
+    "output_size": [
+      1024,
+      1024
+    ],
+    "mode": "RGB",
+    "profile": "sRGB",
+    "sha256": "c7a65f18058427e5e9534fc2773fb85943944be390f29eb67d958bc5ccb478de"
   }
 ]
