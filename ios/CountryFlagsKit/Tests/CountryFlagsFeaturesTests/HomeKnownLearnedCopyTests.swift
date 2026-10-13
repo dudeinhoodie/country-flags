@@ -2,7 +2,8 @@ import XCTest
 
 @testable import CountryFlagsFeatures
 
-/// The words on Home's known/learned block (#497).
+/// The words on Home's known/learned block and under the deck pane's size
+/// (#497).
 ///
 /// As with the guest line, the checks are about the mechanism that could
 /// break the copy silently — a plural rule that is not applied, a number that
@@ -49,5 +50,36 @@ final class HomeKnownLearnedCopyTests: XCTestCase {
         XCTAssertTrue(line.contains("3"), line)
         XCTAssertTrue(line.contains("195"), line)
         XCTAssertFalse(line.contains("%"), line)
+    }
+
+    /// The deck pane's word under its size, the same substitution as the
+    /// known caption: declined, and never printing the number the figure
+    /// above it already shows. Checked for every kind of deck, because each
+    /// kind is its own entry in the catalogue and any of them can regress.
+    func testTheDeckWordDeclinesWithoutPrintingTheCount() {
+        for kinds in [["FLAG"], ["COAT_OF_ARMS"], ["FLAG", "COAT_OF_ARMS"]] {
+            let one = L10n.deckItemWord(1, contentKinds: kinds)
+            let several = L10n.deckItemWord(5, contentKinds: kinds)
+
+            XCTAssertFalse(one.contains("1"), "\(kinds): \(one)")
+            XCTAssertFalse(several.contains("5"), "\(kinds): \(several)")
+            XCTAssertFalse(several.contains("%"), "\(kinds): \(several)")
+            XCTAssertFalse(several.contains("deck."), "\(kinds): \(several)")
+            XCTAssertNotEqual(one, several, "\(kinds): the plural rule is not applied")
+        }
+    }
+
+    /// The finished day's line names the limit, declined by it.
+    func testTheDayDoneLineDeclinesWithTheLimit() {
+        let one = L10n.homeDayDoneLimit(1)
+        let several = L10n.homeDayDoneLimit(5)
+
+        XCTAssertTrue(one.contains("1"), one)
+        XCTAssertTrue(several.contains("5"), several)
+        XCTAssertNotEqual(
+            one.replacingOccurrences(of: "1", with: ""),
+            several.replacingOccurrences(of: "5", with: ""),
+            "the count is formatted in but the plural rule is not applied"
+        )
     }
 }

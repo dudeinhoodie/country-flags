@@ -89,29 +89,6 @@ public enum L10n {
     /// The label over the number the first screen is built around, in each of
     /// its two cases, and the action underneath it.
     public static var homeDue: String { localized("home.due") }
-    /// The cleared-day card: a learner who finished everything is told so,
-    /// shown what it added up to, and offered somewhere to go next.
-    public static var homeClearedSubtitle: String { localized("home.cleared.subtitle") }
-    /// The moment the rhythm comes round, in place of "when they are due".
-    /// ADR-022 made that three hours; this is the app saying so rather than
-    /// leaving the learner to guess.
-    public static func homeClearedNextPortion(_ time: String) -> String {
-        String(format: localized("home.cleared.next_portion"), time)
-    }
-    public static var homeClearedLearned: String { localized("home.cleared.learned") }
-    public static var homeClearedInProgress: String { localized("home.cleared.in_progress") }
-    /// Declined by the count, which is why it goes through the catalogue's own
-    /// plural machinery rather than a format string: "1 страна", "2 страны",
-    /// "12 стран" are three different words.
-    public static func homeClearedInProgressCount(_ count: Int) -> String {
-        // `NSLocalizedString` returns the plural rule itself; only
-        // `localizedStringWithFormat` applies it. `String(localized:)` would
-        // hand back one arbitrary variant and format the number into it.
-        String.localizedStringWithFormat(
-            NSLocalizedString("home.cleared.in_progress_count", bundle: bundle, comment: ""),
-            count
-        )
-    }
 
     public static func homeDueCount(_ count: Int) -> String {
         String(format: localized("home.due_count"), count)
@@ -148,6 +125,23 @@ public enum L10n {
     }
     public static var homeKnownLearnedHint: String {
         localized("home.known_learned.accessibility.hint")
+    }
+    /// The same block on a finished day: its title, and the line under the
+    /// bar that gives the day's limit and when repeats come back. The limit
+    /// is declined by the count — "50 стран", "21 страна" — so it goes
+    /// through `localizedStringWithFormat`, the only call that applies the
+    /// catalogue's plural rule; `String(format:)` would format the number
+    /// into one arbitrary variant.
+    public static var homeDayDoneTitle: String {
+        localized("home.known_learned.day_done.title")
+    }
+    public static func homeDayDoneLimit(_ limit: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString(
+                "home.known_learned.day_done.limit", bundle: bundle, comment: ""
+            ),
+            limit
+        )
     }
     /// A first visit: the flag to guess and the regions to start from.
     public static var homeFlagOfTheDay: String { localized("home.flag_of_the_day.label") }
@@ -203,19 +197,34 @@ public enum L10n {
     /// and a deck that mixes kinds keeps "cards". Declined by the count, as
     /// `accountGuestNoteCount` is.
     public static func deckItemCount(_ count: Int, contentKinds: [String]) -> String {
-        let kinds = Set(contentKinds)
-        let key: String
-        if kinds == ["COAT_OF_ARMS"] {
-            key = "deck.coat_count"
-        } else if kinds.isEmpty || kinds == ["FLAG"] {
-            key = "deck.flag_count"
-        } else {
-            key = "deck.card_count"
-        }
-        return String.localizedStringWithFormat(
-            NSLocalizedString(key, bundle: bundle, comment: ""),
+        String.localizedStringWithFormat(
+            NSLocalizedString(
+                "deck.\(deckItemKind(contentKinds))_count", bundle: bundle, comment: ""
+            ),
             count
         )
+    }
+
+    /// The same word without its number — "флаг", "флага", "флагов" — for a
+    /// count that stands above it in the hero face, as on Home's deck pane.
+    /// A substitution in the catalogue, like `homeKnownCaption`, because its
+    /// variants leave the number out.
+    public static func deckItemWord(_ count: Int, contentKinds: [String]) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString(
+                "deck.\(deckItemKind(contentKinds))_word", bundle: bundle, comment: ""
+            ),
+            count
+        )
+    }
+
+    /// Which word a deck's items take, read once for the count and the bare
+    /// word alike, so the two can never name a deck differently.
+    private static func deckItemKind(_ contentKinds: [String]) -> String {
+        let kinds = Set(contentKinds)
+        if kinds == ["COAT_OF_ARMS"] { return "coat" }
+        if kinds.isEmpty || kinds == ["FLAG"] { return "flag" }
+        return "card"
     }
 
     public static var homeOpenProgress: String { localized("home.open_progress") }
