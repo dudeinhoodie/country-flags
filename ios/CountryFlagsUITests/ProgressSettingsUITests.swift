@@ -129,6 +129,16 @@ final class ProgressSettingsUITests: XCTestCase {
             .firstMatch
         XCTAssertTrue(counts.waitForExistence(timeout: 15), app.debugDescription)
         XCTAssertFalse(app.staticTexts["progress.empty"].exists, app.debugDescription)
+        // The map card repeats Home's known figure beside learned: the same
+        // two answers, the same number, so the tab does not open on a zero.
+        let known = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier == %@ AND label CONTAINS %@",
+                "progress.known.counts",
+                "2"
+            )
+        ).firstMatch
+        XCTAssertTrue(known.waitForExistence(timeout: 15), app.debugDescription)
     }
 
     /// A setting is stored on the device, so it is still there after a relaunch

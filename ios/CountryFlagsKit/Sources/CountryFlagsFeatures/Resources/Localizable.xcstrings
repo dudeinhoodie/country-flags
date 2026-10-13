@@ -4473,6 +4473,23 @@
         }
       }
     },
+    "progress.known": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Known"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знакомые"
+          }
+        }
+      }
+    },
     "progress.learned": {
       "extractionState": "manual",
       "localizations": {

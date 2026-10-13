@@ -702,6 +702,8 @@ public enum AccessibilityIdentifier {
         "progress.deck.\(code).counts"
     }
 
+    public static let progressKnownCounts = "progress.known.counts"
+
     public static let accountSignInApple = "settings.account.signInApple"
     public static let accountFakeSignIn = "settings.account.fakeSignIn"
     /// The guest's row on the account screen: the way to the sign-in screen.

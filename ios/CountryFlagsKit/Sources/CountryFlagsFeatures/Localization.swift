@@ -224,6 +224,7 @@ public enum L10n {
     public static var achievementsEarned: String { localized("achievements.earned") }
     public static var achievementsEmpty: String { localized("achievements.empty") }
 
+    public static var progressKnownLabel: String { localized("progress.known") }
     public static var progressLearnedLabel: String { localized("progress.learned") }
     public static var progressMapHint: String { localized("progress.map_hint") }
     public static var detailsRegion: String { localized("details.region") }

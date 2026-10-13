@@ -4,11 +4,12 @@ import CountryFlagsDomain
 
 /// The first screen.
 ///
-/// One pane holds the whole of today — the repeat queue's number, a fan of
-/// the flags waiting in it, the one action, and the unfinished session as a
-/// quiet line inside rather than a second hero. Under it, how far the learner
-/// has come — countries known and countries learned — and then the queue deck
-/// by deck, each row carrying its own flags and its continent. Nothing on the
+/// At the top, how far the learner has come — countries known and countries
+/// learned. Under it one pane holds the whole of today — the repeat queue's
+/// number, a fan of the flags waiting in it, the one action, and the
+/// unfinished session as a quiet line inside rather than a second hero — and
+/// then the queue deck by deck, each row carrying its own flags and its
+/// continent. Nothing on the
 /// screen is a caption for something absent: every section shows a number or
 /// a picture, or it does not appear.
 public struct HomeView: View {
@@ -192,12 +193,15 @@ public struct HomeView: View {
                     // And not tappable while it is dimmed, so a queue that is
                     // about to change cannot be walked into.
                     VStack(spacing: DesignTokens.Spacing.large) {
-                        todayPane(sections)
-                        // Under the hero, whichever hero the day has: what
-                        // to do next comes first, how far the learner has
-                        // come second, and the regions owing work after both.
+                        // First on the screen, above whichever hero the day
+                        // has: the owner put how far the learner has come
+                        // ahead of what to do next (#497). It is the one block
+                        // that is never a zero after the first answer, so it
+                        // is what a returning learner reads first; the hero
+                        // and its single white button follow right under it.
                         knownLearnedCard
                             .devBlockID("home.known-learned")
+                        todayPane(sections)
                         queuePane(sections)
                             .devBlockID("home.queue")
                         if isFirstVisit {
@@ -908,10 +912,11 @@ public struct HomeView: View {
     /// Nothing else on it: no label, no legend, no third figure. The captions
     /// name the numbers, and the bar is drawn in their colours.
     ///
-    /// Shown whenever anything has been answered, under whichever hero the
-    /// day has, and never on a first visit, where both numbers would be zero
-    /// and the block a caption for something absent. The whole block is the
-    /// one way to the progress tab from here; nothing on it navigates alone.
+    /// Shown whenever anything has been answered, first on the screen above
+    /// whichever hero the day has, and never on a first visit, where both
+    /// numbers would be zero and the block a caption for something absent.
+    /// The whole block is the one way to the progress tab from here; nothing
+    /// on it navigates alone.
     @ViewBuilder
     private var knownLearnedCard: some View {
         let known = knownCountries
