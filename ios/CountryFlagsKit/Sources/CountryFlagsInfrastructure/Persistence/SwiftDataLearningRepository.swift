@@ -373,6 +373,7 @@ actor SwiftDataLearningRepository: LearningRepository {
                 review: $0.review,
                 newCards: $0.newCards,
                 totalDue: $0.totalDue,
+                learnableCards: $0.learnableCards,
                 serverTime: $0.serverTime,
                 nextPortionAt: $0.nextPortionAt
             )
@@ -398,6 +399,7 @@ actor SwiftDataLearningRepository: LearningRepository {
                 stored.totalDue = summary.totalDue
                 stored.serverTime = summary.serverTime
                 stored.nextPortionAt = summary.nextPortionAt
+                stored.learnableCards = summary.learnableCards
             } else {
                 modelContext.insert(
                     StoredDueSummary(
@@ -409,7 +411,8 @@ actor SwiftDataLearningRepository: LearningRepository {
                         newCards: summary.newCards,
                         totalDue: summary.totalDue,
                         serverTime: summary.serverTime,
-                        nextPortionAt: summary.nextPortionAt
+                        nextPortionAt: summary.nextPortionAt,
+                        learnableCards: summary.learnableCards
                     )
                 )
             }

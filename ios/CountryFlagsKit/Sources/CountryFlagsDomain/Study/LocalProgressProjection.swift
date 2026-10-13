@@ -13,19 +13,30 @@ public struct LocalDeckProgress: Hashable, Sendable {
     public let learnedCards: Int
     /// Cards that have been started and are scheduled at or before now.
     public let dueCards: Int
+    /// The due cards one correct answer carries into `REVIEW`, the device's
+    /// learned (#503): what a repeat started now can finish.
+    public let dueLearnableCards: Int
+    /// The due cards already in `REVIEW`. Never learnable — they are learned —
+    /// so together with the learnable ones they leave the rest of `dueCards`
+    /// as the cards still waiting on their steps.
+    public let dueReviewCards: Int
 
     public init(
         deckID: UUID,
         totalCards: Int,
         startedCards: Int,
         learnedCards: Int,
-        dueCards: Int
+        dueCards: Int,
+        dueLearnableCards: Int = 0,
+        dueReviewCards: Int = 0
     ) {
         self.deckID = deckID
         self.totalCards = totalCards
         self.startedCards = startedCards
         self.learnedCards = learnedCards
         self.dueCards = dueCards
+        self.dueLearnableCards = dueLearnableCards
+        self.dueReviewCards = dueReviewCards
     }
 
     public var isUntouched: Bool { startedCards == 0 }
@@ -60,12 +71,17 @@ public enum LocalProgressProjection {
         return cardsByDeck
             .map { deckID, cardIDs in
                 let known = cardIDs.compactMap { statesByCard[$0] }
+                let owed = known.filter { isOwed($0, at: now) }
                 return LocalDeckProgress(
                     deckID: deckID,
                     totalCards: cardIDs.count,
                     startedCards: known.count { $0.state != "NEW" },
                     learnedCards: known.count { $0.state == "REVIEW" },
-                    dueCards: known.count { isOwed($0, at: now) }
+                    dueCards: owed.count,
+                    dueLearnableCards: owed.count {
+                        LocalSchedulerProjection.becomesLearnedOnRecall($0)
+                    },
+                    dueReviewCards: owed.count { $0.state == "REVIEW" }
                 )
             }
             .sorted { $0.deckID.uuidString < $1.deckID.uuidString }

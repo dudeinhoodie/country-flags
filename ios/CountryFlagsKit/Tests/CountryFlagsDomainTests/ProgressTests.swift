@@ -172,14 +172,50 @@ final class LocalProgressProjectionTests: XCTestCase {
         XCTAssertEqual(progress.map(\.startedCards).reduce(0, +), 2)
     }
 
-    private func state(_ card: UUID, state: String, dueAt: Date) -> CardStateRecord {
+    /// What a guest's review pane says about its queue (#503): the due cards a
+    /// correct answer carries into review, and the due cards already there.
+    /// Neither counts a card that has not come round, and a card in review is
+    /// never learnable — it is learned.
+    func testTheQueueIsSplitIntoLearnableAndReviewCards() {
+        let cards = (0..<6).map { _ in UUID() }
+        let past = now.addingTimeInterval(-60)
+        let states = [
+            // One rung up the steps on this device: the next GOOD graduates it.
+            state(cards[0], state: "LEARNING", dueAt: past, repetitions: 1),
+            // Missed on the first rung: two answers away.
+            state(cards[1], state: "LEARNING", dueAt: past, repetitions: 0),
+            // Lapsed: the next GOOD returns it to review.
+            state(cards[2], state: "RELEARNING", dueAt: past, repetitions: 0),
+            // Learned, and due.
+            state(cards[3], state: "REVIEW", dueAt: past),
+            // One answer away, but not round yet.
+            state(cards[4], state: "LEARNING", dueAt: now.addingTimeInterval(3600), repetitions: 1),
+        ]
+
+        let progress = LocalProgressProjection.progress(
+            cardsByDeck: [deck: cards],
+            states: states,
+            now: now
+        )
+
+        XCTAssertEqual(progress[0].dueCards, 4)
+        XCTAssertEqual(progress[0].dueLearnableCards, 2)
+        XCTAssertEqual(progress[0].dueReviewCards, 1)
+    }
+
+    private func state(
+        _ card: UUID,
+        state: String,
+        dueAt: Date,
+        repetitions: Int = 1
+    ) -> CardStateRecord {
         CardStateRecord(
             learningCardID: card,
             state: state,
             difficulty: 5,
             stability: 1,
             dueAt: dueAt,
-            repetitions: 1,
+            repetitions: repetitions,
             lapses: 0,
             schedulerVersion: "test",
             stateVersion: 1,

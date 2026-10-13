@@ -62,6 +62,11 @@ final class StoredDueSummary {
     /// is the answer rather than a missing value, and because a summary stored
     /// before version 7 has nothing to say about it.
     var nextPortionAt: Date?
+    /// How many of the due cards one more correct answer makes learned, or nil
+    /// when the backend did not say (#503). Optional for the same two reasons:
+    /// a backend that predates the count leaves it out, and a summary stored
+    /// before version 8 has nothing to say about it.
+    var learnableCards: Int?
 
     init(
         scopeKey: String,
@@ -72,7 +77,8 @@ final class StoredDueSummary {
         newCards: Int,
         totalDue: Int,
         serverTime: Date,
-        nextPortionAt: Date? = nil
+        nextPortionAt: Date? = nil,
+        learnableCards: Int? = nil
     ) {
         self.scopeKey = scopeKey
         self.overdue = overdue
@@ -83,5 +89,6 @@ final class StoredDueSummary {
         self.totalDue = totalDue
         self.serverTime = serverTime
         self.nextPortionAt = nextPortionAt
+        self.learnableCards = learnableCards
     }
 }

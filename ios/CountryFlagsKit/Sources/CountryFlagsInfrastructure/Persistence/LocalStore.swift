@@ -31,6 +31,7 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             LocalSchemaV5.self,
             LocalSchemaV6.self,
             LocalSchemaV7.self,
+            LocalSchemaV8.self,
         ]
     }
 
@@ -67,6 +68,12 @@ enum LocalStoreMigrationPlan: SchemaMigrationPlan {
             // before this reads as nil, which is what the backend says when a
             // portion is open now.
             .lightweight(fromVersion: LocalSchemaV6.self, toVersion: LocalSchemaV7.self),
+            // Adding how many due cards one answer makes learned: an optional
+            // property on a model version 7 froze, so SwiftData widens the
+            // table and a device keeps what it has not uploaded yet. A summary
+            // stored before this reads as nil, which is what a backend that
+            // does not send the count says too.
+            .lightweight(fromVersion: LocalSchemaV7.self, toVersion: LocalSchemaV8.self),
         ]
     }
 }
@@ -85,7 +92,7 @@ public struct LocalStore: Sendable {
     public let container: ModelContainer
 
     public init(location: Location = .onDisk(name: "CountryFlags")) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV7.self)
+        let schema = Schema(versionedSchema: LocalSchemaV8.self)
         let configuration: ModelConfiguration
         switch location {
         case .inMemory:
@@ -118,7 +125,7 @@ public struct LocalStore: Sendable {
     /// Builds a store at an explicit file URL, which is what a migration or a
     /// relaunch test needs.
     public init(fileURL: URL) throws {
-        let schema = Schema(versionedSchema: LocalSchemaV7.self)
+        let schema = Schema(versionedSchema: LocalSchemaV8.self)
         do {
             container = try ModelContainer(
                 for: schema,
@@ -183,7 +190,7 @@ public struct LocalStore: Sendable {
     /// opened.
     public static func fileURLs(forName name: String) -> [URL] {
         fileURLs(
-            for: ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV7.self)).url
+            for: ModelConfiguration(name, schema: Schema(versionedSchema: LocalSchemaV8.self)).url
         )
     }
 

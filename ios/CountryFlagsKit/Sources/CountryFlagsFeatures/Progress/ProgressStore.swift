@@ -107,6 +107,10 @@ public final class ProgressStore: CanonicalDataObserving {
     /// The backend's breakdown of today's queue: what kind of work is waiting,
     /// overdue, still being learned or never seen.
     public private(set) var dueSummary: DueSummaryRecord?
+    /// A guest's breakdown of each deck's queue, counted on the device. Kept
+    /// per deck because which deck's queue stands for the day is decided
+    /// with the figure, in `queueDeck`, not here.
+    private var localBreakdowns: [UUID: DueBreakdown] = [:]
     /// Whose numbers these are. Screens read it to know whether they may draw
     /// anything at all.
     public private(set) var origin: ProgressOrigin = .awaitingBackend
@@ -239,6 +243,7 @@ public final class ProgressStore: CanonicalDataObserving {
         // to the content store then, and a read of it waits for that import.
         guard !states.isEmpty || !loadedAchievements.isEmpty else {
             self.decks = []
+            localBreakdowns = [:]
             origin = scope.isGuest ? .device : .backend
             return
         }
@@ -305,6 +310,7 @@ public final class ProgressStore: CanonicalDataObserving {
                     masteryTier: tiersByDeck[deck.id].flatMap { $0.isEarned ? $0 : nil }
                 )
             }
+            localBreakdowns = countsByDeck.mapValues(DueBreakdown.init(local:))
             origin = .device
             return
         }
@@ -316,6 +322,7 @@ public final class ProgressStore: CanonicalDataObserving {
         guard !serverByDeck.isEmpty else {
             if Task.isCancelled { return }
             self.decks = []
+            localBreakdowns = [:]
             // An account with nothing on the backend yet is a state, not a
             // wait — but only once the backend has actually said so.
             origin = backendHasAnswered ? .backend : .awaitingBackend
@@ -323,6 +330,9 @@ public final class ProgressStore: CanonicalDataObserving {
         }
 
         if Task.isCancelled { return }
+        // An account's breakdown is the backend's summary or nothing: the
+        // device's own count is never blended into an account's numbers.
+        localBreakdowns = [:]
         self.decks = decks.compactMap { deck in
             // A deck the backend has not spoken about is left out rather than
             // shown as zeroes: absent and "none learned" are different claims.
@@ -361,14 +371,33 @@ public final class ProgressStore: CanonicalDataObserving {
 
     /// How much work the day owes, counted once for every screen.
     ///
-    /// The backend's own breakdown when it sent one; otherwise the whole-world
-    /// deck's queue, which spans every card. Summing the rows would
-    /// double-count, because a country belongs to the whole-world deck and to
-    /// its region at the same time.
+    /// The backend's own breakdown when it sent one; otherwise the queue of
+    /// the deck that spans every card (`queueDeck`).
     public var totalDue: Int {
         if let dueSummary { return dueSummary.totalDue }
-        if let whole = whole ?? decks.first(where: \.isCurated) { return whole.dueCards }
-        return decks.map(\.dueCards).max() ?? 0
+        return queueDeck?.dueCards ?? 0
+    }
+
+    /// What the figure in `totalDue` is made of (#503), from the same source
+    /// as the figure, so the parts add up to it.
+    ///
+    /// The backend's summary when a recent one arrived. Without one, a guest's
+    /// own count of the deck the figure was read from; an account gets
+    /// nothing, as the breakdown never had anything to say for a stale or
+    /// offline account — the device's count of an account is never shown
+    /// (ADR-016).
+    public var dueBreakdown: DueBreakdown? {
+        if let dueSummary { return DueBreakdown(summary: dueSummary) }
+        guard origin == .device, let deck = queueDeck else { return nil }
+        return localBreakdowns[deck.id]
+    }
+
+    /// The deck whose queue stands for the day's when the backend sent no
+    /// summary: the whole-world deck, which spans every card. Summing the rows
+    /// would double-count, because a country belongs to the whole-world deck
+    /// and to its region at the same time.
+    private var queueDeck: DeckProgressRow? {
+        whole ?? decks.first(where: \.isCurated) ?? decks.max { $0.dueCards < $1.dueCards }
     }
 
     /// The scheduler state of every answered card, keyed by card. The
