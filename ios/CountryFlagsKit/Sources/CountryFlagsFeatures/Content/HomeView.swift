@@ -445,10 +445,16 @@ public struct HomeView: View {
         // its own name — "All countries" is what the block is, and the count
         // is the detail under it, not the headline.
         //
-        // Not while a sitting is open, either: finishing it is the way on,
-        // and "start studying" beside "continue" is the same question twice.
-        if due == 0, continuable == nil, let deck = recommended(sections) {
-            deckPane(deck)
+        // An open sitting no longer hides it. It used to, on the grounds that
+        // "start studying" beside "continue" asked the same question twice;
+        // but the two are separate things — one is a place to go back to,
+        // the other is the deck itself — and hiding the deck behind a sitting
+        // left the learner no way to it from here until the sitting was
+        // finished (#497). The question is not asked twice as long as only
+        // one of them is white: under an open sitting the deck's action is
+        // glass, and "continue" is the one the screen recommends.
+        if due == 0, let deck = recommended(sections) {
+            deckPane(deck, isProminent: continuable == nil)
                 .devBlockID("home.deck")
         }
     }
@@ -457,21 +463,21 @@ public struct HomeView: View {
     /// the way in.
     ///
     /// The figure is the deck's size, set the way the known/learned figures
-    /// are — the number in the hero face, its word right under it — because
-    /// the two cards stand one above the other and read as one set of
-    /// counters (#497). It used to be "0 / 195 стран выучено", the learner's
-    /// standing out of the deck, which could not move on the first day
-    /// however much was studied; the standing is the card at the top now,
-    /// and this pane says what the deck is and offers it.
+    /// are — the number in the hero face, its word right under it — so the
+    /// cards on the screen read as one set of counters (#497). It used to be
+    /// "0 / 195 стран выучено", the learner's standing out of the deck, which
+    /// could not move on the first day however much was studied; the
+    /// standing is the card at the top now, and this pane says what the deck
+    /// is and offers it.
     ///
     /// Its own pane rather than `pane(...)`: the shared pane keeps its
     /// caption under the row the fan sets, a fan's height below the number,
     /// where this word belongs to the number and sits against it.
     ///
-    /// The action is always the white one: the pane is only drawn when no
-    /// sitting is open and nothing is due, so nothing else on the screen
-    /// claims it.
-    private func deckPane(_ deck: DeckRecord) -> some View {
+    /// White is spent once per screen, as in the shared pane: the action is
+    /// the white one unless a sitting is open, and then it is glass and the
+    /// sitting's "continue" is white.
+    private func deckPane(_ deck: DeckRecord, isProminent: Bool) -> some View {
         GlassCard(padding: DesignTokens.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
@@ -494,9 +500,15 @@ public struct HomeView: View {
                 }
                 .accessibilityElement(children: .combine)
 
-                Button(L10n.studyStart) { onOpenDeck(deck.id) }
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
+                if isProminent {
+                    Button(L10n.studyStart) { onOpenDeck(deck.id) }
+                        .buttonStyle(PrimaryActionStyle())
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
+                } else {
+                    Button(L10n.studyStart) { onOpenDeck(deck.id) }
+                        .buttonStyle(GlassActionStyle())
+                        .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
+                }
             }
         }
     }
@@ -935,24 +947,27 @@ public struct HomeView: View {
     /// So the block leads with the countries met at all, which moves with
     /// every new card, and keeps the learned figure beside it as what those
     /// grow into. One bar holds both: learned is a subset of known, so its
-    /// green starts at the same left edge, inside the white. While nothing is
+    /// green starts at the same left edge, inside the gold. While nothing is
     /// learned, one line answers the question a zero raises — why not yet —
     /// and goes away with the first learned country, when the answer is on
     /// the screen.
     ///
     /// On an ordinary day nothing else is on it: no label, no legend, no
-    /// third figure. The captions name the numbers, a symbol before each says
-    /// which is which at a glance — a flag for the countries met, the seal of
-    /// learned for the rest — and the bar is drawn in their colours.
+    /// third figure. The captions name the numbers, and a symbol before each
+    /// says which is which at a glance, in the colour that means it: a gold
+    /// flag for the countries met, a green seal for the learned. The bar
+    /// wears the same two colours, so it reads as their legend without
+    /// needing one.
     ///
     /// A finished day is said here too. It used to be a pane of its own in
     /// the queue's place, which repeated the learned figure, offered the
     /// catalogue beside the deck pane's own offer, and named the hour of the
     /// next portion — a promise the day could not keep, because with the
     /// allowance spent nothing opens at that hour. Now the card gains a title
-    /// over its figures, in the seal's green, and the line under the bar
-    /// gives the day's limit and when repeats come back. Still one button to
-    /// the progress tab with its chevron, and nothing inside it to press.
+    /// over its figures, in the section label's type and nothing more, and
+    /// the line under the bar gives the day's limit and when repeats come
+    /// back. Still one button to the progress tab with its chevron, and
+    /// nothing inside it to press.
     ///
     /// Shown whenever anything has been answered, first on the screen above
     /// whichever hero the day has, and never on a first visit, where both
@@ -974,7 +989,7 @@ public struct HomeView: View {
                 GlassCard(padding: DesignTokens.Spacing.large) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                         if isDayClosed {
-                            dayClosedTitle
+                            SectionLabel(L10n.homeDayDoneTitle)
                         }
 
                         HStack(alignment: .center, spacing: DesignTokens.Spacing.large) {
@@ -982,17 +997,19 @@ public struct HomeView: View {
                                 known,
                                 caption: L10n.homeKnownCaption(known),
                                 symbol: "flag.fill",
-                                symbolTint: .white.opacity(0.7)
+                                symbolTint: DesignTokens.Colors.gold
                             )
-                            // Dimmed at zero rather than green, the seal with
-                            // it: green is what learned looks like, and a
-                            // zero has not earned it yet.
+                            // The figure dims at zero rather than turning
+                            // green: green is what learned looks like, and a
+                            // zero has not earned it yet. The seal keeps its
+                            // green, because it names what is counted rather
+                            // than scoring it.
                             countFigure(
                                 learned,
                                 caption: L10n.homeLearnedCaption,
                                 tint: learned > 0 ? Self.learnedTint : Self.unearnedTint,
                                 symbol: "checkmark.seal.fill",
-                                symbolTint: learned > 0 ? Self.learnedTint : Self.unearnedTint
+                                symbolTint: Self.learnedTint
                             )
 
                             Spacer(minLength: 0)
@@ -1007,7 +1024,7 @@ public struct HomeView: View {
                         ProgressTrackView(
                             started: share(known, of: total),
                             learned: share(learned, of: total),
-                            startedTint: .white,
+                            startedTint: DesignTokens.Colors.gold,
                             learnedTint: Self.learnedTint
                         )
 
@@ -1031,19 +1048,6 @@ public struct HomeView: View {
             )
             .accessibilityHint(onOpenProgress == nil ? "" : L10n.homeKnownLearnedHint)
             .accessibilityIdentifier(AccessibilityIdentifier.homeKnownLearned)
-        }
-    }
-
-    /// The closed day's title: the section label's type, behind the seal in
-    /// the green of learned. A finished day earns the colour whatever its
-    /// figures say, the way the separate pane's seal did before it.
-    private var dayClosedTitle: some View {
-        HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
-            Image(systemName: "checkmark.seal.fill")
-                .font(DesignTokens.Typography.caption.weight(.semibold))
-                .foregroundStyle(Self.learnedTint)
-                .accessibilityHidden(true)
-            SectionLabel(L10n.homeDayDoneTitle)
         }
     }
 
@@ -1127,7 +1131,7 @@ public struct HomeView: View {
     /// sitting added to the deck. One meaning, one green, rather than a
     /// second shade of it here.
     private static let learnedTint = StudySessionResultView.green
-    /// A learned figure at zero, and its seal: present, and plainly not yet.
+    /// A learned figure at zero: present, and plainly not yet.
     private static let unearnedTint = Color.white.opacity(0.35)
 
     // MARK: - The queue, deck by deck

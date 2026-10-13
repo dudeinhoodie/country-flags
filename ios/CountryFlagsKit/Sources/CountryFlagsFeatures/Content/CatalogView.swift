@@ -328,9 +328,10 @@ struct ProgressTrackView: View {
     let started: Double
     let learned: Double
     /// The two fills. A deck row keeps the touched share dim and the learned
-    /// share white. Home's known/learned block draws known in white and
+    /// share white. Home's known/learned block draws known in gold and
     /// learned in green instead: there the two shares are named figures above
-    /// the bar, and the bar wears their colours so it needs no legend.
+    /// the bar, each behind a symbol in its colour, and the bar wears the
+    /// same colours so it needs no legend.
     var startedTint: Color = .white.opacity(0.4)
     var learnedTint: Color = .white
 
