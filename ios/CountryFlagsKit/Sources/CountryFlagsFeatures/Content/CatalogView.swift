@@ -327,33 +327,18 @@ public struct CatalogView: View {
 struct ProgressTrackView: View {
     let started: Double
     let learned: Double
-    /// The two fills. A deck row keeps the touched share dim and the learned
-    /// share white. Home's known/learned block draws known in white and
-    /// learned in green instead: there the two shares are named figures above
-    /// the bar, each behind a symbol in its colour, and the bar wears the
-    /// same colours so it needs no legend.
-    var startedTint: Color = .white.opacity(0.4)
-    var learnedTint: Color = .white
 
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 Capsule().fill(.white.opacity(0.15))
                 Capsule()
-                    .fill(startedTint)
+                    .fill(.white.opacity(0.4))
                     .frame(width: fillWidth(started, in: proxy.size.width))
                 Capsule()
-                    .fill(learnedTint)
+                    .fill(.white)
                     .frame(width: fillWidth(learned, in: proxy.size.width))
             }
-            // Flattened before anything above it applies an opacity. Home
-            // dims its blocks while the numbers are being checked, and an
-            // opacity reaching the layers one by one let the started fill
-            // show through the learned one: green over white turned into a
-            // third, paler colour, unlike the solid green of the seal it is
-            // the legend of. As one picture, the learned share stays its own
-            // colour, dimmed or not.
-            .compositingGroup()
         }
         .frame(height: DesignTokens.Layout.progressBarHeight)
         .accessibilityHidden(true)

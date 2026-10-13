@@ -949,17 +949,18 @@ public struct HomeView: View {
     /// So the block leads with the countries met at all, which moves with
     /// every new card, and keeps the learned figure beside it as what those
     /// grow into. One bar holds both: learned is a subset of known, so its
-    /// green starts at the same left edge, inside the white. While nothing is
+    /// share starts at the same left edge, inside the known one. The bar is
+    /// the catalogue's deck-row bar, known in grey and learned in white over
+    /// it; a green learned share over a white known one met in a third
+    /// colour, and the owner turned it down (13.10). While nothing is
     /// learned, one line answers the question a zero raises — why not yet —
     /// and goes away with the first learned country, when the answer is on
     /// the screen.
     ///
     /// On an ordinary day nothing else is on it: no label, no legend, no
     /// third figure. The captions name the numbers, and a symbol before each
-    /// says which is which at a glance, in the colour that means it: a white
-    /// flag for the countries met, a green seal for the learned. The bar
-    /// wears the same two colours, so it reads as their legend without
-    /// needing one.
+    /// says which is which at a glance: a white flag for the countries met,
+    /// a green seal for the learned.
     ///
     /// A finished day is said here too. It used to be a pane of its own in
     /// the queue's place, which repeated the learned figure, offered the
@@ -1027,9 +1028,7 @@ public struct HomeView: View {
 
                         ProgressTrackView(
                             started: share(known, of: total),
-                            learned: share(learned, of: total),
-                            startedTint: .white,
-                            learnedTint: Self.learnedTint
+                            learned: share(learned, of: total)
                         )
 
                         if let line = knownLearnedFootnote(
@@ -1126,10 +1125,10 @@ public struct HomeView: View {
         total > 0 ? min(1, Double(count) / Double(total)) : 0
     }
 
-    /// The green of "learned" on this screen, such as the seal and the
-    /// learned share of the bar (the learned figure itself stays white): the
-    /// saturated system green the design tokens name for it, the one the
-    /// finished-day seal wore.
+    /// The green of "learned" on this screen, which only the seal wears (the
+    /// learned figure stays white, and the bar is the catalogue's white and
+    /// grey): the saturated system green the design tokens name for it, the
+    /// one the finished-day seal wore.
     private static let learnedTint = DesignTokens.Colors.learned
     /// A learned figure at zero: present, and plainly not yet.
     private static let unearnedTint = Color.white.opacity(0.35)
