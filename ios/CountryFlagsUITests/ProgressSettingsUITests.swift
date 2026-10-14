@@ -75,8 +75,8 @@ final class ProgressSettingsUITests: XCTestCase {
     /// Two answers and no more: the block is there from the first started
     /// card, long before anything can be learned — which is why it replaced
     /// the deck pane's "0 / 195", a figure that could not move on the first
-    /// day. The sitting is left open, so the block stands under the resume
-    /// pane rather than the deck pane; it follows whichever hero the day has.
+    /// day. The sitting is left open, so the block stands over the resume
+    /// pane as well as the deck pane; it leads whichever hero the day has.
     func testTheKnownCountriesOnHomeOpenTheProgressTab() {
         let app = launch(arguments: ["-reset-store"])
 
@@ -116,6 +116,14 @@ final class ProgressSettingsUITests: XCTestCase {
         XCTAssertTrue(block.waitForExistence(timeout: 30), app.debugDescription)
         // A string catalog key must never reach the interface.
         XCTAssertFalse(block.label.contains("home.known_learned"), app.debugDescription)
+        // The open sitting does not hide the deck: the two answers were both
+        // remembered, so nothing is due for hours, and the deck stays on
+        // offer beside "continue" rather than behind it.
+        XCTAssertTrue(
+            app.buttons["home.continue"].waitForExistence(timeout: 15),
+            app.debugDescription
+        )
+        XCTAssertTrue(app.buttons["home.deck.ALL"].exists, app.debugDescription)
 
         block.tap()
 

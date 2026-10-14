@@ -297,12 +297,9 @@ public struct RootView: View {
                             )
                         )
                     },
-                    // The catalog is a tab, not a push: sending the learner
-                    // there as a stacked screen would leave a back arrow over
-                    // a tab bar that already shows where they are.
-                    onOpenCatalog: { router.tab = .catalog },
-                    // A tab for the same reason: the counts on Home are the
-                    // short form of the progress screen, and it is a place.
+                    // Progress is a tab, not a push: sending the learner there
+                    // as a stacked screen would leave a back arrow over a tab
+                    // bar that already shows where they are.
                     onOpenProgress: { router.tab = .progress },
                     onStartStudy: { deckID, size, mode, composition in
                         router.push(
@@ -628,7 +625,6 @@ public enum AccessibilityIdentifier {
     public static let storeRecoveryTitle = "root.storeRecovery.title"
     public static let storeRecoveryContinue = "root.storeRecovery.continue"
 
-    public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"
     public static let contentStatusBanner = "content.statusBanner"
     public static let contentPlaceholderTitle = "content.placeholder.title"
@@ -664,7 +660,6 @@ public enum AccessibilityIdentifier {
         "home.due.\(code)"
     }
 
-    public static let homeDueEmpty = "home.due.empty"
     public static let homeFlagOfTheDay = "home.flagOfTheDay"
     /// The known/learned block, which is one button to the progress tab.
     public static let homeKnownLearned = "home.knownLearned"

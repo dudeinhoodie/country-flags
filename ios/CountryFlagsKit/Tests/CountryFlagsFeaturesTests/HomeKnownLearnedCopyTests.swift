@@ -50,4 +50,18 @@ final class HomeKnownLearnedCopyTests: XCTestCase {
         XCTAssertTrue(line.contains("195"), line)
         XCTAssertFalse(line.contains("%"), line)
     }
+
+    /// The finished day's line names the limit, declined by it.
+    func testTheDayDoneLineDeclinesWithTheLimit() {
+        let one = L10n.homeDayDoneLimit(1)
+        let several = L10n.homeDayDoneLimit(5)
+
+        XCTAssertTrue(one.contains("1"), one)
+        XCTAssertTrue(several.contains("5"), several)
+        XCTAssertNotEqual(
+            one.replacingOccurrences(of: "1", with: ""),
+            several.replacingOccurrences(of: "5", with: ""),
+            "the count is formatted in but the plural rule is not applied"
+        )
+    }
 }

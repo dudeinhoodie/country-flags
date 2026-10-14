@@ -3275,139 +3275,6 @@
         }
       }
     },
-    "home.cleared.in_progress": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Still learning"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ещё учатся"
-          }
-        }
-      }
-    },
-    "home.cleared.in_progress_count": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "few": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld countries still settling"
-                }
-              },
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld countries still settling"
-                }
-              },
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld country still settling"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld countries still settling"
-                }
-              }
-            }
-          }
-        },
-        "ru": {
-          "variations": {
-            "plural": {
-              "few": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "В работе %lld страны"
-                }
-              },
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "В работе %lld стран"
-                }
-              },
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "В работе %lld страна"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "В работе %lld страны"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "home.cleared.learned": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Countries learned"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стран выучено"
-          }
-        }
-      }
-    },
-    "home.cleared.next_portion": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The next portion opens at %@. You could take a new deck — nobody said you cannot learn ahead."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Следующая порция откроется в %@. Можно взять новую колоду — учить наперёд никто не запрещал."
-          }
-        }
-      }
-    },
-    "home.cleared.subtitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The cards come back when they are due. You could take a new deck — nobody said you cannot learn ahead."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Карточки вернутся, когда придёт их срок. Можно взять новую колоду — учить наперёд никто не запрещал."
-          }
-        }
-      }
-    },
     "home.continue": {
       "extractionState": "manual",
       "localizations": {
@@ -3820,6 +3687,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "выучено %1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "home.known_learned.day_done.limit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Today's limit is %lld country. Repeats come back tomorrow."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Today's limit is %lld countries. Repeats come back tomorrow."
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Норма дня — %lld страна. Повторения вернутся завтра."
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Норма дня — %lld страны. Повторения вернутся завтра."
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Норма дня — %lld стран. Повторения вернутся завтра."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Норма дня — %lld страны. Повторения вернутся завтра."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "home.known_learned.day_done.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done for today"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На сегодня всё"
           }
         }
       }
