@@ -105,10 +105,11 @@ public enum DesignTokens {
         /// finished deck.
         public static let gold = Color(red: 0.94, green: 0.82, blue: 0.55)
         /// Learned: the system's own green, at full saturation. On Home it is
-        /// the seal before the learned figure, and only that: the bar under
-        /// it stays the catalogue's white and grey. It is the green the
-        /// finished-day seal wore, chosen over the result screen's softer
-        /// shade for being the saturated one.
+        /// the seal before the learned figure and the review pane's line
+        /// about what a repeat can finish; the bar under the figure stays the
+        /// catalogue's white and grey. It is the green the finished-day seal
+        /// wore, chosen over the result screen's softer shade for being the
+        /// saturated one.
         public static let learned = Color.green
     }
 

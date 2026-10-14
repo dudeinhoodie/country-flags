@@ -1182,10 +1182,10 @@ public struct HomeView: View {
         total > 0 ? min(1, Double(count) / Double(total)) : 0
     }
 
-    /// The green of "learned" on this screen, which only the seal wears (the
-    /// learned figure stays white, and the bar is the catalogue's white and
-    /// grey): the saturated system green the design tokens name for it, the
-    /// one the finished-day seal wore.
+    /// The green of "learned" on this screen, worn by the seal and by the
+    /// review pane's learnable line (the learned figure stays white, and the
+    /// bar is the catalogue's white and grey): the saturated system green the
+    /// design tokens name for it, the one the finished-day seal wore.
     private static let learnedTint = DesignTokens.Colors.learned
     /// A learned figure at zero: present, and plainly not yet.
     private static let unearnedTint = Color.white.opacity(0.35)
