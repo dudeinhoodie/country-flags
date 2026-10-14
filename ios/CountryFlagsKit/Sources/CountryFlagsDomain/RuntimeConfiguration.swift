@@ -33,6 +33,10 @@ public struct RuntimeConfiguration: Hashable, Sendable {
     /// check requires both to be set and to answer.
     public let privacyPolicyURL: URL?
     public let termsURL: URL?
+    /// The app's page in the App Store, which the update screen opens (#447).
+    /// Nil until the App Store identifier is configured; the screen then
+    /// offers no button.
+    public let appStoreURL: URL?
     /// What this build calls itself, for the about screen and for anybody
     /// reporting a problem. Defaulted rather than optional: a build always
     /// has a version, and a screen that shows one has nothing to branch on.
@@ -47,6 +51,7 @@ public struct RuntimeConfiguration: Hashable, Sendable {
         googleServerClientID: String? = nil,
         privacyPolicyURL: URL? = nil,
         termsURL: URL? = nil,
+        appStoreURL: URL? = nil,
         appVersion: String = "0",
         appBuild: String = "0"
     ) {
@@ -57,6 +62,7 @@ public struct RuntimeConfiguration: Hashable, Sendable {
         self.googleServerClientID = googleServerClientID
         self.privacyPolicyURL = privacyPolicyURL
         self.termsURL = termsURL
+        self.appStoreURL = appStoreURL
         self.appVersion = appVersion
         self.appBuild = appBuild
     }

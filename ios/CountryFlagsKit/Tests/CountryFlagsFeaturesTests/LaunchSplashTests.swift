@@ -21,6 +21,7 @@ final class LaunchSplashTests: XCTestCase {
     func testAFirstLaunchStillReadingTheCatalogIsAWait() {
         XCTAssertEqual(
             LaunchSplash.behind(
+                isUpdateRequired: false,
                 isLaunchWaiting: true,
                 launchWaitFails: false,
                 catalog: .loading,
@@ -36,6 +37,7 @@ final class LaunchSplashTests: XCTestCase {
     func testAFailedWaitIsAMessage() {
         XCTAssertEqual(
             LaunchSplash.behind(
+                isUpdateRequired: false,
                 isLaunchWaiting: true,
                 launchWaitFails: true,
                 catalog: readyCatalog,
@@ -52,6 +54,7 @@ final class LaunchSplashTests: XCTestCase {
     func testHomeIsLoadingWhileTheLaunchRunIsOut() {
         XCTAssertEqual(
             LaunchSplash.behind(
+                isUpdateRequired: false,
                 isLaunchWaiting: false,
                 launchWaitFails: false,
                 catalog: readyCatalog,
@@ -65,6 +68,7 @@ final class LaunchSplashTests: XCTestCase {
     func testHomeIsLoadingWhileAnAccountsCountsHaveNeverArrived() {
         XCTAssertEqual(
             LaunchSplash.behind(
+                isUpdateRequired: false,
                 isLaunchWaiting: false,
                 launchWaitFails: false,
                 catalog: readyCatalog,
@@ -78,6 +82,7 @@ final class LaunchSplashTests: XCTestCase {
     func testHomeIsReadyOnceTheCatalogAndTheCountsAreIn() {
         XCTAssertEqual(
             LaunchSplash.behind(
+                isUpdateRequired: false,
                 isLaunchWaiting: false,
                 launchWaitFails: false,
                 catalog: readyCatalog,
@@ -94,6 +99,7 @@ final class LaunchSplashTests: XCTestCase {
         for catalog: ContentViewState<[CatalogSection]> in [.empty, .failed(.offline)] {
             XCTAssertEqual(
                 LaunchSplash.behind(
+                    isUpdateRequired: false,
                     isLaunchWaiting: false,
                     launchWaitFails: false,
                     catalog: catalog,
@@ -101,6 +107,25 @@ final class LaunchSplashTests: XCTestCase {
                     isSettling: true
                 ),
                 .home
+            )
+        }
+    }
+
+    /// A build the backend no longer supports stops at the update screen,
+    /// whatever the launch underneath would have been doing — its requests
+    /// never run there, so the wait it would otherwise report never ends.
+    func testAnUnsupportedBuildIsTheUpdateScreen() {
+        for isLaunchWaiting in [true, false] {
+            XCTAssertEqual(
+                LaunchSplash.behind(
+                    isUpdateRequired: true,
+                    isLaunchWaiting: isLaunchWaiting,
+                    launchWaitFails: false,
+                    catalog: .loading,
+                    isAwaitingProgress: true,
+                    isSettling: true
+                ),
+                .updateRequired
             )
         }
     }
@@ -122,6 +147,12 @@ final class LaunchSplashTests: XCTestCase {
     /// it.
     func testItGivesWayToTheFailureScreenAtOnce() {
         XCTAssertTrue(LaunchSplash.givesWay(to: .launchFailure, hasTimedOut: false))
+    }
+
+    /// The update screen is a message, and the one way on is on it: the
+    /// splash must not stand its cap in front of it.
+    func testItGivesWayToTheUpdateScreenAtOnce() {
+        XCTAssertTrue(LaunchSplash.givesWay(to: .updateRequired, hasTimedOut: false))
     }
 
     func testItGivesWayToAReadyHome() {

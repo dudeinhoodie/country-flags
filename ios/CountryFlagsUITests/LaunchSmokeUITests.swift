@@ -31,6 +31,44 @@ final class LaunchSmokeUITests: XCTestCase {
         XCTAssertFalse(hero.label.contains("study."), app.debugDescription)
     }
 
+    /// A build the backend no longer supports stops at the update screen,
+    /// with a way to the App Store and no way into the app (#447).
+    func testAnUnsupportedBuildStopsAtTheUpdateScreen() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-reset-store", "-client-update", "required"]
+        app.launch()
+
+        let title = app.staticTexts["root.updateRequired.title"]
+        XCTAssertTrue(title.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertFalse(title.label.contains("update."), app.debugDescription)
+        XCTAssertTrue(app.buttons["root.updateRequired.openStore"].exists, app.debugDescription)
+        // Blocking means nothing behind it: no Home, no tab bar.
+        XCTAssertFalse(app.buttons["home.deck.ALL"].exists, app.debugDescription)
+        XCTAssertFalse(app.tabBars.firstMatch.exists, app.debugDescription)
+    }
+
+    /// A recommended update is a suggestion: it can be waved away, and the
+    /// app is there behind it (#447).
+    func testARecommendedUpdateDoesNotBlock() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-reset-store", "-client-update", "recommended"]
+        app.launch()
+
+        // The alert puts its button in the hierarchy twice -- the row and the
+        // element inside it -- so the query names which one to press.
+        let later = app.alerts.buttons
+            .matching(identifier: "root.updateRecommended.later")
+            .firstMatch
+        XCTAssertTrue(later.waitForExistence(timeout: 30), app.debugDescription)
+        later.tap()
+
+        XCTAssertTrue(
+            app.buttons["home.deck.ALL"].waitForExistence(timeout: 30),
+            app.debugDescription
+        )
+        XCTAssertFalse(app.staticTexts["root.updateRequired.title"].exists)
+    }
+
     /// A store that will not open leads to a screen, not a crash (#445).
     ///
     /// The launch finds bytes that are not a database where the store should

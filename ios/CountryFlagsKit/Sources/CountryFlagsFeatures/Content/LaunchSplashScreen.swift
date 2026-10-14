@@ -129,6 +129,12 @@ enum LaunchSplash {
 
     /// What the splash is standing in front of.
     enum Behind: Equatable {
+        /// The screen a build the backend no longer supports stops at (#447),
+        /// with its way to the App Store. A message, and the only one the
+        /// launch will ever show: the launch's requests do not run behind it,
+        /// so the wait under it never ends and the splash would always sit
+        /// out its cap.
+        case updateRequired
         /// The launch wait, still waiting: a spinner and a line about the
         /// flags or the account. A loading view, which is what the splash
         /// replaces.
@@ -148,6 +154,8 @@ enum LaunchSplash {
     /// behind it are drawn from.
     ///
     /// - Parameters:
+    ///   - isUpdateRequired: whether the build is stopped at the update
+    ///     screen, which stands in front of everything else.
     ///   - isLaunchWaiting: whether the launch wait is up rather than Home.
     ///   - launchWaitFails: whether that wait is reporting a failure
     ///     (`LaunchWaitScreen.reportsFailure`).
@@ -157,12 +165,16 @@ enum LaunchSplash {
     ///   - isSettling: the windows Home is told the numbers are about to
     ///     change in — the launch's own run among them.
     static func behind(
+        isUpdateRequired: Bool,
         isLaunchWaiting: Bool,
         launchWaitFails: Bool,
         catalog: ContentViewState<[CatalogSection]>,
         isAwaitingProgress: Bool,
         isSettling: Bool
     ) -> Behind {
+        if isUpdateRequired {
+            return .updateRequired
+        }
         if isLaunchWaiting {
             return launchWaitFails ? .launchFailure : .launchWait
         }
@@ -189,7 +201,7 @@ enum LaunchSplash {
     /// behind the app's name.
     static func givesWay(to behind: Behind, hasTimedOut: Bool) -> Bool {
         switch behind {
-        case .launchFailure, .home: true
+        case .updateRequired, .launchFailure, .home: true
         case .launchWait, .homeLoading: hasTimedOut
         }
     }

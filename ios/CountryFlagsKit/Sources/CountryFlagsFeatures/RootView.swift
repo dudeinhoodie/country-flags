@@ -43,6 +43,11 @@ public struct RootView: View {
     @AppStorage(WelcomeKeys.seen) private var hasSeenWelcome = false
     /// The developer switch's request to show it again.
     @AppStorage(WelcomeKeys.devRequest) private var isWelcomeRequested = false
+    /// The newest build whose recommendation was answered with "not now". The
+    /// suggestion is made once per build the backend recommends, not on every
+    /// launch until the person gives in.
+    @AppStorage("client_update.dismissed_latest") private var dismissedRecommendation = ""
+    @Environment(\.openURL) private var openURL
     /// What the launch had to do because the store would not open, until the
     /// person has read it. Nil on every ordinary launch.
     @State private var storeRecovery: StoreRecoveryNotice?
@@ -226,10 +231,19 @@ public struct RootView: View {
         // A screen rather than an overlay with a gesture: there is nothing
         // behind it worth reaching, so it cannot be dismissed.
         //
-        // A store that would not open comes before all of it (#445): the app
-        // is running on a fresh one, and the person hears why their progress
-        // is missing before they see it missing.
-        if let notice = storeRecovery {
+        // A build the backend no longer supports stops before all of it
+        // (#447). The launch tasks below do not run, so an unsupported build
+        // neither syncs nor studies; the store is left exactly as it is for
+        // the update to pick up.
+        //
+        // A store that would not open comes next (#445): the app is running
+        // on a fresh one, and the person hears why their progress is missing
+        // before they see it missing. Behind the update screen it waits: the
+        // notice is kept until it is read, so the updated build shows it.
+        if case .required = featureFlags.updateRequirement {
+            UpdateRequiredScreen(appStoreURL: configuration.appStoreURL)
+                .preferredColorScheme(.dark)
+        } else if let notice = storeRecovery {
             StoreRecoveryScreen(notice: notice) {
                 onStoreRecoveryRead()
                 withAnimation(.snappy) { storeRecovery = nil }
@@ -299,11 +313,18 @@ public struct RootView: View {
         sync.status.phase == .syncing || content.status.phase != .idle
     }
 
+    /// Whether this build is stopped at the update screen (#447).
+    private var isUpdateRequired: Bool {
+        if case .required = featureFlags.updateRequirement { return true }
+        return false
+    }
+
     /// Whether the splash should go now. Read only while it is up, so a
     /// launch that has let it go stops observing everything this asks.
     private var splashGivesWay: Bool {
         guard splash == .shown else { return false }
         let behind = LaunchSplash.behind(
+            isUpdateRequired: isUpdateRequired,
             isLaunchWaiting: launchWait != nil,
             launchWaitFails: LaunchWaitScreen.reportsFailure(
                 sync.status.lastFailure,
@@ -395,6 +416,54 @@ public struct RootView: View {
                 if settings == nil { settings = makeSettingsStore() }
                 await settings?.load()
             }
+            // A recommended update is a suggestion, so it is an alert the
+            // person can wave away, and the app goes on behind it (#447).
+            .alert(
+                L10n.updateRecommendedTitle,
+                isPresented: isPresentingUpdateRecommendation
+            ) {
+                if let appStoreURL = configuration.appStoreURL {
+                    Button(L10n.updateRecommendedUpdate) {
+                        dismissRecommendation()
+                        openURL(appStoreURL)
+                    }
+                    .accessibilityIdentifier(AccessibilityIdentifier.updateRecommendedUpdate)
+                }
+                Button(L10n.updateRecommendedLater, role: .cancel) {
+                    dismissRecommendation()
+                }
+                .accessibilityIdentifier(AccessibilityIdentifier.updateRecommendedLater)
+            } message: {
+                Text(L10n.updateRecommendedMessage)
+            }
+    }
+
+    /// The build the backend recommends, when it recommends one.
+    private var recommendedVersion: String? {
+        guard case .recommended(let latest) = featureFlags.updateRequirement else { return nil }
+        return latest
+    }
+
+    /// Up once per recommended build, and never over a sheet the person is
+    /// already in the middle of — nor over the splash: an alert is presented
+    /// above the whole root, as the welcome is, and would stand on the app's
+    /// mark with the fade into Home happening behind it.
+    private var isPresentingUpdateRecommendation: Binding<Bool> {
+        Binding(
+            get: {
+                guard let recommendedVersion else { return false }
+                return recommendedVersion != dismissedRecommendation
+                    && !isPresentingWelcome && !isPresentingSignIn
+                    && splash == .gone
+            },
+            set: { isPresented in
+                if !isPresented { dismissRecommendation() }
+            }
+        )
+    }
+
+    private func dismissRecommendation() {
+        if let recommendedVersion { dismissedRecommendation = recommendedVersion }
     }
 
     private var tabs: some View {
@@ -749,6 +818,11 @@ public enum AccessibilityIdentifier {
     /// the way out of it when the backend cannot be reached.
     public static let launchWait = "root.launchWait"
     public static let launchWaitRetry = "root.launchWait.retry"
+    /// The update a build is stopped at, or has suggested to it.
+    public static let updateRequiredTitle = "root.updateRequired.title"
+    public static let updateRequiredOpenStore = "root.updateRequired.openStore"
+    public static let updateRecommendedUpdate = "root.updateRecommended.update"
+    public static let updateRecommendedLater = "root.updateRecommended.later"
     /// The cold launch's splash: the app's mark and name, one element read as
     /// the name. It leaves the tree when its fade ends, in the same update
     /// that makes the screen behind it readable.
