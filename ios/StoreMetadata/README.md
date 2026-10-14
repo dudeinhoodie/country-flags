@@ -35,7 +35,8 @@ passes every check in the script.
   the same word and adds a descriptor after it, which the store permits and
   search rewards; what it may not do is start with a different name than the
   one under the icon.
-- `MARKETING_VERSION` is `0.1.0`; a listing at 0.1.0 reads as pre-release.
+- `MARKETING_VERSION` is `1.0.0`, raised from `0.2.0` for the first submission:
+  a listing below 1.0 reads as pre-release.
 - The privacy labels are filled from the table in
   [`docs/ios/release-checklist.md`](../../docs/ios/release-checklist.md), which
   maps them one to one onto `PrivacyInfo.xcprivacy`.

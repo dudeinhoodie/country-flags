@@ -326,13 +326,13 @@ jobs:
           # update screen in front of the whole catalogue; this one only
           # decides who is told that paid decks exist.
           #
-          # 0.2.0 is what every scheme builds (ios/Config/App.xcconfig) and it
-          # predates the StoreKit work, so here it means "a build from master"
-          # rather than a particular release — acceptable on dev, where the
-          # only clients are ones we rebuild. Production must not copy this
-          # value: its gate has to name a version bumped for the StoreKit
-          # client, or an older build would be handed a locked deck and would
-          # show it as free.
+          # 0.2.0 predates the StoreKit work and is older than anything a
+          # scheme builds now (ios/Config/App.xcconfig), so here it means "any
+          # build from master" rather than a particular release — acceptable on
+          # dev, where the only clients are ones we rebuild. Production must
+          # not copy this value: its gate has to name a version bumped for the
+          # StoreKit client, or an older build would be handed a locked deck
+          # and would show it as free.
           PAID_CONTENT_MINIMUM_CLIENT_VERSIONS: ios=0.2.0
 
       # Read at deploy time rather than duplicated into GitHub: the credential
