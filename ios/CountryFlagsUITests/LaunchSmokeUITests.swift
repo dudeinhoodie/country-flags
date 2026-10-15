@@ -97,6 +97,9 @@ final class LaunchSmokeUITests: XCTestCase {
 
         let title = app.staticTexts["root.storeRecovery.title"]
         XCTAssertTrue(title.waitForExistence(timeout: 20), app.debugDescription)
+        // The explanation is the first screen, not something the launch
+        // splash stands in front of (#501).
+        XCTAssertFalse(app.launchSplash.exists, app.debugDescription)
         XCTAssertFalse(title.label.isEmpty)
         XCTAssertFalse(title.label.contains("store_recovery."), app.debugDescription)
 
@@ -215,6 +218,8 @@ final class LaunchSmokeUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += ["-reset-store"]
         app.launch()
+        // The gear is the first thing pressed, and it lives in a bar.
+        app.waitForTheSplashToLeave()
 
         let openSettings = app.buttons["root.shell.openSettings"]
         XCTAssertTrue(openSettings.waitForExistence(timeout: 10))
@@ -243,6 +248,35 @@ final class LaunchSmokeUITests: XCTestCase {
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["home.deck.ALL"].waitForExistence(timeout: 5))
+    }
+
+    /// A cold launch opens on the app's mark and name, and hands over to Home
+    /// (#501) — where it used to show a spinner and then Home in skeletons.
+    ///
+    /// The splash is read when the runner reaches it in time. A Mock guest is
+    /// ready in a moment, and the splash may already be on its way out by the
+    /// first look, so its presence is not required; what it says when it is
+    /// seen is. What is required every time is the hand-over: Home arrives
+    /// with the splash gone — never readable under it — and takes the first
+    /// touch.
+    func testAColdLaunchHandsTheSplashOverToHome() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-reset-store"]
+        app.launch()
+
+        let splash = app.launchSplash
+        // A snapshot rather than two reads: the splash can leave between
+        // finding it and asking for its label.
+        if splash.waitForExistence(timeout: 2), let seen = try? splash.snapshot() {
+            // One element, read as the app's name: never empty, never a key.
+            XCTAssertFalse(seen.label.isEmpty, app.debugDescription)
+            XCTAssertFalse(seen.label.contains("shell."), app.debugDescription)
+        }
+
+        let hero = app.buttons["home.deck.ALL"]
+        XCTAssertTrue(hero.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertFalse(splash.exists, app.debugDescription)
+        XCTAssertTrue(hero.isHittable, app.debugDescription)
     }
 
     // MARK: - Helpers
@@ -305,10 +339,12 @@ final class LaunchSmokeUITests: XCTestCase {
             .firstMatch
     }
 
+    /// Launched and past the splash: the first move here is a tab.
     private func launch(_ arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments += arguments
         app.launch()
+        app.waitForTheSplashToLeave()
         return app
     }
 }

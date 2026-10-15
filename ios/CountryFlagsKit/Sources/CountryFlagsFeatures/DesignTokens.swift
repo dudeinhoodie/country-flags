@@ -123,6 +123,37 @@ public enum DesignTokens {
         public static let groundLightRadius: CGFloat = 380
     }
 
+    /// The splash a cold launch opens on (#501), as the owner's preview draws
+    /// it (13.10): the icon's tilted sheet on a navy ground, the name in cream
+    /// under it.
+    ///
+    /// Sizes are shares of the screen's width, because the preview scales with
+    /// the phone: it was drawn for 390 and 430 point screens, and every length
+    /// in it grows by the ratio of the two. The numbers are measured off those
+    /// two drawings and agree with both to a third of a point.
+    public enum Splash {
+        /// The ground, and the system launch screen's `LaunchBackground`: one
+        /// navy, so the step from the system's screen to this one is not seen.
+        /// The mark is cut out of the preview with this ground around it, so
+        /// its box has no edge on it either.
+        public static let ground = Color(.sRGB, red: 4 / 255, green: 23 / 255, blue: 79 / 255)
+        /// The name's cream.
+        public static let name = Color(.sRGB, red: 248 / 255, green: 232 / 255, blue: 206 / 255)
+        /// The mark's box, the sheet with a little ground around it, as a
+        /// share of the screen's width. A picture, so it does not grow with
+        /// Dynamic Type; the name under it does.
+        public static let markWidthShare: CGFloat = 0.5705
+        /// The box's height over its width: the 736 by 686 pixels it was cut to.
+        public static let markAspect: CGFloat = 686 / 736
+        /// Where the box's centre stands, as a share of the screen's height.
+        public static let markCentreShare: CGFloat = 0.4603
+        /// From the box to the top of the name's line, as a share of the width.
+        public static let nameSpacingShare: CGFloat = 0.0983
+        /// The name's size at the default text size, as a share of the width.
+        /// Bold in the system face, which is what the preview set it in.
+        public static let nameSizeShare: CGFloat = 0.091
+    }
+
     /// The sign-in screen's tray: the one light surface in the app.
     public enum SignIn {
         /// Light enough for Apple's black button, which is drawn for light

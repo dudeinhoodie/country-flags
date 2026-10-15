@@ -71,7 +71,18 @@ struct LaunchWaitScreen: View {
     /// the server is what could not be reached — but what is reassuring
     /// depends on what the learner has: an account has progress that is safe
     /// somewhere, and a first launch has none to speak of.
-    private var isWaiting: Bool { failure == nil || isRetrying }
+    private var isWaiting: Bool { !Self.reportsFailure(failure, isRetrying: isRetrying) }
+
+    /// Whether the screen is saying the server could not be reached, with
+    /// its retry, rather than waiting.
+    ///
+    /// The one state of this screen that carries a message, so it is also
+    /// the one the launch splash gives way to at once (#501). Asked of the
+    /// screen rather than worked out again beside it, so the two cannot come
+    /// to disagree about when the message is up.
+    nonisolated static func reportsFailure(_ failure: SyncFailure?, isRetrying: Bool) -> Bool {
+        failure != nil && !isRetrying
+    }
 
     private var title: String {
         guard isWaiting else { return L10n.launchFailedTitle }
@@ -93,7 +104,7 @@ struct LaunchWaitScreen: View {
     @ViewBuilder
     private var content: some View {
         VStack(spacing: DesignTokens.Spacing.large) {
-            if failure == nil || isRetrying {
+            if isWaiting {
                 ProgressView()
                     .controlSize(.large)
                     .tint(.white)
@@ -118,7 +129,7 @@ struct LaunchWaitScreen: View {
             }
             .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
 
-            if failure != nil, !isRetrying {
+            if !isWaiting {
                 Button(L10n.launchRetry) {
                     Task { await retry() }
                 }
