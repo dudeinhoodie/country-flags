@@ -24,6 +24,10 @@ import { DeckAccessService } from "../commerce/deck-access.service";
 import type { ReviewBatchRequest } from "../reviews/review-batch.request";
 import { ReviewsService } from "../reviews/reviews.service";
 import {
+  isAccountUnavailable,
+  lockAccountForWrite,
+} from "../users/account-write-guard";
+import {
   guestImportRequestHash,
   type GuestImportRequest,
   type GuestReviewRequest,
@@ -187,7 +191,10 @@ export class GuestImportsService {
           rejectedEventCount += 1;
         }
       } catch (error) {
-        if (error instanceof HttpException) {
+        // A refused review is this review's problem; a refused account is
+        // the whole import's. An account deleted mid-import stops it here
+        // instead of rejecting the remaining reviews one by one.
+        if (error instanceof HttpException && !isAccountUnavailable(error)) {
           rejectedEventCount += 1;
           continue;
         }
@@ -202,6 +209,7 @@ export class GuestImportsService {
           ? GuestImportStatus.PARTIAL
           : GuestImportStatus.FAILED;
     const completed = await this.database.$transaction(async (transaction) => {
+      await lockAccountForWrite(transaction, userId);
       // Only the lease holder writes the outcome. An attempt that lost its
       // lease while ingesting — it stalled past the lease and a retry took
       // over — leaves the outcome to the attempt that owns it now.
@@ -278,19 +286,22 @@ export class GuestImportsService {
     const now = new Date();
     const leaseExpiresAt = new Date(now.getTime() + IMPORT_LEASE_MS);
     try {
-      return {
-        operation: await this.database.guestImportOperation.create({
-          data: {
-            id: request.migrationId,
-            userId,
-            sourceInstallIdHash,
-            requestHash,
-            leaseToken,
-            leaseExpiresAt,
-          },
-        }),
-        leaseToken,
-      };
+      return await this.database.$transaction(async (transaction) => {
+        await lockAccountForWrite(transaction, userId);
+        return {
+          operation: await transaction.guestImportOperation.create({
+            data: {
+              id: request.migrationId,
+              userId,
+              sourceInstallIdHash,
+              requestHash,
+              leaseToken,
+              leaseExpiresAt,
+            },
+          }),
+          leaseToken,
+        };
+      });
     } catch (error) {
       if (!isUniqueViolation(error)) {
         throw error;
@@ -412,31 +423,34 @@ export class GuestImportsService {
     userId: string,
     sourceInstallIdHash: string,
   ): Promise<string> {
-    const settings = await this.database.userSettings.findUnique({
-      where: { userId },
-      select: { contentLocale: true, timezone: true },
-    });
-    const device = await this.database.device.upsert({
-      where: {
-        userId_clientGeneratedId: {
+    return this.database.$transaction(async (transaction) => {
+      await lockAccountForWrite(transaction, userId);
+      const settings = await transaction.userSettings.findUnique({
+        where: { userId },
+        select: { contentLocale: true, timezone: true },
+      });
+      const device = await transaction.device.upsert({
+        where: {
+          userId_clientGeneratedId: {
+            userId,
+            clientGeneratedId: `guest-import:${sourceInstallIdHash}`,
+          },
+        },
+        create: {
           userId,
           clientGeneratedId: `guest-import:${sourceInstallIdHash}`,
+          platform: "IOS",
+          appVersion: "0.0.0",
+          locale: settings?.contentLocale ?? "ru",
+          timezone: settings?.timezone ?? "UTC",
         },
-      },
-      create: {
-        userId,
-        clientGeneratedId: `guest-import:${sourceInstallIdHash}`,
-        platform: "IOS",
-        appVersion: "0.0.0",
-        locale: settings?.contentLocale ?? "ru",
-        timezone: settings?.timezone ?? "UTC",
-      },
-      // The reviews below are accepted only from a device that is not
-      // removed, so a new import from the same installation restores it.
-      update: { lastSeenAt: new Date(), deletedAt: null },
-      select: { id: true },
+        // The reviews below are accepted only from a device that is not
+        // removed, so a new import from the same installation restores it.
+        update: { lastSeenAt: new Date(), deletedAt: null },
+        select: { id: true },
+      });
+      return device.id;
     });
-    return device.id;
   }
 
   /**
@@ -501,6 +515,7 @@ export class GuestImportsService {
       )
       .digest("hex");
     return this.database.$transaction(async (transaction) => {
+      await lockAccountForWrite(transaction, userId);
       const existing = await transaction.studySession.findUnique({
         where: { id: session.id },
         select: { userId: true, requestHash: true },

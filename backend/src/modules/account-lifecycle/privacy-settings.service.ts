@@ -10,6 +10,7 @@ import {
 
 import { ApiException } from "../../common/http/api.exception";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { lockAccountForWrite } from "../users/account-write-guard";
 import type { UpdatePrivacySettingsRequest } from "./privacy-settings.request";
 
 export const CURRENT_PRIVACY_POLICY_VERSION = "privacy-policy-v1";
@@ -35,10 +36,15 @@ export class PrivacySettingsService {
   constructor(private readonly database: PrismaService) {}
 
   async get(userId: string): Promise<UserPrivacySettings> {
-    return this.database.userPrivacySettings.upsert({
-      where: { userId },
-      create: { userId, policyVersion: CURRENT_PRIVACY_POLICY_VERSION },
-      update: {},
+    // The read creates the defaults, so it is a write like any other and
+    // must not bring an erased account's privacy record back.
+    return this.database.$transaction(async (transaction) => {
+      await lockAccountForWrite(transaction, userId);
+      return transaction.userPrivacySettings.upsert({
+        where: { userId },
+        create: { userId, policyVersion: CURRENT_PRIVACY_POLICY_VERSION },
+        update: {},
+      });
     });
   }
 
