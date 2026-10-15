@@ -518,6 +518,25 @@ public struct RootView: View {
                 await sync.refreshStatus()
             }
         }
+        // A sign-in lands on Home with every tab's stack at its root, through
+        // whichever door it came: the guest row on Home, the prompt on
+        // Progress, the welcome, the account screen or the row that asks an
+        // expired sign-in back (#498). The sheets close themselves as they
+        // always have; this is where the person is when they have.
+        //
+        // Keyed on the store's count of sign-ins, not on `state` above. The
+        // state starts on a placeholder guest, so a launch restoring a kept
+        // session changes it the same way a sign-in does, and a launch must
+        // open wherever it opens. Signing out and deleting leave the count
+        // alone, and with it the navigation those flows already own.
+        //
+        // The one exception — a sign-in the paywall asked for goes back to
+        // the deck — is the router's to make, because it is read off the
+        // stack.
+        .onChange(of: accountToolbar?.completedSignIns) { previous, current in
+            guard let previous, let current, current > previous else { return }
+            router.landAfterSignIn()
+        }
         // A warm launch opens straight into the shell, so the first read of
         // the counts happens here rather than on the waiting screen. Both
         // calls are idempotent; whichever screen the launch lands on, the
@@ -627,6 +646,9 @@ public struct RootView: View {
                 commerce: commerce,
                 // A purchase needs an account to be granted to, so a guest is
                 // sent to the one place that makes one rather than told off.
+                // Pushed over the deck, and that is load-bearing: it is how
+                // the sign-in that follows knows to come back here rather
+                // than go to Home (`AppRouter.landAfterSignIn`).
                 onSignIn: { router.push(.account) }
             ) { deckID, size, mode in
                 router.push(

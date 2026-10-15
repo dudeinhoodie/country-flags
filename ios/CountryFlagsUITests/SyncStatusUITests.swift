@@ -88,12 +88,18 @@ final class SyncStatusUITests: XCTestCase {
         // measured.
         answerCards(1, in: offline)
         signIn(in: offline)
+        // The import has to land before more is answered. The account's counts
+        // are the backend's, and a fresh account has none until it has, so
+        // their arrival is what says so — the line on the account screen that
+        // used to is behind the person now that a sign-in lands on Home (#498).
+        let progressTab = offline.tabBars.buttons["Progress"]
+        XCTAssertTrue(progressTab.waitForExistence(timeout: 30), offline.debugDescription)
+        progressTab.tap()
         XCTAssertTrue(
-            offline.descendants(matching: .any)["settings.account.migrationImported"]
+            offline.descendants(matching: .any)["progress.deck.ALL.counts"]
                 .waitForExistence(timeout: 30),
             offline.debugDescription
         )
-        leaveScreen(in: offline)
         answerCards(2, in: offline)
 
         // The warning is the only place the count is visible, and it is the
@@ -144,10 +150,16 @@ final class SyncStatusUITests: XCTestCase {
 
     // MARK: - Helpers
 
+    /// Signs in and ends on Home, which is where a sign-in lands (#498). A
+    /// device that is already signed in is taken back out of the account
+    /// screen instead, so the caller goes on from a tab's root either way.
     private func signIn(in app: XCUIApplication) {
         openAccount(in: app)
         let signedIn = app.descendants(matching: .any)["settings.account.signedIn"]
-        if signedIn.waitForExistence(timeout: 3) { return }
+        if signedIn.waitForExistence(timeout: 3) {
+            leaveScreen(in: app)
+            return
+        }
         // The buttons live on the sign-in screen now; the guest's row opens it.
         let row = app.buttons["settings.account.signInRow"]
         XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
@@ -155,7 +167,12 @@ final class SyncStatusUITests: XCTestCase {
         let fixture = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()
-        XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
+        // The avatar is only in the bar of a tab's root screen, so its return
+        // is the account screen gone and the sign-in over.
+        XCTAssertTrue(
+            app.buttons["account.open"].waitForExistence(timeout: 30),
+            "A sign-in must leave the account screen\n\(app.debugDescription)"
+        )
     }
 
     private func openAccount(in app: XCUIApplication) {

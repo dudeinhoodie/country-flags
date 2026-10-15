@@ -64,6 +64,60 @@ final class PaidDeckUITests: XCTestCase {
         XCTAssertFalse(app.buttons["study.start"].exists, app.debugDescription)
     }
 
+    /// A sign-in the paywall asked for comes back to the deck (#498).
+    ///
+    /// Every other sign-in lands on Home. This one is half of a purchase, and
+    /// the purchase can only go on from the deck it is for, so the account
+    /// screen the paywall opened is taken away and nothing else: the person is
+    /// on the same tab, in front of the same deck, now able to buy it.
+    func testSigningInFromThePaywallReturnsToTheDeck() {
+        let app = launch(arguments: ["-reset-store"] + fixtures + identity + discovery)
+        XCTAssertTrue(
+            app.buttons["home.deck.ALL"].waitForExistence(timeout: 60),
+            app.debugDescription
+        )
+        beginAsGuest(in: app)
+
+        openPaidDeck(in: app)
+        XCTAssertTrue(paywall(in: app).waitForExistence(timeout: 20), app.debugDescription)
+        // A guest's action on the paywall is the sign-in, not the purchase.
+        let signInToBuy = app.buttons["deck.paid.buy"]
+        XCTAssertTrue(signInToBuy.waitForExistence(timeout: 20), app.debugDescription)
+        signInToBuy.tap()
+
+        let row = app.buttons["settings.account.signInRow"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), app.debugDescription)
+        row.tap()
+        let fixture = app.buttons["settings.account.fakeSignIn"]
+        XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
+        fixture.tap()
+
+        XCTAssertTrue(
+            paywall(in: app).waitForExistence(timeout: 30),
+            "A sign-in the paywall asked for must come back to the deck\n"
+                + app.debugDescription
+        )
+        let catalogSelected = app.tabBars.buttons.matching(
+            NSPredicate(
+                format: "(identifier == %@ OR label == %@) AND selected == true",
+                "Catalog",
+                "Catalog"
+            )
+        ).firstMatch
+        XCTAssertTrue(
+            catalogSelected.waitForExistence(timeout: 10),
+            "The deck's own tab, not Home\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(
+            app.descendants(matching: .any)
+                .matching(identifier: "settings.account.signedIn")
+                .firstMatch
+                .exists,
+            "The account screen the paywall opened is gone\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(app.buttons["settings.account.signInRow"].exists, app.debugDescription)
+    }
+
     /// A free deck is untouched: no badge, no price, and the action it has
     /// always had.
     func testAFreeDeckIsUnchanged() {
@@ -320,7 +374,8 @@ final class PaidDeckUITests: XCTestCase {
         app.descendants(matching: .any).matching(identifier: "deck.paywall").firstMatch
     }
 
-    /// Signs in through the fixture and comes back out of the account screen.
+    /// Signs in through the fixture and comes back out of the account screen:
+    /// a sign-in from the avatar lands on Home (#498).
     private func signIn(in app: XCUIApplication) {
         let account = app.buttons["account.open"]
         XCTAssertTrue(account.waitForExistence(timeout: 30), app.debugDescription)
@@ -344,10 +399,55 @@ final class PaidDeckUITests: XCTestCase {
         let fixture = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()
-        if !signedIn.waitForExistence(timeout: 15), fixture.exists {
+        // The avatar is only in the bar of a tab's root screen, so its return
+        // is the account screen gone and the sign-in over.
+        if !account.waitForExistence(timeout: 15), fixture.exists {
             fixture.tap()
         }
-        XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
+        XCTAssertTrue(
+            account.waitForExistence(timeout: 30),
+            "A sign-in must leave the account screen\n\(app.debugDescription)"
+        )
+    }
+
+    /// Starts the test as a guest, which is who the paywall offers a sign-in.
+    ///
+    /// A session lives in the keychain, which outlives the store the launch
+    /// resets, so a device that signed in for an earlier test arrives here
+    /// already signed in; that session is ended first.
+    private func beginAsGuest(in app: XCUIApplication) {
+        let account = app.buttons["account.open"]
+        XCTAssertTrue(account.waitForExistence(timeout: 60), app.debugDescription)
+        let arrived = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier IN %@",
+                ["settings.account.signedIn", "settings.account.signInRow"]
+            )
+        ).firstMatch
+        // The first tap after a cold launch can land on a hierarchy that is
+        // being replaced, so it is offered again.
+        for _ in 0..<3 {
+            account.tap()
+            if arrived.waitForExistence(timeout: 15) { break }
+        }
+        let signedIn = app.descendants(matching: .any)
+            .matching(identifier: "settings.account.signedIn")
+            .firstMatch
+        if signedIn.waitForExistence(timeout: 5) {
+            let signOut = app.buttons["settings.account.signOut"]
+            XCTAssertTrue(signOut.waitForExistence(timeout: 30), app.debugDescription)
+            signOut.tap()
+            let confirm = app.buttons.matching(
+                identifier: "settings.account.signOut.confirm"
+            ).firstMatch
+            XCTAssertTrue(confirm.waitForExistence(timeout: 15), app.debugDescription)
+            confirm.tap()
+        }
+        XCTAssertTrue(
+            app.buttons["settings.account.signInRow"].waitForExistence(timeout: 30),
+            app.debugDescription
+        )
+        app.navigationBars.buttons.element(boundBy: 0).tap()
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {

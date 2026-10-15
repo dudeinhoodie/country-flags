@@ -169,10 +169,12 @@ struct AccountSection: View {
                 }
             }
 
-            // Lit glass rather than the white slab: the account screen is a
-            // form, and the offer is one row of it, not the screen's hero.
+            // The white slab, the screen's one primary action. It was lit
+            // glass, on the view that the offer is only one row of a form;
+            // the owner made it white on 13.10, because for a guest getting
+            // an account is the one thing this screen is for.
             Button(L10n.accountSignInRow) { onSignIn?() }
-                .buttonStyle(GlassProminentActionStyle())
+                .buttonStyle(PrimaryActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.accountSignInRow)
         }
         .padding(.vertical, DesignTokens.Spacing.small)

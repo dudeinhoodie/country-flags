@@ -155,6 +155,9 @@ final class AccountLifecycleUITests: XCTestCase {
 
     /// Signs in and leaves the app on the account screen, which is where both
     /// the offer and everything it unlocks now live.
+    ///
+    /// A sign-in lands on Home (#498), so the screen it started on is gone by
+    /// the time it is over, and the helper opens it again for the caller.
     private func signIn(in app: XCUIApplication) {
         openAccount(in: app)
 
@@ -180,9 +183,18 @@ final class AccountLifecycleUITests: XCTestCase {
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()
 
-        if !signedIn.waitForExistence(timeout: 15), fixture.exists {
+        // The avatar is only in the bar of a tab's root screen, so its return
+        // is the account screen gone and the sign-in over.
+        let avatar = app.buttons["account.open"]
+        if !avatar.waitForExistence(timeout: 15), fixture.exists {
             fixture.tap()
         }
+        XCTAssertTrue(
+            avatar.waitForExistence(timeout: 30),
+            "A sign-in must leave the account screen\n\(app.debugDescription)"
+        )
+
+        openAccount(in: app)
         XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
     }
 

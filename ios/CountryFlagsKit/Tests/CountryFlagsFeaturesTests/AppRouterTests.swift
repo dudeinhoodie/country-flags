@@ -43,6 +43,72 @@ final class AppRouterTests: XCTestCase {
         XCTAssertFalse(router.open(url, using: parser))
         XCTAssertEqual(router.path, [.catalog])
     }
+
+    // MARK: - After a sign-in (#498)
+
+    /// A sign-in lands on Home with every stack at its root, whichever tab it
+    /// was started from and whatever the other tabs were showing.
+    func testASignInLandsOnHomeWithEveryStackAtItsRoot() throws {
+        let deckID = try XCTUnwrap(UUID(uuidString: "70000000-0000-4000-8000-000000000001"))
+        let router = AppRouter(path: [.deck(id: deckID)])
+        router.tab = .catalog
+        router.push(.deck(id: deckID))
+        router.achievementsNavigationPath = [.settings]
+        router.tab = .progress
+        // The avatar, which pushes the account screen onto a tab's root.
+        router.push(.account)
+
+        router.landAfterSignIn()
+
+        XCTAssertEqual(router.tab, .home)
+        XCTAssertTrue(router.homePath.isEmpty)
+        XCTAssertTrue(router.catalogPath.isEmpty)
+        XCTAssertTrue(router.progressPath.isEmpty)
+        XCTAssertTrue(router.achievementsPath.isEmpty)
+    }
+
+    /// The account screen opened from the avatar on a tab's root is not the
+    /// paywall's, so signing in there goes to Home like any other door.
+    func testASignInOnTheAccountScreenFromTheAvatarLandsOnHome() {
+        let router = AppRouter()
+        router.tab = .catalog
+        router.push(.account)
+
+        router.landAfterSignIn()
+
+        XCTAssertEqual(router.tab, .home)
+        XCTAssertTrue(router.catalogPath.isEmpty)
+    }
+
+    /// The paywall's sign-in is half of a purchase, and the purchase goes on
+    /// from the deck: only the account screen it pushed is taken away, and
+    /// the tab and every other stack stay as they were.
+    func testASignInThePaywallAskedForReturnsToTheDeck() throws {
+        let deckID = try XCTUnwrap(UUID(uuidString: "70000000-0000-4000-8000-000000000002"))
+        let router = AppRouter(path: [.settings])
+        router.tab = .catalog
+        router.push(.deck(id: deckID))
+        // The paywall's "sign in to buy".
+        router.push(.account)
+
+        router.landAfterSignIn()
+
+        XCTAssertEqual(router.tab, .catalog)
+        XCTAssertEqual(router.catalogPath, [.deck(id: deckID)])
+        XCTAssertEqual(router.homePath, [.settings])
+    }
+
+    /// The same deck reached from Home, through a stack that holds more than
+    /// the deck: what decides is the deck directly under the account screen.
+    func testThePaywallsSignInReturnsToTheDeckOnWhicheverTabItWasOpened() throws {
+        let deckID = try XCTUnwrap(UUID(uuidString: "70000000-0000-4000-8000-000000000003"))
+        let router = AppRouter(path: [.catalog, .deck(id: deckID), .account])
+
+        router.landAfterSignIn()
+
+        XCTAssertEqual(router.tab, .home)
+        XCTAssertEqual(router.homePath, [.catalog, .deck(id: deckID)])
+    }
 }
 
 final class LocalizationTests: XCTestCase {

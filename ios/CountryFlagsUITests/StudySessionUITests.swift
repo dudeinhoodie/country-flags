@@ -478,13 +478,16 @@ final class StudySessionUITests: XCTestCase {
         let fixture = app.buttons["settings.account.fakeSignIn"]
         XCTAssertTrue(fixture.waitForExistence(timeout: 30), app.debugDescription)
         fixture.tap()
-        if !signedIn.waitForExistence(timeout: 15), fixture.exists {
+        // A sign-in lands on Home by itself (#498). The avatar is only in the
+        // bar of a tab's root screen, so its return is the account screen
+        // gone and the sign-in over.
+        if !account.waitForExistence(timeout: 15), fixture.exists {
             fixture.tap()
         }
-        XCTAssertTrue(signedIn.waitForExistence(timeout: 30), app.debugDescription)
-        // Left by the tab bar rather than by a back button, which is the way
-        // the paid-deck suite already proves works from this screen.
-        app.tabBars.buttons["Home"].tap()
+        XCTAssertTrue(
+            account.waitForExistence(timeout: 30),
+            "A sign-in must leave the account screen\n\(app.debugDescription)"
+        )
     }
 
     /// Opens Settings, offering the tap again if the first one is swallowed.
