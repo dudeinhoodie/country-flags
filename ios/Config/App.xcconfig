@@ -47,7 +47,7 @@ ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor
 // The version the App Store shows, and the build number under it. The release
 // workflow passes a build number on the command line; the marketing version is
 // raised here, once, for every target that could ship.
-MARKETING_VERSION = 0.2.0
+MARKETING_VERSION = 1.0.0
 CURRENT_PROJECT_VERSION = 1
 
 SWIFT_EMIT_LOC_STRINGS = YES

@@ -5,37 +5,33 @@ reads dozens of these a day.
 
 ---
 
-No account is needed to review this app. Sign-in exists so progress survives
-a lost phone, and so a purchase can be restored on another device; everything
-else — the catalogue, the training sessions, the progress screen and the
-maps — works as a guest from the first launch, so no demo credentials are
-provided.
+No account is needed to review this app. On the first launch, tap "Continue
+without an account": the catalogue, the training sessions, the progress
+screen and the maps all work as a guest, so no demo credentials are provided.
+Sign-in exists only so progress survives a lost phone.
 
 If you would like to see the signed-in state, Sign in with Apple works with any
-Apple ID, including a private-relay address; the account can then be deleted
-from the account screen (the avatar in the top right of the Home tab), which
-erases it immediately.
+Apple ID, including a private-relay address. The account can then be deleted
+from the Account screen — the avatar in the top left, on every tab — with
+"Delete account". Deletion erases it immediately, and the app carries on as a
+guest.
 
-A few decks are locked behind a one-time purchase — look for the lock icon in
-the catalogue. Buying one requires the signed-in state above; tapping Buy opens
-Apple's own payment sheet, and in a reviewed build that runs against Apple's
-sandbox, so no real charge is made. The deck unlocks immediately, and
-"Restore Purchases" on the account screen replays it on a fresh install.
+This version has no in-app purchases and no advertising, no advertising
+identifier and no tracking prompt. The app collects nothing optional by
+default: product analytics and crash reports are two separate switches in
+Settings (the gear in the top right), both off until turned on.
 
-The app collects nothing optional by default. Product analytics and crash
-diagnostics are two separate switches in Settings, both off until turned on.
-There is no advertising, no advertising identifier and no tracking prompt.
-Apple, not the app, handles the payment instrument for a purchase — no card
-or other payment detail is ever collected by us.
-
-Maps are Apple Maps, drawn by the system.
+The map on a country's page is Apple Maps, drawn by the system; the world map
+on the Progress tab is drawn by the app.
 
 ---
 
 ## Before pasting, check
 
-- The account deletion path still lives behind the avatar → Account → Delete.
+- The account deletion path still lives behind the avatar (top left) →
+  Account → Delete account.
 - The privacy policy link in the app resolves (`check-release-app.sh` enforces
   this for release builds).
-- A paid deck's Apple product is ACTIVE and VALIDATED in the environment this
-  build talks to, so Buy has something to purchase.
+- Purchases are still off in the environment this build talks to:
+  `commerce.apple_iap.enabled` and `commerce.paid_decks.discovery.enabled` are
+  false, so no lock, price or Buy button appears anywhere.
