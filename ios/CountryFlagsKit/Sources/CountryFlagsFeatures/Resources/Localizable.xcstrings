@@ -3326,53 +3326,72 @@
         }
       }
     },
-    "home.due_learning": {
+    "home.due_learnable": {
       "extractionState": "manual",
       "localizations": {
         "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld in learning"
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld will become learned if you remember it"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld will become learned if you remember them"
+                }
+              }
+            }
           }
         },
         "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld на изучении"
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld станут выученными, если вспомнишь"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld станут выученными, если вспомнишь"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld станет выученной, если вспомнишь"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld станут выученными, если вспомнишь"
+                }
+              }
+            }
           }
         }
       }
     },
-    "home.due_new": {
+    "home.due_on_review": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld new"
+            "value": "%lld in review"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld новых"
-          }
-        }
-      }
-    },
-    "home.due_overdue": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld overdue"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld просрочено"
+            "value": "%lld на повторении"
           }
         }
       }
@@ -3390,6 +3409,59 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сегодня к повторению"
+          }
+        }
+      }
+    },
+    "home.due_waiting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld waits for the next answer"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld wait for the next answer"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ждут следующего ответа"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ждут следующего ответа"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ждёт следующего ответа"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ждут следующего ответа"
+                }
+              }
+            }
           }
         }
       }
@@ -3894,6 +3966,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Повторить"
+          }
+        }
+      }
+    },
+    "home.review_some": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review %1$lld of %2$lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить %1$lld из %2$lld"
           }
         }
       }

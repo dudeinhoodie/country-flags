@@ -53,6 +53,20 @@ public enum LocalSchedulerProjection {
         step(base: base, rating: rating).interval
     }
 
+    /// Whether one correct answer carries the card into `REVIEW` from where it
+    /// stands — for a guest, whose learned is the device's `REVIEW`, whether
+    /// the next answer makes it learned (#503).
+    ///
+    /// Asked of the ladder below rather than restated, so the promise on Home
+    /// and the state a sitting then writes cannot disagree. That is a learning
+    /// card this device has already carried one rung, and any card relearning
+    /// after a lapse. A card already in `REVIEW` is learned and has nothing
+    /// left to become; a canonical `LEARNING` state, whose rung is unknown
+    /// here, takes the sooner answer and is not promised.
+    public static func becomesLearnedOnRecall(_ card: CardStateRecord) -> Bool {
+        card.state != "REVIEW" && step(base: card, rating: .good).state == "REVIEW"
+    }
+
     /// The server's ladder, without its arithmetic (ADR-026).
     ///
     /// `fsrs-6-default-21-v4` walks a new card through `3h`, `3h`, `1d`: the

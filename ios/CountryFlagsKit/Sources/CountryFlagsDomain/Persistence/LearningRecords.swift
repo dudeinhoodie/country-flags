@@ -107,6 +107,11 @@ public struct DueSummaryRecord: Hashable, Sendable {
     public let review: Int
     public let newCards: Int
     public let totalDue: Int
+    /// How many of the `totalDue` cards one more correct answer makes learned
+    /// (#503), or nil when the backend did not say. Nil rather than zero: a
+    /// backend that predates the count has not said that none are, and the
+    /// screen says nothing instead of promising nothing.
+    public let learnableCards: Int?
     /// When the server counted. A reader compares it with the device's own
     /// clock and says nothing rather than showing yesterday's queue as today's.
     public let serverTime: Date
@@ -126,6 +131,7 @@ public struct DueSummaryRecord: Hashable, Sendable {
         review: Int,
         newCards: Int,
         totalDue: Int,
+        learnableCards: Int? = nil,
         serverTime: Date,
         nextPortionAt: Date? = nil
     ) {
@@ -135,6 +141,7 @@ public struct DueSummaryRecord: Hashable, Sendable {
         self.review = review
         self.newCards = newCards
         self.totalDue = totalDue
+        self.learnableCards = learnableCards
         self.serverTime = serverTime
         self.nextPortionAt = nextPortionAt
     }

@@ -174,21 +174,39 @@ public enum L10n {
     }
     public static var homeDueToday: String { localized("home.due_today") }
 
-    /// The backend's breakdown of the queue, one part each. They are joined by
-    /// the view rather than formatted as one string, so a part with nothing in
-    /// it is left out instead of being printed as a zero.
-    public static func homeDueOverdue(_ count: Int) -> String {
-        String(format: localized("home.due_overdue"), count)
+    /// The lines under the review pane's figure (#503). The green one says
+    /// what a repeat can finish; the quiet one is the rest of the figure, one
+    /// part each, joined by the view rather than formatted as one string, so a
+    /// part with nothing in it is left out instead of being printed as a zero.
+    ///
+    /// Declined by the count through the catalogue's plural rules: "1 станет",
+    /// "4 станут" and "1 ждёт", "9 ждут" are different words.
+    public static func homeDueLearnable(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.due_learnable", bundle: bundle, comment: ""),
+            count
+        )
     }
 
-    public static func homeDueLearning(_ count: Int) -> String {
-        String(format: localized("home.due_learning"), count)
+    public static func homeDueWaiting(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.due_waiting", bundle: bundle, comment: ""),
+            count
+        )
     }
 
-    public static func homeDueNew(_ count: Int) -> String {
-        String(format: localized("home.due_new"), count)
+    /// "На повторении" does not decline, so this one is a plain format.
+    public static func homeDueOnReview(_ count: Int) -> String {
+        String(format: localized("home.due_on_review"), count)
     }
+
     public static var homeReview: String { localized("home.review") }
+    /// The action when the sitting deals fewer cards than the figure over it:
+    /// the button says what it deals rather than leaving the figure to imply
+    /// that a tap clears it.
+    public static func homeReviewSome(_ dealt: Int, of due: Int) -> String {
+        String(format: localized("home.review_some"), dealt, due)
+    }
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
     public static var catalogNoMatches: String { localized("catalog.no_matches") }

@@ -521,4 +521,73 @@ describe("progress, mastery and achievements (integration)", () => {
       }),
     ).resolves.toBe(earned.length);
   });
+
+  // Last, because it answers more cards than the fixture above counts on.
+  // What a repeat can finish (#503): the due cards one correct answer short
+  // of learned, and none that is not due yet.
+  it("counts the due cards one correct answer short of learned", async () => {
+    const dueSummary = async (): Promise<{
+      totalDue: number;
+      learnableCards: number;
+    }> =>
+      bodyOf<{ totalDue: number; learnableCards: number }>(
+        await request(httpServer)
+          .get("/v1/me/due-summary")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(200),
+      );
+
+    // Every card answered so far is either learned or waits hours for its
+    // next step, so nothing due is one answer away.
+    expect(await dueSummary()).toMatchObject({ learnableCards: 0 });
+
+    // A second correct answer for two of the cards answered once: one short
+    // of learned now, both of them.
+    const [, secondAnswered, onceAnswered, notYetDue] = reviewedCardIds;
+    if (
+      secondAnswered === undefined ||
+      onceAnswered === undefined ||
+      notYetDue === undefined
+    ) {
+      throw new Error("Progress fixture has fewer than four reviewed cards");
+    }
+    const occurredAt = new Date().toISOString();
+    await request(httpServer)
+      .post("/v1/reviews/batch")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        payloadVersion: 1,
+        events: [secondAnswered, notYetDue].map((learningCardId, index) => ({
+          id: `96000000-0000-4000-8000-${(100 + index)
+            .toString()
+            .padStart(12, "0")}`,
+          sessionId: "95000000-0000-4000-8000-000000000001",
+          learningCardId,
+          deviceId: TEST_STUDY_DEVICE_ID,
+          answerMode: "SELF_RATED",
+          rating: "GOOD",
+          responseTimeMs: 1_000,
+          clientOccurredAt: occurredAt,
+          estimatedServerOccurredAt: occurredAt,
+          clientSequence: 100 + index,
+          baseStateVersion: null,
+        })),
+      })
+      .expect(200);
+
+    // Time passes for two of them: the one two answers in and one answered
+    // once come due. The other card two answers in stays days away.
+    await database.userCardState.updateMany({
+      where: {
+        userId: TEST_STUDY_USER_ID,
+        learningCardId: { in: [secondAnswered, onceAnswered] },
+      },
+      data: { dueAt: new Date(Date.now() - 60 * 60 * 1_000) },
+    });
+
+    expect(await dueSummary()).toMatchObject({
+      totalDue: 2,
+      learnableCards: 1,
+    });
+  });
 });

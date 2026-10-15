@@ -58,8 +58,17 @@ public struct HomeView: View {
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
     /// Distinct cards answered today, counted off the card states on the
-    /// device. It decides one thing: whether the day's allowance is spent.
+    /// device. It decides whether the day's allowance is spent, and for a
+    /// guest how much of the queue a sitting can still deal.
     @State private var answeredToday = 0
+    /// The stored size of one sitting, for the review button to say what it
+    /// deals (#503). Read on every appearance, because the settings screen
+    /// that changes it is pushed over this one; the tap reads it again, so a
+    /// label a moment stale never decides what is dealt.
+    @State private var sessionSize = StudySessionSize.ten
+    /// The dots of the learned sign beside the queue's green line. They grow
+    /// with the text they stand beside, as the placeholder's bars do.
+    @ScaledMetric(relativeTo: .footnote) private var learnedDotSize: CGFloat = 6
     /// The flag a first visit is asked about, and whether its name is shown.
     @State private var flagOfTheDay: LearningCardRecord?
     @State private var isFlagRevealed = false
@@ -134,6 +143,7 @@ public struct HomeView: View {
             // flags the moment the catalogue lands rather than whenever the
             // counts happen to follow.
             .task(id: previewInputs) { await reloadPreviews() }
+            .task { await reloadSessionSize() }
     }
 
     @ViewBuilder
@@ -449,13 +459,21 @@ public struct HomeView: View {
         // a deck mid-session collapsed this screen to a lone resume row.
         // Each block now stands on its own: the queue when the schedule owes
         // anything, the day's tally otherwise.
+        //
+        // Under its figure, what a repeat will do (#503): in green, the cards
+        // it can finish, and in a quiet line the rest of the figure. Both come
+        // from `ProgressStore.dueBreakdown`, which has them from the same
+        // source as the figure — and has nothing for an account without a
+        // recent summary, so the lines are then simply absent.
         if due > 0, let deckID = dueLaunchDeckID(sections) {
+            let breakdown = progress?.dueBreakdown
             pane(
                 label: L10n.homeDueToday,
                 count: due,
                 total: nil,
-                caption: dueBreakdown,
-                action: L10n.homeReview,
+                learnable: DuePaneCopy.learnableLine(breakdown),
+                caption: DuePaneCopy.restLine(breakdown),
+                action: DuePaneCopy.action(due: due, dealt: dueSessionCards(due)),
                 identifier: AccessibilityIdentifier.homeReview,
                 run: { startDueSession(deckID: deckID) },
                 isProminent: continuable == nil
@@ -850,24 +868,29 @@ public struct HomeView: View {
         (progress?.decks ?? []).filter(\.isCurated)
     }
 
-    /// What kind of work the number above is: overdue, still being learned,
-    /// never seen. The backend counts it — a card this device has never been
-    /// shown has no local state to be counted in — so the line appears only
-    /// when a recent count arrived, and is simply absent otherwise.
+    /// How many cards the review button's sitting deals out of `due` (#503).
     ///
-    /// Learning and relearning are added together: the difference between a
-    /// card being learned and one being learned again is the scheduler's
-    /// business, and naming both would explain the algorithm rather than the
-    /// day.
-    private var dueBreakdown: String? {
-        guard let summary = progress?.dueSummary, summary.totalDue > 0 else { return nil }
-        var parts: [String] = []
-        if summary.overdue > 0 { parts.append(L10n.homeDueOverdue(summary.overdue)) }
-        let inLearning = summary.learning + summary.relearning
-        if inLearning > 0 { parts.append(L10n.homeDueLearning(inLearning)) }
-        if summary.newCards > 0 { parts.append(L10n.homeDueNew(summary.newCards)) }
-        guard !parts.isEmpty else { return nil }
-        return parts.joined(separator: " · ")
+    /// The stored size of a sitting, and for a guest also the day's room: a
+    /// guest's figure is the device's whole queue, while the sitting the
+    /// device composes stops at the day's fifty. An account's figure is the
+    /// backend's, already cut to the day, and the backend deals from it.
+    private func dueSessionCards(_ due: Int) -> Int {
+        DuePaneCopy.dealtCount(
+            due: due,
+            sessionSize: sessionSize.rawValue,
+            dayAllowance: progress?.origin == .device
+                ? max(0, DailyReviewAllowance.limit - answeredToday)
+                : nil
+        )
+    }
+
+    /// Reads the stored session size the way a due session reads it when it
+    /// starts, so the button and the sitting name the same number.
+    private func reloadSessionSize() async {
+        guard let makeSettings else { return }
+        let settings = makeSettings()
+        await settings.load()
+        sessionSize = StudySessionSize(storedValue: settings.settings.sessionSize)
     }
 
     /// A hero pane: the label, the figure beside the fan, a caption, the one
@@ -878,10 +901,14 @@ public struct HomeView: View {
     /// empty row: the fan is drawn at the figure's height, and a line of
     /// words beside it reads as the pane's subject where a gap would read as
     /// a number that failed to load.
+    ///
+    /// `learnable` is the review pane's green line (#503), drawn between the
+    /// figure and the caption: what a repeat can finish, then the rest.
     private func pane(
         label: String,
         count: Int?,
         total: Int?,
+        learnable: String? = nil,
         caption: String?,
         action: String,
         identifier: String,
@@ -928,10 +955,17 @@ public struct HomeView: View {
                         }
                     }
 
+                    if count != nil, let learnable {
+                        learnableLine(learnable)
+                    }
+
                     if count != nil, let caption {
                         paneCaption(caption)
                     }
                 }
+                // One element, read in the order it is drawn: the label, the
+                // figure, the green line, the rest. The dots are a picture of
+                // the words beside them and are not read.
                 .accessibilityElement(children: .combine)
 
                 // White is spent once per screen: under an open sitting this
@@ -954,6 +988,29 @@ public struct HomeView: View {
         Text(caption)
             .font(DesignTokens.Typography.caption)
             .foregroundStyle(.white.opacity(0.6))
+    }
+
+    /// What a repeat can finish, behind the sign of learned: three filled
+    /// dots, one per correct answer (#503). The dots and the words wear Home's
+    /// learned green, `learnedTint`, the same green as the known/learned
+    /// block's seal. The dots sit on the first line's baseline, so a line
+    /// that wraps at a large type size keeps its sign at its start.
+    private func learnableLine(_ text: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
+            HStack(spacing: learnedDotSize / 2) {
+                ForEach(0..<3, id: \.self) { _ in
+                    Circle()
+                        .fill(Self.learnedTint)
+                        .frame(width: learnedDotSize, height: learnedDotSize)
+                }
+            }
+            .accessibilityHidden(true)
+
+            Text(text)
+                .font(DesignTokens.Typography.caption.weight(.semibold))
+                .foregroundStyle(Self.learnedTint)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     // MARK: - Known and learned
@@ -1147,10 +1204,10 @@ public struct HomeView: View {
         total > 0 ? min(1, Double(count) / Double(total)) : 0
     }
 
-    /// The green of "learned" on this screen, which only the seal wears (the
-    /// learned figure stays white, and the bar is the catalogue's white and
-    /// grey): the saturated system green the design tokens name for it, the
-    /// one the finished-day seal wore.
+    /// The green of "learned" on this screen, worn by the seal and by the
+    /// review pane's learnable line (the learned figure stays white, and the
+    /// bar is the catalogue's white and grey): the saturated system green the
+    /// design tokens name for it, the one the finished-day seal wore.
     private static let learnedTint = DesignTokens.Colors.learned
     /// A learned figure at zero: present, and plainly not yet.
     private static let unearnedTint = Color.white.opacity(0.35)

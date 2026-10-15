@@ -90,6 +90,41 @@ final class DueSummaryTests: XCTestCase {
         XCTAssertEqual(snapshot.dueSummary?.totalDue, 2)
     }
 
+    /// The cards one answer from learned (#503) are carried home with the
+    /// counts they are a part of.
+    func testTheLearnableCountIsRead() async throws {
+        let transport = MockClientTransport()
+        await transport.always(
+            .json(
+                """
+                {"overdue":9,"learning":7,"relearning":2,"newCards":220,\
+                "totalDue":18,"learnableCards":4,"serverTime":"2027-01-15T08:00:00Z"}
+                """
+            ),
+            for: "getDueSummary"
+        )
+        await Self.registerEmptyProgress(on: transport)
+
+        let snapshot = try await Self.makeService(transport: transport).download()
+
+        XCTAssertEqual(snapshot.dueSummary?.learnableCards, 4)
+        XCTAssertEqual(snapshot.dueSummary?.totalDue, 18)
+    }
+
+    /// A backend that predates the count leaves it out. That is not a claim
+    /// that nothing due is one answer away, so it stays nil rather than
+    /// becoming zero, and the download does not fail over it.
+    func testASummaryWithoutTheLearnableCountReadsAsNotSaid() async throws {
+        let transport = MockClientTransport()
+        await transport.always(Self.dueSummaryResponse, for: "getDueSummary")
+        await Self.registerEmptyProgress(on: transport)
+
+        let snapshot = try await Self.makeService(transport: transport).download()
+
+        XCTAssertNotNil(snapshot.dueSummary)
+        XCTAssertNil(snapshot.dueSummary?.learnableCards)
+    }
+
     // MARK: - Storing it
 
     /// The four documents ride in parallel. When the summary's request is the
@@ -219,6 +254,34 @@ final class DueSummaryTests: XCTestCase {
 
         let stored = try await learning.dueSummary(for: account)
         XCTAssertNil(stored?.nextPortionAt)
+    }
+
+    /// Home reads the store, not the last response, so the learnable count has
+    /// to survive it (schema version 8) — and a newer summary that does not
+    /// carry it clears it rather than leaving an older promise standing.
+    func testTheLearnableCountSurvivesTheStoreAndIsReplacedWithTheSummary() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+
+        try await learning.saveDueSummary(
+            DueSummaryRecord(
+                overdue: 9,
+                learning: 7,
+                relearning: 2,
+                review: 40,
+                newCards: 220,
+                totalDue: 18,
+                learnableCards: 4,
+                serverTime: now
+            ),
+            for: account
+        )
+        let saved = try await learning.dueSummary(for: account)
+        XCTAssertEqual(saved?.learnableCards, 4)
+
+        try await learning.saveDueSummary(Self.summary(at: now), for: account)
+        let replaced = try await learning.dueSummary(for: account)
+        XCTAssertNil(replaced?.learnableCards)
     }
 
     /// Two accounts on one device count different queues.

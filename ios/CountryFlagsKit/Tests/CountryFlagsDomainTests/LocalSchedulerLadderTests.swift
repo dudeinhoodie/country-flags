@@ -66,6 +66,61 @@ final class LocalSchedulerLadderTests: XCTestCase {
         XCTAssertEqual(projected.dueAt, now.addingTimeInterval(3 * 60 * 60))
     }
 
+    // MARK: - One answer from learned (#503)
+
+    /// A guest's learned is `REVIEW` on this ladder, so "one answer from
+    /// learned" is whatever a `GOOD` carries into `REVIEW` — asked of the
+    /// ladder itself, played through it here.
+    func testOneAnswerFromLearnedIsWhatTheNextGoodGraduates() throws {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let cardID = UUID()
+        func play(_ ratings: [StudyRating]) throws -> CardStateRecord {
+            let played = ratings.reduce(nil as CardStateRecord?) { state, rating in
+                LocalSchedulerProjection.project(
+                    base: state, cardID: cardID, rating: rating, now: now
+                )
+            }
+            return try XCTUnwrap(played)
+        }
+
+        // One rung up the steps: the next GOOD graduates it.
+        let oneGood = try play([.good])
+        XCTAssertEqual(oneGood.state, "LEARNING")
+        XCTAssertTrue(LocalSchedulerProjection.becomesLearnedOnRecall(oneGood))
+        // Missed on the first rung: still two answers away.
+        let missed = try play([.again])
+        XCTAssertFalse(LocalSchedulerProjection.becomesLearnedOnRecall(missed))
+        // Learned already: nothing left for the answer to finish.
+        let graduated = try play([.good, .good])
+        XCTAssertEqual(graduated.state, "REVIEW")
+        XCTAssertFalse(LocalSchedulerProjection.becomesLearnedOnRecall(graduated))
+        // Lapsed after graduating: one GOOD returns it to review.
+        let lapsed = try play([.good, .good, .again])
+        XCTAssertEqual(lapsed.state, "RELEARNING")
+        XCTAssertTrue(LocalSchedulerProjection.becomesLearnedOnRecall(lapsed))
+    }
+
+    /// The server's `LEARNING` does not say which rung the card is on, and the
+    /// ladder takes the sooner answer there, so nothing is promised for it.
+    func testACanonicalLearningStateIsNotPromisedAsOneAnswerFromLearned() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let canonical = CardStateRecord(
+            learningCardID: UUID(),
+            state: "LEARNING",
+            difficulty: 5,
+            stability: 2,
+            dueAt: now,
+            repetitions: 1,
+            lapses: 0,
+            schedulerVersion: "fsrs-6-2026-09-26",
+            stateVersion: 3,
+            updatedAt: now,
+            isLocalProjection: false
+        )
+
+        XCTAssertFalse(LocalSchedulerProjection.becomesLearnedOnRecall(canonical))
+    }
+
     private func assertAgrees(with name: String, file: StaticString = #filePath, line: UInt = #line) throws {
         let fixture = try Self.fixture(name)
         let cardID = UUID()

@@ -317,6 +317,9 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, AccountTime
 
     /// `review` is optional in the contract — a release that stops sending it
     /// leaves the breakdown one line shorter rather than failing the download.
+    /// `learnableCards` is optional too, and stays nil rather than zero: a
+    /// backend that predates it has not said that nothing due is one answer
+    /// from learned.
     private static func dueSummary(
         from payload: Components.Schemas.DueSummary
     ) -> DueSummaryRecord {
@@ -327,6 +330,7 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, AccountTime
             review: payload.review ?? 0,
             newCards: payload.newCards,
             totalDue: payload.totalDue,
+            learnableCards: payload.learnableCards,
             serverTime: payload.serverTime,
             nextPortionAt: payload.nextPortionAt
         )

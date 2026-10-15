@@ -7,6 +7,7 @@ import {
 import {
   aggregateProgress,
   dailyQueue,
+  LEARNED_SUCCESSFUL_REVIEWS,
   type ProgressCardMetrics,
 } from "./mastery-rules";
 
@@ -346,6 +347,141 @@ describe("aggregateProgress daily allowance", () => {
     expect(inAsia.dueCards).toBe(0);
     // And the region still knows how much it is owed in total.
     expect(inAsia.totalCards).toBe(130);
+  });
+});
+
+/**
+ * What a repeat today can finish (#503): the due cards one correct answer
+ * short of learned. Home says it in green over the queue, so it has to be a
+ * part of that queue and nothing else.
+ */
+describe("aggregateProgress learnable cards", () => {
+  const now = new Date("2026-08-28T12:00:00.000Z");
+  const oneShort = LEARNED_SUCCESSFUL_REVIEWS - 1;
+
+  function card(
+    id: string,
+    overrides: Partial<ProgressCardMetrics> = {},
+  ): ProgressCardMetrics {
+    return {
+      learningCardId: id,
+      state: CardLearningState.REVIEW,
+      dueAt: new Date(now.getTime() - 86_400_000),
+      successfulReviews: oneShort,
+      totalReviews: oneShort,
+      recentSuccessfulReviews: oneShort,
+      recentReviews: oneShort,
+      ...overrides,
+    };
+  }
+
+  it("is zero when nothing due is one answer away", () => {
+    const result = aggregateProgress(
+      [
+        // One answer in: two more to go.
+        card("first-step", {
+          state: CardLearningState.LEARNING,
+          successfulReviews: 1,
+          totalReviews: 1,
+        }),
+        // Already learned: there is nothing left for the answer to finish.
+        card("learned", {
+          successfulReviews: LEARNED_SUCCESSFUL_REVIEWS,
+          totalReviews: LEARNED_SUCCESSFUL_REVIEWS,
+        }),
+        // Missed every time so far.
+        card("missed", {
+          state: CardLearningState.LEARNING,
+          successfulReviews: 0,
+          totalReviews: 2,
+        }),
+      ],
+      now,
+    );
+
+    expect(result.dueCards).toBe(3);
+    expect(result.dueLearnableCards).toBe(0);
+  });
+
+  /// Counted by correct answers, as learned is: the scheduler's state does
+  /// not say how many answers a card has behind it.
+  it("counts the due cards one answer short of learned, whatever their state", () => {
+    const result = aggregateProgress(
+      [
+        card("graduated"),
+        card("still-on-the-steps", { state: CardLearningState.LEARNING }),
+        card("lapsed", {
+          state: CardLearningState.RELEARNING,
+          totalReviews: oneShort + 1,
+        }),
+        card("first-step", {
+          state: CardLearningState.LEARNING,
+          successfulReviews: 1,
+          totalReviews: 1,
+        }),
+      ],
+      now,
+    );
+
+    expect(result.dueCards).toBe(4);
+    expect(result.dueLearnableCards).toBe(3);
+  });
+
+  it("never counts a card that is not due yet", () => {
+    const result = aggregateProgress(
+      [
+        card("due"),
+        card("tomorrow", { dueAt: new Date(now.getTime() + 86_400_000) }),
+        card("never-answered", {
+          state: null,
+          dueAt: null,
+          successfulReviews: 0,
+          totalReviews: 0,
+        }),
+      ],
+      now,
+    );
+
+    expect(result.dueCards).toBe(1);
+    expect(result.dueLearnableCards).toBe(1);
+  });
+
+  /// The day's ceiling cuts it the way it cuts the queue: a card owed but left
+  /// for tomorrow is not one a repeat today can finish.
+  it("counts only the cards the day's queue holds", () => {
+    const cards = [
+      card("owed-longest", {
+        dueAt: new Date(now.getTime() - 10 * 86_400_000),
+        successfulReviews: 1,
+        totalReviews: 1,
+      }),
+      card("owed-recently", { dueAt: new Date(now.getTime() - 86_400_000) }),
+    ];
+
+    const capped = aggregateProgress(cards, now, undefined, undefined, 1);
+    const scoped = aggregateProgress(
+      [cards[1]!],
+      now,
+      undefined,
+      undefined,
+      dailyQueue(cards, now, 1),
+    );
+
+    expect(capped.dueCards).toBe(1);
+    expect(capped.dueLearnableCards).toBe(0);
+    expect(scoped.dueLearnableCards).toBe(0);
+    expect(aggregateProgress(cards, now).dueLearnableCards).toBe(1);
+  });
+
+  it("is never more than the due count", () => {
+    const cards = Array.from({ length: 80 }, (_, index) =>
+      card(`card-${index}`),
+    );
+
+    const result = aggregateProgress(cards, now, undefined, undefined, 50);
+
+    expect(result.dueCards).toBe(50);
+    expect(result.dueLearnableCards).toBe(50);
   });
 });
 

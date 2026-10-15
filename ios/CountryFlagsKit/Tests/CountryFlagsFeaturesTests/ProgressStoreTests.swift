@@ -231,14 +231,19 @@ private func card(_ id: UUID) -> LearningCardRecord {
     )
 }
 
-private func state(_ card: UUID, state: String, dueAt: Date) -> CardStateRecord {
+private func state(
+    _ card: UUID,
+    state: String,
+    dueAt: Date,
+    repetitions: Int = 1
+) -> CardStateRecord {
     CardStateRecord(
         learningCardID: card,
         state: state,
         difficulty: 5,
         stability: 1,
         dueAt: dueAt,
-        repetitions: 1,
+        repetitions: repetitions,
         lapses: 0,
         schedulerVersion: "test",
         stateVersion: 1,
@@ -601,6 +606,99 @@ final class ProgressStoreTests: XCTestCase {
         await store.reload()
 
         XCTAssertEqual(store.totalDue, 23)
+    }
+
+    // MARK: - What a repeat will do (#503)
+
+    /// A guest's breakdown is the device's, counted over the same deck as the
+    /// figure, so its parts add up to it: the card one rung up the steps is
+    /// one answer from learned, the card that missed waits, the learned card
+    /// is on review, and the card not round yet is in none of them.
+    func testAGuestsBreakdownIsCountedOnTheDeviceAndAddsUpToTheFigure() async {
+        let cards = [UUID(), UUID(), UUID(), UUID()]
+        let past = fixedNow.addingTimeInterval(-60)
+        let store = makeStore(
+            cards: cards,
+            states: [
+                state(cards[0], state: "LEARNING", dueAt: past, repetitions: 1),
+                state(cards[1], state: "LEARNING", dueAt: past, repetitions: 0),
+                state(cards[2], state: "REVIEW", dueAt: past),
+                state(cards[3], state: "LEARNING", dueAt: fixedNow.addingTimeInterval(3600)),
+            ]
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.origin, .device)
+        XCTAssertEqual(store.totalDue, 3)
+        XCTAssertEqual(store.dueBreakdown, DueBreakdown(learnable: 1, waiting: 1, onReview: 1))
+    }
+
+    /// An account's breakdown is the backend's summary, learnable count and
+    /// all; the device's own count of the same cards is not consulted.
+    func testAnAccountsBreakdownIsTheBackendsSummary() async {
+        let card = UUID()
+        let store = makeStore(
+            cards: [card],
+            states: [state(card, state: "LEARNING", dueAt: fixedNow.addingTimeInterval(-60))],
+            deckProgress: [
+                DeckProgressRecord(
+                    deckID: deckID,
+                    totalCards: 195,
+                    learnedCards: 20,
+                    dueCards: 18,
+                    currentMasteryTier: "NONE",
+                    highestAchievementTier: "NONE",
+                    updatedAt: fixedNow
+                )
+            ],
+            dueSummary: DueSummaryRecord(
+                overdue: 9,
+                learning: 7,
+                relearning: 2,
+                review: 40,
+                newCards: 150,
+                totalDue: 18,
+                learnableCards: 4,
+                serverTime: fixedNow.addingTimeInterval(-600)
+            ),
+            scope: .authenticated(userID: UUID())
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.totalDue, 18)
+        XCTAssertEqual(store.dueBreakdown, DueBreakdown(learnable: 4, waiting: 9, onReview: 5))
+    }
+
+    /// A stale or offline account has no recent summary, and the device's
+    /// count of an account is never shown (ADR-016): the figure stays, read
+    /// off the backend's deck rows, and the lines under it are absent.
+    func testAnAccountWithoutARecentSummaryHasNoBreakdown() async {
+        let card = UUID()
+        let store = makeStore(
+            cards: [card],
+            states: [state(card, state: "LEARNING", dueAt: fixedNow.addingTimeInterval(-60))],
+            deckProgress: [
+                DeckProgressRecord(
+                    deckID: deckID,
+                    totalCards: 195,
+                    learnedCards: 20,
+                    dueCards: 18,
+                    currentMasteryTier: "NONE",
+                    highestAchievementTier: "NONE",
+                    updatedAt: fixedNow
+                )
+            ],
+            dueSummary: dueSummary(serverTime: fixedNow.addingTimeInterval(-2 * 24 * 3600)),
+            scope: .authenticated(userID: UUID())
+        )
+
+        await store.reload()
+
+        XCTAssertEqual(store.origin, .backend)
+        XCTAssertEqual(store.totalDue, 18)
+        XCTAssertNil(store.dueBreakdown)
     }
 
     private func dueSummary(serverTime: Date) -> DueSummaryRecord {
