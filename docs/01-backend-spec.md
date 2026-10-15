@@ -251,7 +251,7 @@ Unique `(user_id, id)` и `(user_id, source_install_id_hash, id)`. Повтор 
 - `created_at`;
 - `completed_at nullable`.
 
-Экспорт создаётся асинхронно, доступен только после свежей re-authentication, загружается по короткоживущему signed URL и не содержит auth/provider tokens.
+Экспорт создаётся асинхронно, доступен только после свежей re-authentication, загружается по короткоживущему signed URL и не содержит auth/provider tokens. Состав архива задаёт `contracts/schemas/account/data-export.v2.schema.json` (ADR-007).
 
 ### 4.2 География и контент
 
@@ -910,7 +910,7 @@ Backend находит option в snapshot сессии и сам выводит 
 
 Гостевая сессия на платной колоде проходит тот же `DeckAccessService`, что и новая сессия: покупка требует аккаунта, и гость не мог её сделать. Сессия на колоде, которой у аккаунта нет, не создаётся, её review считаются rejected, остальной импорт продолжается (`PARTIAL`).
 
-Экспорт данных формируется асинхронно. Готовый архив содержит профиль, настройки, auth provider names без provider tokens, review history, progress и achievements в машинно-читаемом JSON. Signed download URL имеет короткий TTL.
+Экспорт данных формируется асинхронно. Готовый архив (`schemaVersion: 2`) содержит всё, что Privacy Policy называет хранимым для аккаунта: профиль, настройки, consent settings и их историю, sign-in providers с идентификатором провайдера и email, устройства (включая удалённые), записи sign-in sessions с User-Agent, guest imports, study sessions, review history, progress, per-deck mastery (как её в момент экспорта считает `ProgressService` для `GET /v1/me/progress`, а не кэш `user_deck_mastery`), achievements, покупки и entitlement grants, в машинно-читаемом JSON. Архив не содержит auth/provider tokens, token hashes и keyed hashes (IP, install ID, подписанных payload). Signed download URL имеет короткий TTL.
 
 ### 6.6 Аналитика и privacy preferences
 

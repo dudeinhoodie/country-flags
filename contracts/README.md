@@ -58,6 +58,7 @@ contracts/
 ├── openapi.yaml
 ├── openapi/components.yaml
 ├── schemas/
+│   ├── account/           # the account data export archive
 │   ├── analytics/
 │   ├── configuration/
 │   ├── content/

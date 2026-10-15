@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
 
@@ -7,6 +8,9 @@ import type { INestApplication } from "@nestjs/common";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { Test } from "@nestjs/testing";
 import { PrismaClient } from "@prisma/client";
+import type { ValidateFunction } from "ajv";
+import Ajv2020 from "ajv/dist/2020";
+import addFormats from "ajv-formats";
 import request from "supertest";
 
 import { AppModule } from "../src/app/app.module";
@@ -40,6 +44,54 @@ interface DataExportBody {
   downloadUrl: string | null;
   sha256: string | null;
   expiresAt: string | null;
+}
+
+interface ExportArchive {
+  consentHistory: Array<Record<string, unknown>>;
+  devices: Array<{ removedAt: string | null }>;
+  signInSessions: Array<{ createdAt: string; revokedAt: string | null }>;
+  guestImports: Array<{ migrationId: string; status: string }>;
+  studySessions: Array<{ id: string }>;
+  deckMastery: Array<{
+    deckId: string;
+    tier: string;
+    masteredCardCount: number;
+    totalCardCount: number;
+    ruleVersion: number;
+  }>;
+}
+
+interface ProgressBody {
+  decks: Array<{
+    deckId: string;
+    currentMasteryTier: string;
+    learnedCards: number;
+    totalCards: number;
+    ruleVersion: number;
+  }>;
+}
+
+const EXPORTED_ENTITLEMENT_KEY = "entitlement.data_export_test";
+const EXPORTED_TRANSACTION_ID = "2000000900000452";
+
+/** The published archive contract, read from contracts rather than mirrored. */
+function exportArchiveValidator(): ValidateFunction {
+  const schema = JSON.parse(
+    readFileSync(
+      resolve(
+        __dirname,
+        "../../contracts/schemas/account/data-export.v2.schema.json",
+      ),
+      "utf8",
+    ),
+  ) as object;
+  const ajv = new Ajv2020({
+    allErrors: true,
+    allowUnionTypes: true,
+    strict: true,
+  });
+  addFormats(ajv);
+  return ajv.compile(schema);
 }
 
 function databaseUrlFor(baseUrl: string, databaseName: string): string {
@@ -502,6 +554,70 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
     });
   }
 
+  /// Gives the export's remaining sections something to carry. The guest
+  /// imports above already left reviews and study sessions on the account;
+  /// consents, a purchase and the mastery projection are added here.
+  async function recordConsentsPurchasesAndMastery(): Promise<void> {
+    await request(httpServer)
+      .patch("/v1/me/privacy-settings")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .set("If-Match", 'W/"1"')
+      .send({ productAnalyticsStatus: "GRANTED" })
+      .expect(200);
+    await request(httpServer)
+      .patch("/v1/me/privacy-settings")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .set("If-Match", 'W/"2"')
+      .send({ diagnosticsStatus: "DENIED" })
+      .expect(200);
+
+    await database.entitlementDefinition.upsert({
+      where: { key: EXPORTED_ENTITLEMENT_KEY },
+      create: { key: EXPORTED_ENTITLEMENT_KEY },
+      update: {},
+    });
+    const purchase = await database.storeTransaction.create({
+      data: {
+        provider: "APPLE_APP_STORE",
+        storeEnvironment: "LOCAL_TEST",
+        transactionId: EXPORTED_TRANSACTION_ID,
+        originalTransactionId: EXPORTED_TRANSACTION_ID,
+        productId: "app.vexi.test.deck",
+        userId: account.user.id,
+        purchasedAt: new Date("2026-09-04T12:20:00Z"),
+        signedPayloadHash: "a".repeat(64),
+        verifiedAt: new Date("2026-09-04T12:20:01Z"),
+      },
+    });
+    await database.userEntitlementGrant.create({
+      data: {
+        userId: account.user.id,
+        entitlementKey: EXPORTED_ENTITLEMENT_KEY,
+        sourceType: "STORE_TRANSACTION",
+        sourceTransactionId: purchase.id,
+      },
+    });
+
+    // The per-deck mastery cache says something the review history does
+    // not: only the write paths refresh it, so a read of the table can lag
+    // what the app shows. The export must not copy it.
+    const [deck] = await database.userDeckMastery.findMany({
+      where: { userId: account.user.id },
+      orderBy: { deckId: "asc" },
+      take: 1,
+    });
+    if (deck !== undefined) {
+      await database.userDeckMastery.update({
+        where: { userId_deckId: { userId: deck.userId, deckId: deck.deckId } },
+        data: {
+          tier: "PLATINUM",
+          masteredCardCount: deck.totalCardCount,
+          projectionVersion: 99,
+        },
+      });
+    }
+  }
+
   it("takes a fresh sign-in as its own proof", async () => {
     // Signing in *is* proving who you are. The session here is seconds old, so
     // asking for a copy of the account's data must not send anybody back
@@ -539,6 +655,7 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
       "REAUTHENTICATION_NOT_FRESH",
     );
 
+    await recordConsentsPurchasesAndMastery();
     reauthenticationToken = await reauthenticate();
     const created = await request(httpServer)
       .post("/v1/me/data-exports")
@@ -565,15 +682,175 @@ describe("settings, devices, imports and account lifecycle (integration)", () =>
     const downloaded = await request(httpServer)
       .get(`${downloadUrl.pathname}${downloadUrl.search}`)
       .expect(200);
-    expect(downloaded.body).toMatchObject({
-      schemaVersion: 1,
+    const archive = downloaded.body as unknown as ExportArchive;
+    const validateArchive = exportArchiveValidator();
+    expect(validateArchive(archive)).toBe(true);
+    expect(validateArchive.errors ?? []).toEqual([]);
+    expect(archive).toMatchObject({
+      schemaVersion: 2,
       profile: { id: account.user.id },
-      authenticationProviders: [{ provider: "GOOGLE" }],
+      // The policy names the provider's identifier and the address as
+      // things the account keeps, so a copy of the account carries both.
+      authenticationProviders: [
+        {
+          provider: "GOOGLE",
+          providerSubject: googleSubject,
+          email: "lifecycle@example.test",
+        },
+      ],
+      privacySettings: {
+        productAnalyticsStatus: "GRANTED",
+        diagnosticsStatus: "DENIED",
+        version: 3,
+      },
+      purchases: [
+        {
+          transactionId: EXPORTED_TRANSACTION_ID,
+          productId: "app.vexi.test.deck",
+          claimState: "CLAIMED",
+          revokedAt: null,
+        },
+      ],
+      entitlementGrants: [
+        {
+          entitlementKey: EXPORTED_ENTITLEMENT_KEY,
+          sourceType: "STORE_TRANSACTION",
+          sourceTransactionId: EXPORTED_TRANSACTION_ID,
+          status: "ACTIVE",
+        },
+      ],
     });
-    expect(JSON.stringify(downloaded.body)).not.toContain(
-      "lifecycle@example.test",
+    expect(archive.consentHistory).toHaveLength(2);
+    expect(archive.consentHistory).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          category: "PRODUCT_ANALYTICS",
+          previousStatus: "UNKNOWN",
+          newStatus: "GRANTED",
+        }),
+        expect.objectContaining({
+          category: "DIAGNOSTICS",
+          previousStatus: "UNKNOWN",
+          newStatus: "DENIED",
+        }),
+      ]),
     );
-    expect(JSON.stringify(downloaded.body)).not.toContain("accessToken");
+    // Both sessions the guest imports above brought in, with what was
+    // answered in them.
+    const sessions = await database.studySession.findMany({
+      where: { userId: account.user.id },
+      select: { id: true },
+    });
+    expect(sessions.length).toBeGreaterThan(0);
+    expect(archive.studySessions.map(({ id }) => id).sort()).toEqual(
+      sessions.map(({ id }) => id).sort(),
+    );
+    expect(archive.studySessions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "a2000000-0000-4000-8000-000000000001",
+          deckId: "70000000-0000-4000-8000-000000000001",
+          mode: "SELF_RATED",
+          selectionOrigin: "CLIENT_OFFLINE",
+        }),
+      ]),
+    );
+    // Per-deck mastery is what the progress endpoint answers, not the
+    // cache the helper above tampered with.
+    const shown = await request(httpServer)
+      .get("/v1/me/progress")
+      .set("Authorization", `Bearer ${account.tokens.accessToken}`)
+      .expect(200);
+    const shownDecks = [...(shown.body as unknown as ProgressBody).decks].sort(
+      (left, right) => left.deckId.localeCompare(right.deckId),
+    );
+    expect(shownDecks.length).toBeGreaterThan(0);
+    expect(
+      archive.deckMastery.map(
+        ({ deckId, tier, masteredCardCount, totalCardCount, ruleVersion }) => ({
+          deckId,
+          tier,
+          masteredCardCount,
+          totalCardCount,
+          ruleVersion,
+        }),
+      ),
+    ).toEqual(
+      shownDecks.map(
+        ({
+          deckId,
+          currentMasteryTier,
+          learnedCards,
+          totalCards,
+          ruleVersion,
+        }) => ({
+          deckId,
+          tier: currentMasteryTier,
+          masteredCardCount: learnedCards,
+          totalCardCount: totalCards,
+          ruleVersion,
+        }),
+      ),
+    );
+    expect(
+      archive.deckMastery.map(({ ruleVersion }) => ruleVersion),
+    ).not.toContain(99);
+    // Every stored device, the one removed earlier in this file included,
+    // and the removed one says so.
+    const storedDevices = await database.device.findMany({
+      where: { userId: account.user.id },
+      select: { deletedAt: true },
+      orderBy: { createdAt: "asc" },
+    });
+    expect(archive.devices.map(({ removedAt }) => removedAt)).toEqual(
+      storedDevices.map(({ deletedAt }) => deletedAt?.toISOString() ?? null),
+    );
+    expect(
+      archive.devices.filter(({ removedAt }) => removedAt !== null),
+    ).toHaveLength(1);
+    const storedSessions = await database.refreshSession.findMany({
+      where: { userId: account.user.id },
+      select: { createdAt: true, revokedAt: true, ipHash: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    expect(
+      archive.signInSessions.map(({ createdAt, revokedAt }) => ({
+        createdAt,
+        revokedAt,
+      })),
+    ).toEqual(
+      storedSessions.map(({ createdAt, revokedAt }) => ({
+        createdAt: createdAt.toISOString(),
+        revokedAt: revokedAt?.toISOString() ?? null,
+      })),
+    );
+    const storedImports = await database.guestImportOperation.findMany({
+      where: { userId: account.user.id },
+      select: { id: true, status: true, sourceInstallIdHash: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    expect(storedImports.length).toBeGreaterThan(0);
+    expect(
+      archive.guestImports.map(({ migrationId, status }) => ({
+        migrationId,
+        status,
+      })),
+    ).toEqual(
+      storedImports.map(({ id, status }) => ({ migrationId: id, status })),
+    );
+    const serialized = JSON.stringify(archive);
+    expect(serialized).not.toContain("accessToken");
+    expect(serialized).not.toContain("refreshToken");
+    expect(serialized).not.toContain(account.user.storeAccountToken);
+    // Keyed hashes stay out: they identify nothing to the reader.
+    for (const { ipHash } of storedSessions) {
+      if (ipHash !== null) {
+        expect(serialized).not.toContain(ipHash);
+      }
+    }
+    for (const { sourceInstallIdHash } of storedImports) {
+      expect(serialized).not.toContain(sourceInstallIdHash);
+    }
 
     await database.dataExportRequest.update({
       where: { id: dataExport.id },

@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-24T10:00:00.000Z",
+  "profile": {
+    "id": "0f6f2c1e-3a51-4c7e-9a86-3f0a5b8c1d01",
+    "displayName": "Flags Learner",
+    "preferredLocale": "en-US",
+    "createdAt": "2026-07-29T12:00:00.000Z",
+    "updatedAt": "2026-09-20T08:00:00.000Z"
+  },
+  "settings": {
+    "sessionSize": 20,
+    "contentLocale": "en-US",
+    "defaultAnswerMode": "SELF_RATED",
+    "extraFactTypes": ["CAPITAL"],
+    "soundEnabled": true,
+    "hapticsEnabled": true,
+    "remindersEnabled": true,
+    "reminderLocalTime": "19:30",
+    "reminderWeekdays": [1, 3, 5],
+    "desiredRetention": 0.9,
+    "timezone": "Europe/Berlin",
+    "version": 3,
+    "updatedAt": "2026-09-20T08:00:00.000Z"
+  },
+  "privacySettings": {
+    "productAnalyticsStatus": "GRANTED",
+    "diagnosticsStatus": "DENIED",
+    "policyVersion": "privacy-policy-v1",
+    "version": 3,
+    "updatedAt": "2026-09-01T09:00:00.000Z"
+  },
+  "consentHistory": [
+    {
+      "category": "PRODUCT_ANALYTICS",
+      "previousStatus": "UNKNOWN",
+      "newStatus": "GRANTED",
+      "policyVersion": "privacy-policy-v1",
+      "source": "WEB",
+      "occurredAt": "2026-08-01T09:00:00.000Z"
+    },
+    {
+      "category": "DIAGNOSTICS",
+      "previousStatus": "UNKNOWN",
+      "newStatus": "DENIED",
+      "policyVersion": "privacy-policy-v1",
+      "source": "WEB",
+      "occurredAt": "2026-09-01T09:00:00.000Z"
+    }
+  ],
+  "authenticationProviders": [
+    {
+      "provider": "APPLE",
+      "providerSubject": "001234.5f0c1e2d3b4a49c8a7e6d5c4b3a29180.1207",
+      "email": "a1b2c3d4e5@privaterelay.appleid.com",
+      "emailVerified": true,
+      "isPrivateEmail": true,
+      "linkedAt": "2026-07-29T12:00:00.000Z",
+      "lastSignedInAt": "2026-09-20T07:59:00.000Z"
+    },
+    {
+      "provider": "GOOGLE",
+      "providerSubject": "109876543210987654321",
+      "email": null,
+      "emailVerified": null,
+      "isPrivateEmail": null,
+      "linkedAt": "2026-08-02T10:00:00.000Z",
+      "lastSignedInAt": "2026-08-02T10:00:00.000Z"
+    }
+  ],
+  "devices": [
+    {
+      "platform": "IOS",
+      "appVersion": "1.0.0",
+      "locale": "en-US",
+      "timezone": "Europe/Berlin",
+      "createdAt": "2026-07-29T12:00:00.000Z",
+      "lastSeenAt": "2026-09-20T07:59:00.000Z",
+      "removedAt": null
+    },
+    {
+      "platform": "IOS",
+      "appVersion": "0.9.0",
+      "locale": "en-US",
+      "timezone": "Europe/Berlin",
+      "createdAt": "2026-07-01T12:00:00.000Z",
+      "lastSeenAt": "2026-07-28T18:00:00.000Z",
+      "removedAt": "2026-07-29T12:05:00.000Z"
+    }
+  ],
+  "signInSessions": [
+    {
+      "createdAt": "2026-07-29T12:00:00.000Z",
+      "lastUsedAt": "2026-08-05T08:00:00.000Z",
+      "expiresAt": "2026-08-28T12:00:00.000Z",
+      "revokedAt": "2026-08-05T08:00:00.000Z",
+      "userAgent": "Vexi/1.0.0 (iPhone; iOS 26.0)"
+    },
+    {
+      "createdAt": "2026-08-05T08:00:00.000Z",
+      "lastUsedAt": "2026-09-20T07:59:00.000Z",
+      "expiresAt": "2026-10-20T07:59:00.000Z",
+      "revokedAt": null,
+      "userAgent": null
+    }
+  ],
+  "guestImports": [
+    {
+      "migrationId": "a1000000-0000-4000-8000-000000000001",
+      "status": "APPLIED",
+      "acceptedEventCount": 42,
+      "duplicateEventCount": 0,
+      "rejectedEventCount": 0,
+      "createdAt": "2026-07-29T12:00:05.000Z",
+      "completedAt": "2026-07-29T12:00:09.000Z"
+    }
+  ],
+  "studySessions": [
+    {
+      "id": "a2000000-0000-4000-8000-000000000001",
+      "deckId": "70000000-0000-4000-8000-000000000001",
+      "deckCode": "EUROPE_FLAGS",
+      "mode": "SELF_RATED",
+      "selectionOrigin": "SERVER",
+      "requestedUniqueCount": 10,
+      "selectedUniqueCount": 1,
+      "status": "COMPLETED",
+      "contentVersion": "2026.09.01",
+      "schedulerVersion": "fsrs-6-v1",
+      "startedAt": "2026-09-20T07:50:00.000Z",
+      "completedAt": "2026-09-20T07:55:00.000Z",
+      "summary": {
+        "uniqueCardCount": 1,
+        "reviewCount": 1,
+        "correctCount": 1,
+        "incorrectCount": 0,
+        "durationSeconds": 300,
+        "ratings": { "again": 0, "hard": 0, "good": 1, "easy": 0 }
+      },
+      "cards": [
+        {
+          "learningCardId": "71000000-0000-4000-8000-000000000001",
+          "initialOrder": 0,
+          "selectionReason": "NEW"
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "id": "a3000000-0000-4000-8000-000000000001",
+      "learningCardId": "71000000-0000-4000-8000-000000000001",
+      "sessionId": "a2000000-0000-4000-8000-000000000001",
+      "rating": "GOOD",
+      "isCorrect": true,
+      "answerMode": "SELF_RATED",
+      "responseTimeMs": 2500,
+      "clientOccurredAt": "2026-09-20T07:51:00.000Z",
+      "effectiveOccurredAt": "2026-09-20T07:51:00.000Z",
+      "receivedAt": "2026-09-20T07:55:01.000Z",
+      "clientSequence": "1",
+      "schedulerVersion": "fsrs-6-v1",
+      "schedulerParametersVersion": "fsrs-6-default-v1"
+    }
+  ],
+  "progress": [
+    {
+      "learningCardId": "71000000-0000-4000-8000-000000000001",
+      "state": "LEARNING",
+      "difficulty": 5.2,
+      "stability": 0.4,
+      "dueAt": "2026-09-20T10:51:00.000Z",
+      "lastReviewedAt": "2026-09-20T07:51:00.000Z",
+      "repetitions": 1,
+      "lapses": 0,
+      "learningStep": 1,
+      "stateVersion": 2,
+      "schedulerVersion": "fsrs-6-v1",
+      "schedulerParametersVersion": "fsrs-6-default-v1"
+    }
+  ],
+  "deckMastery": [
+    {
+      "deckId": "70000000-0000-4000-8000-000000000001",
+      "deckCode": "EUROPE_FLAGS",
+      "tier": "NONE",
+      "masteredCardCount": 0,
+      "totalCardCount": 44,
+      "ruleVersion": 1,
+      "computedAt": "2026-09-20T07:55:01.000Z"
+    }
+  ],
+  "achievements": [],
+  "purchases": [
+    {
+      "provider": "APPLE_APP_STORE",
+      "storeEnvironment": "PRODUCTION",
+      "transactionId": "2000000912345678",
+      "originalTransactionId": "2000000912345678",
+      "productId": "app.vexi.deck.europe_coats",
+      "ownershipType": "PURCHASED",
+      "claimState": "CLAIMED",
+      "purchasedAt": "2026-09-04T12:20:00.000Z",
+      "verifiedAt": "2026-09-04T12:20:01.000Z",
+      "revokedAt": null,
+      "revocationReason": null
+    }
+  ],
+  "entitlementGrants": [
+    {
+      "entitlementKey": "entitlement.europe_coats",
+      "sourceType": "STORE_TRANSACTION",
+      "sourceTransactionId": "2000000912345678",
+      "status": "ACTIVE",
+      "grantedAt": "2026-09-04T12:20:01.000Z",
+      "revokedAt": null,
+      "revocationReason": null
+    }
+  ]
+}

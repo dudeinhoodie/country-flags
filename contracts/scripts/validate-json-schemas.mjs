@@ -37,6 +37,10 @@ const validationTargets = [
     data: ["fixtures/security/guest-import.valid.json"],
   },
   {
+    schema: "schemas/account/data-export.v2.schema.json",
+    data: ["fixtures/account/data-export.valid.json"],
+  },
+  {
     // Kept for the drafts still stored in v1 shape; the backend lifts them
     // to v2 on read (ADR-015), and nothing new is written against it.
     schema: "schemas/content/editorial-catalog.v1.schema.json",

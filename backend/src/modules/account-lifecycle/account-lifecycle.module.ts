@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { AuthModule } from "../auth/auth.module";
 import { CommerceModule } from "../commerce/commerce.module";
+import { ProgressModule } from "../progress/progress.module";
 import { ReviewsModule } from "../reviews/reviews.module";
 import {
   AccountDeletionController,
@@ -16,7 +17,7 @@ import { PrivacySettingsController } from "./privacy-settings.controller";
 import { PrivacySettingsService } from "./privacy-settings.service";
 
 @Module({
-  imports: [AuthModule, CommerceModule, ReviewsModule],
+  imports: [AuthModule, CommerceModule, ProgressModule, ReviewsModule],
   controllers: [
     GuestImportsController,
     DataExportsController,
