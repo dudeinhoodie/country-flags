@@ -43,8 +43,17 @@ public final class MetricKitSubscriber: NSObject, Sendable {
 
     /// The seam the tests use: the same path a real payload takes, without a
     /// framework that only delivers on a device once a day.
+    ///
+    /// A delivered payload is sent straight away rather than on the next
+    /// launch. MetricKit delivers shortly after a launch, which is after the
+    /// launch's own flush has run, so waiting for the next flush meant a day's
+    /// report left a day late, and a crash loop's report never left at all.
+    /// Consent is the coordinator's to check, at both steps.
     public func receive(payloadJSON: String, generatedAt: Date) async {
-        await coordinator.record(payload: payloadJSON, generatedAt: generatedAt)
+        guard await coordinator.record(payload: payloadJSON, generatedAt: generatedAt) else {
+            return
+        }
+        await coordinator.flush()
     }
 }
 
@@ -59,10 +68,10 @@ public final class MetricKitSubscriber: NSObject, Sendable {
         }
 
         private func handle(_ payloads: [(Data, Date)]) {
-            for (json, generatedAt) in payloads {
-                let text = String(decoding: json, as: UTF8.self)
-                Task { [coordinator] in
-                    await coordinator.record(payload: text, generatedAt: generatedAt)
+            let texts = payloads.map { (String(decoding: $0.0, as: UTF8.self), $0.1) }
+            Task { [self] in
+                for (text, generatedAt) in texts {
+                    await receive(payloadJSON: text, generatedAt: generatedAt)
                 }
             }
         }
