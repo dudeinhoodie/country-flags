@@ -536,9 +536,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Give up on a queued run
-         * @description The way out of a queue nothing is draining. A run holds the only live slot, so one no executor picks up would block every release after it with the database as the only remedy.
-         *     Only a queued run: a running one is a job that has already started, and cancelling the record under it would leave the two disagreeing about what happened.
+         * Give up on a run nobody is carrying out
+         * @description The way out of a stuck slot. A run holds the only live slot, so one nobody finishes would block every release after it with the database as the only remedy.
+         *     A queued run is cancelled: no executor picked it up, and nothing happened. A running run can be given up only once its executor has stopped reporting (`executorLost`). A killed job writes nothing on its way out, so such a run would otherwise stay `RUNNING` for good. It ends `FAILED` with `PUBLISH_RUN_EXECUTOR_LOST`, not cancelled, because the job did start. The release transaction applies whole or not at all, so the active version says whether it landed.
+         *     A running run whose executor is still reporting is refused: giving up the record under a live job would leave the two disagreeing about what happened.
          */
         post: operations["adminCancelReleaseRun"];
         delete?: never;
@@ -1892,6 +1893,13 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             startedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When the executor last said it was still carrying the run out. Null until a run is claimed. The executor reports every thirty seconds while it works.
+             */
+            heartbeatAt?: string | null;
+            /** @description True for a `RUNNING` run whose executor has not reported for five minutes: its job was killed or crashed, and the run can be given up through the cancel endpoint. Derived when the run is read, so it is false for every other status. */
+            executorLost: boolean;
             /** Format: date-time */
             finishedAt?: string | null;
         };
@@ -3482,7 +3490,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The run, now cancelled. */
+            /** @description The run, now `CANCELLED` if it was queued, or `FAILED` with `PUBLISH_RUN_EXECUTOR_LOST` if it was running. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3502,7 +3510,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFoundResponse"];
-            /** @description The run has already started or already finished. */
+            /** @description The run has already finished (`PUBLISH_RUN_NOT_QUEUED`), or it is running and its executor is still reporting (`PUBLISH_RUN_EXECUTOR_ALIVE`). */
             409: {
                 headers: {
                     [name: string]: unknown;

@@ -4,6 +4,15 @@ import { promisify } from "node:util";
 
 const run = promisify(execFile);
 
+/**
+ * How long the pipeline may take to build a release.
+ *
+ * A 250-entity catalogue rasterises seven hundred and fifty files. The job
+ * this runs in has to fit this, the release transaction and the uploads
+ * between them, and `publisher-job-budget.spec.ts` checks that it does.
+ */
+export const CONTENT_BUILD_TIMEOUT_MS = 900_000;
+
 export interface BundleBuildRequest {
   contentVersion: string;
   /** The oldest client the release will let read it. */
@@ -82,9 +91,7 @@ export async function buildContentBundle(
         paths.outputRoot,
       ],
       {
-        // A 250-entity catalogue rasterises seven hundred and fifty files,
-        // and the job it runs in is allowed half an hour in total.
-        timeout: 900_000,
+        timeout: CONTENT_BUILD_TIMEOUT_MS,
         maxBuffer: 16 * 1024 * 1024,
       },
     );

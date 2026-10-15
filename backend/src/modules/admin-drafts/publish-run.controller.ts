@@ -14,6 +14,7 @@ import { AdminRole } from "@prisma/client";
 import type { PublishRun } from "@prisma/client";
 
 import { uuid } from "../../common/http/request-validation";
+import { isExecutorLost } from "../content/publisher/publish-run-lease";
 import type { EnvironmentVariables } from "../../config/environment.validation";
 import { AdminAuthGuard } from "../admin-auth/admin-auth.guard";
 import type { AdminAuthenticatedRequest } from "../admin-auth/admin-auth.guard";
@@ -91,8 +92,9 @@ export class PublishRunController {
     return apiRun(run);
   }
 
-  /// The way out of a queue nothing is draining, which is a state this
-  /// deployment can be in for as long as the executor is not there yet.
+  /// The way out of a stuck slot: a queue nothing is draining, which is a
+  /// state this deployment can be in for as long as the executor is not
+  /// there yet, or a running run whose job died without saying so.
   @Post("runs/:runId/cancel")
   @RequireAdminRole(AdminRole.PUBLISHER)
   // A POST that creates nothing: the run already existed, and this ends it.
@@ -165,6 +167,8 @@ function apiRun(run: PublishRun): Record<string, unknown> {
     requestedByAdminUserId: run.requestedByAdminUserId,
     createdAt: run.createdAt.toISOString(),
     startedAt: run.startedAt?.toISOString() ?? null,
+    heartbeatAt: run.heartbeatAt?.toISOString() ?? null,
+    executorLost: isExecutorLost(run, new Date()),
     finishedAt: run.finishedAt?.toISOString() ?? null,
   };
 }

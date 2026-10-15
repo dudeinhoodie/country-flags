@@ -102,6 +102,18 @@ jobs:
       # `^;^` makes the separator a semicolon for symmetry with the service
       # deploy, where a client-id list makes a comma unusable.
       #
+      # `--task-timeout` has to cover a whole publish: the build (up to 15
+      # minutes), the uploads, and the release transaction (up to 20 minutes,
+      # plus 30 seconds waiting for a connection). Thirty minutes did not, so
+      # a slow publish was killed mid-transaction. A killed job writes nothing
+      # on its way out; its run is recovered through the heartbeat lease and
+      # the console's "Give up on this run" (#452).
+      # `publisher-job-budget.spec.ts` fails if this value stops covering the
+      # code's own limits.
+      #
+      # No retries: a retry would find the run no longer queued and exit
+      # without doing anything.
+      #
       # Secrets are pinned to the version that is newest now, as the API
       # deploy pins them: `:latest` would be resolved again by every
       # execution, so a new version would reach the job without a deploy and
@@ -144,7 +156,7 @@ jobs:
             --args backend/dist/cli/content-publisher-job.js \
             --cpu 2 \
             --memory 2Gi \
-            --task-timeout 30m \
+            --task-timeout 45m \
             --max-retries 0 \
             --parallelism 1 \
             --tasks 1 \

@@ -415,6 +415,16 @@ gcloud run jobs add-iam-policy-binding content-publisher-dev \
 — он остаётся рабочим путём и единственным, кто публикует произвольный
 коммит (ADR-017 §6).
 
+Если job умер посреди прогона (таймаут задачи 45 минут, OOM, отменённое
+выполнение), прогон остаётся `RUNNING`, но перестаёт слать heartbeat. Через
+5 минут тишины экран релиза пишет, что job перестал отчитываться, и
+предлагает "Give up on this run". Прогон завершается `FAILED` с
+`PUBLISH_RUN_EXECUTOR_LOST`, слот освобождается. Транзакция применяется
+целиком или никак, так что опубликованная версия видна в шапке экрана. Логи
+выполнения: `resource.type=cloud_run_job AND
+resource.labels.job_name=content-publisher-dev`, имя выполнения — на
+карточке прогона (ADR-017 §2).
+
 ### 6.3. Prod-контур консоли
 
 `admin-prod` разворачивается `.github/workflows/deploy-admin-prod.yml` только
