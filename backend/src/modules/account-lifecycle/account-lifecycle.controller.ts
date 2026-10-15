@@ -21,6 +21,7 @@ import { requiredString, uuid } from "../../common/http/request-validation";
 import { RateLimiter } from "../../common/security/rate-limiter.service";
 import { AuthGuard, type AuthenticatedRequest } from "../auth/auth.guard";
 import { ReauthenticationTokenService } from "../auth/reauthentication-token.service";
+import { AccountDeletionGuard } from "./account-deletion.guard";
 import { AccountDeletionService } from "./account-deletion.service";
 import { DataExportsService } from "./data-exports.service";
 import { parseGuestImportRequest } from "./guest-import.request";
@@ -181,8 +182,11 @@ export class DataExportDownloadsController {
   }
 }
 
+// Not `AuthGuard`: the deletion ends the sessions that would prove the
+// repeat of a request whose response was lost, and the repeat has to reach
+// the service to hear that the account is gone (#452).
 @Controller("me")
-@UseGuards(AuthGuard)
+@UseGuards(AccountDeletionGuard)
 export class AccountDeletionController {
   constructor(
     private readonly deletion: AccountDeletionService,
