@@ -371,10 +371,10 @@ public struct RootView: View {
                             )
                         )
                     },
-                    // The catalog is a tab, not a push: sending the learner
-                    // there as a stacked screen would leave a back arrow over
-                    // a tab bar that already shows where they are.
-                    onOpenCatalog: { router.tab = .catalog },
+                    // Progress is a tab, not a push: sending the learner there
+                    // as a stacked screen would leave a back arrow over a tab
+                    // bar that already shows where they are.
+                    onOpenProgress: { router.tab = .progress },
                     onStartStudy: { deckID, size, mode, composition in
                         router.push(
                             .study(
@@ -744,7 +744,6 @@ public enum AccessibilityIdentifier {
     public static let storeRecoveryTitle = "root.storeRecovery.title"
     public static let storeRecoveryContinue = "root.storeRecovery.continue"
 
-    public static let homeOpenCatalog = "home.openCatalog"
     public static let contentLoadingLabel = "content.loading"
     public static let contentStatusBanner = "content.statusBanner"
     public static let contentPlaceholderTitle = "content.placeholder.title"
@@ -780,8 +779,9 @@ public enum AccessibilityIdentifier {
         "home.due.\(code)"
     }
 
-    public static let homeDueEmpty = "home.due.empty"
     public static let homeFlagOfTheDay = "home.flagOfTheDay"
+    /// The known/learned block, which is one button to the progress tab.
+    public static let homeKnownLearned = "home.knownLearned"
     public static func homeRegion(_ code: String) -> String { "home.region.\(code)" }
     public static let settingsDevBlockIDs = "settings.dev.blockIDs"
     public static let settingsDevShowWelcome = "settings.dev.showWelcome"
@@ -815,6 +815,8 @@ public enum AccessibilityIdentifier {
     public static func progressDeckCounts(_ code: String) -> String {
         "progress.deck.\(code).counts"
     }
+
+    public static let progressKnownCounts = "progress.known.counts"
 
     public static let accountSignInApple = "settings.account.signInApple"
     public static let accountFakeSignIn = "settings.account.fakeSignIn"

@@ -69,6 +69,86 @@ final class ProgressSettingsUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["progress.empty"].exists, app.debugDescription)
     }
 
+    /// Home counts the countries met and learned, and the count is the way to
+    /// the screen it summarises (#497).
+    ///
+    /// Two answers and no more: the block is there from the first started
+    /// card, long before anything can be learned — which is why it replaced
+    /// the deck pane's "0 / 195", a figure that could not move on the first
+    /// day. The sitting is left open, so the block stands over the resume
+    /// pane as well as the deck pane; it leads whichever hero the day has.
+    func testTheKnownCountriesOnHomeOpenTheProgressTab() {
+        let app = launch(arguments: ["-reset-store"])
+
+        let deck = app.buttons["home.deck.ALL"]
+        XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
+        deck.tap()
+        let start = app.buttons["study.start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 30), app.debugDescription)
+        start.tap()
+
+        for _ in 0..<2 {
+            let reveal = app.buttons["study.reveal"]
+            XCTAssertTrue(reveal.waitForExistence(timeout: 30), app.debugDescription)
+            reveal.tap()
+            XCTAssertTrue(
+                app.staticTexts["study.answer"].waitForExistence(timeout: 10),
+                app.debugDescription
+            )
+            app.descendants(matching: .any).matching(identifier: "study.card")
+                .firstMatch.swipeRight()
+        }
+
+        app.buttons["study.close"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        // Waited for by its count as well as by its identifier: the screen
+        // re-reads the numbers on the way back from a sitting, and a block
+        // that is there with the previous word is not yet the one to check.
+        // Both languages lead with the number, so the check reads no copy.
+        let block = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier == %@ AND label BEGINSWITH %@",
+                "home.knownLearned",
+                "2 "
+            )
+        ).firstMatch
+        XCTAssertTrue(block.waitForExistence(timeout: 30), app.debugDescription)
+        // A string catalog key must never reach the interface.
+        XCTAssertFalse(block.label.contains("home.known_learned"), app.debugDescription)
+        // The open sitting does not hide the deck: the two answers were both
+        // remembered, so nothing is due for hours, and the deck stays on
+        // offer beside "continue" rather than behind it.
+        XCTAssertTrue(
+            app.buttons["home.continue"].waitForExistence(timeout: 15),
+            app.debugDescription
+        )
+        XCTAssertTrue(app.buttons["home.deck.ALL"].exists, app.debugDescription)
+
+        block.tap()
+
+        let progressTab = app.tabBars.buttons["Progress"]
+        XCTAssertTrue(progressTab.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(progressTab.isSelected, app.debugDescription)
+        // And the screen behind the tab is the one with the counts, not an
+        // empty state: the two answers are what the block was counting.
+        let counts = app.descendants(matching: .any)
+            .matching(identifier: "progress.deck.ALL.counts")
+            .firstMatch
+        XCTAssertTrue(counts.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertFalse(app.staticTexts["progress.empty"].exists, app.debugDescription)
+        // The map card repeats Home's known figure beside learned: the same
+        // two answers, the same number, so the tab does not open on a zero.
+        let known = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier == %@ AND label CONTAINS %@",
+                "progress.known.counts",
+                "2"
+            )
+        ).firstMatch
+        XCTAssertTrue(known.waitForExistence(timeout: 15), app.debugDescription)
+    }
+
     /// A setting is stored on the device, so it is still there after a relaunch
     /// — which is the whole reason it is written before it is ever sent.
     func testASessionSizeSurvivesARelaunch() {

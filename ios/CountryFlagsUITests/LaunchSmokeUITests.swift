@@ -16,8 +16,8 @@ final class LaunchSmokeUITests: XCTestCase {
     func testLaunchShowsLocalizedShell() {
         let app = XCUIApplication()
         // A fresh store, like every other suite: the deck pane this test
-        // anchors on is only rendered when nothing is due and no session is
-        // open, and leftover state from an earlier run must not decide that.
+        // anchors on is only rendered when nothing is due, and leftover state
+        // from an earlier run must not decide that.
         app.launchArguments += ["-reset-store"]
         app.launch()
 
@@ -29,6 +29,22 @@ final class LaunchSmokeUITests: XCTestCase {
         // label is its action title, so a broken catalog would surface the
         // raw "study." key there — never the identifier string.
         XCTAssertFalse(hero.label.contains("study."), app.debugDescription)
+
+        // The deck pane names the deck and its size and carries no score:
+        // its "0 / 195" was a figure that could not move on the first day
+        // (#497). Read off every label rather than one element's, because the
+        // pane's texts are combined into an element of SwiftUI's choosing.
+        let score = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label MATCHES %@", ".*/ [0-9]+.*"))
+            .firstMatch
+        XCTAssertFalse(score.exists, app.debugDescription)
+        // A fresh store is a first visit: nothing answered, so nothing for
+        // the known/learned block to count, and the block is not drawn.
+        XCTAssertFalse(
+            app.descendants(matching: .any)
+                .matching(identifier: "home.knownLearned").firstMatch.exists,
+            app.debugDescription
+        )
     }
 
     /// A build the backend no longer supports stops at the update screen,
@@ -231,9 +247,9 @@ final class LaunchSmokeUITests: XCTestCase {
 
     // MARK: - Helpers
 
-    /// The catalogue rather than the home hero: the hero pane is replaced by
-    /// the resume row while a session is open, and the second leg below has
-    /// one open.
+    /// The catalogue rather than Home: the test watches the Europe deck's own
+    /// rows, and the catalogue is where that deck is opened by name in every
+    /// state Home can be in.
     private func openEuropeDeck(in app: XCUIApplication) {
         let catalog = app.tabBars.buttons["Catalog"]
         XCTAssertTrue(catalog.waitForExistence(timeout: 60), app.debugDescription)

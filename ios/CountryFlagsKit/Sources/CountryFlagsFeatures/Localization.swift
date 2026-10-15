@@ -101,34 +101,60 @@ public enum L10n {
     /// The label over the number the first screen is built around, in each of
     /// its two cases, and the action underneath it.
     public static var homeDue: String { localized("home.due") }
-    /// The cleared-day card: a learner who finished everything is told so,
-    /// shown what it added up to, and offered somewhere to go next.
-    public static var homeClearedSubtitle: String { localized("home.cleared.subtitle") }
-    /// The moment the rhythm comes round, in place of "when they are due".
-    /// ADR-022 made that three hours; this is the app saying so rather than
-    /// leaving the learner to guess.
-    public static func homeClearedNextPortion(_ time: String) -> String {
-        String(format: localized("home.cleared.next_portion"), time)
-    }
-    public static var homeClearedLearned: String { localized("home.cleared.learned") }
-    public static var homeClearedInProgress: String { localized("home.cleared.in_progress") }
-    /// Declined by the count, which is why it goes through the catalogue's own
-    /// plural machinery rather than a format string: "1 страна", "2 страны",
-    /// "12 стран" are three different words.
-    public static func homeClearedInProgressCount(_ count: Int) -> String {
-        // `NSLocalizedString` returns the plural rule itself; only
-        // `localizedStringWithFormat` applies it. `String(localized:)` would
-        // hand back one arbitrary variant and format the number into it.
-        String.localizedStringWithFormat(
-            NSLocalizedString("home.cleared.in_progress_count", bundle: bundle, comment: ""),
-            count
-        )
-    }
 
     public static func homeDueCount(_ count: Int) -> String {
         String(format: localized("home.due_count"), count)
     }
-    public static var homeDeckLearned: String { localized("home.deck_learned") }
+    /// The block that counts the countries (#497): the word under each of its
+    /// two figures, and the line under its bar while nothing is learned yet.
+    ///
+    /// The first word is declined by the count without printing it — the
+    /// number stands above it in the hero face — so the catalogue keeps it as
+    /// a substitution: one that declares its argument's type itself, which is
+    /// what lets every variant leave the number out.
+    public static func homeKnownCaption(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.known_learned.known", bundle: bundle, comment: ""),
+            count
+        )
+    }
+    public static var homeLearnedCaption: String { localized("home.known_learned.learned") }
+    public static var homeLearnedExplanation: String {
+        localized("home.known_learned.explanation")
+    }
+    /// The same block as VoiceOver reads it: one sentence with the numbers
+    /// inside the words, and what a tap does.
+    public static func homeKnownCount(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString(
+                "home.known_learned.accessibility.known", bundle: bundle, comment: ""
+            ),
+            count
+        )
+    }
+    public static func homeLearnedOf(_ learned: Int, _ total: Int) -> String {
+        String(format: localized("home.known_learned.accessibility.learned"), learned, total)
+    }
+    public static var homeKnownLearnedHint: String {
+        localized("home.known_learned.accessibility.hint")
+    }
+    /// The same block on a finished day: its title, and the line under the
+    /// bar that gives the day's limit and when repeats come back. The limit
+    /// is declined by the count — "50 стран", "21 страна" — so it goes
+    /// through `localizedStringWithFormat`, the only call that applies the
+    /// catalogue's plural rule; `String(format:)` would format the number
+    /// into one arbitrary variant.
+    public static var homeDayDoneTitle: String {
+        localized("home.known_learned.day_done.title")
+    }
+    public static func homeDayDoneLimit(_ limit: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString(
+                "home.known_learned.day_done.limit", bundle: bundle, comment: ""
+            ),
+            limit
+        )
+    }
     /// A first visit: the flag to guess and the regions to start from.
     public static var homeFlagOfTheDay: String { localized("home.flag_of_the_day.label") }
     public static var homeFlagOfTheDayQuestion: String {
@@ -204,6 +230,7 @@ public enum L10n {
     public static var achievementsEarned: String { localized("achievements.earned") }
     public static var achievementsEmpty: String { localized("achievements.empty") }
 
+    public static var progressKnownLabel: String { localized("progress.known") }
     public static var progressLearnedLabel: String { localized("progress.learned") }
     public static var progressMapHint: String { localized("progress.map_hint") }
     public static var detailsRegion: String { localized("details.region") }

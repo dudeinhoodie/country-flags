@@ -204,37 +204,60 @@ public struct ProgressScreen: View {
                     )
                     .frame(maxWidth: .infinity)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        SectionLabel(L10n.progressLearnedLabel)
-                        HStack(
-                            alignment: .firstTextBaseline,
-                            spacing: DesignTokens.Spacing.extraSmall
-                        ) {
-                            Text("\(learnedCards)")
+                    // Known beside learned, the pair Home leads with (#497):
+                    // learned alone read zero for the whole first day, while
+                    // known moves with every new card. Learned keeps its
+                    // place out of the deck — this is the screen that answers
+                    // "how much of the world" — and known stands before it as
+                    // the part already met.
+                    HStack(alignment: .top, spacing: DesignTokens.Spacing.extraLarge) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            SectionLabel(L10n.progressKnownLabel)
+                            Text("\(knownCards)")
                                 .font(DesignTokens.Typography.heroNumber)
                                 .monospacedDigit()
                                 .contentTransition(.numericText())
-                            Text("/ \(totalCards)")
-                                .font(DesignTokens.Typography.sectionTitle)
-                                .foregroundStyle(.white.opacity(0.55))
-                            Spacer(minLength: DesignTokens.Spacing.small)
-                            Text(L10n.progressMapHint)
-                                .font(DesignTokens.Typography.caption)
-                                .foregroundStyle(.white.opacity(0.45))
                         }
                         .foregroundStyle(.white)
-                    }
-                    .accessibilityElement(children: .combine)
-                    // The whole-picture counts keep the identifier the
-                    // curated row used to carry: same fact, new place. It is
-                    // applied after the combine — on a container it would be
-                    // stamped onto every text inside, and a query that asks
-                    // for the single element would find a crowd.
-                    .accessibilityIdentifier(
-                        AccessibilityIdentifier.progressDeckCounts(
-                            store.whole?.code ?? ALL_COUNTRIES_DECK_CODE
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier(AccessibilityIdentifier.progressKnownCounts)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            SectionLabel(L10n.progressLearnedLabel)
+                            HStack(
+                                alignment: .firstTextBaseline,
+                                spacing: DesignTokens.Spacing.extraSmall
+                            ) {
+                                Text("\(learnedCards)")
+                                    .font(DesignTokens.Typography.heroNumber)
+                                    .monospacedDigit()
+                                    .contentTransition(.numericText())
+                                Text("/ \(totalCards)")
+                                    .font(DesignTokens.Typography.sectionTitle)
+                                    .foregroundStyle(.white.opacity(0.55))
+                            }
+                        }
+                        .foregroundStyle(.white)
+                        .accessibilityElement(children: .combine)
+                        // The whole-picture counts keep the identifier the
+                        // curated row used to carry: same fact, new place. It
+                        // is applied after the combine — on a container it
+                        // would be stamped onto every text inside, and a query
+                        // that asks for the single element would find a crowd.
+                        .accessibilityIdentifier(
+                            AccessibilityIdentifier.progressDeckCounts(
+                                store.whole?.code ?? ALL_COUNTRIES_DECK_CODE
+                            )
                         )
-                    )
+
+                        Spacer(minLength: 0)
+                    }
+
+                    // Its own line now: beside two figures it no longer fits
+                    // on theirs, and it explains the map above, not the counts.
+                    Text(L10n.progressMapHint)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundStyle(.white.opacity(0.45))
                 }
             }
             .devBlockID("progress.map")
@@ -322,6 +345,13 @@ public struct ProgressScreen: View {
 
     private var totalCards: Int {
         store.whole?.totalCards ?? otherDecks.reduce(0) { $0 + $1.totalCards }
+    }
+
+    /// Countries met at all, learned ones included: the same figure as Home's
+    /// "known" (#497), from the same deck with the same fallback, so the two
+    /// screens never disagree about it.
+    private var knownCards: Int {
+        store.whole?.startedCards ?? otherDecks.reduce(0) { $0 + $1.startedCards }
     }
 }
 

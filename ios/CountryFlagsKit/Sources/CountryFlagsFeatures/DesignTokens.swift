@@ -97,6 +97,21 @@ public enum DesignTokens {
         public static let coatPlaneOpacity: Double = 0.86
     }
 
+    /// Colours the app names for what they mean, where a screen would
+    /// otherwise spell one out as a literal and the next screen would spell
+    /// it a shade differently.
+    public enum Colors {
+        /// Warm gold: the light of the app's one celebration, behind a
+        /// finished deck.
+        public static let gold = Color(red: 0.94, green: 0.82, blue: 0.55)
+        /// Learned: the system's own green, at full saturation. On Home it is
+        /// the seal before the learned figure, and only that: the bar under
+        /// it stays the catalogue's white and grey. It is the green the
+        /// finished-day seal wore, chosen over the result screen's softer
+        /// shade for being the saturated one.
+        public static let learned = Color.green
+    }
+
     /// The ground every screen sits on.
     public enum Scene {
         /// Not quite black: a pure black ground makes the glass above it read
