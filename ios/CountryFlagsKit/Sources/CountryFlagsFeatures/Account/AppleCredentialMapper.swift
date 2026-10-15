@@ -27,7 +27,8 @@ enum AppleCredentialMapper {
                 let credential = credential(
                     identityToken: appleID.identityToken,
                     authorizationCode: appleID.authorizationCode,
-                    rawNonce: rawNonce
+                    rawNonce: rawNonce,
+                    appleUserID: appleID.user
                 )
             else {
                 return .failed(.provider(code: "APPLE_CREDENTIAL_UNREADABLE"))
@@ -53,10 +54,15 @@ enum AppleCredentialMapper {
     /// The token and the code arrive as bytes and go to the backend as the
     /// UTF-8 strings they are. Either missing or unreadable means the
     /// credential cannot be exchanged, not that something may be guessed.
+    ///
+    /// Apple's user identifier rides along for the session to keep: it is
+    /// what the app asks Apple about later, on launch and on every return,
+    /// to find out whether the person has since switched the sign-in off.
     static func credential(
         identityToken: Data?,
         authorizationCode: Data?,
-        rawNonce: String
+        rawNonce: String,
+        appleUserID: String? = nil
     ) -> ProviderCredential? {
         guard
             let identityToken,
@@ -68,6 +74,11 @@ enum AppleCredentialMapper {
         else {
             return nil
         }
-        return .apple(identityToken: token, authorizationCode: code, rawNonce: rawNonce)
+        return .apple(
+            identityToken: token,
+            authorizationCode: code,
+            rawNonce: rawNonce,
+            appleUserID: appleUserID.flatMap { $0.isEmpty ? nil : $0 }
+        )
     }
 }

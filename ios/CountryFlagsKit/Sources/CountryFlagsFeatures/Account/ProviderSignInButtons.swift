@@ -36,6 +36,8 @@ struct ProviderSignInButtons: View {
     /// is the only way a UI test can drive a flow that starts with one. It is
     /// offered solely where the composition allows it — debug environments,
     /// and only when the launch asked — so a release build never sees it.
+    /// It carries no Apple user identifier, so the session never asks Apple
+    /// about it: a simulator would answer that it knows no such person.
     static let fixtureCredential = ProviderCredential.apple(
         identityToken: "fixture-identity-token",
         authorizationCode: "fixture-authorization-code",

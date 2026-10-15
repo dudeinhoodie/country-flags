@@ -63,6 +63,13 @@ public struct RootView: View {
     /// closes, rather than guessed at from a pending count that has usually
     /// already drained by the time the home screen is looking.
     @State private var isSettlingRun = false
+    /// Whether the check that coming back to the app makes is in flight.
+    ///
+    /// Not a settling run: that window covers the numbers because they are
+    /// known to be behind, while this one is only asking whether anything
+    /// moved, and usually nothing has. Home is told so it leaves its numbers
+    /// lit and in reach while the answer comes (#506).
+    @State private var isCheckingQuietly = false
     /// The preferences, read once for the whole shell so that a switch
     /// flipped in the settings reaches the session it silences. The store is
     /// the app's single one; asking it here costs nothing.
@@ -90,6 +97,13 @@ public struct RootView: View {
     }
 
     @Environment(\.scenePhase) private var scenePhase
+    /// When the scene went to the background, or nil while it has not since
+    /// it was last active.
+    ///
+    /// On the continuous clock rather than the date: it keeps counting while
+    /// the phone sleeps, which a locked phone mostly does, and changing the
+    /// time in Settings cannot make an hour away look like a second.
+    @State private var backgroundedAt: ContinuousClock.Instant?
 
     /// How old the catalogue may be before coming back to the app refreshes
     /// it. Ten minutes: long enough that answering the door costs nothing,
@@ -340,6 +354,7 @@ public struct RootView: View {
                     assets: assets,
                     progress: progress,
                     isSettling: isSettlingRun || isSettlingAtLaunch,
+                    isCheckingQuietly: isCheckingQuietly,
                     makeSettings: makeSettingsStore,
                     onOpenDeck: { router.push(.deck(id: $0)) },
                     // Straight back into the run: the hero already names the
@@ -449,6 +464,9 @@ public struct RootView: View {
         .task {
             if accountToolbar == nil { accountToolbar = makeAccountStore?() }
             await accountToolbar?.start()
+            // Sign in with Apple switched off in Settings since the last
+            // launch ends the session here, before anything else reads it.
+            await accountToolbar?.checkProviderCredential()
             // Once the account has said who this is: a device that is
             // already signed in, or already studied, is not a first launch
             // whatever the flag says.
@@ -532,21 +550,58 @@ public struct RootView: View {
             // The one place the app reacts to coming back. Screens used to
             // watch this too, so a return ran the same reads twice and the
             // two overlapping passes raced each other.
-            guard phase == .active else { return }
-            Task {
-                // Coming back is the same kind of window as leaving a sitting:
-                // what is on screen is the word from before the app went away,
-                // and it is about to be replaced. It was left uncovered, so
-                // the numbers changed under the reader with nothing to say
-                // they were being checked.
-                isSettlingRun = true
-                await content.refreshIfStale(olderThan: Self.contentStaleAfter)
-                await sync.synchronize(trigger: .foreground)
-                // The store may have settled something while the app was
-                // away — an Ask to Buy approved, a refund — so what the
-                // account may open is asked again on the way back in.
-                await commerce?.refresh(trigger: .foreground)
-                isSettlingRun = false
+            //
+            // Only a real return, and a quiet one: the owner decided it on
+            // 13 October 2026 (#506). Every turn to `.active` used to put
+            // Home's placeholder over the numbers and run the whole pass, and
+            // `.active` follows any `.inactive` spell — so pulling down
+            // Notification Centre, a Face ID prompt or a glance at the app
+            // switcher reloaded the screen, several requests each time for an
+            // account. Now the scene has to have been in the background, for
+            // at least `ForegroundCheck.minimumAway`, and the check runs
+            // under the numbers rather than in their place: Home stays lit
+            // and in reach, and a figure that changes moves where it stands.
+            //
+            // The check itself stays. Cards come due again hours after they
+            // were answered, the day's allowance resets at midnight, and
+            // another device may have answered since. The cover is what went.
+            switch phase {
+            case .background:
+                // Kept from the first moment away until the next `.active`,
+                // so a second `.background` with no return in between does
+                // not start the count again.
+                backgroundedAt = backgroundedAt ?? .now
+            case .active:
+                let away = backgroundedAt.map { $0.duration(to: .now) }
+                backgroundedAt = nil
+                // Sign in with Apple is switched off in Settings, so a person
+                // who did it has been to the background — and a trip to
+                // Settings and back is quick, so this does not wait for
+                // `minimumAway` (#444). It asks Apple rather than the backend
+                // and changes nothing on screen unless the sign-in is gone.
+                guard let away else { return }
+                // A check still in flight answers this return as well; a
+                // second one alongside it would clear the flag under it.
+                let isCheckDue =
+                    !isCheckingQuietly
+                    && ForegroundCheck.isDue(wentToBackground: true, away: away)
+                if isCheckDue { isCheckingQuietly = true }
+                Task {
+                    // First, before the run: a person who switched Sign in
+                    // with Apple off while away is signed out rather than
+                    // synced as.
+                    await accountToolbar?.checkProviderCredential()
+                    guard isCheckDue else { return }
+                    await content.refreshIfStale(olderThan: Self.contentStaleAfter)
+                    await sync.synchronize(trigger: .foreground)
+                    // The store may have settled something while the app was
+                    // away — an Ask to Buy approved, a refund — so what the
+                    // account may open is asked again on the way back in.
+                    await commerce?.refresh(trigger: .foreground)
+                    isCheckingQuietly = false
+                }
+            default:
+                break
             }
         }
     }
