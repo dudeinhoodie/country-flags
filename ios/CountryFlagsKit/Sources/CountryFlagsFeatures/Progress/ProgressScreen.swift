@@ -116,7 +116,7 @@ public struct ProgressScreen: View {
     /// counts answers waiting to upload, which this screen does not read.
     @ViewBuilder
     private var accountPrompt: some View {
-        if let onSignIn, case .guest? = account?.state {
+        if let onSignIn, case .guest? = account?.resolvedState {
             AccountPromptRow(
                 symbol: "person.crop.circle",
                 title: L10n.homeGuestPromptTitle,

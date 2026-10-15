@@ -715,7 +715,9 @@ public struct HomeView: View {
     }
 
     private var isGuestWithSomethingToLose: Bool {
-        guard case .guest? = account?.state else { return false }
+        // The resolved state, not the placeholder the store starts from: a
+        // signed-in person must never see this row while the session answers.
+        guard case .guest? = account?.resolvedState else { return false }
         return hasAnyProgress
     }
 

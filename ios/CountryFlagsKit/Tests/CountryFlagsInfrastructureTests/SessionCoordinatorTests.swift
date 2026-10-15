@@ -320,6 +320,66 @@ final class SessionCoordinatorTests: XCTestCase {
         XCTAssertEqual(scope, guestScope)
     }
 
+    // MARK: - Warm start
+
+    /// The state waits for the keychain the way the scope does. Nothing has
+    /// called `restore()` here, which is exactly the first read of a warm
+    /// start: the account screen asked before the launch got round to it,
+    /// was told `.guest`, and kept showing the guest prompt (#452).
+    func testTheStateWaitsForTheKeychainLikeTheScopeDoes() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        try await tokens.setValue("refresh-stored", for: .refreshToken)
+        try await tokens.setValue(service.userID.uuidString, for: .accountUserID)
+        try await tokens.setValue("Stored Learner", for: .accountDisplayName)
+        let session = makeCoordinator(service: service, tokens: tokens)
+
+        let state = await session.currentState()
+        let profile = await session.currentProfile()
+
+        XCTAssertEqual(state, .authenticated(userID: service.userID))
+        XCTAssertEqual(profile?.displayName, "Stored Learner")
+        let rotations = await service.refreshCount
+        XCTAssertEqual(rotations, 0, "who this is is the keychain's answer, not the network's")
+    }
+
+    /// The race itself: the launch's restoration is suspended on the keychain
+    /// when the screen asks. The answer waits for the read instead of
+    /// reporting the guest every launch starts as.
+    func testAStateReadDuringTheLaunchReadIsNotAGuest() async throws {
+        let service = StubAuthService()
+        let tokens = GatedTokenStore(values: [
+            .refreshToken: "refresh-stored",
+            .accountUserID: service.userID.uuidString,
+        ])
+        let session = makeCoordinator(service: service, tokens: tokens)
+
+        let launch = Task { await session.restore() }
+        await tokens.waitUntilAReadIsHeld()
+        let early = Task { await session.currentState() }
+        await tokens.release()
+
+        let state = await early.value
+        XCTAssertEqual(state, .authenticated(userID: service.userID))
+        await launch.value
+    }
+
+    /// Now that the first state read can start the restoration, it must not
+    /// undo a sign-out that came before it. A keychain that refused to delete
+    /// the token would otherwise sign the person who just left back in.
+    func testTheKeychainReadNeverOverrulesASignOut() async {
+        let service = StubAuthService()
+        let session = makeCoordinator(service: service, tokens: UndeletableTokenStore())
+        _ = await session.signIn(with: .google(idToken: "t"))
+
+        await session.signOut()
+
+        let state = await session.currentState()
+        XCTAssertEqual(state, .guest)
+        let scope = await session.currentScope()
+        XCTAssertEqual(scope, guestScope)
+    }
+
     // MARK: - Signing out
 
     /// The backend reads which session to end from the bearer. Sent without
@@ -549,5 +609,66 @@ private actor RefusingTokenStore: SecureTokenStoring {
 
     func removeAll() async throws {
         throw SecureTokenStoreError.unavailable(status: -34018)
+    }
+}
+
+/// Holds every read until released, so a test can ask a question while the
+/// launch is suspended on the keychain.
+private actor GatedTokenStore: SecureTokenStoring {
+    private var values: [SecureTokenKind: String]
+    private var isOpen = false
+    private var held: [CheckedContinuation<Void, Never>] = []
+    private var watchers: [CheckedContinuation<Void, Never>] = []
+
+    init(values: [SecureTokenKind: String]) {
+        self.values = values
+    }
+
+    func value(for kind: SecureTokenKind) async throws -> String? {
+        if !isOpen {
+            await withCheckedContinuation { continuation in
+                held.append(continuation)
+                watchers.forEach { $0.resume() }
+                watchers.removeAll()
+            }
+        }
+        return values[kind]
+    }
+
+    func setValue(_ value: String?, for kind: SecureTokenKind) async throws {
+        values[kind] = value
+    }
+
+    func removeAll() async throws {
+        values.removeAll()
+    }
+
+    func waitUntilAReadIsHeld() async {
+        guard held.isEmpty else { return }
+        await withCheckedContinuation { watchers.append($0) }
+    }
+
+    func release() {
+        isOpen = true
+        held.forEach { $0.resume() }
+        held.removeAll()
+    }
+}
+
+/// Accepts every write but a deletion, the way a keychain that has lost its
+/// access group can: the values stay on disk after a sign-out asked for them
+/// to go.
+private actor UndeletableTokenStore: SecureTokenStoring {
+    private var values: [SecureTokenKind: String] = [:]
+
+    func value(for kind: SecureTokenKind) async throws -> String? { values[kind] }
+
+    func setValue(_ value: String?, for kind: SecureTokenKind) async throws {
+        guard let value else { throw SecureTokenStoreError.unavailable(status: -25300) }
+        values[kind] = value
+    }
+
+    func removeAll() async throws {
+        throw SecureTokenStoreError.unavailable(status: -25300)
     }
 }

@@ -14,6 +14,15 @@ import CountryFlagsDomain
 @Observable
 public final class AccountStore {
     public private(set) var state: AuthenticationState = .guest
+    /// `state`, once the session has answered; nil before that.
+    ///
+    /// `state` has to start as something, and `.guest` is a placeholder
+    /// rather than an answer. A prompt that exists only for guests reads this
+    /// instead: the shell draws before `start()` returns, and reading the
+    /// placeholder showed a signed-in person the guest prompt for as long as
+    /// the session took to say otherwise (#452).
+    public var resolvedState: AuthenticationState? { hasResolvedState ? state : nil }
+    private var hasResolvedState = false
     /// The signed-in person as the screen shows them.
     public private(set) var profile: AccountProfile?
     /// The avatar's bytes, fetched once and kept for the life of the store.
@@ -114,6 +123,7 @@ public final class AccountStore {
 
     public func start() async {
         state = await session.currentState()
+        hasResolvedState = true
         profile = await session.currentProfile()
         await loadAvatar()
         pendingDeletion = deletionState?.pendingDeletion()
@@ -135,6 +145,7 @@ public final class AccountStore {
     /// is the one question a refused sync run reopens.
     public func refreshState() async {
         state = await session.currentState()
+        hasResolvedState = true
         // Not every way out of an account goes through `confirmSignOut` —
         // deleting one ends the session from another store entirely — so
         // whoever re-reads the state also drops what belonged to the account
@@ -176,6 +187,7 @@ public final class AccountStore {
         lastFailure = nil
         pendingNonce = nil
         state = .authenticating(credential.provider)
+        hasResolvedState = true
         let outcome = await session.signIn(with: credential)
         state = await session.currentState()
         if let providerProfile {
@@ -263,6 +275,7 @@ public final class AccountStore {
         // The trail that was being attributed to whoever just left ends here.
         await analytics?.setIdentity(nil)
         state = await session.currentState()
+        hasResolvedState = true
         profile = nil
         migration = nil
         // The picture goes with the person. `profile = nil` alone left the
