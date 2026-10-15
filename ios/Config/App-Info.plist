@@ -68,6 +68,8 @@
 	<string>$(CF_PRIVACY_POLICY_URL)</string>
 	<key>CFTermsURL</key>
 	<string>$(CF_TERMS_URL)</string>
+	<key>CFAppStoreID</key>
+	<string>$(CF_APP_STORE_ID)</string>
 	<key>CFGoogleClientID</key>
 	<string>$(CF_GOOGLE_IOS_CLIENT_ID)</string>
 	<key>CFGoogleServerClientID</key>

@@ -30,6 +30,68 @@ final class FeatureFlagCenterTests: XCTestCase {
         XCTAssertEqual(center.variant(of: .homeRecommendedDecksVariant), "control")
         XCTAssertEqual(center.number(of: .studyMaxNewCardsPerSession), 10)
     }
+
+    /// The version policy is read from the snapshot answering now: the cached
+    /// one before the network (so a refused build stays refused offline), and
+    /// the fresh one after every refresh (so a relaxed policy lets it in).
+    func testTheVersionPolicyIsReadBeforeAndAfterTheNetwork() async {
+        let policy = StubVersionPolicy(
+            ClientVersionPolicy(minimumSupported: "0.3.0", latest: "0.3.0", updateMode: .forced)
+        )
+        let center = FeatureFlagCenter(
+            flags: StubFeatureFlags(),
+            versionPolicy: policy,
+            appVersion: "0.2.0"
+        )
+        XCTAssertEqual(center.updateRequirement, .none, "nothing is read before activation")
+
+        center.evaluateVersionPolicy()
+        XCTAssertEqual(center.updateRequirement, .required(minimumSupported: "0.3.0"))
+
+        policy.policy = ClientVersionPolicy(
+            minimumSupported: "0.1.0",
+            latest: "0.3.0",
+            updateMode: .soft
+        )
+        await center.refresh(
+            context: FeatureFlagContext(
+                scope: .guest(installationID: UUID()),
+                environment: .dev,
+                appVersion: "0.2.0",
+                locale: "en"
+            )
+        )
+        XCTAssertEqual(center.updateRequirement, .recommended(latest: "0.3.0"))
+    }
+
+    /// No policy source asks nothing of the build.
+    func testWithoutAPolicyNothingIsAsked() {
+        let center = FeatureFlagCenter(flags: StubFeatureFlags())
+        center.evaluateVersionPolicy()
+        XCTAssertEqual(center.updateRequirement, .none)
+    }
+
+    /// Every update string is translated, so a key never reaches the screen.
+    func testTheUpdateCopyIsTranslated() {
+        for text in [
+            L10n.updateRequiredTitle, L10n.updateRequiredMessage, L10n.updateOpenAppStore,
+            L10n.updateRecommendedTitle, L10n.updateRecommendedMessage,
+            L10n.updateRecommendedUpdate, L10n.updateRecommendedLater,
+        ] {
+            XCTAssertFalse(text.hasPrefix("update."), text)
+        }
+    }
+}
+
+/// A version policy the test moves between reads.
+private final class StubVersionPolicy: ClientVersionPolicyProviding, @unchecked Sendable {
+    var policy: ClientVersionPolicy?
+
+    init(_ policy: ClientVersionPolicy?) {
+        self.policy = policy
+    }
+
+    var clientVersionPolicy: ClientVersionPolicy? { policy }
 }
 
 final class ErrorPresentationTests: XCTestCase {

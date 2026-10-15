@@ -43,6 +43,33 @@ final class RuntimeConfigurationLoaderTests: XCTestCase {
         XCTAssertNil(configuration.termsURL)
     }
 
+    /// The App Store page the update screen opens (#447): absent until the
+    /// identifier is configured, built from it when it is, and a mistake when
+    /// it is not a number.
+    func testTheAppStorePageComesFromTheConfiguredIdentifier() throws {
+        var values: [String: Any] = [
+            RuntimeConfigurationLoader.environmentKey: "prod",
+            RuntimeConfigurationLoader.apiBaseURLKey: "https://api.example.test",
+            RuntimeConfigurationLoader.deepLinkSchemeKey: "countryflags",
+            RuntimeConfigurationLoader.appStoreIDKey: "",
+        ]
+        XCTAssertNil(try RuntimeConfigurationLoader.configuration(from: values).appStoreURL)
+
+        values[RuntimeConfigurationLoader.appStoreIDKey] = "6740000001"
+        XCTAssertEqual(
+            try RuntimeConfigurationLoader.configuration(from: values).appStoreURL,
+            URL(string: "https://apps.apple.com/app/id6740000001")
+        )
+
+        values[RuntimeConfigurationLoader.appStoreIDKey] = "id6740000001"
+        XCTAssertThrowsError(try RuntimeConfigurationLoader.configuration(from: values)) {
+            XCTAssertEqual(
+                $0 as? RuntimeConfigurationLoader.LoadError,
+                .invalidAppStoreID("id6740000001")
+            )
+        }
+    }
+
     func testConfiguredLegalLinksAreRead() throws {
         let configuration = try RuntimeConfigurationLoader.configuration(from: [
             RuntimeConfigurationLoader.environmentKey: "prod",

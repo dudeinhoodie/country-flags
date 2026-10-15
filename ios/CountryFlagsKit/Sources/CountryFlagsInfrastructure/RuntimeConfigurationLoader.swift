@@ -12,6 +12,7 @@ public enum RuntimeConfigurationLoader {
         case missingKey(String)
         case unknownEnvironment(String)
         case invalidURL(String)
+        case invalidAppStoreID(String)
     }
 
     public static let environmentKey = "CFAppEnvironment"
@@ -21,6 +22,7 @@ public enum RuntimeConfigurationLoader {
     public static let googleServerClientIDKey = "CFGoogleServerClientID"
     public static let privacyPolicyURLKey = "CFPrivacyPolicyURL"
     public static let termsURLKey = "CFTermsURL"
+    public static let appStoreIDKey = "CFAppStoreID"
     public static let versionKey = "CFBundleShortVersionString"
     public static let buildKey = "CFBundleVersion"
 
@@ -65,6 +67,7 @@ public enum RuntimeConfigurationLoader {
             // document, so it fails the load rather than hiding the link.
             privacyPolicyURL: try legalURL(nonEmpty(values[privacyPolicyURLKey])),
             termsURL: try legalURL(nonEmpty(values[termsURLKey])),
+            appStoreURL: try appStoreURL(nonEmpty(values[appStoreIDKey])),
             appVersion: nonEmpty(values[versionKey]) ?? "0",
             appBuild: nonEmpty(values[buildKey]) ?? "0"
         )
@@ -81,6 +84,19 @@ public enum RuntimeConfigurationLoader {
         guard let raw else { return nil }
         guard let url = URL(string: raw), url.scheme != nil else {
             throw LoadError.invalidURL(raw)
+        }
+        return url
+    }
+
+    /// The App Store page of the app, from its numeric identifier (the
+    /// "Apple ID" App Store Connect shows). Absent is a build that has no
+    /// page to open yet; present but not a number is a configuration mistake.
+    private static func appStoreURL(_ raw: String?) throws -> URL? {
+        guard let raw else { return nil }
+        guard raw.allSatisfy({ $0.isASCII && $0.isNumber }),
+            let url = URL(string: "https://apps.apple.com/app/id\(raw)")
+        else {
+            throw LoadError.invalidAppStoreID(raw)
         }
         return url
     }
