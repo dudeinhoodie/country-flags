@@ -119,9 +119,6 @@ public enum L10n {
         )
     }
     public static var homeLearnedCaption: String { localized("home.known_learned.learned") }
-    public static var homeLearnedExplanation: String {
-        localized("home.known_learned.explanation")
-    }
     /// The same block as VoiceOver reads it: one sentence with the numbers
     /// inside the words, and what a tap does.
     public static func homeKnownCount(_ count: Int) -> String {

@@ -3723,23 +3723,6 @@
         }
       }
     },
-    "home.known_learned.explanation": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A country becomes learned once you have remembered it on different days."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Страна становится выученной, когда ты вспомнишь её в разные дни."
-          }
-        }
-      }
-    },
     "home.known_learned.known": {
       "extractionState": "manual",
       "localizations": {

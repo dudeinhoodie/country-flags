@@ -944,8 +944,11 @@ public enum AccessibilityIdentifier {
     }
 
     public static let homeFlagOfTheDay = "home.flagOfTheDay"
-    /// The known/learned block, which is one button to the progress tab.
+    /// The known tile, a button to the progress tab. The name is the block's
+    /// from before it split in two (#512), kept for the tests that find it.
     public static let homeKnownLearned = "home.knownLearned"
+    /// The learned tile (#512); the known tile keeps `homeKnownLearned`.
+    public static let homeLearned = "home.learned"
     /// The finished day's block (#516).
     public static let homeDayDone = "home.dayDone"
     public static func homeRegion(_ code: String) -> String { "home.region.\(code)" }
