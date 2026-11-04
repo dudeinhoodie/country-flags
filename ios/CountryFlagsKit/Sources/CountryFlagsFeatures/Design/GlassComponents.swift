@@ -374,11 +374,14 @@ extension View {
 /// Every browsing screen uses it, which is what keeps their margins, their
 /// maximum width and their spacing identical without any of them saying so.
 struct SceneScrollView<Content: View>: View {
+    /// Between blocks. Home's tile grid sets its own gap (#518); every other
+    /// screen keeps the large step.
+    var spacing: CGFloat = DesignTokens.Spacing.large
     @ViewBuilder var content: Content
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.large) {
+            VStack(alignment: .leading, spacing: spacing) {
                 content
             }
             .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)

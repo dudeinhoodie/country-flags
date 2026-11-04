@@ -73,10 +73,6 @@ public struct HomeView: View {
     /// that changes it is pushed over this one; the tap reads it again, so a
     /// label a moment stale never decides what is dealt.
     @State private var sessionSize = StudySessionSize.ten
-    /// The flag a first visit is asked about, and whether its name is shown.
-    @State private var flagOfTheDay: LearningCardRecord?
-    @State private var isFlagRevealed = false
-    @State private var detailsSubject: CountryDetailsSubject?
     @Environment(\.displayScale) private var displayScale
 
 
@@ -169,7 +165,9 @@ public struct HomeView: View {
         isStale: Bool,
         failure: ContentSyncFailure?
     ) -> some View {
-        SceneScrollView {
+        // Blocks follow one another at the tile grid's gap (#518), so a row of
+        // two tiles and the card under it read as one grid.
+        SceneScrollView(spacing: DesignTokens.Spacing.tileGap) {
             // The guest's account row leads the screen, above everything else
             // in every state it shows in, the wait for the counts included —
             // the owner's decision on 13.10 (#497). It used to stand last,
@@ -211,9 +209,9 @@ public struct HomeView: View {
             // happening and nothing about what is coming.
             Group {
                 if isAwaitingProgress || isSettling {
-                    VStack(spacing: DesignTokens.Spacing.large) {
+                    VStack(spacing: DesignTokens.Spacing.tileGap) {
+                        tileLoader
                         homeLoader(sections)
-                        queueLoader
                     }
                     .transition(.opacity)
                 } else {
@@ -222,7 +220,7 @@ public struct HomeView: View {
                     //
                     // And not tappable while it is dimmed, so a queue that is
                     // about to change cannot be walked into.
-                    VStack(spacing: DesignTokens.Spacing.large) {
+                    VStack(spacing: DesignTokens.Spacing.tileGap) {
                         // First of the day's blocks, above whichever hero the
                         // day has, with only the account, sign-in and status
                         // rows over it: the owner put how far the learner has
@@ -235,10 +233,6 @@ public struct HomeView: View {
                         todayPane(sections)
                         queuePane(sections)
                             .devBlockID("home.queue")
-                        if isFirstVisit {
-                            flagOfTheDayCard(sections)
-                                .devBlockID("home.flag-of-the-day")
-                        }
                         // Every state but a due queue, which draws its own
                         // region tiles above (#517).
                         if totalDue == 0 {
@@ -266,11 +260,6 @@ public struct HomeView: View {
                 .easeInOut(duration: 0.2),
                 value: isAwaitingProgress || isSettling
             )
-        }
-        .sheet(item: $detailsSubject) { subject in
-            if let assets {
-                CountryDetailsSheet(subject: subject, store: store, assets: assets)
-            }
         }
     }
 
@@ -335,53 +324,21 @@ public struct HomeView: View {
         }
     }
 
-    /// The list under the hero, waiting.
-    ///
-    /// Which regions it will hold is the one thing the catalogue cannot say:
-    /// it keeps only the regions that owe something today, and that is the
-    /// answer still coming. So the rows carry no names — a named row that
-    /// disappeared would read as a fault, where an unnamed one that did is
-    /// just a list that came back shorter.
-    ///
-    /// Four of them. The block is the last thing on the screen, so a list of
-    /// any length moves nothing above it; the count is how it looks rather
-    /// than how it lays out.
-    private var queueLoader: some View {
-        GlassCard(padding: DesignTokens.Spacing.small) {
-            VStack(spacing: 0) {
-                ForEach(Array(Self.loadingRowWidths.enumerated()), id: \.offset) { index, width in
-                    if index > 0 {
-                        Divider()
-                            .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
-                    }
-
-                    HStack(spacing: DesignTokens.Spacing.small) {
-                        // One flag rather than the row's whole handful, and no
-                        // continent: the placeholder stands for the row, not
-                        // for its ornaments.
-                        SkeletonBlock(height: 18, radius: 3)
-                            .frame(width: 24)
-
-                        SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
-                            .frame(width: width)
-
-                        Spacer(minLength: DesignTokens.Spacing.small)
-
-                        SkeletonBlock(height: labelBarHeight, radius: DesignTokens.Radius.small)
-                            .frame(width: 22)
-                    }
-                    .padding(.horizontal, DesignTokens.Spacing.small)
-                    .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
-                }
+    /// The two figure tiles, waiting (#518). They are the first thing the
+    /// numbers fill, so the shape that holds their place is theirs: two tiles
+    /// side by side, the height a tile settles at.
+    private var tileLoader: some View {
+        HStack(spacing: DesignTokens.Spacing.tileGap) {
+            ForEach(0..<2, id: \.self) { _ in
+                SkeletonBlock(
+                    height: DesignTokens.Layout.homeTileContentHeight + 2 * DesignTokens.Spacing.medium,
+                    radius: DesignTokens.Radius.large
+                )
             }
         }
-        // The block says nothing yet, and the line above it has already said
-        // the screen is loading.
+        // The line in the card below already says the screen is loading.
         .accessibilityHidden(true)
     }
-
-    /// Varied so the rows read as names rather than as a stack of one bar.
-    private static let loadingRowWidths: [CGFloat] = [96, 74, 86, 68]
 
     /// What the previews are a function of: the catalogue they are drawn
     /// from, and the counts that decide which cards to draw.
@@ -622,94 +579,15 @@ public struct HomeView: View {
         isDayDone && totalDue == 0
     }
 
-    /// A first visit: nothing answered yet, nothing waiting. The screen would
-    /// otherwise be one pane on an empty scene, so it offers two more ways in
-    /// made from blocks the app already has — a flag to guess and the regions
-    /// with their outlines.
+    /// A first visit: nothing answered yet, nothing waiting. The deck hero
+    /// says where to start, and the regions under it are the other way in.
+    /// The flag of the day it used to offer as well is gone (#518): the
+    /// owner removed it from the agreed design.
     private var isFirstVisit: Bool {
         progress?.isLoaded == true
             && !hasAnyProgress
             && progress?.continuable == nil
             && totalDue == 0
-    }
-
-    // MARK: - A first visit
-
-    /// One flag, the same all day, to guess before anything else: the app's
-    /// whole idea in a single card, with the answer a tap away and the
-    /// country's own sheet a tap after that.
-    @ViewBuilder
-    private func flagOfTheDayCard(_ sections: [CatalogSection]) -> some View {
-        Group {
-            if let card = flagOfTheDay, let assets {
-                GlassCard(padding: DesignTokens.Spacing.large) {
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-                        SectionLabel(L10n.homeFlagOfTheDay)
-
-                        FlagImageView(
-                            assetID: card.promptAssetID,
-                            accessibilityLabel: isFlagRevealed
-                                ? card.displayName : L10n.homeFlagOfTheDayQuestion,
-                            store: store,
-                            assets: assets
-                        )
-                        .aspectRatio(DesignTokens.Card.aspectRatio, contentMode: .fit)
-                        .clipShape(
-                            RoundedRectangle(
-                                cornerRadius: DesignTokens.Radius.medium, style: .continuous
-                            )
-                        )
-                        .overlay {
-                            RoundedRectangle(
-                                cornerRadius: DesignTokens.Radius.medium, style: .continuous
-                            )
-                            .strokeBorder(
-                                .white.opacity(DesignTokens.Card.borderOpacity),
-                                lineWidth: 1 / displayScale
-                            )
-                        }
-                        .frame(maxHeight: 180)
-                        .frame(maxWidth: .infinity)
-
-                        Text(isFlagRevealed ? card.displayName : L10n.homeFlagOfTheDayQuestion)
-                            .font(DesignTokens.Typography.cardAnswer)
-                            .foregroundStyle(.white)
-                            .contentTransition(.opacity)
-
-                        Button(
-                            isFlagRevealed
-                                ? L10n.homeFlagOfTheDayDetails : L10n.homeFlagOfTheDayReveal
-                        ) {
-                            if isFlagRevealed {
-                                detailsSubject = CountryDetailsSubject(card: card)
-                            } else {
-                                withAnimation(.snappy) { isFlagRevealed = true }
-                            }
-                        }
-                        .buttonStyle(GlassActionStyle())
-                        .accessibilityIdentifier(AccessibilityIdentifier.homeFlagOfTheDay)
-                    }
-                }
-            }
-        }
-        .task(id: recommended(sections)?.id) { await loadFlagOfTheDay(sections) }
-    }
-
-    /// The day's flag: the same one all day and a different one tomorrow,
-    /// picked from the deck the hero offers. The order is by identifier, not
-    /// by name, so the days do not walk the alphabet.
-    private func loadFlagOfTheDay(_ sections: [CatalogSection]) async {
-        guard let deck = recommended(sections) else { return }
-        let cards = await store.cards(inDeck: deck.id)
-            .filter { !$0.isRetired }
-            .sorted { $0.id.uuidString < $1.id.uuidString }
-        guard !cards.isEmpty else { return }
-        let day = Calendar.current.ordinality(of: .day, in: .era, for: Date()) ?? 0
-        let card = cards[day % cards.count]
-        if card.id != flagOfTheDay?.id {
-            flagOfTheDay = card
-            isFlagRevealed = false
-        }
     }
 
     /// The regions as flat cards (#517): a second way in for somebody who
@@ -782,10 +660,10 @@ public struct HomeView: View {
         }
     }
 
-    /// A guest with something to lose: countries learned on this phone and
-    /// nowhere else. Told from the first answer on, with the number of
-    /// countries once there is one; a fresh install with nothing answered is
-    /// not nagged. It cannot be dismissed, goes away when they sign in, and
+    /// A guest with something to lose: progress on this phone and nowhere
+    /// else. Told from the first answer on, in one line that says where the
+    /// progress lives (#518); a fresh install with nothing answered is not
+    /// nagged. It cannot be dismissed, goes away when they sign in, and
     /// opens the sign-in screen straight away.
     @ViewBuilder
     private var guestPrompt: some View {
@@ -793,9 +671,7 @@ public struct HomeView: View {
             AccountPromptRow(
                 symbol: "person.crop.circle",
                 title: L10n.homeGuestPromptTitle,
-                caption: learnedCountries > 0
-                    ? L10n.homeGuestPromptCount(learnedCountries)
-                    : L10n.accountGuestNote,
+                caption: L10n.homeGuestPromptCaption,
                 identifier: AccessibilityIdentifier.homeGuestPrompt,
                 action: onSignIn
             )

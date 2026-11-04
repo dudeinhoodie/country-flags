@@ -147,17 +147,7 @@ public enum L10n {
             limit
         )
     }
-    /// A first visit: the flag to guess and the regions to start from.
-    public static var homeFlagOfTheDay: String { localized("home.flag_of_the_day.label") }
-    public static var homeFlagOfTheDayQuestion: String {
-        localized("home.flag_of_the_day.question")
-    }
-    public static var homeFlagOfTheDayReveal: String {
-        localized("home.flag_of_the_day.reveal")
-    }
-    public static var homeFlagOfTheDayDetails: String {
-        localized("home.flag_of_the_day.details")
-    }
+    /// A first visit: the regions to start from.
     public static var homeRegionsLabel: String { localized("home.regions.label") }
     /// The regions' label once anything is started (#517).
     public static var homeRegionsProgressLabel: String { localized("home.regions.label_progress") }
@@ -646,6 +636,8 @@ public enum L10n {
         )
     }
     public static var homeGuestPromptTitle: String { localized("home.guest_prompt.title") }
+    /// Home's account row (#518): where the progress lives, without a count.
+    public static var homeGuestPromptCaption: String { localized("home.guest_prompt.caption") }
     /// Declined by the count, as `accountGuestNoteCount` is.
     public static func homeGuestPromptCount(_ count: Int) -> String {
         String.localizedStringWithFormat(
