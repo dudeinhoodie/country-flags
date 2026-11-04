@@ -177,6 +177,21 @@ public enum L10n {
     /// The word under a region tile's due figure.
     public static var homeDueCaption: String { localized("home.due_caption") }
 
+    /// The deck hero's words (#515): where to start on a first visit, where
+    /// the new flags are afterwards, and the button for each.
+    public static var homeDeckStartLabel: String { localized("home.deck.start_label") }
+    public static var homeDeckNextLabel: String { localized("home.deck.next_label") }
+    public static var homeDeckStart: String { localized("home.deck.start") }
+    public static var homeDeckLearnNew: String { localized("home.deck.learn_new") }
+    /// "176 ещё не знакомы": declined by the count, because the word agrees
+    /// with "страна" — "1 ещё не знакома".
+    public static func homeDeckStillNew(_ count: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.deck.still_new", bundle: bundle, comment: ""),
+            count
+        )
+    }
+
     public static var homeReview: String { localized("home.review") }
     /// The action when the sitting deals fewer cards than the queue holds:
     /// "Повторить первые 10". The count beside the title already says how
