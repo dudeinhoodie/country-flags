@@ -16,8 +16,6 @@ import CountryFlagsDomain
 struct AboutScreen: View {
     let version: String
     let build: String
-    let privacyPolicyURL: URL?
-    let termsURL: URL?
 
     var body: some View {
         List {
@@ -28,17 +26,7 @@ struct AboutScreen: View {
             }
             .listRowBackground(rowBackground)
 
-            if privacyPolicyURL != nil || termsURL != nil {
-                Section {
-                    if let privacyPolicyURL {
-                        DocumentLink(title: L10n.accountPrivacyPolicy, url: privacyPolicyURL)
-                    }
-                    if let termsURL {
-                        DocumentLink(title: L10n.accountTerms, url: termsURL)
-                    }
-                }
-                .listRowBackground(rowBackground)
-            }
+            // The documents are in "Профиль", once (#522).
 
             Section {
                 ForEach(Credit.all) { credit in

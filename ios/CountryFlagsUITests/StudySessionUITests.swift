@@ -498,7 +498,7 @@ final class StudySessionUITests: XCTestCase {
     /// the hierarchy. Arrival is read off the session-size picker, which is on
     /// this screen in every state it has.
     private func openSettings(in app: XCUIApplication) {
-        let settings = app.buttons["root.shell.openSettings"]
+        let settings = app.buttons["account.open"]
         XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
         let sizes = app.descendants(matching: .any).matching(
             NSPredicate(format: "identifier BEGINSWITH %@", "settings.sessionSize.")

@@ -12,6 +12,37 @@ import CountryFlagsDomain
 /// the rest of the app is the ground — the list loses its own background so the
 /// scene runs under it, which is all it needs to belong here.
 public struct SettingsScreen: View {
+    private let store: SettingsStore
+    private let makePrivacy: (() -> PrivacyStore)?
+    private let environmentBadge: String?
+
+    public init(
+        store: SettingsStore,
+        makePrivacy: (() -> PrivacyStore)? = nil,
+        environmentBadge: String? = nil
+    ) {
+        self.store = store
+        self.makePrivacy = makePrivacy
+        self.environmentBadge = environmentBadge
+    }
+
+    /// Reached only by the settings deep link and by builds without an
+    /// account: everywhere else the same sections live in "Профиль" (#522).
+    public var body: some View {
+        List {
+            SettingsSections(store: store, makePrivacy: makePrivacy)
+            SettingsAboutSection()
+            SettingsDeveloperSections(environmentBadge: environmentBadge)
+        }
+        .scrollContentBackground(.hidden)
+        .navigationTitle(L10n.settingsTitle)
+        .sceneChrome()
+    }
+}
+
+/// The preferences themselves, as sections of whichever list holds them: the
+/// profile's (#522), or the settings screen's.
+struct SettingsSections: View {
     /// Owned for the same reason the progress screen owns its own.
     @State private var store: SettingsStore
     /// The chosen session size, held here so the control answers the tap
@@ -20,29 +51,14 @@ public struct SettingsScreen: View {
     @State private var chosenSessionSize: Int?
     @State private var privacy: PrivacyStore?
     private let makePrivacy: (() -> PrivacyStore)?
-    /// Which build this is, for the builds that are not production. It used to
-    /// be a badge in the corner of the first screen; the avatar has that corner
-    /// now, and a tester still has to be able to tell dev from the real thing —
-    /// so it says so here, where somebody looking for it will look.
-    private let environmentBadge: String?
-    /// Draws the names of the screens' blocks. Offered only where the
-    /// environment badge is, which is every build but production.
-    @AppStorage(DevBlockIDs.storageKey) private var showsBlockIDs = false
-    /// Asks the shell to present the first launch's welcome again.
-    @AppStorage(WelcomeKeys.devRequest) private var isWelcomeRequested = false
 
-    public init(
-        store: SettingsStore,
-        makePrivacy: (() -> PrivacyStore)? = nil,
-        environmentBadge: String? = nil
-    ) {
+    init(store: SettingsStore, makePrivacy: (() -> PrivacyStore)? = nil) {
         _store = State(wrappedValue: store)
         self.makePrivacy = makePrivacy
-        self.environmentBadge = environmentBadge
     }
 
-    public var body: some View {
-        List {
+    var body: some View {
+        Group {
             if store.didReloadAfterConflict {
                 Section {
                     Text(L10n.settingsConflictReloaded)
@@ -139,44 +155,7 @@ public struct SettingsScreen: View {
             .listRowBackground(rowBackground)
 
             privacySection
-
-            // Clearing progress left this screen: it is an act of account
-            // management, and it lives with the account behind the avatar.
-
-            Section {
-                NavigationLink(value: AppRoute.about) {
-                    Text(L10n.settingsAbout)
-                }
-                .accessibilityIdentifier(AccessibilityIdentifier.settingsAbout)
-            }
-            .listRowBackground(rowBackground)
-
-            if let environmentBadge {
-                // Not localized: a switch for whoever is reviewing a debug
-                // build, never seen by a learner.
-                Section {
-                    Toggle(String("Show block IDs"), isOn: $showsBlockIDs)
-                        .accessibilityIdentifier(AccessibilityIdentifier.settingsDevBlockIDs)
-                    Button(String("Show the welcome")) { isWelcomeRequested = true }
-                        .accessibilityIdentifier(AccessibilityIdentifier.settingsDevShowWelcome)
-                } header: {
-                    SectionLabel(String("Developer"))
-                }
-                .listRowBackground(rowBackground)
-
-                Section {
-                    Text(environmentBadge)
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.6))
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
-                }
-                .listRowBackground(Color.clear)
-            }
         }
-        .scrollContentBackground(.hidden)
-        .navigationTitle(L10n.settingsTitle)
-        .sceneChrome()
         .onChange(of: store.settings.sessionSize) { _, stored in
             chosenSessionSize = stored
         }
@@ -267,5 +246,58 @@ public struct SettingsScreen: View {
             get: { store.settings.remindersEnabled },
             set: { isOn in Task { await store.setRemindersEnabled(isOn) } }
         )
+    }
+}
+
+/// The way to "О приложении", a row of its own (#522).
+struct SettingsAboutSection: View {
+    var body: some View {
+        Section {
+            NavigationLink(value: AppRoute.about) {
+                Text(L10n.settingsAbout)
+            }
+            .accessibilityIdentifier(AccessibilityIdentifier.settingsAbout)
+        }
+        .listRowBackground(Rectangle().fill(.ultraThinMaterial))
+    }
+}
+
+/// The switches and the badge for whoever is reviewing a build that is not
+/// production. Absent in production.
+struct SettingsDeveloperSections: View {
+    /// Which build this is, for the builds that are not production. It used to
+    /// be a badge in the corner of the first screen; the avatar has that corner
+    /// now, and a tester still has to be able to tell dev from the real thing —
+    /// so it says so here, where somebody looking for it will look.
+    let environmentBadge: String?
+    /// Draws the names of the screens' blocks. Offered only where the
+    /// environment badge is, which is every build but production.
+    @AppStorage(DevBlockIDs.storageKey) private var showsBlockIDs = false
+    /// Asks the shell to present the first launch's welcome again.
+    @AppStorage(WelcomeKeys.devRequest) private var isWelcomeRequested = false
+
+    var body: some View {
+        if let environmentBadge {
+            // Not localized: a switch for whoever is reviewing a debug
+            // build, never seen by a learner.
+            Section {
+                Toggle(String("Show block IDs"), isOn: $showsBlockIDs)
+                    .accessibilityIdentifier(AccessibilityIdentifier.settingsDevBlockIDs)
+                Button(String("Show the welcome")) { isWelcomeRequested = true }
+                    .accessibilityIdentifier(AccessibilityIdentifier.settingsDevShowWelcome)
+            } header: {
+                SectionLabel(String("Developer"))
+            }
+            .listRowBackground(Rectangle().fill(.ultraThinMaterial))
+
+            Section {
+                Text(environmentBadge)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .accessibilityIdentifier(AccessibilityIdentifier.environmentBadge)
+            }
+            .listRowBackground(Color.clear)
+        }
     }
 }

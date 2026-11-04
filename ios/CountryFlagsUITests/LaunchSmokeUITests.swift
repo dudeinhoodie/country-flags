@@ -218,10 +218,10 @@ final class LaunchSmokeUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += ["-reset-store"]
         app.launch()
-        // The gear is the first thing pressed, and it lives in a bar.
+        // The avatar is the first thing pressed, and it lives in a bar.
         app.waitForTheSplashToLeave()
 
-        let openSettings = app.buttons["root.shell.openSettings"]
+        let openSettings = app.buttons["account.open"]
         XCTAssertTrue(openSettings.waitForExistence(timeout: 10))
         openSettings.tap()
 
@@ -229,7 +229,8 @@ final class LaunchSmokeUITests: XCTestCase {
         // screen owns rather than by a placeholder title.
         // The hierarchy is attached to the failure: this suite is verified
         // on CI as well, where the xcresult bundle is the only artifact.
-        let reminders = app.switches["settings.reminders"]
+        // "Профиль" holds the settings now (#522), below the account.
+        let reminders = app.reveal(app.switches["settings.reminders"])
         XCTAssertTrue(reminders.waitForExistence(timeout: 10), app.debugDescription)
         // A string catalog key must never reach the interface.
         XCTAssertFalse(reminders.label.contains("settings."), app.debugDescription)
@@ -241,7 +242,7 @@ final class LaunchSmokeUITests: XCTestCase {
         // its end before the badge is asked for; on a phone it starts below
         // the fold.
         let badge = app.staticTexts["root.shell.environmentBadge"]
-        for _ in 0..<4 where !badge.exists {
+        for _ in 0..<8 where !badge.exists {
             app.swipeUp()
         }
         XCTAssertTrue(badge.waitForExistence(timeout: 10), app.debugDescription)

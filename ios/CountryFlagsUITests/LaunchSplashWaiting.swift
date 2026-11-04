@@ -5,7 +5,7 @@ import XCTest
 ///
 /// Home's own elements only appear once the splash has gone, so a test that
 /// waits for one of them is already past it. A test whose first move is in a
-/// bar — the gear, the avatar, a tab — waits here first: the bars belong to
+/// bar — the avatar, a tab — waits here first: the bars belong to
 /// UIKit, and a tap sent to one before the splash has gone lands on the
 /// splash instead.
 @MainActor
@@ -30,5 +30,23 @@ extension XCUIApplication {
             file: file,
             line: line
         )
+    }
+}
+
+/// "Профиль" holds the account and every setting in one list (#522). A list
+/// materialises only the rows on screen, so a row further down does not exist
+/// until the list is scrolled to it.
+@MainActor
+extension XCUIApplication {
+    /// Swipes the list up until the element exists and can be pressed, and
+    /// returns it either way so the caller's assertion says what was missing.
+    @discardableResult
+    func reveal(_ element: XCUIElement, swipes: Int = 8) -> XCUIElement {
+        var remaining = swipes
+        while !(element.exists && element.isHittable), remaining > 0 {
+            swipeUp()
+            remaining -= 1
+        }
+        return element
     }
 }

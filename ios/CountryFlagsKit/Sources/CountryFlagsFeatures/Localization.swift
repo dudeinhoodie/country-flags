@@ -20,6 +20,8 @@ public enum L10n {
         localized("shell.open_settings")
     }
 
+    /// The one screen behind the avatar (#522).
+    public static var profileTitle: String { localized("profile.title") }
     public static var settingsTitle: String {
         localized("settings.title")
     }

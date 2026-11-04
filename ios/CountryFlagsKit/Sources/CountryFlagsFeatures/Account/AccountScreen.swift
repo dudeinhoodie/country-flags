@@ -2,12 +2,15 @@ import SwiftUI
 
 import CountryFlagsDomain
 
-/// The account: who is signed in, the legal documents, and the end of it.
+/// "Профиль" (#522): the account and the settings in one place, behind the
+/// avatar — who is signed in, the preferences, clearing progress, the legal
+/// documents, "О приложении", and the end of the account.
 ///
-/// A form, like the settings screen and for the same reason. What it adds is
-/// weight: two of these rows are destructive and each one says what it will
-/// do before it does it. Nothing here is reachable as a guest — there is no
-/// account to manage — and nothing here gates studying.
+/// It was two screens, the account behind the avatar and the settings behind
+/// a gear beside it; the 2026-11-03 review merged them and the owner kept it.
+/// A form, for the reason the settings were one. Two rows are red — clearing
+/// progress and deleting the account — and each says what it will do before
+/// it does it; signing out is a plain row. Nothing here gates studying.
 ///
 /// The linked sign-in methods, the device roster and the data export used to
 /// live here; the product let them go, and the endpoints stayed server-side
@@ -41,11 +44,19 @@ public struct AccountScreen: View {
     /// as in the settings.
     @State private var clearProgress: ClearProgressStore?
     private let makeClearProgress: (() -> ClearProgressStore)?
+    /// The preferences, made once for this screen (#522).
+    @State private var settings: SettingsStore?
+    private let makeSettings: (() -> SettingsStore)?
+    private let makePrivacy: (() -> PrivacyStore)?
+    private let environmentBadge: String?
 
     public init(
         store: AccountLifecycleStore,
         makeAccount: (() -> AccountStore)? = nil,
         makeClearProgress: (() -> ClearProgressStore)? = nil,
+        makeSettings: (() -> SettingsStore)? = nil,
+        makePrivacy: (() -> PrivacyStore)? = nil,
+        environmentBadge: String? = nil,
         privacyPolicyURL: URL? = nil,
         termsURL: URL? = nil,
         learnedCountries: Int? = nil,
@@ -54,6 +65,9 @@ public struct AccountScreen: View {
         _store = State(wrappedValue: store)
         self.makeAccount = makeAccount
         self.makeClearProgress = makeClearProgress
+        self.makeSettings = makeSettings
+        self.makePrivacy = makePrivacy
+        self.environmentBadge = environmentBadge
         self.privacyPolicyURL = privacyPolicyURL
         self.termsURL = termsURL
         self.learnedCountries = learnedCountries
@@ -74,14 +88,19 @@ public struct AccountScreen: View {
                 )
                 .listRowBackground(rowBackground)
             }
+            if let settings {
+                SettingsSections(store: settings, makePrivacy: makePrivacy)
+            }
             if let clearProgress {
                 ClearProgressSection(store: clearProgress)
             }
             legalSection
+            SettingsAboutSection()
             deletionSection
+            SettingsDeveloperSections(environmentBadge: environmentBadge)
         }
         .scrollContentBackground(.hidden)
-        .navigationTitle(L10n.accountTitle)
+        .navigationTitle(L10n.profileTitle)
         .sceneChrome()
         .sheet(isPresented: $isPresentingSignIn) {
             if let account {
@@ -97,6 +116,7 @@ public struct AccountScreen: View {
         .onAppear {
             if account == nil { account = makeAccount?() }
             if clearProgress == nil { clearProgress = makeClearProgress?() }
+            if settings == nil { settings = makeSettings?() }
             // Whether the row exists is what this answers, so it cannot wait
             // for the row to appear.
             Task { await clearProgress?.load() }
@@ -105,35 +125,6 @@ public struct AccountScreen: View {
         // happens on this screen, and the deletion notice belongs to the
         // account that was not there a moment ago.
         .task(id: account?.state) { await store.load() }
-        .confirmationDialog(
-            L10n.accountDeleteTitle,
-            isPresented: deletionConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(L10n.accountDeleteConfirm, role: .destructive) {
-                Task {
-                    await store.confirmDeletion()
-                    // The deletion ends the session from a store of its own,
-                    // so the one the rest of the app reads "who is signed in"
-                    // from would go on saying the account is still there —
-                    // and the shell reloads the counts off that state. Left
-                    // unsaid, a deleted account's progress stayed on the
-                    // Progress tab until the next launch. `refreshState` is
-                    // the seam this case was written for.
-                    await account?.refreshState()
-                }
-            }
-            .accessibilityIdentifier(AccessibilityIdentifier.accountDeleteConfirm)
-            // Not a cancel-role button, for the reason the sign-out and
-            // clear-progress dialogs are not either: the iPad/popover
-            // adaptation of `confirmationDialog` omits that role and leaves
-            // only tap-outside dismissal. Backing out of ending an account
-            // stays an explicit action on every size class.
-            Button(L10n.accountCancel) { store.cancelDeletion() }
-                .accessibilityIdentifier(AccessibilityIdentifier.accountDeleteCancel)
-        } message: {
-            Text(L10n.accountDeleteBody)
-        }
     }
 
     // MARK: - Deletion notice
@@ -188,6 +179,37 @@ public struct AccountScreen: View {
             Section {
                 Button(L10n.accountDelete, role: .destructive) { store.requestDeletion() }
                     .accessibilityIdentifier(AccessibilityIdentifier.accountDelete)
+                    // On the row it is about (#522), so on a size class that
+                    // shows it as a popover it points at "Удалить аккаунт".
+                .confirmationDialog(
+                    L10n.accountDeleteTitle,
+                    isPresented: deletionConfirmation,
+                    titleVisibility: .visible
+                ) {
+                    Button(L10n.accountDeleteConfirm, role: .destructive) {
+                        Task {
+                            await store.confirmDeletion()
+                            // The deletion ends the session from a store of its own,
+                            // so the one the rest of the app reads "who is signed in"
+                            // from would go on saying the account is still there —
+                            // and the shell reloads the counts off that state. Left
+                            // unsaid, a deleted account's progress stayed on the
+                            // Progress tab until the next launch. `refreshState` is
+                            // the seam this case was written for.
+                            await account?.refreshState()
+                        }
+                    }
+                    .accessibilityIdentifier(AccessibilityIdentifier.accountDeleteConfirm)
+                    // Not a cancel-role button, for the reason the sign-out and
+                    // clear-progress dialogs are not either: the iPad/popover
+                    // adaptation of `confirmationDialog` omits that role and leaves
+                    // only tap-outside dismissal. Backing out of ending an account
+                    // stays an explicit action on every size class.
+                    Button(L10n.accountCancel) { store.cancelDeletion() }
+                        .accessibilityIdentifier(AccessibilityIdentifier.accountDeleteCancel)
+                } message: {
+                    Text(L10n.accountDeleteBody)
+                }
 
                 if let status = deletionStatus {
                     Text(status)

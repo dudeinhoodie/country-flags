@@ -13,6 +13,8 @@ final class TabToolbarUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    /// The settings live in "Профиль" behind the avatar on every tab (#522);
+    /// the gear is gone.
     func testSettingsOpenFromEveryTab() {
         let app = XCUIApplication()
         app.launchArguments += ["-reset-store"]
@@ -25,7 +27,7 @@ final class TabToolbarUITests: XCTestCase {
         for tab in ["Catalog", "Progress", "Home"] {
             app.tabBars.buttons[tab].tap()
 
-            let settings = app.buttons["root.shell.openSettings"]
+            let settings = app.buttons["account.open"]
             XCTAssertTrue(
                 settings.waitForExistence(timeout: 10),
                 "no way to settings from \(tab): \(app.debugDescription)"
@@ -35,7 +37,7 @@ final class TabToolbarUITests: XCTestCase {
             // A control the screen owns, rather than a title: the route is
             // proved by arriving, not by a label.
             XCTAssertTrue(
-                app.switches["settings.reminders"].waitForExistence(timeout: 10),
+                app.reveal(app.switches["settings.reminders"]).waitForExistence(timeout: 10),
                 "settings did not open from \(tab): \(app.debugDescription)"
             )
 
@@ -49,7 +51,7 @@ final class TabToolbarUITests: XCTestCase {
         }
     }
 
-    /// The avatar rides with the gear. It is the way to the account, and an
+    /// The avatar is on every tab. It is the way to the account, and an
     /// account reachable from one tab out of three is reachable by accident.
     func testTheAccountOpensFromEveryTab() {
         let app = XCUIApplication()

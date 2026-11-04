@@ -407,8 +407,9 @@ public struct RootView: View {
         return ContentNotice(isStale: isStale, failure: failure)
     }
 
-    /// The two ways out of any tab: the account on the left, the settings on
-    /// the right.
+    /// The way out of any tab to "Профиль" (#522): the avatar, on the left.
+    /// The settings live in the profile now; the gear survives only in a
+    /// build with no account at all, where it is the one way to them.
     ///
     /// On every tab rather than on Home alone. They used to hang off the Home
     /// screen, so reaching either from the catalog or the progress meant going
@@ -417,14 +418,16 @@ public struct RootView: View {
     /// which is what makes them findable without looking.
     @ToolbarContentBuilder
     private var accountAndSettings: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                router.push(.settings)
-            } label: {
-                Image(systemName: "gearshape")
+        if makeAccountLifecycleStore == nil {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    router.push(.settings)
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .accessibilityLabel(L10n.shellOpenSettings)
+                .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
             }
-            .accessibilityLabel(L10n.shellOpenSettings)
-            .accessibilityIdentifier(AccessibilityIdentifier.openSettingsButton)
         }
         if makeAccountLifecycleStore != nil {
             ToolbarItem(placement: .topBarLeading) {
@@ -878,9 +881,7 @@ public struct RootView: View {
         case .about:
             AboutScreen(
                 version: configuration.appVersion,
-                build: configuration.appBuild,
-                privacyPolicyURL: configuration.privacyPolicyURL,
-                termsURL: configuration.termsURL
+                build: configuration.appBuild
             )
         case .account:
             if let makeAccountLifecycleStore {
@@ -897,6 +898,11 @@ public struct RootView: View {
                     makeAccount: accountToolbar.map { store in { store } }
                         ?? makeAccountStore,
                     makeClearProgress: makeClearProgressStore,
+                    makeSettings: makeSettingsStore,
+                    makePrivacy: makePrivacyStore,
+                    environmentBadge: configuration.environment.allowsDebugAffordances
+                        ? configuration.environment.rawValue.uppercased()
+                        : nil,
                     privacyPolicyURL: configuration.privacyPolicyURL,
                     termsURL: configuration.termsURL,
                     learnedCountries: learnedCountries,
