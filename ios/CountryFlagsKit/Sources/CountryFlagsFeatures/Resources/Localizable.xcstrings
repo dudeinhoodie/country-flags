@@ -3887,30 +3887,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A session is waiting"
+            "value": "Session paused"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Тренировка ждёт"
-          }
-        }
-      }
-    },
-    "home.session_left": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld cards left"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "осталось карточек: %lld"
+            "value": "Тренировка на паузе"
           }
         }
       }
