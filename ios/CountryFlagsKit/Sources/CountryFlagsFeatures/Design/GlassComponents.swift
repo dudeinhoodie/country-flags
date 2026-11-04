@@ -29,6 +29,33 @@ struct GlassCard<Content: View>: View {
     }
 }
 
+/// A card on the flat surface: the one a continent sits on (#510).
+///
+/// Opaque where `GlassCard` is glass. A continent card's subject is the
+/// continent drawn on it, and glass let the scene's colours through, so each
+/// card wore a tint the card did not mean. The hairline is drawn here because
+/// there is no glass to carry an edge.
+struct FlatCard<Content: View>: View {
+    var padding: CGFloat = DesignTokens.Spacing.medium
+    @ViewBuilder var content: Content
+
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+        content
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(padding)
+            .background(DesignTokens.Colors.flatSurface, in: shape)
+            .overlay {
+                shape.strokeBorder(
+                    .white.opacity(DesignTokens.Card.borderOpacity),
+                    lineWidth: 1 / displayScale
+                )
+            }
+    }
+}
+
 /// The name of a group of things.
 ///
 /// Small, spaced and quiet: it is read once on the way past, and anything

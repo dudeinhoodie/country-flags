@@ -6,14 +6,12 @@ import CountryFlagsDomain
 ///
 /// For a guest with work on the phone, the account row comes first of all.
 /// Then how far the learner has come — countries known and countries
-/// learned — which is also where a finished day says so. Under it one pane
-/// holds the whole of today — the repeat queue's number, a fan of the flags
-/// waiting in it, the one action, and the unfinished session as a quiet line
-/// inside rather than a second hero — or, when the day asks nothing, the
-/// all-countries deck with its size. Then the queue deck by deck, each row
-/// carrying its own flags and its continent. Nothing on the screen is a
-/// caption for something absent: every section shows a number or a picture,
-/// or it does not appear.
+/// learned — which is also where a finished day says so. Under it the block
+/// that holds today's action: the review card with the flags waiting in it
+/// (#510), or, when the day asks nothing, the all-countries deck with its
+/// size. Then the queue region by region, as flat tiles with their
+/// continents. Nothing on the screen is a caption for something absent:
+/// every section shows a number or a picture, or it does not appear.
 public struct HomeView: View {
     private let store: ContentStore
     private let sync: SyncCenter
@@ -66,9 +64,6 @@ public struct HomeView: View {
     /// that changes it is pushed over this one; the tap reads it again, so a
     /// label a moment stale never decides what is dealt.
     @State private var sessionSize = StudySessionSize.ten
-    /// The dots of the learned sign beside the queue's green line. They grow
-    /// with the text they stand beside, as the placeholder's bars do.
-    @ScaledMetric(relativeTo: .footnote) private var learnedDotSize: CGFloat = 6
     /// The flag a first visit is asked about, and whether its name is shown.
     @State private var flagOfTheDay: LearningCardRecord?
     @State private var isFlagRevealed = false
@@ -460,23 +455,26 @@ public struct HomeView: View {
         // Each block now stands on its own: the queue when the schedule owes
         // anything, the day's tally otherwise.
         //
-        // Under its figure, what a repeat will do (#503): in green, the cards
-        // it can finish, and in a quiet line the rest of the figure. Both come
-        // from `ProgressStore.dueBreakdown`, which has them from the same
-        // source as the figure — and has nothing for an account without a
-        // recent summary, so the lines are then simply absent.
+        // The queue is the shared action card (#510): the title, how many,
+        // the deck, the flags the sitting opens with, the one action. The
+        // lines under the figure that said what a repeat would finish (#503)
+        // are gone — the owner found "N станут выученными, если вспомнишь"
+        // strange (2026-11-04), and the card shows the flags instead of
+        // describing them.
         if due > 0, let deckID = dueLaunchDeckID(sections) {
-            let breakdown = progress?.dueBreakdown
-            pane(
-                label: L10n.homeDueToday,
-                count: due,
-                total: nil,
-                learnable: DuePaneCopy.learnableLine(breakdown),
-                caption: DuePaneCopy.restLine(breakdown),
+            let deck = sections.flatMap(\.decks).first { $0.id == deckID }
+            HomeActionCard(
+                title: L10n.homeReviewTitle,
+                count: L10n.deckItemCount(due, contentKinds: deck?.contentKinds ?? []),
+                deck: deck?.name,
+                cards: previews[deckID] ?? fanCards,
+                total: due,
                 action: DuePaneCopy.action(due: due, dealt: dueSessionCards(due)),
+                isProminent: continuable == nil,
                 identifier: AccessibilityIdentifier.homeReview,
-                run: { startDueSession(deckID: deckID) },
-                isProminent: continuable == nil
+                store: store,
+                assets: assets,
+                run: { startDueSession(deckID: deckID) }
             )
             .devBlockID("home.today")
         }
@@ -515,8 +513,6 @@ public struct HomeView: View {
     /// the deck: it names it in a card heading's face, the one the first
     /// visit's flag is named in, and says how big it is the way the regions
     /// shelf does.
-    ///
-    /// Its own pane rather than `pane(...)`, which is built around a figure.
     ///
     /// The action is always the white one, the "continue" beside it
     /// included: the one place two white actions share the screen, decided
@@ -893,126 +889,6 @@ public struct HomeView: View {
         sessionSize = StudySessionSize(storedValue: settings.settings.sessionSize)
     }
 
-    /// A hero pane: the label, the figure beside the fan, a caption, the one
-    /// action.
-    ///
-    /// The figure is optional, though no pane leaves it out now (#497). Without
-    /// it the caption takes its place beside the fan rather than under an
-    /// empty row: the fan is drawn at the figure's height, and a line of
-    /// words beside it reads as the pane's subject where a gap would read as
-    /// a number that failed to load.
-    ///
-    /// `learnable` is the review pane's green line (#503), drawn between the
-    /// figure and the caption: what a repeat can finish, then the rest.
-    private func pane(
-        label: String,
-        count: Int?,
-        total: Int?,
-        learnable: String? = nil,
-        caption: String?,
-        action: String,
-        identifier: String,
-        run: @escaping () -> Void,
-        showsFan: Bool = true,
-        isProminent: Bool = true
-    ) -> some View {
-        GlassCard(padding: DesignTokens.Spacing.large) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                    SectionLabel(label)
-
-                    HStack(alignment: .center, spacing: DesignTokens.Spacing.medium) {
-                        if let count {
-                            HStack(
-                                alignment: .firstTextBaseline,
-                                spacing: DesignTokens.Spacing.extraSmall
-                            ) {
-                                Text("\(count)")
-                                    .font(DesignTokens.Typography.heroNumber)
-                                    .monospacedDigit()
-                                    // The number moves rather than being
-                                    // replaced when a session changes it.
-                                    .contentTransition(.numericText())
-                                if let total {
-                                    Text("/ \(total)")
-                                        .font(DesignTokens.Typography.sectionTitle)
-                                        .foregroundStyle(.white.opacity(0.55))
-                                }
-                            }
-                            .foregroundStyle(.white)
-                        } else if let caption {
-                            paneCaption(caption)
-                        }
-
-                        Spacer(minLength: 0)
-
-                        // The cards the number is counting, as a small pile of
-                        // themselves. Only where the number is the queue: the
-                        // fan is drawn from the due cards and would be a lie
-                        // beside a session's answered count.
-                        if showsFan, !fanCards.isEmpty {
-                            FlagFanView(cards: fanCards, store: store, assets: assets)
-                        }
-                    }
-
-                    if count != nil, let learnable {
-                        learnableLine(learnable)
-                    }
-
-                    if count != nil, let caption {
-                        paneCaption(caption)
-                    }
-                }
-                // One element, read in the order it is drawn: the label, the
-                // figure, the green line, the rest. The dots are a picture of
-                // the words beside them and are not read.
-                .accessibilityElement(children: .combine)
-
-                // White is spent once per screen: under an open sitting this
-                // pane's action is glass, and the sitting's is the white one.
-                if isProminent {
-                    Button(action, action: run)
-                        .buttonStyle(PrimaryActionStyle())
-                        .accessibilityIdentifier(identifier)
-                } else {
-                    Button(action, action: run)
-                        .buttonStyle(GlassActionStyle())
-                        .accessibilityIdentifier(identifier)
-                }
-
-            }
-        }
-    }
-
-    private func paneCaption(_ caption: String) -> some View {
-        Text(caption)
-            .font(DesignTokens.Typography.caption)
-            .foregroundStyle(.white.opacity(0.6))
-    }
-
-    /// What a repeat can finish, behind the sign of learned: three filled
-    /// dots, one per correct answer (#503). The dots and the words wear Home's
-    /// learned green, `learnedTint`, the same green as the known/learned
-    /// block's seal. The dots sit on the first line's baseline, so a line
-    /// that wraps at a large type size keeps its sign at its start.
-    private func learnableLine(_ text: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
-            HStack(spacing: learnedDotSize / 2) {
-                ForEach(0..<3, id: \.self) { _ in
-                    Circle()
-                        .fill(Self.learnedTint)
-                        .frame(width: learnedDotSize, height: learnedDotSize)
-                }
-            }
-            .accessibilityHidden(true)
-
-            Text(text)
-                .font(DesignTokens.Typography.caption.weight(.semibold))
-                .foregroundStyle(Self.learnedTint)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
     // MARK: - Known and learned
 
     /// How far the learner has come, in two numbers that only grow (#497).
@@ -1204,83 +1080,91 @@ public struct HomeView: View {
         total > 0 ? min(1, Double(count) / Double(total)) : 0
     }
 
-    /// The green of "learned" on this screen, worn by the seal and by the
-    /// review pane's learnable line (the learned figure stays white, and the
-    /// bar is the catalogue's white and grey): the saturated system green the
-    /// design tokens name for it, the one the finished-day seal wore.
+    /// The green of "learned" on this screen, worn by the seal (the learned
+    /// figure stays white, and the bar is the catalogue's white and grey): the
+    /// saturated system green the design tokens name for it, the one the
+    /// finished-day seal wore.
     private static let learnedTint = DesignTokens.Colors.learned
     /// A learned figure at zero: present, and plainly not yet.
     private static let unearnedTint = Color.white.opacity(0.35)
 
     // MARK: - The queue, deck by deck
 
+    /// The queue region by region, as tiles under the review card (#510).
+    ///
+    /// They used to be rows in one glass list, each with a handful of mini
+    /// flags. Now each region is a small flat tile — its name, how many it
+    /// owes, its continent — two to a row, on the same flat surface the
+    /// region cards use, so a continent looks the same wherever Home draws
+    /// one. The flags are the review card's job above.
     @ViewBuilder
     private func queuePane(_ sections: [CatalogSection]) -> some View {
         if let progress, progress.isLoaded {
-            // Regions only: the curated deck spans every card, so its row
-            // would restate the pane above it in different words.
+            // Regions only: the curated deck spans every card, so its tile
+            // would restate the card above it in different words.
             let curated = Set((sections.first { $0.isOpenCurated }?.decks ?? []).map(\.id))
             let due = progress.decks.filter { $0.dueCards > 0 && !curated.contains($0.id) }
                 .sorted { $0.dueCards > $1.dueCards }
             if !due.isEmpty {
-                GlassCard(padding: DesignTokens.Spacing.small) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(due.enumerated()), id: \.element.id) { index, deck in
-                            if index > 0 {
-                                Divider()
-                                    .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
-                            }
-                            Button {
-                                startDueSession(deckID: deck.id)
-                            } label: {
-                                queueRow(deck)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityElement(children: .combine)
-                            .accessibilityLabel(
-                                "\(deck.name), \(L10n.homeDueCount(deck.dueCards))"
-                            )
-                            .accessibilityIdentifier(
-                                AccessibilityIdentifier.homeDueRow(deck.code)
-                            )
+                LazyVGrid(
+                    columns: Array(
+                        repeating: GridItem(.flexible(), spacing: DesignTokens.Spacing.tileGap),
+                        count: 2
+                    ),
+                    spacing: DesignTokens.Spacing.tileGap
+                ) {
+                    ForEach(due) { deck in
+                        Button {
+                            startDueSession(deckID: deck.id)
+                        } label: {
+                            dueTile(deck)
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(
+                            "\(deck.name), \(L10n.homeDueCount(deck.dueCards))"
+                        )
+                        .accessibilityIdentifier(
+                            AccessibilityIdentifier.homeDueRow(deck.code)
+                        )
                     }
                 }
             }
         }
     }
 
-    private func queueRow(_ deck: DeckProgressRow) -> some View {
-        HStack(spacing: DesignTokens.Spacing.small) {
-            // The cards this row is counting: the queue stops being a list of
-            // words about pictures somewhere else.
-            HStack(spacing: 3) {
-                ForEach(previews[deck.id] ?? [], id: \.id) { card in
-                    MiniFlagView(card: card, store: store, assets: assets)
-                }
+    /// One region's share of the queue: the name at the top, the figure and
+    /// its word at the bottom, the continent soft behind them.
+    private func dueTile(_ deck: DeckProgressRow) -> some View {
+        FlatCard {
+            VStack(alignment: .leading, spacing: 0) {
+                SectionLabel(deck.name)
+
+                Spacer(minLength: DesignTokens.Spacing.medium)
+
+                Text("\(deck.dueCards)")
+                    .font(DesignTokens.Typography.heroNumber)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .foregroundStyle(.white)
+                Text(L10n.homeDueCaption)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundStyle(.white.opacity(0.85))
             }
-
-            Text(deck.name)
-                .font(DesignTokens.Typography.sectionTitle)
-                .foregroundStyle(.white)
-                .lineLimit(1)
-
-            Spacer(minLength: DesignTokens.Spacing.small)
-
-            Text("\(deck.dueCards)")
-                .font(DesignTokens.Typography.sectionTitle)
-                .monospacedDigit()
-                .contentTransition(.numericText())
-                .foregroundStyle(.white.opacity(0.7))
-
-            ContinentSilhouetteView(code: deck.code)
-                .frame(
-                    width: DesignTokens.Layout.minimumTouchTarget * 0.9,
-                    height: DesignTokens.Layout.minimumTouchTarget * 0.65
-                )
+            .frame(
+                maxWidth: .infinity,
+                minHeight: DesignTokens.Layout.homeTileContentHeight,
+                alignment: .leading
+            )
+            .background(alignment: .bottomTrailing) {
+                ContinentSilhouetteView(code: deck.code, opacity: 0.28)
+                    .frame(
+                        width: DesignTokens.Layout.homeTileContinent.width,
+                        height: DesignTokens.Layout.homeTileContinent.height
+                    )
+                    .accessibilityHidden(true)
+            }
         }
-        .padding(.horizontal, DesignTokens.Spacing.small)
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
         .contentShape(.rect)
     }
 
@@ -1340,8 +1224,8 @@ public struct HomeView: View {
         }
     }
 
-    /// Reads the flags the pane and the rows show: in every place, the cards
-    /// the button beside them is about to deal.
+    /// Reads the flags the review card and the deck fan show: in every
+    /// place, the cards the button beside them is about to deal.
     ///
     /// It runs before the counts exist as well, because the first wave draws
     /// real flags and has only the catalogue to draw them from. With no card
@@ -1384,7 +1268,8 @@ public struct HomeView: View {
         }
     }
 
-    /// The three cards a session started here would open with.
+    /// The cards a session started here would open with: five, as many as
+    /// the action card's strip draws; the fan takes the first three.
     ///
     /// The bands are the session's own — what the day owes first, then what
     /// has never been seen, then the rest — because the pile stands next to
@@ -1420,7 +1305,7 @@ public struct HomeView: View {
                     if leftDue != rightDue { return leftDue < rightDue }
                     return left.displayName < right.displayName
                 }
-                .prefix(3)
+                .prefix(FlagStrip.limits[0])
         )
     }
 }
@@ -1515,37 +1400,6 @@ struct SkeletonFanView: View {
         .accessibilityHidden(true)
     }
 }
-
-/// One flag at row height: enough to be recognised beside its count.
-struct MiniFlagView: View {
-    let card: LearningCardRecord
-    let store: ContentStore
-    let assets: (any AssetLoading)?
-
-    @Environment(\.displayScale) private var displayScale
-
-    var body: some View {
-        if let assets {
-            FlagImageView(
-                assetID: card.promptAssetID,
-                accessibilityLabel: card.displayName,
-                store: store,
-                assets: assets
-            )
-            .frame(width: 24, height: 18)
-            .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .strokeBorder(
-                        .white.opacity(DesignTokens.Card.borderOpacity),
-                        lineWidth: 1 / displayScale
-                    )
-            }
-            .accessibilityHidden(true)
-        }
-    }
-}
-
 
 extension CatalogSection {
     /// The curated shelf a learner already owns. A curated deck that is for

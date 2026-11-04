@@ -226,6 +226,12 @@ public enum DesignTokens {
         public static let detailPairHeight: CGFloat = 150
         public static let detailPairFlagWidth: CGFloat = 200
         public static let maximumContentWidth: CGFloat = 520
+        /// What a small Home tile holds inside its padding: 158 points tall
+        /// on a 402-point screen, less the padding (#510). A minimum, so the
+        /// tile grows with its text rather than clipping it.
+        public static let homeTileContentHeight: CGFloat = 126
+        /// The continent behind a small Home tile's figure.
+        public static let homeTileContinent = CGSize(width: 96, height: 72)
     }
 
     public enum Typography {
