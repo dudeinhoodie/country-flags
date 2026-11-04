@@ -530,7 +530,6 @@ public enum L10n {
 
     public static var studyTitle: String { localized("study.title") }
     public static var studyReveal: String { localized("study.reveal") }
-    public static var studyHide: String { localized("study.hide") }
     public static var studyFlagPrompt: String { localized("study.flag_prompt") }
     /// What VoiceOver calls a coat of arms while the question is still open.
     /// It names the kind of symbol and never the country, for the same reason

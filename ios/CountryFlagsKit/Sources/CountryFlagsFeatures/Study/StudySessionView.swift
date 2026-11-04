@@ -177,11 +177,9 @@ public struct StudySessionView: View {
                 swipeProgress: $swipeProgress,
                 commandedThrow: $commandedThrow
             )
-            // The rating bar that used to sit under a revealed card is gone —
-            // the swipe is the answer, and the hints below say where each one
-            // leads. VoiceOver cannot swipe a throw, so both answers ride on
-            // the card as actions instead of as buttons everyone else must
-            // scroll past. Both, and only both: an action offering a grade the
+            // The swipe answers, and since #526 two equal buttons under the
+            // card do as well. VoiceOver cannot swipe a throw, so both
+            // answers also ride on the card as actions. Both, and only both: an action offering a grade the
             // swipe cannot reach is a second scheduler behind an accessibility
             // affordance, which is how HARD used to strand a card on a
             // three-hour step no sighted learner could land on.
@@ -207,25 +205,25 @@ public struct StudySessionView: View {
                     .accessibilityIdentifier(AccessibilityIdentifier.studyNotSaved)
             }
 
-            // The button turns the card over and stays: once the answer is
-            // up it offers the way back, and either side can be returned to
-            // as often as the learner likes. The swipe is the answer either
-            // way; the hints above say where each one leads.
-            //
-            // Glass, not the white capsule: white is the scene's loudest
-            // voice and belongs to the one action a screen recommends —
-            // here that is answering the card, and this button is the way
-            // to peek.
-            Button {
-                toggleCard()
-            } label: {
-                Label(
-                    isShowingBack ? L10n.studyHide : L10n.studyReveal,
-                    systemImage: "arrow.2.squarepath"
-                )
+            // The front's one action is the white "Показать ответ" (#526):
+            // until the answer is out, turning the card is the thing to do.
+            // Once it is, two equal buttons answer it — "Снова" and "Хорошо"
+            // — where "Скрыть ответ" used to stand; the swipe still answers
+            // too, and a tap beside the card still turns it back.
+            if isShowingBack {
+                HStack(spacing: DesignTokens.Spacing.small) {
+                    Button(L10n.studyRating(.again)) { commandedThrow = .again }
+                        .buttonStyle(GlassActionStyle())
+                        .accessibilityIdentifier(AccessibilityIdentifier.studyRateAgain)
+                    Button(L10n.studyRating(.good)) { commandedThrow = .good }
+                        .buttonStyle(GlassActionStyle())
+                        .accessibilityIdentifier(AccessibilityIdentifier.studyRateGood)
+                }
+            } else {
+                Button(L10n.studyReveal) { toggleCard() }
+                    .buttonStyle(PrimaryActionStyle())
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
             }
-                .buttonStyle(GlassActionStyle())
-                .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
         }
         // A tap that lands beside the card closes it, and only closes: the
         // back is often read at arm's length and dismissed with whatever
@@ -286,9 +284,9 @@ public struct StudySessionView: View {
                 emphasis: max(swipeProgress, 0)
             )
         }
-        .padding(.horizontal, DesignTokens.Spacing.medium)
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.7)
-        .glassEffect(.regular, in: Capsule(style: .continuous))
+        // A quiet line rather than a glass capsule (#526): the capsule looked
+        // like buttons, and the buttons are under the card now.
+        .opacity(0.8)
         .frame(maxWidth: .infinity)
         .padding(.top, DesignTokens.Spacing.small)
         .accessibilityHidden(true)
