@@ -1439,13 +1439,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing turned up."
+            "value": "No country or deck matches."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ничего не нашлось."
+            "value": "Нет ни страны, ни колоды."
           }
         }
       }
@@ -1456,13 +1456,47 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find a deck"
+            "value": "Find a country or deck"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Найти колоду"
+            "value": "Найти страну или колоду"
+          }
+        }
+      }
+    },
+    "catalog.section.countries": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Countries"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страны"
+          }
+        }
+      }
+    },
+    "catalog.section.decks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decks"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колоды"
           }
         }
       }
@@ -1688,6 +1722,23 @@
         }
       }
     },
+    "commerce.buy_plain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Купить"
+          }
+        }
+      }
+    },
     "commerce.cta.explore": {
       "extractionState": "manual",
       "localizations": {
@@ -1717,7 +1768,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Покупка привязана к вашему аккаунту."
+            "value": "Покупка привязана к твоему аккаунту."
           }
         }
       }
@@ -1870,7 +1921,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Покупка ваша. Карточки приедут при следующем обновлении."
+            "value": "Покупка твоя. Карточки приедут при следующем обновлении."
           }
         }
       }
@@ -2142,7 +2193,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сейчас App Store не может продать эту колоду. Если вы её уже купили, восстановите покупки."
+            "value": "Сейчас App Store не может продать эту колоду. Если она уже куплена, восстанови покупки."
           }
         }
       }
@@ -2215,6 +2266,23 @@
         }
       }
     },
+    "common.close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрыть"
+          }
+        }
+      }
+    },
     "content.client_too_old": {
       "extractionState": "manual",
       "localizations": {
@@ -2262,6 +2330,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нужно обновление"
+          }
+        }
+      }
+    },
+    "content.client_too_old_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update the app"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обнови приложение"
           }
         }
       }
@@ -2453,6 +2538,23 @@
         }
       }
     },
+    "content.refresh_failed_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not refreshed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не обновилось"
+          }
+        }
+      }
+    },
     "content.retry": {
       "extractionState": "manual",
       "localizations": {
@@ -2483,6 +2585,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Каталог может быть неактуальным."
+          }
+        }
+      }
+    },
+    "content.stale_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May be out of date"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Может устареть"
           }
         }
       }
@@ -3292,6 +3411,161 @@
         }
       }
     },
+    "home.day_done.line": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ out of %2$lld today. More tomorrow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ из %2$lld на сегодня. Завтра продолжим."
+          }
+        }
+      }
+    },
+    "home.day_done.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All done for today"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сегодня всё сделано"
+          }
+        }
+      }
+    },
+    "home.deck.learn_new": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn new"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Учить новые"
+          }
+        }
+      }
+    },
+    "home.deck.next_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New flags"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новые флаги"
+          }
+        }
+      }
+    },
+    "home.deck.start": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начать"
+          }
+        }
+      }
+    },
+    "home.deck.start_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where to start"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С чего начать"
+          }
+        }
+      }
+    },
+    "home.deck.still_new": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld still new"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld still new"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ещё не знакома"
+                }
+              },
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ещё не знакомы"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ещё не знакомы"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ещё не знакомы"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "home.due": {
       "extractionState": "manual",
       "localizations": {
@@ -3305,6 +3579,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "К повторению"
+          }
+        }
+      }
+    },
+    "home.due_caption": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "to review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "к повторению"
           }
         }
       }
@@ -3326,210 +3617,19 @@
         }
       }
     },
-    "home.due_learnable": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld will become learned if you remember it"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld will become learned if you remember them"
-                }
-              }
-            }
-          }
-        },
-        "ru": {
-          "variations": {
-            "plural": {
-              "few": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld станут выученными, если вспомнишь"
-                }
-              },
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld станут выученными, если вспомнишь"
-                }
-              },
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld станет выученной, если вспомнишь"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld станут выученными, если вспомнишь"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "home.due_on_review": {
+    "home.guest_prompt.caption": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld in review"
+            "value": "Right now it lives only on this phone"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld на повторении"
-          }
-        }
-      }
-    },
-    "home.due_today": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "To review today"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сегодня к повторению"
-          }
-        }
-      }
-    },
-    "home.due_waiting": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld waits for the next answer"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld wait for the next answer"
-                }
-              }
-            }
-          }
-        },
-        "ru": {
-          "variations": {
-            "plural": {
-              "few": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ждут следующего ответа"
-                }
-              },
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ждут следующего ответа"
-                }
-              },
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ждёт следующего ответа"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ждут следующего ответа"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "home.flag_of_the_day.details": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "More about the country"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подробнее о стране"
-          }
-        }
-      }
-    },
-    "home.flag_of_the_day.label": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flag of the day"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Флаг дня"
-          }
-        }
-      }
-    },
-    "home.flag_of_the_day.question": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Whose flag is this?"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Чей это флаг?"
-          }
-        }
-      }
-    },
-    "home.flag_of_the_day.reveal": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show the answer"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Показать ответ"
+            "value": "Пока он есть только на этом телефоне"
           }
         }
       }
@@ -3593,13 +3693,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keep your progress in an account"
+            "value": "Save your progress"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сохранить прогресс в аккаунте"
+            "value": "Сохранить прогресс"
           }
         }
       }
@@ -3687,93 +3787,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "выучено %1$lld из %2$lld"
-          }
-        }
-      }
-    },
-    "home.known_learned.day_done.limit": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Today's limit is %lld country. Repeats come back tomorrow."
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Today's limit is %lld countries. Repeats come back tomorrow."
-                }
-              }
-            }
-          }
-        },
-        "ru": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Норма дня — %lld страна. Повторения вернутся завтра."
-                }
-              },
-              "few": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Норма дня — %lld страны. Повторения вернутся завтра."
-                }
-              },
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Норма дня — %lld стран. Повторения вернутся завтра."
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Норма дня — %lld страны. Повторения вернутся завтра."
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "home.known_learned.day_done.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done for today"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "На сегодня всё"
-          }
-        }
-      }
-    },
-    "home.known_learned.explanation": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A country becomes learned once you have remembered it on different days."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Страна становится выученной, когда ты вспомнишь её в разные дни."
           }
         }
       }
@@ -3880,7 +3893,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Загружаем ваш день…"
+            "value": "Загружаем твой день…"
           }
         }
       }
@@ -3936,6 +3949,96 @@
         }
       }
     },
+    "home.region.known": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld %3$#@known@"
+          },
+          "substitutions": {
+            "known": {
+              "argNum": 3,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "known"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "known"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld из %2$lld %3$#@known@"
+          },
+          "substitutions": {
+            "known": {
+              "argNum": 3,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "знакома"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "знакомы"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "знакомы"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "знакомы"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "home.region.learned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld learned"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld выучено"
+          }
+        }
+      }
+    },
     "home.regions.label": {
       "extractionState": "manual",
       "localizations": {
@@ -3949,6 +4052,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Или начни с региона"
+          }
+        }
+      }
+    },
+    "home.regions.label_progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By region"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По регионам"
           }
         }
       }
@@ -3970,19 +4090,36 @@
         }
       }
     },
-    "home.review_some": {
+    "home.review_first": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Review %1$lld of %2$lld"
+            "value": "Review the first %lld"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Повторить %1$lld из %2$lld"
+            "value": "Повторить первые %lld"
+          }
+        }
+      }
+    },
+    "home.review_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time to review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пора повторить"
           }
         }
       }
@@ -3993,30 +4130,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A session is waiting"
+            "value": "Session paused"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Тренировка ждёт"
-          }
-        }
-      }
-    },
-    "home.session_left": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld cards left"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "осталось карточек: %lld"
+            "value": "Тренировка на паузе"
           }
         }
       }
@@ -4120,7 +4240,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ваш прогресс сохранён. Проверьте соединение и попробуйте снова."
+            "value": "Твой прогресс сохранён. Проверь соединение и попробуй снова."
           }
         }
       }
@@ -4137,7 +4257,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ищем, что вы уже выучили. В первый раз это занимает несколько секунд."
+            "value": "Ищем, что уже выучено. В первый раз это занимает несколько секунд."
           }
         }
       }
@@ -4154,7 +4274,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Готовим ваш аккаунт"
+            "value": "Готовим твой аккаунт"
           }
         }
       }
@@ -4556,13 +4676,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "brighter is closer to done"
+            "value": "The more countries you know, the brighter the continent"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ярче — значит ближе к цели"
+            "value": "Чем больше знакомых стран, тем светлее континент"
           }
         }
       }
@@ -4647,7 +4767,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Каталог обновился, и части карточек, которые вы прошли, в нём больше нет: %lld. Эта работа осталась на устройстве, но в счёт она больше не идёт."
+            "value": "Каталог обновился, и части пройденных карточек в нём больше нет: %lld. Эта работа осталась на устройстве, но в счёт она больше не идёт."
           }
         }
       }
@@ -5174,7 +5294,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Если вы вошли в аккаунт, прогресс вернётся из него после синхронизации. Ответы, которые ещё не успели отправиться, и прогресс без аккаунта остались в сохранённой копии, и пока приложение не может их показать."
+            "value": "Если вход в аккаунт выполнен, прогресс вернётся из него после синхронизации. Ответы, которые ещё не успели отправиться, и прогресс без аккаунта остались в сохранённой копии, и пока приложение не может их показать."
           }
         }
       }
@@ -5225,7 +5345,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Приложению не удалось открыть хранилище на этом iPhone, поэтому всё, что вы сделаете сейчас, пропадёт после закрытия. Ничего из сохранённого раньше не удалено. Освободите место и откройте приложение заново."
+            "value": "Приложению не удалось открыть хранилище на этом iPhone, поэтому всё, что ты сделаешь сейчас, пропадёт после закрытия. Ничего из сохранённого раньше не удалено. Освободи место и открой приложение заново."
           }
         }
       }
@@ -5379,23 +5499,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Флаг для угадывания"
-          }
-        }
-      }
-    },
-    "study.hide": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide answer"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Скрыть ответ"
           }
         }
       }
@@ -5706,36 +5809,19 @@
         }
       }
     },
-    "study.result.mastery.delta": {
+    "study.result.more": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "+%1$lld%% this session"
+            "value": "Another %@"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "+%1$lld%% за тренировку"
-          }
-        }
-      }
-    },
-    "study.result.mastery.learned": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deck %1$lld%% learned"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Изучено %1$lld%% колоды"
+            "value": "Ещё %@"
           }
         }
       }
@@ -5787,6 +5873,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Тренировка завершена"
+          }
+        }
+      }
+    },
+    "study.result.to_review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "to review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "к повторению"
           }
         }
       }
@@ -6094,7 +6197,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Обновите приложение в App Store, когда вам будет удобно."
+            "value": "Обнови приложение в App Store, когда будет удобно."
           }
         }
       }
@@ -6145,7 +6248,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Эта версия больше не поддерживается. Обновите приложение в App Store — ваш прогресс никуда не денется."
+            "value": "Эта версия больше не поддерживается. Обнови приложение в App Store — твой прогресс никуда не денется."
           }
         }
       }

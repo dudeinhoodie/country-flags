@@ -417,6 +417,8 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertEqual(store.continuable?.answeredCards, 1)
         XCTAssertEqual(store.continuable?.totalCards, 3)
         XCTAssertEqual(store.continuable?.mode, .selfRated)
+        // The paused card draws the flags still owed, in the sitting's order.
+        XCTAssertEqual(store.continuable?.remainingCardIDs, [cards[1], cards[2]])
     }
 
     /// Every card answered means there is nothing to walk back into, even if

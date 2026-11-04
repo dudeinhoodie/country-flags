@@ -12,6 +12,10 @@ public enum DesignTokens {
         public static let medium: CGFloat = 16
         public static let large: CGFloat = 24
         public static let extraLarge: CGFloat = 32
+        /// The gap of Home's tile grid, between two tiles and between blocks
+        /// (#510). Off the 8-step scale on purpose: two tiles 16 apart read
+        /// as two blocks, 8 apart as one block split down the middle.
+        public static let tileGap: CGFloat = 12
     }
 
     public enum Radius {
@@ -111,6 +115,12 @@ public enum DesignTokens {
         /// wore, chosen over the result screen's softer shade for being the
         /// saturated one.
         public static let learned = Color.green
+        /// The opaque card a continent sits on: Home's region cards and
+        /// per-region review tiles, and the catalogue's deck rows (#510).
+        /// Glass let the coloured scene through, and on a card whose subject
+        /// is a continent the tint read as a gradient the card does not mean.
+        /// Figma names it `surface/flat`.
+        public static let flatSurface = Color(.sRGB, red: 28 / 255, green: 28 / 255, blue: 32 / 255)
     }
 
     /// The ground every screen sits on.
@@ -161,6 +171,10 @@ public enum DesignTokens {
         /// grounds, and for Google's neutral one to read against; grey rather
         /// than white, because pure white under a dark scene glared.
         public static let trayWhite: Double = 0.86
+        /// Small text and quiet actions on the tray (#529): dark enough for
+        /// about 5.4:1 on the tray's white, where the system's secondary grey
+        /// gave about 3:1. Figma names it `sign-in/text-secondary`.
+        public static let secondaryText = Color(white: 0.33)
     }
 
     public enum Layout {
@@ -216,6 +230,15 @@ public enum DesignTokens {
         public static let detailPairHeight: CGFloat = 150
         public static let detailPairFlagWidth: CGFloat = 200
         public static let maximumContentWidth: CGFloat = 520
+        /// What a small Home tile holds inside its padding: 158 points tall
+        /// on a 402-point screen, less the padding (#510). A minimum, so the
+        /// tile grows with its text rather than clipping it.
+        public static let homeTileContentHeight: CGFloat = 126
+        /// The continent behind a small Home tile's figure.
+        public static let homeTileContinent = CGSize(width: 96, height: 72)
+        /// The same for a wide Home tile, the first region card (#517).
+        public static let homeWideTileContentHeight: CGFloat = 108
+        public static let homeWideTileContinent = CGSize(width: 150, height: 108)
     }
 
     public enum Typography {

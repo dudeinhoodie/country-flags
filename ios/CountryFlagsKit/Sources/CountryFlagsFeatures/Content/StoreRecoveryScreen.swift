@@ -35,7 +35,8 @@ struct StoreRecoveryScreen: View {
         }
         .safeAreaInset(edge: .bottom) {
             Button(L10n.storeRecoveryContinue, action: proceed)
-                .buttonStyle(GlassProminentActionStyle())
+                // The screen's only action, so the white one (#529).
+                .buttonStyle(PrimaryActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.storeRecoveryContinue)
                 .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
                 .padding(.horizontal, DesignTokens.Spacing.large)

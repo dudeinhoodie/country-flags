@@ -3,8 +3,13 @@
 ## Source of truth
 
 - Status: Draft, ready for paid-deck and admin-redesign implementation
-- Last refreshed: 2026-09-05
+- Last refreshed: 2026-11-04 (Home, session result and catalog redesign, epic
+  #510)
 - Primary product surfaces: iOS learner app and React Admin console
+- Agreed learner screens: Figma
+  <https://www.figma.com/design/lDmjwwsfB7gsKMaIzWQinU/Untitled>, page
+  "02 Screens"; page "Приложение сейчас · master 238bd17" shows the app before
+  the redesign
 - Evidence reviewed:
   - `docs/16-ios-design-language.md`
   - `docs/adr/ADR-012-dark-scene-design-language.md`
@@ -179,7 +184,10 @@ downloading the paid payload.
 - Spacing/layout rhythm: existing 4/8/16/24/32 token scale and
   `maximumContentWidth`.
 - Shape/radius/elevation: `GlassCard`, continuous radii, native glass controls;
-  one elevation level.
+  one elevation level. Continent cards (Home regions, per-region review tiles,
+  catalog deck rows) use the opaque flat surface
+  `DesignTokens.Colors.flatSurface` instead of glass, so the scene does not
+  tint them.
 - Motion: lock-to-check and CTA replacement use a short semantic transition.
   No looping shimmer or paywall entrance animation.
 - Imagery/iconography: existing flag fan/continent silhouette and SF Symbols.
@@ -200,6 +208,31 @@ downloading the paid payload.
 - `ContentStatusBanner`
 
 ### New or changed learner components
+
+#### Home tiles (2026-11-04)
+
+Figma "Home · Components" board, node `74:1123`; rules in
+`docs/16-ios-design-language.md` section 4.8.
+
+- **Known tile / Learned tile** — two small tiles side by side, each a button
+  to Progress. Known: blurred mosaic of known flags under a shade. Learned:
+  green with a seal watermark.
+- **Action card** — title and count on one line, the deck under them, at most
+  five flags then "+N", one white button. Kinds: review ("Пора повторить") and
+  paused session ("Тренировка на паузе").
+- **Deck hero / deck row** — the deck with a colour wash and a white button when
+  it is the screen's action; a quiet glass row with a chevron otherwise.
+- **Day done** — glass row with a closed ring: "Сегодня всё сделано" and the
+  day's count against the daily allowance. No button.
+- **Region tile / per-region review tile** — flat continent cards. On Home the
+  silhouette fills from the bottom: white for known, green for learned.
+
+#### Session result heap (2026-11-04)
+
+Figma nodes `65:941` (final states), `66:1267` (motion), `63:3` (components),
+`63:85` (rules). The session's flags settle as a deck slid along a shallow arc;
+remembered flags carry the seal; a bottom sheet shows known, learned and to
+review, with the buttons.
 
 #### `DeckAccessBadge`
 
@@ -303,7 +336,10 @@ Interaction contract:
 
 ### Catalog
 
-The current `GlassCard` row remains intact. A paid row adds:
+The current row remains intact, on the flat surface rather than glass since
+2026-11-04 (#521): "Все страны" with its fan of three flags, then each region
+with its one-colour continent (white at 55 %, never filled with progress). A
+paid row adds:
 
 - `DeckAccessBadge` at the top trailing edge of the text area;
 - “Разовая покупка · {price}” below card count/progress;
@@ -421,9 +457,10 @@ templates.
 - `More` presents a scrollable full-screen sheet over the active study session.
   Closing it returns to the same revealed card and does not grade it, advance
   the session or change scheduling state.
-- Extended country facts use an editorial bento: a large map/area tile, capital
-  and population tiles, followed by a compact currency/language/code strip.
-  These tiles are informational; `View on map` is the only navigational row.
+- Extended country facts are one glass pane of fact rows (badge · label ·
+  value), the same row the card's back and the quiz use (#525, 2026-11-04),
+  with the map tile closing the sheet. The rows are informational; `View on
+  map` is the only navigational row.
 - Facts use muted flat symbols, low-contrast graphite hairlines and matte map
   artwork. No fact tile, map or icon uses glow, bloom or neon styling.
 

@@ -78,6 +78,13 @@ struct ContinentSilhouettes: Sendable {
 struct ContinentSilhouetteView: View {
     let code: String
     var opacity: Double = 0.45
+    /// Shares of the region's deck known and learned (#517). When either is
+    /// above zero the shape fills from the bottom: white up to the known
+    /// share, the learned green up to the learned share, over a dim ground.
+    /// The catalogue never passes them: there the continent is one colour
+    /// and the row's bar carries the progress.
+    var known: Double = 0
+    var learned: Double = 0
 
     var body: some View {
         if let silhouette = ContinentSilhouettes.shipped.silhouette(forDeckCode: code) {
@@ -106,9 +113,38 @@ struct ContinentSilhouetteView: View {
                     }
                     path.closeSubpath()
                 }
-                context.fill(path, with: .color(.white.opacity(opacity)))
+                guard known > 0 || learned > 0 else {
+                    context.fill(path, with: .color(.white.opacity(opacity)))
+                    return
+                }
+                // Filled from the bottom of the drawn shape, the way a glass
+                // fills: each share is a band clipped out of the same path.
+                context.fill(path, with: .color(.white.opacity(Self.groundOpacity)))
+                for (share, color) in [
+                    (known, Color.white.opacity(Self.knownOpacity)),
+                    (learned, DesignTokens.Colors.learned),
+                ] where share > 0 {
+                    let height = scale * min(1, share)
+                    var band = context
+                    band.clip(
+                        to: Path(
+                            CGRect(
+                                x: 0,
+                                y: offsetY + scale - height,
+                                width: size.width,
+                                height: height
+                            )
+                        )
+                    )
+                    band.fill(path, with: .color(color))
+                }
             }
             .accessibilityHidden(true)
         }
     }
+
+    /// The part of the shape nothing has reached yet, and the known part:
+    /// white at two strengths, so the learned green is the only colour.
+    private static let groundOpacity = 0.14
+    private static let knownOpacity = 0.6
 }

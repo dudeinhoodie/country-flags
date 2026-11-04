@@ -37,7 +37,8 @@ struct UpdateRequiredScreen: View {
                 Button(L10n.updateOpenAppStore) {
                     openURL(appStoreURL)
                 }
-                .buttonStyle(GlassProminentActionStyle())
+                // The screen's only action, so the white one (#529).
+                .buttonStyle(PrimaryActionStyle())
                 .accessibilityIdentifier(AccessibilityIdentifier.updateRequiredOpenStore)
                 .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
                 .padding(.horizontal, DesignTokens.Spacing.large)
