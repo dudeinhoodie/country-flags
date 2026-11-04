@@ -1083,6 +1083,9 @@ public enum AccessibilityIdentifier {
     public static let studyMap = "study.details.map"
     public static let studyClose = "study.close"
     public static let studyReveal = "study.reveal"
+    /// The two answers under a turned card (#526).
+    public static let studyRateAgain = "study.rate.again"
+    public static let studyRateGood = "study.rate.good"
     /// Facts are addressed by the type they carry rather than by position: a
     /// release decides how many a country has.
     public static func studyFact(_ type: String) -> String {
