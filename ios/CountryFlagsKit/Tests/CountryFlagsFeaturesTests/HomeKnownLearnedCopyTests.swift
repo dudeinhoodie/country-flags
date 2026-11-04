@@ -68,4 +68,19 @@ final class HomeKnownLearnedCopyTests: XCTestCase {
             "the count is formatted in but the plural rule is not applied"
         )
     }
+
+    /// The region card's line (#517) prints both numbers and nothing of its
+    /// machinery: the participle is a substitution on a repeated argument, and
+    /// a catalogue edit that broke it would put the specifier on the screen.
+    func testTheRegionLineCarriesBothNumbersAndNoSpecifier() {
+        for (known, total) in [(1, 52), (10, 52), (21, 60)] {
+            let line = L10n.homeRegionKnown(known, of: total)
+
+            XCTAssertTrue(line.contains("\(known)"), line)
+            XCTAssertTrue(line.contains("\(total)"), line)
+            XCTAssertFalse(line.contains("%"), "the format reached the screen: \(line)")
+            XCTAssertFalse(line.contains("@"), "the substitution reached the screen: \(line)")
+            XCTAssertFalse(line.contains("home."), "the key reached the screen: \(line)")
+        }
+    }
 }

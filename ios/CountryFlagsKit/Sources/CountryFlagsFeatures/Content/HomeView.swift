@@ -234,6 +234,10 @@ public struct HomeView: View {
                         if isFirstVisit {
                             flagOfTheDayCard(sections)
                                 .devBlockID("home.flag-of-the-day")
+                        }
+                        // Every state but a due queue, which draws its own
+                        // region tiles above (#517).
+                        if totalDue == 0 {
                             regionsShelf(sections)
                                 .devBlockID("home.regions")
                         }
@@ -704,57 +708,56 @@ public struct HomeView: View {
         }
     }
 
-    /// The regions, each with its outline: the catalogue's own rows, folded
-    /// into a grid, as a second way in for somebody who would rather start
-    /// with one continent than with the whole world.
+    /// The regions as flat cards (#517): a second way in for somebody who
+    /// would rather start with one continent than with the whole world, and,
+    /// once anything is started, how far each continent has come.
+    ///
+    /// The first region spans both columns and the rest go two to a row, as
+    /// the agreed design draws them. On a first visit the label invites a
+    /// start; afterwards it simply names the section.
     @ViewBuilder
     private func regionsShelf(_ sections: [CatalogSection]) -> some View {
         let regions = sections
             .filter { !$0.isFeatured && $0.kind != .curated }
             .flatMap(\.decks)
             .filter { ContinentSilhouettes.shipped.silhouette(forDeckCode: $0.code) != nil }
-        if !regions.isEmpty {
+        if let first = regions.first {
+            let rows = Dictionary(
+                (progress?.decks ?? []).map { ($0.id, $0) },
+                uniquingKeysWith: { first, _ in first }
+            )
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                SectionLabel(L10n.homeRegionsLabel)
+                SectionLabel(hasAnyProgress ? L10n.homeRegionsProgressLabel : L10n.homeRegionsLabel)
 
-                LazyVGrid(
-                    columns: [
-                        GridItem(.flexible(), spacing: DesignTokens.Spacing.small + 4),
-                        GridItem(.flexible()),
-                    ],
-                    spacing: DesignTokens.Spacing.small + 4
-                ) {
-                    ForEach(regions, id: \.id) { deck in
-                        Button {
-                            onOpenDeck(deck.id)
-                        } label: {
-                            GlassCard(padding: DesignTokens.Spacing.medium) {
-                                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                                    ContinentSilhouetteView(code: deck.code, opacity: 0.55)
-                                        .frame(height: 56)
-                                        .frame(maxWidth: .infinity)
+                VStack(spacing: DesignTokens.Spacing.tileGap) {
+                    regionButton(first, row: rows[first.id], isWide: true)
 
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(deck.name)
-                                            .font(DesignTokens.Typography.sectionTitle)
-                                            .foregroundStyle(.white)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.8)
-                                        Text(L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds))
-                                            .font(DesignTokens.Typography.caption)
-                                            .foregroundStyle(.white.opacity(0.55))
-                                    }
-                                }
-                            }
-                            .contentShape(.rect)
+                    LazyVGrid(
+                        columns: Array(
+                            repeating: GridItem(.flexible(), spacing: DesignTokens.Spacing.tileGap),
+                            count: 2
+                        ),
+                        spacing: DesignTokens.Spacing.tileGap
+                    ) {
+                        ForEach(regions.dropFirst(), id: \.id) { deck in
+                            regionButton(deck, row: rows[deck.id], isWide: false)
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityIdentifier(AccessibilityIdentifier.homeRegion(deck.code))
                     }
                 }
             }
         }
+    }
+
+    private func regionButton(_ deck: DeckRecord, row: DeckProgressRow?, isWide: Bool) -> some View {
+        Button {
+            onOpenDeck(deck.id)
+        } label: {
+            HomeRegionCard(deck: deck, progress: row, isWide: isWide)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(AccessibilityIdentifier.homeRegion(deck.code))
     }
 
     /// A sign-in the backend has stopped honouring, above everything: from
