@@ -3292,6 +3292,40 @@
         }
       }
     },
+    "home.day_done.line": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ out of %2$lld today. More tomorrow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ из %2$lld на сегодня. Завтра продолжим."
+          }
+        }
+      }
+    },
+    "home.day_done.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All done for today"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сегодня всё сделано"
+          }
+        }
+      }
+    },
     "home.deck.learn_new": {
       "extractionState": "manual",
       "localizations": {
@@ -3685,76 +3719,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "выучено %1$lld из %2$lld"
-          }
-        }
-      }
-    },
-    "home.known_learned.day_done.limit": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Today's limit is %lld country. Repeats come back tomorrow."
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Today's limit is %lld countries. Repeats come back tomorrow."
-                }
-              }
-            }
-          }
-        },
-        "ru": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Норма дня — %lld страна. Повторения вернутся завтра."
-                }
-              },
-              "few": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Норма дня — %lld страны. Повторения вернутся завтра."
-                }
-              },
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Норма дня — %lld стран. Повторения вернутся завтра."
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Норма дня — %lld страны. Повторения вернутся завтра."
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "home.known_learned.day_done.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done for today"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "На сегодня всё"
           }
         }
       }

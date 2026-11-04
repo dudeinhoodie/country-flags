@@ -513,6 +513,17 @@ public struct HomeView: View {
         // that button, a paused sitting or a finished day, the deck is a
         // quiet row: the owner's rule of one white button per screen replaced
         // the two white doors #497 allowed.
+        // A finished day says so in a calm block of its own (#516), right
+        // above the deck row: no white button anywhere on the screen, because
+        // there is nothing left to do today.
+        if closesTheDay {
+            HomeDayDone(
+                answered: min(answeredToday, DailyReviewAllowance.limit),
+                limit: DailyReviewAllowance.limit
+            )
+            .devBlockID("home.day-done")
+        }
+
         if due == 0, let deck = recommended(sections) {
             Group {
                 if continuable == nil && !closesTheDay {
@@ -921,19 +932,12 @@ public struct HomeView: View {
         let known = knownCountries
         let learned = learnedCountries
         let total = totalCountries
-        let isDayClosed = closesTheDay
-        // A closed day is drawn even in the corner where nothing counts as
-        // known, so the day's end is never left unsaid.
-        if known > 0 || isDayClosed {
+        if known > 0 {
             Button {
                 onOpenProgress?()
             } label: {
                 GlassCard(padding: DesignTokens.Spacing.large) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-                        if isDayClosed {
-                            SectionLabel(L10n.homeDayDoneTitle)
-                        }
-
                         HStack(alignment: .center, spacing: DesignTokens.Spacing.large) {
                             knownLearnedFigure(known, caption: L10n.homeKnownCaption(known)) {
                                 Image(systemName: "flag.fill")
@@ -970,9 +974,7 @@ public struct HomeView: View {
                             learned: share(learned, of: total)
                         )
 
-                        if let line = knownLearnedFootnote(
-                            learned: learned, isDayClosed: isDayClosed
-                        ) {
+                        if let line = knownLearnedFootnote(learned: learned) {
                             Text(line)
                                 .font(DesignTokens.Typography.caption)
                                 .foregroundStyle(.white.opacity(0.55))
@@ -986,20 +988,18 @@ public struct HomeView: View {
             .disabled(onOpenProgress == nil)
             .accessibilityElement(children: .combine)
             .accessibilityLabel(
-                knownLearnedAccessibilityLabel(known, learned, total, isDayClosed: isDayClosed)
+                knownLearnedAccessibilityLabel(known, learned, total)
             )
             .accessibilityHint(onOpenProgress == nil ? "" : L10n.homeKnownLearnedHint)
             .accessibilityIdentifier(AccessibilityIdentifier.homeKnownLearned)
         }
     }
 
-    /// The one line under the bar, when there is one: on a closed day, the
-    /// day's limit and when repeats come back; otherwise, while nothing is
-    /// learned, why the second figure is still zero.
-    private func knownLearnedFootnote(learned: Int, isDayClosed: Bool) -> String? {
-        if isDayClosed { return L10n.homeDayDoneLimit(DailyReviewAllowance.limit) }
-        if learned == 0 { return L10n.homeLearnedExplanation }
-        return nil
+    /// The one line under the bar, when there is one: while nothing is
+    /// learned, why the second figure is still zero. A finished day says so
+    /// in its own block now (#516).
+    private func knownLearnedFootnote(learned: Int) -> String? {
+        learned == 0 ? L10n.homeLearnedExplanation : nil
     }
 
     /// One figure and the word for it, in the hero face every other number
@@ -1036,20 +1036,18 @@ public struct HomeView: View {
     }
 
     /// Both figures in one sentence, with the numbers inside the words this
-    /// time, the closed day's title before them and the line under the bar
-    /// after them when those are on screen: VoiceOver hears what the screen
-    /// shows, not a shorter version of it.
+    /// time, and the line under the bar after them when it is on screen:
+    /// VoiceOver hears what the screen shows, not a shorter version of it.
     private func knownLearnedAccessibilityLabel(
         _ known: Int,
         _ learned: Int,
-        _ total: Int,
-        isDayClosed: Bool
+        _ total: Int
     ) -> String {
         let figures = "\(L10n.homeKnownCount(known)), \(L10n.homeLearnedOf(learned, total))"
-        var parts = isDayClosed ? ["\(L10n.homeDayDoneTitle)."] : []
+        var parts: [String] = []
         // The footnote ends its own sentence; the figures before it need
         // their full stop, and alone they need none.
-        if let line = knownLearnedFootnote(learned: learned, isDayClosed: isDayClosed) {
+        if let line = knownLearnedFootnote(learned: learned) {
             parts += ["\(figures).", line]
         } else {
             parts.append(figures)

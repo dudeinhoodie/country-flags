@@ -51,13 +51,17 @@ final class HomeKnownLearnedCopyTests: XCTestCase {
         XCTAssertFalse(line.contains("%"), line)
     }
 
-    /// The finished day's line names the limit, declined by it.
-    func testTheDayDoneLineDeclinesWithTheLimit() {
-        let one = L10n.homeDayDoneLimit(1)
-        let several = L10n.homeDayDoneLimit(5)
+    /// The finished day's line (#516) carries both numbers, and the answered
+    /// one is declined: "1 флаг из 50", "5 флагов из 50".
+    func testTheDayDoneLineDeclinesTheAnsweredCount() {
+        let one = L10n.homeDayDoneLine(answered: 1, limit: 50)
+        let several = L10n.homeDayDoneLine(answered: 5, limit: 50)
 
         XCTAssertTrue(one.contains("1"), one)
+        XCTAssertTrue(one.contains("50"), one)
         XCTAssertTrue(several.contains("5"), several)
+        XCTAssertFalse(several.contains("%"), "the format reached the screen: \(several)")
+        XCTAssertFalse(several.contains("home."), "the key reached the screen: \(several)")
         XCTAssertNotEqual(
             one.replacingOccurrences(of: "1", with: ""),
             several.replacingOccurrences(of: "5", with: ""),
