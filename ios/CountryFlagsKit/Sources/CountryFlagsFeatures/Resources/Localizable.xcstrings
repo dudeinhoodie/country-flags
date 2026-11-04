@@ -2266,6 +2266,23 @@
         }
       }
     },
+    "content.client_too_old_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update the app"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обнови приложение"
+          }
+        }
+      }
+    },
     "content.empty.message": {
       "extractionState": "manual",
       "localizations": {
@@ -2453,6 +2470,23 @@
         }
       }
     },
+    "content.refresh_failed_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not refreshed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не обновилось"
+          }
+        }
+      }
+    },
     "content.retry": {
       "extractionState": "manual",
       "localizations": {
@@ -2483,6 +2517,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Каталог может быть неактуальным."
+          }
+        }
+      }
+    },
+    "content.stale_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "May be out of date"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Может устареть"
           }
         }
       }

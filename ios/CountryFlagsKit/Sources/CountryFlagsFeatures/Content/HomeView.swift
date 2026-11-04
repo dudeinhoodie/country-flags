@@ -179,13 +179,6 @@ public struct HomeView: View {
             guestPrompt
                 .devBlockID("home.account")
 
-            // The sync state moved to the header, where it sits between the
-            // avatar and the gear; this one explains itself only when it has
-            // something to say.
-            if isStale || failure != nil {
-                ContentStatusBanner(isStale: isStale, failure: failure)
-                    .devBlockID("home.status")
-            }
 
             expiredSignInPrompt
                 .devBlockID("home.sign-in-expired")
