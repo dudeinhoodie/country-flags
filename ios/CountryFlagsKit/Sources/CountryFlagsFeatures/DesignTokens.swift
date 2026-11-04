@@ -12,6 +12,10 @@ public enum DesignTokens {
         public static let medium: CGFloat = 16
         public static let large: CGFloat = 24
         public static let extraLarge: CGFloat = 32
+        /// The gap of Home's tile grid, between two tiles and between blocks
+        /// (#510). Off the 8-step scale on purpose: two tiles 16 apart read
+        /// as two blocks, 8 apart as one block split down the middle.
+        public static let tileGap: CGFloat = 12
     }
 
     public enum Radius {
@@ -111,6 +115,12 @@ public enum DesignTokens {
         /// wore, chosen over the result screen's softer shade for being the
         /// saturated one.
         public static let learned = Color.green
+        /// The opaque card a continent sits on: Home's region cards and
+        /// per-region review tiles, and the catalogue's deck rows (#510).
+        /// Glass let the coloured scene through, and on a card whose subject
+        /// is a continent the tint read as a gradient the card does not mean.
+        /// Figma names it `surface/flat`.
+        public static let flatSurface = Color(.sRGB, red: 28 / 255, green: 28 / 255, blue: 32 / 255)
     }
 
     /// The ground every screen sits on.
