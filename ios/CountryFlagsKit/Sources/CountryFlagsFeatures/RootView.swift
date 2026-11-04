@@ -934,6 +934,10 @@ public enum AccessibilityIdentifier {
     public static func catalogDeckRow(_ code: String) -> String {
         "catalog.deck.\(code)"
     }
+    /// A country the catalogue's search found (#527).
+    public static func catalogCountryRow(_ cardID: UUID) -> String {
+        "catalog.country.\(cardID.uuidString)"
+    }
 
     public static func homeDeckRow(_ code: String) -> String {
         "home.deck.\(code)"

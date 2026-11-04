@@ -210,6 +210,9 @@ public enum L10n {
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
     public static var catalogNoMatches: String { localized("catalog.no_matches") }
+    /// The two kinds of search result (#527).
+    public static var catalogCountriesSection: String { localized("catalog.section.countries") }
+    public static var catalogDecksSection: String { localized("catalog.section.decks") }
 
     /// Names the language the catalog is actually in, for the case where the
     /// device asked for one the release does not publish.
