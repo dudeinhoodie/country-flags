@@ -737,6 +737,9 @@ public enum L10n {
         localized("commerce.paywall.other_device")
     }
 
+    /// The buy button while there is no price to put on it (#530): present
+    /// and disabled.
+    public static var commerceBuyPlain: String { localized("commerce.buy_plain") }
     public static func commerceBuy(_ displayPrice: String) -> String {
         String(format: localized("commerce.action.buy"), displayPrice)
     }

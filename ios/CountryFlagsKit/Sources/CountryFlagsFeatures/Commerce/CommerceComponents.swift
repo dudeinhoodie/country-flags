@@ -158,6 +158,9 @@ struct FeaturedDeckCTA: View {
 /// for it, and Account has the other copy.
 struct PurchaseExplanationCard: View {
     let price: StorePriceState
+    /// Whether the price line may say the deck cannot be bought. False when
+    /// a status card above already says so (#530).
+    var saysUnavailable = true
     let onRestore: () -> Void
 
     var body: some View {
@@ -183,7 +186,7 @@ struct PurchaseExplanationCard: View {
                             .monospacedDigit()
                             .foregroundStyle(.white)
                             .accessibilityIdentifier(AccessibilityIdentifier.deckPrice)
-                    } else {
+                    } else if saysUnavailable || !price.isUnavailable {
                         StorePriceView(state: price)
                     }
                 }
@@ -342,4 +345,13 @@ struct PaidDeckPreviewFan: View {
         (0, 0, -8, 2),
         (8, 112, 16, 1),
     ]
+}
+
+extension StorePriceState {
+    /// The store will not sell the deck at all, as opposed to a price that
+    /// is still on its way.
+    fileprivate var isUnavailable: Bool {
+        if case .unavailable = self { return true }
+        return false
+    }
 }

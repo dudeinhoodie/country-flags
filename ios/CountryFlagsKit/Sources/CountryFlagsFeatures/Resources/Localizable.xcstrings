@@ -1688,6 +1688,23 @@
         }
       }
     },
+    "commerce.buy_plain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Купить"
+          }
+        }
+      }
+    },
     "commerce.cta.explore": {
       "extractionState": "manual",
       "localizations": {
