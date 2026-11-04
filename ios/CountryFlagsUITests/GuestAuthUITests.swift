@@ -384,7 +384,7 @@ final class GuestAuthUITests: XCTestCase {
         XCTAssertTrue(option.isSelected, app.debugDescription)
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(
-            app.buttons["root.shell.openSettings"].waitForExistence(timeout: 30),
+            app.buttons["account.open"].waitForExistence(timeout: 30),
             app.debugDescription
         )
     }
@@ -398,7 +398,7 @@ final class GuestAuthUITests: XCTestCase {
     }
 
     private func openSettings(in app: XCUIApplication) {
-        let settings = app.buttons["root.shell.openSettings"]
+        let settings = app.buttons["account.open"]
         XCTAssertTrue(settings.waitForExistence(timeout: 30), app.debugDescription)
         settings.tap()
     }

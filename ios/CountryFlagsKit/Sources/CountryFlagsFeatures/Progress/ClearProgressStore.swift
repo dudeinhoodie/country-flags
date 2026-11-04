@@ -29,9 +29,9 @@ public final class ClearProgressStore {
         case failed
     }
 
-    /// Whether the entry point is shown at all. A guest has no account-side
-    /// progress to delete; offering the row would be offering a button that
-    /// cannot work.
+    /// Whether the entry point is shown at all. Everybody, since #522: a
+    /// guest's progress is all on the device, and clearing it is the device
+    /// step alone.
     public private(set) var isOffered = false
     public private(set) var phase: Phase = .idle
 
@@ -75,7 +75,7 @@ public final class ClearProgressStore {
     }
 
     public func load() async {
-        isOffered = await !scopes.currentScope().isGuest
+        isOffered = true
     }
 
     // MARK: - The flow
@@ -92,12 +92,15 @@ public final class ClearProgressStore {
         guard isArmed else { return }
         isArmed = false
         phase = .clearing
-        do {
-            _ = try await clearing.clearProgress()
-        } catch {
-            logger.log(.error, .sync, "The backend refused to clear progress")
-            phase = .failed
-            return
+        // A guest has nothing on a server: the device is the whole of it.
+        if await !scopes.currentScope().isGuest {
+            do {
+                _ = try await clearing.clearProgress()
+            } catch {
+                logger.log(.error, .sync, "The backend refused to clear progress")
+                phase = .failed
+                return
+            }
         }
         await eraseLocalProgress()
         phase = .cleared

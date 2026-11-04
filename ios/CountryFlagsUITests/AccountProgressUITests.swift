@@ -233,7 +233,7 @@ final class AccountProgressUITests: XCTestCase {
         // deletion closes it rather than leaving it standing: the app comes
         // back to the shell on its own and nothing here navigates.
         XCTAssertTrue(
-            app.buttons["root.shell.openSettings"].waitForExistence(timeout: 20),
+            app.buttons["account.open"].waitForExistence(timeout: 20),
             "A deletion returns the device to its guest shell\n\(app.debugDescription)"
         )
 
@@ -310,7 +310,8 @@ final class AccountProgressUITests: XCTestCase {
     // MARK: - Clearing progress
 
     private func requestClearProgress(in app: XCUIApplication) {
-        let clear = app.buttons["settings.clearProgress"]
+        // Below the settings in "Профиль" (#522), so it is scrolled to.
+        let clear = app.reveal(app.buttons["settings.clearProgress"])
         XCTAssertTrue(
             clear.waitForExistence(timeout: 20),
             "A signed-in account is offered the operation\n\(app.debugDescription)"
@@ -360,7 +361,7 @@ final class AccountProgressUITests: XCTestCase {
     private func cancelClearProgress(in app: XCUIApplication) {
         tap("settings.clearProgress.cancel", in: app)
         XCTAssertTrue(
-            app.buttons["settings.clearProgress"].waitForExistence(timeout: 10),
+            app.reveal(app.buttons["settings.clearProgress"]).waitForExistence(timeout: 10),
             "Cancelling returns to the account screen\n\(app.debugDescription)"
         )
     }
@@ -577,7 +578,7 @@ final class AccountProgressUITests: XCTestCase {
         // way a person would is what gives that write its turn.
         leaveScreen(in: app)
         XCTAssertTrue(
-            app.buttons["root.shell.openSettings"].waitForExistence(timeout: 30),
+            app.buttons["account.open"].waitForExistence(timeout: 30),
             app.debugDescription
         )
     }
@@ -594,7 +595,7 @@ final class AccountProgressUITests: XCTestCase {
     }
 
     private func openSettings(in app: XCUIApplication) {
-        let settings = app.buttons["root.shell.openSettings"]
+        let settings = app.buttons["account.open"]
         XCTAssertTrue(settings.waitForExistence(timeout: 30), app.debugDescription)
         settings.tap()
     }

@@ -196,7 +196,7 @@ final class ProgressSettingsUITests: XCTestCase {
         let app = launch(arguments: ["-reset-store"] + identity)
 
         openSettings(in: app)
-        let haptics = app.switches["settings.haptics"]
+        let haptics = app.reveal(app.switches["settings.haptics"])
         XCTAssertTrue(haptics.waitForExistence(timeout: 30), app.debugDescription)
         haptics.tap()
         let hapticsOff = haptics.value as? String
@@ -205,14 +205,14 @@ final class ProgressSettingsUITests: XCTestCase {
         // finishes while the screen is being dismissed.
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(
-            app.buttons["root.shell.openSettings"].waitForExistence(timeout: 30),
+            app.buttons["account.open"].waitForExistence(timeout: 30),
             app.debugDescription
         )
         app.terminate()
 
         let relaunched = launch(arguments: identity)
         openSettings(in: relaunched)
-        let restoredHaptics = relaunched.switches["settings.haptics"]
+        let restoredHaptics = relaunched.reveal(relaunched.switches["settings.haptics"])
         XCTAssertTrue(restoredHaptics.waitForExistence(timeout: 30), relaunched.debugDescription)
         XCTAssertEqual(
             restoredHaptics.value as? String,
@@ -239,7 +239,7 @@ final class ProgressSettingsUITests: XCTestCase {
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(
-            app.buttons["root.shell.openSettings"].waitForExistence(timeout: 30),
+            app.buttons["account.open"].waitForExistence(timeout: 30),
             app.debugDescription
         )
         app.terminate()
@@ -267,7 +267,7 @@ final class ProgressSettingsUITests: XCTestCase {
     /// the hierarchy. Arrival is read off the session-size picker, which is on
     /// this screen in every state it has.
     private func openSettings(in app: XCUIApplication) {
-        let settings = app.buttons["root.shell.openSettings"]
+        let settings = app.buttons["account.open"]
         XCTAssertTrue(settings.waitForExistence(timeout: 60), app.debugDescription)
         let sizes = app.descendants(matching: .any).matching(
             NSPredicate(format: "identifier BEGINSWITH %@", "settings.sessionSize.")

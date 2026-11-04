@@ -26,20 +26,22 @@ final class AccessibilityUITests: XCTestCase {
         XCTAssertTrue(deck.isHittable, "the action is off the screen at AX5: \(app.debugDescription)")
         XCTAssertFalse(deck.label.isEmpty, "a control with no label is unusable by VoiceOver")
 
-        // Settings is the densest screen in the app: rows with a label, a
-        // control and a footnote each.
-        let settings = app.buttons["root.shell.openSettings"]
+        // "Профиль" is the densest screen in the app (#522): the account and
+        // every setting, rows with a label, a control and a footnote each.
+        let settings = app.buttons["account.open"]
         XCTAssertTrue(settings.isHittable, app.debugDescription)
         settings.tap()
 
-        let reminders = app.switches["settings.reminders"]
-        XCTAssertTrue(reminders.waitForExistence(timeout: 20), app.debugDescription)
-        XCTAssertTrue(reminders.isHittable, "the switch cannot be reached at AX5")
         // Three sizes of text can push a segmented control's options out of
-        // their track; the chosen one still has to be selectable.
-        let size = app.buttons["settings.sessionSize.20"]
+        // their track; the chosen one still has to be selectable. The size
+        // comes first in "Профиль" (#522), under the account, and the
+        // reminders below it, so the list is scrolled down to each in turn.
+        let size = app.reveal(app.buttons["settings.sessionSize.20"])
         XCTAssertTrue(size.waitForExistence(timeout: 20), app.debugDescription)
         XCTAssertTrue(size.isHittable, app.debugDescription)
+        let reminders = app.reveal(app.switches["settings.reminders"])
+        XCTAssertTrue(reminders.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertTrue(reminders.isHittable, "the switch cannot be reached at AX5")
     }
 
     /// A session is the screen a learner spends their time on, and the one
@@ -92,9 +94,9 @@ final class AccessibilityUITests: XCTestCase {
         XCTAssertFalse(deck.label.contains("home."), app.debugDescription)
         XCTAssertTrue(deck.isHittable, app.debugDescription)
 
-        let settings = app.buttons["root.shell.openSettings"]
+        let settings = app.buttons["account.open"]
         settings.tap()
-        let reminders = app.switches["settings.reminders"]
+        let reminders = app.reveal(app.switches["settings.reminders"])
         XCTAssertTrue(reminders.waitForExistence(timeout: 20), app.debugDescription)
         XCTAssertFalse(reminders.label.contains("settings."), app.debugDescription)
         XCTAssertFalse(reminders.label.isEmpty, app.debugDescription)
@@ -111,7 +113,7 @@ final class AccessibilityUITests: XCTestCase {
         XCTAssertTrue(deck.waitForExistence(timeout: 30), app.debugDescription)
         XCTAssertTrue(deck.isHittable, app.debugDescription)
         XCTAssertTrue(
-            app.buttons["root.shell.openSettings"].isHittable,
+            app.buttons["account.open"].isHittable,
             app.debugDescription
         )
     }

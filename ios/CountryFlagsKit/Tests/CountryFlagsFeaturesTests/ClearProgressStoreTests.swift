@@ -153,22 +153,32 @@ final class ClearProgressStoreTests: XCTestCase {
         XCTAssertEqual(attempts, 1)
     }
 
-    /// A guest has no account-side history to delete, so the entry point is
-    /// never offered — and cannot be driven anyway.
-    func testAGuestIsNotOfferedTheOperation() async throws {
+    /// A guest is offered it too (#522): their progress lives on the device
+    /// alone, so clearing it is the device step, with no request to a server
+    /// that has nothing of theirs.
+    func testAGuestClearsTheDeviceWithoutAskingTheServer() async throws {
         let clearing = RecordingClearing(result: .success(()))
+        let learning = WipeRecordingRepository()
+        let outbox = WipeRecordingOutbox()
         let store = makeStore(
             clearing: clearing,
+            learning: learning,
+            outbox: outbox,
             scope: .guest(installationID: UUID(uuidString: "70000000-0000-4000-8000-000000000003")!)
         )
         await store.load()
+        XCTAssertTrue(store.isOffered)
 
         store.request()
+        await store.confirm()
 
-        XCTAssertFalse(store.isOffered)
-        XCTAssertEqual(store.phase, .idle)
+        XCTAssertEqual(store.phase, .cleared)
         let attempts = await clearing.attempts()
         XCTAssertEqual(attempts, 0)
+        let wasWiped = await learning.wasWiped()
+        XCTAssertTrue(wasWiped)
+        let wasDiscarded = await outbox.wasDiscarded()
+        XCTAssertTrue(wasDiscarded)
     }
 
     // MARK: - Harness

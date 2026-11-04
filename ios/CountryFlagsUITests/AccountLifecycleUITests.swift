@@ -40,7 +40,7 @@ final class AccountLifecycleUITests: XCTestCase {
         // The deletion signs the device out, so the account screen is gone
         // and the app is back at its guest self — which still studies.
         XCTAssertTrue(
-            app.buttons["root.shell.openSettings"].waitForExistence(timeout: 20),
+            app.buttons["account.open"].waitForExistence(timeout: 20),
             app.debugDescription
         )
         openAccount(in: app)
