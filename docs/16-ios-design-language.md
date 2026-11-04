@@ -7,6 +7,10 @@
 > токенах, доступности и «цвет — не единственный носитель» действуют
 > по-прежнему.
 
+> **Amendment (2026-11-04).** Home, the session result and the catalog follow
+> the redesign the owner agreed on 2026-11-04 (epic #510). Sections 4.5, 4.8, 7
+> and 8 describe it; the Figma file is linked in section 4.8.
+
 Status: `Draft 0.1`
 Applies to: the iOS client in `ios/`, iOS 17+, iPhone only
 
@@ -147,7 +151,8 @@ practical reason principle 1 exists.
 ### 4.4 Layout, spacing and radii
 
 - `DesignTokens.Spacing` is the only source of spacing; a view MUST NOT write a
-  bare number. The current 4 / 8 / 16 / 24 / 32 scale stays.
+  bare number. The current 4 / 8 / 16 / 24 / 32 scale stays, plus one step for
+  the Home tile grid: `Spacing.tileGap`, 12 (section 4.8).
 - Corner radii use `.continuous`. Nested surfaces keep their radii matched:
   inner radius equals outer radius minus the padding between them.
 - `DesignTokens.Layout.maximumContentWidth` keeps the text measure readable. The
@@ -167,6 +172,17 @@ practical reason principle 1 exists.
   used.
 - At most one elevation level per screen. Stacking cards inside cards is not a
   hierarchy.
+- On the dark scene (ADR-012) there are two card surfaces and nothing else:
+  - **Glass** (`GlassCard`) for calm blocks and for blocks that hold the
+    screen's action.
+  - **Flat** (`DesignTokens.Colors.flatSurface`, #1C1C20, with the 12 % white
+    hairline and the large radius) for continent cards: region cards and
+    per-region review tiles on Home, and the catalog's deck rows. Glass lets
+    the coloured scene through, and on a card whose subject is a continent the
+    tint read as a gradient the card does not mean.
+- A colour wash belongs to three blocks only: the known tile (a blurred mosaic
+  of known flags), the learned tile (green with a seal watermark) and the deck
+  hero (a wash from the next flags' colours). No other card is tinted.
 
 ### 4.6 Iconography
 
@@ -195,6 +211,41 @@ view, never redrawn per screen.
 - The flag itself takes no drop shadow; its container may.
 - Emoji flags MUST NOT be used as content. They render differently per platform
   and OS version and do not exist for every entity in the catalog.
+
+### 4.8 Home tiles, the action card and continent progress
+
+Agreed on 2026-11-04. The reference is the Figma file
+<https://www.figma.com/design/lDmjwwsfB7gsKMaIzWQinU/Untitled>, page
+"02 Screens": the Home section (node `33:1257`) and the "Home · Components"
+board (node `74:1123`), which holds every block below as a component.
+
+- **Grid.** Home is a two-column grid with a `Spacing.tileGap` (12 pt) gap. A
+  small tile is half the content width (171 × 158 pt on a 402 pt screen) and a
+  wide tile spans both columns. Tiles use the large radius. Blocks follow one
+  another at the same 12 pt.
+- **Padding.** Small tiles and rows use `Spacing.medium`; the action card and
+  the deck hero use `Spacing.large`, as Home's panes do today (Figma draws 20,
+  which is not on the scale).
+- **Figures.** Known and learned are two small tiles side by side, each a
+  button to the Progress tab: the figure in the rounded hero numeral, a caption
+  under it, the symbol at the top left.
+- **Action card.** One shape for every "do this now" block ("Пора повторить",
+  "Тренировка на паузе"): the title and the count on one line, the deck's name
+  on its own line under them, a flag strip, then one white button. Glass.
+- **Flag strip.** At most five flags in a row, slightly turned, the rest as a
+  "+N" pill. Every flag keeps its own aspect and the flag surface's hairline.
+- **One white button per screen.** A state with nothing to do, such as a
+  finished day, shows none; a second door to the same deck is a quiet row with a
+  chevron.
+- **Continent cards.** Flat surface, the silhouette at the bottom trailing
+  corner, the name and one line at the bottom leading corner.
+  - On Home, progress fills the silhouette from the bottom: white for the share
+    of the deck that is known, the learned green for the share that is learned.
+    With nothing started the silhouette is one soft colour.
+  - In the catalog the silhouette is always one colour (white at 55 %) and is
+    never filled; progress lives in the row's bar.
+- **Success mark.** The green seal is the only mark of a remembered card on the
+  session result. A missed card carries no mark at all, never a red one.
 
 ## 5. Motion
 
@@ -253,19 +304,24 @@ Native-first. The right-hand column is a list of things not to build.
 TipKit covers the requirement in `02-ios-spec.md` section 9.5 for a short
 first-use explanation of the `Again / Hard / Good / Easy` buttons.
 
-The mastery ring on Deck Details is the one place a custom progress shape is
-expected, because `Gauge` cannot express tier thresholds.
+The mastery ring on Deck Details is one place a custom progress shape is
+expected, because `Gauge` cannot express tier thresholds. Since 2026-11-04 there
+are two more, both from section 4.8: the continent silhouette that fills with
+progress on Home, and the session result's heap of flags.
 
 ## 8. Screen direction
 
 Each screen names its hero; everything else stays stock. Screen contents and
 required states come from `02-ios-spec.md` section 9 and are not restated here.
 
-- **Home** — hero: the resume-study action with the due count as a large
-  numeral. One clear action, deck shortcuts below it, nothing competing.
-- **Catalog** — a sectioned list; each deck row carries a flag thumbnail, its
-  name and a due badge. Sections follow the catalog groupings. A grid is allowed
-  only if it does not turn into a wall of equal-weight tiles.
+- **Home** — the tile grid of section 4.8. Known and learned tiles first, then
+  the one block that holds today's action (review, paused session or the deck
+  hero), then the continent cards. A finished day replaces the action with a
+  calm "Сегодня всё сделано" row and keeps no white button. Figma: node
+  `33:1257`.
+- **Catalog** — one column of flat deck rows: "Все страны" with its fan of three
+  flags, then each region with its one-colour continent, the card count and the
+  two-layer bar. Figma: node `33:1689`.
 - **Deck Details** — hero: the mastery ring with the current tier. Session size
   as a segmented control, then a primary button for self-rated study and a
   secondary one for the objective quiz.
@@ -274,9 +330,12 @@ required states come from `02-ios-spec.md` section 9 and are not restated here.
   their position never moves between cards.
 - **Objective quiz** — four full-width option rows, each at least 56 pt tall.
   Answer state shows as icon, color and text together.
-- **Session Result** — the celebration surface: large numbers, the grade
-  distribution as a chart, the mastery delta and any new achievement. Its layout
-  should stay compatible with a future share card.
+- **Session Result** — the session's own flags. They fly in one by one and
+  settle as a deck slid along a shallow arc, in rows that overlap a little; each
+  remembered flag gets the seal. A bottom sheet gives three figures (known,
+  learned, to review) and the buttons; no country list, no grades, no chart.
+  Layout rules and timings are in Figma, nodes `65:941` (final states),
+  `66:1267` (motion) and `63:85` (rules).
 - **Progress and Achievements** — Swift Charts for trends, a medal grid for
   achievements. Locked medals render as outline symbols, distinguishable by
   shape rather than by dimming alone.
@@ -294,7 +353,8 @@ Explicitly out of bounds:
 - text laid over flag artwork, whose contrast cannot be known;
 - more than one accent color;
 - emoji flags as content;
-- hard shadows, heavy borders, skeuomorphic gradients;
+- hard shadows, heavy borders, skeuomorphic gradients; a colour wash outside
+  the three blocks named in section 4.5;
 - an animated splash screen;
 - celebrations that block input;
 - third-party UI frameworks;

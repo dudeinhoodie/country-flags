@@ -119,9 +119,6 @@ public enum L10n {
         )
     }
     public static var homeLearnedCaption: String { localized("home.known_learned.learned") }
-    public static var homeLearnedExplanation: String {
-        localized("home.known_learned.explanation")
-    }
     /// The same block as VoiceOver reads it: one sentence with the numbers
     /// inside the words, and what a tap does.
     public static func homeKnownCount(_ count: Int) -> String {
@@ -138,78 +135,74 @@ public enum L10n {
     public static var homeKnownLearnedHint: String {
         localized("home.known_learned.accessibility.hint")
     }
-    /// The same block on a finished day: its title, and the line under the
-    /// bar that gives the day's limit and when repeats come back. The limit
-    /// is declined by the count — "50 стран", "21 страна" — so it goes
-    /// through `localizedStringWithFormat`, the only call that applies the
-    /// catalogue's plural rule; `String(format:)` would format the number
-    /// into one arbitrary variant.
-    public static var homeDayDoneTitle: String {
-        localized("home.known_learned.day_done.title")
-    }
-    public static func homeDayDoneLimit(_ limit: Int) -> String {
-        String.localizedStringWithFormat(
-            NSLocalizedString(
-                "home.known_learned.day_done.limit", bundle: bundle, comment: ""
-            ),
+    /// The finished day's block (#516): its title, and how far the day went
+    /// against the daily allowance. The answered count is declined through
+    /// the flag count — "1 флаг из 50", "50 флагов из 50" — and the line puts
+    /// it in place, so the plural rule is the catalogue's, not this format's.
+    public static var homeDayDoneTitle: String { localized("home.day_done.title") }
+    public static func homeDayDoneLine(answered: Int, limit: Int) -> String {
+        String(
+            format: localized("home.day_done.line"),
+            deckItemCount(answered, contentKinds: ["FLAG"]),
             limit
         )
     }
-    /// A first visit: the flag to guess and the regions to start from.
-    public static var homeFlagOfTheDay: String { localized("home.flag_of_the_day.label") }
-    public static var homeFlagOfTheDayQuestion: String {
-        localized("home.flag_of_the_day.question")
-    }
-    public static var homeFlagOfTheDayReveal: String {
-        localized("home.flag_of_the_day.reveal")
-    }
-    public static var homeFlagOfTheDayDetails: String {
-        localized("home.flag_of_the_day.details")
-    }
+    /// A first visit: the regions to start from.
     public static var homeRegionsLabel: String { localized("home.regions.label") }
+    /// The regions' label once anything is started (#517).
+    public static var homeRegionsProgressLabel: String { localized("home.regions.label_progress") }
+    /// "10 из 52 знакомы": the participle agrees with the first count —
+    /// "1 из 52 знакома" — through a substitution on a third argument that
+    /// repeats it, so the printed numbers stay plain.
+    public static func homeRegionKnown(_ known: Int, of total: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.region.known", bundle: bundle, comment: ""),
+            known,
+            total,
+            known
+        )
+    }
+    public static func homeRegionLearned(_ count: Int) -> String {
+        String(format: localized("home.region.learned"), count)
+    }
     public static var homeContinue: String { localized("home.continue") }
+    /// "Тренировка на паузе" (#514): Home's paused card and the deck
+    /// screen's resume block say the same thing.
     public static var homeSessionInProgress: String { localized("home.session_in_progress") }
-    public static func homeSessionLeft(_ count: Int) -> String {
-        String(format: localized("home.session_left"), count)
-    }
-    public static var homeDueToday: String { localized("home.due_today") }
+    /// The review card's title (#510): what the block asks, in words, with
+    /// the count beside it rather than under it as a figure.
+    public static var homeReviewTitle: String { localized("home.review_title") }
+    /// The word under a region tile's due figure.
+    public static var homeDueCaption: String { localized("home.due_caption") }
 
-    /// The lines under the review pane's figure (#503). The green one says
-    /// what a repeat can finish; the quiet one is the rest of the figure, one
-    /// part each, joined by the view rather than formatted as one string, so a
-    /// part with nothing in it is left out instead of being printed as a zero.
-    ///
-    /// Declined by the count through the catalogue's plural rules: "1 станет",
-    /// "4 станут" and "1 ждёт", "9 ждут" are different words.
-    public static func homeDueLearnable(_ count: Int) -> String {
+    /// The deck hero's words (#515): where to start on a first visit, where
+    /// the new flags are afterwards, and the button for each.
+    public static var homeDeckStartLabel: String { localized("home.deck.start_label") }
+    public static var homeDeckNextLabel: String { localized("home.deck.next_label") }
+    public static var homeDeckStart: String { localized("home.deck.start") }
+    public static var homeDeckLearnNew: String { localized("home.deck.learn_new") }
+    /// "176 ещё не знакомы": declined by the count, because the word agrees
+    /// with "страна" — "1 ещё не знакома".
+    public static func homeDeckStillNew(_ count: Int) -> String {
         String.localizedStringWithFormat(
-            NSLocalizedString("home.due_learnable", bundle: bundle, comment: ""),
+            NSLocalizedString("home.deck.still_new", bundle: bundle, comment: ""),
             count
         )
-    }
-
-    public static func homeDueWaiting(_ count: Int) -> String {
-        String.localizedStringWithFormat(
-            NSLocalizedString("home.due_waiting", bundle: bundle, comment: ""),
-            count
-        )
-    }
-
-    /// "На повторении" does not decline, so this one is a plain format.
-    public static func homeDueOnReview(_ count: Int) -> String {
-        String(format: localized("home.due_on_review"), count)
     }
 
     public static var homeReview: String { localized("home.review") }
-    /// The action when the sitting deals fewer cards than the figure over it:
-    /// the button says what it deals rather than leaving the figure to imply
-    /// that a tap clears it.
-    public static func homeReviewSome(_ dealt: Int, of due: Int) -> String {
-        String(format: localized("home.review_some"), dealt, due)
+    /// The action when the sitting deals fewer cards than the queue holds:
+    /// "Повторить первые 10". The count beside the title already says how
+    /// many are waiting, so the button names only what a tap deals.
+    public static func homeReviewFirst(_ dealt: Int) -> String {
+        String(format: localized("home.review_first"), dealt)
     }
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }
     public static var catalogNoMatches: String { localized("catalog.no_matches") }
+    /// The two kinds of search result (#527).
+    public static var catalogCountriesSection: String { localized("catalog.section.countries") }
+    public static var catalogDecksSection: String { localized("catalog.section.decks") }
 
     /// Names the language the catalog is actually in, for the case where the
     /// device asked for one the release does not publish.
@@ -513,6 +506,11 @@ public enum L10n {
     public static var contentRetry: String { localized("content.retry") }
     public static var contentStale: String { localized("content.stale") }
     public static var contentOffline: String { localized("content.offline") }
+    /// The catalogue's states in the header chip's few words (#523); the
+    /// full sentences above are what VoiceOver says.
+    public static var contentClientTooOldShort: String { localized("content.client_too_old_short") }
+    public static var contentRefreshFailedShort: String { localized("content.refresh_failed_short") }
+    public static var contentStaleShort: String { localized("content.stale_short") }
     public static var contentRefreshFailed: String { localized("content.refresh_failed") }
     public static var contentClientTooOld: String { localized("content.client_too_old") }
     public static var contentEmptyTitle: String { localized("content.empty.title") }
@@ -530,7 +528,6 @@ public enum L10n {
 
     public static var studyTitle: String { localized("study.title") }
     public static var studyReveal: String { localized("study.reveal") }
-    public static var studyHide: String { localized("study.hide") }
     public static var studyFlagPrompt: String { localized("study.flag_prompt") }
     /// What VoiceOver calls a coat of arms while the question is still open.
     /// It names the kind of symbol and never the country, for the same reason
@@ -545,6 +542,8 @@ public enum L10n {
     public static var studyDetails: String { localized("study.details") }
     public static var studyDetailsTitle: String { localized("study.details.title") }
     public static var studyClose: String { localized("study.close") }
+    /// A sheet's close button, for VoiceOver (#529).
+    public static var commonClose: String { localized("common.close") }
     public static var studyCardHint: String { localized("study.card.hint") }
     public static var studyMapOpen: String { localized("study.map.open") }
     public static var studyNotSaved: String { localized("study.not_saved") }
@@ -552,6 +551,12 @@ public enum L10n {
     public static var studyStoreUnavailable: String { localized("study.store_unavailable") }
     public static var studyResultTitle: String { localized("study.result.title") }
     public static var studyResultDone: String { localized("study.result.done") }
+    /// The result sheet's third figure (#519).
+    public static var studyResultToReview: String { localized("study.result.to_review") }
+    /// "Ещё 10 флагов": the next portion, declined through the flag count.
+    public static func studyResultMore(_ count: Int) -> String {
+        String(format: localized("study.result.more"), deckItemCount(count, contentKinds: ["FLAG"]))
+    }
 
     public static var studyResultExcellent: String { localized("study.result.excellent") }
     public static var studyStart: String { localized("study.start") }
@@ -564,16 +569,6 @@ public enum L10n {
     /// What the result screen's bare fraction counts, spoken for VoiceOver.
     public static func studyResultRemembered(_ remembered: Int, _ planned: Int) -> String {
         String(format: localized("study.result.remembered"), remembered, planned)
-    }
-
-    /// The learned share the result ring stands at, spoken for VoiceOver.
-    public static func studyResultMasteryLearned(_ percent: Int) -> String {
-        String(format: localized("study.result.mastery.learned"), percent)
-    }
-
-    /// What the sitting added to the deck, worn by the pill under the ring.
-    public static func studyResultMasteryDelta(_ percent: Int) -> String {
-        String(format: localized("study.result.mastery.delta"), percent)
     }
 
     /// The cards leaving the session for the repeat queue, for VoiceOver.
@@ -646,6 +641,8 @@ public enum L10n {
         )
     }
     public static var homeGuestPromptTitle: String { localized("home.guest_prompt.title") }
+    /// Home's account row (#518): where the progress lives, without a count.
+    public static var homeGuestPromptCaption: String { localized("home.guest_prompt.caption") }
     /// Declined by the count, as `accountGuestNoteCount` is.
     public static func homeGuestPromptCount(_ count: Int) -> String {
         String.localizedStringWithFormat(
@@ -737,6 +734,9 @@ public enum L10n {
         localized("commerce.paywall.other_device")
     }
 
+    /// The buy button while there is no price to put on it (#530): present
+    /// and disabled.
+    public static var commerceBuyPlain: String { localized("commerce.buy_plain") }
     public static func commerceBuy(_ displayPrice: String) -> String {
         String(format: localized("commerce.action.buy"), displayPrice)
     }
@@ -786,6 +786,9 @@ public enum L10n {
     /// The resource bundle of the package. Tests use it to verify that the
     /// string catalog is actually compiled instead of falling back to keys.
     static var bundle: Bundle { .module }
+    /// The language the interface is shown in, for formatting that must
+    /// agree with the words around it (#525).
+    static var appLanguage: String { bundle.preferredLocalizations.first ?? "en" }
 
     static func localized(_ key: String) -> String {
         String(localized: String.LocalizationValue(key), bundle: bundle)

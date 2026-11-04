@@ -29,6 +29,33 @@ struct GlassCard<Content: View>: View {
     }
 }
 
+/// A card on the flat surface: the one a continent sits on (#510).
+///
+/// Opaque where `GlassCard` is glass. A continent card's subject is the
+/// continent drawn on it, and glass let the scene's colours through, so each
+/// card wore a tint the card did not mean. The hairline is drawn here because
+/// there is no glass to carry an edge.
+struct FlatCard<Content: View>: View {
+    var padding: CGFloat = DesignTokens.Spacing.medium
+    @ViewBuilder var content: Content
+
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
+        content
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(padding)
+            .background(DesignTokens.Colors.flatSurface, in: shape)
+            .overlay {
+                shape.strokeBorder(
+                    .white.opacity(DesignTokens.Card.borderOpacity),
+                    lineWidth: 1 / displayScale
+                )
+            }
+    }
+}
+
 /// The name of a group of things.
 ///
 /// Small, spaced and quiet: it is read once on the way past, and anything
@@ -347,6 +374,9 @@ extension View {
 /// Every browsing screen uses it, which is what keeps their margins, their
 /// maximum width and their spacing identical without any of them saying so.
 struct SceneScrollView<Content: View>: View {
+    /// Between blocks. Home's tile grid sets its own gap (#518); every other
+    /// screen keeps the large step.
+    var spacing: CGFloat = DesignTokens.Spacing.large
     /// Told whether the screen's own large title has scrolled under the bar
     /// (#524). A screen that names itself in its content passes this and
     /// puts the name in the bar only then, so the name is on screen once.
@@ -355,7 +385,7 @@ struct SceneScrollView<Content: View>: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.large) {
+            VStack(alignment: .leading, spacing: spacing) {
                 content
             }
             .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)

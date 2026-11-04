@@ -2,47 +2,20 @@ import SwiftUI
 
 import CountryFlagsDomain
 
-/// The banner above content that is on the device but may be out of date.
+/// The catalogue's own state when it is not simply up to date: no network,
+/// a refresh that failed, a build too old for new content, or a catalogue
+/// that may be stale.
 ///
-/// It explains rather than blocks: the catalog underneath stays scrollable and
-/// every deck stays openable, which is the whole point of storing it.
-struct ContentStatusBanner: View {
+/// It used to be a banner at the top of Home, the catalogue and the deck
+/// screen, beside the sync chip that also said "Нет сети" (#523). Now the
+/// header chip is the one place a connection problem is told.
+struct ContentNotice: Equatable {
     let isStale: Bool
     let failure: ContentSyncFailure?
-
-    var body: some View {
-        if let message {
-            Label {
-                Text(message)
-                    .font(DesignTokens.Typography.caption)
-                    .accessibilityIdentifier(AccessibilityIdentifier.contentStatusBanner)
-            } icon: {
-                Image(systemName: "exclamationmark.circle")
-                    .symbolRenderingMode(.hierarchical)
-            }
-            .foregroundStyle(.white.opacity(0.75))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, DesignTokens.Spacing.medium)
-            .padding(.vertical, DesignTokens.Spacing.small)
-            .glassEffect(
-                .regular,
-                in: .rect(cornerRadius: DesignTokens.Radius.medium, style: .continuous)
-            )
-        }
-    }
-
-    private var message: String? {
-        switch failure {
-        case .offline: L10n.contentOffline
-        case .clientTooOld: L10n.contentClientTooOld
-        case .recoverable: L10n.contentRefreshFailed
-        case nil: isStale ? L10n.contentStale : nil
-        }
-    }
 }
 
-/// What synchronisation is doing, in the header beside the avatar and the
-/// gear.
+/// What synchronisation is doing, and what the catalogue is missing, in the
+/// header (#523): the app's one indicator of the network.
 ///
 /// A healthy device that is up to date shows nothing. Of the two things worth
 /// a place up there, unsent answers come first: they are the concrete thing —
@@ -54,11 +27,14 @@ struct ContentStatusBanner: View {
 /// screen's account row is what tells them their answers live on this phone.
 struct SyncStatusChip: View {
     let status: SyncStatus
+    /// The catalogue's state, when it has something to say (#523).
+    let content: ContentNotice?
     /// The queue just drained: the chip says so before it says nothing.
     @State private var showsSynced = false
 
-    init(status: SyncStatus) {
+    init(status: SyncStatus, content: ContentNotice? = nil) {
         self.status = status
+        self.content = content
     }
     /// Which drain the fade-out belongs to, so a new success restarts the
     /// three seconds instead of being cut short by the previous timer.
@@ -71,7 +47,7 @@ struct SyncStatusChip: View {
                     Image(systemName: state.symbol)
                         .accessibilityHidden(true)
                     Text(state.title)
-                        .accessibilityIdentifier(AccessibilityIdentifier.syncStatus)
+                        .accessibilityIdentifier(state.identifier)
                         .accessibilityLabel(state.spoken)
                 }
                 .font(DesignTokens.Typography.caption)
@@ -108,6 +84,9 @@ struct SyncStatusChip: View {
         /// What the chip would have said if it had room. Also the line the
         /// UI tests read, so the meaning stays checkable in one place.
         let spoken: String
+        /// The sync's state and the catalogue's keep separate identifiers:
+        /// the tests that looked for the banner find the catalogue's here.
+        var identifier = AccessibilityIdentifier.syncStatus
     }
 
     /// A refused sign-in wins over everything: a counter would promise a
@@ -115,7 +94,9 @@ struct SyncStatusChip: View {
     /// holds the spot they just left; a missing signal comes after; a
     /// healthy, empty queue says nothing at all.
     private var state: Presentation? {
-        if status.isHeldForGuest { return nil }
+        // A guest's answers are not sent, so the sync says nothing to them;
+        // the catalogue's state is theirs as much as anyone's.
+        if status.isHeldForGuest { return contentState }
         if status.lastFailure == .unauthorized {
             return Presentation(
                 symbol: "person.crop.circle.badge.exclamationmark",
@@ -139,6 +120,7 @@ struct SyncStatusChip: View {
         }
         // Without a queue there is nothing waiting, but a learner about to
         // answer still wants to know the answers will not leave yet.
+        if let contentState { return contentState }
         if status.lastFailure == .offline {
             return Presentation(
                 symbol: "wifi.slash",
@@ -147,6 +129,24 @@ struct SyncStatusChip: View {
             )
         }
         return nil
+    }
+
+    /// The catalogue's state in the chip's words: short on screen, the full
+    /// sentence the banner used to say for VoiceOver.
+    private var contentState: Presentation? {
+        guard let content else { return nil }
+        let id = AccessibilityIdentifier.contentStatusBanner
+        switch content.failure {
+        case .offline:
+            return Presentation(symbol: "wifi.slash", title: L10n.syncOfflineShort, spoken: L10n.contentOffline, identifier: id)
+        case .clientTooOld:
+            return Presentation(symbol: "arrow.down.app", title: L10n.contentClientTooOldShort, spoken: L10n.contentClientTooOld, identifier: id)
+        case .recoverable:
+            return Presentation(symbol: "exclamationmark.circle", title: L10n.contentRefreshFailedShort, spoken: L10n.contentRefreshFailed, identifier: id)
+        case nil:
+            guard content.isStale else { return nil }
+            return Presentation(symbol: "clock", title: L10n.contentStaleShort, spoken: L10n.contentStale, identifier: id)
+        }
     }
 }
 

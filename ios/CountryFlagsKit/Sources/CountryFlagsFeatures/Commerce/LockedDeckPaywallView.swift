@@ -79,7 +79,9 @@ struct LockedDeckPaywallView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }
 
-            PurchaseExplanationCard(price: price) {
+            // With a status card up, the price line does not say again that
+            // the deck cannot be bought (#530): one place says why.
+            PurchaseExplanationCard(price: price, saysUnavailable: status == nil) {
                 Task { await restore() }
             }
 
@@ -109,11 +111,12 @@ struct LockedDeckPaywallView: View {
 
     // MARK: - The action
 
-    /// One prominent action, or none.
+    /// One prominent action, always there (#530).
     ///
-    /// None is a real state: with the store unable to sell this deck, a button
-    /// that says "buy" and answers with an error is worse than a card that
-    /// says why and a restore that might still work.
+    /// With the store unable to sell this deck the white button stays, and
+    /// stays disabled: a button that says "buy" and answers with an error is
+    /// worse than one that cannot be pressed under a card that says why, and a
+    /// paywall with no action at all read as a broken screen.
     @ViewBuilder
     private var purchaseAction: some View {
         if let label = actionLabel {
@@ -143,8 +146,7 @@ struct LockedDeckPaywallView: View {
         case .purchasing, .idle, .failed:
             switch price {
             case .priced(let displayPrice): return L10n.commerceBuy(displayPrice)
-            case .loading: return nil
-            case .unavailable: return nil
+            case .loading, .unavailable: return L10n.commerceBuyPlain
             }
         }
     }
@@ -161,7 +163,11 @@ struct LockedDeckPaywallView: View {
     private var isActionEnabled: Bool {
         if commerce.isGuest { return true }
         switch commerce.phase(of: deck) {
-        case .idle, .failed: return true
+        case .idle, .failed:
+            // Nothing to buy yet, or nothing the store will sell: the button
+            // is there and cannot be pressed (#530).
+            guard commerce.isPurchaseAvailable, case .priced = price else { return false }
+            return true
         case .purchasing, .delivering, .awaitingApproval: return false
         }
     }

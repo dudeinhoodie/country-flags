@@ -129,9 +129,18 @@ final class FactDisplayTests: XCTestCase {
     }
 
     func testCompactingRoundsToOneDecimalBelowTenAndNoneAbove() {
-        XCTAssertEqual(FactDisplay.compactNumber(1_400_000), "1.4M")
-        XCTAssertEqual(FactDisplay.compactNumber(12_300_000), "12M")
-        XCTAssertEqual(FactDisplay.compactNumber(1_000_000), "1M")
-        XCTAssertEqual(FactDisplay.compactNumber(2_100_000_000), "2.1B")
+        XCTAssertEqual(FactDisplay.compactNumber(1_400_000, language: "en"), "1.4M")
+        XCTAssertEqual(FactDisplay.compactNumber(12_300_000, language: "en"), "12M")
+        XCTAssertEqual(FactDisplay.compactNumber(1_000_000, language: "en"), "1M")
+        XCTAssertEqual(FactDisplay.compactNumber(2_100_000_000, language: "en"), "2.1B")
+    }
+
+    /// In Russian the number reads as a Russian reader writes it (#525):
+    /// the decimal comma and the word, "9,2 млн", not "9.2M".
+    func testCompactingInRussianUsesTheWordsAndTheDecimalComma() {
+        XCTAssertEqual(FactDisplay.compactNumber(9_200_000, language: "ru"), "9,2\u{00A0}млн")
+        XCTAssertEqual(FactDisplay.compactNumber(12_300_000, language: "ru"), "12\u{00A0}млн")
+        XCTAssertEqual(FactDisplay.compactNumber(2_100_000_000, language: "ru"), "2,1\u{00A0}млрд")
+        XCTAssertEqual(FactDisplay.compactNumber(1_500, language: "ru"), "1,5\u{00A0}тыс.")
     }
 }

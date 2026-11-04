@@ -78,10 +78,10 @@ public struct StudySessionView: View {
         if let summary = runner.summary {
             StudySessionResultView(
                 summary: summary,
-                deckName: deckName,
-                mastery: runner.deckMastery,
+                tally: runner.tally,
                 store: store,
                 assets: assets,
+                onMore: { Task { await runner.startAnother() } },
                 onDone: onFinish
             )
         } else if runner.startFailure == .nothingDue {
@@ -177,11 +177,9 @@ public struct StudySessionView: View {
                 swipeProgress: $swipeProgress,
                 commandedThrow: $commandedThrow
             )
-            // The rating bar that used to sit under a revealed card is gone —
-            // the swipe is the answer, and the hints below say where each one
-            // leads. VoiceOver cannot swipe a throw, so both answers ride on
-            // the card as actions instead of as buttons everyone else must
-            // scroll past. Both, and only both: an action offering a grade the
+            // The swipe answers, and since #526 two equal buttons under the
+            // card do as well. VoiceOver cannot swipe a throw, so both
+            // answers also ride on the card as actions. Both, and only both: an action offering a grade the
             // swipe cannot reach is a second scheduler behind an accessibility
             // affordance, which is how HARD used to strand a card on a
             // three-hour step no sighted learner could land on.
@@ -207,25 +205,25 @@ public struct StudySessionView: View {
                     .accessibilityIdentifier(AccessibilityIdentifier.studyNotSaved)
             }
 
-            // The button turns the card over and stays: once the answer is
-            // up it offers the way back, and either side can be returned to
-            // as often as the learner likes. The swipe is the answer either
-            // way; the hints above say where each one leads.
-            //
-            // Glass, not the white capsule: white is the scene's loudest
-            // voice and belongs to the one action a screen recommends —
-            // here that is answering the card, and this button is the way
-            // to peek.
-            Button {
-                toggleCard()
-            } label: {
-                Label(
-                    isShowingBack ? L10n.studyHide : L10n.studyReveal,
-                    systemImage: "arrow.2.squarepath"
-                )
+            // The front's one action is the white "Показать ответ" (#526):
+            // until the answer is out, turning the card is the thing to do.
+            // Once it is, two equal buttons answer it — "Снова" and "Хорошо"
+            // — where "Скрыть ответ" used to stand; the swipe still answers
+            // too, and a tap beside the card still turns it back.
+            if isShowingBack {
+                HStack(spacing: DesignTokens.Spacing.small) {
+                    Button(L10n.studyRating(.again)) { commandedThrow = .again }
+                        .buttonStyle(GlassActionStyle())
+                        .accessibilityIdentifier(AccessibilityIdentifier.studyRateAgain)
+                    Button(L10n.studyRating(.good)) { commandedThrow = .good }
+                        .buttonStyle(GlassActionStyle())
+                        .accessibilityIdentifier(AccessibilityIdentifier.studyRateGood)
+                }
+            } else {
+                Button(L10n.studyReveal) { toggleCard() }
+                    .buttonStyle(PrimaryActionStyle())
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
             }
-                .buttonStyle(GlassActionStyle())
-                .accessibilityIdentifier(AccessibilityIdentifier.studyReveal)
         }
         // A tap that lands beside the card closes it, and only closes: the
         // back is often read at arm's length and dismissed with whatever
@@ -286,9 +284,9 @@ public struct StudySessionView: View {
                 emphasis: max(swipeProgress, 0)
             )
         }
-        .padding(.horizontal, DesignTokens.Spacing.medium)
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget * 0.7)
-        .glassEffect(.regular, in: Capsule(style: .continuous))
+        // A quiet line rather than a glass capsule (#526): the capsule looked
+        // like buttons, and the buttons are under the card now.
+        .opacity(0.8)
         .frame(maxWidth: .infinity)
         .padding(.top, DesignTokens.Spacing.small)
         .accessibilityHidden(true)
@@ -331,390 +329,6 @@ public struct StudySessionView: View {
         palette = await FlagPaletteReader.palette(for: record, assets: assets) ?? .neutral
     }
 
-}
-
-/// The session's verdict, told as an open gauge.
-///
-/// The hero is a half-circle scale of the sitting itself — zero to the cards
-/// it dealt — filled to the remembered count with the scene's aurora. The
-/// score stands inside the bowl, the deck's own gain worn as a pill under
-/// it, and its floor sits on the line of the scale's end labels. Below, the
-/// answers: every flag of the sitting, a missed one slightly translucent and
-/// nothing more, rows centred whatever the count. Nothing is said twice and
-/// nothing is judged — the screen shows results, the learner draws the
-/// conclusions.
-struct StudySessionResultView: View {
-    let summary: StudySessionSummary
-    /// Feeds the pill alone; the gauge is the session's own arithmetic.
-    let mastery: StudySessionDeckMastery?
-    let deckName: String
-    let store: ContentStore
-    let assets: any AssetLoading
-    let onDone: () -> Void
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var hasArrived = false
-    /// The gauge's sweep position, 0...1 of the half-circle.
-    @State private var gaugeFill: Double = 0
-    /// One soft tap per step of the sweep, and a firmer one at the level.
-    @State private var fillTick = 0
-    @State private var hasFilled = false
-
-    /// The pill's green, and where the gauge's gradient sets off from.
-    static let green = Color(red: 122 / 255, green: 224 / 255, blue: 150 / 255)
-    /// Where the gradient arrives: a bright, cheerful cyan — livelier than
-    /// the scene's own muted blue, which read as overcast.
-    static let gaugeCyan = Color(red: 86 / 255, green: 200 / 255, blue: 245 / 255)
-
-    /// The fill is smooth, unhurried, and over before it is waited for.
-    private static let fillDuration: TimeInterval = 1.25
-
-    init(
-        summary: StudySessionSummary,
-        deckName: String,
-        mastery: StudySessionDeckMastery?,
-        store: ContentStore,
-        assets: any AssetLoading,
-        onDone: @escaping () -> Void
-    ) {
-        self.summary = summary
-        self.deckName = deckName
-        self.mastery = mastery
-        self.store = store
-        self.assets = assets
-        self.onDone = onDone
-    }
-
-    private var sessionFraction: Double {
-        summary.plannedCards > 0
-            ? Double(summary.rememberedCards) / Double(summary.plannedCards)
-            : 0
-    }
-
-    var body: some View {
-        VStack(spacing: DesignTokens.Spacing.large) {
-            header
-                .devBlockID("result.header")
-                .settled(hasArrived, step: 0, reduceMotion: reduceMotion)
-                .padding(.top, DesignTokens.Spacing.large)
-
-            gauge
-                .devBlockID("result.gauge")
-                // Dropped from the header by the owner's eye on the device.
-                .padding(.top, 30)
-                .settled(hasArrived, step: 1, reduceMotion: reduceMotion)
-
-            if !summary.answered.isEmpty {
-                answers
-                    .devBlockID("result.answers")
-                    // Sunk below the gauge by the owner's eye, like the
-                    // gauge below the header.
-                    .padding(.top, DesignTokens.Spacing.large)
-                    .settled(hasArrived, step: 2, reduceMotion: reduceMotion)
-            }
-
-            Spacer(minLength: 0)
-
-            // The congratulation is earned, not printed: a full house leaves
-            // on "Excellent!", anything else on a plain "Done".
-            Button(
-                summary.rememberedCards == summary.plannedCards
-                    ? L10n.studyResultExcellent
-                    : L10n.studyResultDone,
-                action: onDone
-            )
-            .buttonStyle(PrimaryActionStyle())
-            .accessibilityIdentifier(AccessibilityIdentifier.studyResultDone)
-            .settled(hasArrived, step: 3, reduceMotion: reduceMotion)
-        }
-        .onAppear {
-            hasArrived = true
-            if reduceMotion {
-                gaugeFill = sessionFraction
-                hasFilled = true
-            } else {
-                // A plain ease-out: the spring's bounce read as a jitter at
-                // the tip, and a gauge does not tremble.
-                withAnimation(.easeOut(duration: Self.fillDuration).delay(0.15)) {
-                    gaugeFill = sessionFraction
-                }
-                // The fill is felt as much as seen: a soft tap per step of
-                // the sweep, then the firmer arrival at the level.
-                Task {
-                    for _ in 0..<8 {
-                        try? await Task.sleep(for: .milliseconds(160))
-                        fillTick += 1
-                    }
-                    try? await Task.sleep(for: .milliseconds(120))
-                    hasFilled = true
-                }
-            }
-        }
-        .hapticFeedback(.impact(weight: .light, intensity: 0.45), trigger: fillTick)
-        .hapticFeedback(.impact(weight: .medium, intensity: 1.0), trigger: hasFilled) {
-            _, filled in filled
-        }
-    }
-
-    /// The verdict in words, quiet on purpose: the gauge is the loud part.
-    /// The deck's name is not here — it stands over its own flags below.
-    private var header: some View {
-        Text(L10n.studyResultTitle)
-            .font(DesignTokens.Typography.caption.weight(.semibold))
-            .kerning(DesignTokens.Typography.labelKerning)
-            .textCase(.uppercase)
-            .foregroundStyle(.white.opacity(0.55))
-            .multilineTextAlignment(.center)
-            // The objective result screen has carried this identifier since it
-            // was written; this one never did, so the two screens disagreed
-            // about their own marker and only the quiz could be asked whether
-            // a sitting had ended. A test on this screen had to match the
-            // copy instead, which is a test that agrees with any wording.
-            .accessibilityIdentifier(AccessibilityIdentifier.studyResultTitle)
-    }
-
-    /// The scale and what stands in its bowl, one element for VoiceOver.
-    private var gauge: some View {
-        ZStack(alignment: .bottom) {
-            VStack(spacing: DesignTokens.Spacing.small) {
-                ZStack {
-                    SessionGaugeArc(fill: 1)
-                        .stroke(
-                            .white.opacity(0.22),
-                            style: StrokeStyle(lineWidth: SessionGauge.trackLine, lineCap: .round)
-                        )
-                    // The app's success green pouring into a bright cyan:
-                    // one cheerful sweep. A fill sampled off the deck's flags
-                    // gave every deck its own gauge, and some a muddy one.
-                    SessionGaugeArc(fill: gaugeFill)
-                        .stroke(
-                            LinearGradient(
-                                colors: [Self.green, Self.gaugeCyan],
-                                startPoint: .bottomLeading,
-                                endPoint: .topTrailing
-                            ),
-                            style: StrokeStyle(lineWidth: SessionGauge.line, lineCap: .round)
-                        )
-                }
-                .frame(width: SessionGauge.width, height: SessionGauge.arcHeight)
-
-                // The scale's own ends: zero, and the cards this sitting
-                // dealt — which is why the size is not repeated anywhere.
-                // Each label is centred exactly under its end of the arc,
-                // not flushed to the box's edge beside it.
-                ZStack {
-                    Text(verbatim: "0")
-                        .position(x: SessionGauge.line / 2, y: 8)
-                    Text(verbatim: "\(summary.plannedCards)")
-                        .position(x: SessionGauge.width - SessionGauge.line / 2, y: 8)
-                }
-                .font(DesignTokens.Typography.caption.weight(.medium))
-                .monospacedDigit()
-                .foregroundStyle(.white.opacity(0.55))
-                .frame(width: SessionGauge.width, height: 16)
-            }
-
-            // The verdict stack, its floor on the end labels' line. The
-            // score stands alone: the scale's ends say what it is out of,
-            // and the spoken label says what it counts. The pill's slot is
-            // held even when nothing is earned — the score keeps its place
-            // whatever happens under it.
-            VStack(spacing: DesignTokens.Spacing.extraSmall) {
-                Text(verbatim: "\(summary.rememberedCards)")
-                    .font(.system(size: 64, weight: .heavy, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-
-                deltaPill(mastery?.deltaPercent ?? 0)
-                    .opacity((mastery?.deltaPercent ?? 0) > 0 ? 1 : 0)
-                    .padding(.top, DesignTokens.Spacing.small)
-            }
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(gaugeAccessibilityLabel)
-        .accessibilityIdentifier(AccessibilityIdentifier.studyResultAnswered)
-    }
-
-    /// Everything the visuals say, in one spoken sentence: the score, the
-    /// deck's gain, and — because the flags below carry it only as
-    /// translucency — how many cards are coming back.
-    private var gaugeAccessibilityLabel: String {
-        var parts = [
-            L10n.studyResultRemembered(summary.rememberedCards, summary.plannedCards)
-        ]
-        if let mastery, mastery.deltaPercent > 0 {
-            parts.append(L10n.studyResultMasteryDelta(mastery.deltaPercent))
-        }
-        let returning = summary.answeredCards - summary.rememberedCards
-        if returning > 0 {
-            parts.append(L10n.studyResultReturning(returning))
-        }
-        return parts.joined(separator: ", ")
-    }
-
-    /// What the sitting added to the deck, worn as the one green word.
-    private func deltaPill(_ delta: Int) -> some View {
-        Text(L10n.studyResultMasteryDelta(delta))
-            .font(DesignTokens.Typography.caption.weight(.semibold))
-            .monospacedDigit()
-            .foregroundStyle(Self.green)
-            .padding(.horizontal, DesignTokens.Spacing.medium)
-            .padding(.vertical, DesignTokens.Spacing.small)
-            .background(Self.green.opacity(0.18), in: Capsule(style: .continuous))
-            .overlay {
-                Capsule(style: .continuous)
-                    .strokeBorder(Self.green.opacity(0.4), lineWidth: 1)
-            }
-    }
-
-    /// Every card of the sitting under one quiet word: a missed flag is
-    /// slightly translucent and nothing more — a flag is content and is
-    /// never desaturated. Spoken by the gauge's label, not repeated here.
-    private var answers: some View {
-        VStack(spacing: DesignTokens.Spacing.medium) {
-            // The deck's name, wearing the section word's type. Not
-            // `SectionLabel`: that one pins itself to the leading edge, and
-            // everything on this screen stands on the centre line.
-            if !deckName.isEmpty {
-                Text(deckName)
-                    .font(DesignTokens.Typography.caption.weight(.semibold))
-                    .kerning(DesignTokens.Typography.labelKerning)
-                    .textCase(.uppercase)
-                    .foregroundStyle(.white.opacity(0.5))
-            }
-
-            // Scrolls only when a fifty-card sitting outgrows the screen;
-            // the usual five to twenty stand still.
-            ScrollView(.vertical, showsIndicators: false) {
-                CenteredFlow(spacing: DesignTokens.Spacing.small) {
-                    ForEach(Array(summary.answered.enumerated()), id: \.offset) { _, card in
-                        let missed = card.rating == .again
-                        FlagImageView(
-                            assetID: card.promptAssetID,
-                            accessibilityLabel: "",
-                            store: store,
-                            assets: assets
-                        )
-                        .frame(width: 40, height: 30)
-                        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
-                        // The card's own hairline, at the card's own opacity:
-                        // what keeps a white flag from dissolving.
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                .strokeBorder(
-                                    .white.opacity(DesignTokens.Card.borderOpacity),
-                                    lineWidth: 1
-                                )
-                        }
-                        .opacity(missed ? 0.55 : 1)
-                    }
-                }
-            }
-            .scrollBounceBehavior(.basedOnSize)
-            .frame(maxHeight: SessionGauge.answersMaxHeight)
-            .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityHidden(true)
-    }
-}
-
-/// The measures of the approved mockup, taken as they are.
-private enum SessionGauge {
-    static let width: CGFloat = 330
-    static let line: CGFloat = 10
-    static let trackLine: CGFloat = 2.5
-    /// The arc's box: its radius plus half the band over the apex.
-    static let arcHeight: CGFloat = 160
-    /// Five rows of flags; a longer sitting scrolls inside its box.
-    static let answersMaxHeight: CGFloat = 182
-}
-
-/// The half-circle scale, swept by `fill` from the left end over the top.
-private struct SessionGaugeArc: Shape {
-    var fill: Double
-
-    var animatableData: Double {
-        get { fill }
-        set { fill = newValue }
-    }
-
-    func path(in rect: CGRect) -> Path {
-        guard fill > 0 else { return Path() }
-        let radius = min(rect.width, rect.height * 2) / 2 - SessionGauge.line / 2
-        var arc = Path()
-        arc.addArc(
-            center: CGPoint(x: rect.midX, y: rect.maxY),
-            radius: radius,
-            startAngle: .degrees(180),
-            endAngle: .degrees(180 + 180 * min(fill, 1)),
-            clockwise: false
-        )
-        return arc
-    }
-}
-
-/// Rows of as many tiles as fit the width, every row centred — the last,
-/// however short, included. `LazyVGrid` fills columns and leaves the tail
-/// row hanging on the left; the flags read as one set, and a set is centred.
-private struct CenteredFlow: Layout {
-    let spacing: CGFloat
-
-    func sizeThatFits(
-        proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
-    ) -> CGSize {
-        let width = proposal.width ?? .infinity
-        var rowWidth: CGFloat = 0
-        var rowHeight: CGFloat = 0
-        var totalHeight: CGFloat = 0
-        var widestRow: CGFloat = 0
-        for view in subviews {
-            let size = view.sizeThatFits(.unspecified)
-            let grown = rowWidth == 0 ? size.width : rowWidth + spacing + size.width
-            if grown > width, rowWidth > 0 {
-                totalHeight += (totalHeight == 0 ? 0 : spacing) + rowHeight
-                widestRow = max(widestRow, rowWidth)
-                rowWidth = size.width
-                rowHeight = size.height
-            } else {
-                rowWidth = grown
-                rowHeight = max(rowHeight, size.height)
-            }
-        }
-        totalHeight += (totalHeight == 0 ? 0 : spacing) + rowHeight
-        widestRow = max(widestRow, rowWidth)
-        return CGSize(width: proposal.width ?? widestRow, height: totalHeight)
-    }
-
-    func placeSubviews(
-        in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
-    ) {
-        var index = 0
-        var y = bounds.minY
-        while index < subviews.count {
-            var rowEnd = index
-            var rowWidth: CGFloat = 0
-            var rowHeight: CGFloat = 0
-            while rowEnd < subviews.count {
-                let size = subviews[rowEnd].sizeThatFits(.unspecified)
-                let grown = rowWidth == 0 ? size.width : rowWidth + spacing + size.width
-                if grown > bounds.width, rowWidth > 0 { break }
-                rowWidth = grown
-                rowHeight = max(rowHeight, size.height)
-                rowEnd += 1
-            }
-            var x = bounds.minX + (bounds.width - rowWidth) / 2
-            for i in index..<rowEnd {
-                let size = subviews[i].sizeThatFits(.unspecified)
-                subviews[i].place(
-                    at: CGPoint(x: x, y: y + (rowHeight - size.height) / 2),
-                    proposal: ProposedViewSize(size)
-                )
-                x += size.width + spacing
-            }
-            y += rowHeight + spacing
-            index = rowEnd
-        }
-    }
 }
 
 /// A session that could not be dealt, said out loud.
@@ -769,28 +383,6 @@ struct StudyUnavailableView: View {
     }
 }
 
-/// The result screen's arrival: fade and settle, one step after another.
-private struct SettledModifier: ViewModifier {
-    let isSettled: Bool
-    let step: Double
-    let reduceMotion: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .opacity(isSettled || reduceMotion ? 1 : 0)
-            .offset(y: isSettled || reduceMotion ? 0 : 10)
-            .animation(
-                reduceMotion ? nil : .easeOut(duration: 0.4).delay(step * 0.08),
-                value: isSettled
-            )
-    }
-}
-
-extension View {
-    fileprivate func settled(_ isSettled: Bool, step: Double, reduceMotion: Bool) -> some View {
-        modifier(SettledModifier(isSettled: isSettled, step: step, reduceMotion: reduceMotion))
-    }
-}
 
 
 /// One half of the deck's promise: the direction, and the rating a throw

@@ -398,6 +398,15 @@ public struct RootView: View {
         )
     }
 
+    /// The catalogue's state for the header chip, when it is not simply up
+    /// to date (#523).
+    private var contentNotice: ContentNotice? {
+        guard case .ready(_, let isStale, let failure) = content.catalog,
+            isStale || failure != nil
+        else { return nil }
+        return ContentNotice(isStale: isStale, failure: failure)
+    }
+
     /// The two ways out of any tab: the account on the left, the settings on
     /// the right.
     ///
@@ -544,7 +553,7 @@ public struct RootView: View {
                     // Home alone: it is status rather than a way anywhere, and
                     // this is the tab that gives up its title for it.
                     ToolbarItem(placement: .principal) {
-                        SyncStatusChip(status: sync.status)
+                        SyncStatusChip(status: sync.status, content: contentNotice)
                     }
                     accountAndSettings
                 }
@@ -563,7 +572,14 @@ public struct RootView: View {
                     progress: progress,
                     commerce: commerce
                 ) { router.push(.deck(id: $0)) }
-                    .toolbar { accountAndSettings }
+                    .toolbar {
+                        // The catalogue's own screen tells its state the way
+                        // Home does: in the header, not in a banner (#523).
+                        ToolbarItem(placement: .principal) {
+                            SyncStatusChip(status: sync.status, content: contentNotice)
+                        }
+                        accountAndSettings
+                    }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -946,6 +962,10 @@ public enum AccessibilityIdentifier {
     public static func catalogDeckRow(_ code: String) -> String {
         "catalog.deck.\(code)"
     }
+    /// A country the catalogue's search found (#527).
+    public static func catalogCountryRow(_ cardID: UUID) -> String {
+        "catalog.country.\(cardID.uuidString)"
+    }
 
     public static func homeDeckRow(_ code: String) -> String {
         "home.deck.\(code)"
@@ -955,9 +975,13 @@ public enum AccessibilityIdentifier {
         "home.due.\(code)"
     }
 
-    public static let homeFlagOfTheDay = "home.flagOfTheDay"
-    /// The known/learned block, which is one button to the progress tab.
+    /// The known tile, a button to the progress tab. The name is the block's
+    /// from before it split in two (#512), kept for the tests that find it.
     public static let homeKnownLearned = "home.knownLearned"
+    /// The learned tile (#512); the known tile keeps `homeKnownLearned`.
+    public static let homeLearned = "home.learned"
+    /// The finished day's block (#516).
+    public static let homeDayDone = "home.dayDone"
     public static func homeRegion(_ code: String) -> String { "home.region.\(code)" }
     public static let settingsDevBlockIDs = "settings.dev.blockIDs"
     public static let settingsDevShowWelcome = "settings.dev.showWelcome"
@@ -1075,6 +1099,9 @@ public enum AccessibilityIdentifier {
     public static let studyMap = "study.details.map"
     public static let studyClose = "study.close"
     public static let studyReveal = "study.reveal"
+    /// The two answers under a turned card (#526).
+    public static let studyRateAgain = "study.rate.again"
+    public static let studyRateGood = "study.rate.good"
     /// Facts are addressed by the type they carry rather than by position: a
     /// release decides how many a country has.
     public static func studyFact(_ type: String) -> String {
@@ -1098,6 +1125,8 @@ public enum AccessibilityIdentifier {
     public static let studyResultTitle = "study.result.title"
     public static let studyResultAnswered = "study.result.answered"
     public static let studyResultDone = "study.result.done"
+    /// The result sheet's next-portion button (#519).
+    public static let studyResultMore = "study.result.more"
     /// The one action the first screen recommends.
     public static let homeContinue = "home.continue"
     public static let homeSignInExpired = "home.signInExpired"
