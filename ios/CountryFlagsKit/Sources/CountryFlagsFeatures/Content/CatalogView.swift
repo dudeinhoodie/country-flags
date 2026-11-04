@@ -28,6 +28,11 @@ public struct CatalogView: View {
     /// flags on every one of them — every custom deck wearing the
     /// all-countries deck's cards.
     @State private var curatedFans: [UUID: [LearningCardRecord]] = [:]
+    /// Every country the open curated deck holds, for the search (#527):
+    /// "Найти страну или колоду" finds a country by its name or an alias.
+    @State private var countryCards: [LearningCardRecord] = []
+    /// The country a search result opened.
+    @State private var detailsSubject: CountryDetailsSubject?
 
     public init(
         store: ContentStore,
@@ -61,6 +66,20 @@ public struct CatalogView: View {
             // to the catalog's content, the fan is re-read the moment the
             // import delivers it — and it is a no-op when the store was warm.
             .task(id: catalogFingerprint) { await reloadFan() }
+            .task(id: catalogFingerprint) { await reloadCountries() }
+            .sheet(item: $detailsSubject) { subject in
+                CountryDetailsSheet(subject: subject, store: store, assets: assets)
+            }
+    }
+
+    /// The countries the search looks through: the open curated deck's cards,
+    /// which is every country the catalogue teaches. A retired card is left
+    /// out — it is no longer in any deck a learner can open.
+    private func reloadCountries() async {
+        guard case .ready(let sections, _, _) = store.catalog,
+            let deck = sections.first(where: { $0.kind == .curated && !$0.isFeatured })?.decks.first
+        else { return }
+        countryCards = await store.cards(inDeck: deck.id).filter { !$0.isRetired }
     }
 
     /// The ready catalog's identity, for the re-read above; nil while there
@@ -99,6 +118,19 @@ public struct CatalogView: View {
             }
 
             let matches = filtered(sections)
+            let countries = matchingCountries
+
+            // While searching, countries first and then decks (#527): a
+            // country opens its own sheet, a deck its screen, and each kind
+            // is named so the two lists are not read as one.
+            if !countries.isEmpty {
+                SectionLabel(L10n.catalogCountriesSection)
+                    .devBlockID("catalog.countries")
+                countryResults(countries)
+                if !matches.isEmpty {
+                    SectionLabel(L10n.catalogDecksSection)
+                }
+            }
 
             ForEach(Array(matches.enumerated()), id: \.element.id) { index, section in
                 // Headings only where there is a shelf to tell apart from the
@@ -126,12 +158,64 @@ public struct CatalogView: View {
                 }
             }
 
-            if matches.isEmpty {
+            if matches.isEmpty && countries.isEmpty {
                 Text(L10n.catalogNoMatches)
                     .font(DesignTokens.Typography.body)
                     .foregroundStyle(.white.opacity(0.6))
                     .frame(maxWidth: .infinity, alignment: .center)
                     .accessibilityIdentifier(AccessibilityIdentifier.catalogNoMatches)
+            }
+        }
+    }
+
+    /// The countries the query names, at most a screenful: a search is a way
+    /// to one country, not a second list of all of them.
+    private var matchingCountries: [LearningCardRecord] {
+        guard !searchText.isEmpty else { return [] }
+        return Array(CatalogSearch.cards(countryCards, matching: searchText).prefix(Self.countryLimit))
+    }
+
+    private static let countryLimit = 12
+
+    private func countryResults(_ countries: [LearningCardRecord]) -> some View {
+        GlassCard(padding: DesignTokens.Spacing.small) {
+            VStack(spacing: 0) {
+                ForEach(Array(countries.enumerated()), id: \.element.id) { index, card in
+                    if index > 0 {
+                        Divider().overlay(.white.opacity(DesignTokens.Card.borderOpacity))
+                    }
+                    Button {
+                        detailsSubject = CountryDetailsSubject(card: card)
+                    } label: {
+                        HStack(spacing: DesignTokens.Spacing.medium) {
+                            FlagImageView(
+                                assetID: card.promptAssetID,
+                                accessibilityLabel: card.displayName,
+                                store: store,
+                                assets: assets
+                            )
+                            .frame(
+                                width: DesignTokens.Layout.rowFlagWidth,
+                                height: DesignTokens.Layout.rowFlagWidth / DesignTokens.Card.aspectRatio
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous))
+                            .accessibilityHidden(true)
+                            Text(card.displayName)
+                                .font(DesignTokens.Typography.body)
+                                .foregroundStyle(.white)
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(DesignTokens.Typography.caption)
+                                .foregroundStyle(.white.opacity(0.4))
+                                .accessibilityHidden(true)
+                        }
+                        .padding(.horizontal, DesignTokens.Spacing.small)
+                        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+                        .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier(AccessibilityIdentifier.catalogCountryRow(card.id))
+                }
             }
         }
     }

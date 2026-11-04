@@ -1439,13 +1439,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing turned up."
+            "value": "No country or deck matches."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ничего не нашлось."
+            "value": "Нет ни страны, ни колоды."
           }
         }
       }
@@ -1456,13 +1456,47 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find a deck"
+            "value": "Find a country or deck"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Найти колоду"
+            "value": "Найти страну или колоду"
+          }
+        }
+      }
+    },
+    "catalog.section.countries": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Countries"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страны"
+          }
+        }
+      }
+    },
+    "catalog.section.decks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decks"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колоды"
           }
         }
       }
