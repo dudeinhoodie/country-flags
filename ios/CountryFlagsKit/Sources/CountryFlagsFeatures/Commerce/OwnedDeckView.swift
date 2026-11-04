@@ -39,9 +39,11 @@ struct OwnedDeckView: View {
     /// "Federal Eagle" rather than "Germany". Read once for the whole list:
     /// a lookup per row would be one store round trip per row.
     @State private var assetNames: [UUID: String] = [:]
+    /// The name goes to the bar once the header's has scrolled away (#524).
+    @State private var isTitleShown = false
 
     var body: some View {
-        SceneScrollView {
+        SceneScrollView(onPassesHeader: { isTitleShown = $0 }) {
             header
 
             if isAwaitingSync {
@@ -56,11 +58,11 @@ struct OwnedDeckView: View {
 
             list
         }
-        .navigationTitle(deck.name)
+        .navigationTitle(isTitleShown ? deck.name : "")
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
             Button(continuable == nil ? L10n.deckStartLearning : L10n.homeContinue, action: onStart)
-                .buttonStyle(GlassProminentActionStyle())
+                .buttonStyle(PrimaryActionStyle())
                 .disabled(cards.isEmpty)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
                 .padding(.horizontal, DesignTokens.Spacing.medium)

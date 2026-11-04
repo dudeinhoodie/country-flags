@@ -11,6 +11,9 @@ public struct DeckDetailsView: View {
     @State private var model: DeckDetailsModel
     @State private var sessionSize: StudySessionSize
     @State private var mode: StudyAnswerMode = .selfRated
+    /// Whether the deck's name in the content has scrolled under the bar,
+    /// which is when the bar takes it (#524): the name is on screen once.
+    @State private var isTitleShown = false
     /// Whether the stored preferences were read. Once, before the pickers are
     /// worth touching; never again, so a choice made on this screen wins over
     /// a setting that arrives late.
@@ -164,7 +167,8 @@ public struct DeckDetailsView: View {
     /// The deck screen the app has always had, unchanged.
     private var standard: some View {
         content
-            .navigationTitle(title)
+            .navigationTitle(isTitleShown ? title : "")
+            .navigationBarTitleDisplayMode(.inline)
             // Placed explicitly. With the automatic placement iOS 26 drew no
             // field and no button on this pushed screen, so the deck's own
             // search could not be reached at all.
@@ -296,7 +300,7 @@ public struct DeckDetailsView: View {
         isStale: Bool,
         failure: ContentSyncFailure?
     ) -> some View {
-        SceneScrollView {
+        SceneScrollView(onPassesHeader: { isTitleShown = $0 }) {
             if isStale || failure != nil {
                 ContentStatusBanner(isStale: isStale, failure: failure)
                     .devBlockID("deck.status")
@@ -330,7 +334,9 @@ public struct DeckDetailsView: View {
                         onStartStudy(liveDeckID, sessionSize, mode)
                     }
                 }
-                .buttonStyle(GlassProminentActionStyle())
+                // White: the screen's one action, with the tab bar hidden
+                // under it (#524).
+                .buttonStyle(PrimaryActionStyle())
                 .disabled(cardCount(of: details) == 0)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyStart)
                 .devBlockID("deck.action")

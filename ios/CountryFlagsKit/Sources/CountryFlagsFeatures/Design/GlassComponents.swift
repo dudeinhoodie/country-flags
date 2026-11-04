@@ -347,6 +347,10 @@ extension View {
 /// Every browsing screen uses it, which is what keeps their margins, their
 /// maximum width and their spacing identical without any of them saying so.
 struct SceneScrollView<Content: View>: View {
+    /// Told whether the screen's own large title has scrolled under the bar
+    /// (#524). A screen that names itself in its content passes this and
+    /// puts the name in the bar only then, so the name is on screen once.
+    var onPassesHeader: ((Bool) -> Void)?
     @ViewBuilder var content: Content
 
     var body: some View {
@@ -359,6 +363,15 @@ struct SceneScrollView<Content: View>: View {
             .padding(DesignTokens.Spacing.large)
         }
         .scrollIndicators(.hidden)
+        .onScrollGeometryChange(for: Bool.self) { geometry in
+            geometry.contentOffset.y + geometry.contentInsets.top > Self.headerHeight
+        } action: { _, passed in
+            onPassesHeader?(passed)
+        }
         .sceneChrome()
     }
+
+    /// Roughly where a screen title in the content leaves the top: the padding
+    /// above it and most of a large title's line.
+    private static var headerHeight: CGFloat { DesignTokens.Spacing.large + DesignTokens.Layout.minimumTouchTarget }
 }

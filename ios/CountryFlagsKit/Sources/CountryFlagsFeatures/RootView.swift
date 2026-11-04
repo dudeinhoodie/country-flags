@@ -184,6 +184,18 @@ public struct RootView: View {
         }
     }
 
+    /// Whether the screen on top leads to an action (#524): a session, a
+    /// deck, a deck's progress, a paywall. These hide the tab bar and keep
+    /// one white button at the bottom, so the bar's tabs never sit under the
+    /// button as a second row of things to press.
+    private var hidesTabBar: Bool {
+        if isStudyOpen { return true }
+        switch router.currentRoute {
+        case .deck, .deckProgress: return true
+        default: return false
+        }
+    }
+
     public var body: some View {
         // The splash covers the launch rather than replacing it (#501). What
         // is under it is built and running as it always was — the first
@@ -540,7 +552,7 @@ public struct RootView: View {
                     destination(for: route)
                 }
             }
-            .toolbar(isStudyOpen ? .hidden : .automatic, for: .tabBar)
+            .toolbar(hidesTabBar ? .hidden : .automatic, for: .tabBar)
             .tabItem { Label(L10n.homeTitle, systemImage: "house") }
             .tag(AppTab.home)
 
@@ -556,7 +568,7 @@ public struct RootView: View {
                         destination(for: route)
                     }
             }
-            .toolbar(isStudyOpen ? .hidden : .automatic, for: .tabBar)
+            .toolbar(hidesTabBar ? .hidden : .automatic, for: .tabBar)
             .tabItem { Label(L10n.catalogTitle, systemImage: "square.grid.2x2") }
             .tag(AppTab.catalog)
 
@@ -573,7 +585,7 @@ public struct RootView: View {
                     destination(for: route)
                 }
             }
-            .toolbar(isStudyOpen ? .hidden : .automatic, for: .tabBar)
+            .toolbar(hidesTabBar ? .hidden : .automatic, for: .tabBar)
             .tabItem { Label(L10n.progressTitle, systemImage: "chart.bar") }
             .tag(AppTab.progress)
 
