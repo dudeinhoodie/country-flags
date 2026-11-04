@@ -171,6 +171,10 @@ public enum DesignTokens {
         /// grounds, and for Google's neutral one to read against; grey rather
         /// than white, because pure white under a dark scene glared.
         public static let trayWhite: Double = 0.86
+        /// Small text and quiet actions on the tray (#529): dark enough for
+        /// about 5.4:1 on the tray's white, where the system's secondary grey
+        /// gave about 3:1. Figma names it `sign-in/text-secondary`.
+        public static let secondaryText = Color(white: 0.33)
     }
 
     public enum Layout {
