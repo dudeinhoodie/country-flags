@@ -552,6 +552,12 @@ public enum L10n {
     public static var studyStoreUnavailable: String { localized("study.store_unavailable") }
     public static var studyResultTitle: String { localized("study.result.title") }
     public static var studyResultDone: String { localized("study.result.done") }
+    /// The result sheet's third figure (#519).
+    public static var studyResultToReview: String { localized("study.result.to_review") }
+    /// "Ещё 10 флагов": the next portion, declined through the flag count.
+    public static func studyResultMore(_ count: Int) -> String {
+        String(format: localized("study.result.more"), deckItemCount(count, contentKinds: ["FLAG"]))
+    }
 
     public static var studyResultExcellent: String { localized("study.result.excellent") }
     public static var studyStart: String { localized("study.start") }
@@ -564,16 +570,6 @@ public enum L10n {
     /// What the result screen's bare fraction counts, spoken for VoiceOver.
     public static func studyResultRemembered(_ remembered: Int, _ planned: Int) -> String {
         String(format: localized("study.result.remembered"), remembered, planned)
-    }
-
-    /// The learned share the result ring stands at, spoken for VoiceOver.
-    public static func studyResultMasteryLearned(_ percent: Int) -> String {
-        String(format: localized("study.result.mastery.learned"), percent)
-    }
-
-    /// What the sitting added to the deck, worn by the pill under the ring.
-    public static func studyResultMasteryDelta(_ percent: Int) -> String {
-        String(format: localized("study.result.mastery.delta"), percent)
     }
 
     /// The cards leaving the session for the repeat queue, for VoiceOver.

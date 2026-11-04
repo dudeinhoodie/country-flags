@@ -51,6 +51,11 @@ public final class StudySessionRunner {
     /// until the backend answers — so the ring can move the moment the
     /// session ends instead of waiting for a sync.
     public private(set) var deckMastery: StudySessionDeckMastery?
+    /// The result sheet's three figures and the next portion (#519), set
+    /// together with the summary. Counted on the device, like the mastery
+    /// above: the result is shown before the sitting's answers can reach the
+    /// backend, and a sheet that waited for them would show no gain at all.
+    public private(set) var tally: StudySessionTally?
 
     private let scopes: any AccountScopeResolving
     /// Resolved once, when the session starts. A session belongs to the account
@@ -82,6 +87,11 @@ public final class StudySessionRunner {
     /// session measures what this sitting adds, not what the session has.
     private var deckCardIDs: [UUID] = []
     private var learnedBefore = 0
+    /// The whole collection as the sitting began, for the sheet's gains.
+    private var knownBefore = 0
+    private var wholeLearnedBefore = 0
+    /// What the sitting was asked for, so "Ещё N флагов" can ask again.
+    private var requested: (deckID: UUID, size: StudySessionSize)?
 
     public init(
         scopes: any AccountScopeResolving,
@@ -129,6 +139,7 @@ public final class StudySessionRunner {
     ) async {
         if scope == nil { scope = await scopes.currentScope() }
         startedAt = dates.now()
+        requested = (deckID, size)
         await snapshotDeckBefore(deckID: deckID)
         if await resume(deckID: deckID, composition: composition) {
             await reportSessionStarted(requestedCardCount: state?.cards.count ?? 0)
@@ -614,7 +625,11 @@ public final class StudySessionRunner {
         )
         let answered = session.cards.compactMap { card in
             ratingByCard[card.learningCardID].map {
-                StudySessionSummary.AnsweredCard(promptAssetID: card.promptAssetID, rating: $0)
+                StudySessionSummary.AnsweredCard(
+                    promptAssetID: card.promptAssetID,
+                    rating: $0,
+                    displayName: card.displayName
+                )
             }
         }
         // The mastery is built before the summary is published: the summary
@@ -646,6 +661,18 @@ public final class StudySessionRunner {
                 rememberedCards: rememberedIDs.count
             )
         }
+        let after = (try? await learning.cardStates(for: resolvedScope)) ?? []
+        let known = Self.knownCount(after)
+        let learned = Self.learnedCount(after)
+        let left = max(0, DailyReviewAllowance.limit - DailyReviewAllowance.answeredToday(after, now: dates.now()))
+        tally = StudySessionTally(
+            known: known,
+            knownGain: max(0, known - knownBefore),
+            learned: learned,
+            learnedGain: max(0, learned - wholeLearnedBefore),
+            toReview: answered.filter { $0.rating == .again }.count,
+            nextPortion: min(requested?.size.rawValue ?? 0, left)
+        )
         summary = StudySessionSummary(
             sessionID: session.sessionID,
             deckID: session.deckID,
@@ -664,6 +691,35 @@ public final class StudySessionRunner {
     private func snapshotDeckBefore(deckID: UUID) async {
         deckCardIDs = ((try? await content.cards(inDeck: deckID)) ?? []).map(\.id)
         learnedBefore = await learnedCards(deckID: deckID)
+        let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
+        knownBefore = Self.knownCount(states)
+        wholeLearnedBefore = Self.learnedCount(states)
+    }
+
+    /// Countries met at all: any card with an answer. The same rule the
+    /// device's projection counts started cards by.
+    private static func knownCount(_ states: [CardStateRecord]) -> Int {
+        states.count { $0.state != "NEW" }
+    }
+
+    /// Countries learned: cards that reached review, as the projection counts
+    /// them.
+    private static func learnedCount(_ states: [CardStateRecord]) -> Int {
+        states.count { $0.state == "REVIEW" }
+    }
+
+    /// Starts the next portion from the result screen (#519): the same deck
+    /// and size, a fresh standard sitting. What the finished one published is
+    /// cleared first, so the screen goes back to the cards rather than
+    /// showing the old result over a new session.
+    public func startAnother() async {
+        guard let requested else { return }
+        summary = nil
+        deckMastery = nil
+        tally = nil
+        state = nil
+        startFailure = nil
+        await startOrResume(deckID: requested.deckID, size: requested.size, composition: .standard)
     }
 
     private func learnedCards(deckID: UUID) async -> Int {
@@ -674,6 +730,30 @@ public final class StudySessionRunner {
             states: states,
             now: dates.now()
         ).first?.learnedCards ?? 0
+    }
+}
+
+/// The result sheet's figures (#519): the whole collection after the
+/// sitting, what the sitting added, what it sends back, and how many cards
+/// the next portion would deal.
+public struct StudySessionTally: Hashable, Sendable {
+    public let known: Int
+    public let knownGain: Int
+    public let learned: Int
+    public let learnedGain: Int
+    /// Cards answered "again" in this sitting.
+    public let toReview: Int
+    /// The next sitting's size, cut to what the day's allowance has left;
+    /// zero when the day is spent.
+    public let nextPortion: Int
+
+    public init(known: Int, knownGain: Int, learned: Int, learnedGain: Int, toReview: Int, nextPortion: Int) {
+        self.known = known
+        self.knownGain = knownGain
+        self.learned = learned
+        self.learnedGain = learnedGain
+        self.toReview = toReview
+        self.nextPortion = nextPortion
     }
 }
 
@@ -725,10 +805,13 @@ public struct StudySessionSummary: Hashable, Sendable {
     public struct AnsweredCard: Hashable, Sendable {
         public let promptAssetID: UUID
         public let rating: StudyRating
+        /// The country, for the name a tapped flag shows on the result (#519).
+        public let displayName: String
 
-        public init(promptAssetID: UUID, rating: StudyRating) {
+        public init(promptAssetID: UUID, rating: StudyRating, displayName: String = "") {
             self.promptAssetID = promptAssetID
             self.rating = rating
+            self.displayName = displayName
         }
     }
 
