@@ -232,6 +232,9 @@ public enum DesignTokens {
         public static let homeTileContentHeight: CGFloat = 126
         /// The continent behind a small Home tile's figure.
         public static let homeTileContinent = CGSize(width: 96, height: 72)
+        /// The same for a wide Home tile, the first region card (#517).
+        public static let homeWideTileContentHeight: CGFloat = 108
+        public static let homeWideTileContinent = CGSize(width: 150, height: 108)
     }
 
     public enum Typography {

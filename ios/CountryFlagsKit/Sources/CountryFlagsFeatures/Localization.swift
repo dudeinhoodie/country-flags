@@ -162,6 +162,22 @@ public enum L10n {
         localized("home.flag_of_the_day.details")
     }
     public static var homeRegionsLabel: String { localized("home.regions.label") }
+    /// The regions' label once anything is started (#517).
+    public static var homeRegionsProgressLabel: String { localized("home.regions.label_progress") }
+    /// "10 из 52 знакомы": the participle agrees with the first count —
+    /// "1 из 52 знакома" — through a substitution on a third argument that
+    /// repeats it, so the printed numbers stay plain.
+    public static func homeRegionKnown(_ known: Int, of total: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("home.region.known", bundle: bundle, comment: ""),
+            known,
+            total,
+            known
+        )
+    }
+    public static func homeRegionLearned(_ count: Int) -> String {
+        String(format: localized("home.region.learned"), count)
+    }
     public static var homeContinue: String { localized("home.continue") }
     /// "Тренировка на паузе" (#514): Home's paused card and the deck
     /// screen's resume block say the same thing.
