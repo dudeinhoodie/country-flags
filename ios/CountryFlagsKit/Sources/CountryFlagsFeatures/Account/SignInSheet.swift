@@ -192,7 +192,8 @@ struct SignInSheet: View {
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(L10n.studyClose)
+            // The sheet closes; there is no session here to close (#529).
+            .accessibilityLabel(L10n.commonClose)
             .devBlockID("signin.close")
         }
         .padding(.top, DesignTokens.Spacing.small)
@@ -274,7 +275,7 @@ struct SignInSheet: View {
                     Text(L10n.accountSigningIn)
                 }
                 .font(DesignTokens.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignTokens.SignIn.secondaryText)
                 .accessibilityIdentifier(AccessibilityIdentifier.accountSigningIn)
             }
 
@@ -298,7 +299,7 @@ struct SignInSheet: View {
             if let failure = store.lastFailure {
                 Text(failure == .offline ? L10n.accountSignInOffline : L10n.accountSignInFailed)
                     .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignTokens.SignIn.secondaryText)
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier(AccessibilityIdentifier.accountFailure)
             }
@@ -330,7 +331,7 @@ struct SignInSheet: View {
                 // answer to the offer, not a third button in the pair.
                 Button(L10n.accountSignInNotNow) { dismiss() }
                     .font(DesignTokens.Typography.body.weight(.medium))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignTokens.SignIn.secondaryText)
                     .frame(maxWidth: .infinity, minHeight: DesignTokens.Layout.minimumTouchTarget)
                     .padding(.top, DesignTokens.Spacing.medium)
                     .accessibilityIdentifier(AccessibilityIdentifier.accountSignInNotNow)
@@ -366,7 +367,7 @@ struct SignInSheet: View {
             VStack(spacing: DesignTokens.Spacing.extraSmall) {
                 Text(L10n.accountSignInLegal)
                     .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignTokens.SignIn.secondaryText)
                     .multilineTextAlignment(.center)
 
                 HStack(spacing: DesignTokens.Spacing.medium) {
