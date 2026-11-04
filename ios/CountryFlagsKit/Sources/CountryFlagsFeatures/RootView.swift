@@ -946,6 +946,8 @@ public enum AccessibilityIdentifier {
     public static let homeFlagOfTheDay = "home.flagOfTheDay"
     /// The known/learned block, which is one button to the progress tab.
     public static let homeKnownLearned = "home.knownLearned"
+    /// The finished day's block (#516).
+    public static let homeDayDone = "home.dayDone"
     public static func homeRegion(_ code: String) -> String { "home.region.\(code)" }
     public static let settingsDevBlockIDs = "settings.dev.blockIDs"
     public static let settingsDevShowWelcome = "settings.dev.showWelcome"

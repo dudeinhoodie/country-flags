@@ -138,20 +138,15 @@ public enum L10n {
     public static var homeKnownLearnedHint: String {
         localized("home.known_learned.accessibility.hint")
     }
-    /// The same block on a finished day: its title, and the line under the
-    /// bar that gives the day's limit and when repeats come back. The limit
-    /// is declined by the count — "50 стран", "21 страна" — so it goes
-    /// through `localizedStringWithFormat`, the only call that applies the
-    /// catalogue's plural rule; `String(format:)` would format the number
-    /// into one arbitrary variant.
-    public static var homeDayDoneTitle: String {
-        localized("home.known_learned.day_done.title")
-    }
-    public static func homeDayDoneLimit(_ limit: Int) -> String {
-        String.localizedStringWithFormat(
-            NSLocalizedString(
-                "home.known_learned.day_done.limit", bundle: bundle, comment: ""
-            ),
+    /// The finished day's block (#516): its title, and how far the day went
+    /// against the daily allowance. The answered count is declined through
+    /// the flag count — "1 флаг из 50", "50 флагов из 50" — and the line puts
+    /// it in place, so the plural rule is the catalogue's, not this format's.
+    public static var homeDayDoneTitle: String { localized("home.day_done.title") }
+    public static func homeDayDoneLine(answered: Int, limit: Int) -> String {
+        String(
+            format: localized("home.day_done.line"),
+            deckItemCount(answered, contentKinds: ["FLAG"]),
             limit
         )
     }
