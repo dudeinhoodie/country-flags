@@ -32,9 +32,11 @@ struct LockedDeckPaywallView: View {
 
     @State private var previewCards: [LearningCardRecord] = []
     @State private var isRestoring = false
+    /// The name goes to the bar once the header's has scrolled away (#524).
+    @State private var isTitleShown = false
 
     var body: some View {
-        SceneScrollView {
+        SceneScrollView(onPassesHeader: { isTitleShown = $0 }) {
             VStack(spacing: DesignTokens.Spacing.large) {
                 PaidDeckPreviewFan(
                     cards: previewCards,
@@ -91,7 +93,7 @@ struct LockedDeckPaywallView: View {
             }
         }
         .accessibilityIdentifier(AccessibilityIdentifier.deckPaywall)
-        .navigationTitle(deck.name)
+        .navigationTitle(isTitleShown ? deck.name : "")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

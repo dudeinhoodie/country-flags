@@ -113,7 +113,9 @@ public struct DeckProgressDetailsView: View {
                 Button(L10n.studyStart) {
                     onStartStudy(deckID, sessionSize)
                 }
-                .buttonStyle(GlassProminentActionStyle())
+                // White, as on the deck screen (#524): the screen's one
+                // action, with the tab bar hidden under it.
+                .buttonStyle(PrimaryActionStyle())
                 .padding(.horizontal, DesignTokens.Spacing.medium)
                 // Twice the gap it had: sitting one notch above the tab bar,
                 // the two glass surfaces read as one bar with a seam in it.

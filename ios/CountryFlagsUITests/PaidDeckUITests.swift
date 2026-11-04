@@ -97,6 +97,18 @@ final class PaidDeckUITests: XCTestCase {
             "A sign-in the paywall asked for must come back to the deck\n"
                 + app.debugDescription
         )
+        XCTAssertFalse(
+            app.descendants(matching: .any)
+                .matching(identifier: "settings.account.signedIn")
+                .firstMatch
+                .exists,
+            "The account screen the paywall opened is gone\n\(app.debugDescription)"
+        )
+        XCTAssertFalse(app.buttons["settings.account.signInRow"].exists, app.debugDescription)
+
+        // The deck's own tab, not Home. The tab bar hides on a deck's screens
+        // (#524), so the tab is read from the catalogue one step back.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         let catalogSelected = app.tabBars.buttons.matching(
             NSPredicate(
                 format: "(identifier == %@ OR label == %@) AND selected == true",
@@ -108,14 +120,6 @@ final class PaidDeckUITests: XCTestCase {
             catalogSelected.waitForExistence(timeout: 10),
             "The deck's own tab, not Home\n\(app.debugDescription)"
         )
-        XCTAssertFalse(
-            app.descendants(matching: .any)
-                .matching(identifier: "settings.account.signedIn")
-                .firstMatch
-                .exists,
-            "The account screen the paywall opened is gone\n\(app.debugDescription)"
-        )
-        XCTAssertFalse(app.buttons["settings.account.signInRow"].exists, app.debugDescription)
     }
 
     /// A free deck is untouched: no badge, no price, and the action it has
