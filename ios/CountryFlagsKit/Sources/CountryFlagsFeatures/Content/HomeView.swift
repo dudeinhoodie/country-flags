@@ -57,6 +57,9 @@ public struct HomeView: View {
     @State private var fanCards: [LearningCardRecord] = []
     /// The flags the paused sitting still owes, for its card (#514).
     @State private var resumeCards: [LearningCardRecord] = []
+    /// The main colour of each flag in the deck fan, for the hero's wash
+    /// (#515). Read off the artwork, as a session reads its scene.
+    @State private var heroColors: [Color] = []
     /// Distinct cards answered today, counted off the card states on the
     /// device. It decides whether the day's allowance is spent, and for a
     /// guest how much of the queue a sitting can still deal.
@@ -503,57 +506,52 @@ public struct HomeView: View {
         // the other is the deck itself — and hiding the deck behind a sitting
         // left the learner no way to it from here until the sitting was
         // finished (#497).
+        //
+        // Two forms (#515). When the deck is the screen's action — a first
+        // visit, or a day with nothing to repeat and nothing paused — it is
+        // the hero, with the screen's white button. When another block holds
+        // that button, a paused sitting or a finished day, the deck is a
+        // quiet row: the owner's rule of one white button per screen replaced
+        // the two white doors #497 allowed.
         if due == 0, let deck = recommended(sections) {
-            deckPane(deck)
-                .devBlockID("home.deck")
+            Group {
+                if continuable == nil && !closesTheDay {
+                    deckHero(deck)
+                } else {
+                    HomeDeckRow(
+                        deck: deck,
+                        cards: fanCards,
+                        store: store,
+                        assets: assets,
+                        run: { onOpenDeck(deck.id) }
+                    )
+                }
+            }
+            .devBlockID("home.deck")
         }
     }
 
-    /// The all-countries deck as a pane: its name as the title, its size in
-    /// a quiet line under it, its flags beside both, and the way in.
-    ///
-    /// No figure and no section label (#497). The pane said "0 / 195 стран
-    /// выучено", the learner's standing out of the deck, which could not
-    /// move on the first day however much was studied; then, briefly, the
-    /// deck's size as a counter, "195" over "флагов", which was turned down
-    /// as well. The standing is the card at the top now. This pane is about
-    /// the deck: it names it in a card heading's face, the one the first
-    /// visit's flag is named in, and says how big it is the way the regions
-    /// shelf does.
-    ///
-    /// The action is always the white one, the "continue" beside it
-    /// included: the one place two white actions share the screen, decided
-    /// by the owner on #497. Each pane is a door of its own, offered at full
-    /// weight.
-    private func deckPane(_ deck: DeckRecord) -> some View {
-        GlassCard(padding: DesignTokens.Spacing.large) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-                HStack(alignment: .center, spacing: DesignTokens.Spacing.medium) {
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                        Text(deck.name)
-                            .font(DesignTokens.Typography.cardAnswer)
-                            .foregroundStyle(.white)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Text(L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds))
-                            .font(DesignTokens.Typography.body)
-                            .foregroundStyle(.white.opacity(0.6))
-                    }
-
-                    Spacer(minLength: 0)
-
-                    if !fanCards.isEmpty {
-                        FlagFanView(cards: fanCards, store: store, assets: assets)
-                    }
-                }
-                // Read as "All countries, 195 flags": the fan is a picture of
-                // the deck and is not read.
-                .accessibilityElement(children: .combine)
-
-                Button(L10n.studyStart) { onOpenDeck(deck.id) }
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeDeckRow(deck.code))
-            }
-        }
+    /// The all-countries deck as the hero (#515). A first visit says where
+    /// to start and how big the deck is; later the eyebrow says the deck is
+    /// where the new flags are, and the line says how many are still new —
+    /// the deck's size against the countries already known, which is the
+    /// part of it a tap would open up.
+    private func deckHero(_ deck: DeckRecord) -> some View {
+        let fresh = max(0, deck.cardCount - knownCountries)
+        let isStart = isFirstVisit || knownCountries == 0
+        return HomeDeckHero(
+            deck: deck,
+            eyebrow: isStart ? L10n.homeDeckStartLabel : L10n.homeDeckNextLabel,
+            line: isStart || fresh == 0
+                ? L10n.deckItemCount(deck.cardCount, contentKinds: deck.contentKinds)
+                : L10n.homeDeckStillNew(fresh),
+            action: isStart ? L10n.homeDeckStart : L10n.homeDeckLearnNew,
+            cards: fanCards,
+            colors: heroColors,
+            store: store,
+            assets: assets,
+            run: { onOpenDeck(deck.id) }
+        )
     }
 
     /// The sitting left half-finished, in the review card's shape (#514): the
@@ -1265,6 +1263,23 @@ public struct HomeView: View {
                 now: now
             )
         }
+
+        heroColors = await colors(of: Array(fanCards.prefix(3)))
+    }
+
+    /// The main colour of each card's flag, in the fan's order. A flag whose
+    /// artwork cannot be read is skipped rather than given a default, so the
+    /// wash is only ever made of the flags on the card.
+    private func colors(of cards: [LearningCardRecord]) async -> [Color] {
+        guard let assets else { return [] }
+        var colors: [Color] = []
+        for card in cards {
+            guard let record = await store.asset(id: card.promptAssetID),
+                let palette = await FlagPaletteReader.palette(for: record, assets: assets)
+            else { continue }
+            colors.append(palette.primary)
+        }
+        return colors
     }
 
     /// The cards a session started here would open with: five, as many as
