@@ -90,11 +90,6 @@ public struct CatalogView: View {
         failure: ContentSyncFailure?
     ) -> some View {
         SceneScrollView {
-            if isStale || failure != nil {
-                ContentStatusBanner(isStale: isStale, failure: failure)
-                    .devBlockID("catalog.status")
-            }
-
             if let resolution = store.localeResolution, resolution.isFallback {
                 Text(L10n.catalogLocaleFallback(resolution.locale))
                     .font(DesignTokens.Typography.caption)

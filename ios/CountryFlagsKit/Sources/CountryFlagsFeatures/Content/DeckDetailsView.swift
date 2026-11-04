@@ -297,11 +297,6 @@ public struct DeckDetailsView: View {
         failure: ContentSyncFailure?
     ) -> some View {
         SceneScrollView {
-            if isStale || failure != nil {
-                ContentStatusBanner(isStale: isStale, failure: failure)
-                    .devBlockID("deck.status")
-            }
-
             header(details)
                 .devBlockID("deck.header")
 

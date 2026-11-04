@@ -386,6 +386,15 @@ public struct RootView: View {
         )
     }
 
+    /// The catalogue's state for the header chip, when it is not simply up
+    /// to date (#523).
+    private var contentNotice: ContentNotice? {
+        guard case .ready(_, let isStale, let failure) = content.catalog,
+            isStale || failure != nil
+        else { return nil }
+        return ContentNotice(isStale: isStale, failure: failure)
+    }
+
     /// The two ways out of any tab: the account on the left, the settings on
     /// the right.
     ///
@@ -532,7 +541,7 @@ public struct RootView: View {
                     // Home alone: it is status rather than a way anywhere, and
                     // this is the tab that gives up its title for it.
                     ToolbarItem(placement: .principal) {
-                        SyncStatusChip(status: sync.status)
+                        SyncStatusChip(status: sync.status, content: contentNotice)
                     }
                     accountAndSettings
                 }
@@ -551,7 +560,14 @@ public struct RootView: View {
                     progress: progress,
                     commerce: commerce
                 ) { router.push(.deck(id: $0)) }
-                    .toolbar { accountAndSettings }
+                    .toolbar {
+                        // The catalogue's own screen tells its state the way
+                        // Home does: in the header, not in a banner (#523).
+                        ToolbarItem(placement: .principal) {
+                            SyncStatusChip(status: sync.status, content: contentNotice)
+                        }
+                        accountAndSettings
+                    }
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }

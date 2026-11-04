@@ -503,6 +503,11 @@ public enum L10n {
     public static var contentRetry: String { localized("content.retry") }
     public static var contentStale: String { localized("content.stale") }
     public static var contentOffline: String { localized("content.offline") }
+    /// The catalogue's states in the header chip's few words (#523); the
+    /// full sentences above are what VoiceOver says.
+    public static var contentClientTooOldShort: String { localized("content.client_too_old_short") }
+    public static var contentRefreshFailedShort: String { localized("content.refresh_failed_short") }
+    public static var contentStaleShort: String { localized("content.stale_short") }
     public static var contentRefreshFailed: String { localized("content.refresh_failed") }
     public static var contentClientTooOld: String { localized("content.client_too_old") }
     public static var contentEmptyTitle: String { localized("content.empty.title") }
