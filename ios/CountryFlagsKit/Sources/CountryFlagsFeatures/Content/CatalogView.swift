@@ -150,7 +150,10 @@ public struct CatalogView: View {
     /// metadata stays inside the leading text column so it never competes with
     /// the artwork, and the row is not recoloured.
     private func row(_ deck: DeckRecord, isCurated: Bool, isLocked: Bool) -> some View {
-        GlassCard(padding: DesignTokens.Spacing.medium) {
+        // Flat rather than glass (#521): the scene showed through the glass
+        // and tinted each row, and on a row whose subject is a continent the
+        // tint read as a gradient. The continent stays one colour.
+        FlatCard(padding: DesignTokens.Spacing.medium) {
             HStack(spacing: DesignTokens.Spacing.medium) {
                 if !isCurated && !isLocked {
                     ContinentSilhouetteView(code: deck.code, opacity: 0.55)
