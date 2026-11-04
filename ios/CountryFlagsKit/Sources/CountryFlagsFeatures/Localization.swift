@@ -786,6 +786,9 @@ public enum L10n {
     /// The resource bundle of the package. Tests use it to verify that the
     /// string catalog is actually compiled instead of falling back to keys.
     static var bundle: Bundle { .module }
+    /// The language the interface is shown in, for formatting that must
+    /// agree with the words around it (#525).
+    static var appLanguage: String { bundle.preferredLocalizations.first ?? "en" }
 
     static func localized(_ key: String) -> String {
         String(localized: String.LocalizationValue(key), bundle: bundle)

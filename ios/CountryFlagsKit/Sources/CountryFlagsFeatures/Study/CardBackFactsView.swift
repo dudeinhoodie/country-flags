@@ -31,12 +31,11 @@ struct CardBackFactsView: View {
         // task that would fetch it.
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
             if let symbolName {
-                CardBackFactRow(label: L10n.factEmblem, value: symbolName)
+                FactRow(symbol: "shield.fill", color: .purple, label: L10n.factEmblem, value: symbolName)
                     .accessibilityIdentifier(AccessibilityIdentifier.studySymbolName)
             }
             ForEach(facts, id: \.self) { fact in
-                let presentation = FactDisplay.presentation(for: fact)
-                CardBackFactRow(label: presentation.label, value: presentation.value)
+                FactRow(fact: fact)
                     .accessibilityIdentifier(AccessibilityIdentifier.studyFact(fact.type))
             }
         }
@@ -51,34 +50,5 @@ struct CardBackFactsView: View {
                 store: store
             )
         }
-    }
-}
-
-private struct CardBackFactRow: View {
-    let label: String?
-    let value: String
-
-    var body: some View {
-        // Facts reach this row through the same wording as the other two
-        // surfaces. Read straight from the record, this row showed the
-        // currency's ISO code while the self-rated card next door did not —
-        // the drift `FactDisplay` exists to prevent, on the one screen that
-        // was not using it.
-        HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.small) {
-            if let label {
-                Text(label)
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 96, alignment: .leading)
-            }
-            Text(value)
-                .font(DesignTokens.Typography.body)
-            Spacer(minLength: 0)
-        }
-        // One row is one thing to hear, not a label and a value in sequence.
-        // The identifier goes on it from the outside rather than on the stack
-        // around it: an identifier on a SwiftUI container is handed to its
-        // descendants and makes them indistinguishable in a query.
-        .accessibilityElement(children: .combine)
     }
 }

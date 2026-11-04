@@ -421,9 +421,10 @@ templates.
 - `More` presents a scrollable full-screen sheet over the active study session.
   Closing it returns to the same revealed card and does not grade it, advance
   the session or change scheduling state.
-- Extended country facts use an editorial bento: a large map/area tile, capital
-  and population tiles, followed by a compact currency/language/code strip.
-  These tiles are informational; `View on map` is the only navigational row.
+- Extended country facts are one glass pane of fact rows (badge · label ·
+  value), the same row the card's back and the quiz use (#525, 2026-11-04),
+  with the map tile closing the sheet. The rows are informational; `View on
+  map` is the only navigational row.
 - Facts use muted flat symbols, low-contrast graphite hairlines and matte map
   artwork. No fact tile, map or icon uses glow, bloom or neon styling.
 

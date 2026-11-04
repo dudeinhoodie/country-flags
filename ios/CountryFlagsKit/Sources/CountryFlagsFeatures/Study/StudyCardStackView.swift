@@ -364,7 +364,7 @@ private struct StudyCardBack: View {
             // from the asset rather than from a string here: what a symbol is
             // called is content, in the reader's language.
             if let symbolName {
-                CardBackRow(
+                FactRow(
                     symbol: "shield.fill",
                     color: .purple,
                     label: L10n.factEmblem,
@@ -378,14 +378,8 @@ private struct StudyCardBack: View {
             // where a grey label next to a grey value was not. Three facts —
             // capital, population, currency — in the release's own order.
             ForEach(facts.prefix(symbolName == nil ? 3 : 2), id: \.self) { fact in
-                let presentation = FactDisplay.presentation(for: fact)
-                CardBackRow(
-                    symbol: FactBadge.symbol(for: fact.type),
-                    color: FactBadge.color(for: fact.type),
-                    label: presentation.label,
-                    value: presentation.value
-                )
-                .accessibilityIdentifier(AccessibilityIdentifier.studyFact(fact.type))
+                FactRow(fact: fact)
+                    .accessibilityIdentifier(AccessibilityIdentifier.studyFact(fact.type))
             }
 
             Spacer(minLength: 0)
@@ -460,40 +454,6 @@ private struct StudyCardBack: View {
                 forPromptAsset: card.promptAssetID, cardID: card.learningCardID, store: store
             )
         }
-    }
-}
-
-/// One line of the answer: a badge, what it is, and what it says.
-///
-/// Shared by the facts the release publishes and by the emblem's own name,
-/// which is not a fact but reads as one — a row that looked different would
-/// say the two things were different kinds of thing.
-private struct CardBackRow: View {
-    let symbol: String
-    let color: Color
-    let label: String?
-    let value: String
-
-    var body: some View {
-        HStack(spacing: DesignTokens.Spacing.small) {
-            SymbolBadge(symbol: symbol, color: color)
-            VStack(alignment: .leading, spacing: 0) {
-                if let label {
-                    Text(label)
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.6))
-                }
-                Text(value)
-                    .font(DesignTokens.Typography.body.weight(.medium))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-        }
-        // One row is one thing to hear, not a label and a value in sequence —
-        // and combining them is also what lets the row carry an identifier
-        // without handing it to both.
-        .accessibilityElement(children: .combine)
     }
 }
 
