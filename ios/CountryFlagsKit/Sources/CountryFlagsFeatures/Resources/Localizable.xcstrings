@@ -3498,70 +3498,19 @@
         }
       }
     },
-    "home.flag_of_the_day.details": {
+    "home.guest_prompt.caption": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "More about the country"
+            "value": "Right now it lives only on this phone"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подробнее о стране"
-          }
-        }
-      }
-    },
-    "home.flag_of_the_day.label": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flag of the day"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Флаг дня"
-          }
-        }
-      }
-    },
-    "home.flag_of_the_day.question": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Whose flag is this?"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Чей это флаг?"
-          }
-        }
-      }
-    },
-    "home.flag_of_the_day.reveal": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show the answer"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Показать ответ"
+            "value": "Пока он есть только на этом телефоне"
           }
         }
       }
@@ -3625,13 +3574,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keep your progress in an account"
+            "value": "Save your progress"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сохранить прогресс в аккаунте"
+            "value": "Сохранить прогресс"
           }
         }
       }
@@ -3825,7 +3774,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Загружаем ваш день…"
+            "value": "Загружаем твой день…"
           }
         }
       }

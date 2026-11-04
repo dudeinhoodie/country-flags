@@ -943,7 +943,6 @@ public enum AccessibilityIdentifier {
         "home.due.\(code)"
     }
 
-    public static let homeFlagOfTheDay = "home.flagOfTheDay"
     /// The known tile, a button to the progress tab. The name is the block's
     /// from before it split in two (#512), kept for the tests that find it.
     public static let homeKnownLearned = "home.knownLearned"
