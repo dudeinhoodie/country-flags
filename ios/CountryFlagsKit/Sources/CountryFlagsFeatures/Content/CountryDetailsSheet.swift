@@ -102,27 +102,26 @@ struct CountryDetailsSheet: View {
                 // The heading names what kind of place this is. `Country
                 // facts` over a state's capital and admission date would be
                 // wrong about the state and about the country above it.
-                Text(
+                // A section label like every other heading (#525), not a
+                // heading of its own size.
+                SectionLabel(
                     subjectKind == .subdivision
                         ? L10n.detailsStateFacts : L10n.detailsCountryFacts
                 )
-                .font(DesignTokens.Typography.sectionTitle)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier(AccessibilityIdentifier.detailsFacts)
                 .devBlockID("details.facts")
 
-                // Every entry is a tile, dealt in pairs. Each pair is fixed
-                // vertically so it takes the taller tile's height: left to
-                // themselves the tiles sized to their own text, and a wrapped
-                // population left the row ragged.
-                ForEach(Array(stride(from: 0, to: entries.count, by: 2)), id: \.self) { start in
-                    HStack(alignment: .top, spacing: DesignTokens.Spacing.small) {
-                        tile(entries[start])
-                        if start + 1 < entries.count {
-                            tile(entries[start + 1])
+                // The facts as the one fact row the card's back and the quiz
+                // use (#525), in one glass pane, rather than a grid of tiles.
+                if !entries.isEmpty {
+                    GlassCard(padding: DesignTokens.Spacing.medium) {
+                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
+                            ForEach(entries) { entry in
+                                row(entry)
+                            }
                         }
                     }
-                    .fixedSize(horizontal: false, vertical: true)
                 }
 
 
@@ -213,8 +212,8 @@ struct CountryDetailsSheet: View {
         return entries
     }
 
-    private func tile(_ entry: DetailEntry) -> some View {
-        DetailTile(
+    private func row(_ entry: DetailEntry) -> some View {
+        FactRow(
             symbol: entry.symbol,
             color: entry.color,
             label: entry.label,
@@ -453,43 +452,7 @@ struct SymbolBadge: View {
     }
 }
 
-/// One entry, large enough to be the reason the sheet was opened.
-private struct DetailTile: View {
-    let symbol: String
-    let color: Color
-    let label: String?
-    let value: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-            SymbolBadge(symbol: symbol, color: color)
-
-            VStack(alignment: .leading, spacing: 0) {
-                if let label {
-                    Text(label)
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Text(value)
-                    .font(DesignTokens.Typography.sectionTitle)
-                    .minimumScaleFactor(0.7)
-                    .lineLimit(3)
-            }
-        }
-        // Filled to the slot rather than hugging the text, so the pair of
-        // tiles reads as a pair and not as two notes of different lengths.
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(DesignTokens.Spacing.medium)
-        .glassEffect(
-            .regular,
-            in: RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
-        )
-        // One tile is one thing to hear, not a label and a value in sequence.
-        .accessibilityElement(children: .combine)
-    }
-}
-
-/// One entry of the sheet's grid.
+/// One entry of the sheet's facts.
 ///
 /// A fact is the usual case. The parent country of a state is the other one:
 /// it is not a fact the release publishes about the state, it is the state's
