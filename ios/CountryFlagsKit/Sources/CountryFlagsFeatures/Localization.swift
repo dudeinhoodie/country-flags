@@ -172,40 +172,18 @@ public enum L10n {
     public static func homeSessionLeft(_ count: Int) -> String {
         String(format: localized("home.session_left"), count)
     }
-    public static var homeDueToday: String { localized("home.due_today") }
-
-    /// The lines under the review pane's figure (#503). The green one says
-    /// what a repeat can finish; the quiet one is the rest of the figure, one
-    /// part each, joined by the view rather than formatted as one string, so a
-    /// part with nothing in it is left out instead of being printed as a zero.
-    ///
-    /// Declined by the count through the catalogue's plural rules: "1 станет",
-    /// "4 станут" and "1 ждёт", "9 ждут" are different words.
-    public static func homeDueLearnable(_ count: Int) -> String {
-        String.localizedStringWithFormat(
-            NSLocalizedString("home.due_learnable", bundle: bundle, comment: ""),
-            count
-        )
-    }
-
-    public static func homeDueWaiting(_ count: Int) -> String {
-        String.localizedStringWithFormat(
-            NSLocalizedString("home.due_waiting", bundle: bundle, comment: ""),
-            count
-        )
-    }
-
-    /// "На повторении" does not decline, so this one is a plain format.
-    public static func homeDueOnReview(_ count: Int) -> String {
-        String(format: localized("home.due_on_review"), count)
-    }
+    /// The review card's title (#510): what the block asks, in words, with
+    /// the count beside it rather than under it as a figure.
+    public static var homeReviewTitle: String { localized("home.review_title") }
+    /// The word under a region tile's due figure.
+    public static var homeDueCaption: String { localized("home.due_caption") }
 
     public static var homeReview: String { localized("home.review") }
-    /// The action when the sitting deals fewer cards than the figure over it:
-    /// the button says what it deals rather than leaving the figure to imply
-    /// that a tap clears it.
-    public static func homeReviewSome(_ dealt: Int, of due: Int) -> String {
-        String(format: localized("home.review_some"), dealt, due)
+    /// The action when the sitting deals fewer cards than the queue holds:
+    /// "Повторить первые 10". The count beside the title already says how
+    /// many are waiting, so the button names only what a tap deals.
+    public static func homeReviewFirst(_ dealt: Int) -> String {
+        String(format: localized("home.review_first"), dealt)
     }
 
     public static var catalogSearchPrompt: String { localized("catalog.search_prompt") }

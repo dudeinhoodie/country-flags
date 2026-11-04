@@ -4,13 +4,14 @@ import CountryFlagsDomain
 
 @testable import CountryFlagsFeatures
 
-/// Home's review pane says what a repeat will do (#503).
+/// Home's review card (#503, #510).
 ///
-/// The arithmetic is checked for the promise the lines make — the parts add up
-/// to the figure, and a card is never named twice — and the copy for the
-/// mechanism that could break it silently: a plural rule not applied, a part
-/// printed as a zero, a button promising more than the sitting deals. The
-/// wording itself is free to change.
+/// The breakdown's arithmetic is checked for the promise it makes — the parts
+/// add up to the figure, and a card is never named twice — and the button for
+/// the mechanism that could break it silently: promising more than the sitting
+/// deals. The wording itself is free to change. The lines that printed the
+/// breakdown under the figure left Home on 2026-11-04 (#510); the breakdown
+/// stays in the progress store.
 final class HomeDuePaneTests: XCTestCase {
     private let instant = Date(timeIntervalSince1970: 1_800_000_000)
 
@@ -51,15 +52,15 @@ final class HomeDuePaneTests: XCTestCase {
         XCTAssertEqual(breakdown, DueBreakdown(learnable: 2, waiting: 0, onReview: 0))
     }
 
-    /// A backend that predates the count promises nothing: no green line, and
-    /// the rest of the figure is the summary's states as they are.
+    /// A backend that predates the count promises nothing: no card counts as
+    /// learnable, and the rest of the figure is the summary's states as they
+    /// are.
     func testASummaryWithoutTheCountPromisesNothing() {
         let breakdown = DueBreakdown(
             summary: summary(overdue: 2, learning: 9, relearning: 0, learnable: nil)
         )
 
         XCTAssertEqual(breakdown, DueBreakdown(learnable: 0, waiting: 9, onReview: 2))
-        XCTAssertNil(DuePaneCopy.learnableLine(breakdown))
     }
 
     // MARK: - A guest's breakdown
@@ -83,70 +84,19 @@ final class HomeDuePaneTests: XCTestCase {
         XCTAssertEqual(breakdown, DueBreakdown(learnable: 3, waiting: 5, onReview: 4))
     }
 
-    // MARK: - The lines
-
-    /// "Новых" and "просрочено" are gone; the two parts are joined, and a part
-    /// with nothing in it is left out rather than printed as a zero.
-    func testTheQuietLineLeavesOutAnEmptyPart() throws {
-        let both = try XCTUnwrap(
-            DuePaneCopy.restLine(DueBreakdown(learnable: 4, waiting: 9, onReview: 5))
-        )
-        let waitingOnly = try XCTUnwrap(
-            DuePaneCopy.restLine(DueBreakdown(learnable: 0, waiting: 9, onReview: 0))
-        )
-
-        XCTAssertTrue(both.contains("9"), both)
-        XCTAssertTrue(both.contains("5"), both)
-        XCTAssertTrue(both.contains(" · "), both)
-        XCTAssertFalse(both.contains("4"), "the learnable cards are the green line's: \(both)")
-        XCTAssertFalse(waitingOnly.contains(" · "), waitingOnly)
-        XCTAssertFalse(waitingOnly.contains("0"), waitingOnly)
-        XCTAssertNil(DuePaneCopy.restLine(DueBreakdown(learnable: 3, waiting: 0, onReview: 0)))
-        XCTAssertNil(DuePaneCopy.restLine(nil))
-    }
-
-    /// The green line appears only while something due is one answer away.
-    func testTheGreenLineAppearsOnlyWithSomethingToFinish() throws {
-        let line = try XCTUnwrap(
-            DuePaneCopy.learnableLine(DueBreakdown(learnable: 4, waiting: 0, onReview: 0))
-        )
-
-        XCTAssertTrue(line.contains("4"), line)
-        XCTAssertNil(DuePaneCopy.learnableLine(DueBreakdown(learnable: 0, waiting: 3, onReview: 1)))
-        XCTAssertNil(DuePaneCopy.learnableLine(nil))
-    }
-
-    /// "1 станет", "4 станут", "1 ждёт", "9 ждут": declined by the count.
-    /// `String(format:)` would format the number into one arbitrary variant.
-    func testTheLinesDeclineWithTheirCount() {
-        for line in [L10n.homeDueLearnable, L10n.homeDueWaiting] {
-            let one = line(1)
-            let several = line(5)
-
-            XCTAssertTrue(one.contains("1"), one)
-            XCTAssertTrue(several.contains("5"), several)
-            XCTAssertFalse(several.contains("%"), "the format reached the screen: \(several)")
-            XCTAssertFalse(several.contains("home."), "the key reached the screen: \(several)")
-            XCTAssertNotEqual(
-                one.replacingOccurrences(of: "1", with: ""),
-                several.replacingOccurrences(of: "5", with: ""),
-                "the count is formatted in but the plural rule is not applied"
-            )
-        }
-    }
-
     // MARK: - The button
 
-    /// "Повторить 10 из 18": the sitting takes the stored size, and the button
-    /// says so rather than leaving the figure to imply a tap clears it.
+    /// "Повторить первые 10": the sitting takes the stored size, and the
+    /// button says so rather than leaving the count beside the title to imply
+    /// a tap clears it.
     func testTheButtonSaysWhatTheSittingDealsWhenItIsLessThanTheQueue() {
         let dealt = DuePaneCopy.dealtCount(due: 18, sessionSize: 10, dayAllowance: nil)
         let label = DuePaneCopy.action(due: 18, dealt: dealt)
 
         XCTAssertEqual(dealt, 10)
-        XCTAssertEqual(label, L10n.homeReviewSome(10, of: 18))
+        XCTAssertEqual(label, L10n.homeReviewFirst(10))
         XCTAssertTrue(label.contains("10"), label)
-        XCTAssertTrue(label.contains("18"), label)
+        XCTAssertFalse(label.contains("%"), "the format reached the screen: \(label)")
         XCTAssertNotEqual(label, L10n.homeReview)
     }
 
@@ -163,7 +113,7 @@ final class HomeDuePaneTests: XCTestCase {
     func testAGuestsSittingStopsAtTheDaysRoom() {
         XCTAssertEqual(DuePaneCopy.dealtCount(due: 120, sessionSize: 20, dayAllowance: 7), 7)
         XCTAssertEqual(DuePaneCopy.dealtCount(due: 120, sessionSize: 20, dayAllowance: 0), 0)
-        // Nothing to deal is no promise of "0 of 120": the plain word stays.
+        // Nothing to deal is no promise of "the first 0": the plain word stays.
         XCTAssertEqual(DuePaneCopy.action(due: 120, dealt: 0), L10n.homeReview)
     }
 
