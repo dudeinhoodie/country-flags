@@ -176,6 +176,41 @@ final class StudySessionRunnerTests: XCTestCase {
         XCTAssertNotNil(sessions.first?.completedAt)
     }
 
+    /// The result sheet (#519) counts what the sitting sends back, and offers
+    /// the next portion at the sitting's own size while the day has room.
+    func testTheResultSheetCountsTheReturnsAndOffersTheNextPortion() async {
+        let learning = RecordingLearningRepository()
+        let runner = makeRunner(cards: 2, learning: learning)
+        await runner.startOrResume(deckID: deckID, size: .five)
+
+        runner.revealAnswer()
+        await runner.rate(.good)
+        runner.revealAnswer()
+        await runner.rate(.again)
+
+        XCTAssertEqual(runner.tally?.toReview, 1)
+        XCTAssertEqual(runner.tally?.nextPortion, 5)
+    }
+
+    /// "Ещё N флагов" clears the finished result before the next sitting, so
+    /// the screen goes back to the cards instead of the old result.
+    func testStartingAnotherClearsTheFinishedResult() async {
+        let learning = RecordingLearningRepository()
+        let runner = makeRunner(cards: 2, learning: learning)
+        await runner.startOrResume(deckID: deckID, size: .five)
+        runner.revealAnswer()
+        await runner.rate(.good)
+        runner.revealAnswer()
+        await runner.rate(.good)
+        XCTAssertNotNil(runner.summary)
+
+        await runner.startAnother()
+
+        XCTAssertNil(runner.summary)
+        XCTAssertNil(runner.tally)
+        XCTAssertNil(runner.deckMastery)
+    }
+
     /// A finished session is not resumed: opening the deck again starts a new
     /// one, and the completed record stays exactly as it was.
     func testAFinishedSessionIsNotResumed() async {

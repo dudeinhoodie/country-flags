@@ -5690,36 +5690,19 @@
         }
       }
     },
-    "study.result.mastery.delta": {
+    "study.result.more": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "+%1$lld%% this session"
+            "value": "Another %@"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "+%1$lld%% за тренировку"
-          }
-        }
-      }
-    },
-    "study.result.mastery.learned": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deck %1$lld%% learned"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Изучено %1$lld%% колоды"
+            "value": "Ещё %@"
           }
         }
       }
@@ -5771,6 +5754,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Тренировка завершена"
+          }
+        }
+      }
+    },
+    "study.result.to_review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "to review"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "к повторению"
           }
         }
       }

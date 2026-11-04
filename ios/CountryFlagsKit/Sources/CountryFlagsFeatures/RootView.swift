@@ -1090,6 +1090,8 @@ public enum AccessibilityIdentifier {
     public static let studyResultTitle = "study.result.title"
     public static let studyResultAnswered = "study.result.answered"
     public static let studyResultDone = "study.result.done"
+    /// The result sheet's next-portion button (#519).
+    public static let studyResultMore = "study.result.more"
     /// The one action the first screen recommends.
     public static let homeContinue = "home.continue"
     public static let homeSignInExpired = "home.signInExpired"
