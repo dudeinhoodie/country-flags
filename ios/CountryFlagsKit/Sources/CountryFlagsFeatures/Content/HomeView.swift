@@ -55,6 +55,8 @@ public struct HomeView: View {
     /// rows should show the cards they are talking about.
     @State private var previews: [UUID: [LearningCardRecord]] = [:]
     @State private var fanCards: [LearningCardRecord] = []
+    /// The flags the paused sitting still owes, for its card (#514).
+    @State private var resumeCards: [LearningCardRecord] = []
     /// Distinct cards answered today, counted off the card states on the
     /// device. It decides whether the day's allowance is spent, and for a
     /// guest how much of the queue a sitting can still deal.
@@ -375,13 +377,18 @@ public struct HomeView: View {
     private struct PreviewInputs: Equatable {
         let hasCatalog: Bool
         let decks: [DeckProgressRow]
+        /// The paused sitting, whose card draws the flags it still owes.
+        let continuable: ContinuableSession?
     }
 
     private var previewInputs: PreviewInputs {
-        if case .ready = store.catalog {
-            return PreviewInputs(hasCatalog: true, decks: progress?.decks ?? [])
-        }
-        return PreviewInputs(hasCatalog: false, decks: progress?.decks ?? [])
+        let hasCatalog: Bool
+        if case .ready = store.catalog { hasCatalog = true } else { hasCatalog = false }
+        return PreviewInputs(
+            hasCatalog: hasCatalog,
+            decks: progress?.decks ?? [],
+            continuable: progress?.continuable
+        )
     }
 
     /// Whether the pane has no numbers it is allowed to draw yet.
@@ -549,50 +556,29 @@ public struct HomeView: View {
         }
     }
 
-    /// The sitting left half-finished, as the screen's hero: how far in, in
-    /// the hero's figure and a bar, and the one white button.
+    /// The sitting left half-finished, in the review card's shape (#514): the
+    /// owner wanted the two to look exactly alike (2026-11-04). The flags it
+    /// still owes are on the card and their count is beside the title; the
+    /// "answered of total" figure and its bar are gone, because what is left
+    /// is what the learner is deciding about.
     private func resumePane(
         _ continuable: ContinuableSession,
         _ sections: [CatalogSection]
     ) -> some View {
-        let answered = continuable.answeredCards
-        let total = continuable.totalCards
-        let fraction = total > 0 ? min(1, Double(answered) / Double(total)) : 0
-        let name = deckName(continuable.deckID, in: sections) ?? ""
-
-        return GlassCard(padding: DesignTokens.Spacing.large) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
-                    SectionLabel(L10n.homeSessionInProgress)
-
-                    HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.extraSmall) {
-                        Text("\(answered)")
-                            .font(DesignTokens.Typography.heroNumber)
-                            .monospacedDigit()
-                            .contentTransition(.numericText())
-                        Text("/ \(total)")
-                            .font(DesignTokens.Typography.sectionTitle)
-                            .foregroundStyle(.white.opacity(0.55))
-                    }
-                    .foregroundStyle(.white)
-
-                    ProgressTrackView(started: fraction, learned: fraction)
-
-                    Text(
-                        name.isEmpty
-                            ? L10n.homeSessionLeft(max(0, total - answered))
-                            : "\(name) · \(L10n.homeSessionLeft(max(0, total - answered)))"
-                    )
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundStyle(.white.opacity(0.6))
-                }
-                .accessibilityElement(children: .combine)
-
-                Button(L10n.homeContinue) { onContinueSession?(continuable) }
-                    .buttonStyle(PrimaryActionStyle())
-                    .accessibilityIdentifier(AccessibilityIdentifier.homeContinue)
-            }
-        }
+        let deck = sections.flatMap(\.decks).first { $0.id == continuable.deckID }
+        let left = continuable.remainingCardIDs.count
+        return HomeActionCard(
+            title: L10n.homeSessionInProgress,
+            count: L10n.deckItemCount(left, contentKinds: deck?.contentKinds ?? []),
+            deck: deck?.name,
+            cards: resumeCards,
+            total: left,
+            action: L10n.homeContinue,
+            identifier: AccessibilityIdentifier.homeContinue,
+            store: store,
+            assets: assets,
+            run: { onContinueSession?(continuable) }
+        )
     }
 
     /// Whether today is over, as far as this screen can tell.
@@ -1251,6 +1237,19 @@ public struct HomeView: View {
             )
         }
         previews = fresh
+
+        // The paused sitting's own cards, in the order it deals them. Looked
+        // up in its deck, so a card a republished release retired simply
+        // drops out of the strip rather than drawing a blank.
+        if let continuable = progress?.continuable {
+            let byID = Dictionary(
+                await store.cards(inDeck: continuable.deckID).map { ($0.id, $0) },
+                uniquingKeysWith: { first, _ in first }
+            )
+            resumeCards = continuable.remainingCardIDs.compactMap { byID[$0] }
+        } else {
+            resumeCards = []
+        }
 
         if let top = decks.filter({ $0.dueCards > 0 })
             .max(by: { $0.dueCards < $1.dueCards }),

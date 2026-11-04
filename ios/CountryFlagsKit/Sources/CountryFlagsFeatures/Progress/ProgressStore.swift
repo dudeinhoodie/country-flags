@@ -54,6 +54,10 @@ public struct ContinuableSession: Hashable, Sendable {
     public let mode: StudyAnswerMode
     public let answeredCards: Int
     public let totalCards: Int
+    /// The cards still unanswered, in the order the sitting deals them. Home
+    /// shows them on the paused card (#514): the card is about these flags,
+    /// so it draws them rather than a figure for them.
+    public let remainingCardIDs: [UUID]
 }
 
 /// One earned achievement as the screen shows it.
@@ -425,14 +429,19 @@ public final class ProgressStore: CanonicalDataObserving {
         }
         let reviews = (try? await learning.reviews(inSession: session.id, for: scope)) ?? []
         let answered = Set(reviews.map(\.learningCardID))
-        let answeredCards = session.cards.filter { answered.contains($0.learningCardID) }.count
-        guard answeredCards < session.cards.count else { return nil }
+        let remaining = session.cards
+            .sorted { $0.initialOrder < $1.initialOrder }
+            .map(\.learningCardID)
+            .filter { !answered.contains($0) }
+        let answeredCards = session.cards.count - remaining.count
+        guard !remaining.isEmpty else { return nil }
         return ContinuableSession(
             deckID: session.deckID,
             size: StudySessionSize(storedValue: session.requestedUniqueCount),
             mode: mode,
             answeredCards: answeredCards,
-            totalCards: session.cards.count
+            totalCards: session.cards.count,
+            remainingCardIDs: remaining
         )
     }
 

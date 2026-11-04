@@ -168,10 +168,9 @@ public enum L10n {
     }
     public static var homeRegionsLabel: String { localized("home.regions.label") }
     public static var homeContinue: String { localized("home.continue") }
+    /// "Тренировка на паузе" (#514): Home's paused card and the deck
+    /// screen's resume block say the same thing.
     public static var homeSessionInProgress: String { localized("home.session_in_progress") }
-    public static func homeSessionLeft(_ count: Int) -> String {
-        String(format: localized("home.session_left"), count)
-    }
     /// The review card's title (#510): what the block asks, in words, with
     /// the count beside it rather than under it as a figure.
     public static var homeReviewTitle: String { localized("home.review_title") }
