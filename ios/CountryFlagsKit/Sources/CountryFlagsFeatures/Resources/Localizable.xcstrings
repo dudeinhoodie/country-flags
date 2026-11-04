@@ -4539,13 +4539,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "brighter is closer to done"
+            "value": "The more countries you know, the brighter the continent"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ярче — значит ближе к цели"
+            "value": "Чем больше знакомых стран, тем светлее континент"
           }
         }
       }

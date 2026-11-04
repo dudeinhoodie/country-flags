@@ -191,14 +191,16 @@ public struct ProgressScreen: View {
                 .devBlockID("progress.account")
 
             // The hero is the world itself: every continent drawn from the
-            // app's own geodata, its brightness the share of it learned. The
+            // app's own geodata, its brightness the share of it known (#528):
+            // lit by learned alone it stayed dark for the whole first day,
+            // while known moves with every new card. The
             // rows underneath answer "where exactly"; this answers "how much
             // of the world", which is the question the screen is opened with.
             GlassCard(padding: DesignTokens.Spacing.large) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium) {
                     WorldMapView(
                         brightness: Dictionary(
-                            otherDecks.map { ($0.code, $0.learnedFraction) },
+                            otherDecks.map { ($0.code, $0.fraction) },
                             uniquingKeysWith: { first, _ in first }
                         )
                     )
@@ -255,9 +257,11 @@ public struct ProgressScreen: View {
 
                     // Its own line now: beside two figures it no longer fits
                     // on theirs, and it explains the map above, not the counts.
+                    // Contrast raised to the small-text floor and the words
+                    // saying what lights up (#528).
                     Text(L10n.progressMapHint)
                         .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.45))
+                        .foregroundStyle(.white.opacity(0.6))
                 }
             }
             .devBlockID("progress.map")
@@ -290,18 +294,25 @@ public struct ProgressScreen: View {
         }
     }
 
+    /// One region as the catalogue's row reads it (#528): the continent lit
+    /// by the share known, the name, and the two-layer bar — known in grey,
+    /// learned in white over it — that the catalogue and the deck screens
+    /// draw too.
     private func regionRow(_ deck: DeckProgressRow) -> some View {
         HStack(spacing: DesignTokens.Spacing.small) {
             ContinentSilhouetteView(
                 code: deck.code,
-                opacity: 0.15 + 0.85 * deck.learnedFraction
+                opacity: 0.15 + 0.85 * deck.fraction
             )
             .frame(width: 44, height: 32)
 
-            Text(deck.name)
-                .font(DesignTokens.Typography.sectionTitle)
-                .foregroundStyle(.white)
-                .lineLimit(1)
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+                Text(deck.name)
+                    .font(DesignTokens.Typography.sectionTitle)
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                ProgressTrackView(started: deck.fraction, learned: deck.learnedFraction)
+            }
 
             Spacer(minLength: DesignTokens.Spacing.small)
 
@@ -359,10 +370,10 @@ public struct ProgressScreen: View {
 ///
 /// The layout is a hand-set composition rather than a projection: each
 /// continent sits at a fixed fraction of the pane, sized to read at a
-/// glance, and its brightness is the share of it learned. Fill the world by
-/// learning it, literally.
+/// glance, and its brightness is the share of it known (#528). Fill the
+/// world by meeting it, literally.
 struct WorldMapView: View {
-    /// Deck code to learned fraction, 0...1.
+    /// Deck code to known fraction, 0...1.
     let brightness: [String: Double]
 
     /// Each continent's box as a fraction of the pane: where it starts and how
