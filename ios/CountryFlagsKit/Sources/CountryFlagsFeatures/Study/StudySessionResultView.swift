@@ -27,6 +27,17 @@ struct StudySessionResultView: View {
     /// The flag lifted by a tap, showing its name.
     @State private var raised: Int?
 
+    // The arrival (#520): flags fly in one by one, each remembered one gets
+    // its seal as it lands, then the sheet slides up and its figures count.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// How many flags have been sent on their way.
+    @State private var landed = 0
+    @State private var sealed: Set<Int> = []
+    @State private var isSheetShown = false
+    @State private var isFinished = false
+    @State private var shownKnown = 0
+    @State private var shownLearned = 0
+
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.medium) {
             // The agreed design has no visible title: the flags are the
@@ -47,16 +58,27 @@ struct StudySessionResultView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     ZStack(alignment: .topLeading) {
                         ForEach(Array(summary.answered.enumerated()), id: \.offset) { index, card in
-                            heapCard(card, at: plan.places[index], isRaised: raised == index)
-                                .zIndex(raised == index ? Double(summary.answered.count) : Double(index))
-                                .onTapGesture {
-                                    withAnimation(.snappy) { raised = raised == index ? nil : index }
-                                }
+                            heapCard(
+                                card,
+                                at: plan.places[index],
+                                launch: launchPoint(for: plan.places[index], index: index, below: max(plan.height, geometry.size.height)),
+                                hasLanded: index < landed,
+                                showsSeal: sealed.contains(index),
+                                isRaised: raised == index
+                            )
+                            .zIndex(raised == index ? Double(summary.answered.count) : Double(index))
+                            .onTapGesture {
+                                guard isFinished else { return finish() }
+                                withAnimation(.snappy) { raised = raised == index ? nil : index }
+                            }
                         }
                     }
                     .frame(width: geometry.size.width, height: plan.height, alignment: .topLeading)
                 }
                 .scrollBounceBehavior(.basedOnSize)
+                // A flag flies in from below the heap, over where the sheet
+                // will rise; clipped, it would pop into being at the edge.
+                .scrollClipDisabled()
             }
             // One element for VoiceOver: the flags are pictures of the
             // sentence, which says how many were remembered out of the plan
@@ -68,17 +90,103 @@ struct StudySessionResultView: View {
 
             sheet
                 .devBlockID("result.sheet")
+                // Below the screen until the flags have landed, never hidden:
+                // the buttons are there from the first frame for VoiceOver
+                // and for the tests, and a tap anywhere brings them up.
+                .offset(y: isSheetShown ? 0 : Self.sheetTravel)
         }
+        .contentShape(.rect)
+        .onTapGesture {
+            if !isFinished { finish() }
+        }
+        .task { await arrive() }
+        .hapticFeedback(.impact(weight: .light, intensity: 0.6), trigger: sealed.count)
     }
+
+    // MARK: - The arrival
+
+    /// The fly-in "по очереди", chosen on 2026-11-04 (#520), with the timings
+    /// on the rules board: a new flag every 230 / 170 / 105 ms by the sitting's
+    /// size, each flying 540 ms (470 at twenty), the seal popping at 85 % of a
+    /// remembered flag's flight, then after 480 ms the sheet over 600 ms and
+    /// its figures counting up 70 ms a step. Reduce Motion lays everything
+    /// down at once.
+    private func arrive() async {
+        let count = summary.answered.count
+        shownKnown = (tally?.known ?? 0) - (tally?.knownGain ?? 0)
+        shownLearned = (tally?.learned ?? 0) - (tally?.learnedGain ?? 0)
+        guard !reduceMotion else { return finish() }
+        let rhythm = Self.rhythm(count)
+        for index in 0..<count {
+            guard !isFinished, !Task.isCancelled else { return }
+            withAnimation(.timingCurve(0.12, 0.7, 0.3, 1, duration: rhythm.flight)) {
+                landed = index + 1
+            }
+            if summary.answered[index].rating == .good {
+                Task {
+                    try? await Task.sleep(for: .seconds(rhythm.flight * 0.85))
+                    guard !isFinished else { return }
+                    withAnimation(.spring(duration: 0.3, bounce: 0.5)) { _ = sealed.insert(index) }
+                }
+            }
+            try? await Task.sleep(for: .milliseconds(rhythm.interval))
+        }
+        try? await Task.sleep(for: .seconds(rhythm.flight) + .milliseconds(480))
+        guard !isFinished else { return }
+        withAnimation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.6)) { isSheetShown = true }
+        try? await Task.sleep(for: .milliseconds(600))
+        while !isFinished, shownKnown < tally?.known ?? 0 || shownLearned < tally?.learned ?? 0 {
+            try? await Task.sleep(for: .milliseconds(70))
+            withAnimation(.snappy) {
+                if shownKnown < tally?.known ?? 0 { shownKnown += 1 }
+                if shownLearned < tally?.learned ?? 0 { shownLearned += 1 }
+            }
+        }
+        isFinished = true
+    }
+
+    /// Everything where it ends: a tap during the arrival, or Reduce Motion.
+    private func finish() {
+        withAnimation(reduceMotion ? nil : .snappy) {
+            landed = summary.answered.count
+            sealed = Set(summary.answered.indices.filter { summary.answered[$0].rating == .good })
+            isSheetShown = true
+            shownKnown = tally?.known ?? 0
+            shownLearned = tally?.learned ?? 0
+        }
+        isFinished = true
+    }
+
+    /// Where a flag sets off from: below the heap, under its own place,
+    /// turned up to 35 degrees either way and a quarter larger.
+    private func launchPoint(for place: ResultHeapLayout.Place, index: Int, below: CGFloat) -> ResultHeapLayout.Place {
+        let turn: Double = index.isMultiple(of: 2) ? -35 : 35
+        return ResultHeapLayout.Place(
+            center: CGPoint(x: place.center.x, y: below + place.size.height * 1.5),
+            size: place.size,
+            rotation: turn
+        )
+    }
+
+    private static func rhythm(_ count: Int) -> (interval: Int, flight: Double) {
+        count <= 6 ? (230, 0.54) : count <= 12 ? (170, 0.54) : (105, 0.47)
+    }
+
+    /// Far enough to put the sheet off the bottom of any phone.
+    private static let sheetTravel: CGFloat = 600
 
     // MARK: - The flags
 
     private func heapCard(
         _ card: StudySessionSummary.AnsweredCard,
         at place: ResultHeapLayout.Place,
+        launch: ResultHeapLayout.Place,
+        hasLanded: Bool,
+        showsSeal: Bool,
         isRaised: Bool
     ) -> some View {
-        ResultCard(card: card, size: place.size, store: store, assets: assets)
+        let pose = hasLanded ? place : launch
+        return ResultCard(card: card, size: place.size, showsSeal: showsSeal, store: store, assets: assets)
             .overlay(alignment: .bottom) {
                 if isRaised, !card.displayName.isEmpty {
                     Text(card.displayName)
@@ -91,9 +199,9 @@ struct StudySessionResultView: View {
                         .offset(y: DesignTokens.Spacing.large)
                 }
             }
-            .scaleEffect(isRaised ? 1.08 : 1)
-            .rotationEffect(.degrees(isRaised ? 0 : place.rotation))
-            .position(place.center)
+            .scaleEffect(isRaised ? 1.08 : hasLanded ? 1 : 1.25)
+            .rotationEffect(.degrees(isRaised ? 0 : pose.rotation))
+            .position(pose.center)
     }
 
     private var rememberedSentence: String {
@@ -113,7 +221,7 @@ struct StudySessionResultView: View {
                 if let tally {
                     HStack(alignment: .top, spacing: DesignTokens.Spacing.medium) {
                         figure(
-                            tally.known,
+                            shownKnown,
                             gain: tally.knownGain,
                             gainTint: .white.opacity(0.6),
                             caption: L10n.homeKnownCaption(tally.known)
@@ -121,7 +229,7 @@ struct StudySessionResultView: View {
                             Image(systemName: "flag.fill").foregroundStyle(.white)
                         }
                         figure(
-                            tally.learned,
+                            shownLearned,
                             gain: tally.learnedGain,
                             gainTint: DesignTokens.Colors.learned,
                             caption: L10n.homeLearnedCaption
@@ -204,6 +312,8 @@ struct StudySessionResultView: View {
 private struct ResultCard: View {
     let card: StudySessionSummary.AnsweredCard
     let size: CGSize
+    /// The seal pops in as the remembered flag lands (#520).
+    let showsSeal: Bool
     let store: ContentStore
     let assets: any AssetLoading
 
@@ -225,7 +335,7 @@ private struct ResultCard: View {
         }
         .shadow(color: .black.opacity(0.45), radius: 10, y: 6)
         .overlay(alignment: .topLeading) {
-            if card.rating == .good {
+            if card.rating == .good, showsSeal {
                 // Over the corner rather than inside it, so the next card in
                 // the row, laid over this one's right side, never hides it.
                 let seal = size.width * ResultHeapLayout.sealShare
@@ -237,6 +347,7 @@ private struct ResultCard: View {
                     .frame(width: seal, height: seal)
                     .shadow(color: DesignTokens.Colors.learned.opacity(0.6), radius: 6)
                     .offset(x: -seal * 0.3, y: -seal * 0.3)
+                    .transition(.scale(scale: 0).combined(with: .opacity))
             }
         }
     }
