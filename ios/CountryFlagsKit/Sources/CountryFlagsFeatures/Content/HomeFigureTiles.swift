@@ -18,7 +18,11 @@ struct HomeKnownTile: View {
     var body: some View {
         HomeFigureTile(value: known, caption: L10n.homeKnownCaption(known)) {
             Image(systemName: "flag.fill")
+                .resizable()
+                .scaledToFit()
                 .foregroundStyle(.white)
+                .frame(width: 24, height: 26)
+                .padding(-2)
         } ground: {
             ZStack {
                 DesignTokens.Colors.flatSurface
@@ -50,11 +54,15 @@ struct HomeLearnedTile: View {
             tint: learned > 0 ? .white : .white.opacity(0.35)
         ) {
             Image(systemName: "checkmark.seal.fill")
+                .resizable()
+                .scaledToFit()
                 .symbolRenderingMode(.palette)
                 .foregroundStyle(
                     learned > 0 ? Self.darkGreen : .black.opacity(0.75),
                     learned > 0 ? Color.white : DesignTokens.Colors.learned
                 )
+                .frame(width: 34, height: 34)
+                .padding(-6)
         } ground: {
             if learned > 0 {
                 ZStack {
@@ -93,6 +101,11 @@ struct HomeLearnedTile: View {
 
 /// The shape both figure tiles share: a symbol at the top, the figure and its
 /// word at the bottom, a ground of the caller's choosing, the large radius.
+///
+/// The symbols are drawn large (#556), and each one's negative padding lets it
+/// reach past the tile's inset by what it is larger than the other. Both then
+/// take the same 22 points of the column, so the figures line up across the
+/// two tiles.
 private struct HomeFigureTile<Symbol: View, Ground: View>: View {
     let value: Int
     let caption: String
@@ -106,7 +119,6 @@ private struct HomeFigureTile<Symbol: View, Ground: View>: View {
         let shape = RoundedRectangle(cornerRadius: DesignTokens.Radius.large, style: .continuous)
         VStack(alignment: .leading, spacing: 0) {
             symbol
-                .font(DesignTokens.Typography.sectionTitle)
                 .accessibilityHidden(true)
 
             Spacer(minLength: DesignTokens.Spacing.medium)
