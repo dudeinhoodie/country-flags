@@ -13,6 +13,27 @@ final class LaunchSmokeUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    /// Once Home is on screen it takes taps (#558). A read the app made on its
+    /// own behalf used to dim and disable it a moment after it appeared, so
+    /// the first press on "Start" could do nothing. The catalogue can replace
+    /// the row while this looks at it, which says nothing about taps, so a
+    /// row that is briefly not there is simply looked at again.
+    func testHomeKeepsTakingTapsOnceItHasAppeared() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-reset-store"]
+        app.launch()
+        app.waitForTheSplashToLeave()
+
+        let start = app.buttons["home.deck.ALL"]
+        XCTAssertTrue(start.waitForExistence(timeout: 30), app.debugDescription)
+
+        let deadline = Date().addingTimeInterval(5)
+        while Date() < deadline {
+            guard let row = try? start.snapshot() else { continue }
+            XCTAssertTrue(row.isEnabled, app.debugDescription)
+        }
+    }
+
     func testLaunchShowsLocalizedShell() {
         let app = XCUIApplication()
         // A fresh store, like every other suite: the deck pane this test
