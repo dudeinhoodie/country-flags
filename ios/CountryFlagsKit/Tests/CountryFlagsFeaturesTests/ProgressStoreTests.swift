@@ -1,3 +1,4 @@
+import Observation
 import XCTest
 
 import CountryFlagsDomain
@@ -592,6 +593,34 @@ final class ProgressStoreTests: XCTestCase {
 
         XCTAssertEqual(store.origin, .awaitingBackend)
         XCTAssertFalse(store.isRefreshing)
+    }
+
+    /// Home dims and takes no taps while `isRefreshing` is set, so a read the
+    /// app makes on its own behalf must never set it (#558). The loud read is
+    /// the control: it proves the observation would have seen a change.
+    func testAQuietReloadNeverSetsIsRefreshing() async {
+        let store = makeStore(cards: [UUID()], states: [], scope: .authenticated(userID: UUID()))
+        final class Flag: @unchecked Sendable {
+            var isSet = false
+        }
+
+        let quiet = Flag()
+        withObservationTracking {
+            _ = store.isRefreshing
+        } onChange: {
+            quiet.isSet = true
+        }
+        await store.reload(quietly: true)
+        XCTAssertFalse(quiet.isSet)
+
+        let loud = Flag()
+        withObservationTracking {
+            _ = store.isRefreshing
+        } onChange: {
+            loud.isSet = true
+        }
+        await store.reload()
+        XCTAssertTrue(loud.isSet)
     }
 
     /// One answer to "how much does today owe", asked of the store that owns
