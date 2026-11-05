@@ -266,31 +266,37 @@ public struct ProgressScreen: View {
             }
             .devBlockID("progress.map")
 
-            GlassCard(padding: DesignTokens.Spacing.small) {
-                VStack(spacing: 0) {
-                    ForEach(Array(otherDecks.enumerated()), id: \.element.id) { index, deck in
-                        if index > 0 {
-                            Divider()
-                                .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
+            if !otherDecks.isEmpty {
+                VStack(spacing: DesignTokens.Spacing.tileGap) {
+                    // The word Home uses for the same five regions (#557).
+                    SectionLabel(L10n.homeRegionsProgressLabel)
+                    GlassCard(padding: DesignTokens.Spacing.small) {
+                        VStack(spacing: 0) {
+                            ForEach(Array(otherDecks.enumerated()), id: \.element.id) { index, deck in
+                                if index > 0 {
+                                    Divider()
+                                        .overlay(.white.opacity(DesignTokens.Card.borderOpacity))
+                                }
+                                // A row is a door: the drill-down says which countries
+                                // stand where.
+                                Button {
+                                    onOpenDeck?(deck.id)
+                                } label: {
+                                    regionRow(deck)
+                                        .contentShape(.rect)
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(onOpenDeck == nil)
+                                .accessibilityElement(children: .combine)
+                                .accessibilityIdentifier(
+                                    AccessibilityIdentifier.progressDeckRow(deck.code)
+                                )
+                            }
                         }
-                        // A row is a door: the drill-down says which countries
-                        // stand where.
-                        Button {
-                            onOpenDeck?(deck.id)
-                        } label: {
-                            regionRow(deck)
-                                .contentShape(.rect)
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(onOpenDeck == nil)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityIdentifier(
-                            AccessibilityIdentifier.progressDeckRow(deck.code)
-                        )
                     }
                 }
+                .devBlockID("progress.regions")
             }
-            .devBlockID("progress.regions")
         }
     }
 
@@ -306,7 +312,7 @@ public struct ProgressScreen: View {
             )
             .frame(width: 44, height: 32)
 
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.small) {
                 Text(deck.name)
                     .font(DesignTokens.Typography.sectionTitle)
                     .foregroundStyle(.white)
@@ -333,8 +339,12 @@ public struct ProgressScreen: View {
             }
         }
         .padding(.horizontal, DesignTokens.Spacing.small)
-        .frame(minHeight: DesignTokens.Layout.minimumTouchTarget)
+        // The rows were as low as a touch target allows, and five of them
+        // under the map read as one block of text (#557).
+        .frame(minHeight: Self.regionRowHeight)
     }
+
+    private static let regionRowHeight: CGFloat = 68
 
     /// Every deck except the one the hero already states.
     ///
