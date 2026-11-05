@@ -160,6 +160,20 @@ final class BundledFlagsTests: XCTestCase {
         XCTAssertTrue(loader.requestedChecksums.isEmpty)
     }
 
+    /// Drawn small, a shipped flag comes from a copy decoded at that size
+    /// (#555), and the copy changes nothing about where the flag comes from.
+    func testAShippedFlagDrawnSmallNeverReachesTheAssetCacheEither() async throws {
+        let registry = try ContentFixture.assetRegistry()
+        let france = try rasterChecksum(of: "flag.france.current", in: registry)
+        let loader = RecordingAssetLoader()
+
+        let image = await FlagImageResolver(assets: loader, bundled: bundled)
+            .image(for: assetRecord(sha256: france), pixelWidth: 132)
+
+        XCTAssertNotNil(image)
+        XCTAssertTrue(loader.requestedChecksums.isEmpty)
+    }
+
     /// A corrected flag has different bytes, so the baseline must not answer
     /// for it. This is what keeps a stale image from being drawn over a fix.
     func testAFlagThisBuildDoesNotShipIsDownloaded() async throws {

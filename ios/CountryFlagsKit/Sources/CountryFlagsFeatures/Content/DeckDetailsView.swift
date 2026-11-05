@@ -533,7 +533,8 @@ struct CountryRow: View {
                 assetID: card.promptAssetID,
                 accessibilityLabel: card.displayName,
                 store: store,
-                assets: assets
+                assets: assets,
+                drawnWidth: DesignTokens.Layout.rowFlagWidth
             )
             .frame(width: DesignTokens.Layout.rowFlagWidth)
             .clipShape(

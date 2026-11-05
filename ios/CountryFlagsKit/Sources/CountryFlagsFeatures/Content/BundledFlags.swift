@@ -77,17 +77,39 @@ struct FlagImageResolver: Sendable {
         self.bundled = bundled
     }
 
+    /// - Parameter pixelWidth: the width in pixels the flag will be drawn at,
+    ///   when it is small and known. The flag then comes from a copy decoded
+    ///   at that size rather than from the full image.
     /// - Returns: nil when the flag cannot be drawn at all, which is the
     ///   placeholder's case.
-    func image(for record: AssetRecord) async -> Image? {
+    func image(for record: AssetRecord, pixelWidth: CGFloat? = nil) async -> Image? {
         if let name = bundled.assetName(forChecksum: record.sha256) {
-            return Image(name, bundle: .module)
+            guard let pixelWidth, let full = UIImage(named: name, in: .module, with: nil) else {
+                return Image(name, bundle: .module)
+            }
+            return await Self.thumbnail(of: full, pixelWidth: pixelWidth)
         }
         guard let data = try? await assets.data(for: record),
             let platformImage = UIImage(data: data)
         else {
             return nil
         }
-        return Image(uiImage: platformImage)
+        guard let pixelWidth else { return Image(uiImage: platformImage) }
+        return await Self.thumbnail(of: platformImage, pixelWidth: pixelWidth)
+    }
+
+    /// A copy of the flag at the size it is drawn (#555).
+    ///
+    /// The catalog's flags are 1080 pixels wide, and a row draws them in 132:
+    /// left to the drawing, that eight-fold reduction samples too few of the
+    /// source's pixels, and a flag's thin lines come out hard and uneven. The
+    /// thumbnail is filtered properly, once, off the main thread, and holds
+    /// far less memory. It falls back to the full image rather than to the
+    /// placeholder, which would claim the flag is missing.
+    private static func thumbnail(of image: UIImage, pixelWidth: CGFloat) async -> Image {
+        let ratio = image.size.width > 0 ? image.size.height / image.size.width : 0
+        let size = CGSize(width: pixelWidth, height: pixelWidth * ratio)
+        let reduced = await image.byPreparingThumbnail(ofSize: size)
+        return Image(uiImage: reduced ?? image)
     }
 }

@@ -165,7 +165,8 @@ public struct DeckProgressDetailsView: View {
                 assetID: card.promptAssetID,
                 accessibilityLabel: card.displayName,
                 store: store,
-                assets: assets
+                assets: assets,
+                drawnWidth: Self.tileWidth
             )
             .frame(width: Self.tileWidth, height: Self.tileWidth * 3 / 4)
             .clipShape(

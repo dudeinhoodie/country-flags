@@ -255,7 +255,8 @@ private struct OwnedCardRow: View {
                 accessibilityLabel: card.displayName,
                 store: store,
                 assets: assets,
-                missing: missing
+                missing: missing,
+                drawnWidth: DesignTokens.Layout.rowFlagWidth
             )
             .padding(DesignTokens.Spacing.extraSmall)
             .frame(
