@@ -690,6 +690,19 @@ public struct RootView: View {
                 await sync.refreshStatus()
             }
         }
+        // A release that supersedes the seeded catalogue moves the work done
+        // on it onto the arriving card identifiers first and becomes current
+        // second (#404). A read of the counts that lands between the two
+        // counts the new identifiers against the old catalogue and finds
+        // nothing, and nothing read again: the launch's read and the sync
+        // run's were both over by the time the release was current, so the
+        // Progress tab stayed empty over a store that held every answer. The
+        // counts are read once more when the release changes, which also
+        // drops the outgoing release's deck identifiers the rows still held.
+        .onChange(of: content.status.contentVersion) { previous, current in
+            guard previous != current else { return }
+            Task { await progress.reload() }
+        }
         // A sign-in lands on Home with every tab's stack at its root, through
         // whichever door it came: the guest row on Home, the prompt on
         // Progress, the welcome, the account screen or the row that asks an
