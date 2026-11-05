@@ -1108,7 +1108,8 @@ struct FlagFanView: View {
                         assetID: card.promptAssetID,
                         accessibilityLabel: card.displayName,
                         store: store,
-                        assets: assets
+                        assets: assets,
+                        drawnWidth: Self.size.width * scale
                     )
                     .frame(width: Self.size.width * scale, height: Self.size.height * scale)
                     .clipShape(

@@ -125,7 +125,8 @@ struct FlagStrip: View {
                     assetID: card.promptAssetID,
                     accessibilityLabel: card.displayName,
                     store: store,
-                    assets: assets
+                    assets: assets,
+                    drawnWidth: Self.size.width
                 )
                 .frame(width: Self.size.width, height: Self.size.height)
                 .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.small, style: .continuous))
