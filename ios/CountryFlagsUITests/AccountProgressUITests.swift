@@ -75,7 +75,7 @@ final class AccountProgressUITests: XCTestCase {
             "Cancelling must not report an outcome\n\(app.debugDescription)"
         )
         XCTAssertTrue(
-            element("settings.account.signedIn", in: app).exists,
+            app.revealAbove(element("settings.account.signedIn", in: app)).exists,
             "Cancelling must not touch the session\n\(app.debugDescription)"
         )
 
@@ -126,7 +126,7 @@ final class AccountProgressUITests: XCTestCase {
 
         awaitClearProgressStatus(clearedStatus, in: app)
         XCTAssertTrue(
-            element("settings.account.signedIn", in: app).exists,
+            app.revealAbove(element("settings.account.signedIn", in: app)).exists,
             "Clearing progress must not sign the learner out\n\(app.debugDescription)"
         )
 
@@ -187,7 +187,7 @@ final class AccountProgressUITests: XCTestCase {
 
         awaitClearProgressStatus(refusedStatus, in: app)
         XCTAssertTrue(
-            element("settings.account.signedIn", in: app).exists,
+            app.revealAbove(element("settings.account.signedIn", in: app)).exists,
             "A refused deletion is not a sign-out\n\(app.debugDescription)"
         )
 
