@@ -381,11 +381,22 @@ struct SceneScrollView<Content: View>: View {
     /// (#524). A screen that names itself in its content passes this and
     /// puts the name in the bar only then, so the name is on screen once.
     var onPassesHeader: ((Bool) -> Void)?
+    /// The screen's large title, drawn as the first row. A tab root whose bar
+    /// holds the status chip passes it and keeps its bar inline: the system
+    /// hides a bar's centre item while it shows a large title, so the chip
+    /// was never on screen above one.
+    var title: String?
     @ViewBuilder var content: Content
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: spacing) {
+                if let title {
+                    Text(title)
+                        .font(DesignTokens.Typography.screenTitle)
+                        .foregroundStyle(.white)
+                        .accessibilityAddTraits(.isHeader)
+                }
                 content
             }
             .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)

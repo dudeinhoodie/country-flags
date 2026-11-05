@@ -578,6 +578,9 @@ public struct RootView: View {
                     .toolbar {
                         // The catalogue's own screen tells its state the way
                         // Home does: in the header, not in a banner (#523).
+                        // It keeps the system large title, with the search
+                        // under it as in the design, so the chip shows once
+                        // that title has collapsed into the bar.
                         ToolbarItem(placement: .principal) {
                             SyncStatusChip(status: sync.status, content: contentNotice)
                         }
