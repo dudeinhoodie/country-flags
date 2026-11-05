@@ -32,6 +32,31 @@ final class ResultHeapLayoutTests: XCTestCase {
         }
     }
 
+    /// A flag waits wholly beyond the screen's side edge, on the side nearer
+    /// its place (#554). One that waited on screen was seen before it flew.
+    func testEveryFlagSetsOffBeyondTheSideOfTheScreen() {
+        for screenWidth: CGFloat in [375, 402, 768] {
+            let heapWidth = min(520, screenWidth - 32)
+            let margin = (screenWidth - heapWidth) / 2
+            for count in [1, 5, 10, 20] {
+                let plan = ResultHeapLayout.plan(seeds: seeds(count), width: heapWidth)
+                for place in plan.places {
+                    let launch = ResultHeapLayout.launch(
+                        for: place,
+                        heapWidth: heapWidth,
+                        screenWidth: screenWidth
+                    )
+                    let reach = hypot(place.size.width, place.size.height) / 2 * ResultHeapLayout.launchScale
+                    if place.center.x < heapWidth / 2 {
+                        XCTAssertLessThanOrEqual(launch.center.x + reach, -margin, "\(count) cards, \(screenWidth) pt")
+                    } else {
+                        XCTAssertGreaterThanOrEqual(launch.center.x - reach, heapWidth + margin, "\(count) cards, \(screenWidth) pt")
+                    }
+                }
+            }
+        }
+    }
+
     /// The same flags lie the same way every time: the nudges come from the
     /// flags themselves, not from a launch-seeded hash.
     func testTheHeapIsStableForTheSameFlags() {
