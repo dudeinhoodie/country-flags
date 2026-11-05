@@ -59,11 +59,25 @@ public struct StudySessionView: View {
             // ends, so nothing flashes white between them.
             AppScene(palette: palette, drifts: true)
 
-            content
-            .task(id: deckID) { deckName = await store.deck(id: deckID)?.name ?? "" }
-                .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
-                .padding(DesignTokens.Spacing.large)
+            // The result draws to the screen's edges (#554): its panel runs
+            // from side to side and its flags fly in from beyond them, which
+            // the margins the session's other states keep would not allow.
+            if let summary = runner.summary {
+                StudySessionResultView(
+                    summary: summary,
+                    tally: runner.tally,
+                    store: store,
+                    assets: assets,
+                    onMore: { Task { await runner.startAnother() } },
+                    onDone: onFinish
+                )
+            } else {
+                content
+                    .frame(maxWidth: DesignTokens.Layout.maximumContentWidth)
+                    .padding(DesignTokens.Spacing.large)
+            }
         }
+        .task(id: deckID) { deckName = await store.deck(id: deckID)?.name ?? "" }
         // The flag is the screen: the chrome shrinks to the counter and a way
         // out, both of which live on the scene rather than above it.
         .toolbar(.hidden, for: .navigationBar)
@@ -75,16 +89,7 @@ public struct StudySessionView: View {
 
     @ViewBuilder
     private var content: some View {
-        if let summary = runner.summary {
-            StudySessionResultView(
-                summary: summary,
-                tally: runner.tally,
-                store: store,
-                assets: assets,
-                onMore: { Task { await runner.startAnother() } },
-                onDone: onFinish
-            )
-        } else if runner.startFailure == .nothingDue {
+        if runner.startFailure == .nothingDue {
             // An empty queue is not a screen.
             //
             // The learner tapped "repeat" on a pane that had just counted the

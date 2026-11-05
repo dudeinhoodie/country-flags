@@ -255,6 +255,8 @@ public enum DesignTokens {
         public static let sectionTitle: Font = .headline
         public static let body: Font = .body
         public static let caption: Font = .footnote
+        /// The word under a figure in a tile a third of the screen wide.
+        public static let tileCaption: Font = .caption
         /// Section labels are set apart by tracking rather than by a rule or a
         /// colour, which is the quietest way to mark a boundary on glass.
         public static let labelKerning: CGFloat = 1.2
