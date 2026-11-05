@@ -59,5 +59,6 @@ ios/CountryFlagsApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png
 иконки 1254×1254 (1,4 МБ): он есть у владельца, а его SHA-256 записан рядом с
 результатом.
 
-Фавиконки сайта (`design/favicon/`, `web/public/`) сделаны из
-`vexi-continents-relief-v1` и с этой заменой не менялись.
+Фавиконки сайта (`web/public/`) с 5 ноября 2026 года сделаны из этой иконки.
+До того они оставались от `vexi-continents-relief-v1` вместе с копией набора в
+`design/favicon/`; копия удалена. Как их пересобрать, описано в `web/README.md`.
