@@ -699,9 +699,11 @@ public struct RootView: View {
         // Progress tab stayed empty over a store that held every answer. The
         // counts are read once more when the release changes, which also
         // drops the outgoing release's deck identifiers the rows still held.
+        // Quietly: a dimmed Home takes no taps, and on a first launch the
+        // release changes just as the person reaches for a deck.
         .onChange(of: content.status.contentVersion) { previous, current in
             guard previous != current else { return }
-            Task { await progress.reload() }
+            Task { await progress.reload(quietly: true) }
         }
         // A sign-in lands on Home with every tab's stack at its root, through
         // whichever door it came: the guest row on Home, the prompt on
