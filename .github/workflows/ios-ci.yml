@@ -48,18 +48,20 @@ jobs:
     # the liquid-glass APIs the UI is built on do not exist in Xcode 16.
     runs-on: macos-26
     # Headroom, not a target. What is left here is one build of the app and
-    # the two suites run against it: 50 minutes on a good runner, 62 on a
-    # slow one. The release builds moved to the job below rather than the
-    # ceiling moving again — three branches were cancelled at 70 minutes in
-    # one afternoon, all three inside the archive, none of them for anything
-    # that was wrong with the branch. A red that means "unlucky" teaches
-    # everyone to rerun without reading, which is worse than no check at all.
+    # the two suites run against it: 64 to 68 minutes since the redesign. The
+    # release builds moved to the job below rather than the ceiling moving
+    # again — three branches were cancelled at 70 minutes in one afternoon,
+    # all three inside the archive, none of them for anything that was wrong
+    # with the branch. A red that means "unlucky" teaches everyone to rerun
+    # without reading, which is worse than no check at all. The ceiling moved
+    # to 80 for the same reason: a failed UI test now runs once more, and at
+    # 68 minutes there was no room for that second run.
     #
     # The remaining cost is the smoke set: seven UI classes, 28 of these
     # minutes, and two of the seven are half of that. That is the next thing
     # to attack, and it is an editorial question — which flows are worth
     # holding a review for — not a scheduling one.
-    timeout-minutes: 70
+    timeout-minutes: 80
 
     env:
       PROJECT: CountryFlags.xcodeproj
@@ -155,6 +157,13 @@ jobs:
       # and ending an account earn their place for the mirror-image reason:
       # they are the flows that destroy a learner's work, and a regression in
       # either is unrecoverable rather than merely visible.
+      #
+      # A failed test runs once more before the step fails. About once a run
+      # the simulator holds a touch for twenty seconds or more before the app
+      # sees it ("System gesture gate timed out" in the app's log), and the
+      # control it was meant for does nothing. It lands on a different test
+      # each time and no test can wait it out. A test that fails twice is a
+      # failure; the first attempt stays in the xcresult.
       - name: Build and smoke-test Mock
         run: |
           set -o pipefail
@@ -163,6 +172,8 @@ jobs:
             -scheme CountryFlags-Mock \
             -destination '${{ steps.simulator.outputs.destination }}' \
             -skipPackagePluginValidation \
+            -retry-tests-on-failure \
+            -test-iterations 2 \
             -only-testing:CountryFlagsUITests/LaunchSmokeUITests \
             -only-testing:CountryFlagsUITests/StudySessionUITests \
             -only-testing:CountryFlagsUITests/GuestAuthUITests \
