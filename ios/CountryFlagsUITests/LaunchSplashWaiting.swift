@@ -49,4 +49,17 @@ extension XCUIApplication {
         }
         return element
     }
+
+    /// The other way: swipes the list down until the element is back on
+    /// screen. The account row heads the list, so a test that went down to an
+    /// action at the bottom comes back up before it reads the session.
+    @discardableResult
+    func revealAbove(_ element: XCUIElement, swipes: Int = 8) -> XCUIElement {
+        var remaining = swipes
+        while !(element.exists && element.isHittable), remaining > 0 {
+            swipeDown()
+            remaining -= 1
+        }
+        return element
+    }
 }
