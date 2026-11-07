@@ -150,6 +150,11 @@ public final class ProgressStore: CanonicalDataObserving {
     /// The one reload in flight. A newer request cancels the older, so a slow
     /// early read can no longer land after — and overwrite — a fast late one.
     private var reloadTask: Task<Void, Never>?
+    /// Which read is the newest. `isRefreshing` is the newest read's to clear:
+    /// a superseded one returning at its cancellation check used to clear it
+    /// under the read that replaced it, and Home stopped dimming numbers that
+    /// were still being read.
+    private var loadGeneration = 0
     /// Whether a run has ever come home successfully. An empty result then
     /// means "the account has no progress yet", which is an answer; before
     /// it, an empty result means the backend has not spoken.
@@ -210,9 +215,14 @@ public final class ProgressStore: CanonicalDataObserving {
     /// Reads the current state. Cancellable: a superseded read stops before
     /// it publishes anything. `quietly` is the same as in `reload`.
     public func load(quietly: Bool = false) async {
+        loadGeneration += 1
+        let generation = loadGeneration
         if !quietly { isRefreshing = true }
         defer {
-            if !quietly { isRefreshing = false }
+            // Only the newest read settles the flag. A quiet one never raises
+            // it, but it does lower one a loud read it replaced left raised,
+            // or Home would stay dimmed with nobody left to undim it.
+            if generation == loadGeneration, isRefreshing { isRefreshing = false }
         }
 
         // The progress belongs to the account that did the work, so the scope
