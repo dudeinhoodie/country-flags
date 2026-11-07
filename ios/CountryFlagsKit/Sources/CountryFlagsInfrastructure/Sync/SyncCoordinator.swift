@@ -263,9 +263,16 @@ public actor SyncCoordinator: SyncCoordinating {
     private static let maximumChangePages = 30
 
     /// Whether the backend refused the cursor itself rather than the request.
+    ///
+    /// A cursor that no longer resolves — the stream was rotated, or it
+    /// names another scope — is answered with 422 `VALIDATION_FAILED`, and
+    /// the cursor is the only field this call sends that it can refuse. Any
+    /// other 4xx used to count too, so a proxy's 400 or a 408 restarted the
+    /// stream and wiped every local state, the projections of answers still
+    /// on their way up included.
     private static func isCursorRejection(_ error: APIError) -> Bool {
         switch error {
-        case .validationFailed, .client: true
+        case .validationFailed: true
         default: false
         }
     }
