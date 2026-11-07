@@ -154,6 +154,59 @@ final class CanonicalStatesPullTests: XCTestCase {
         XCTAssertEqual(states.first { $0.learningCardID == cardA }?.stateVersion, 9)
     }
 
+    /// Only the backend's verdict on the cursor restarts the stream. Any other
+    /// refusal of the changes call — a proxy's 400, a 408 — used to read as a
+    /// rotation, and the restart wiped every local state the device held,
+    /// the projections of answers still on their way up included.
+    func testAnotherRefusalOfTheChangesCallLeavesLocalStatesStanding() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        try await learning.saveCardStates(
+            [
+                Fixtures.state(cardA, stateVersion: 9, state: "REVIEW", now: now),
+                Fixtures.state(cardB, stateVersion: 4, state: "REVIEW", now: now),
+            ],
+            for: account
+        )
+        try await store.makeOutboxRepository().saveCursor(
+            SyncCursorRecord(feed: .userChanges, cursor: "c-current", updatedAt: now),
+            for: account
+        )
+        // The beginning of the stream is there to be read, so a restart would
+        // succeed and the wipe would land.
+        let feed = ScriptedChangesFeed(
+            pages: [
+                nil: UserChangesPage(
+                    changes: [Fixtures.upsert(cardA, stateVersion: 1, state: "LEARNING", now: now)],
+                    nextCursor: "c-new",
+                    hasMore: false
+                )
+            ],
+            failing: [
+                "c-current": .client(
+                    APIErrorDetails(
+                        statusCode: 400,
+                        code: "BAD_REQUEST",
+                        message: "Refused by something on the way",
+                        requestID: nil
+                    )
+                )
+            ]
+        )
+        let coordinator = makeCoordinator(store: store, feed: feed)
+
+        let status = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        XCTAssertNotNil(status.lastFailure)
+        let asked = await feed.askedCursors
+        XCTAssertEqual(asked, ["c-current"])
+        let states = try await learning.cardStates(for: account)
+        XCTAssertEqual(states.count, 2)
+        XCTAssertEqual(states.first { $0.learningCardID == cardA }?.stateVersion, 9)
+        let cursor = try await store.makeOutboxRepository().cursor(.userChanges, for: account)
+        XCTAssertEqual(cursor?.cursor, "c-current")
+    }
+
     /// A tombstone is a deletion decided elsewhere. It is applied before the
     /// cursor moves past its page, or it would be consumed once and lost.
     func testATombstoneRemovesTheLocalState() async throws {
@@ -267,19 +320,29 @@ private struct FailingUploader: ReviewUploading {
 }
 
 /// Pages keyed by the cursor they were asked with; an unknown cursor is the
-/// network failing, a listed one is the backend refusing it.
+/// network failing, a listed one is the backend refusing it, and one in
+/// `failing` is refused for a reason that is not the cursor's.
 private actor ScriptedChangesFeed: UserChangesDownloading {
     private let pages: [String?: UserChangesPage]
     private let rejecting: Set<String>
+    private let failing: [String: APIError]
     private(set) var askedCursors: [String?] = []
 
-    init(pages: [String?: UserChangesPage], rejecting: Set<String> = []) {
+    init(
+        pages: [String?: UserChangesPage],
+        rejecting: Set<String> = [],
+        failing: [String: APIError] = [:]
+    ) {
         self.pages = pages
         self.rejecting = rejecting
+        self.failing = failing
     }
 
     func changes(after cursor: String?, limit: Int) async throws -> UserChangesPage {
         askedCursors.append(cursor)
+        if let cursor, let error = failing[cursor] {
+            throw error
+        }
         if let cursor, rejecting.contains(cursor) {
             throw APIError.validationFailed(
                 APIErrorDetails(
