@@ -4,6 +4,39 @@ import CountryFlagsDomain
 
 @testable import CountryFlagsFeatures
 
+/// Holds every scope lookup until the test lets it through, oldest first, so
+/// a test can stand two reads at the points it chooses.
+private actor GatedScopeResolver: AccountScopeResolving {
+    private let scope: AccountScope
+    private var held: [CheckedContinuation<Void, Never>] = []
+    private var waiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+
+    init(scope: AccountScope) {
+        self.scope = scope
+    }
+
+    func currentScope() async -> AccountScope {
+        await withCheckedContinuation { continuation in
+            held.append(continuation)
+            let ready = waiters.filter { $0.count <= held.count }
+            waiters.removeAll { $0.count <= held.count }
+            ready.forEach { $0.continuation.resume() }
+        }
+        return scope
+    }
+
+    /// Returns once this many lookups are waiting at the gate.
+    func waitUntilHolding(_ count: Int) async {
+        guard held.count < count else { return }
+        await withCheckedContinuation { waiters.append((count, $0)) }
+    }
+
+    func releaseNext() {
+        guard !held.isEmpty else { return }
+        held.removeFirst().resume()
+    }
+}
+
 /// A learning store that actually keeps what it was given, which the settings
 /// rules need: the point of storing first is that the value survives.
 private actor StoringLearningRepository: LearningRepository {
@@ -591,6 +624,39 @@ final class ProgressStoreTests: XCTestCase {
         await first
 
         XCTAssertEqual(store.origin, .awaitingBackend)
+        XCTAssertFalse(store.isRefreshing)
+    }
+
+    /// A superseded read returns at its cancellation check, and it used to
+    /// clear `isRefreshing` on the way out while the read that replaced it
+    /// was still running: Home stopped dimming numbers that were about to
+    /// change.
+    func testASupersededReadLeavesTheNewerOneRefreshing() async {
+        let cards = [UUID()]
+        let scopes = GatedScopeResolver(scope: .guest(installationID: UUID()))
+        let store = ProgressStore(
+            content: FakeContentRepository(
+                decks: [deck(id: deckID, code: "ALL", cardCount: cards.count)],
+                cards: [deckID: cards.map(card)]
+            ),
+            learning: StoringLearningRepository(
+                states: [state(cards[0], state: "REVIEW", dueAt: fixedNow)]
+            ),
+            scopes: scopes,
+            dates: FixedDateProvider(instant: fixedNow)
+        )
+
+        let first = Task { await store.reload() }
+        await scopes.waitUntilHolding(1)
+        let second = Task { await store.reload() }
+        await scopes.waitUntilHolding(2)
+        await scopes.releaseNext()
+        await first.value
+
+        XCTAssertTrue(store.isRefreshing, "the newer read is still running")
+
+        await scopes.releaseNext()
+        await second.value
         XCTAssertFalse(store.isRefreshing)
     }
 
