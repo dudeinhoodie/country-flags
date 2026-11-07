@@ -124,6 +124,12 @@ actor RecordingLearningRepository: LearningRepository {
         reviews
     }
 
+    func deleteSessions(_ sessionIDs: [UUID], for scope: AccountScope) async throws {
+        let ids = Set(sessionIDs)
+        sessions.removeAll { ids.contains($0.id) }
+        reviews.removeAll { ids.contains($0.sessionID) }
+    }
+
     func recordReview(
         _ review: ReviewEventRecord,
         projectedState: CardStateRecord,

@@ -215,6 +215,14 @@ public protocol LearningRepository: Sendable {
     /// order they were made.
     func sessions(for scope: AccountScope) async throws -> [StudySessionRecord]
     func reviews(for scope: AccountScope) async throws -> [ReviewEventRecord]
+    /// Removes the named sessions, their card snapshots and the answers made
+    /// in them.
+    ///
+    /// The one caller is the guest import, which moves an archive above the
+    /// contract's limits a page at a time and lets each page go once the
+    /// backend holds it. Card states, settings and the queue belong to the
+    /// archive as a whole and stay until its last page.
+    func deleteSessions(_ sessionIDs: [UUID], for scope: AccountScope) async throws
 
     /// Writes the answer, its projected card state and the outbox entry in one
     /// transaction.
