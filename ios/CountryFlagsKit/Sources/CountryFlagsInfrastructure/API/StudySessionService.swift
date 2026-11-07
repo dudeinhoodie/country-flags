@@ -101,11 +101,20 @@ public struct StudySessionService: StudySessionSelecting, StudySessionImporting 
             else {
                 throw APIError.decoding("The stored session size is not importable")
             }
+            // The session's own mode, whatever the backend makes of it. Only a
+            // self-rated sitting is importable; a quiz composed offline is
+            // refused with 422 OFFLINE_MODE_UNSUPPORTED and the sync parks its
+            // answers under that code. Claiming SELF_RATED to get past the
+            // check left the backend holding a self-rated session for answers
+            // given as a quiz, naming options it had never issued.
+            guard let mode = Components.Schemas.AnswerMode(rawValue: session.mode) else {
+                throw APIError.decoding("The stored session mode is not importable")
+            }
             let request = Components.Schemas.CreateOfflineStudySessionRequest(
                 id: session.id.uuidString.lowercased(),
                 deckId: session.deckID.uuidString.lowercased(),
                 requestedUniqueCount: count,
-                mode: .SELF_RATED,
+                mode: mode,
                 locale: await requestLocale(),
                 selectionOrigin: .CLIENT_OFFLINE,
                 startedAt: session.startedAt,
