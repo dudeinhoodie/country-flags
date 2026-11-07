@@ -34,17 +34,46 @@ final class AccountSwitchDeviceTests: XCTestCase {
 
         await signIn(session, as: accountA, transport: transport)
         await transport.enqueue(deviceList(current: deviceA), for: "listDevices")
-        let first = await devices.registeredDeviceID()
+        let first = try await devices.registeredDeviceID()
         XCTAssertEqual(first, UUID(uuidString: deviceA))
         await expire(session, transport: transport)
 
         await signIn(session, as: accountB, transport: transport)
         await transport.enqueue(deviceList(current: deviceB), for: "listDevices")
-        let second = await devices.registeredDeviceID()
+        let second = try await devices.registeredDeviceID()
 
         XCTAssertEqual(second, UUID(uuidString: deviceB), "B's answers go up as B's device")
         let lists = await transport.requests(for: "listDevices")
         XCTAssertEqual(lists.count, 2, "the device was asked again, not remembered")
+    }
+
+    /// A device list that does not answer is the network, not a missing
+    /// device. Swallowed, it became "no device", which the sync reports as a
+    /// session to sign in again; now it is reported as being offline, and
+    /// nothing is remembered about the device.
+    func testADeviceListThatCannotBeReachedIsTheNetworkNotAMissingDevice() async throws {
+        let transport = MockClientTransport()
+        let tokens = InMemoryTokenStore()
+        let devices = RegisteredDeviceProvider(
+            clientFactory: makeFactory(transport: transport),
+            tokens: tokens,
+            scopes: SignedInScope(userID: UUID(uuidString: accountB)!)
+        )
+        await transport.enqueue(
+            .transportFailure(URLError(.notConnectedToInternet)),
+            for: "listDevices"
+        )
+
+        do {
+            let id = try await devices.registeredDeviceID()
+            XCTFail("An unanswered list named a device: \(String(describing: id))")
+        } catch {
+            guard case .transport = APIError.from(error) else {
+                return XCTFail("Expected the network, got \(error)")
+            }
+        }
+        let remembered = try await tokens.value(for: .accountDeviceID)
+        XCTAssertNil(remembered)
     }
 
     /// The toolbar draws what the profile names, and A's picture is not B's.
