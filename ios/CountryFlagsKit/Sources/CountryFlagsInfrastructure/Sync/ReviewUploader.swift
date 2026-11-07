@@ -73,26 +73,52 @@ public struct ReviewUploader: ReviewUploading {
         // cannot be traced back to its operation is dropped rather than acted
         // on against the wrong key.
         var operationIDByReviewID: [UUID: UUID] = [:]
+        // Answered here rather than by the backend; see `unsendable`.
+        var unsendable: [ReviewAcknowledgement] = []
         for operation in operations {
             guard let stored = try? decoder.decode(StoredReview.self, from: operation.payload) else {
                 // A payload this build cannot read is not something to guess
-                // at. It is reported and left for the queue to park rather than
-                // sent as something it might not be.
+                // at. It is reported and parked rather than sent as something
+                // it might not be.
                 logger.log(
                     .error,
                     .sync,
                     "A queued review could not be decoded and was not sent",
                     ["operationId": .safe(operation.id.uuidString)]
                 )
+                unsendable.append(Self.unsendable(operation.id, eventID: operation.id))
                 continue
             }
-            if let event = Self.event(from: stored, deviceID: deviceID, logger: logger) {
-                events.append(event)
-                sent.append(stored)
-                operationIDByReviewID[stored.reviewID] = operation.id
+            guard let event = Self.event(from: stored, deviceID: deviceID, logger: logger) else {
+                unsendable.append(Self.unsendable(operation.id, eventID: stored.reviewID))
+                continue
             }
+            events.append(event)
+            sent.append(stored)
+            operationIDByReviewID[stored.reviewID] = operation.id
         }
 
+        let delivered = try await deliver(
+            events,
+            sent: sent,
+            deviceID: deviceID,
+            operationIDByReviewID: operationIDByReviewID
+        )
+        return ReviewBatchOutcome(
+            acknowledgements: unsendable + delivered.acknowledgements,
+            cursor: delivered.cursor,
+            serverTime: delivered.serverTime
+        )
+    }
+
+    /// Sends the events that could be built, and once more under a device
+    /// resolved again for any the backend did not know the device of.
+    private func deliver(
+        _ events: [Components.Schemas.ReviewEvent],
+        sent: [StoredReview],
+        deviceID: UUID,
+        operationIDByReviewID: [UUID: UUID]
+    ) async throws -> ReviewBatchOutcome {
         guard !events.isEmpty else {
             return ReviewBatchOutcome(acknowledgements: [], cursor: nil, serverTime: Date())
         }
@@ -173,6 +199,29 @@ public struct ReviewUploader: ReviewUploading {
     /// this account.
     static let deviceNotFound = "DEVICE_NOT_FOUND"
 
+    /// The code an answer this build cannot send is parked under. It is the
+    /// device's own verdict: the backend was never asked.
+    static let unsendablePayload = "UNSENDABLE_PAYLOAD"
+
+    /// A refusal decided on the device, for a queued answer that cannot be
+    /// sent as it is: bytes this build cannot read, a rating the contract no
+    /// longer takes, a choice without the option that was picked.
+    ///
+    /// Unanswered, such an answer went back to pending after every run and
+    /// was read and logged again for ever; and since the queue is read oldest
+    /// first, one batch's worth of them at its head stopped everything behind
+    /// them going up. Refused, the queue parks it with the others the backend
+    /// refused, where support can still see it.
+    private static func unsendable(_ operationID: UUID, eventID: UUID) -> ReviewAcknowledgement {
+        ReviewAcknowledgement(
+            operationID: operationID,
+            eventID: eventID,
+            status: .rejected,
+            rejectionCode: unsendablePayload,
+            cardState: nil
+        )
+    }
+
     private func send(
         _ events: [Components.Schemas.ReviewEvent],
         operationIDByReviewID: [UUID: UUID]
@@ -226,7 +275,7 @@ public struct ReviewUploader: ReviewUploading {
             // the four-grade screen can still hold HARD or EASY, and there is
             // nothing honest to send for it — mapping it onto GOOD would
             // record an answer the learner did not give. It is reported and
-            // left rather than dropped in silence.
+            // parked rather than dropped in silence.
             guard let rating = Components.Schemas.SubmittedRating(rawValue: stored.rating) else {
                 logger.log(
                     .error,
