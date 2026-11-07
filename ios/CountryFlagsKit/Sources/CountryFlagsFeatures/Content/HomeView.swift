@@ -73,6 +73,10 @@ public struct HomeView: View {
     /// that changes it is pushed over this one; the tap reads it again, so a
     /// label a moment stale never decides what is dealt.
     @State private var sessionSize = StudySessionSize.ten
+    /// Set from the tap on a review until the session is pushed. The tap reads
+    /// the stored size across a suspension first, and a second tap in that
+    /// moment pushed a second study screen over the same session.
+    @State private var isStartingDueSession = false
     @Environment(\.displayScale) private var displayScale
 
 
@@ -934,7 +938,10 @@ public struct HomeView: View {
             onOpenDeck(deckID)
             return
         }
+        guard !isStartingDueSession else { return }
+        isStartingDueSession = true
         Task {
+            defer { isStartingDueSession = false }
             // The queue is what was asked for: DUE_ONLY returns the due
             // cards and nothing else, however few. The cap on one sitting
             // is the learner's stored size — the same setting the deck
