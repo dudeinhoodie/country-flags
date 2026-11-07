@@ -249,6 +249,75 @@ final class GuestMigrationCoordinatorTests: XCTestCase {
         XCTAssertEqual(record?.state, .failed)
         XCTAssertNil(record?.acknowledgedAt)
     }
+
+    /// An archive above the contract's limits moves in pages, oldest first,
+    /// each session with every answer made in it.
+    ///
+    /// Cut separately — the newest sessions, the earliest answers — the
+    /// answers sent belonged to sessions that were not, the backend refused
+    /// them, and the partial result erased everything that was never sent.
+    func testAnArchiveAboveTheLimitsMovesInPagesWithEachSessionsAnswers() async {
+        let harness = Harness(installationID: installationID)
+        let sessions = (0..<150).map(Fixtures.session(index:))
+        let reviews = sessions.enumerated().flatMap { index, session in
+            [
+                Fixtures.review(sequence: Int64(index * 2 + 1), in: session),
+                Fixtures.review(sequence: Int64(index * 2 + 2), in: session),
+            ]
+        }
+        // Newest first, the way the store answers.
+        await harness.learning.seed(sessions: sessions.reversed(), reviews: reviews)
+        await harness.importer.answer(.success(Fixtures.result(.applied)))
+
+        let outcome = await harness.coordinator.importGuestWork(into: userID)
+
+        guard case .imported(let result) = outcome else {
+            return XCTFail("Expected an imported outcome, got \(outcome)")
+        }
+        let submitted = await harness.importer.submitted
+        XCTAssertEqual(submitted.map(\.sessions.count), [100, 50])
+        XCTAssertEqual(submitted.map(\.reviews.count), [200, 100])
+        XCTAssertEqual(submitted.first?.sessions.first?.id, sessions[0].id)
+        for payload in submitted {
+            let sent = Set(payload.sessions.map(\.id))
+            XCTAssertTrue(payload.reviews.allSatisfy { sent.contains($0.sessionID) })
+        }
+        // A settled page's identifier answers for that page alone.
+        XCTAssertNotEqual(submitted.first?.migrationID, submitted.last?.migrationID)
+        // The first page let go of its own sessions; the archive went only
+        // once the last page was acknowledged.
+        let deleted = await harness.learning.deletedSessionIDs
+        XCTAssertEqual(Set(deleted), Set(sessions.prefix(100).map(\.id)))
+        let erased = await harness.cleaner.erasedScopes
+        XCTAssertEqual(erased, [.guest(installationID: installationID)])
+        // Both pages, told as one import.
+        XCTAssertEqual(result.acceptedEventCount, 2 * Fixtures.result(.applied).acceptedEventCount)
+    }
+
+    /// Only what the backend acknowledged is let go: a page that does not
+    /// land keeps everything it carried, and the archive stays.
+    func testAPageThatDoesNotLandKeepsTheRestOfTheArchive() async {
+        let harness = Harness(installationID: installationID)
+        let sessions = (0..<150).map(Fixtures.session(index:))
+        let reviews = sessions.enumerated().map { index, session in
+            Fixtures.review(sequence: Int64(index + 1), in: session)
+        }
+        await harness.learning.seed(sessions: sessions.reversed(), reviews: reviews)
+        await harness.importer.answerInTurn([
+            .success(Fixtures.result(.applied)),
+            .failure(APIError.transport("offline")),
+        ])
+
+        let outcome = await harness.coordinator.importGuestWork(into: userID)
+
+        XCTAssertEqual(outcome, .unavailable)
+        let deleted = await harness.learning.deletedSessionIDs
+        XCTAssertEqual(Set(deleted), Set(sessions.prefix(100).map(\.id)))
+        let erased = await harness.cleaner.erasedScopes
+        XCTAssertTrue(erased.isEmpty)
+        let remaining = await harness.learning.remainingSessionIDs
+        XCTAssertEqual(Set(remaining), Set(sessions.suffix(50).map(\.id)))
+    }
 }
 
 // MARK: - Harness
@@ -304,12 +373,20 @@ private actor ScriptedImporter: GuestImportSubmitting {
         APIError.transport("unscripted")
     )
 
+    private var queued: [Result<GuestImportResultRecord, any Error>] = []
+
     func answer(_ answer: Result<GuestImportResultRecord, any Error>) {
         nextAnswer = answer
     }
 
+    /// Answers for the next submissions in turn; `answer` stands after them.
+    func answerInTurn(_ answers: [Result<GuestImportResultRecord, any Error>]) {
+        queued = answers
+    }
+
     func submit(_ payload: GuestImportPayload) async throws -> GuestImportResultRecord {
         submitted.append(payload)
+        if !queued.isEmpty { return try queued.removeFirst().get() }
         return try nextAnswer.get()
     }
 
@@ -361,6 +438,17 @@ private actor SeededLearningRepository: LearningRepository {
 
     func reviews(for scope: AccountScope) async throws -> [ReviewEventRecord] {
         storedReviews
+    }
+
+    private(set) var deletedSessionIDs: [UUID] = []
+
+    var remainingSessionIDs: [UUID] { storedSessions.map(\.id) }
+
+    func deleteSessions(_ sessionIDs: [UUID], for scope: AccountScope) async throws {
+        deletedSessionIDs += sessionIDs
+        let ids = Set(sessionIDs)
+        storedSessions.removeAll { ids.contains($0.id) }
+        storedReviews.removeAll { ids.contains($0.sessionID) }
     }
 
     // MARK: - Unused by the coordinator
@@ -422,6 +510,39 @@ private enum Fixtures {
             selectedOptionID: nil,
             responseTimeMilliseconds: nil,
             clientOccurredAt: Date(timeIntervalSince1970: 1_800_000_000 + Double(sequence)),
+            estimatedServerOccurredAt: nil,
+            clientSequence: sequence,
+            baseStateVersion: nil
+        )
+    }
+
+    /// One of many sittings, an hour apart, for an archive above the limits.
+    static func session(index: Int) -> StudySessionRecord {
+        let startedAt = Date(timeIntervalSince1970: 1_800_000_000 + Double(index) * 3_600)
+        return StudySessionRecord(
+            id: UUID(uuidString: String(format: "31000000-0000-4000-8000-%012d", index))!,
+            deckID: UUID(uuidString: "40000000-0000-4000-8000-000000000001")!,
+            mode: "SELF_RATED",
+            selectionOrigin: "CLIENT_OFFLINE",
+            requestedUniqueCount: 10,
+            status: "COMPLETED",
+            contentVersion: "fixture-v1",
+            startedAt: startedAt,
+            completedAt: startedAt.addingTimeInterval(600),
+            cards: []
+        )
+    }
+
+    static func review(sequence: Int64, in session: StudySessionRecord) -> ReviewEventRecord {
+        ReviewEventRecord(
+            id: UUID(uuidString: String(format: "51000000-0000-4000-8000-%012d", sequence))!,
+            sessionID: session.id,
+            learningCardID: UUID(uuidString: "60000000-0000-4000-8000-000000000001")!,
+            rating: "GOOD",
+            answerMode: "SELF_RATED",
+            selectedOptionID: nil,
+            responseTimeMilliseconds: nil,
+            clientOccurredAt: session.startedAt.addingTimeInterval(Double(sequence)),
             estimatedServerOccurredAt: nil,
             clientSequence: sequence,
             baseStateVersion: nil
