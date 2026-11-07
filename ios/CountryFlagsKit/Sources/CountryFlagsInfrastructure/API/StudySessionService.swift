@@ -300,7 +300,7 @@ public struct RegisteredDeviceProvider: DeviceIdentityProviding {
         self.scopes = scopes
     }
 
-    public func registeredDeviceID() async -> UUID? {
+    public func registeredDeviceID() async throws -> UUID? {
         guard case .authenticated = await scopes.currentScope() else { return nil }
         if let stored = try? await tokens.value(for: .accountDeviceID),
             let id = UUID(uuidString: stored) {
@@ -308,8 +308,17 @@ public struct RegisteredDeviceProvider: DeviceIdentityProviding {
         }
 
         let client = clientFactory.makeClient()
+        // A list that does not answer is the network, and says nothing about
+        // the device. It used to be swallowed into "no device", which the sync
+        // reports as a session to sign in again: the first upload after a
+        // sign-in, on a train, asked the learner to sign in.
+        let output: Operations.listDevices.Output
+        do {
+            output = try await client.listDevices()
+        } catch {
+            throw APIError.from(error)
+        }
         guard
-            let output = try? await client.listDevices(),
             case .ok(let response) = output,
             let payload = try? response.body.json,
             let current = payload.items.first(where: { $0.current }),
