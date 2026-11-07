@@ -84,17 +84,6 @@ public struct StudySessionView: View {
                 onMore: { Task { await runner.startAnother() } },
                 onDone: onFinish
             )
-        } else if runner.startFailure == .nothingDue {
-            // An empty queue is not a screen.
-            //
-            // The learner tapped "repeat" on a pane that had just counted the
-            // day's work; if the queue is empty by the time the session opens,
-            // the two numbers disagreed, and the answer to that is the first
-            // screen — which recounts and says the day is clear, with the
-            // learner's own total on it. It used to be a dead end that
-            // announced the good news and then offered a session nobody had
-            // asked for.
-            Color.clear.onAppear(perform: onFinish)
         } else if let failure = runner.startFailure {
             StudyUnavailableView(failure: failure, onDone: onFinish)
         } else if let state = runner.state, let card = state.currentCard {
@@ -333,10 +322,10 @@ public struct StudySessionView: View {
 
 /// A session that could not be dealt, said out loud.
 ///
-/// `.nothingDue` never reaches here: an empty queue is good news and is
-/// answered by returning to the first screen, which counts the day again and
-/// shows the tally. The cases left are the ones a learner can do nothing
-/// about, and the screen offers them the way out rather than another session.
+/// An empty repeat queue never reaches here: the runner answers it with a
+/// standard sitting of the same deck. The cases left are the ones a learner
+/// can do nothing about, and the screen offers them the way out rather than
+/// another session.
 struct StudyUnavailableView: View {
     let failure: StudySessionStartFailure
     let onDone: () -> Void
@@ -365,10 +354,7 @@ struct StudyUnavailableView: View {
 
     private var title: String {
         switch failure {
-        // An empty deck and an empty queue read the same to a learner standing
-        // in front of one; the queue is handled before this screen, and this
-        // stays total so a new failure has to choose its own words.
-        case .noUsableCards, .nothingDue: L10n.studyNoCards
+        case .noUsableCards: L10n.studyNoCards
         case .storeUnavailable: L10n.studyStoreUnavailable
         }
     }
@@ -377,7 +363,7 @@ struct StudyUnavailableView: View {
     /// different problems and should not look like the same one.
     private var symbol: String {
         switch failure {
-        case .noUsableCards, .nothingDue: "checkmark.circle"
+        case .noUsableCards: "checkmark.circle"
         case .storeUnavailable: "exclamationmark.triangle"
         }
     }

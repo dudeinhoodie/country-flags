@@ -27,6 +27,40 @@ final class StudySessionRunnerTests: XCTestCase {
         XCTAssertFalse(runner.state?.isAnswerRevealed ?? true)
     }
 
+    /// A guest's repeat queue is composed on the device, and an empty one
+    /// falls through to a standard sitting of the same deck. Nothing on the
+    /// way says "no cards": the screen once read that as "go back" and
+    /// popped while the fall-through saved the sitting behind it.
+    func testAnEmptyLocalRepeatQueueFallsThroughToAStandardSession() async {
+        let learning = RecordingLearningRepository()
+        let runner = makeRunner(cards: 3, learning: learning)
+
+        await runner.startOrResume(deckID: deckID, size: .five, composition: .dueOnly)
+
+        XCTAssertNil(runner.startFailure)
+        XCTAssertEqual(runner.state?.cards.count, 3)
+        let sessions = await learning.recordedSessions()
+        XCTAssertEqual(sessions.count, 1)
+    }
+
+    /// A start whose screen has already closed saves nothing: the sitting
+    /// would come back on Home as one on pause that nobody saw.
+    func testACancelledStartSavesNoSession() async {
+        let learning = RecordingLearningRepository()
+        let runner = makeRunner(cards: 3, learning: learning)
+        let deckID = self.deckID
+
+        let start = Task { @MainActor in
+            await runner.startOrResume(deckID: deckID, size: .five)
+        }
+        start.cancel()
+        await start.value
+
+        let sessions = await learning.recordedSessions()
+        XCTAssertTrue(sessions.isEmpty)
+        XCTAssertNil(runner.state)
+    }
+
     /// A deck with nothing this build can study says so rather than starting an
     /// empty session.
     func testADeckWithNoUsableCardsRefusesToStart() async {
