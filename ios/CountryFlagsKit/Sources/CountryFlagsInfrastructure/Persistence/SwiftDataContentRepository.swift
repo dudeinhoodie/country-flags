@@ -302,9 +302,14 @@ actor SwiftDataContentRepository: ContentRepository {
             stored.isoSubdivision = entity.identifiers.isoSubdivision
             stored.localCode = entity.identifiers.localCode
             stored.fipsCode = entity.identifiers.fipsCode
-            // The children are owned by the entity and cascade-deleted with it,
-            // so replacing the arrays is what keeps a renamed or withdrawn name
-            // from surviving its release.
+            // A renamed or withdrawn name must not survive its release, so the
+            // children are replaced. Replacing the arrays only detaches the old
+            // rows, though: the cascade fires when the entity itself is
+            // deleted, not when a child leaves the relationship. Every replayed
+            // page and every locale re-import used to leave the previous names
+            // and facts in the store with no entity, so they are deleted here.
+            let replacedNames = stored.names ?? []
+            let replacedFacts = stored.facts ?? []
             stored.names = entity.names.map {
                 StoredGeoName(locale: $0.locale, value: $0.value, isPrimary: $0.isPrimary)
             }
@@ -316,6 +321,8 @@ actor SwiftDataContentRepository: ContentRepository {
                     detailsJSON: FactDetailsCoding.encode($0.details)
                 )
             }
+            replacedNames.forEach(modelContext.delete)
+            replacedFacts.forEach(modelContext.delete)
             // Assets are upserted by identifier rather than rebuilt with the
             // rest of the children, because a card refers to one directly and
             // cascade-deleting it here would break a snapshot that is still in
