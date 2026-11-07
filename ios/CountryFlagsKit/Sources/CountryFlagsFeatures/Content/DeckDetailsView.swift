@@ -54,6 +54,11 @@ public struct DeckDetailsView: View {
     /// without a store — and it behaves exactly as it did before paid decks
     /// existed.
     private let commerce: CommerceCenter?
+    /// What the deck is read again for when it changes.
+    private struct ReadKey: Equatable {
+        let contentVersion: String?
+        let entitlementKeys: Set<String>?
+    }
     /// Where a guest goes to get an account, because a purchase needs one to
     /// be granted to.
     private let onSignIn: (() -> Void)?
@@ -104,21 +109,28 @@ public struct DeckDetailsView: View {
                     await store.recordCardDetailOpened(promptAssetID: subject.promptAssetID)
                 }
         }
-        .task { await model.load() }
-        // A release landing under an open screen renumbers every deck, which
-        // is what happens on every first launch now that an empty store is
-        // seeded from the bundle and superseded by the first sync. The deck is
-        // re-read rather than left holding a row that is no longer current.
-        .task(id: store.status.contentVersion) { await model.load() }
+        // The deck is read on appearance and again whenever one of two things
+        // moves under the open screen. A release landing renumbers every deck,
+        // which is what happens on every first launch now that an empty store
+        // is seeded from the bundle and superseded by the first sync. A
+        // purchase that has just landed replaces the paywall with the deck, on
+        // this screen, without a pop and without a relaunch: the keys moved,
+        // the cards were fetched, and the deck is re-read here.
+        //
+        // One task, one key. Three used to say this, and since a keyed task
+        // runs on appearance as well, opening a deck read all of its cards
+        // three times at once, the three racing to publish.
+        .task(id: ReadKey(
+            contentVersion: store.status.contentVersion,
+            entitlementKeys: commerce?.entitlementKeys
+        )) {
+            await model.load()
+        }
         // Which of the two commerce screens this became, once the deck is
         // known. Both report once per deck: `task` re-runs whenever a purchase
         // changes the screen underneath, and a funnel counting that would be
         // counting SwiftUI rather than people.
         .task(id: model.deck?.id) { await reportOpened() }
-        // A purchase that has just landed replaces the paywall with the deck,
-        // on this screen, without a pop and without a relaunch: the keys
-        // moved, the cards were fetched, and the deck is re-read here.
-        .task(id: commerce?.entitlementKeys) { await model.load() }
         // The learner chose a session size once, in the settings; a deck
         // that ignored it and always offered ten would make that setting
         // a lie. Read once per visit, before anything is tapped.
