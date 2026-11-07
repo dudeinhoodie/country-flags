@@ -25,9 +25,6 @@ struct PendingReviewPayload: Codable, Hashable, Sendable {
 public enum StudySessionStartFailure: Hashable, Sendable {
     /// The deck has no card this build can study.
     case noUsableCards
-    /// A due-only session found the repeat queue empty. Honest and happy:
-    /// there is nothing to review right now, which is not an error.
-    case nothingDue
     /// The store refused, so nothing was started.
     case storeUnavailable
 }
@@ -145,7 +142,6 @@ public final class StudySessionRunner {
             await reportSessionStarted(requestedCardCount: state?.cards.count ?? 0)
             return
         }
-        await start(deckID: deckID, size: size, composition: composition)
         // An empty repeat queue is no longer a screen: the learner tapped the
         // deck meaning to study it, and the advertised due count and the
         // queue composed at start are two snapshots of one truth taken at
@@ -153,7 +149,12 @@ public final class StudySessionRunner {
         // sitting. A due-only launch that finds nothing due falls through to
         // a standard session; the second start still answers .noUsableCards
         // itself when the deck is truly empty, the one case that needs words.
-        if startFailure == .nothingDue, composition == .dueOnly {
+        //
+        // The empty queue is told to this caller and never published. While
+        // it was, the screen read it as "go back" in the moment between the
+        // two starts and popped, and the second start went on to save a
+        // sitting nobody saw — Home then offered it as one on pause.
+        if await start(deckID: deckID, size: size, composition: composition) == .nothingDue {
             await start(deckID: deckID, size: size, composition: .standard)
         }
         await reportSessionStarted(requestedCardCount: size.rawValue)
@@ -268,11 +269,20 @@ public final class StudySessionRunner {
         !["NEW", "MAINTENANCE", "FILLER"].contains(card.selectionReason)
     }
 
+    /// What a start leaves to its caller rather than publishing. Every other
+    /// outcome is on `state` or `startFailure` by the time it returns.
+    private enum StartOutcome {
+        case settled
+        /// A due-only start found the repeat queue empty.
+        case nothingDue
+    }
+
+    @discardableResult
     private func start(
         deckID: UUID,
         size: StudySessionSize,
         composition: StudySessionComposition
-    ) async {
+    ) async -> StartOutcome {
         // The backend composes when it can: it has seen every device's
         // answers, so its selection is the canonical one. Every failure —
         // offline, a refusal, an empty answer — falls through to the local
@@ -295,7 +305,7 @@ public final class StudySessionRunner {
                         cards: record.cards,
                         phase: .front(index: 0)
                     )
-                    return
+                    return .settled
                 }
                 if composition == .dueOnly {
                     // The zero-card session is closed out, best effort, so it
@@ -315,10 +325,7 @@ public final class StudySessionRunner {
                     // No outbox to ask means nothing is known to be waiting,
                     // and the backend's answer stands.
                     let unsent = await unsentAnswers()
-                    if unsent.isEmpty {
-                        startFailure = .nothingDue
-                        return
-                    }
+                    if unsent.isEmpty { return .nothingDue }
                 }
             } catch {
                 // Fall through: the device composes, the way it always could.
@@ -347,8 +354,9 @@ public final class StudySessionRunner {
             : selected
         guard !composed.isEmpty else {
             // An empty repeat queue is good news, not a broken deck.
-            startFailure = composition == .dueOnly ? .nothingDue : .noUsableCards
-            return
+            if composition == .dueOnly { return .nothingDue }
+            startFailure = .noUsableCards
+            return .settled
         }
 
         let sessionID = identifiers.next()
@@ -390,11 +398,16 @@ public final class StudySessionRunner {
         // because afterwards the active session is the new one.
         let stale = try? await learning.activeSession(for: resolvedScope)
 
+        // A screen closed while the cards were being read has nobody to show
+        // them to. Saved anyway, the sitting would come back on Home as one on
+        // pause that the learner never saw.
+        guard !Task.isCancelled else { return .settled }
+
         do {
             try await learning.saveSession(session, for: resolvedScope)
         } catch {
             startFailure = .storeUnavailable
-            return
+            return .settled
         }
 
         if let stale, stale.id != sessionID {
@@ -408,6 +421,7 @@ public final class StudySessionRunner {
             cards: snapshot,
             phase: .front(index: 0)
         )
+        return .settled
     }
 
     /// The answers already committed stay committed; only the lifecycle moves.
