@@ -40,6 +40,27 @@ private actor StubAuthService: AuthenticationService {
 
     func setRefresh(_ behaviour: Behaviour) { refreshBehaviour = behaviour }
 
+    /// When set, a refresh waits at the gate until the test releases it, so a
+    /// sign-in or sign-out can land while a rotation is in flight.
+    private var holdsRefreshes = false
+    private var heldRefreshes: [CheckedContinuation<Void, Never>] = []
+    private var refreshArrivals: [CheckedContinuation<Void, Never>] = []
+
+    func holdRefreshes() { holdsRefreshes = true }
+
+    /// Returns once a refresh is actually waiting at the gate.
+    func waitUntilARefreshIsHeld() async {
+        guard heldRefreshes.isEmpty else { return }
+        await withCheckedContinuation { refreshArrivals.append($0) }
+    }
+
+    func releaseRefreshes() {
+        holdsRefreshes = false
+        let held = heldRefreshes
+        heldRefreshes = []
+        held.forEach { $0.resume() }
+    }
+
     func answerSignOuts(_ answers: Behaviour...) { signOutAnswers = answers }
 
     func exchange(_ credential: ProviderCredential) async throws -> AuthSessionRecord {
@@ -65,14 +86,23 @@ private actor StubAuthService: AuthenticationService {
     func refresh(refreshToken: String) async throws -> RefreshedSessionRecord {
         presentedRefreshTokens.append(refreshToken)
         refreshCount += 1
+        let rotation = refreshCount + 1
+        if holdsRefreshes {
+            await withCheckedContinuation { continuation in
+                heldRefreshes.append(continuation)
+                let arrivals = refreshArrivals
+                refreshArrivals = []
+                arrivals.forEach { $0.resume() }
+            }
+        }
         switch refreshBehaviour {
         case .succeeds:
             // A rotation hands out a new pair, which is what makes presenting
             // the old refresh token a second time a refusal.
             return RefreshedSessionRecord(
-                accessToken: "access-\(refreshCount + 1)",
+                accessToken: "access-\(rotation)",
                 accessTokenExpiresAt: instant,
-                refreshToken: "refresh-\(refreshCount + 1)"
+                refreshToken: "refresh-\(rotation)"
             )
         case .refuses(let error):
             throw error
@@ -521,6 +551,59 @@ final class SessionCoordinatorTests: XCTestCase {
             "a spent refresh token must never be presented again: \(presented)"
         )
         XCTAssertFalse(presented.isEmpty, "the launch refreshed nothing at all")
+    }
+
+    // MARK: - A sign-in or sign-out during a rotation
+
+    /// A refresh in flight when the person signs out belongs to the session
+    /// that has just ended. Adopted afterwards, it wrote that session's new
+    /// refresh token back into the keychain the sign-out had just cleared.
+    func testARefreshLandingAfterASignOutIsDiscarded() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        let session = makeCoordinator(service: service, tokens: tokens)
+        _ = await session.signIn(with: .google(idToken: "t"))
+        await service.holdRefreshes()
+        let refresh = Task { try await session.refreshAccessToken() }
+        await service.waitUntilARefreshIsHeld()
+
+        await session.signOut()
+        await service.releaseRefreshes()
+
+        let answer = await refresh.result
+        XCTAssertThrowsError(try answer.get())
+        let stored = try await tokens.value(for: .refreshToken)
+        XCTAssertNil(stored)
+        let accessToken = await session.currentAccessToken()
+        XCTAssertNil(accessToken)
+        let state = await session.currentState()
+        XCTAssertEqual(state, .guest)
+    }
+
+    /// The launch's rotation belongs to the account the keychain remembered.
+    /// Somebody who signs in while it is in flight has decided who this
+    /// device is, and the rotation landing afterwards used to put the
+    /// previous account's tokens and identity back over theirs.
+    func testALaunchRotationLandingAfterASignInIsDiscarded() async throws {
+        let service = StubAuthService()
+        let tokens = InMemoryTokenStore()
+        try await tokens.setValue("refresh-stored", for: .refreshToken)
+        try await tokens.setValue(UUID().uuidString, for: .accountUserID)
+        let session = makeCoordinator(service: service, tokens: tokens)
+        await service.holdRefreshes()
+        let launch = Task { await session.restore() }
+        await service.waitUntilARefreshIsHeld()
+
+        _ = await session.signIn(with: .google(idToken: "t"))
+        await service.releaseRefreshes()
+        await launch.value
+
+        let state = await session.currentState()
+        XCTAssertEqual(state, .authenticated(userID: service.userID))
+        let stored = try await tokens.value(for: .refreshToken)
+        XCTAssertEqual(stored, "refresh-1")
+        let accessToken = await session.currentAccessToken()
+        XCTAssertEqual(accessToken, "access-1")
     }
 
     // MARK: - Sign in with Apple withdrawn
