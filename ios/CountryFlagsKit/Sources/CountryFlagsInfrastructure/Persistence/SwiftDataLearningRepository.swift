@@ -440,6 +440,29 @@ actor SwiftDataLearningRepository: LearningRepository {
         }
     }
 
+    /// One page of a guest archive, after the backend acknowledged it: the
+    /// answers and the sessions together, so the store never holds a session
+    /// whose answers are gone or answers whose session is.
+    func deleteSessions(_ sessionIDs: [UUID], for scope: AccountScope) async throws {
+        let key = scope.key
+        let ids = sessionIDs
+        try transaction {
+            let reviews = FetchDescriptor<StoredReviewEvent>(
+                predicate: #Predicate { $0.scopeKey == key && ids.contains($0.sessionID) }
+            )
+            for stored in try modelContext.fetch(reviews) {
+                modelContext.delete(stored)
+            }
+            // The snapshots a session was shown from cascade with it.
+            let sessions = FetchDescriptor<StoredStudySession>(
+                predicate: #Predicate { $0.scopeKey == key && ids.contains($0.id) }
+            )
+            for stored in try modelContext.fetch(sessions) {
+                modelContext.delete(stored)
+            }
+        }
+    }
+
     private func deleteScoped<Model: PersistentModel & ScopedModel>(
         _ type: Model.Type,
         key: String

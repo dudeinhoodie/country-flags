@@ -283,6 +283,7 @@ private actor ReminderTestRepository: LearningRepository {
     { [] }
     func sessions(for scope: AccountScope) async throws -> [StudySessionRecord] { [] }
     func reviews(for scope: AccountScope) async throws -> [ReviewEventRecord] { [] }
+    func deleteSessions(_ sessionIDs: [UUID], for scope: AccountScope) async throws {}
     func recordReview(
         _ review: ReviewEventRecord,
         projectedState: CardStateRecord,
