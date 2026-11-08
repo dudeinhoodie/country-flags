@@ -267,7 +267,22 @@ final class GuestAuthUITests: XCTestCase {
             element("study.card", in: app).swipeRight()
         }
         app.buttons["study.close"].tap()
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        leaveDeck(in: app)
+    }
+
+    /// Back from the deck to Home, offered again until Home is there.
+    ///
+    /// The session's own pop can still be running when `study.close` returns.
+    /// A back tap that lands on it starts a pop that is then undone, so the
+    /// deck stays on screen, and everything after it would wait for a Home
+    /// that is not coming. Checked first on every pass: on Home the first
+    /// button in the bar is the avatar, not the way back.
+    private func leaveDeck(in app: XCUIApplication) {
+        let account = app.buttons["account.open"]
+        for _ in 0..<3 where !account.exists {
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            _ = account.waitForExistence(timeout: 10)
+        }
     }
 
     /// The bundled catalogue and the refreshed catalogue can replace the Home

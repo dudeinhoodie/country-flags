@@ -578,6 +578,9 @@ public struct RootView: View {
                     .toolbar {
                         // The catalogue's own screen tells its state the way
                         // Home does: in the header, not in a banner (#523).
+                        // It keeps the system large title, with the search
+                        // under it as in the design, so the chip shows once
+                        // that title has collapsed into the bar.
                         ToolbarItem(placement: .principal) {
                             SyncStatusChip(status: sync.status, content: contentNotice)
                         }
@@ -686,6 +689,21 @@ public struct RootView: View {
                 await progress.reload()
                 await sync.refreshStatus()
             }
+        }
+        // A release that supersedes the seeded catalogue moves the work done
+        // on it onto the arriving card identifiers first and becomes current
+        // second (#404). A read of the counts that lands between the two
+        // counts the new identifiers against the old catalogue and finds
+        // nothing, and nothing read again: the launch's read and the sync
+        // run's were both over by the time the release was current, so the
+        // Progress tab stayed empty over a store that held every answer. The
+        // counts are read once more when the release changes, which also
+        // drops the outgoing release's deck identifiers the rows still held.
+        // Quietly: a dimmed Home takes no taps, and on a first launch the
+        // release changes just as the person reaches for a deck.
+        .onChange(of: content.status.contentVersion) { previous, current in
+            guard previous != current else { return }
+            Task { await progress.reload(quietly: true) }
         }
         // A sign-in lands on Home with every tab's stack at its root, through
         // whichever door it came: the guest row on Home, the prompt on

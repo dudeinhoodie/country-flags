@@ -117,11 +117,14 @@ final class AccountLifecycleUITests: XCTestCase {
                 .exists,
             "Cancelling must not leave a deletion notice\n\(app.debugDescription)"
         )
+        // The account row heads "Профиль" and the deletion ends it, so the
+        // list is scrolled back up to read the session (#522).
         XCTAssertTrue(
-            app.descendants(matching: .any)
-                .matching(identifier: "settings.account.signedIn")
-                .firstMatch
-                .exists,
+            app.revealAbove(
+                app.descendants(matching: .any)
+                    .matching(identifier: "settings.account.signedIn")
+                    .firstMatch
+            ).exists,
             "Cancelling must not end the session\n\(app.debugDescription)"
         )
         // Still offered, so the decision stays the person's to make later.

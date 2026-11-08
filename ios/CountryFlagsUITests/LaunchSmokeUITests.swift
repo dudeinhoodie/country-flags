@@ -223,7 +223,19 @@ final class LaunchSmokeUITests: XCTestCase {
 
         let openSettings = app.buttons["account.open"]
         XCTAssertTrue(openSettings.waitForExistence(timeout: 10))
-        openSettings.tap()
+
+        // The moment `openAccount` in the account suites waits out: in the
+        // first seconds after the launch wait, a tap can light the avatar up
+        // and go nowhere. Swiping for the switch below would then scroll Home
+        // until it gave up, so the tap is offered again first. Arrival is
+        // read off the account section, whichever state a device is in.
+        let account = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "settings.account.")
+        ).firstMatch
+        for _ in 0..<3 where !account.exists {
+            openSettings.tap()
+            _ = account.waitForExistence(timeout: 10)
+        }
 
         // Settings is a real screen, so the route is proved by a control the
         // screen owns rather than by a placeholder title.

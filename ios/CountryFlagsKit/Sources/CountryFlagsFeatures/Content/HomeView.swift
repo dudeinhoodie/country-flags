@@ -118,6 +118,9 @@ public struct HomeView: View {
     public var body: some View {
         content
             .navigationTitle(L10n.homeTitle)
+            // The title is drawn in the content and the bar stays inline, so
+            // the status chip in the bar's centre is on screen (#523).
+            .navigationBarTitleDisplayMode(.inline)
             .refreshable {
                 await RefreshGesture.perform {
                     // The gesture waits for the numbers, which is what this
@@ -167,7 +170,7 @@ public struct HomeView: View {
     ) -> some View {
         // Blocks follow one another at the tile grid's gap (#518), so a row of
         // two tiles and the card under it read as one grid.
-        SceneScrollView(spacing: DesignTokens.Spacing.tileGap) {
+        SceneScrollView(spacing: DesignTokens.Spacing.tileGap, title: L10n.homeTitle) {
             // The guest's account row leads the screen, above everything else
             // in every state it shows in, the wait for the counts included —
             // the owner's decision on 13.10 (#497). It used to stand last,

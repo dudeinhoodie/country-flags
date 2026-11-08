@@ -24,7 +24,9 @@ defaults:
 jobs:
   full-ui-suite:
     runs-on: macos-26
-    timeout-minutes: 90
+    # A green night has taken up to 88 minutes and one was cancelled at 90, so
+    # the ceiling leaves room for a failed test to run its second time.
+    timeout-minutes: 100
 
     env:
       PROJECT: CountryFlags.xcodeproj
@@ -66,7 +68,9 @@ jobs:
 
       # Everything: self-rated and multiple-choice sessions, the auth mocks,
       # the guest migration, offline sync, the card back, progress, settings
-      # and the account deletion.
+      # and the account deletion. A failed test runs once more before the step
+      # fails, for the reason the smoke set in ios-ci.yml gives: the simulator
+      # sometimes holds a touch until the control has stopped listening.
       - name: The whole UI suite
         run: |
           set -o pipefail
@@ -75,6 +79,8 @@ jobs:
             -scheme CountryFlags-Mock \
             -destination '${{ steps.simulator.outputs.destination }}' \
             -skipPackagePluginValidation \
+            -retry-tests-on-failure \
+            -test-iterations 2 \
             -resultBundlePath build/CountryFlags-Mock-nightly.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test
@@ -90,6 +96,8 @@ jobs:
             -scheme CountryFlags-Mock \
             -destination '${{ steps.simulator.outputs.destination }}' \
             -skipPackagePluginValidation \
+            -retry-tests-on-failure \
+            -test-iterations 2 \
             -only-testing:CountryFlagsUITests/AccessibilityUITests \
             -resultBundlePath build/CountryFlags-Accessibility.xcresult \
             CODE_SIGNING_ALLOWED=NO \

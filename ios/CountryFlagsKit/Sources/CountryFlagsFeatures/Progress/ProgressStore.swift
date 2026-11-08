@@ -190,21 +190,30 @@ public final class ProgressStore: CanonicalDataObserving {
     /// two overlapping reads used to write their results in the order they
     /// finished, so returning from a session showed the numbers from before
     /// it until something else happened to read again.
-    public func reload() async {
+    ///
+    /// `quietly` leaves `isRefreshing` alone. Home dims and stops taking taps
+    /// while it is set, which is right for a read the person's own work
+    /// started and wrong for one the app makes on its own behalf: the
+    /// catalogue being replaced a few seconds into the first launch is not a
+    /// check of anybody's numbers, and the deck tap that landed in it was
+    /// ignored.
+    public func reload(quietly: Bool = false) async {
         reloadTask?.cancel()
         let task = Task { @MainActor [weak self] in
             guard let self else { return }
-            await self.load()
+            await self.load(quietly: quietly)
         }
         reloadTask = task
         await task.value
     }
 
     /// Reads the current state. Cancellable: a superseded read stops before
-    /// it publishes anything.
-    public func load() async {
-        isRefreshing = true
-        defer { isRefreshing = false }
+    /// it publishes anything. `quietly` is the same as in `reload`.
+    public func load(quietly: Bool = false) async {
+        if !quietly { isRefreshing = true }
+        defer {
+            if !quietly { isRefreshing = false }
+        }
 
         // The progress belongs to the account that did the work, so the scope
         // is resolved here rather than captured when the screen was built.
