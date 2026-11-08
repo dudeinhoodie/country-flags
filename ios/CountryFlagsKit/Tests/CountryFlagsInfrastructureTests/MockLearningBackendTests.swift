@@ -215,6 +215,84 @@ final class MockLearningBackendTests: XCTestCase {
         )
     }
 
+    /// A queued answer this build cannot send — bytes it cannot read, a
+    /// rating the contract no longer takes — is refused on the device. The
+    /// fixture here answers no batch at all, so a request would fail: the
+    /// refusal needs no network.
+    func testAnAnswerThatCannotBeSentIsRefusedWithoutAskingTheBackend() async throws {
+        let context = makeContext()
+        let unreadable = Self.queued("not a review", operationID: Self.unreadableOperationID)
+        let retired = Self.queuedReview(
+            cardID: PersistenceFixtures.cardID,
+            rating: "HARD",
+            operationID: Self.retiredOperationID
+        )
+
+        let outcome = try await context.reviews.upload([unreadable, retired])
+
+        XCTAssertEqual(
+            Set(outcome.acknowledgements.map(\.operationID)),
+            [Self.unreadableOperationID, Self.retiredOperationID]
+        )
+        for acknowledgement in outcome.acknowledgements {
+            XCTAssertEqual(acknowledgement.status, .rejected)
+            XCTAssertEqual(acknowledgement.rejectionCode, ReviewUploader.unsendablePayload)
+        }
+    }
+
+    /// And the queue parks it. Returned to pending instead, it was read and
+    /// logged again on every run, and a batch's worth at the head of the
+    /// queue kept every answer behind it on the device.
+    func testACoordinatorRunParksAnAnswerThatCannotBeSent() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let outbox = store.makeOutboxRepository()
+        let learning = store.makeLearningRepository()
+        let scope = AccountScope.authenticated(
+            userID: UUID(uuidString: "90000000-0000-4000-8000-0000000000e2")!
+        )
+        let content = store.makeContentRepository()
+        try await content.applyContent(
+            manifest: PersistenceFixtures.manifest(),
+            entities: [PersistenceFixtures.entity()],
+            decks: [PersistenceFixtures.deck()],
+            cards: [PersistenceFixtures.card()],
+            deckCards: [PersistenceFixtures.deckCard()]
+        )
+        try await learning.saveSession(PersistenceFixtures.session(), for: scope)
+        try await outbox.enqueue(
+            Self.queued("not a review", operationID: Self.unreadableOperationID),
+            for: scope
+        )
+        try await outbox.enqueue(
+            Self.queuedReview(cardID: PersistenceFixtures.cardID),
+            for: scope
+        )
+        let factory = Self.factory(
+            backend: MockLearningBackend(
+                arguments: [MockLearningBackend.acceptedReviewsArgument],
+                defaults: defaults,
+                now: { Self.instant }
+            )
+        )
+        let coordinator = SyncCoordinator(
+            outbox: outbox,
+            learning: learning,
+            uploader: ReviewUploader(clientFactory: factory, devices: FixedDevice()),
+            sessionImports: StudySessionService(clientFactory: factory, content: content),
+            dates: FixedDateProvider(instant: Self.instant)
+        )
+
+        _ = await coordinator.synchronize(scope: scope, trigger: .launch)
+
+        let pending = try await outbox.pendingOperations(for: scope)
+        XCTAssertTrue(pending.isEmpty, "Both left the queue: one sent, one parked")
+        let parked = try await outbox.operations(
+            failedWith: ReviewUploader.unsendablePayload,
+            for: scope
+        )
+        XCTAssertEqual(parked.map(\.id), [Self.unreadableOperationID])
+    }
+
     // MARK: - Harness
 
     private struct Context {
@@ -267,17 +345,33 @@ final class MockLearningBackendTests: XCTestCase {
 
     /// One answer as the study runner queues it: the stored bytes, not a
     /// rebuilt event, because the stored bytes are what the uploader reads.
-    private static func queuedReview(cardID: UUID) -> OutboxOperationRecord {
+    private static func queuedReview(
+        cardID: UUID,
+        rating: String = "GOOD",
+        operationID: UUID = UUID(uuidString: "b0000000-0000-4000-8000-000000000009")!
+    ) -> OutboxOperationRecord {
         let payload = "{"
             + PAYLOAD_REVIEW_ID
             + PAYLOAD_SESSION_ID
             + "\"learningCardID\":\"\(cardID.uuidString)\","
-            + "\"rating\":\"GOOD\",\"answerMode\":\"SELF_RATED\","
+            + "\"rating\":\"\(rating)\",\"answerMode\":\"SELF_RATED\","
             + "\"clientOccurredAt\":\"2027-01-15T08:00:00Z\","
             + "\"clientSequence\":1,\"baseStateVersion\":0,"
             + "\"selectedOptionID\":null}"
-        return OutboxOperationRecord(
-            id: UUID(uuidString: "b0000000-0000-4000-8000-000000000009")!,
+        return queued(payload, operationID: operationID)
+    }
+
+    private static let unreadableOperationID = UUID(
+        uuidString: "b0000000-0000-4000-8000-00000000000a"
+    )!
+    private static let retiredOperationID = UUID(
+        uuidString: "b0000000-0000-4000-8000-00000000000b"
+    )!
+
+    /// Queued bytes as they are, readable or not.
+    private static func queued(_ payload: String, operationID: UUID) -> OutboxOperationRecord {
+        OutboxOperationRecord(
+            id: operationID,
             kind: .reviewBatch,
             dependencyID: PersistenceFixtures.sessionID,
             payload: Data(payload.utf8),

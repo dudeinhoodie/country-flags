@@ -539,10 +539,12 @@ public actor SyncCoordinator: SyncCoordinating {
                     failureCode: acknowledgement.rejectionCode,
                     for: scope
                 )
+                // The code says whose refusal it was: the backend's, or the
+                // uploader's for an answer this build cannot send.
                 logger.log(
                     .error,
                     .sync,
-                    "The backend refused a review",
+                    "A review was refused and parked",
                     ["code": .safe(acknowledgement.rejectionCode ?? "UNKNOWN")]
                 )
             case .reconciliationPending:
