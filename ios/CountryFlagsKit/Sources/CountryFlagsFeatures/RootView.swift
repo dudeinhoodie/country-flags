@@ -297,8 +297,9 @@ public struct RootView: View {
             // The counts are read from the store before the network is
             // asked: a guest's numbers are local and complete already, and
             // waiting for a sync run to report them held the launch behind a
-            // request that had nothing to do with them.
-            .task { await progress.reload() }
+            // request that had nothing to do with them. Quietly, as the
+            // shell's read below is, for the reason it gives.
+            .task { await progress.reload(quietly: true) }
             .task { await sync.start() }
         } else {
             shell
@@ -728,7 +729,12 @@ public struct RootView: View {
         // the counts happens here rather than on the waiting screen. Both
         // calls are idempotent; whichever screen the launch lands on, the
         // store is read once and the run starts once.
-        .task { await progress.reload() }
+        //
+        // Quietly (#558): nobody asked for this read, and it lands on a Home
+        // that has only just appeared. Read loudly it dimmed Home for as long
+        // as it took, and a dimmed Home takes no taps, so the first thing a
+        // person pressed on a first launch could do nothing.
+        .task { await progress.reload(quietly: true) }
         .task { await sync.start() }
         // The transaction listener starts here, at the root, and once: a
         // purchase approved overnight is handed over the moment the process
