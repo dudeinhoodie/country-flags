@@ -101,14 +101,24 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
         else {
             return
         }
+        let changesBeforeRotating = identityChanges
         do {
             let session = try await rotate()
+            // A sign-in or sign-out that landed while the rotation was in
+            // flight has already decided who this device is. Adopted anyway,
+            // the launch put the previous account's tokens and identity back
+            // over the person who had just signed in — or back on a device
+            // somebody had just signed out of.
+            guard identityChanges == changesBeforeRotating else { return }
             await adopt(session)
             // The rotation says nothing about whose account it is; the
             // identifier stored beside the token does, which is why a relaunch
             // needs no call to find out who it is.
             state = .authenticated(userID: userID)
         } catch {
+            // A refusal of a session that has since been replaced says
+            // nothing about the one that replaced it.
+            guard identityChanges == changesBeforeRotating else { return }
             guard Self.endsTheSession(error) else {
                 // Launched underground, or on hotel wifi that resolves nothing.
                 // The token is as good as it was yesterday — nobody refused it
@@ -318,11 +328,20 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
                 )
             )
         }
+        let changesBeforeRotating = identityChanges
         do {
             let session = try await rotate()
+            // The request that asked for this refresh was made for a session
+            // a sign-in or sign-out has since replaced. Adopting the rotation
+            // wrote the old session's refresh token back into a keychain the
+            // sign-out had just cleared, or over the new account's.
+            guard identityChanges == changesBeforeRotating else { throw Self.sessionReplaced }
             await adopt(session)
             return session.accessToken
         } catch {
+            // Nor may its refusal expire the session that replaced it, or
+            // delete that session's refresh token.
+            guard identityChanges == changesBeforeRotating else { throw APIError.from(error) }
             guard Self.endsTheSession(error) else {
                 // This request failed; the session did not. Deleting the
                 // refresh token here is what signed people out for going into
@@ -347,6 +366,18 @@ public actor SessionCoordinator: SessionControlling, AuthorizationTokenProviding
             throw APIError.from(error)
         }
     }
+
+    /// What a refresh answers when a sign-in or sign-out overtook it. The
+    /// middleware then hands the request its original 401, which is the
+    /// honest outcome for a request made under a session that is gone.
+    private static let sessionReplaced = APIError.unauthorized(
+        APIErrorDetails(
+            statusCode: 401,
+            code: "SESSION_REPLACED",
+            message: "The session changed while it was being refreshed",
+            requestID: nil
+        )
+    )
 
     /// Whether a failed refresh means the session is over.
     ///
