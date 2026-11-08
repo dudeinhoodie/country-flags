@@ -1,3 +1,4 @@
+import SwiftData
 import XCTest
 
 import CountryFlagsDomain
@@ -31,6 +32,33 @@ final class ContentRepositoryIdempotencyTests: XCTestCase {
         XCTAssertEqual(cards.count, 1)
         let assets = try await repository.asset(id: Self.assetID)
         XCTAssertNotNil(assets)
+    }
+
+    /// A replayed entity's names and facts replace the previous ones rather
+    /// than leave them behind. Replacing the arrays only detached the old
+    /// rows — the cascade fires when the entity is deleted — so every replay
+    /// and every locale re-import left a copy in the store with no entity.
+    func testReplayingAnEntityLeavesNoDetachedNamesOrFacts() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let repository = store.makeContentRepository()
+        let entity = PersistenceFixtures.entity()
+        let page = ContentPage(entities: [entity])
+        let staging = ContentStagingState(
+            contentVersion: version,
+            stage: .ready,
+            cursor: nil,
+            pendingDeckIDs: [],
+            updatedAt: .distantPast
+        )
+
+        try await repository.applyStagedPage(page, staging: staging)
+        try await repository.applyStagedPage(page, staging: staging)
+
+        let context = ModelContext(store.container)
+        let names = try context.fetchCount(FetchDescriptor<StoredGeoName>())
+        XCTAssertEqual(names, entity.names.count)
+        let facts = try context.fetchCount(FetchDescriptor<StoredFact>())
+        XCTAssertEqual(facts, entity.facts.count)
     }
 
     /// A replay carrying corrected values overwrites rather than accumulates.
