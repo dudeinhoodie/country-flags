@@ -16,7 +16,13 @@ import CountryFlagsDomain
 /// registered there is nothing to attribute reviews to, and inventing an
 /// identifier would attach a learner's work to a device that does not exist.
 public protocol DeviceIdentityProviding: Sendable {
-    func registeredDeviceID() async -> UUID?
+    /// The device reviews are attributed to, or nil when there is none to be:
+    /// a guest, or an account the backend lists no current device for.
+    ///
+    /// - Throws: when the backend could not be asked. That is the network
+    ///   rather than a missing device, and the sync says so instead of asking
+    ///   somebody to sign in again.
+    func registeredDeviceID() async throws -> UUID?
     /// Drops the remembered device, so the next `registeredDeviceID()` asks
     /// the backend again. Called when the backend says it does not know the
     /// device a review named.
@@ -59,7 +65,7 @@ public struct ReviewUploader: ReviewUploading {
     }
 
     public func upload(_ operations: [OutboxOperationRecord]) async throws -> ReviewBatchOutcome {
-        guard let deviceID = await devices.registeredDeviceID() else {
+        guard let deviceID = try await devices.registeredDeviceID() else {
             throw ReviewUploadFailure.deviceNotRegistered
         }
         let decoder = JSONDecoder()
@@ -138,9 +144,11 @@ public struct ReviewUploader: ReviewUploading {
         // same answers go once more under it.
         let kept = first.acknowledgements.filter { !unknownDevice.contains($0.eventID) }
         await devices.forgetRegisteredDevice()
-        guard let resolved = await devices.registeredDeviceID(), resolved != deviceID else {
-            // Nothing better to send them as. Left out of the outcome, they
-            // stay queued for the next run rather than being parked.
+        guard let resolved = try? await devices.registeredDeviceID(), resolved != deviceID else {
+            // Nothing better to send them as, or the backend could not be
+            // asked. Left out of the outcome, they stay queued for the next
+            // run rather than being parked, and what the first answer settled
+            // stands.
             logger.log(
                 .error,
                 .sync,
