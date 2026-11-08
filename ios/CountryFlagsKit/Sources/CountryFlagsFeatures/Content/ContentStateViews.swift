@@ -309,7 +309,12 @@ struct FlagImageView: View {
     /// placeholder is a real state, and naming the wrong thing in it is the
     /// same mistake as drawing the wrong thing.
     var missing: MissingAssetSymbol = .flag
+    /// The width it is drawn at, for a flag drawn small and at a size known
+    /// up front. Such a flag is decoded at that size, which is what keeps its
+    /// thin lines from coming out hard (#555). Nil for a flag drawn large.
+    var drawnWidth: CGFloat?
 
+    @Environment(\.displayScale) private var displayScale
     @State private var image: Image?
     @State private var didFail = false
 
@@ -346,7 +351,10 @@ struct FlagImageView: View {
 
     private func load() async {
         guard let record = await store.asset(id: assetID),
-            let resolved = await FlagImageResolver(assets: assets).image(for: record)
+            let resolved = await FlagImageResolver(assets: assets).image(
+                for: record,
+                pixelWidth: drawnWidth.map { $0 * displayScale }
+            )
         else {
             // The previous flag is cleared rather than left behind: this view
             // keeps its identity across cards in the quiz, and a failure that
