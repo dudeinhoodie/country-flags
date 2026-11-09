@@ -255,19 +255,10 @@ public struct ReviewUploader: ReviewUploading {
                 serverTime: payload.serverTime
             )
         case .conflict, .unprocessableContent, .default:
-            // Unreachable in practice: the error mapping middleware turns every
-            // status at or above 400 into an `APIError` before the generated
-            // client parses it, so a batch refusal arrives through the catch
-            // above. Handled rather than ignored so a contract change cannot
-            // silently produce a success here.
-            throw APIError.status(
-                APIErrorDetails(
-                    statusCode: 0,
-                    code: "UNKNOWN",
-                    message: "Unmapped error response",
-                    requestID: nil
-                )
-            )
+            // A batch refusal arrives through the catch above: the error
+            // mapping middleware turns it into an `APIError` before the
+            // generated client parses it.
+            throw APIError.unmapped("Unmapped error response")
         }
     }
 

@@ -117,18 +117,7 @@ public struct AuthService: AuthenticationService {
     }
 
     private static var unexpected: APIError {
-        // Unreachable in practice: the error middleware turns every status at
-        // or above 400 into an `APIError` before the generated client parses
-        // it. Handled rather than ignored so a contract change cannot quietly
-        // produce a success here.
-        APIError.status(
-            APIErrorDetails(
-                statusCode: 0,
-                code: "UNKNOWN",
-                message: "Unmapped authentication response",
-                requestID: nil
-            )
-        )
+        APIError.unmapped("Unmapped authentication response")
     }
 
     /// The generated DTO stays inside this target: a caller describes its

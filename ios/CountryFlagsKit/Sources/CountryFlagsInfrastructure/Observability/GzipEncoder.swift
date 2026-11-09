@@ -1,5 +1,4 @@
 import Compression
-import CryptoKit
 import Foundation
 
 /// Wraps the platform's raw DEFLATE in gzip framing.
@@ -54,12 +53,5 @@ enum CRC32 {
             crc = table[Int((crc ^ UInt32(byte)) & 0xFF)] ^ (crc >> 8)
         }
         return crc ^ 0xFFFF_FFFF
-    }
-}
-
-/// The digest the backend recomputes over the compressed bytes.
-enum SHA256Digest {
-    static func hexDigest(of data: Data) -> String {
-        SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
 }

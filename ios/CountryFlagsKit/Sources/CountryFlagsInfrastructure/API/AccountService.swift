@@ -160,14 +160,7 @@ public struct AccountService: AccountDirectory, DataExporting, AccountDeleting {
     // MARK: - Mapping
 
     private static var unexpected: APIError {
-        APIError.status(
-            APIErrorDetails(
-                statusCode: 0,
-                code: "UNKNOWN",
-                message: "Unmapped account response",
-                requestID: nil
-            )
-        )
+        APIError.unmapped("Unmapped account response")
     }
 
     private static func identity(

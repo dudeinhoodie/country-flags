@@ -1,5 +1,6 @@
-import CryptoKit
 import Foundation
+
+import CountryFlagsDomain
 
 /// The commerce half of the Mock build: one deck for sale, and an account that
 /// comes to own it.
@@ -110,9 +111,7 @@ public final class MockCommerce: @unchecked Sendable {
     /// The tag is a function of the answer, so a foreground check costs a
     /// `304` until a purchase changes what the answer is.
     private var entityTag: String {
-        let digest = SHA256.hash(data: Data(snapshot.utf8))
-            .map { String(format: "%02x", $0) }
-            .joined()
+        let digest = SHA256Digest.hexDigest(of: Data(snapshot.utf8))
         return "\"\(digest)\""
     }
 }

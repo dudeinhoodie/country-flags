@@ -11,8 +11,8 @@ import CountryFlagsDomain
 /// account-scoped records, each carrying the `scopeKey` every query filters on.
 ///
 /// Uniqueness is enforced by the repositories, which read before they write.
-/// The `#Unique` macro would state it in the schema instead, but it needs
-/// iOS 18 and the deployment target is iOS 17.
+/// The `#Unique` macro would state it in the schema instead, but it needed
+/// iOS 18 when this schema was written and the deployment target was iOS 17.
 enum LocalSchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
 

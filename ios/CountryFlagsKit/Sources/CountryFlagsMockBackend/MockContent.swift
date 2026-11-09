@@ -1,5 +1,6 @@
-import CryptoKit
 import Foundation
+
+import CountryFlagsDomain
 import CountryFlagsInfrastructure
 
 /// The content the Mock build answers with: one published release, served whole.
@@ -44,7 +45,7 @@ public enum MockContent {
     /// The manifest is what a release is identified by, so its tag is the
     /// checksum of the document itself, as the backend computes it.
     private static func entityTag(of document: Data) -> String {
-        let digest = SHA256.hash(data: document).map { String(format: "%02x", $0) }.joined()
+        let digest = SHA256Digest.hexDigest(of: document)
         return "\"\(digest)\""
     }
 

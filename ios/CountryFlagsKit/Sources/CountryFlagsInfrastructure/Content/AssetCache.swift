@@ -1,4 +1,3 @@
-import CryptoKit
 import Foundation
 
 import CountryFlagsDomain
@@ -242,6 +241,6 @@ public actor FileAssetCache: AssetCaching {
     }
 
     static func digest(of data: Data) -> String {
-        SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        SHA256Digest.hexDigest(of: data)
     }
 }

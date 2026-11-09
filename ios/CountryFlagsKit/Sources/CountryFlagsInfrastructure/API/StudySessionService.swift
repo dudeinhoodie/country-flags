@@ -277,14 +277,7 @@ public struct StudySessionService: StudySessionSelecting, StudySessionImporting 
     }
 
     private static var unexpected: APIError {
-        APIError.status(
-            APIErrorDetails(
-                statusCode: 0,
-                code: "UNKNOWN",
-                message: "Unmapped study session response",
-                requestID: nil
-            )
-        )
+        APIError.unmapped("Unmapped study session response")
     }
 }
 

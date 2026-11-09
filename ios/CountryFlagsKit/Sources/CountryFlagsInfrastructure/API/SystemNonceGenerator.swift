@@ -1,4 +1,3 @@
-import CryptoKit
 import Foundation
 import Security
 
@@ -16,9 +15,7 @@ public struct SystemNonceGenerator: NonceGenerating {
 
     public func makeNonce() -> SignInNonce {
         let raw = Self.randomString(length: 32)
-        let digest = SHA256.hash(data: Data(raw.utf8))
-        let hashed = digest.map { String(format: "%02x", $0) }.joined()
-        return SignInNonce(raw: raw, hashed: hashed)
+        return SignInNonce(raw: raw, hashed: SHA256Digest.hexDigest(of: Data(raw.utf8)))
     }
 
     /// Alphanumerics only: the value travels inside a signed JWT claim and a

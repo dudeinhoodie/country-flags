@@ -8,7 +8,8 @@
 # the log, which keeps a run reproducible.
 set -euo pipefail
 
-# Newest models first, then the ones that cover the minimum supported iOS 17.
+# Newest models first. Only an iOS 26 or newer runtime can run the app, whose
+# deployment target is 26.0.
 PREFERRED_DEVICES=(
   "iPhone 17 Pro"
   "iPhone 17"
@@ -34,13 +35,13 @@ matches = []
 for runtime, devices in catalog.items():
     if "iOS" not in runtime:
         continue
-    # com.apple.CoreSimulator.SimRuntime.iOS-17-4 -> (17, 4)
+    # com.apple.CoreSimulator.SimRuntime.iOS-26-0 -> (26, 0)
     version = runtime.rsplit(".", 1)[-1].removeprefix("iOS-")
     try:
         parsed = tuple(int(part) for part in version.split("-"))
     except ValueError:
         continue
-    if parsed < (17, 0):
+    if parsed < (26, 0):
         continue
     for device in devices:
         if device.get("isAvailable") and device.get("name") == wanted:

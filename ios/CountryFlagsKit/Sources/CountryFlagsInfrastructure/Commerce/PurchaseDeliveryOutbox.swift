@@ -1,4 +1,3 @@
-import CryptoKit
 import Foundation
 
 import CountryFlagsDomain
@@ -241,8 +240,6 @@ public actor PurchaseDeliveryOutbox {
     /// store transaction identifier is not something to leave in one.
     static func idempotencyKey(for batch: [PurchaseDeliveryRecord]) -> String {
         let canonical = batch.map(\.transactionID).sorted().joined(separator: "\n")
-        return SHA256.hash(data: Data(canonical.utf8))
-            .map { String(format: "%02x", $0) }
-            .joined()
+        return SHA256Digest.hexDigest(of: Data(canonical.utf8))
     }
 }
