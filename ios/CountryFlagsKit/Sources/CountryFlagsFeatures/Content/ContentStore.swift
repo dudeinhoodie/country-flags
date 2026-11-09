@@ -272,7 +272,18 @@ public final class ContentStore {
                 .resolve(supported: manifest.supportedLocales, default: manifest.defaultLocale)
         }
 
-        let decks = (try? await repository.decks()) ?? []
+        let decks: [DeckRecord]
+        do {
+            decks = try await repository.decks()
+        } catch {
+            // A store that did not answer is not an empty release: "nothing
+            // published" is a claim about the catalogue, and only the retry
+            // under a failure can help. A catalogue already on screen stays
+            // there, the way a failed sync leaves it.
+            if case .ready = catalog { return }
+            catalog = .failed(.recoverable(code: "STORE_READ"))
+            return
+        }
         let sections = CatalogGrouping.sections(
             for: decks,
             entitlementKeys: entitlementKeys,

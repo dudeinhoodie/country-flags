@@ -105,6 +105,40 @@ final class ContentStoreTests: XCTestCase {
         XCTAssertEqual(store.catalog, .failed(.offline))
     }
 
+    /// The release was downloaded, but the store did not answer: "nothing
+    /// published" would be a false claim about the catalogue.
+    func testAStoreThatDoesNotAnswerIsAFailureRatherThanAnEmptyCatalog() async {
+        let repository = FakeContentRepository(decks: [Self.deck(code: "ALL", kind: "CURATED")])
+        repository.readFailure = StoreReadFailure()
+        let store = makeStore(
+            repository: repository,
+            synchronizer: FakeSynchronizer(status: ContentSyncStatus(lastSuccessAt: now))
+        )
+
+        await store.start()
+
+        XCTAssertEqual(store.catalog, .failed(.recoverable(code: "STORE_READ")))
+    }
+
+    /// A catalogue already on screen outlives a read that fails later, the
+    /// way it outlives a failed sync.
+    func testACatalogOnScreenSurvivesAFailedReread() async {
+        let repository = FakeContentRepository(decks: [Self.deck(code: "ALL", kind: "CURATED")])
+        let store = makeStore(
+            repository: repository,
+            synchronizer: FakeSynchronizer(status: ContentSyncStatus(lastSuccessAt: now))
+        )
+        await store.start()
+
+        repository.readFailure = StoreReadFailure()
+        await store.reload()
+
+        guard case .ready(let sections, _, _) = store.catalog else {
+            return XCTFail("Expected a ready catalog, got \(store.catalog)")
+        }
+        XCTAssertEqual(sections.count, 1)
+    }
+
     /// The screen may say which language it is showing, but only when the user
     /// is not reading one they asked for.
     func testTheLocaleFallbackIsReportedToTheScreen() async {

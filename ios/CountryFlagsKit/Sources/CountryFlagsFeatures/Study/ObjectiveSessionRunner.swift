@@ -167,8 +167,17 @@ public final class ObjectiveSessionRunner {
 
     private func start(deckID: UUID, size: StudySessionSize) async {
         let manifest = try? await content.currentManifest()
-        let pool = (try? await content.cards(inDeck: deckID)) ?? []
-        let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
+        // A read that throws is not an empty deck: it is retried, while
+        // `.noUsableCards` sends the learner away from a deck that is fine.
+        let pool: [LearningCardRecord]
+        let states: [CardStateRecord]
+        do {
+            pool = try await content.cards(inDeck: deckID)
+            states = try await learning.cardStates(for: resolvedScope)
+        } catch {
+            startFailure = .storeUnavailable
+            return
+        }
         UnsupportedCardTemplateReport.send(for: pool, to: errors)
         // What each card is about, resolved once for the deck: every question
         // in the sitting is composed against the same pool, and asking the

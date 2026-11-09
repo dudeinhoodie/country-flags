@@ -72,6 +72,21 @@ final class StudySessionRunnerTests: XCTestCase {
         XCTAssertNil(runner.state)
     }
 
+    /// A store that did not answer is not an empty deck: the screen offers a
+    /// retry instead of telling the learner there is nothing to learn.
+    func testACardReadThatFailsIsNotAnEmptyDeck() async {
+        let runner = makeRunner(
+            cards: 3,
+            learning: RecordingLearningRepository(),
+            readFailure: StoreReadFailure()
+        )
+
+        await runner.startOrResume(deckID: deckID, size: .five)
+
+        XCTAssertEqual(runner.startFailure, .storeUnavailable)
+        XCTAssertNil(runner.state)
+    }
+
     /// Every rating is durable before the next card appears, together with its
     /// projected state and its outbox entry.
     func testARatingIsRecordedWithItsProjectionAndOutboxEntry() async {
@@ -275,14 +290,17 @@ final class StudySessionRunnerTests: XCTestCase {
     private func makeRunner(
         cards: Int,
         learning: RecordingLearningRepository,
-        identifiers: any IdentifierProviding = SequentialUUIDProvider()
+        identifiers: any IdentifierProviding = SequentialUUIDProvider(),
+        readFailure: (any Error)? = nil
     ) -> StudySessionRunner {
-        StudySessionRunner(
+        let content = FakeContentRepository(
+            decks: [Self.deck(id: deckID)],
+            cards: [deckID: (0..<cards).map { Self.card(index: $0) }]
+        )
+        content.readFailure = readFailure
+        return StudySessionRunner(
             scopes: FixedScopeResolver(),
-            content: FakeContentRepository(
-                decks: [Self.deck(id: deckID)],
-                cards: [deckID: (0..<cards).map { Self.card(index: $0) }]
-            ),
+            content: content,
             learning: learning,
             dates: FixedDates(instant: now),
             identifiers: identifiers

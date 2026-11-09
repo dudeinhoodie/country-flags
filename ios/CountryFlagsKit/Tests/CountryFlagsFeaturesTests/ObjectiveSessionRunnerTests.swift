@@ -44,6 +44,20 @@ final class ObjectiveSessionRunnerTests: XCTestCase {
         XCTAssertTrue(sessions.isEmpty)
     }
 
+    /// A store that did not answer is worth asking again, unlike a deck with
+    /// nothing in it.
+    func testACardReadThatFailsIsRetriedRatherThanCalledEmpty() async {
+        let learning = RecordingLearningRepository()
+        let runner = makeRunner(cards: 8, learning: learning, readFailure: StoreReadFailure())
+
+        await runner.startOrResume(deckID: deckID, size: .five)
+
+        XCTAssertEqual(runner.startFailure, .storeUnavailable)
+        XCTAssertTrue(runner.startFailure?.isRetryable ?? false)
+        let sessions = await learning.recordedSessions()
+        XCTAssertTrue(sessions.isEmpty)
+    }
+
     func testAnAnswerIsStoredWithTheOpaqueOptionIdentifier() async {
         let learning = RecordingLearningRepository()
         let runner = makeRunner(cards: 6, learning: learning)
@@ -181,14 +195,17 @@ final class ObjectiveSessionRunnerTests: XCTestCase {
     private func makeRunner(
         cards: Int,
         learning: RecordingLearningRepository,
-        identifiers: any IdentifierProviding = SequentialUUIDProvider()
+        identifiers: any IdentifierProviding = SequentialUUIDProvider(),
+        readFailure: (any Error)? = nil
     ) -> ObjectiveSessionRunner {
-        ObjectiveSessionRunner(
+        let content = FakeContentRepository(
+            decks: [Self.deck(id: deckID)],
+            cards: [deckID: (0..<cards).map { Self.card(index: $0) }]
+        )
+        content.readFailure = readFailure
+        return ObjectiveSessionRunner(
             scopes: FixedScopeResolver(),
-            content: FakeContentRepository(
-                decks: [Self.deck(id: deckID)],
-                cards: [deckID: (0..<cards).map { Self.card(index: $0) }]
-            ),
+            content: content,
             learning: learning,
             dates: FixedDates(instant: now),
             identifiers: identifiers
