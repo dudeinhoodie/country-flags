@@ -962,7 +962,7 @@ Backend enum уже содержит `COAT_OF_ARMS` (`backend/prisma/schema.pris
 | dev | Apple Sandbox, отдельная dev app record | `app.countryflags.mobile.dev` | api-dev / Neon dev | только Sandbox |
 | prod | Apple Production | `app.countryflags.mobile` | api-prod / Neon prod | только Production |
 
-Текущий Dev build уже имеет suffix `.dev`, а Prod — production bundle ID (`ios/Config/Dev.xcconfig:10`, `ios/Config/Prod.xcconfig:6`). Apple IAP не делится между разными app records, поэтому dev App Store Connect record должен иметь собственные sandbox products/mappings.
+Текущий Dev build уже имеет suffix `.dev`, а Prod — production bundle ID (`ios/Config/Dev.xcconfig:10`, `ios/Config/Prod.xcconfig:10`). Apple IAP не делится между разными app records, поэтому dev App Store Connect record должен иметь собственные sandbox products/mappings.
 
 Обязательные ограничения:
 

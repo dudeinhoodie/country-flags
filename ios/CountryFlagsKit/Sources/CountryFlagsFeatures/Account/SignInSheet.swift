@@ -240,7 +240,10 @@ struct SignInSheet: View {
             case .signIn:
                 benefit("arrow.triangle.2.circlepath", L10n.accountSignInBenefitSync)
                 benefit("iphone", L10n.accountSignInBenefitDevices)
-                benefit("key", L10n.accountSignInBenefitPassword)
+                benefit(
+                    "key",
+                    L10n.accountSignInBenefitPassword(offersGoogle: store.google != nil)
+                )
             }
         }
         .padding(.horizontal, DesignTokens.Spacing.small)
