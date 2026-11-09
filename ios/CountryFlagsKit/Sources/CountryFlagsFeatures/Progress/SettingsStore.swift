@@ -211,11 +211,14 @@ public final class SettingsStore {
     }
 
     private func apply(_ change: (UserSettingsRecord) -> UserSettingsRecord) async {
-        let scope = await scopes.currentScope()
         let updated = change(settings)
         guard updated != settings else { return }
+        // Before the first suspension: the switch that asked for this reads
+        // `settings` back on its next frame, and a value that arrived only
+        // after the scope was resolved drew the switch back and then forward.
         settings = updated
         didReloadAfterConflict = false
+        let scope = await scopes.currentScope()
         try? await learning.saveSettings(updated, for: scope)
 
         // A guest has nothing to synchronise with. The version stays where it
@@ -233,8 +236,10 @@ public final class SettingsStore {
             }
             didReloadAfterConflict = true
         case nil:
-            // The change is stored and will be offered again by the next sync;
-            // a failed round trip must not cost the choice the user made.
+            // The change is stored under the version it was based on. The
+            // next sync run sees the server at that same version with other
+            // values and offers the change again (`SyncCoordinator`); a failed
+            // round trip must not cost the choice the user made.
             break
         }
     }

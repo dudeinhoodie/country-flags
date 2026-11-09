@@ -1003,6 +1003,24 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertFalse(store.settings.hapticsEnabled)
         XCTAssertFalse(store.didReloadAfterConflict)
     }
+
+    /// The switch reads `settings` back on its next frame. A value set only
+    /// after the scope resolved drew it back to the old position first.
+    func testASwitchHoldsItsNewValueBeforeAnythingIsAwaited() async {
+        let gate = ScopeGate(scope: .authenticated(userID: UUID()))
+        let store = SettingsStore(
+            learning: StoringLearningRepository(),
+            scopes: gate,
+            dates: FixedDateProvider(instant: fixedNow)
+        )
+
+        let change = Task.immediate { await store.setHapticsEnabled(false) }
+
+        XCTAssertFalse(store.settings.hapticsEnabled)
+        await gate.open()
+        await change.value
+        XCTAssertFalse(store.settings.hapticsEnabled)
+    }
 }
 
 private enum APIStubError: Error {

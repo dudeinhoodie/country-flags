@@ -88,12 +88,41 @@ public final class PrivacyStore {
         }
     }
 
-    private func apply(_ change: (TelemetryConsent) -> TelemetryConsent) async {
+    /// Offers again a decision whose round trip failed.
+    ///
+    /// A change keeps the version it was based on until the backend accepts
+    /// it, so a decision that never arrived shows up as the backend at that
+    /// same version with other answers. Any other version is left alone: a
+    /// newer one means another device answered since, and the next change
+    /// made here meets the conflict and takes that answer.
+    ///
+    /// Run at launch after `load()`, once the stored answer already governs
+    /// the collectors: the network only decides what the backend hears.
+    public func offerUnsentDecision() async {
+        let local = consent
         let scope = await scopes.currentScope()
+        guard let sync, !scope.isGuest,
+            // An install that has never answered has nothing to offer.
+            (try? await repository.privacySettings(for: scope)) != nil,
+            let server = try? await sync.privacySettings(),
+            server.version == local.version,
+            !Self.answersMatch(server, local),
+            // Somebody moved a switch while the backend was being asked; that
+            // change went out on its own.
+            consent == local
+        else { return }
+        await offer(local, scope: scope)
+    }
+
+    private func apply(_ change: (TelemetryConsent) -> TelemetryConsent) async {
         let updated = change(consent)
         guard updated != consent else { return }
+        // Before the first suspension: the switch that asked for this reads
+        // `consent` back on its next frame, and a value that arrived only
+        // after the scope was resolved drew the switch back and then forward.
         consent = updated
         didReloadAfterConflict = false
+        let scope = await scopes.currentScope()
         try? await repository.savePrivacySettings(Self.record(from: updated), for: scope)
         // Before the network, always: a withdrawal has to take effect on this
         // device whether or not anything can be reached.
@@ -102,8 +131,13 @@ public final class PrivacyStore {
         // A guest has no account-side settings to write. The version stays
         // where it is so the first account write starts from what the server
         // knows rather than from a number this device invented.
-        guard let sync, !scope.isGuest else { return }
-        switch try? await sync.update(updated) {
+        guard !scope.isGuest else { return }
+        await offer(updated, scope: scope)
+    }
+
+    private func offer(_ decision: TelemetryConsent, scope: AccountScope) async {
+        guard let sync else { return }
+        switch try? await sync.update(decision) {
         case .updated(let accepted):
             consent = accepted
             try? await repository.savePrivacySettings(Self.record(from: accepted), for: scope)
@@ -116,11 +150,19 @@ public final class PrivacyStore {
             }
             didReloadAfterConflict = true
         case nil:
-            // The decision is stored and applied locally; the next sync offers
-            // it again. A failed round trip must not cost the answer somebody
-            // gave.
+            // The decision is stored and applied locally; the next launch
+            // offers it again (`offerUnsentDecision`). A failed round trip
+            // must not cost the answer somebody gave.
             break
         }
+    }
+
+    /// The answers alone: the version and the time are the server's
+    /// bookkeeping, not part of what somebody decided.
+    private static func answersMatch(_ lhs: TelemetryConsent, _ rhs: TelemetryConsent) -> Bool {
+        lhs.productAnalytics == rhs.productAnalytics
+            && lhs.diagnostics == rhs.diagnostics
+            && lhs.policyVersion == rhs.policyVersion
     }
 
     private func applyToCollectors(_ consent: TelemetryConsent) async {

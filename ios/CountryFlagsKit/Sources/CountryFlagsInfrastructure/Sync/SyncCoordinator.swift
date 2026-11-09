@@ -24,6 +24,7 @@ public actor SyncCoordinator: SyncCoordinating {
     private let uploader: any ReviewUploading
     private let sessionImports: (any StudySessionImporting)?
     private let progressDownload: (any ProgressDownloading)?
+    private let settingsSync: (any SettingsSyncing)?
     private let userChanges: (any UserChangesDownloading)?
     private let dates: any DateProviding
     private let logger: any AppLogging
@@ -41,6 +42,7 @@ public actor SyncCoordinator: SyncCoordinating {
         uploader: any ReviewUploading,
         sessionImports: (any StudySessionImporting)? = nil,
         progressDownload: (any ProgressDownloading)? = nil,
+        settingsSync: (any SettingsSyncing)? = nil,
         userChanges: (any UserChangesDownloading)? = nil,
         dates: any DateProviding = SystemDateProvider(),
         logger: any AppLogging = NoOpLogger(),
@@ -51,6 +53,7 @@ public actor SyncCoordinator: SyncCoordinating {
         self.uploader = uploader
         self.sessionImports = sessionImports
         self.progressDownload = progressDownload
+        self.settingsSync = settingsSync
         self.userChanges = userChanges
         self.dates = dates
         self.logger = logger
@@ -335,8 +338,54 @@ public actor SyncCoordinator: SyncCoordinating {
             let local = try await learning.settings(for: scope)
             if local == nil || serverSettings.version > (local?.version ?? 0) {
                 try await learning.saveSettings(serverSettings, for: scope)
+            } else if let local, local.version == serverSettings.version,
+                !Self.choicesMatch(local, serverSettings)
+            {
+                await offerUnsentSettings(local, scope: scope)
             }
         }
+    }
+
+    /// A change the settings screen stored but could not deliver.
+    ///
+    /// The screen keeps the version a change was based on until the server
+    /// accepts it, so the server at that same version with other values is a
+    /// change that never arrived. A miss leaves it for the next run, which
+    /// sees the same difference; a conflict means another device wrote in
+    /// between, and its settings win as they would have on the screen.
+    private func offerUnsentSettings(_ local: UserSettingsRecord, scope: AccountScope) async {
+        guard let settingsSync else { return }
+        let outcome: SettingsUpdateOutcome
+        do {
+            outcome = try await settingsSync.update(local)
+        } catch {
+            logger.log(
+                .notice,
+                .sync,
+                "Unsent settings could not be offered this run",
+                ["code": .safe(String(describing: Self.failure(from: error)))]
+            )
+            return
+        }
+        switch outcome {
+        case .updated(let accepted):
+            try? await learning.saveSettings(accepted, for: scope)
+        case .conflict(let server):
+            if let server {
+                try? await learning.saveSettings(server, for: scope)
+            }
+        }
+    }
+
+    /// What the learner chose, without the server's bookkeeping.
+    private static func choicesMatch(_ lhs: UserSettingsRecord, _ rhs: UserSettingsRecord) -> Bool {
+        lhs.sessionSize == rhs.sessionSize
+            && lhs.contentLocale == rhs.contentLocale
+            && lhs.defaultAnswerMode == rhs.defaultAnswerMode
+            && lhs.extraFactTypes == rhs.extraFactTypes
+            && lhs.soundEnabled == rhs.soundEnabled
+            && lhs.hapticsEnabled == rhs.hapticsEnabled
+            && lhs.remindersEnabled == rhs.remindersEnabled
     }
 
     /// Sends the queue in order, a batch at a time, and applies each decision.

@@ -12,6 +12,31 @@ struct FixedScopeResolver: AccountScopeResolving {
     func currentScope() async -> AccountScope { scope }
 }
 
+/// Holds every caller at `currentScope()` until the test opens it, so a test
+/// can look at what a store did before its first suspension.
+actor ScopeGate: AccountScopeResolving {
+    private let scope: AccountScope
+    private var isOpen = false
+    private var waiting: [CheckedContinuation<Void, Never>] = []
+
+    init(scope: AccountScope) {
+        self.scope = scope
+    }
+
+    func currentScope() async -> AccountScope {
+        if !isOpen {
+            await withCheckedContinuation { waiting.append($0) }
+        }
+        return scope
+    }
+
+    func open() {
+        isOpen = true
+        waiting.forEach { $0.resume() }
+        waiting = []
+    }
+}
+
 /// Hands out the identifiers a test names, so a review's identity is something
 /// the test can assert on rather than something it has to discover.
 struct SequentialUUIDProvider: IdentifierProviding {

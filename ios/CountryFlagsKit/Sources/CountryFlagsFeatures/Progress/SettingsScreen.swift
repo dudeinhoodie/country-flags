@@ -203,14 +203,14 @@ struct SettingsSections: View {
     private func productAnalyticsBinding(_ privacy: PrivacyStore) -> Binding<Bool> {
         Binding(
             get: { privacy.consent.productAnalytics == .granted },
-            set: { isOn in Task { await privacy.setProductAnalytics(granted: isOn) } }
+            set: { isOn in Task.immediate { await privacy.setProductAnalytics(granted: isOn) } }
         )
     }
 
     private func diagnosticsBinding(_ privacy: PrivacyStore) -> Binding<Bool> {
         Binding(
             get: { privacy.consent.diagnostics == .granted },
-            set: { isOn in Task { await privacy.setDiagnostics(granted: isOn) } }
+            set: { isOn in Task.immediate { await privacy.setDiagnostics(granted: isOn) } }
         )
     }
 
@@ -234,17 +234,20 @@ struct SettingsSections: View {
         )
     }
 
+    // Every switch here starts its change with `Task.immediate`: the stores
+    // set the value before their first suspension, and a task merely
+    // enqueued would leave the switch drawn at the old value in between.
     private var hapticsEnabled: Binding<Bool> {
         Binding(
             get: { store.settings.hapticsEnabled },
-            set: { isOn in Task { await store.setHapticsEnabled(isOn) } }
+            set: { isOn in Task.immediate { await store.setHapticsEnabled(isOn) } }
         )
     }
 
     private var remindersEnabled: Binding<Bool> {
         Binding(
             get: { store.settings.remindersEnabled },
-            set: { isOn in Task { await store.setRemindersEnabled(isOn) } }
+            set: { isOn in Task.immediate { await store.setRemindersEnabled(isOn) } }
         )
     }
 }

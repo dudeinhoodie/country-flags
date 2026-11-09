@@ -384,6 +384,7 @@ struct AppComposition: AppDependencies {
             ),
             sessionImports: studySessions,
             progressDownload: progressService,
+            settingsSync: progressService,
             userChanges: UserChangesService(clientFactory: apiClientFactory),
             dates: dates,
             logger: logger
