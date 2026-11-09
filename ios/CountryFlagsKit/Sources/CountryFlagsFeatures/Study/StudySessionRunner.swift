@@ -25,7 +25,7 @@ struct PendingReviewPayload: Codable, Hashable, Sendable {
 public enum StudySessionStartFailure: Hashable, Sendable {
     /// The deck has no card this build can study.
     case noUsableCards
-    /// The store refused, so nothing was started.
+    /// The store refused a read or a write, so nothing was started.
     case storeUnavailable
 }
 
@@ -333,8 +333,17 @@ public final class StudySessionRunner {
         }
 
         let manifest = try? await content.currentManifest()
-        let cards = (try? await content.cards(inDeck: deckID)) ?? []
-        let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
+        // A read that throws is not an empty deck. Answered as one, a passing
+        // store failure told the learner the deck had nothing to learn.
+        let cards: [LearningCardRecord]
+        let states: [CardStateRecord]
+        do {
+            cards = try await content.cards(inDeck: deckID)
+            states = try await learning.cardStates(for: resolvedScope)
+        } catch {
+            startFailure = .storeUnavailable
+            return .settled
+        }
         UnsupportedCardTemplateReport.send(for: cards, to: errors)
 
         let selected = LocalCardSelection.select(

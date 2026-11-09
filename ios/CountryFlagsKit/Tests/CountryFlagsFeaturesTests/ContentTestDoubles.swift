@@ -2,6 +2,9 @@ import Foundation
 
 import CountryFlagsDomain
 
+/// What a test's store throws when it is told not to answer.
+struct StoreReadFailure: Error {}
+
 struct FixedDates: DateProviding {
     let instant: Date
 
@@ -18,6 +21,9 @@ final class FakeContentRepository: ContentRepository, @unchecked Sendable {
     private let entitiesByID: [UUID: GeoEntityRecord]
     /// The decks a cleanup was asked to forget, in the order it was asked.
     private(set) var removedDeckIDs: [UUID] = []
+    /// When set, the deck and card reads throw it, the way a store that will
+    /// not answer does.
+    var readFailure: (any Error)?
 
     init(
         decks: [DeckRecord] = [],
@@ -52,10 +58,14 @@ final class FakeContentRepository: ContentRepository, @unchecked Sendable {
 
     func commitRelease(manifest: ContentManifestRecord) async throws {}
 
-    func decks() async throws -> [DeckRecord] { decksByID }
+    func decks() async throws -> [DeckRecord] {
+        if let readFailure { throw readFailure }
+        return decksByID
+    }
 
     func cards(inDeck deckID: UUID) async throws -> [LearningCardRecord] {
-        cardsByDeck[deckID] ?? []
+        if let readFailure { throw readFailure }
+        return cardsByDeck[deckID] ?? []
     }
 
     func cardIdentifiersByDeck() async throws -> [UUID: [UUID]] {
