@@ -130,17 +130,133 @@ final class ProgressDownlinkTests: XCTestCase {
         XCTAssertEqual(stored?.sessionSize, 5)
     }
 
+    /// The settings screen stored a change whose round trip failed. The
+    /// server still holds the version it was based on, with the old value,
+    /// so the run offers the change again and keeps what the server accepted.
+    func testAChangeTheServerNeverHeardIsOfferedAgain() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        let unsent = Fixtures.settings(version: 3, sessionSize: 20, now: now)
+        try await learning.saveSettings(unsent, for: account)
+        let settingsSync = ScriptedSettingsSync(
+            result: .success(.updated(Fixtures.settings(version: 4, sessionSize: 20, now: now)))
+        )
+        let coordinator = makeCoordinator(
+            store: store,
+            download: ScriptedDownload(
+                result: .success(
+                    Fixtures.snapshot(
+                        now: now,
+                        settings: Fixtures.settings(version: 3, sessionSize: 10, now: now)
+                    )
+                )
+            ),
+            settingsSync: settingsSync
+        )
+
+        _ = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        let sent = await settingsSync.sent
+        XCTAssertEqual(sent, [unsent])
+        let stored = try await learning.settings(for: account)
+        XCTAssertEqual(stored?.version, 4)
+        XCTAssertEqual(stored?.sessionSize, 20)
+    }
+
+    func testSettingsTheServerAlreadyHoldsAreNotSentAgain() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        let same = Fixtures.settings(version: 3, sessionSize: 20, now: now)
+        try await learning.saveSettings(same, for: account)
+        let settingsSync = ScriptedSettingsSync(
+            result: .success(.updated(Fixtures.settings(version: 4, sessionSize: 20, now: now)))
+        )
+        let coordinator = makeCoordinator(
+            store: store,
+            download: ScriptedDownload(
+                result: .success(Fixtures.snapshot(now: now, settings: same))
+            ),
+            settingsSync: settingsSync
+        )
+
+        _ = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        let sent = await settingsSync.sent
+        XCTAssertTrue(sent.isEmpty)
+    }
+
+    /// Another device wrote between the failed round trip and this run. Its
+    /// settings win, as they would have on the screen.
+    func testAnUnsentChangeThatMeetsAConflictTakesTheServerSettings() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        try await learning.saveSettings(
+            Fixtures.settings(version: 3, sessionSize: 20, now: now), for: account
+        )
+        let settingsSync = ScriptedSettingsSync(
+            result: .success(.conflict(Fixtures.settings(version: 5, sessionSize: 5, now: now)))
+        )
+        let coordinator = makeCoordinator(
+            store: store,
+            download: ScriptedDownload(
+                result: .success(
+                    Fixtures.snapshot(
+                        now: now,
+                        settings: Fixtures.settings(version: 3, sessionSize: 10, now: now)
+                    )
+                )
+            ),
+            settingsSync: settingsSync
+        )
+
+        _ = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        let stored = try await learning.settings(for: account)
+        XCTAssertEqual(stored?.version, 5)
+        XCTAssertEqual(stored?.sessionSize, 5)
+    }
+
+    /// Still no network for the change: it stays on the device for the next
+    /// run, which sees the same difference and tries again.
+    func testAnUnsentChangeThatStillCannotBeDeliveredStaysOnTheDevice() async throws {
+        let store = try LocalStore(location: .inMemory)
+        let learning = store.makeLearningRepository()
+        try await learning.saveSettings(
+            Fixtures.settings(version: 3, sessionSize: 20, now: now), for: account
+        )
+        let coordinator = makeCoordinator(
+            store: store,
+            download: ScriptedDownload(
+                result: .success(
+                    Fixtures.snapshot(
+                        now: now,
+                        settings: Fixtures.settings(version: 3, sessionSize: 10, now: now)
+                    )
+                )
+            ),
+            settingsSync: ScriptedSettingsSync(result: .failure(APIError.transport("-1009")))
+        )
+
+        _ = await coordinator.synchronize(scope: account, trigger: .launch)
+
+        let stored = try await learning.settings(for: account)
+        XCTAssertEqual(stored?.version, 3)
+        XCTAssertEqual(stored?.sessionSize, 20)
+    }
+
     // MARK: - Harness
 
     private func makeCoordinator(
         store: LocalStore,
-        download: ScriptedDownload
+        download: ScriptedDownload,
+        settingsSync: ScriptedSettingsSync? = nil
     ) -> SyncCoordinator {
         SyncCoordinator(
             outbox: store.makeOutboxRepository(),
             learning: store.makeLearningRepository(),
             uploader: AcceptingUploader(),
             progressDownload: download,
+            settingsSync: settingsSync,
             dates: FixedDateProvider(instant: now)
         )
     }
@@ -155,6 +271,21 @@ private struct AcceptingUploader: ReviewUploading {
             cursor: nil,
             serverTime: Date(timeIntervalSince1970: 1_800_000_000)
         )
+    }
+}
+
+/// Answers every settings change the same way and remembers what was sent.
+private actor ScriptedSettingsSync: SettingsSyncing {
+    private let result: Result<SettingsUpdateOutcome, any Error>
+    private(set) var sent: [UserSettingsRecord] = []
+
+    init(result: Result<SettingsUpdateOutcome, any Error>) {
+        self.result = result
+    }
+
+    func update(_ settings: UserSettingsRecord) async throws -> SettingsUpdateOutcome {
+        sent.append(settings)
+        return try result.get()
     }
 }
 

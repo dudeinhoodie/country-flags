@@ -14,7 +14,9 @@ import CountryFlagsDomain
 /// The order is the point. The stored answer reaches the collectors first,
 /// so MetricKit's first delivery, which usually arrives right after the
 /// subscription, is judged by it rather than by "not asked" and dropped. Then
-/// the subscription, then whatever earlier launches left waiting.
+/// the subscription, then whatever earlier launches left waiting. Last, a
+/// decision an earlier launch could not deliver is offered to the backend
+/// again; the collectors already obey it, so nothing waits on the network.
 @MainActor
 public struct TelemetryLaunch {
     private let privacy: PrivacyStore
@@ -40,5 +42,6 @@ public struct TelemetryLaunch {
         await privacy.load()
         startDiagnostics()
         await flushDiagnostics()
+        await privacy.offerUnsentDecision()
     }
 }
