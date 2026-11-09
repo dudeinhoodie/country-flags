@@ -143,4 +143,19 @@ final class FactDisplayTests: XCTestCase {
         XCTAssertEqual(FactDisplay.compactNumber(2_100_000_000, language: "ru"), "2,1\u{00A0}млрд")
         XCTAssertEqual(FactDisplay.compactNumber(1_500, language: "ru"), "1,5\u{00A0}тыс.")
     }
+
+    /// A German phone shows the interface in English: dates and numbers take
+    /// the interface's language and keep the device's region (#525).
+    func testTheInterfaceLanguageReplacesOnlyTheLanguageOfTheDevice() {
+        let english = L10n.locale(for: "en", on: Locale(identifier: "de_DE"))
+        XCTAssertEqual(english.language.languageCode, .english)
+        XCTAssertEqual(english.region, .germany)
+
+        let russian = L10n.locale(for: "ru", on: Locale(identifier: "en_US"))
+        XCTAssertEqual(russian.language.languageCode, .russian)
+        XCTAssertEqual(russian.region, .unitedStates)
+
+        let british = L10n.locale(for: "en", on: Locale(identifier: "en_GB"))
+        XCTAssertEqual(british.region, .unitedKingdom)
+    }
 }

@@ -246,7 +246,7 @@ public struct AccountScreen: View {
     /// Dates are shown as days: the hour a deletion completes is precision
     /// nobody acts on, and a timestamp reads as surveillance.
     private static func day(_ date: Date) -> String {
-        date.formatted(date: .abbreviated, time: .omitted)
+        date.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted, locale: L10n.appLocale))
     }
 
     /// The same glass the settings rows use, for the same reason.
