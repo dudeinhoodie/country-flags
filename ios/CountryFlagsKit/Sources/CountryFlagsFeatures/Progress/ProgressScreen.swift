@@ -323,9 +323,7 @@ public struct ProgressScreen: View {
             Spacer(minLength: DesignTokens.Spacing.small)
 
             // The tier chip left this row: beside the name and the counts it
-            // broke the line at ordinary widths, and the tier still shows on
-            // the award itself on the achievements screen, which is in the
-            // package but out of the tab bar (see RootView).
+            // broke the line at ordinary widths.
             Text(verbatim: "\(deck.learnedCards)/\(deck.totalCards)")
                 .font(DesignTokens.Typography.sectionTitle)
                 .monospacedDigit()
@@ -422,71 +420,5 @@ struct WorldMapView: View {
         }
         .aspectRatio(1.9, contentMode: .fit)
         .accessibilityHidden(true)
-    }
-}
-
-/// A tier the server awarded.
-///
-/// A tier this build does not know is printed as it arrived rather than
-/// dropped: the server only reports one the learner reached, and hiding it
-/// would take away an achievement because the app is out of date.
-struct MasteryTierLabel: View {
-    let tier: MasteryTier
-
-    var body: some View {
-        Label {
-            Text(name)
-                .font(DesignTokens.Typography.caption.weight(.medium))
-        } icon: {
-            Image(systemName: tier.isKnown ? "rosette" : "questionmark.circle")
-        }
-        .labelStyle(.titleAndIcon)
-        .foregroundStyle(.white.opacity(0.85))
-        .padding(.horizontal, DesignTokens.Spacing.small)
-        .padding(.vertical, DesignTokens.Spacing.extraSmall)
-        .background(.white.opacity(0.12), in: Capsule())
-    }
-
-    private var name: String {
-        switch tier {
-        case .bronze: L10n.masteryBronze
-        case .silver: L10n.masterySilver
-        case .gold: L10n.masteryGold
-        case .platinum: L10n.masteryPlatinum
-        case .none: L10n.masteryNone
-        case .unknown(let value): value
-        }
-    }
-}
-
-struct AchievementRowView: View {
-    let achievement: AchievementRow
-
-    var body: some View {
-        HStack(spacing: DesignTokens.Spacing.medium) {
-            Image(systemName: "rosette")
-                .font(DesignTokens.Typography.sectionTitle)
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(.white)
-                .frame(width: DesignTokens.Spacing.large)
-
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall) {
-                Text(achievement.code)
-                    .font(DesignTokens.Typography.body)
-                    .foregroundStyle(.white)
-                if let earnedAt = achievement.earnedAt {
-                    Text(earnedAt.formatted(date: .abbreviated, time: .omitted))
-                        .font(DesignTokens.Typography.caption)
-                        .foregroundStyle(.white.opacity(0.6))
-                }
-            }
-
-            Spacer(minLength: 0)
-
-            if let tier = achievement.tier {
-                MasteryTierLabel(tier: tier)
-            }
-        }
-        .accessibilityElement(children: .combine)
     }
 }

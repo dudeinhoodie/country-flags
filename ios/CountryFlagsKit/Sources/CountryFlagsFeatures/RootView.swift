@@ -614,8 +614,7 @@ public struct RootView: View {
 
             // The achievements tab was tried and taken out the same day: a
             // fourth tab for a list the sync fills on its own schedule read
-            // as an empty room. The screen and its stack stay in the package
-            // for whenever the trophies earn their place back.
+            // as an empty room.
         }
         // The scene is dark, so the app is: system controls, sheets and the
         // bars all take their colours from here rather than each screen
@@ -944,7 +943,6 @@ public struct RootView: View {
 /// a SwiftUI container propagates to its descendants and overrides the ones
 /// they set themselves, which makes the children indistinguishable in a query.
 public enum AccessibilityIdentifier {
-    public static let shellTitle = "root.shell.title"
     public static let openSettingsButton = "root.shell.openSettings"
     public static let environmentBadge = "root.shell.environmentBadge"
     public static let settingsAbout = "settings.about"
@@ -1020,14 +1018,12 @@ public enum AccessibilityIdentifier {
     /// The day's queue, which is a different button from the way back into an
     /// unfinished sitting — they can now stand on the screen together.
     public static let homeReview = "home.review"
-    public static let achievementsEmpty = "achievements.empty"
     public static let studyDeckName = "study.deckName"
 
     public static func deckCountryRow(_ cardID: UUID) -> String {
         "deck.country.\(cardID.uuidString)"
     }
 
-    public static let homeOpenProgress = "home.openProgress"
     public static let progressEmpty = "progress.empty"
     public static let progressEmptyOpenCatalog = "progress.empty.openCatalog"
     /// Work a catalogue change could not carry across, and the control that
@@ -1079,41 +1075,12 @@ public enum AccessibilityIdentifier {
     public static let accountOpen = "account.open"
     public static let settingsDeletionPending = "settings.account.deletionPending"
     public static let accountDeletionPending = "account.deletionPending"
-    public static let accountLinkApple = "account.link.apple"
-    public static let accountLinkGoogle = "account.link.google"
-    public static let accountLinkFixture = "account.link.fixture"
-    public static let accountSwitchAccounts = "account.switchAccounts"
-    public static let accountExportRequest = "account.export.request"
-    public static let accountExportPreparing = "account.export.preparing"
-    public static let accountExportShare = "account.export.share"
-    public static let accountExportFailed = "account.export.failed"
     public static let accountPrivacyPolicy = "account.privacyPolicy"
     public static let accountTerms = "account.terms"
     public static let accountDelete = "account.delete"
     public static let accountDeleteConfirm = "account.delete.confirm"
     public static let accountDeleteCancel = "account.delete.cancel"
     public static let accountDeleteStatus = "account.delete.status"
-    public static let accountProveApple = "account.prove.apple"
-    public static let accountProveGoogle = "account.prove.google"
-    public static let accountProveFixture = "account.prove.fixture"
-
-    /// Rows are addressed by what they are about — a provider, a device — so a
-    /// test does not depend on the order the backend listed them in.
-    public static func accountIdentityRow(_ provider: String) -> String {
-        "account.identity.\(provider)"
-    }
-
-    public static func accountUnlink(_ provider: String) -> String {
-        "account.unlink.\(provider)"
-    }
-
-    public static func accountRevokeDevice(_ deviceID: UUID) -> String {
-        "account.revokeDevice.\(deviceID.uuidString)"
-    }
-
-    public static let clearProgressProveApple = "clearProgress.prove.apple"
-    public static let clearProgressProveGoogle = "clearProgress.prove.google"
-    public static let clearProgressProveFixture = "clearProgress.prove.fixture"
 
     public static func settingsSessionSize(_ size: Int) -> String {
         "settings.sessionSize.\(size)"
@@ -1163,14 +1130,6 @@ public enum AccessibilityIdentifier {
     public static let homeGuestPrompt = "home.guestPrompt"
     public static let deckResume = "deck.resume"
     public static let homeLoading = "home.loading"
-
-    public static func studyRating(_ rating: StudyRating) -> String {
-        "study.rating.\(rating.rawValue)"
-    }
-
-    public static func studyResultRating(_ rating: StudyRating) -> String {
-        "study.result.rating.\(rating.rawValue)"
-    }
 
     public static let syncStatus = "sync.status"
     public static let studyNext = "study.next"

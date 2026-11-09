@@ -53,7 +53,6 @@ final class AppRouterTests: XCTestCase {
         let router = AppRouter(path: [.deck(id: deckID)])
         router.tab = .catalog
         router.push(.deck(id: deckID))
-        router.achievementsNavigationPath = [.settings]
         router.tab = .progress
         // The avatar, which pushes the account screen onto a tab's root.
         router.push(.account)
@@ -64,7 +63,6 @@ final class AppRouterTests: XCTestCase {
         XCTAssertTrue(router.homePath.isEmpty)
         XCTAssertTrue(router.catalogPath.isEmpty)
         XCTAssertTrue(router.progressPath.isEmpty)
-        XCTAssertTrue(router.achievementsPath.isEmpty)
     }
 
     /// The account screen opened from the avatar on a tab's root is not the
@@ -122,7 +120,6 @@ final class LocalizationTests: XCTestCase {
             ("settings.title", L10n.settingsTitle),
             ("progress.empty.title", L10n.progressEmptyTitle),
             ("settings.reminders", L10n.settingsReminders),
-            ("mastery.gold", L10n.masteryGold),
         ] {
             XCTAssertNotEqual(value, key, "\(key) has no localization")
             XCTAssertFalse(value.isEmpty)

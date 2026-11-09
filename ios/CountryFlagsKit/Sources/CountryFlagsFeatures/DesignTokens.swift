@@ -209,10 +209,6 @@ public enum DesignTokens {
         /// the rating row is pressed hundreds of times in a session, and a miss
         /// there costs a wrong interval rather than a wrong screen.
         public static let actionHeight: CGFloat = 56
-        /// A flag beside a title rather than as the subject of the screen.
-        public static let thumbFlagWidth: CGFloat = 64
-        /// The rating names in the result, aligned so the bars start together.
-        public static let ratingLabelWidth: CGFloat = 72
         /// The placeholder standing in for the counter while a session loads.
         public static let progressPlaceholderWidth: CGFloat = 88
         /// A flag in a list row: large enough to be recognised, small enough

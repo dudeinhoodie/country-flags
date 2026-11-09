@@ -208,7 +208,6 @@ final class StudySessionRunnerTests: XCTestCase {
 
         XCTAssertNil(runner.summary)
         XCTAssertNil(runner.tally)
-        XCTAssertNil(runner.deckMastery)
     }
 
     /// A finished session is not resumed: opening the deck again starts a new

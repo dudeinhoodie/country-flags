@@ -105,10 +105,6 @@ public actor PurchaseDeliveryOutbox {
         )
     }
 
-    public func owedCount(for scope: AccountScope) async -> Int {
-        ((try? await repository.pendingPurchaseDeliveries(for: scope)) ?? []).count
-    }
-
     // MARK: - Delivering it
 
     /// Sends everything owed, once per scope at a time.

@@ -341,8 +341,10 @@ the projection was only ever a guess at it.
 A guest keeps a durable queue that is never sent — there is no account to
 attribute it to until sign-in, and the status says "saved on this device"
 rather than reporting a failure that has not happened. Every review event also
-needs a registered `deviceId`, which the auth work package owns; until then
-`UnregisteredDeviceIdentity` answers honestly and nothing is uploaded.
+needs a registered `deviceId`: `RegisteredDeviceProvider` reads the account's
+current device from the backend's device list, and a review with no device to
+attribute it to stays queued rather than being sent under one that does not
+exist.
 
 The network monitor is a trigger, never proof: a satisfied path means a request
 is worth trying, and the request itself decides whether the API is reachable.

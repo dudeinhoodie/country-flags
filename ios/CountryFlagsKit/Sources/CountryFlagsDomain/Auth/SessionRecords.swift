@@ -105,8 +105,6 @@ public struct ReauthenticationProof: Hashable, Sendable {
         self.token = token
         self.expiresAt = expiresAt
     }
-
-    public func isValid(at instant: Date) -> Bool { instant < expiresAt }
 }
 
 /// The calls a session is made of, separated from the transport that carries

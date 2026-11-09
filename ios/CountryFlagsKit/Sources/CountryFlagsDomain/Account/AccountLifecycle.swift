@@ -53,28 +53,6 @@ public struct AccountDeviceRecord: Hashable, Sendable, Identifiable {
     }
 }
 
-/// Why linking or unlinking a provider was refused.
-///
-/// The distinction that matters is the first case: the identity belongs to
-/// somebody else's account, and the only safe answer is to sign in as that
-/// account. Merging two accounts is not in this product, and merging by email
-/// is forbidden outright.
-public enum IdentityChangeFailure: Hashable, Sendable {
-    /// `IDENTITY_ALREADY_LINKED`: this Apple or Google login already belongs to
-    /// another Country Flags account.
-    case belongsToAnotherAccount
-    /// `PROVIDER_ALREADY_LINKED`: this account already has an identity from
-    /// that provider.
-    case providerAlreadyLinked
-    /// `LAST_IDENTITY_CANNOT_BE_REMOVED`: an account with no way back in is an
-    /// account nobody can reach.
-    case lastIdentity
-    case offline
-    /// Anything else the backend refused, carried by code rather than by its
-    /// message: a server sentence is not a thing to put in front of a user.
-    case refused(code: String)
-}
-
 /// Where a data export stands.
 ///
 /// The raw values are the contract's. `expired` is a status rather than an
@@ -126,13 +104,6 @@ public struct DataExportRecord: Hashable, Sendable {
         self.expiresAt = expiresAt
         self.createdAt = createdAt
         self.completedAt = completedAt
-    }
-
-    /// Whether the archive can be fetched right now.
-    public func isDownloadable(at instant: Date) -> Bool {
-        guard status == .ready, downloadURL != nil else { return false }
-        guard let expiresAt else { return true }
-        return instant < expiresAt
     }
 }
 

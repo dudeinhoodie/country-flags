@@ -46,15 +46,10 @@ public final class StudySessionRunner {
     /// not saved instead of moving on.
     public private(set) var lastCommitFailed = false
     public private(set) var summary: StudySessionSummary?
-    /// The deck as the result ring tells it, set together with the summary.
-    /// Read off the device's own projection — the sanctioned optimistic view
-    /// until the backend answers — so the ring can move the moment the
-    /// session ends instead of waiting for a sync.
-    public private(set) var deckMastery: StudySessionDeckMastery?
     /// The result sheet's three figures and the next portion (#519), set
-    /// together with the summary. Counted on the device, like the mastery
-    /// above: the result is shown before the sitting's answers can reach the
-    /// backend, and a sheet that waited for them would show no gain at all.
+    /// together with the summary. Counted on the device: the result is shown
+    /// before the sitting's answers can reach the backend, and a sheet that
+    /// waited for them would show no gain at all.
     public private(set) var tally: StudySessionTally?
 
     private let scopes: any AccountScopeResolving
@@ -82,12 +77,9 @@ public final class StudySessionRunner {
     /// resumed session reports the sitting rather than the calendar time since
     /// it was first opened.
     private var startedAt: Date?
-    /// The deck's cards and its learned count as the sitting began, for the
-    /// ring's before/after. Taken per sitting, like `startedAt`: a resumed
-    /// session measures what this sitting adds, not what the session has.
-    private var deckCardIDs: [UUID] = []
-    private var learnedBefore = 0
     /// The whole collection as the sitting began, for the sheet's gains.
+    /// Taken per sitting, like `startedAt`: a resumed session measures what
+    /// this sitting adds, not what the session has.
     private var knownBefore = 0
     private var wholeLearnedBefore = 0
     /// What the sitting was asked for, so "Ещё N флагов" can ask again.
@@ -140,7 +132,7 @@ public final class StudySessionRunner {
         if scope == nil { scope = await scopes.currentScope() }
         startedAt = dates.now()
         requested = (deckID, size)
-        await snapshotDeckBefore(deckID: deckID)
+        await snapshotCollectionBefore()
         if await resume(deckID: deckID, composition: composition) {
             await reportSessionStarted(requestedCardCount: state?.cards.count ?? 0)
             return
@@ -632,35 +624,6 @@ public final class StudySessionRunner {
                 )
             }
         }
-        // The mastery is built before the summary is published: the summary
-        // is what makes the result screen appear, and a screen that appeared
-        // ahead of the ring's data started its pour at nil and never poured.
-        if !deckCardIDs.isEmpty {
-            let deckIDs = Set(deckCardIDs)
-            let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
-            let learnedIDs = LocalProgressProjection.learnedCardIDs(
-                among: deckIDs, states: states
-            )
-            // The green share of the ring: what was remembered in this
-            // sitting, whether or not the scheduler moved. Reviewing a
-            // country already learned earns the same green as learning one —
-            // the ring must never stand still under correct answers.
-            let rememberedIDs = Set(
-                session.cards
-                    .filter { deckIDs.contains($0.learningCardID) }
-                    .compactMap { card in
-                        ratingByCard[card.learningCardID].flatMap { rating in
-                            rating == .good ? card.learningCardID : nil
-                        }
-                    }
-            )
-            deckMastery = StudySessionDeckMastery(
-                totalCards: deckCardIDs.count,
-                learnedBefore: learnedBefore,
-                shownCards: learnedIDs.union(rememberedIDs).count,
-                rememberedCards: rememberedIDs.count
-            )
-        }
         let after = (try? await learning.cardStates(for: resolvedScope)) ?? []
         let known = Self.knownCount(after)
         let learned = Self.learnedCount(after)
@@ -682,15 +645,11 @@ public final class StudySessionRunner {
         )
     }
 
-    // MARK: - The deck the ring describes
+    // MARK: - The collection the result sheet describes
 
-    /// Reads the deck's learned share before the first answer of the sitting
-    /// can move it. The count comes from `LocalProgressProjection`, the same
-    /// arithmetic the progress screen uses for a guest, so the two cannot
-    /// disagree about what "learned" means.
-    private func snapshotDeckBefore(deckID: UUID) async {
-        deckCardIDs = ((try? await content.cards(inDeck: deckID)) ?? []).map(\.id)
-        learnedBefore = await learnedCards(deckID: deckID)
+    /// Counts the collection before the first answer of the sitting can move
+    /// it.
+    private func snapshotCollectionBefore() async {
         let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
         knownBefore = Self.knownCount(states)
         wholeLearnedBefore = Self.learnedCount(states)
@@ -715,21 +674,10 @@ public final class StudySessionRunner {
     public func startAnother() async {
         guard let requested else { return }
         summary = nil
-        deckMastery = nil
         tally = nil
         state = nil
         startFailure = nil
         await startOrResume(deckID: requested.deckID, size: requested.size, composition: .standard)
-    }
-
-    private func learnedCards(deckID: UUID) async -> Int {
-        guard !deckCardIDs.isEmpty else { return 0 }
-        let states = (try? await learning.cardStates(for: resolvedScope)) ?? []
-        return LocalProgressProjection.progress(
-            cardsByDeck: [deckID: deckCardIDs],
-            states: states,
-            now: dates.now()
-        ).first?.learnedCards ?? 0
     }
 }
 
@@ -754,48 +702,6 @@ public struct StudySessionTally: Hashable, Sendable {
         self.learnedGain = learnedGain
         self.toReview = toReview
         self.nextPortion = nextPortion
-    }
-}
-
-/// The deck as the result ring tells it.
-///
-/// The ring's whole is the union of two honest sets: the deck's learned cards
-/// and the cards remembered in this sitting. The remembered ones are the
-/// green tail of the fill — so a sitting of correct answers always pours
-/// green, including a review of countries long learned, where the scheduler
-/// itself has nothing to move.
-public struct StudySessionDeckMastery: Hashable, Sendable {
-    public let totalCards: Int
-    /// Learned as the sitting began, for the pill's delta alone.
-    public let learnedBefore: Int
-    /// The union standing in the ring: learned after the sitting, plus
-    /// remembered in it.
-    public let shownCards: Int
-    /// The green share of that union: deck cards remembered in this sitting.
-    public let rememberedCards: Int
-
-    public init(totalCards: Int, learnedBefore: Int, shownCards: Int, rememberedCards: Int) {
-        self.totalCards = totalCards
-        self.learnedBefore = learnedBefore
-        self.shownCards = shownCards
-        self.rememberedCards = rememberedCards
-    }
-
-    /// Clamped like `DeckProgressRow.fraction`, and for the same reason: a
-    /// republished release can shrink a deck under counts already recorded.
-    public var fractionShown: Double { fraction(of: shownCards) }
-    /// Where white ends and green begins.
-    public var fractionWhite: Double { fraction(of: max(shownCards - rememberedCards, 0)) }
-
-    /// Whole points, both derived from the rounded figures, so the number in
-    /// the ring and the delta on the pill cannot disagree by a rounding.
-    public var percentAfter: Int { Int((fractionShown * 100).rounded()) }
-    public var deltaPercent: Int {
-        percentAfter - Int((fraction(of: learnedBefore) * 100).rounded())
-    }
-
-    private func fraction(of count: Int) -> Double {
-        totalCards > 0 ? min(1, Double(count) / Double(totalCards)) : 0
     }
 }
 

@@ -35,12 +35,6 @@ public final class MetricKitSubscriber: NSObject, Sendable {
         #endif
     }
 
-    public func stop() {
-        #if canImport(MetricKit) && !targetEnvironment(simulator)
-            MXMetricManager.shared.remove(self)
-        #endif
-    }
-
     /// The seam the tests use: the same path a real payload takes, without a
     /// framework that only delivers on a device once a day.
     ///

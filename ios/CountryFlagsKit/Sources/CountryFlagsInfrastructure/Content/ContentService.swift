@@ -3,20 +3,6 @@ import OpenAPIRuntime
 
 import CountryFlagsDomain
 
-/// One page of a cursor-paged content feed.
-public struct ContentCursorPage<Element: Sendable>: Sendable {
-    public let items: [Element]
-    /// The cursor to send for the next page, or nil when the feed is exhausted.
-    public let nextCursor: String?
-    public let hasMore: Bool
-
-    public init(items: [Element], nextCursor: String?, hasMore: Bool) {
-        self.items = items
-        self.nextCursor = nextCursor
-        self.hasMore = hasMore
-    }
-}
-
 /// What one page of the catalogue yields.
 ///
 /// The decks, and the handful of cards a locked deck is allowed to show before
