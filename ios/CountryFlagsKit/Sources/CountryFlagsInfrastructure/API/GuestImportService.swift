@@ -123,13 +123,6 @@ public struct GuestImportService: GuestImportSubmitting {
     }
 
     private static var unexpected: APIError {
-        APIError.status(
-            APIErrorDetails(
-                statusCode: 0,
-                code: "UNKNOWN",
-                message: "Unmapped guest import response",
-                requestID: nil
-            )
-        )
+        APIError.unmapped("Unmapped guest import response")
     }
 }

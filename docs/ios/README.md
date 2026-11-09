@@ -2,7 +2,7 @@
 
 Статус: ready for issue execution
 
-Baseline: Swift 6, SwiftUI, iOS 17+, SwiftData
+Baseline: Swift 6, SwiftUI, iOS 26+, SwiftData
 
 Этот раздел разбивает общее iOS ТЗ на независимые agent-ready work packages.
 Перед любой iOS-задачей агент MUST:

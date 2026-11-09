@@ -87,14 +87,7 @@ public actor StoreAccountTokenProvider: StoreAccountTokenProviding {
             // reading it as "no token" is the safe half of that mistake.
             return payload.storeAccountToken.flatMap { UUID(uuidString: $0) }
         default:
-            throw APIError.status(
-                APIErrorDetails(
-                    statusCode: 0,
-                    code: "UNKNOWN",
-                    message: "Unmapped profile response",
-                    requestID: nil
-                )
-            )
+            throw APIError.unmapped("Unmapped profile response")
         }
     }
 }

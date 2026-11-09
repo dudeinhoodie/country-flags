@@ -210,14 +210,7 @@ public struct TelemetryService: AnalyticsBatchSending, DiagnosticsUploading, Pri
     }
 
     private static var unexpected: APIError {
-        APIError.status(
-            APIErrorDetails(
-                statusCode: 0,
-                code: "UNKNOWN",
-                message: "Unmapped telemetry response",
-                requestID: nil
-            )
-        )
+        APIError.unmapped("Unmapped telemetry response")
     }
 
     private static let encoder: JSONEncoder = {

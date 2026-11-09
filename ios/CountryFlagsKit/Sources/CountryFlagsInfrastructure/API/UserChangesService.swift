@@ -22,14 +22,7 @@ public struct UserChangesService: UserChangesDownloading {
                 .init(query: .init(after: cursor, limit: limit))
             )
             guard case .ok(let response) = output else {
-                throw APIError.status(
-                    APIErrorDetails(
-                        statusCode: 0,
-                        code: "UNKNOWN",
-                        message: "Unmapped user changes response",
-                        requestID: nil
-                    )
-                )
+                throw APIError.unmapped("Unmapped user changes response")
             }
             let payload = try response.body.json
             return UserChangesPage(

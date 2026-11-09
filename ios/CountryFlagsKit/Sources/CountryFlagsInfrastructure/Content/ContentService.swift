@@ -683,17 +683,6 @@ public struct ContentService: Sendable {
     }
 
     private static func unmapped(_ statusCode: Int) -> APIError {
-        // Unreachable in practice: the error mapping middleware turns every
-        // status at or above 400 into an `APIError` before the generated client
-        // parses it. Handled rather than ignored so a contract change cannot
-        // silently produce a success here.
-        APIError.status(
-            APIErrorDetails(
-                statusCode: statusCode,
-                code: "UNKNOWN",
-                message: "Unmapped error response",
-                requestID: nil
-            )
-        )
+        APIError.unmapped("Unmapped error response", statusCode: statusCode)
     }
 }

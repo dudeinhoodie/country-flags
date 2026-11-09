@@ -98,14 +98,7 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, AccountTime
         case .conflict:
             return .conflict(try? await self.settings(using: client))
         case .default:
-            throw APIError.status(
-                APIErrorDetails(
-                    statusCode: 0,
-                    code: "UNKNOWN",
-                    message: "Unmapped settings response",
-                    requestID: nil
-                )
-            )
+            throw APIError.unmapped("Unmapped settings response")
         }
     }
 
@@ -148,14 +141,7 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, AccountTime
         case .conflict:
             return .conflict
         case .default:
-            throw APIError.status(
-                APIErrorDetails(
-                    statusCode: 0,
-                    code: "UNKNOWN",
-                    message: "Unmapped settings response",
-                    requestID: nil
-                )
-            )
+            throw APIError.unmapped("Unmapped settings response")
         }
     }
 
@@ -201,14 +187,7 @@ public struct ProgressService: ProgressDownloading, SettingsSyncing, AccountTime
                 requestedAt: payload.requestedAt
             )
         case .unauthorized, .unprocessableContent, .default:
-            throw APIError.status(
-                APIErrorDetails(
-                    statusCode: 0,
-                    code: "UNKNOWN",
-                    message: "Unmapped progress deletion response",
-                    requestID: nil
-                )
-            )
+            throw APIError.unmapped("Unmapped progress deletion response")
         }
     }
 

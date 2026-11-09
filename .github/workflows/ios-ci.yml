@@ -70,8 +70,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # The Swift 6 language mode needs Xcode 16 or newer. The exact version is
-      # printed so a mismatch with a local machine is visible.
+      # The iOS 26 deployment target needs Xcode 26 or newer. The exact version
+      # is printed so a mismatch with a local machine is visible.
       - name: Select Xcode
         run: |
           set -euo pipefail
@@ -214,8 +214,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # The Swift 6 language mode needs Xcode 16 or newer. The exact version is
-      # printed so a mismatch with a local machine is visible.
+      # The iOS 26 deployment target needs Xcode 26 or newer. The exact version
+      # is printed so a mismatch with a local machine is visible.
       - name: Select Xcode
         run: |
           set -euo pipefail

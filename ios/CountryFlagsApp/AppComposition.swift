@@ -35,8 +35,8 @@ protocol AppDependencies {
     var apiClientFactory: APIClientFactory { get }
     var store: LocalStore { get }
     var tokens: any SecureTokenStoring { get }
-    var dates: DateProviding { get }
-    var identifiers: IdentifierProviding { get }
+    var dates: any DateProviding { get }
+    var identifiers: any IdentifierProviding { get }
     var featureFlags: FeatureFlagCenter { get }
     var content: ContentStore { get }
     /// The one progress store in the app. Every screen that shows a count
@@ -62,8 +62,8 @@ struct AppComposition: AppDependencies {
     let apiClientFactory: APIClientFactory
     let store: LocalStore
     let tokens: any SecureTokenStoring
-    let dates: DateProviding
-    let identifiers: IdentifierProviding
+    let dates: any DateProviding
+    let identifiers: any IdentifierProviding
     let featureFlags: FeatureFlagCenter
     let content: ContentStore
     let progress: ProgressStore

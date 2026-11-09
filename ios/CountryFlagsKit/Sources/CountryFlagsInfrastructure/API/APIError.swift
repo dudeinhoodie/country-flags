@@ -80,6 +80,24 @@ public enum APIError: Error, Equatable, Sendable {
         default: .client(details)
         }
     }
+
+    /// A response the caller's switch has no case for.
+    ///
+    /// Unreachable in practice: the error mapping middleware turns every
+    /// status at or above 400 into an `APIError` before the generated client
+    /// parses it. Built rather than skipped so a contract change cannot
+    /// silently produce a success. `statusCode` stays 0 where the caller has
+    /// none to give.
+    static func unmapped(_ message: String, statusCode: Int = 0) -> APIError {
+        status(
+            APIErrorDetails(
+                statusCode: statusCode,
+                code: "UNKNOWN",
+                message: message,
+                requestID: nil
+            )
+        )
+    }
 }
 
 extension APIError {

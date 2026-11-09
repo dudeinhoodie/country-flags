@@ -141,18 +141,7 @@ public struct CommerceService: CommerceBackend {
         )
     }
 
-    /// Unreachable in practice: the error mapping middleware turns every status
-    /// at or above 400 into an `APIError` before the generated client parses
-    /// it. Built rather than skipped so a contract change cannot silently
-    /// produce a success here.
     private static func unmapped() -> APIError {
-        APIError.status(
-            APIErrorDetails(
-                statusCode: 0,
-                code: "UNKNOWN",
-                message: "Unmapped commerce response",
-                requestID: nil
-            )
-        )
+        APIError.unmapped("Unmapped commerce response")
     }
 }
