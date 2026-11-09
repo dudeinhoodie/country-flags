@@ -372,7 +372,7 @@ struct CountryDetailsSheet: View {
             }
             .buttonStyle(.glass)
             .buttonBorderShape(.circle)
-            .accessibilityLabel(L10n.studyClose)
+            .accessibilityLabel(L10n.commonClose)
         }
     }
 

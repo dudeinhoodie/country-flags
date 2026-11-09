@@ -233,7 +233,7 @@ struct AccountSection: View {
     /// Days rather than instants: the hour an account finishes being deleted
     /// is precision nobody acts on.
     private static func day(_ date: Date) -> String {
-        date.formatted(date: .abbreviated, time: .omitted)
+        date.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted, locale: L10n.appLocale))
     }
 
     private var signOutTitle: String {

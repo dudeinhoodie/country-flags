@@ -791,6 +791,24 @@ public enum L10n {
     /// The language the interface is shown in, for formatting that must
     /// agree with the words around it (#525).
     static var appLanguage: String { bundle.preferredLocalizations.first ?? "en" }
+    /// What dates and numbers are formatted with. `Locale.current` speaks the
+    /// device's language, which is not the interface's when the app has no
+    /// translation for it: a German phone read "9. Nov. 2026" in an English
+    /// sentence.
+    static var appLocale: Locale { locale(for: appLanguage) }
+
+    /// The language of the interface with everything else of `device`: its
+    /// region still decides the order of day and month and the separators.
+    static func locale(for language: String, on device: Locale = .current) -> Locale {
+        var interface = Locale.Language.Components(identifier: language)
+        // The device's region lives in its language components, and replacing
+        // them would drop it: "en" alone formats an English phone in Britain
+        // the American way.
+        interface.region = interface.region ?? device.region
+        var components = Locale.Components(locale: device)
+        components.languageComponents = interface
+        return Locale(components: components)
+    }
 
     static func localized(_ key: String) -> String {
         String(localized: String.LocalizationValue(key), bundle: bundle)

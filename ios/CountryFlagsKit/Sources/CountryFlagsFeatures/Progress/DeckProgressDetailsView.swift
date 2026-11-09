@@ -214,6 +214,7 @@ public struct DeckProgressDetailsView: View {
         }
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
+        formatter.locale = L10n.appLocale
         return L10n.progressReviewAt(
             formatter.localizedString(for: state.dueAt, relativeTo: now)
         )

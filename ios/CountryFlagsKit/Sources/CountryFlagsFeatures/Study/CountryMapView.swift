@@ -106,7 +106,7 @@ struct CountryMapExpandedView: View {
                         )
                         .glassEffect(.regular, in: Circle())
                 }
-                .accessibilityLabel(L10n.studyClose)
+                .accessibilityLabel(L10n.commonClose)
                 .accessibilityIdentifier(AccessibilityIdentifier.studyClose)
             }
             .padding(DesignTokens.Spacing.medium)

@@ -68,7 +68,7 @@ enum FactDisplay {
             ? [(1_000_000_000, "\u{00A0}млрд"), (1_000_000, "\u{00A0}млн"), (1_000, "\u{00A0}тыс.")]
             : [(1_000_000_000, "B"), (1_000_000, "M"), (1_000, "K")]
         guard let tier = tiers.first(where: { value >= $0.threshold }) else {
-            return count.formatted(.number)
+            return count.formatted(.number.locale(L10n.locale(for: language)))
         }
 
         let scaled = value / tier.threshold
