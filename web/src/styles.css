@@ -1,6 +1,6 @@
 /* The app's scene, on the web.
    One stylesheet, one set of tokens: the values are the ones the iOS client
-   draws with (ADR-012, design/figma-export/10-ui-kit.html), so a reader who
+   draws with (ADR-012, "00 Foundations" in the Vexi Figma file), so a reader who
    tapped a link in the app lands somewhere that is recognisably the same
    product. Dark only — the scene is the theme. */
 
