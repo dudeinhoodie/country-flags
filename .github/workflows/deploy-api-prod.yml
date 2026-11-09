@@ -1,0 +1,678 @@
+name: Deploy api prod
+
+# Production is promoted, never built.
+#
+# What this deploys is an image `Deploy dev` already copied into Artifact
+# Registry, checked, and put in front of dev traffic: by default the exact
+# digest serving all of api-dev's traffic right now, or a digest named
+# explicitly (a rollback through the full gate, or a release that is no
+# longer the newest in dev). Nothing here rebuilds, and the commit the image
+# was built from has to be on master.
+#
+# The steps are deploy-dev.yml's, in the same order and with the same checks:
+# the configuration is refused before anything changes, the migration runs on
+# its own, the revision is created with no traffic under the candidate tag,
+# readiness and smoke are asked at the tag's own address, and only then does
+# traffic move. Rolling back is one command, printed in the run summary
+# (docs/ops/deployment-runbooks.md §11). The one-time provisioning this
+# expects is docs/13-deployment-environments.md §6.5.
+on:
+  workflow_dispatch:
+    inputs:
+      digest:
+        description: >-
+          Image digest to promote (sha256:…). Leave empty to promote the
+          digest serving all of api-dev's traffic right now.
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+  deployments: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  REGION: europe-west3
+  SERVICE: api-prod
+  DEV_SERVICE: api-dev
+  REPOSITORY: country-flags
+  CANDIDATE_TAG: candidate
+  # Dev's values, for dev's reason: they fit the pooler of the smallest
+  # compute a Neon branch runs on (0.9 × 104 at 0.25 CU), so they hold for
+  # whatever compute the prod project is given. docs/13 §5 has the table.
+  MAX_INSTANCES: "4"
+  CONCURRENCY: "20"
+  DATABASE_POOL_BUDGET: "90"
+
+concurrency:
+  # One production change at a time, content publishes included
+  # (publish-content-prod.yml shares the group): a publish running while this
+  # migrates would write through a client generated for another schema. A
+  # second run waits rather than cancels, because cancelling one mid-migration
+  # would leave the database ahead of every running revision.
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # The approval gate and the branch rule: the environment admits runs from
+    # master only and waits for a reviewer (docs/13 §6.5), so a workflow
+    # edited on a branch never reaches production.
+    environment:
+      name: production
+      url: ${{ steps.service.outputs.url }}
+
+    steps:
+      # The environment's branch rule is the control; this makes a run from
+      # elsewhere say so in its log instead of failing somewhere later.
+      - name: Refuse a run from anything but master
+        if: github.ref != 'refs/heads/master'
+        run: |
+          echo "::error::Production is deployed from master only; this run is on ${GITHUB_REF}"
+          exit 1
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # A digest, always, and one `Deploy dev` put in the registry: it tags
+      # every copy `sha-<commit>`, which is how the commit is found here.
+      #
+      # The default is the revision actually answering dev, read from
+      # status.traffic — not the service template, which names the newest
+      # revision even when that revision failed its checks and holds no
+      # traffic (#450).
+      - name: Resolve the image to promote
+        id: image
+        env:
+          REQUESTED: ${{ inputs.digest }}
+        run: |
+          set -euo pipefail
+          target="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/api"
+          digest="${REQUESTED}"
+          dev_release=""
+          if [ -z "${digest}" ]; then
+            service="$(gcloud run services describe "${DEV_SERVICE}" --region "${REGION}" --format=json)"
+            serving="$(jq -r '[.status.traffic[]? | select(.percent == 100) | .revisionName] | if length == 1 then .[0] else empty end' <<< "${service}")"
+            if [ -z "${serving}" ]; then
+              echo "::error::No single revision serves all of ${DEV_SERVICE}'s traffic; pass the digest to promote explicitly"
+              jq '.status.traffic' <<< "${service}"
+              exit 1
+            fi
+            revision="$(gcloud run revisions describe "${serving}" --region "${REGION}" --format=json)"
+            running="$(jq -r '.status.imageDigest // empty' <<< "${revision}")"
+            dev_release="$(jq -r '.metadata.labels.release // empty' <<< "${revision}")"
+            if [ "${running%@*}" != "${target}" ]; then
+              echo "::error::${serving} runs '${running}', which is not an image in ${target}"
+              exit 1
+            fi
+            digest="${running#*@}"
+            echo "${DEV_SERVICE} serves ${serving} (${digest})"
+          fi
+          if ! [[ "${digest}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::'${digest}' is not an image digest"
+            exit 1
+          fi
+          # Promoting is not a licence to copy something new: the image has to
+          # be in the registry production pulls from already.
+          tags="$(gcloud artifacts docker images list "${target}" --include-tags \
+            --filter="version=${digest}" --format=json \
+            | jq -r '[.[].tags[]? | select(test("^sha-[0-9a-f]{40}$"))] | unique | .[]')"
+          count="$(grep -c . <<< "${tags}" || true)"
+          if [ "${count}" = "0" ]; then
+            echo "::error::${target}@${digest} is not in the registry under a sha-<commit> tag; only an image Deploy dev copied can be promoted"
+            exit 1
+          fi
+          if [ "${count}" != "1" ]; then
+            echo "::error::${target}@${digest} carries ${count} sha-<commit> tags, so its commit is ambiguous"
+            exit 1
+          fi
+          sha="${tags#sha-}"
+          if [ -n "${dev_release}" ] && [ "${dev_release}" != "${sha}" ]; then
+            echo "::error::${DEV_SERVICE} labels its revision release=${dev_release}, but the image is tagged for ${sha}"
+            exit 1
+          fi
+          {
+            echo "reference=${target}@${digest}"
+            echo "digest=${digest}"
+            echo "sha=${sha}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Promoting ${target}@${digest}, built from ${sha}"
+
+      # The migrations are the image's own: the schema a revision is deployed
+      # against comes from the commit it was built from, never from master's
+      # head.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.image.outputs.sha }}
+          fetch-depth: 0
+
+      # Backend CI publishes images only from master, and this checks it
+      # instead of trusting it: a commit force-pushed off master would
+      # otherwise stay promotable for as long as its image exists.
+      - name: Refuse a commit that is not on master
+        env:
+          SHA: ${{ steps.image.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if ! git merge-base --is-ancestor "${SHA}" origin/master; then
+            echo "::error::${SHA} is not on master"
+            exit 1
+          fi
+          echo "${SHA} is on master"
+
+      # Everything the revision will be told, assembled and checked before
+      # anything changes, exactly as deploy-dev.yml does it (the reasoning for
+      # the whole-configuration deploy, `^;^` and the pinned secret versions is
+      # written there). The deploy step adds MIGRATION_VERSION and
+      # PUBLIC_BASE_URL.
+      #
+      # Only what the app's API needs is set. The console's halves — draft and
+      # site buckets, the GitHub proposal token, the publisher job, the admin
+      # allowlist and origins — are left out entirely: each is optional and
+      # set-together-or-not-at-all in env validation, and there is no
+      # production console in 1.0 (docs/13 §6.3). The site's documents reach
+      # production by promote-site-content-prod.yml, not through this API.
+      - name: Assemble the revision configuration
+        id: config
+        run: |
+          set -euo pipefail
+          env_vars="^;^NODE_ENV=production;DEPLOYMENT_ENV=prod;LOG_LEVEL=info;SERVICE_NAME=country-flags-api;SERVICE_RELEASE=${SHA};AUTH_ACCESS_TOKEN_ISSUER=country-flags-prod;AUTH_ACCESS_TOKEN_AUDIENCE=country-flags-api;APPLE_CLIENT_IDS=${APPLE_CLIENT_IDS};GOOGLE_CLIENT_IDS=${GOOGLE_CLIENT_IDS};ADMIN_GOOGLE_CLIENT_IDS=${ADMIN_GOOGLE_CLIENT_IDS};COMMERCE_APPLE_BUNDLE_ID=${COMMERCE_APPLE_BUNDLE_ID};COMMERCE_APPLE_ROOT_CERTIFICATES=${COMMERCE_APPLE_ROOT_CERTIFICATES}"
+          # Launch decisions, set on the production environment rather than in
+          # this file so that changing one is a variable and a re-run, not a
+          # pull request. Unset, each falls back to its safe state.
+          if [ -n "${COMMERCE_APPLE_APP_APPLE_ID}" ]; then
+            env_vars="${env_vars};COMMERCE_APPLE_APP_APPLE_ID=${COMMERCE_APPLE_APP_APPLE_ID}"
+          fi
+          if [ -n "${PAID_CONTENT_MINIMUM_CLIENT_VERSIONS}" ]; then
+            env_vars="${env_vars};PAID_CONTENT_MINIMUM_CLIENT_VERSIONS=${PAID_CONTENT_MINIMUM_CLIENT_VERSIONS}"
+          fi
+
+          # One mount per line, VARIABLE=secret; the version is added below.
+          # Prod refuses to start without the Sign in with Apple key and the
+          # key Apple tokens are stored under (env validation), so the four
+          # move together.
+          mounts=(
+            DATABASE_URL=prod-database-url
+            DIRECT_DATABASE_URL=prod-direct-database-url
+            AUTH_ACCESS_TOKEN_SECRET=prod-auth-access-token-secret
+            AUTH_RATE_LIMIT_SECRET=prod-auth-rate-limit-secret
+            ACCOUNT_DATA_HASH_SECRET=prod-account-data-hash-secret
+            AUTH_APPLE_TEAM_ID=prod-auth-apple-team-id
+            AUTH_APPLE_KEY_ID=prod-auth-apple-key-id
+            AUTH_APPLE_PRIVATE_KEY=prod-auth-apple-private-key
+            AUTH_PROVIDER_TOKEN_ENCRYPTION_KEY=prod-auth-provider-token-encryption-key
+          )
+
+          # A deploy for one environment must not carry another's values.
+          # This block is deploy-dev.yml's, unchanged, so the two refuse the
+          # same things: the environment is the service name's suffix, every
+          # secret has to be one of its own, and outside dev no value may name
+          # a local, plain-HTTP or dev resource, nor carry a value known to
+          # belong to dev.
+          environment="${SERVICE##*-}"
+          # Values that belong to dev although nothing in them says so.
+          dev_only=(
+            337239833704-r2eed1a28ggnmri1md2hqp2hgm11236h.apps.googleusercontent.com
+            ios=0.2.0
+          )
+          refused=0
+          refuse() {
+            echo "::error::$1"
+            refused=1
+          }
+          declare -A value=()
+          IFS=';' read -r -a pairs <<< "${env_vars#^;^}"
+          for pair in "${pairs[@]}"; do
+            value["${pair%%=*}"]="${pair#*=}"
+          done
+          if [ "${value[DEPLOYMENT_ENV]:-}" != "${environment}" ]; then
+            refuse "DEPLOYMENT_ENV=${value[DEPLOYMENT_ENV]:-} does not belong to ${SERVICE}"
+          fi
+          for mount in "${mounts[@]}"; do
+            case "${mount#*=}" in
+              "${environment}"-*) ;;
+              *) refuse "${mount%%=*} reads ${mount#*=}, which is not a ${environment} secret" ;;
+            esac
+          done
+          if [ "${environment}" != "dev" ]; then
+            for key in "${!value[@]}"; do
+              case "${value[${key}]}" in
+                *localhost*|*http://*) refuse "${key} names a local or plain-HTTP address" ;;
+              esac
+              case ",${value[${key}]}," in
+                *[-.]dev[,./:-]*) refuse "${key} names a dev resource" ;;
+              esac
+              for literal in "${dev_only[@]}"; do
+                case ",${value[${key}]}," in
+                  *",${literal},"*) refuse "${key} carries the dev value ${literal}" ;;
+                esac
+              done
+            done
+            if [ -z "${value[ADMIN_GOOGLE_CLIENT_IDS]:-}" ]; then
+              refuse "ADMIN_GOOGLE_CLIENT_IDS is not set, so the console would accept the app's own OAuth clients"
+            fi
+          fi
+          if [ "${refused}" -ne 0 ]; then
+            exit 1
+          fi
+
+          pinned=()
+          for mount in "${mounts[@]}"; do
+            secret="${mount#*=}"
+            if ! resolved="$(gcloud secrets versions describe latest --secret "${secret}" --format='value(name.basename(),state)')"; then
+              echo "::error::Cannot read the version of ${secret}. It has to exist, and the deployer needs roles/secretmanager.viewer on it (docs/13 §6.5)."
+              exit 1
+            fi
+            read -r version state <<< "${resolved}"
+            if [ "${state,,}" != "enabled" ]; then
+              echo "::error::The newest version of ${secret} is ${state}, not enabled"
+              exit 1
+            fi
+            pinned+=("${mount}:${version}")
+            case "${secret}" in
+              "${environment}-database-url") echo "database_version=${version}" >> "$GITHUB_OUTPUT" ;;
+              "${environment}-direct-database-url") echo "direct_version=${version}" >> "$GITHUB_OUTPUT" ;;
+            esac
+          done
+          secrets="$(IFS=,; printf '%s' "${pinned[*]}")"
+          echo "Secrets pinned: ${secrets}"
+          {
+            echo "env_vars=${env_vars}"
+            echo "secrets=${secrets}"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          SHA: ${{ steps.image.outputs.sha }}
+          # Apple's client id for a native app is its bundle id; the Prod
+          # scheme builds this one (ios/Config/Base.xcconfig, no suffix).
+          APPLE_CLIENT_IDS: app.countryflags.mobile
+          # Production signs in with Apple only. Env validation still demands
+          # a Google audience in production, so it gets one no Google token
+          # can carry: Google client ids end in .apps.googleusercontent.com,
+          # and `.invalid` is a reserved name nobody can register. Every
+          # Google sign-in is answered PROVIDER_TOKEN_INVALID. Enabling Google
+          # later means a production OAuth client and its id here.
+          GOOGLE_CLIENT_IDS: google-sign-in-disabled.invalid
+          # The same for the console's own sign-in. Without it the console
+          # would fall back to GOOGLE_CLIENT_IDS, which the guard above
+          # refuses outside dev. Replace it with the production console's
+          # client (vars.ADMIN_PROD_GOOGLE_CLIENT_ID, docs/13 §6.3) in the same
+          # change that adds the console's allowlist secret and origins.
+          ADMIN_GOOGLE_CLIENT_IDS: admin-console-not-provisioned.invalid
+          # The app record a Production transaction must have been signed for.
+          # Which store this talks to is not set here and cannot be:
+          # DEPLOYMENT_ENV=prod means Production (env validation).
+          COMMERCE_APPLE_BUNDLE_ID: app.countryflags.mobile
+          # "Apple Root CA - G3", the same certificate deploy-dev.yml carries
+          # and documents (SHA-256 63:34:3A:BF:…:3E:91:79). Replace it only
+          # against that fingerprint.
+          COMMERCE_APPLE_ROOT_CERTIFICATES: MIICQzCCAcmgAwIBAgIILcX8iNLFS5UwCgYIKoZIzj0EAwMwZzEbMBkGA1UEAwwSQXBwbGUgUm9vdCBDQSAtIEczMSYwJAYDVQQLDB1BcHBsZSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTETMBEGA1UECgwKQXBwbGUgSW5jLjELMAkGA1UEBhMCVVMwHhcNMTQwNDMwMTgxOTA2WhcNMzkwNDMwMTgxOTA2WjBnMRswGQYDVQQDDBJBcHBsZSBSb290IENBIC0gRzMxJjAkBgNVBAsMHUFwcGxlIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MRMwEQYDVQQKDApBcHBsZSBJbmMuMQswCQYDVQQGEwJVUzB2MBAGByqGSM49AgEGBSuBBAAiA2IABJjpLz1AcqTtkyJygRMc3RCV8cWjTnHcFBbZDuWmBSp3ZHtfTjjTuxxEtX/1H7YyYl3J6YRbTzBPEVoA/VhYDKX1DyxNB0cTddqXl5dvMVztK517IDvYuVTZXpmkOlEKMaNCMEAwHQYDVR0OBBYEFLuw3qFYM4iapIqZ3r6966/ayySrMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEGMAoGCCqGSM49BAMDA2gAMGUCMQCD6cHEFl4aXTQY2e3v9GwOAEZLuN+yRhHFD/3meoyhpmvOwgPUnPWTxnS4at+qIxUCMG1mihDK1A3UT82NQz60imOlM27jbdoXt2QfyFMm+YhidDkLF1vLUagM6BgD56KyKA==
+          # The App Store app's numeric Apple id. Production cannot verify a
+          # purchase without it: until it is set, every submitted transaction
+          # is answered STORE_NOT_CONFIGURED (AppleStoreConfig.configured).
+          COMMERCE_APPLE_APP_APPLE_ID: ${{ vars.COMMERCE_APPLE_APP_APPLE_ID }}
+          # The first iOS build that understands Deck.access, e.g. ios=1.0.0
+          # (docs/17 §20). Unset hides paid decks from every build, which is
+          # the safe state; never dev's ios=0.2.0, which the guard refuses.
+          PAID_CONTENT_MINIMUM_CLIENT_VERSIONS: ${{ vars.PAID_CONTENT_MINIMUM_CLIENT_VERSIONS }}
+
+      # As in deploy-dev.yml: the migration reads the same pinned versions the
+      # revision will mount, and the pooled URL's connection_limit and
+      # pool_timeout are checked against the instance ceiling before anything
+      # is migrated.
+      - name: Read the database credentials
+        id: database
+        run: |
+          set -euo pipefail
+          environment="${SERVICE##*-}"
+          url="$(gcloud secrets versions access "${{ steps.config.outputs.database_version }}" --secret="${environment}-database-url")"
+          direct="$(gcloud secrets versions access "${{ steps.config.outputs.direct_version }}" --secret="${environment}-direct-database-url")"
+          echo "::add-mask::${url}"
+          echo "::add-mask::${direct}"
+          limit=""
+          timeout=""
+          query=""
+          case "${url}" in
+            *\?*) query="${url#*\?}" ;;
+          esac
+          IFS='&' read -r -a parameters <<< "${query}"
+          for parameter in "${parameters[@]}"; do
+            case "${parameter}" in
+              connection_limit=*) limit="${parameter#*=}" ;;
+              pool_timeout=*) timeout="${parameter#*=}" ;;
+            esac
+          done
+          if ! [[ "${limit}" =~ ^[1-9][0-9]*$ && "${timeout}" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::${environment}-database-url must carry connection_limit and pool_timeout (docs/13 §5)"
+            exit 1
+          fi
+          if [ $((2 * MAX_INSTANCES * limit)) -gt "${DATABASE_POOL_BUDGET}" ] || [ "${limit}" -gt "${CONCURRENCY}" ]; then
+            echo "::error::connection_limit=${limit} does not fit ${MAX_INSTANCES} instances of concurrency ${CONCURRENCY} within a pool of ${DATABASE_POOL_BUDGET} (docs/13 §5)"
+            exit 1
+          fi
+          echo "Pool: connection_limit=${limit}, pool_timeout=${timeout}s, at most $((MAX_INSTANCES * limit)) connections per revision"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+          echo "direct=${direct}" >> "$GITHUB_OUTPUT"
+
+      # The service is created once by hand (docs/13 §6.5), never here: it
+      # carries the public invoker binding, and `--no-traffic` cannot create
+      # a service. Its address is what the API signs download URLs with; the
+      # revision serving now is where a rollback goes.
+      - name: Resolve the service address
+        id: service
+        run: |
+          set -euo pipefail
+          service="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format=json 2>/dev/null || true)"
+          url=""
+          if [ -n "${service}" ]; then
+            url="$(jq -r '.status.url // empty' <<< "${service}")"
+          fi
+          if [ -z "${url}" ]; then
+            echo "::error::Cloud Run service ${SERVICE} does not exist in ${REGION}"
+            echo "See docs/13-deployment-environments.md, section 6.5, for the one-time provisioning."
+            exit 1
+          fi
+          previous="$(jq -r '[.status.traffic[]? | select(.percent == 100) | .revisionName][0] // empty' <<< "${service}")"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+          echo "previous=${previous}" >> "$GITHUB_OUTPUT"
+          echo "${SERVICE} answers at ${url}; ${previous:-no single revision} serves it now"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      # Before the deploy, and on its own. A failure here leaves the running
+      # revision untouched. Migrations are expand/contract and never roll
+      # back (docs/13 §12): the revision serving now has to keep working
+      # against the schema this leaves behind, which is also what makes the
+      # rollback below safe.
+      - name: Migrate the prod database
+        id: migration
+        env:
+          DATABASE_URL: ${{ steps.database.outputs.url }}
+          DIRECT_DATABASE_URL: ${{ steps.database.outputs.direct }}
+        run: |
+          set -euo pipefail
+          corepack yarn workspace @country-flags/backend prisma migrate deploy
+          version="$(find backend/prisma/migrations -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | tail -n 1)"
+          if [ -z "${version}" ]; then
+            echo "::error::No migration directories found under backend/prisma/migrations"
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Database is at ${version}"
+
+      # Its own environment name rather than `production`: the job already
+      # records a deployment there for the workflow's ref, and this one is
+      # about the release — the image's commit, its digest, the schema and
+      # who started it.
+      - name: Open the deployment record
+        id: record
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ steps.image.outputs.sha }}',
+              environment: 'api-prod',
+              production_environment: true,
+              auto_merge: false,
+              required_contexts: [],
+              description: 'Cloud Run api-prod',
+              payload: {
+                service: 'api-prod',
+                region: '${{ env.REGION }}',
+                image: '${{ steps.image.outputs.reference }}',
+                migrationVersion: '${{ steps.migration.outputs.version }}',
+                previousRevision: '${{ steps.service.outputs.previous }}',
+                operator: context.actor,
+              },
+            });
+            core.setOutput('id', deployment.data.id);
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: 'in_progress',
+              description: 'Deploying the revision',
+            });
+
+      # The same revision shape as dev (docs/13 §5): created with no traffic
+      # under the candidate tag, one instance kept with CPU always allocated
+      # (the outboxes, reconciliation, scheduler migration and data exports
+      # run in this process between requests and stand still without it),
+      # the minimum set on the service rather than the revision, and a
+      # startup probe that asks for readiness rather than an open port.
+      - name: Deploy the revision
+        id: deploy
+        env:
+          ENV_VARS: ${{ steps.config.outputs.env_vars }}
+          SECRETS: ${{ steps.config.outputs.secrets }}
+          IMAGE: ${{ steps.image.outputs.reference }}
+          SHA: ${{ steps.image.outputs.sha }}
+          URL: ${{ steps.service.outputs.url }}
+          MIGRATION: ${{ steps.migration.outputs.version }}
+        run: |
+          set -euo pipefail
+          gcloud run deploy "${SERVICE}" \
+            --region "${REGION}" \
+            --image "${IMAGE}" \
+            --service-account "${SERVICE}-runtime@${PROJECT_ID}.iam.gserviceaccount.com" \
+            --no-traffic \
+            --tag "${CANDIDATE_TAG}" \
+            --min 1 \
+            --max-instances "${MAX_INSTANCES}" \
+            --concurrency "${CONCURRENCY}" \
+            --no-cpu-throttling \
+            --cpu 1 \
+            --memory 512Mi \
+            --startup-probe "httpGet.path=/v1/health/ready,periodSeconds=5,timeoutSeconds=4,failureThreshold=24" \
+            --labels "release=${SHA},deployment-env=${SERVICE##*-},managed-by=github-actions" \
+            --set-env-vars "${ENV_VARS};PUBLIC_BASE_URL=${URL};MIGRATION_VERSION=${MIGRATION}" \
+            --set-secrets "${SECRETS}" \
+            --quiet
+          revision="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.latestCreatedRevisionName)')"
+          echo "revision=${revision}" >> "$GITHUB_OUTPUT"
+          echo "Created ${revision} without traffic"
+
+      # Asked at the candidate tag's address, which reaches this revision and
+      # no other; the tag is resolved back to the revision and its
+      # SERVICE_RELEASE compared with the commit, so the run states which
+      # revision it checked instead of assuming it.
+      - name: Wait for readiness
+        id: ready
+        env:
+          REVISION: ${{ steps.deploy.outputs.revision }}
+          SHA: ${{ steps.image.outputs.sha }}
+        run: |
+          set -euo pipefail
+          service="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format=json)"
+          tagged="$(jq -r --arg tag "${CANDIDATE_TAG}" '.status.traffic[] | select(.tag == $tag) | .revisionName' <<< "${service}")"
+          candidate="$(jq -r --arg tag "${CANDIDATE_TAG}" '.status.traffic[] | select(.tag == $tag) | .url' <<< "${service}")"
+          if [ -z "${REVISION}" ] || [ "${tagged}" != "${REVISION}" ] || [ -z "${candidate}" ]; then
+            echo "::error::Tag ${CANDIDATE_TAG} names '${tagged}', not the revision this run created ('${REVISION}')"
+            exit 1
+          fi
+          release="$(gcloud run revisions describe "${REVISION}" --region "${REGION}" --format=json \
+            | jq -r '.spec.containers[0].env[] | select(.name == "SERVICE_RELEASE") | .value')"
+          if [ "${release}" != "${SHA}" ]; then
+            echo "::error::${REVISION} reports SERVICE_RELEASE=${release}, expected ${SHA}"
+            exit 1
+          fi
+          echo "candidate=${candidate}" >> "$GITHUB_OUTPUT"
+          echo "Checking ${REVISION} (SERVICE_RELEASE ${release}) at ${candidate}"
+          url="${candidate}/v1/health/ready"
+          for attempt in $(seq 1 30); do
+            code="$(curl -sS -o /tmp/ready.json -w '%{http_code}' "${url}" || true)"
+            if [ "${code}" = "200" ]; then
+              echo "Ready after ${attempt} attempt(s)"
+              cat /tmp/ready.json
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::${url} did not become ready"
+          cat /tmp/ready.json || true
+          exit 1
+
+      # The reads every client makes first, plus the one answer that proves
+      # authentication is enforced. Each is asked with a deadline and retried
+      # a few times, so a slow first request is not mistaken for a broken
+      # release.
+      - name: Smoke test the public surface
+        id: smoke
+        env:
+          BASE: ${{ steps.ready.outputs.candidate }}
+        run: |
+          set -euo pipefail
+          check() {
+            local path="$1" expected="$2" code=""
+            for _ in 1 2 3; do
+              code="$(curl -sS -m 20 -o /tmp/smoke.json -w '%{http_code}' "${BASE}${path}" || true)"
+              case " ${expected} " in
+                *" ${code} "*)
+                  echo "${path} answered ${code}"
+                  return 0 ;;
+              esac
+              sleep 5
+            done
+            echo "::error::${path} answered ${code}, expected one of: ${expected}"
+            cat /tmp/smoke.json || true
+            return 1
+          }
+          check /v1/health/live 200
+          check "/v1/app-config?platform=ios&appVersion=1.0.0&locale=en" 200
+          # 404 is a production with no catalogue published yet, which is a
+          # working API: publish-content-prod.yml follows the first deploy.
+          check "/v1/content/manifest?locale=en" "200 404"
+          check /v1/me 401
+
+      - name: Report what the revision logged
+        if: >-
+          failure() && (steps.deploy.outcome == 'failure' ||
+          steps.ready.outcome == 'failure' || steps.smoke.outcome == 'failure')
+        run: |
+          set -euo pipefail
+          gcloud logging read \
+            "resource.type=cloud_run_revision AND resource.labels.service_name=${SERVICE}" \
+            --project "${PROJECT_ID}" \
+            --freshness 15m \
+            --limit 50 \
+            --order desc \
+            --format 'value(textPayload,jsonPayload.message)' || true
+
+      # Only now does anybody reach the new revision. `--to-latest`, as in
+      # dev, also releases a pin a hand rollback left behind; the check first
+      # catches a revision created by hand meanwhile.
+      - name: Move traffic to the checked revision
+        id: traffic
+        env:
+          REVISION: ${{ steps.deploy.outputs.revision }}
+        run: |
+          set -euo pipefail
+          latest="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.latestCreatedRevisionName)')"
+          if [ "${latest}" != "${REVISION}" ]; then
+            echo "::error::${latest} was created after ${REVISION}; traffic stays where it is"
+            exit 1
+          fi
+          gcloud run services update-traffic "${SERVICE}" --region "${REGION}" --to-latest --quiet
+          serving="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format=json \
+            | jq -r '[.status.traffic[] | select(.percent == 100)][0].revisionName // empty')"
+          if [ "${serving}" != "${REVISION}" ]; then
+            echo "::error::Traffic is on '${serving}', not on the checked revision ${REVISION}"
+            exit 1
+          fi
+          echo "Serving ${REVISION}"
+
+      - name: Record the deployment result
+        if: always() && steps.record.outputs.id != ''
+        uses: actions/github-script@v9
+        env:
+          DEPLOY_RESULT: ${{ job.status }}
+        with:
+          script: |
+            const succeeded = process.env.DEPLOY_RESULT === 'success';
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.record.outputs.id }},
+              state: succeeded ? 'success' : 'failure',
+              environment_url: '${{ steps.service.outputs.url }}',
+              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              description: succeeded
+                ? 'Ready and smoke tested'
+                : 'Deploy did not reach a ready, smoke-tested revision',
+            });
+
+      # Written whether the deploy worked or not: what was released, by whom,
+      # against which schema, and the one command that undoes it.
+      - name: Summarise the deployment
+        if: always()
+        env:
+          SHA: ${{ steps.image.outputs.sha }}
+          IMAGE: ${{ steps.image.outputs.reference }}
+          REVISION: ${{ steps.deploy.outputs.revision }}
+          PREVIOUS: ${{ steps.service.outputs.previous }}
+          MIGRATION: ${{ steps.migration.outputs.version }}
+          URL: ${{ steps.service.outputs.url }}
+          RESULT: ${{ job.status }}
+          MOVED: ${{ steps.traffic.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Production deployment"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Result | \`${RESULT}\` |"
+            echo "| Operator | \`${GITHUB_ACTOR}\` |"
+            echo "| Release | \`${SHA:-not resolved}\` |"
+            echo "| Image | \`${IMAGE:-not resolved}\` |"
+            echo "| Cloud Run revision | \`${REVISION:-not created}\` |"
+            echo "| Serving before | \`${PREVIOUS:-unknown}\` |"
+            echo "| Migration version | \`${MIGRATION:-not applied}\` |"
+            echo "| Service URL | ${URL:-unknown} |"
+            echo
+            if [ "${MOVED}" = "true" ]; then
+              echo "Traffic moved to \`${REVISION}\`. To send it back to the revision that served before:"
+              echo
+              echo '```bash'
+              echo "gcloud run services update-traffic ${SERVICE} --region ${REGION} --project ${PROJECT_ID} --to-revisions ${PREVIOUS:-<previous-revision>}=100"
+              echo '```'
+              echo
+              echo "The database stays where this run migrated it; check the older revision can read it first (docs/ops/deployment-runbooks.md §2.2)."
+            else
+              echo "Traffic was not moved: \`${PREVIOUS:-the previous revision}\` still serves production, and there is nothing to roll back."
+              if [ -n "${MIGRATION}" ]; then
+                echo "The database was migrated to \`${MIGRATION}\`, which the serving revision has to tolerate (expand/contract, docs/13 §12)."
+              fi
+            fi
+            echo
+            echo "Logs for this release:"
+            echo
+            echo '```bash'
+            echo "gcloud logging read \\"
+            echo "  'resource.type=cloud_run_revision AND resource.labels.service_name=${SERVICE} AND jsonPayload.release=\"${SHA}\"' \\"
+            echo "  --project ${PROJECT_ID} --freshness 1h --limit 50 --order desc"
+            echo '```'
+            echo
+            echo "Runbook: docs/ops/deployment-runbooks.md §11."
+          } >> "$GITHUB_STEP_SUMMARY"

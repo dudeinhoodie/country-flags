@@ -1,0 +1,261 @@
+name: Publish content to prod
+
+# The production twin of publish-content-dev.yml: the same build, signature
+# and publish CLI, against the production database and bucket with the
+# production signing key. A release replaces what every installed app reads,
+# so publishing is a decision somebody makes and a reviewer approves through
+# the production environment, never a consequence of a merge.
+#
+# The catalogue is built from the commit this runs on (master) and applied by
+# that commit's Prisma client, so the production database has to carry every
+# migration that commit has. The run checks that before reading a credential
+# and asks for `Deploy api prod` first when it does not hold. The one-time
+# provisioning (bucket, publisher key, signing key) is docs/13 §6.5.
+on:
+  workflow_dispatch:
+    inputs:
+      content_version:
+        description: >-
+          Catalog version to build and publish. Publishing a version that is
+          already published changes nothing, so a changed catalogue needs a
+          new one.
+        required: true
+      minimum_client_version:
+        description: >-
+          Oldest client the release lets read it. A client below this is
+          answered with an update screen instead of a catalogue; 1.0.0 is the
+          first store build.
+        required: true
+        default: 1.0.0
+
+permissions:
+  contents: read
+  # The federated credential is minted per run; no key exists to leak.
+  id-token: write
+
+env:
+  PROJECT_ID: speedy-web-235610
+  PROJECT_NUMBER: "337239833704"
+  BUCKET: country-flags-prod
+  REGION: europe-west3
+  SERVICE: api-prod
+  # Not a secret: it names which key signed a release, and the public half it
+  # is verified against is published beside it.
+  SIGNING_KEY_ID: prod-2026-11
+  CONTENT_VERSION: ${{ inputs.content_version }}
+  MINIMUM_CLIENT_VERSION: ${{ inputs.minimum_client_version }}
+
+concurrency:
+  # Shared with deploy-api-prod.yml: a publish must not run while the
+  # database is being migrated, and two publishes would race for the active
+  # pointer.
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # The approval gate and the master-only branch rule (docs/13 §6.5).
+    environment: production
+
+    steps:
+      - name: Refuse a run from anything but master
+        if: github.ref != 'refs/heads/master'
+        run: |
+          echo "::error::Production content is published from master only; this run is on ${GITHUB_REF}"
+          exit 1
+
+      # Both become object keys and part of a URL every client reads, so they
+      # are held to a plain shape before anything uses them.
+      - name: Check the inputs
+        run: |
+          set -euo pipefail
+          if ! [[ "${CONTENT_VERSION}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]]; then
+            echo "::error::content_version '${CONTENT_VERSION}' must be letters, digits, '.', '_' or '-'"
+            exit 1
+          fi
+          if ! [[ "${MINIMUM_CLIENT_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::minimum_client_version '${MINIMUM_CLIENT_VERSION}' must look like 1.0.0"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # The revision serving production names the migration its deploy left
+      # the database at (MIGRATION_VERSION). A checkout with a newer one would
+      # publish through a client for a schema production does not have yet.
+      # The placeholder revision names none, so a first publish before the
+      # first deploy is refused here too.
+      - name: Check production carries this commit's schema
+        id: production
+        run: |
+          set -euo pipefail
+          service="$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format=json 2>/dev/null || true)"
+          if [ -z "${service}" ]; then
+            echo "::error::Cloud Run service ${SERVICE} does not exist; provision it (docs/13 §6.5) and run Deploy api prod first"
+            exit 1
+          fi
+          url="$(jq -r '.status.url // empty' <<< "${service}")"
+          serving="$(jq -r '[.status.traffic[]? | select(.percent == 100) | .revisionName] | if length == 1 then .[0] else empty end' <<< "${service}")"
+          if [ -z "${serving}" ]; then
+            echo "::error::No single revision serves all of ${SERVICE}'s traffic"
+            exit 1
+          fi
+          deployed="$(gcloud run revisions describe "${serving}" --region "${REGION}" --format=json \
+            | jq -r '.spec.containers[0].env[]? | select(.name == "MIGRATION_VERSION") | .value')"
+          if [ -z "${deployed}" ]; then
+            echo "::error::${serving} names no MIGRATION_VERSION: production has not been deployed by Deploy api prod yet"
+            exit 1
+          fi
+          latest="$(find backend/prisma/migrations -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | tail -n 1)"
+          if [[ "${latest}" > "${deployed}" ]]; then
+            echo "::error::This commit carries migration ${latest}, but production's database is at ${deployed}. Run Deploy api prod first."
+            exit 1
+          fi
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+          echo "${serving} serves production at ${url}; database at ${deployed}, this commit at ${latest}"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack yarn install --immutable
+
+      # The publish CLI is TypeScript run through ts-node, and it is typed
+      # against the generated Prisma client rather than against the schema.
+      - name: Generate the Prisma client
+        run: corepack yarn prisma:generate
+
+      # Read where they live rather than duplicated into GitHub: each credential
+      # has one home, and rotating it there is the whole change.
+      - name: Read the credentials
+        id: credentials
+        run: |
+          set -euo pipefail
+          for name in \
+            prod-direct-database-url \
+            prod-object-storage-access-key-id \
+            prod-object-storage-secret-access-key \
+            prod-content-signing-private-key \
+            prod-content-signing-public-keys
+          do
+            value="$(gcloud secrets versions access latest --secret="${name}")"
+            # A base64 key stored with line breaks is masked line by line;
+            # masking the whole string would leave each line printable.
+            while IFS= read -r line; do
+              [ -n "${line}" ] && echo "::add-mask::${line}"
+            done <<< "${value}"
+            echo "${name//-/_}<<SECRET_EOF" >> "$GITHUB_OUTPUT"
+            echo "${value}" >> "$GITHUB_OUTPUT"
+            echo "SECRET_EOF" >> "$GITHUB_OUTPUT"
+          done
+
+      # The committed bundle records cdn.country-flags.app, a domain nobody
+      # registered, so production gets its own build with the production
+      # bucket as the asset base. The asset bytes are identical either way,
+      # which is what lets the app keep drawing the flags it ships (ADR-011).
+      - name: Build the bundle for prod
+        run: |
+          set -euo pipefail
+          corepack yarn content build \
+            --catalog-version "${CONTENT_VERSION}" \
+            --publish-ready \
+            --asset-base-url "https://storage.googleapis.com/${BUCKET}/content/${CONTENT_VERSION}/" \
+            --minimum-client-version "${MINIMUM_CLIENT_VERSION}"
+
+      - name: Sign the bundle
+        env:
+          CONTENT_SIGNING_KEY_ID: ${{ env.SIGNING_KEY_ID }}
+          CONTENT_SIGNING_PRIVATE_KEY: ${{ steps.credentials.outputs.prod_content_signing_private_key }}
+        run: |
+          set -euo pipefail
+          # The root script forwards into the backend workspace, so the CLI
+          # resolves a relative path against backend/ rather than the checkout.
+          corepack yarn content:bundle:sign \
+            --bundle-dir "${GITHUB_WORKSPACE}/content/generated/${CONTENT_VERSION}"
+
+      # Publish uploads the bundle and its assets, then applies the release in
+      # one transaction. It runs against the direct connection: the pooled one
+      # cannot hold a transaction this long.
+      - name: Publish the release
+        env:
+          DATABASE_URL: ${{ steps.credentials.outputs.prod_direct_database_url }}
+          DIRECT_DATABASE_URL: ${{ steps.credentials.outputs.prod_direct_database_url }}
+          CONTENT_SIGNING_PUBLIC_KEYS: ${{ steps.credentials.outputs.prod_content_signing_public_keys }}
+          OBJECT_STORAGE_PROVIDER: s3
+          OBJECT_STORAGE_BUCKET: ${{ env.BUCKET }}
+          OBJECT_STORAGE_REGION: ${{ env.REGION }}
+          OBJECT_STORAGE_ENDPOINT: https://storage.googleapis.com
+          # Cloud Storage serves the S3 API under one host for every bucket.
+          OBJECT_STORAGE_FORCE_PATH_STYLE: "true"
+          OBJECT_STORAGE_ACCESS_KEY_ID: ${{ steps.credentials.outputs.prod_object_storage_access_key_id }}
+          OBJECT_STORAGE_SECRET_ACCESS_KEY: ${{ steps.credentials.outputs.prod_object_storage_secret_access_key }}
+          OBJECT_STORAGE_PUBLIC_BASE_URL: https://storage.googleapis.com/${{ env.BUCKET }}
+        run: |
+          set -euo pipefail
+          corepack yarn content:bundle:publish \
+            --bundle-dir "${GITHUB_WORKSPACE}/content/generated/${CONTENT_VERSION}"
+
+      # Published is not the same as served. The manifest is the first read
+      # every client makes, so it is the cheapest proof the release arrived.
+      - name: Check prod serves the release
+        env:
+          SERVICE_URL: ${{ steps.production.outputs.url }}
+        run: |
+          set -euo pipefail
+          code=""
+          for _ in 1 2 3 4 5; do
+            code="$(curl -sS -m 30 -o /tmp/manifest.json -w '%{http_code}' "${SERVICE_URL}/v1/content/manifest?locale=en" || true)"
+            [ "${code}" = "200" ] && break
+            sleep 5
+          done
+          if [ "${code}" != "200" ]; then
+            echo "::error::Manifest responded ${code}"
+            cat /tmp/manifest.json || true
+            exit 1
+          fi
+          served="$(jq -r '.contentVersion' /tmp/manifest.json)"
+          if [ "${served}" != "${CONTENT_VERSION}" ]; then
+            echo "::error::prod serves ${served}, not ${CONTENT_VERSION}"
+            exit 1
+          fi
+          assets="$(jq -r '.assetBaseUrl // empty' /tmp/manifest.json)"
+          echo "prod serves ${served}, assets from ${assets:-the URLs recorded per file}"
+
+      - name: Summarise
+        if: always()
+        env:
+          SERVICE_URL: ${{ steps.production.outputs.url }}
+          RESULT: ${{ job.status }}
+        run: |
+          {
+            echo "## Production content publish"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Result | \`${RESULT}\` |"
+            echo "| Operator | \`${GITHUB_ACTOR}\` |"
+            echo "| Content version | \`${CONTENT_VERSION}\` |"
+            echo "| Minimum client version | \`${MINIMUM_CLIENT_VERSION}\` |"
+            echo "| Built from | \`${GITHUB_SHA}\` |"
+            echo "| Bucket | \`gs://${BUCKET}\` |"
+            echo "| Signing key | \`${SIGNING_KEY_ID}\` |"
+            echo "| API | ${SERVICE_URL:-unknown} |"
+            echo
+            echo "Rolling the catalogue back: docs/ops/deployment-runbooks.md §13."
+          } >> "$GITHUB_STEP_SUMMARY"
