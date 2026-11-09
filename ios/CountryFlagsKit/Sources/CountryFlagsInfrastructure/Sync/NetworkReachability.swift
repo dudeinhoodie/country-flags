@@ -41,16 +41,3 @@ public actor NetworkReachabilityMonitor: NetworkReachabilityObserving {
         onAvailable()
     }
 }
-
-/// Answers that no device is registered.
-///
-/// Registration is the auth work package's. Until it lands this is the honest
-/// answer: reviews are queued durably and not sent, rather than attributed to a
-/// device that does not exist.
-public struct UnregisteredDeviceIdentity: DeviceIdentityProviding {
-    public init() {}
-
-    public func registeredDeviceID() async -> UUID? { nil }
-
-    public func forgetRegisteredDevice() async {}
-}

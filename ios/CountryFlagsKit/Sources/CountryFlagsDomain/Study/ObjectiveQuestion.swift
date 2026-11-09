@@ -46,10 +46,6 @@ public struct ObjectiveQuestion: Hashable, Sendable {
         optionID == correctOptionID
     }
 
-    /// Whether this device composed the question and can therefore grade it. A
-    /// server-selected question is graded by the backend.
-    public var isLocallyGraded: Bool { correctOptionID != nil }
-
     public init(
         sessionCardID: UUID,
         learningCardID: UUID,

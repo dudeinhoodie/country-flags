@@ -76,8 +76,6 @@ public actor AnalyticsCoordinator: AnalyticsTracking, TelemetryConsentApplying {
         }
     }
 
-    public func currentConsent() -> TelemetryConsent { consent }
-
     // MARK: - AnalyticsTracking
 
     public func track(_ event: AnalyticsEvent) async {

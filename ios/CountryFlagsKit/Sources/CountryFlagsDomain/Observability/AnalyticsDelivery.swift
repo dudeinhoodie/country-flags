@@ -9,12 +9,6 @@ public enum AnalyticsIngestionStatus: String, Hashable, Sendable, CaseIterable {
     case accepted = "ACCEPTED"
     case duplicate = "DUPLICATE"
     case rejected = "REJECTED"
-
-    /// Whether the queue is done with the event.
-    ///
-    /// A rejection is finished too — asking again would be refused again, and
-    /// that is what turns a partial rejection into an infinite retry.
-    public var clearsPendingEvent: Bool { true }
 }
 
 public struct AnalyticsIngestionResult: Hashable, Sendable {

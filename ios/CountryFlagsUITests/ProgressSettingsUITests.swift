@@ -67,8 +67,6 @@ final class ProgressSettingsUITests: XCTestCase {
             .firstMatch
         XCTAssertTrue(counts.waitForExistence(timeout: 15), app.debugDescription)
         XCTAssertFalse(counts.label.isEmpty)
-        // A string catalog key must never reach the interface.
-        XCTAssertFalse(counts.label.contains("progress.deck_counts"))
         XCTAssertFalse(app.staticTexts["progress.empty"].exists, app.debugDescription)
     }
 

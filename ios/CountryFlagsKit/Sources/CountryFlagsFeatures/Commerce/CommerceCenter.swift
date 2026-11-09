@@ -102,14 +102,6 @@ public final class CommerceCenter {
         self.onEntitlementsChanged = onEntitlementsChanged
     }
 
-    /// Stops listening. The app never calls it — there is no moment before
-    /// termination at which not hearing about a purchase is an improvement —
-    /// but a test uses it to end the task it started.
-    public func stop() {
-        listener?.cancel()
-        listener = nil
-    }
-
     // MARK: - Launch
 
     /// Starts the transaction listener and settles what the last launch left
@@ -352,18 +344,6 @@ public final class CommerceCenter {
             await track(.purchaseRestoreCompleted(result: .failed, at: dates.now()))
         }
         return result
-    }
-
-    /// Clears the neutral "nothing to restore" line once it has been read.
-    public func acknowledgeRestore() {
-        lastRestore = nil
-    }
-
-    /// Clears a failure a screen has shown, so leaving and returning does not
-    /// show it again.
-    public func acknowledgeFailure(for deck: DeckRecord) {
-        guard case .failed = phase(of: deck) else { return }
-        purchases[deck.id] = .idle
     }
 
     // MARK: - What the screens report

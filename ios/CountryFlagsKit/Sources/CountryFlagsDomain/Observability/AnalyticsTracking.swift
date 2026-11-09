@@ -27,21 +27,6 @@ public protocol AnalyticsTracking: Sendable {
     func flush() async
 }
 
-/// The default when nothing is wired: nothing leaves the device, and nothing
-/// is stored either.
-///
-/// It is deliberately not a silent success in disguise — the policy that
-/// matters (consent filtering, redaction, the typed registry) lives above this
-/// protocol rather than inside an implementation of it, so a build running the
-/// NoOp tracker still refuses to collect what it may not collect.
-public struct NoOpAnalyticsTracker: AnalyticsTracking {
-    public init() {}
-
-    public func track(_ event: AnalyticsEvent) async {}
-    public func setIdentity(_ identity: AnalyticsIdentity?) async {}
-    public func flush() async {}
-}
-
 /// Reports that a person actually saw a flagged feature.
 ///
 /// Reading a flag is not exposure. A screen asks for `study.multiple_choice`

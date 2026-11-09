@@ -98,12 +98,7 @@ public enum L10n {
 
     public static var homeTitle: String { localized("home.title") }
     public static var homeLoading: String { localized("home.loading") }
-    public static var homeRecommended: String { localized("home.recommended") }
     public static var homeOpenCatalog: String { localized("home.open_catalog") }
-    /// The label over the number the first screen is built around, in each of
-    /// its two cases, and the action underneath it.
-    public static var homeDue: String { localized("home.due") }
-
     public static func homeDueCount(_ count: Int) -> String {
         String(format: localized("home.due_count"), count)
     }
@@ -237,12 +232,6 @@ public enum L10n {
         )
     }
 
-    public static var homeOpenProgress: String { localized("home.open_progress") }
-
-    public static var achievementsTitle: String { localized("achievements.title") }
-    public static var achievementsEarned: String { localized("achievements.earned") }
-    public static var achievementsEmpty: String { localized("achievements.empty") }
-
     public static var progressKnownLabel: String { localized("progress.known") }
     public static var progressLearnedLabel: String { localized("progress.learned") }
     public static var progressMapHint: String { localized("progress.map_hint") }
@@ -262,9 +251,6 @@ public enum L10n {
     /// What the drawing is called, under a heading that has already said
     /// which drawing it is.
     public static var detailsSymbolName: String { localized("details.symbol_name") }
-    public static func detailsAlsoKnown(_ names: String) -> String {
-        String(format: localized("details.also_known"), names)
-    }
     public static var progressInProgressLabel: String { localized("progress.state_in_progress") }
     public static var progressNotStartedLabel: String { localized("progress.state_not_started") }
     public static var progressReviewDue: String { localized("progress.review_due") }
@@ -276,7 +262,6 @@ public enum L10n {
     public static func progressDeckLearned(_ count: Int) -> String {
         String(format: localized("progress.deck_learned"), count)
     }
-    public static var progressAchievementsSection: String { localized("progress.achievements") }
     public static var progressEmptyTitle: String { localized("progress.empty.title") }
     public static var progressEmptyBody: String { localized("progress.empty.body") }
 
@@ -290,20 +275,6 @@ public enum L10n {
     public static var progressStrandedDismiss: String {
         localized("progress.stranded.dismiss")
     }
-
-    public static func progressDeckCounts(_ started: Int, _ total: Int) -> String {
-        String(format: localized("progress.deck_counts"), started, total)
-    }
-
-    public static func progressDeckDue(_ due: Int) -> String {
-        String(format: localized("progress.deck_due"), due)
-    }
-
-    public static var masteryNone: String { localized("mastery.none") }
-    public static var masteryBronze: String { localized("mastery.bronze") }
-    public static var masterySilver: String { localized("mastery.silver") }
-    public static var masteryGold: String { localized("mastery.gold") }
-    public static var masteryPlatinum: String { localized("mastery.platinum") }
 
     public static var settingsSessionSection: String { localized("settings.session") }
     public static var settingsFeedbackSection: String { localized("settings.feedback") }
@@ -347,9 +318,6 @@ public enum L10n {
     public static var settingsClearProgressConfirm: String {
         localized("settings.clear_progress.confirm")
     }
-    public static var settingsClearProgressReauth: String {
-        localized("settings.clear_progress.reauth")
-    }
     public static var settingsClearProgressWorking: String {
         localized("settings.clear_progress.working")
     }
@@ -358,9 +326,6 @@ public enum L10n {
     }
     public static var settingsClearProgressFailed: String {
         localized("settings.clear_progress.failed")
-    }
-    public static var settingsClearProgressReauthFailed: String {
-        localized("settings.clear_progress.reauth_failed")
     }
 
     // MARK: - Account
@@ -414,23 +379,7 @@ public enum L10n {
 
     // MARK: - The account screen
 
-    public static var accountTitle: String { localized("account.title") }
     public static var accountOpen: String { localized("account.open") }
-    public static var accountIdentitiesSection: String { localized("account.identities_section") }
-    public static var accountIdentitiesFooter: String { localized("account.identities_footer") }
-    public static var accountUnlink: String { localized("account.unlink") }
-    public static var accountProviderApple: String { localized("account.provider_apple") }
-    public static var accountProviderGoogle: String { localized("account.provider_google") }
-    public static var accountDevicesSection: String { localized("account.devices_section") }
-    public static var accountDevicesFooter: String { localized("account.devices_footer") }
-    public static var accountThisDevice: String { localized("account.this_device") }
-    public static var accountRevokeDevice: String { localized("account.revoke_device") }
-    public static var accountExportSection: String { localized("account.export_section") }
-    public static var accountExportFooter: String { localized("account.export_footer") }
-    public static var accountExportRequest: String { localized("account.export_request") }
-    public static var accountExportPreparing: String { localized("account.export_preparing") }
-    public static var accountExportShare: String { localized("account.export_share") }
-    public static var accountExportFailed: String { localized("account.export_failed") }
     public static var accountLegalSection: String { localized("account.legal_section") }
     /// The about screen: which build this is, and whose work it carries.
     public static var aboutTitle: String { localized("about.title") }
@@ -461,35 +410,6 @@ public enum L10n {
     public static var accountDeleteFailed: String { localized("account.delete.failed") }
     public static var accountDeletionPendingTitle: String {
         localized("account.deletion_pending.title")
-    }
-    public static var accountProveTitle: String { localized("account.prove.title") }
-    public static var accountProveBody: String { localized("account.prove.body") }
-    public static var accountProveFailed: String { localized("account.prove.failed") }
-    public static var accountIdentityTakenTitle: String {
-        localized("account.identity_taken.title")
-    }
-    public static var accountIdentityTakenBody: String { localized("account.identity_taken.body") }
-    public static var accountIdentityFailedTitle: String {
-        localized("account.identity_failed.title")
-    }
-    public static var accountIdentityDuplicateBody: String {
-        localized("account.identity_duplicate.body")
-    }
-    public static var accountIdentityLastBody: String { localized("account.identity_last.body") }
-    public static var accountIdentityOfflineBody: String {
-        localized("account.identity_offline.body")
-    }
-    public static var accountIdentityRefusedBody: String {
-        localized("account.identity_refused.body")
-    }
-    public static var accountSwitchAccounts: String { localized("account.switch_accounts") }
-
-    public static func accountIdentityLastUsed(_ day: String) -> String {
-        String(format: localized("account.identity_last_used"), day)
-    }
-
-    public static func accountDeviceDetails(_ version: String, _ day: String) -> String {
-        String(format: localized("account.device_details"), version, day)
     }
 
     public static func accountDeletionPendingBody(_ day: String) -> String {
@@ -528,7 +448,6 @@ public enum L10n {
 
     // MARK: - Study
 
-    public static var studyTitle: String { localized("study.title") }
     public static var studyReveal: String { localized("study.reveal") }
     public static var studyFlagPrompt: String { localized("study.flag_prompt") }
     /// What VoiceOver calls a coat of arms while the question is still open.
@@ -542,7 +461,6 @@ public enum L10n {
         localized("study.card.unsupported.message")
     }
     public static var studyDetails: String { localized("study.details") }
-    public static var studyDetailsTitle: String { localized("study.details.title") }
     public static var studyClose: String { localized("study.close") }
     /// A sheet's close button, for VoiceOver (#529).
     public static var commonClose: String { localized("common.close") }
@@ -606,7 +524,6 @@ public enum L10n {
     /// drawing rather than to the place, which is why it lives on the asset.
     public static var factEmblem: String { localized("fact.emblem") }
 
-    public static var studyObjectiveTitle: String { localized("study.objective.title") }
     public static var studyNext: String { localized("study.next") }
     public static var studyModeSection: String { localized("study.mode") }
     public static var studyModeSelfRated: String { localized("study.mode.self_rated") }
@@ -748,7 +665,6 @@ public enum L10n {
     }
     public static var commerceOpeningDeck: String { localized("commerce.action.delivering") }
     public static var commerceRestore: String { localized("commerce.action.restore") }
-    public static var commerceRetry: String { localized("commerce.action.retry") }
     public static var commerceFinishSession: String {
         localized("commerce.action.finish_session")
     }
