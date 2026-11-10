@@ -126,13 +126,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your progress, awards, settings and every way in are gone. The app stays — you just start from nothing."
+            "value": "Your progress, settings and every way in are gone. The app stays — you just start from nothing."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прогресс, награды, настройки и все способы входа исчезнут. Приложение останется — просто начнёшь с нуля."
+            "value": "Прогресс, настройки и все способы входа исчезнут. Приложение останется — просто начнёшь с нуля."
           }
         }
       }
@@ -4132,13 +4132,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Answers, cards, sessions and awards are deleted on every device. The account, its settings and the catalog stay."
+            "value": "Answers, cards and sessions are deleted on every device. The account, its settings and the catalog stay."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ответы, карточки, тренировки и награды исчезнут на всех устройствах. Аккаунт, настройки и каталог останутся."
+            "value": "Ответы, карточки и тренировки исчезнут на всех устройствах. Аккаунт, настройки и каталог останутся."
           }
         }
       }
