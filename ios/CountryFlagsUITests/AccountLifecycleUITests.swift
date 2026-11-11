@@ -83,7 +83,7 @@ final class AccountLifecycleUITests: XCTestCase {
         // The consequences are named before anything is asked of the person.
         for copy in [
             "Delete this account?",
-            "Your progress, awards, settings and every way in are gone. "
+            "Your progress, settings and every way in are gone. "
                 + "The app stays — you just start from nothing.",
         ] {
             let text = app.staticTexts.matching(

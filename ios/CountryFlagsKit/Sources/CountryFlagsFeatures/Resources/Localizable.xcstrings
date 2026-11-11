@@ -126,13 +126,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your progress, awards, settings and every way in are gone. The app stays — you just start from nothing."
+            "value": "Your progress, settings and every way in are gone. The app stays — you just start from nothing."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прогресс, награды, настройки и все способы входа исчезнут. Приложение останется — просто начнёшь с нуля."
+            "value": "Прогресс, настройки и все способы входа исчезнут. Приложение останется — просто начнёшь с нуля."
           }
         }
       }
@@ -1275,7 +1275,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Уже купили на другом устройстве? Войдите в тот же аккаунт Vexi и восстановите покупку."
+            "value": "Покупка была на другом устройстве? Войди в тот же аккаунт Vexi и восстанови её."
           }
         }
       }
@@ -1683,7 +1683,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "App Store подтвердил оплату, а это устройство не смогло проверить подпись. Восстановите покупки; если это не поможет, назовите поддержке код ниже."
+            "value": "App Store подтвердил оплату, а это устройство не смогло проверить подпись. Восстанови покупки; если это не поможет, назови поддержке код ниже."
           }
         }
       }
@@ -3679,7 +3679,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось загрузить страны. Проверьте соединение и попробуйте снова."
+            "value": "Не удалось загрузить страны. Проверь соединение и попробуй снова."
           }
         }
       }
@@ -4149,13 +4149,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Answers, cards, sessions and awards are deleted on every device. The account, its settings and the catalog stay."
+            "value": "Answers, cards and sessions are deleted on every device. The account, its settings and the catalog stay."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ответы, карточки, тренировки и награды исчезнут на всех устройствах. Аккаунт, настройки и каталог останутся."
+            "value": "Ответы, карточки и тренировки исчезнут на всех устройствах. Аккаунт, настройки и каталог останутся."
           }
         }
       }
@@ -4614,7 +4614,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Обновите приложение, чтобы её увидеть. Остальная колода работает как обычно."
+            "value": "Обнови приложение, чтобы её увидеть. Остальная колода работает как обычно."
           }
         }
       }
@@ -5432,7 +5432,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Обновите приложение, чтобы продолжить"
+            "value": "Обнови приложение, чтобы продолжить"
           }
         }
       }

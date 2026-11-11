@@ -29,13 +29,13 @@ final class AccountProgressUITests: XCTestCase {
     /// what it renders would agree with any copy at all, including none.
     private let confirmationTitle = "Clear all progress?"
     private let confirmationBody =
-        "Answers, cards, sessions and awards are deleted on every device. "
+        "Answers, cards and sessions are deleted on every device. "
         + "The account, its settings and the catalog stay."
     private let clearedStatus = "Done — the progress is cleared."
     private let refusedStatus = "The progress is still here — nothing was deleted."
     private let deletionTitle = "Delete this account?"
     private let deletionBody =
-        "Your progress, awards, settings and every way in are gone. "
+        "Your progress, settings and every way in are gone. "
         + "The app stays — you just start from nothing."
     /// A locked paid deck is only drawn where the storefront is switched on.
     private let paidDeckDiscovery = [
@@ -320,7 +320,7 @@ final class AccountProgressUITests: XCTestCase {
     }
 
     /// The dialog names the operation and says what it costs. Both lines are
-    /// checked: a title alone does not tell anybody that the awards go too.
+    /// checked: a title alone does not tell anybody what goes with it.
     private func assertTheConsequencesAreStated(in app: XCUIApplication) {
         for copy in [confirmationTitle, confirmationBody] {
             let text = app.staticTexts.matching(
