@@ -132,16 +132,16 @@ Free plan допустим для dev и закрытой альфы. До зн�
 обслуживающей ревизией работает проверяемая (§10), так что соединений может
 быть вдвое больше.
 
-| Параметр | Dev | Где задаётся |
-| --- | --- | --- |
-| instances, максимум (N) | 4 | `MAX_INSTANCES` в `deploy-dev.yml` |
-| concurrency (C) | 20 | `CONCURRENCY` в `deploy-dev.yml` |
-| `connection_limit` | 10 | query string pooled URL, секрет `dev-database-url` |
-| `pool_timeout` | 10 с | там же |
-| соединений на ревизию | N × 10 = 40 | |
-| во время deploy | 2 × 40 = 80 | |
-| бюджет pooler | 90 | `DATABASE_POOL_BUDGET` в `deploy-dev.yml` |
-| CPU и память instance | 1 vCPU, 512 MiB | `gcloud run deploy` в `deploy-dev.yml` |
+| Параметр | Dev | Prod | Где задаётся |
+| --- | --- | --- | --- |
+| instances, максимум (N) | 4 | 4 | `MAX_INSTANCES` в `deploy-dev.yml` / `deploy-api-prod.yml` |
+| concurrency (C) | 20 | 20 | `CONCURRENCY` там же |
+| `connection_limit` | 10 | 10 | query string pooled URL, секрет `dev-database-url` / `prod-database-url` |
+| `pool_timeout` | 10 с | 10 с | там же |
+| соединений на ревизию | N × 10 = 40 | 40 | |
+| во время deploy | 2 × 40 = 80 | 80 | |
+| бюджет pooler | 90 | 90 | `DATABASE_POOL_BUDGET` в workflow среды |
+| CPU и память instance | 1 vCPU, 512 MiB | 1 vCPU, 512 MiB | `gcloud run deploy` в workflow среды |
 
 До #437 api-dev работал без минимума instances, с CPU только на время запроса,
 `maxScale` 20, concurrency 80 (значение Cloud Run по умолчанию), TCP startup
@@ -187,16 +187,19 @@ Deploy проверяет query string до миграции: без `connection
 при росте compute — новый бюджет, при росте N — новая версия секрета с меньшим
 `connection_limit` или больший compute.
 
-Production использует ту же схему; его N, C и бюджет выбираются под compute
-prod-проекта Neon вместе с production deploy (#39).
+Production использует ту же схему и те же значения (`deploy-api-prod.yml`,
+#39): бюджет посчитан для наименьшего compute ветки, поэтому верен для любого
+compute, который получит prod-проект Neon. Менять N, C или бюджет prod
+отдельно от dev имеет смысл только вместе с ростом compute.
 
 ### Object storage
 
 - Отдельные private buckets: country-flags-dev и country-flags-prod.
 - Используется существующая S3-compatible boundary. Dev сегодня работает с
-  Google Cloud Storage в том же GCP-проекте (см. 6.1); провайдер для prod
-  выбирается тогда, когда цена исходящего трафика начнёт иметь значение, и
-  адаптер от этого выбора не зависит.
+  Google Cloud Storage в том же GCP-проекте (см. 6.1), prod для 1.0 — тоже
+  (bucket `country-flags-prod`, §6.5). Другой провайдер для prod выбирается
+  тогда, когда цена исходящего трафика начнёт иметь значение, и адаптер от
+  этого выбора не зависит.
 - Credentials ограничиваются конкретным bucket и нужными actions.
 - Account exports и backups никогда не публикуются.
 - Backup bucket отделён от content bucket и имеет собственную retention policy.
@@ -208,8 +211,11 @@ GHCR image: ghcr.io/dudeinhoodie/country-flags-backend
 GCP project: speedy-web-235610
 Artifact Registry: europe-west3-docker.pkg.dev/speedy-web-235610/country-flags
 Cloud Run services: api-dev, api-prod
+Runtime service accounts: api-dev-runtime, api-prod-runtime
+Content publisher service accounts: content-publisher, content-publisher-prod
 Neon projects: country-flags-dev, country-flags-prod
 Object storage buckets: country-flags-dev, country-flags-prod, country-flags-prod-backups
+Secrets: dev-*, prod-* (deploy отказывает в секрете чужой среды)
 GitHub environments: dev, production
 ~~~
 
@@ -473,7 +479,8 @@ HMAC-ключ api-dev-runtime → secrets dev-site-storage-access-key-id,
   dev-site-storage-secret-access-key (secretAccessor выдан api-dev-runtime)
 ~~~
 
-Осталось выдать владельцу: `github-deployer` → `roles/storage.objectAdmin`
+Осталось выдать владельцу (входит в порядок §6.5, шаги 6 и 7):
+`github-deployer` → `roles/storage.objectAdmin`
 на `gs://country-flags-site-prod` (без этого промоушен снимка в prod не
 запишет ни одного файла) и GitHub environment `production` с required
 reviewers, на который завязаны оба prod-workflow:
@@ -489,6 +496,276 @@ gcloud storage buckets add-iam-policy-binding gs://country-flags-site-prod \
 `backend/seed/site-documents/` командой
 `corepack yarn site:documents:import --actor-email <admin> --publish` с
 переменными dev-среды.
+
+### 6.5. Prod-контур API (api-prod)
+
+`api-prod` разворачивает `.github/workflows/deploy-api-prod.yml`, каталог в
+prod публикует `.github/workflows/publish-content-prod.yml`. Оба запускаются
+только вручную, только с master и только через GitHub environment
+`production` с required reviewer. Ни один из них ничего не создаёт: всё ниже
+владелец создаёт один раз. Порядок релизного дня — в
+[ops/deployment-runbooks.md §11](./ops/deployment-runbooks.md#11-production).
+
+Решения владельца для 1.0:
+
+- адреса — Cloud Run run.app, без своего домена. Адрес детерминирован проектом
+  и регионом, как у api-dev: `https://api-prod-6vgdmsupva-ey.a.run.app` и
+  `https://site-prod-6vgdmsupva-ey.a.run.app`;
+- вход в Prod — только Sign in with Apple. Валидация env в production всё равно
+  требует `GOOGLE_CLIENT_IDS`, поэтому deploy передаёт
+  `google-sign-in-disabled.invalid`: Google client id всегда оканчивается на
+  `.apps.googleusercontent.com`, а `.invalid` зарегистрировать нельзя, так что
+  любой вход через Google получает `PROVIDER_TOKEN_INVALID`. Так же закрыт вход
+  в консоль (`ADMIN_GOOGLE_CLIENT_IDS=admin-console-not-provisioned.invalid`),
+  пока нет `admin-prod` (§6.3). Валидация не ослаблена ни в чём.
+
+Ревизия получает только то, что нужно API приложения: базу, три auth secret,
+ключ Sign in with Apple и ключ шифрования Apple tokens (без них prod не
+стартует, §7). Консольные половины — draft- и site-bucket, GitHub token,
+publisher job, allowlist и origins консоли — не задаются вовсе: каждая
+необязательна и задаётся целиком или никак, а консоли в prod для 1.0 нет.
+Документы сайта попадают в prod через `promote-site-content-prod.yml`, а не
+через API.
+
+Каждая команда ниже — одно действие gcloud, без цепочек `&&` и циклов, чтобы
+её можно было выполнить, проверить и повторить по отдельности. Значения
+секретов в командах не появляются: внешние вводятся через `read -rs` (не
+попадают ни на экран, ни в history), остальные генерируются на месте.
+`printf %s` пишет значение без перевода строки: Cloud Run отдаёт секрет байт в
+байт, и лишний `\n` оказался бы в конце URL.
+
+#### 1. Neon
+
+Отдельный project, а не ветка dev-проекта (§5): Neon Console → New project,
+имя `country-flags-prod`, Postgres 16 (как в CI), регион AWS Europe Central 1
+(Frankfurt) — рядом с europe-west3. План — решение владельца: Free допустим
+только вместе с собственной backup policy (§5, §16), PITR есть на платных.
+
+Из диалога Connect берутся две строки — с включённым Connection pooling и без:
+
+~~~text
+prod-database-url         postgresql://<role>:<password>@<endpoint>-pooler.eu-central-1.aws.neon.tech/<db>?sslmode=require&connection_limit=10&pool_timeout=10
+prod-direct-database-url  postgresql://<role>:<password>@<endpoint>.eu-central-1.aws.neon.tech/<db>?sslmode=require
+~~~
+
+Хвост `&connection_limit=10&pool_timeout=10` дописывается к pooled-строке
+руками: без него deploy откажет до миграции (§5). Остальные параметры, которые
+выдал Neon, остаются как есть.
+
+#### 2. Секреты ревизии
+
+Строки базы, каждая отдельно:
+
+~~~bash
+read -rs PROD_VALUE
+printf %s "$PROD_VALUE" | gcloud secrets create prod-database-url --data-file=- --project=speedy-web-235610
+unset PROD_VALUE
+~~~
+
+~~~bash
+read -rs PROD_VALUE
+printf %s "$PROD_VALUE" | gcloud secrets create prod-direct-database-url --data-file=- --project=speedy-web-235610
+unset PROD_VALUE
+~~~
+
+Секреты без внешнего источника генерируются (те же требования, что в dev:
+≥32 символов; ключ шифрования — ровно 32 байта в base64):
+
+~~~bash
+printf %s "$(openssl rand -hex 32)" | gcloud secrets create prod-auth-access-token-secret --data-file=- --project=speedy-web-235610
+printf %s "$(openssl rand -hex 32)" | gcloud secrets create prod-auth-rate-limit-secret --data-file=- --project=speedy-web-235610
+printf %s "$(openssl rand -hex 32)" | gcloud secrets create prod-account-data-hash-secret --data-file=- --project=speedy-web-235610
+printf %s "$(openssl rand -base64 32)" | gcloud secrets create prod-auth-provider-token-encryption-key --data-file=- --project=speedy-web-235610
+~~~
+
+Ключ Sign in with Apple создаётся в Apple Developer (Certificates, Identifiers
+& Profiles → Keys, Sign in with Apple для App ID `app.countryflags.mobile`;
+#302, #444). Apple отдаёт `.p8` один раз; после загрузки файл с машины удалить —
+копия остаётся в Secret Manager, а ротация это новый ключ. Team ID и Key ID не
+секреты, но лежат рядом с ключом: валидация принимает три значения только
+вместе, и смена ключа (новый Key ID и новый `.p8`) остаётся одним местом.
+
+~~~bash
+gcloud secrets create prod-auth-apple-private-key --data-file=AuthKey_<KEY_ID>.p8 --project=speedy-web-235610
+printf %s '<TEAM_ID>' | gcloud secrets create prod-auth-apple-team-id --data-file=- --project=speedy-web-235610
+printf %s '<KEY_ID>' | gcloud secrets create prod-auth-apple-key-id --data-file=- --project=speedy-web-235610
+~~~
+
+#### 3. Runtime identity и доступ к секретам
+
+~~~bash
+gcloud iam service-accounts create api-prod-runtime --display-name="api-prod runtime" --project=speedy-web-235610
+gcloud iam service-accounts add-iam-policy-binding api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/iam.serviceAccountUser --project=speedy-web-235610
+~~~
+
+Вторая команда — право workflow развернуть ревизию под этой identity.
+
+Ревизия читает свои девять секретов (`secretAccessor`):
+
+~~~bash
+gcloud secrets add-iam-policy-binding prod-database-url --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-direct-database-url --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-access-token-secret --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-rate-limit-secret --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-account-data-hash-secret --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-apple-team-id --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-apple-key-id --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-apple-private-key --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-provider-token-encryption-key --member=serviceAccount:api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+~~~
+
+`github-deployer` читает метаданные версий тех же девяти (`viewer`, deploy
+закрепляет номер версии, §6.1) и значения двух строк базы (`secretAccessor`,
+миграция):
+
+~~~bash
+gcloud secrets add-iam-policy-binding prod-database-url --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-direct-database-url --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-access-token-secret --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-rate-limit-secret --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-account-data-hash-secret --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-apple-team-id --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-apple-key-id --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-apple-private-key --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-auth-provider-token-encryption-key --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.viewer --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-database-url --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-direct-database-url --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+~~~
+
+#### 4. Bucket контента, ключ publisher и ключ подписи
+
+Bucket публичный на чтение, как dev-бакет сегодня (`allUsers` →
+`objectViewer` на весь bucket): в нём только подписанный каталог, а адрес
+ассетов в манифесте указывает именно сюда.
+
+~~~bash
+gcloud storage buckets create gs://country-flags-prod --location=europe-west3 --uniform-bucket-level-access --project=speedy-web-235610
+gcloud storage buckets add-iam-policy-binding gs://country-flags-prod --member=allUsers --role=roles/storage.objectViewer --project=speedy-web-235610
+~~~
+
+Пишет в него отдельный service account, а не dev-шный `content-publisher`:
+HMAC-ключ dev-публикации не должен открывать prod-бакет.
+
+~~~bash
+gcloud iam service-accounts create content-publisher-prod --display-name="Content publisher (prod)" --project=speedy-web-235610
+gcloud storage buckets add-iam-policy-binding gs://country-flags-prod --member=serviceAccount:content-publisher-prod@speedy-web-235610.iam.gserviceaccount.com --role=roles/storage.objectAdmin --project=speedy-web-235610
+~~~
+
+HMAC-ключ показывается один раз, при создании, поэтому он сразу уходит в
+Secret Manager и не печатается:
+
+~~~bash
+HMAC_JSON="$(gcloud storage hmac create content-publisher-prod@speedy-web-235610.iam.gserviceaccount.com --format=json --project=speedy-web-235610)"
+printf %s "$HMAC_JSON" | jq -j '.metadata.accessId' | gcloud secrets create prod-object-storage-access-key-id --data-file=- --project=speedy-web-235610
+printf %s "$HMAC_JSON" | jq -j '.secret' | gcloud secrets create prod-object-storage-secret-access-key --data-file=- --project=speedy-web-235610
+unset HMAC_JSON
+~~~
+
+Ключ подписи — как в §6.1, со своим keyId `prod-2026-11` (это
+`SIGNING_KEY_ID` в `publish-content-prod.yml`). Во временном каталоге:
+
+~~~bash
+cd "$(mktemp -d)"
+openssl genpkey -algorithm ed25519 -out signing.pem
+openssl pkey -in signing.pem -pubout -out signing.pub.pem
+base64 < signing.pem | tr -d '\n' | gcloud secrets create prod-content-signing-private-key --data-file=- --project=speedy-web-235610
+python3 -c 'import json;print(json.dumps({"prod-2026-11": open("signing.pub.pem").read()}))' | base64 | tr -d '\n' | gcloud secrets create prod-content-signing-public-keys --data-file=- --project=speedy-web-235610
+rm signing.pem signing.pub.pem
+~~~
+
+Publish читает значения четырёх новых секретов и `prod-direct-database-url`
+(доступ к нему выдан в шаге 3):
+
+~~~bash
+gcloud secrets add-iam-policy-binding prod-object-storage-access-key-id --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-object-storage-secret-access-key --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-content-signing-private-key --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+gcloud secrets add-iam-policy-binding prod-content-signing-public-keys --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor --project=speedy-web-235610
+~~~
+
+Отдельный SA ограждает prod-бакет только при условии, что dev-шный ключ сам
+ограничен своим бакетом. Сейчас это не так: `content-publisher` держит
+`roles/storage.objectAdmin` на весь проект (состояние на 9 ноября 2026), а не
+только привязку на `gs://country-flags-dev`, которая у него тоже есть, —
+значит, его dev HMAC-ключ пишет и в `country-flags-prod`. Рекомендуется снять
+проектную роль до первой prod-публикации; publisher-job и
+`publish-content-dev.yml` работают только с `country-flags-dev`:
+
+~~~bash
+gcloud projects remove-iam-policy-binding speedy-web-235610 --member=serviceAccount:content-publisher@speedy-web-235610.iam.gserviceaccount.com --role=roles/storage.objectAdmin
+~~~
+
+#### 5. Сервис api-prod
+
+Сервис создаётся заглушкой, а не workflow: на нём живёт публичная привязка
+`allUsers` → `run.invoker` (как у api-dev), а `--no-traffic` не умеет создавать
+сервис. Первый `Deploy api prod` заменит заглушку проверенной ревизией.
+
+~~~bash
+gcloud run deploy api-prod --image=us-docker.pkg.dev/cloudrun/container/hello --region=europe-west3 --service-account=api-prod-runtime@speedy-web-235610.iam.gserviceaccount.com --allow-unauthenticated --max-instances=1 --project=speedy-web-235610
+~~~
+
+Проверка адреса (должен быть `https://api-prod-6vgdmsupva-ey.a.run.app`):
+
+~~~bash
+gcloud run services describe api-prod --region=europe-west3 --format='value(status.url)' --project=speedy-web-235610
+~~~
+
+#### 6. GitHub environment `production`
+
+Required reviewer — владелец; деплоить разрешено только с защищённых веток
+(защищена одна, master). `16040008` — id аккаунта `dudeinhoodie`
+(`gh api users/dudeinhoodie --jq .id`). `prevent_self_review` выключен: один и
+тот же человек запускает и одобряет. Репозиторий публичный, поэтому reviewers
+доступны на бесплатном плане (оговорка §11 про private repo больше не
+относится к делу).
+
+~~~bash
+gh api --method PUT repos/dudeinhoodie/country-flags/environments/production --input - <<'EOF'
+{
+  "reviewers": [{ "type": "User", "id": 16040008 }],
+  "prevent_self_review": false,
+  "deployment_branch_policy": { "protected_branches": true, "custom_branch_policies": false }
+}
+EOF
+~~~
+
+Environment нужно создать до первого запуска: workflow, сославшийся на
+несуществующий environment, создаёт его сам — без reviewers и без правила
+веток.
+
+Два решения запуска задаются переменными environment, а не в workflow, чтобы
+смена была переменной и перезапуском, а не pull request. Без них покупка
+отвечает `STORE_NOT_CONFIGURED`, а платные колоды скрыты от всех сборок:
+
+~~~bash
+gh variable set COMMERCE_APPLE_APP_APPLE_ID --env production --body '<числовой Apple ID приложения из App Store Connect>' --repo dudeinhoodie/country-flags
+gh variable set PAID_CONTENT_MINIMUM_CLIENT_VERSIONS --env production --body 'ios=1.0.0' --repo dudeinhoodie/country-flags
+~~~
+
+Каждый прогон `Deploy api prod` дополнительно пишет GitHub deployment в
+environment `api-prod` (SHA образа, digest, версия миграции, оператор). Этот
+environment появится в настройках репозитория сам; protection rules ему не
+нужны — шлюз это `production`.
+
+#### 7. Сайт
+
+Привязка из §6.4 — без неё `Promote site documents to prod` не запишет ни
+одного файла:
+
+~~~bash
+gcloud storage buckets add-iam-policy-binding gs://country-flags-site-prod --member=serviceAccount:github-deployer@speedy-web-235610.iam.gserviceaccount.com --role=roles/storage.objectAdmin --project=speedy-web-235610
+~~~
+
+`site-prod` создаёт сам `Deploy site prod` при первом запуске.
+
+#### Чего в этом контуре нет
+
+- Pre-deploy backup gate (§11, §16) не реализован: точка восстановления — только
+  история Neon, и её глубина зависит от плана.
+- Publisher-job и консоль в prod: каталог публикуется только workflow, откат
+  каталога — CLI (§15) с prod-переменными.
+- Production alerts (§17.1).
 
 ## 7. Configuration contract
 
@@ -643,6 +920,29 @@ Production workflow запускается только через workflow_disp
 required reviewers. Пока владелец один, допустимы repository secrets DEV_/PROD_
 и ручной workflow_dispatch. При появлении команды нужен GitHub plan или внешний
 secret manager с защищёнными environments.
+
+Что из этого реализовано (`deploy-api-prod.yml`, #39, минимальный объём для
+1.0; provisioning — §6.5):
+
+- запуск только вручную, только с master, через environment `production` с
+  required reviewer; credentials приходят из Secret Manager через workload
+  identity, GitHub secrets не используются (репозиторий публичный, так что
+  оговорка выше про private repo не применяется);
+- образ — по умолчанию digest ревизии, которая держит 100% трафика api-dev
+  (`status.traffic`, а не `spec.template`, ср. #450), либо digest, переданный
+  явно. Он должен уже лежать в Artifact Registry под тегом `sha-<commit>`, а
+  commit — быть на master. Ничего не пересобирается и не копируется;
+- проверка конфигурации, миграция, ревизия без трафика под тегом `candidate`,
+  readiness и smoke по адресу тега, перевод трафика — те же шаги, что в dev
+  (§10). Smoke дополнительно проверяет liveness, app-config и `401` на `/v1/me`;
+- concurrency `deploy-production` общий с `publish-content-prod.yml`;
+- SHA, digest, версия миграции, оператор и прежняя ревизия пишутся в GitHub
+  deployment (environment `api-prod`) и в summary прогона, вместе с командой
+  отката.
+
+Не реализовано: pre-deploy backup (шаг 1) и проверка "успешного dev
+deployment" отдельно от того, что digest обслуживает dev. Откат — одна команда
+`update-traffic`, без автоматизации ([runbook §11](./ops/deployment-runbooks.md#11-production)).
 
 ## 12. Миграции
 

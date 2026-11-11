@@ -21,7 +21,7 @@ against an environment that does not run yet.
 | | dev | prod |
 | --- | --- | --- |
 | Cloud Run service | `api-dev`, `admin-dev`, live | none |
-| Deploy workflow | `.github/workflows/deploy-dev.yml` | **none** — issues [#39](https://github.com/dudeinhoodie/country-flags/issues/39), [#301](https://github.com/dudeinhoodie/country-flags/issues/301) |
+| Deploy workflow | `.github/workflows/deploy-dev.yml` | `.github/workflows/deploy-api-prod.yml`, **never run** — issue [#39](https://github.com/dudeinhoodie/country-flags/issues/39) |
 | Database | Neon `country-flags-dev` | none |
 | Alert policies | none until the owner applies them | none |
 | OTLP collector | none | none |
@@ -385,8 +385,8 @@ it.
 
 ## 10. What is not verified
 
-- **Every production procedure.** There is no `api-prod` service and no
-  production deploy workflow (issues #39 and #301). Production promotion,
+- **Every production procedure.** There is no `api-prod` service yet, and
+  `deploy-api-prod.yml` has never run (issue #39). Production promotion,
   production rollback, the pre-deploy backup gate and the production migration
   runbook are written from the specification, not from a rehearsal, and each says
   so where it appears.

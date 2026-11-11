@@ -279,11 +279,11 @@ Run the checklist in
 then leave a note on the issue or incident with: the bad SHA, the SHA you rolled
 back to, the first bad log line and its timestamp.
 
-**Unverified on production.** There is no `api-prod` service and no production
-deploy workflow ([#39](https://github.com/dudeinhoodie/country-flags/issues/39),
-[#301](https://github.com/dudeinhoodie/country-flags/issues/301)). §2.3's first
-form will not exist for prod until that workflow does; the second will, because
-`update-traffic` is a service-level operation.
+**Unverified on production.** `Deploy api prod` exists but has not run yet
+([#39](https://github.com/dudeinhoodie/country-flags/issues/39)). For prod,
+§2.3's first form is `Deploy api prod` with the previous image's digest, and
+the second is the same `update-traffic` with `SERVICE=api-prod`; both are in
+§11.2.
 
 ## 3. A migration failed
 
@@ -702,25 +702,159 @@ same; the blast radius is not.
 
 ## 11. Production
 
-There is no `api-prod` service, no production deploy workflow, no production
-database and no production backup bucket
-([#39](https://github.com/dudeinhoodie/country-flags/issues/39),
-[#301](https://github.com/dudeinhoodie/country-flags/issues/301)).
+Four manual workflows put a release in front of users, all run from master
+only and all waiting for a reviewer on the `production` environment:
 
-Everything above has been run against dev. For production, these are specified
-and have never been executed by anyone:
+| Workflow | What it does |
+| --- | --- |
+| `Deploy api prod` | promotes an image dev already serves to `api-prod`: migration, revision with no traffic, readiness and smoke at the `candidate` tag, then traffic |
+| `Publish content to prod` | builds the catalogue from master with the prod bucket as asset base, signs it with the prod key, publishes it into the prod database |
+| `Deploy site prod` | promotes the image `site-dev` serves to `site-prod` |
+| `Promote site documents to prod` | copies the dev site's document snapshot into the prod site bucket |
 
-- promotion of an existing image by `workflow_dispatch`, gated on the image
-  having passed dev ([13-deployment-environments.md](../13-deployment-environments.md) §11);
-- the pre-deploy backup gate, and a production migration as its own job (§11, §16);
-- `deploy-production` concurrency without cancel-in-progress (§11);
-- the fifteen-minute application rollback target against an always-on service (§15);
-- the monthly restore drill into an isolated temporary database (§16).
+The one-time provisioning they expect — Neon project, `prod-*` secrets,
+`api-prod-runtime`, the content bucket, the signing key, the `api-prod`
+placeholder, the `production` environment and the site grant — is
+[13-deployment-environments.md §6.5](../13-deployment-environments.md), in
+order, one command at a time. **None of this has run yet**; the first release
+is also the first execution.
 
-When that workflow lands, this file needs: `SERVICE=api-prod` in §0, the backup
-gate as a step in §1, and the stop conditions in §2.2 restated for a database
-with real user data — where "fix forward" and "restore" carry a cost that dev
-does not have.
+Addresses (Cloud Run, no custom domain for 1.0):
+
+```bash
+export PROJECT=speedy-web-235610
+export REGION=europe-west3
+export SERVICE=api-prod
+export URL=https://api-prod-6vgdmsupva-ey.a.run.app
+export SITE=https://site-prod-6vgdmsupva-ey.a.run.app
+```
+
+Every section above applies to production with `SERVICE=api-prod`, with one
+difference that changes their tone: the database holds real user data, so
+"fix forward" and "restore" (§2.2, §3) carry a cost dev does not have. Nothing
+deploys production automatically; a pin left by a rollback holds until somebody
+runs `Deploy api prod` again.
+
+### 11.1 Release day
+
+**1. Check what dev serves.** `Deploy api prod` promotes the revision holding
+100% of api-dev's traffic, not the newest one created.
+
+```bash
+gcloud run services describe api-dev --region "$REGION" --project "$PROJECT" --format='yaml(status.traffic)'
+gcloud run revisions describe <revision-with-percent-100> --region "$REGION" --project "$PROJECT" --format='value(metadata.labels.release,status.imageDigest)'
+```
+
+If that is not the release you mean to ship, pass its digest instead (step 2).
+
+**2. Deploy the API.**
+
+```bash
+gh workflow run "Deploy api prod" --ref master --repo dudeinhoodie/country-flags
+# or a specific image: --field digest=sha256:<64 hex>
+gh run list --workflow "Deploy api prod" --limit 1 --repo dudeinhoodie/country-flags
+gh run watch <run-id> --repo dudeinhoodie/country-flags
+```
+
+The run waits at "Review deployments" until the reviewer approves
+`production` in the Actions tab.
+
+**Stop conditions:**
+
+- "Resolve the image to promote" failed — dev's traffic is split, or the
+  digest is not one `Deploy dev` copied. Nothing changed.
+- "Assemble the revision configuration" failed — a `prod-*` secret is missing
+  or not readable, or a value belongs to dev. Nothing changed; fix the
+  provisioning (§6.5).
+- "Migrate the prod database" failed — §3, with production's URL. The serving
+  revision is untouched.
+- "Wait for readiness" or "Smoke test the public surface" failed — **traffic
+  was not moved**; the old revision still serves. "Report what the revision
+  logged" has the reason (on a first deploy, often a malformed Apple key or
+  database URL: env validation names the variable).
+
+**3. Verify the API.**
+
+```bash
+curl -fsS "$URL/v1/health/ready"
+# {"status":"ok","checks":{"database":{"status":"up",...}}}
+curl -sS -o /dev/null -w '%{http_code}\n' "$URL/v1/content/manifest?locale=en"
+# 404 until step 4 publishes the first catalogue
+```
+
+**4. Publish the catalogue.** It is built from master's
+`tools/content-pipeline/editorial/catalog.json`. The dev console publishes
+straight from a draft, and a draft reaches master only through its draft pull
+request, so first make sure the pull request for the release dev serves is
+merged.
+
+```bash
+gh workflow run "Publish content to prod" --ref master --repo dudeinhoodie/country-flags \
+  --field content_version=<version> --field minimum_client_version=1.0.0
+```
+
+The run refuses if master carries a migration production's database does not
+have yet; deploy the API (step 2) first. Then:
+
+```bash
+curl -fsS "$URL/v1/content/manifest?locale=en" | jq '{contentVersion, minimumClientVersion, assetBaseUrl}'
+# assetBaseUrl must be https://storage.googleapis.com/country-flags-prod/content/<version>/,
+# never cdn.country-flags.app or a dev bucket
+```
+
+**5. Put the site up.** The shipped app's privacy and terms links point at it.
+
+```bash
+gh workflow run "Deploy site prod" --ref master --repo dudeinhoodie/country-flags
+gh workflow run "Promote site documents to prod" --ref master --repo dudeinhoodie/country-flags
+curl -fsS "$SITE/config.json"      # "environment": "prod"
+curl -sS -o /dev/null -w '%{http_code}\n' "$SITE/documents/index.json"   # 200
+```
+
+`Deploy site prod` still reads `site-dev`'s template rather than its traffic
+(#450): if the last `Deploy site dev` failed, pass the digest explicitly.
+
+**6. Record.** Leave the three run URLs, the release SHA and the content version
+on the release issue.
+
+### 11.2 Rolling api-prod back
+
+Every `Deploy api prod` summary prints the exact command with the revision that
+served before it. Check §2.2 first — the database stays where the deploy
+migrated it — then:
+
+```bash
+gcloud run services update-traffic api-prod --region "$REGION" --project "$PROJECT" \
+  --to-revisions <previous-revision>=100
+```
+
+That skips every check and pins traffic (§2.3). The next successful
+`Deploy api prod` releases the pin with `--to-latest`. To roll back through the
+whole gate instead, deploy the previous image by digest; the migration step is
+then a no-op:
+
+```bash
+gcloud run revisions describe <previous-revision> --region "$REGION" --project "$PROJECT" --format='value(status.imageDigest)'
+gh workflow run "Deploy api prod" --ref master --repo dudeinhoodie/country-flags --field digest=sha256:<64 hex>
+```
+
+On the very first deploy the previous revision is the `hello` placeholder;
+rolling back to it takes the API offline rather than restoring anything.
+
+The catalogue rolls back separately (§13). There is no production console, so
+the CLI path in §13.3 is the only one, run with production's variables.
+
+### 11.3 Not covered yet
+
+- **No pre-deploy backup.** Neon's own history is the only restore point, and
+  its depth depends on the plan
+  ([10-backup-restore-runbook.md](../10-backup-restore-runbook.md)).
+- **No production console or publisher job.** Catalogue releases go through
+  `Publish content to prod` only.
+- **No alerts.** As in §0: nothing pages anybody.
+- **Sign in with Google is refused in production** by design for 1.0: the API
+  is configured with a Google audience no token can carry
+  ([13-deployment-environments.md §6.5](../13-deployment-environments.md)).
 
 ## 12. The public site and its documents
 
