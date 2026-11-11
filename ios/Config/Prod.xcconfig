@@ -2,7 +2,11 @@
 #include "Base.xcconfig"
 
 CF_APP_ENVIRONMENT = prod
-CF_API_BASE_URL = https:/$()/api.country-flags.app
+// The production API on Cloud Run. Release 1.0 has no domain, so this is the
+// service's deterministic run.app address, which `api-prod` answers on from
+// its first deploy. The `$()` breaks the `//` so xcconfig does not read the
+// rest of the line as a comment.
+CF_API_BASE_URL = https:/$()/api-prod-6vgdmsupva-ey.a.run.app
 CF_BUNDLE_ID_SUFFIX =
 PRODUCT_NAME = Vexi
 

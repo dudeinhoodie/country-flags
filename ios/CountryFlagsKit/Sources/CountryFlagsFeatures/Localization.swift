@@ -363,8 +363,13 @@ public enum L10n {
     public static var accountSignInBenefitDevices: String {
         localized("account.sign_in_sheet.benefit_devices")
     }
-    public static var accountSignInBenefitPassword: String {
-        localized("account.sign_in_sheet.benefit_password")
+    /// Names the ways in the build offers, decided the way the Google button
+    /// is: a build with no Google client (Prod) offers Apple alone, and a
+    /// line promising Google there would point at a button that is not drawn.
+    public static func accountSignInBenefitPassword(offersGoogle: Bool) -> String {
+        offersGoogle
+            ? localized("account.sign_in_sheet.benefit_password")
+            : localized("account.sign_in_sheet.benefit_password_apple")
     }
     public static var accountSignInLegal: String { localized("account.sign_in_sheet.legal") }
     public static var accountSignInNotNow: String { localized("account.sign_in_sheet.not_now") }

@@ -615,6 +615,23 @@
         }
       }
     },
+    "account.sign_in_sheet.benefit_password_apple": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No password: sign in with Apple"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Без пароля: вход через Apple"
+          }
+        }
+      }
+    },
     "account.sign_in_sheet.benefit_sync": {
       "extractionState": "manual",
       "localizations": {
